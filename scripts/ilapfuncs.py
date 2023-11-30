@@ -30,7 +30,7 @@ class OutputParameters:
         now = datetime.datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
         self.report_folder_base = os.path.join(output_folder,
-                                               'DLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
+                                               'DLEAPP_Reports_' + currenttime)  # dleapp , dleappGUI, ileap_artifacts, report.py
         self.temp_folder = os.path.join(self.report_folder_base, 'temp')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')

@@ -1,17 +1,15 @@
 import json
-import pathlib
 import typing
 import dleapp
 import PySimpleGUI as sg
 import webbrowser
 import plugin_loader
+
 from scripts.ilapfuncs import *
 from scripts.version_info import dleapp_version
-from time import process_time, gmtime, strftime
 from scripts.search_files import *
 
 MODULE_START_INDEX = 1000
-
 
 def ValidateInput(values, window):
     '''Returns tuple (success, extraction_type)'''
@@ -104,11 +102,11 @@ layout = [  [sg.Text('Drones Logs, Events, And Properties Parser', font=("Helvet
             sg.Button('Load Case Data', key='LOAD CASE DATA')
              # sg.FileBrowse(
              #     button_text='Load Profile', key='LOADPROFILE', enable_events=True, target='LOADPROFILE',
-             #     file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*'))),
+             #     file_types=(('DLEAPP Profile (*.dlprofile)', '*.dlprofile'), ('All Files', '*'))),
              # sg.FileSaveAs(
              #     button_text='Save Profile', key='SAVEPROFILE', enable_events=True, target='SAVEPROFILE',
-             #     file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
-             #     default_extension='.alprofile')
+             #     file_types=(('DLEAPP Profile (*.dlprofile)', '*.dlprofile'), ('All Files', '*')),
+             #     default_extension='.dlprofile')
              ],
             [sg.Column(mlist, size=(300,310), scrollable=True),  sg.Output(size=(85,20))] ,
             [sg.ProgressBar(max_value=GuiWindow.progress_bar_total, orientation='h', size=(86, 7), key='PROGRESSBAR', bar_color=('DarkGreen', 'White'))],
@@ -117,6 +115,7 @@ layout = [  [sg.Text('Drones Logs, Events, And Properties Parser', font=("Helvet
 # Create the Window
 window = sg.Window(f'DLEAPP version {dleapp_version}', layout)
 GuiWindow.progress_bar_handle = window['PROGRESSBAR']
+profile_filename = None
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -135,8 +134,8 @@ while True:
     if event == "SAVE PROFILE":
         destination_path = sg.popup_get_file(
             "Save a profile", save_as=True,
-            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'),),
-            default_extension='.alprofile', no_window=True)
+            file_types=(('DLEAPP Profile (*.dlprofile)', '*.dlprofile'),),
+            default_extension='.dlprofile', no_window=True)
 
         if destination_path:
             ticked = []
@@ -145,14 +144,14 @@ while True:
                     key = window[x].metadata
                     ticked.append(key)
             with open(destination_path, "wt", encoding="utf-8") as profile_out:
-                json.dump({"leapp": "aleapp", "format_version": 1, "plugins": ticked}, profile_out)
+                json.dump({"leapp": "dleapp", "format_version": 1, "plugins": ticked}, profile_out)
             sg.Popup(f"Profile saved: {destination_path}")
 
     if event == "LOAD PROFILE":
         destination_path = sg.popup_get_file(
             "Load a profile", save_as=False,
-            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
-            default_extension='.alprofile', no_window=True)
+            file_types=(('DLEAPP Profile (*.dlprofile)', '*.dlprofile'), ('All Files', '*')),
+            default_extension='.dlprofile', no_window=True)
 
         if destination_path and os.path.exists(destination_path):
             profile_load_error = None
@@ -164,11 +163,11 @@ while True:
 
             if not profile_load_error:
                 if isinstance(profile, dict):
-                    if profile.get("leapp") != "aleapp" or profile.get("format_version") != 1:
+                    if profile.get("leapp") != "dleapp" or profile.get("format_version") != 1:
                         profile_load_error = "File was not a valid profile file: incorrect LEAPP or version"
                     else:
                         ticked = set(profile.get("plugins", []))
-                        ticked.add("usagestatsVersion")  # always
+                        # ticked.add("usagestatsVersion")  # always
                         for x in range(MODULE_START_INDEX, module_end_index):
                             if window[x].metadata in ticked:
                                 window[x].update(True)
@@ -181,12 +180,13 @@ while True:
                 sg.popup(profile_load_error)
             else:
                 sg.popup(f"Loaded profile: {destination_path}")
+                profile_filename = destination_path
     
     if event == 'LOAD CASE DATA':
         destination_path = sg.popup_get_file(
             "Load a case data", save_as=False,
-            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
-            default_extension='.alprofile', no_window=True)
+            file_types=(('DLEAPP Profile (*.dlprofile)', '*.dlprofile'), ('All Files', '*')),
+            default_extension='.dlprofile', no_window=True)
         
         if destination_path and os.path.exists(destination_path):
             profile_load_error = None
@@ -229,7 +229,7 @@ while True:
             for x in range(MODULE_START_INDEX, module_end_index):
                 if window.FindElement(x).Get():
                     key = window[x].metadata
-                    if key in loader and key != 'usagestatsVersion':
+                    if key in loader:
                         search_list.append(loader[key])
                     s_items = s_items + 1 # for progress bar
                 
@@ -249,7 +249,7 @@ while True:
                 casedata = {}
                 
             crunch_successful = dleapp.crunch_artifacts(
-                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, casedata)
+                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata, profile_filename)
             if crunch_successful:
                 report_path = os.path.join(out_params.report_folder_base, 'index.html')
                     

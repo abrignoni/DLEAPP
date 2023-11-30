@@ -1,6 +1,6 @@
 # DLEAPP
 
-Drones Logs Events And Protobuf Parser
+Drones Logs Events And Properties Parser
 
 If you want to contribute hit me up on twitter: https://twitter.com/AlexisBrignoni   
 
@@ -45,11 +45,11 @@ $ python dleapp.py --help
 ## Contributing artifact plugins
 
 Each plugin is a Python source file which should be added to the `scripts/artifacts` folder which will be loaded 
-dynamically each time ALEAPP is run.
+dynamically each time RLEAPP is run.
 
 The plugin source file must contain a dictionary named `__artifacts__` which defines the artifacts which the plugin 
 processes. The keys in the `__artifacts__` dictionary should be IDs for the artifact(s) which must be unique within
-ALEAPP; the values should be tuples containing 3 items: the category of the artifact as a string; a tuple of strings
+RLEAPP; the values should be tuples containing 3 items: the category of the artifact as a string; a tuple of strings
 containing glob search patterns to match the path of the data that the plugin expects for the artifact; and the function 
 which is the entry point for the artifact's processing (more on this shortly).
 
@@ -71,7 +71,7 @@ __artifacts__ = {
 The functions referenced as entry points in the `__artifacts__` dictionary must take the following arguments:
 
 * An iterable of the files found which are to be processed (as strings)
-* The path of ALEAPP's output folder(as a string)
+* The path of RLEAPP's output folder(as a string)
 * The seeker (of type FileSeekerBase) which found the files
 * A Boolean value indicating whether or not the plugin is expected to wrap text
 
@@ -82,7 +82,7 @@ def get_cool_data1(files_found, report_folder, seeker, wrap_text):
     pass  # do processing here
 ```
 
-Plugins are generally expected to provide output in ALEAPP's HTML output format, TSV, and optionally submit records to 
+Plugins are generally expected to provide output in RLEAPP's HTML output format, TSV, and optionally submit records to 
 the timeline. Functions for generating this output can be found in the `artifact_report` and `ilapfuncs` modules. 
 At a high level, an example might resemble:
 
