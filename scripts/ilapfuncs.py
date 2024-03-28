@@ -1,21 +1,22 @@
+# common standard imports
 import codecs
 import csv
 import datetime
-import json
 import os
-import pathlib
 import re
+import shutil
+import json
 import sqlite3
 import sys
+from functools import lru_cache
+from pathlib import Path
 from typing import Pattern
 
+# common third party imports
 import simplekml
-import magic
-import shutil
-from pathlib import Path
-
 from bs4 import BeautifulSoup
-from functools import lru_cache
+from scripts.filetype import guess_mime
+
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -41,9 +42,19 @@ class OutputParameters:
         os.makedirs(self.temp_folder)
 
 
+def is_platform_linux():
+    '''Returns True if running on Linux'''
+    return sys.platform == 'linux'
+
+
+def is_platform_macos():
+    '''Returns True if running on macOS'''
+    return sys.platform == 'darwin'
+
+
 def is_platform_windows():
     '''Returns True if running on Windows'''
-    return os.name == 'nt'
+    return sys.platform == 'win32'
 
 
 def sanitize_file_path(filename, replacement_char='_'):
@@ -84,13 +95,13 @@ def get_next_unused_name(path):
 def open_sqlite_db_readonly(path):
     '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
     if is_platform_windows():
-        if path.startswith('\\\\?\\UNC\\'):  # UNC long path
+        if path.startswith('\\\\?\\UNC\\'): # UNC long path
             path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\?\\'):  # normal long path
+        elif path.startswith('\\\\?\\'):    # normal long path
             path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\'):  # UNC path
+        elif path.startswith('\\\\'):       # UNC path
             path = "%5C%5C%3F%5C\\UNC" + path[1:]
-        else:  # normal path
+        else:                               # normal path
             path = "%5C%5C%3F%5C" + path
     return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
 
@@ -108,7 +119,7 @@ def does_column_exist_in_db(db, table_name, col_name):
             if row['name'].lower() == col_name:
                 return True
     except sqlite3.Error as ex:
-        print(f"Query error, query={query} Error={str(ex)}")
+        logfunc(f"Query error, query={query} Error={str(ex)}")
         pass
     return False
 
@@ -120,7 +131,7 @@ def does_table_exist(db, table_name):
         cursor = db.execute(query)
         for row in cursor:
             return True
-    except sqlite3Error as ex:
+    except sqlite3.Error as ex:
         logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
@@ -128,22 +139,27 @@ def does_table_exist(db, table_name):
 class GuiWindow:
     '''This only exists to hold window handle if script is run from GUI'''
     window_handle = None  # static variable
-    progress_bar_total = 0
-    progress_bar_handle = None
 
     @staticmethod
-    def SetProgressBar(n):
-        if GuiWindow.progress_bar_handle:
-            GuiWindow.progress_bar_handle.UpdateBar(n)
+    def SetProgressBar(n, total):
+        if GuiWindow.window_handle:
+            progress_bar = GuiWindow.window_handle.nametowidget('!progressbar')
+            progress_bar.config(value=n)
 
 
 def logfunc(message=""):
+    def redirect_logs(string):
+        log_text.insert('end', string)
+        log_text.see('end')
+        log_text.update()
+
+    if GuiWindow.window_handle:
+        log_text = GuiWindow.window_handle.nametowidget('logs_frame.log_text')
+        sys.stdout.write = redirect_logs
+
     with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
         print(message)
         a.write(message + '<br>' + OutputParameters.nl)
-
-    if GuiWindow.window_handle:
-        GuiWindow.window_handle.refresh()
 
 
 def logdevinfo(message=""):
@@ -423,7 +439,7 @@ def media_to_html(media_path, files_found, report_folder):
     thumb = media_path
     for match in filter(media_path_filter, files_found):
         filename = os.path.basename(match)
-        if filename.startswith('~') or filename.startswith('._'):
+        if filename.startswith('~') or filename.startswith('._') or filename != media_path:
             continue
 
         dirs = os.path.dirname(report_folder)
@@ -443,16 +459,18 @@ def media_to_html(media_path, files_found, report_folder):
             source = Path(locationfiles, filename)
             source = relative_paths(str(source), splitter)
 
-        mimetype = magic.from_file(match, mime=True)
+        mimetype = guess_mime(match)
+        if mimetype == None:
+            mimetype = ''
 
         if 'video' in mimetype:
-            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4">Your browser does not support the video tag.</video>'
+            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
         elif 'image' in mimetype:
             thumb = f'<a href="{source}" target="_blank"><img src="{source}"width="300"></img></a>'
         elif 'audio' in mimetype:
             thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
         else:
-            thumb = f'<a href="{source}" target="_blank"> Link to {mimetype} </>'
+            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
     return thumb
 
 
