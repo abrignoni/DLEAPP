@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="DLEAPP logo">
+  <title>DLEAPP</title>
+  <defs>
+    <linearGradient id="dleapp-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12314A"/>
+      <stop offset="1" stop-color="#0A1826"/>
+    </linearGradient>
+    <clipPath id="dleapp-win">
+      <rect x="92" y="126" width="328" height="272" rx="22"/>
+    </clipPath>
+  </defs>
+
+  <!-- navy tile -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#dleapp-bg)"/>
+
+  <!-- desktop application window -->
+  <rect x="92" y="126" width="328" height="272" rx="22" fill="#16324B" stroke="#2A5678" stroke-width="3"/>
+  <g clip-path="url(#dleapp-win)">
+    <rect x="92" y="126" width="328" height="52" fill="#0F2740"/>
+  </g>
+  <circle cx="120" cy="152" r="8" fill="#45C4E0"/>
+  <circle cx="146" cy="152" r="8" fill="#2EC4B6"/>
+  <circle cx="172" cy="152" r="8" fill="#3A6E8E"/>
+
+  <!-- Electron atom -->
+  <g fill="none" stroke="#2EC4B6" stroke-width="7">
+    <ellipse cx="256" cy="292" rx="96" ry="38"/>
+    <ellipse cx="256" cy="292" rx="96" ry="38" transform="rotate(60 256 292)"/>
+    <ellipse cx="256" cy="292" rx="96" ry="38" transform="rotate(120 256 292)"/>
+  </g>
+  <circle cx="352" cy="292" r="9" fill="#45C4E0"/>
+  <circle cx="208" cy="375" r="9" fill="#45C4E0"/>
+  <circle cx="208" cy="209" r="9" fill="#45C4E0"/>
+  <circle cx="256" cy="292" r="15" fill="#45C4E0"/>
+  <circle cx="256" cy="292" r="6" fill="#E9FCFF"/>
+</svg>
