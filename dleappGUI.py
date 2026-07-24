@@ -817,7 +817,7 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
 title_frame.pack(padx=14, pady=8, fill='x')
-dleapp_logo = ImageTk.PhotoImage(file=resource_path("DLEAPP_logo.png"))
+dleapp_logo = ImageTk.PhotoImage(Image.open(resource_path("DLEAPP_banner.png")).resize((208, 52)))
 dleapp_logo_label = ttk.Label(title_frame, image=dleapp_logo)
 dleapp_logo_label.pack(side='left')
 
