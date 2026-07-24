@@ -1,8 +1,12 @@
-![DLEAPP](https://github.com/abrignoni/DLEAPP/blob/main/assets/DLEAPP_logo.png)
+<p align="center">
+  <img src="assets/DLEAPP_logo.png" alt="DLEAPP" width="200">
+</p>
 
 # Desktop Logs Events And Protobuf Parser
 
 **DLEAPP** parses artifacts left behind by **desktop applications** — the logs, events, and stored data of Electron/Chromium-based desktop apps: IndexedDB/LevelDB stores (including protobuf-encoded values), Local Storage, service-worker and HTTP caches, cookies, and application logs. It is a member of the LEAPP family, built on the RLEAPP framework.
+
+DLEAPP is also meant to be a home for parsers that don't fit neatly into any of the other LEAPPs — a place for desktop-application and other odds-and-ends artifacts to live rather than being forced into iLEAPP, ALEAPP, RLEAPP, and the like.
 
 The initial release ships a full **Wire** (app.wire.com desktop) parser — accounts, devices, conversations, messages, calls, attachments, cached assets, and media recovered by decrypting the app's cached asset blobs with the per-asset keys. More desktop-application parsers will be added over time.
 
