@@ -117,17 +117,27 @@ __artifacts_v2__ = {
         "artifact_icon": "paperclip",
     },
     "wireCachedAssets": {
-        "name": "Wire Cached Assets",
-        "description": "Asset URLs recorded in the Wire service-worker cache "
-                       "(workbox cache-entries): the remote asset URL and the "
-                       "time it was cached.",
+        "name": "Wire Asset Cache Timeline",
+        "description": "When each shared asset was fetched/(re)cached on this "
+                       "device, from the Wire service-worker cache (workbox "
+                       "cache-entries). Each cache-write time is cross-referenced "
+                       "to the asset's filename, conversation and sender, giving "
+                       "a device-side asset access timeline distinct from the "
+                       "message send times.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-07-24",
         "requirements": "none",
         "category": "Wire",
-        "notes": "",
-        "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
+        "notes": "Timestamps are workbox cache-write times: the app can re-cache "
+                 "on reload/focus/cache-warming, so treat them as 'the asset was "
+                 "fetched by the app at this time', a proxy for activity rather "
+                 "than a confirmed user view.",
+        "paths": (
+            '*/https_app.wire.com_0.indexeddb.leveldb/*',
+            '*/Service Worker/CacheStorage/*/*/*_0',
+            '*/Cache_Data/f_*',
+        ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "link",
     },
@@ -832,9 +842,54 @@ def wireAttachments(context):
     return data_headers, data_list, _source(context, dirs)
 
 
+_CACHE_ASSET_ID_RE = re.compile(r"/assets/[^/]+/([0-9]+-[0-9]+-[0-9a-f-]{36})")
+
+
 @artifact_processor
 def wireCachedAssets(context):
     stores, dirs = _load(context)
+    users = _build_users(stores)
+    self_ids = _self_user_ids(stores)
+
+    # conversation id -> friendly name (participant fallback for unnamed 1:1s)
+    conv_names = {}
+    for _rec, v in _dedupe_by_id(stores.get("conversations", [])):
+        cid = v.get("id")
+        if not cid:
+            continue
+        name = v.get("name")
+        if not name:
+            parts = set((v.get("roles") or {}).keys())
+            for o in v.get("others") or []:
+                if isinstance(o, dict) and o.get("id"):
+                    parts.add(o["id"])
+                elif isinstance(o, str):
+                    parts.add(o)
+            name = ", ".join(sorted(
+                _display_name(users, p, self_ids) for p in parts
+                if p and p not in self_ids)) or cid
+        conv_names[cid] = name
+
+    # asset id -> metadata from asset-add events (full key + preview key)
+    asset_meta = {}
+    for rec in _dedupe_events(stores.get("events", [])):
+        v = rec.get("value")
+        if not isinstance(v, dict) or v.get("type") != "conversation.asset-add":
+            continue
+        d = v.get("data") or {}
+        base = {"conv": v.get("conversation"), "from": v.get("from"),
+                "db": rec.get("db_name")}
+        if d.get("key"):
+            asset_meta[d["key"]] = {**base, "kind": "full",
+                                    "name": (d.get("info") or {}).get("name") or "",
+                                    "ctype": d.get("content_type") or ""}
+        if d.get("preview_key"):
+            asset_meta[d["preview_key"]] = {**base, "kind": "preview",
+                                            "name": "", "ctype": "image (preview)"}
+
+    # which assets were actually recovered (decrypted) from an on-disk cache
+    recovered = set(recover_assets(
+        context.get_files_found(), build_asset_index(stores)).keys())
 
     data_list = []
     seen = set()
@@ -844,17 +899,34 @@ def wireCachedAssets(context):
             continue
         url = v.get("url", "")
         ts = v.get("timestamp")
-        sig = (url, ts)
+        m = _CACHE_ASSET_ID_RE.search(url)
+        aid = m.group(1) if m else ""
+        sig = (aid or url, ts)
         if sig in seen:
             continue
         seen.add(sig)
+        meta = asset_meta.get(aid, {})
         data_list.append((
             _ms_to_dt(ts),
+            _account_label(users, self_ids, meta.get("db")),
+            conv_names.get(meta.get("conv"), meta.get("conv") or ""),
+            _display_name(users, meta.get("from"), self_ids),
+            meta.get("name", ""),
+            meta.get("kind", ""),
+            "Yes" if aid and aid in recovered else "",
+            aid,
+            meta.get("ctype", ""),
             v.get("cacheName", ""),
             url,
         ))
 
-    data_headers = (("Cached", "datetime"), "Cache Name", "Asset URL")
+    data_list.sort(key=lambda r: (r[0] if isinstance(r[0], datetime)
+                                  else datetime.min.replace(tzinfo=timezone.utc)))
+
+    data_headers = (
+        ("Cached", "datetime"), "Account", "Conversation", "Sender", "Filename",
+        "Kind", "Recovered", "Asset ID", "Content Type", "Cache Name", "Asset URL",
+    )
     return data_headers, data_list, _source(context, dirs)
 
 
