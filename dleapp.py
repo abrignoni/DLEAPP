@@ -348,8 +348,7 @@ def crunch_artifacts(
     logfunc('\n--------------------------------------------------------------------------------------')
     logfunc(f'DLEAPP v{dleapp_version}: DLEAPP Desktop, Logs, Events, and Protobuf Parser')
     logfunc('Objective: Triage desktop application artifacts (logs, events, and protobuf).')
-    logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
-    logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
+    logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com\n')
     
     seeker = None
     try:
