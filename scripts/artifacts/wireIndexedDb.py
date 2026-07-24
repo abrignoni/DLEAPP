@@ -131,20 +131,6 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "link",
     },
-    "wireBlacklistedConversations": {
-        "name": "Wire Blacklisted Conversations",
-        "description": "Conversations recorded in the Wire conversationBlacklist "
-                       "store, resolved to a name where possible.",
-        "author": "@AlexisBrignoni",
-        "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
-        "requirements": "none",
-        "category": "Wire",
-        "notes": "",
-        "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
-        "output_types": ["html", "tsv", "timeline", "lava"],
-        "artifact_icon": "slash",
-    },
     "wireCalls": {
         "name": "Wire Calls",
         "description": "Voice and video calls recorded in the Wire IndexedDB "
@@ -822,38 +808,6 @@ def wireCachedAssets(context):
         ))
 
     data_headers = (("Cached", "datetime"), "Cache Name", "Asset URL")
-    return data_headers, data_list, _source(context, dirs)
-
-
-@artifact_processor
-def wireBlacklistedConversations(context):
-    stores, dirs = _load(context)
-    users = _build_users(stores)
-    self_ids = _self_user_ids(stores)
-
-    conv_names = {}
-    for _rec, v in _dedupe_by_id(stores.get("conversations", [])):
-        if v.get("id"):
-            conv_names[v["id"]] = v.get("name") or ""
-
-    data_list = []
-    seen = set()
-    for rec in stores.get("conversationBlacklist", []):
-        v = rec.get("value")
-        if not isinstance(v, dict):
-            continue
-        cid = v.get("id")
-        if cid in seen:
-            continue
-        seen.add(cid)
-        data_list.append((
-            _account_label(users, self_ids, rec.get("db_name")),
-            cid or "",
-            v.get("domain", ""),
-            conv_names.get(cid, ""),
-        ))
-
-    data_headers = ("Account", "Conversation ID", "Domain", "Known Name")
     return data_headers, data_list, _source(context, dirs)
 
 
