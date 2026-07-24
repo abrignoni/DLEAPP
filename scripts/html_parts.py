@@ -70,7 +70,7 @@ body_main_header = \
 body_main_data_title = \
 """
                 <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <img src="_elements/DLEAPP_banner.png" alt="DLEAPP banner" style="height:64px; width:auto; max-width:100%;">
+                    <img src="_elements/DLEAPP_banner.png" alt="DLEAPP banner" style="height:88px; width:auto; max-width:100%;">
                     <h3 class="display-5">{0}</h1>
                     <h6 class="animated fadeIn mb-3">{1}</h6>
                 </div>

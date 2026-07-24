@@ -151,18 +151,25 @@ def save(img, rel):
     print("wrote", rel, img.size)
 
 
-def make_banner(w, h, mark_px, name_size, tag_size, rad):
-    b = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    b.alpha_composite(_vgrad((w, h), TILE_TOP, TILE_BOT, rad))
-    m = int(mark_px)
-    mark = draw_mark(m * SS, tile=False).resize((m, m), Image.LANCZOS)
-    b.alpha_composite(mark, (int(h * 0.075), (h - m) // 2))
+def make_banner(design_h=640):
+    """Tight LEAPP-family-style banner: mark + big DLEAPP wordmark filling the
+    height (no tagline), on a snug navy pill. Sized at ``design_h`` px tall for
+    crisp downscaling in the report."""
+    pad = int(design_h * 0.10)
+    gap = int(design_h * 0.05)
+    mark_h = int(design_h * 0.84)
+    name_font = _font(True, int(design_h * 0.72))
+    probe = ImageDraw.Draw(Image.new("RGBA", (4, 4)))
+    bb = probe.textbbox((0, 0), "DLEAPP", font=name_font)
+    tw, th = bb[2] - bb[0], bb[3] - bb[1]
+    W = pad + mark_h + gap + tw + pad
+    b = Image.new("RGBA", (W, design_h), (0, 0, 0, 0))
+    b.alpha_composite(_vgrad((W, design_h), TILE_TOP, TILE_BOT, int(design_h * 0.18)))
+    mark = draw_mark(mark_h * SS, tile=False).resize((mark_h, mark_h), Image.LANCZOS)
+    b.alpha_composite(mark, (pad, (design_h - mark_h) // 2))
     d = ImageDraw.Draw(b)
-    tx = int(h * 0.075) + m + int(w * 0.03)
-    d.text((tx, int(h * 0.23)), "DLEAPP", font=_font(True, name_size), fill=CYAN)
-    if tag_size:
-        d.text((tx + 4, int(h * 0.66)), "Desktop Logs · Events · Protobuf Parser",
-               font=_font(False, tag_size), fill=TAGLINE_GRAY)
+    ty = (design_h - th) // 2 - bb[1]
+    d.text((pad + mark_h + gap, ty), "DLEAPP", font=name_font, fill=CYAN)
     return b
 
 
@@ -170,6 +177,6 @@ if __name__ == "__main__":
     save(render(1024), "assets/DLEAPP_logo.png")
     save(render(1024), "assets/icon.png")
     save(render(1024), "scripts/_elements/logo.png")
-    save(make_banner(2000, 400, 340, 150, 56, 52), "scripts/_elements/DLEAPP_banner.png")
-    save(make_banner(700, 300, 250, 118, 0, 40), "assets/leapps_r_logo.png")
+    save(make_banner(640), "scripts/_elements/DLEAPP_banner.png")
+    save(make_banner(360), "assets/leapps_r_logo.png")
     print("done")
