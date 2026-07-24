@@ -33,16 +33,25 @@ __artifacts_v2__ = {
     },
     "wireDevices": {
         "name": "Wire Devices",
-        "description": "Wire clients (devices) recorded in the IndexedDB clients "
-                       "store: the local device for each signed-in account plus "
-                       "known devices, with model, class, registration time, last "
-                       "active and verification state.",
+        "description": "Client devices from the IndexedDB clients store, "
+                       "attributed to their owner: the signed-in account's own "
+                       "device(s) (local_identity) AND the contact devices the "
+                       "account established end-to-end sessions with. Includes "
+                       "class/model, registration, last active and the fingerprint "
+                       "verification state where known.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-07-24",
         "requirements": "none",
         "category": "Wire",
-        "notes": "",
+        "notes": "'Relationship' separates the account owner's own device from a "
+                 "contact's device. A contact device is a recipient device the "
+                 "app set up encryption with; its class (e.g. 'phone') describes "
+                 "the CONTACT's device, NOT a device the account owner used. "
+                 "'Fingerprint Verified' is whether that device's identity was "
+                 "manually verified in Wire: own devices are trusted "
+                 "automatically (true); contact devices are unverified (false) "
+                 "unless the user verified them.",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "smartphone",
@@ -577,20 +586,32 @@ def wireDevices(context):
         v = rec.get("value")
         if not isinstance(v, dict):
             continue
-        pk = _clean_key(rec.get("key"))
+        ck = _clean_key(rec.get("key"))
         cid = v.get("id")
-        sig = (rec.get("db_name"), pk, cid)
+        sig = (rec.get("db_name"), ck, cid)
         if sig in seen:
             continue
         seen.add(sig)
+
+        # Attribute the device to its owner. 'local_identity' is the signed-in
+        # account's own device; other keys are 'domain@userid@clientid' and
+        # belong to a contact (a recipient device the app encrypts to).
+        if ck == "local_identity":
+            owner_uid = _account_uuid(rec.get("db_name"))
+            relationship = "Self device"
+        else:
+            parts = ck.split("@")
+            owner_uid = parts[1] if len(parts) >= 3 else None
+            relationship = "Contact device"
+
         mls_keys = v.get("mls_public_keys") or {}
         data_list.append((
-            _account_label(users, self_ids, rec.get("db_name")),
-            "Yes" if pk == "local_identity" else "",
+            _display_name(users, owner_uid, self_ids) if owner_uid else "",
+            relationship,
             cid or "",
+            v.get("class", ""),
             v.get("model", ""),
             v.get("label", ""),
-            v.get("class", ""),
             v.get("type", ""),
             _iso_to_dt(v.get("time")),
             _iso_to_dt(v.get("last_active")),
@@ -598,12 +619,14 @@ def wireDevices(context):
             v.get("domain") or "",
             ", ".join(sorted(mls_keys.keys())) if isinstance(mls_keys, dict) else "",
             ", ".join(v.get("capabilities") or []),
+            _account_label(users, self_ids, rec.get("db_name")),
         ))
 
     data_headers = (
-        "Account", "Local Device", "Client (Device) ID", "Model", "Label",
-        "Class", "Type", ("Registered", "datetime"), ("Last Active", "datetime"),
-        "Verified", "Domain", "MLS Public Key Types", "Capabilities",
+        "Device Owner", "Relationship", "Client (Device) ID", "Class", "Model",
+        "Label", "Type", ("Registered", "datetime"), ("Last Active", "datetime"),
+        "Fingerprint Verified", "Domain", "MLS Public Key Types", "Capabilities",
+        "Recorded In Account",
     )
     return data_headers, data_list, _source(context, dirs)
 
