@@ -760,12 +760,12 @@ modules_filter_var = tk.StringVar()
 modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on input change
 pickModules()
 
-## Theme properties
-theme_bgcolor = '#248ea9'
-theme_inputcolor = '#aee7e8'
-theme_inputfgcolor = '#fdcb52'
-theme_fgcolor = '#fafdcb'
-theme_button = '#fafdcb'
+## Theme properties  (DLEAPP: Electron-Teal-on-Navy, matches the logo/report)
+theme_bgcolor = '#0E2438'      # deep navy base
+theme_inputcolor = '#D9EEF4'   # pale cyan input fields (black text)
+theme_inputfgcolor = '#45C4E0' # cyan accent
+theme_fgcolor = '#EAF6FB'      # near-white text on navy
+theme_button = '#2EC4B6'       # teal accent buttons (black text)
 
 if is_platform_macos():
     mlist_window_height = 24
@@ -811,7 +811,7 @@ style.map('TCombobox',
           fieldbackground=[('active', theme_inputcolor), ('readonly', theme_inputcolor)],
           )
 style.configure('TScrollbar', background=theme_button, arrowcolor='black', troughcolor=theme_inputcolor)
-style.configure('TProgressbar', thickness=4, background='DarkGreen')
+style.configure('TProgressbar', thickness=4, background=theme_button)
 
 ## Main Window Layout
 ### Top part of the window
