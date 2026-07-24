@@ -377,6 +377,53 @@ def _dedupe_by_id(records, id_field="id"):
     return [(best[i], best[i]["value"]) for i in order]
 
 
+def _event_rank(v):
+    """Rank an event record so the confirmed/most-complete version wins.
+
+    LevelDB keeps every version of a message as its send state advances, so a
+    single sent item can appear as SENDING (status 1, no primary_key, local
+    time) and then SENT/DELIVERED/SEEN (status >=2, with a primary_key and the
+    server time). Prefer the record that has a primary_key, then the highest
+    status, then the latest timestamp — i.e. the one actually sent.
+    """
+    has_pk = 1 if v.get("primary_key") is not None else 0
+    status = v.get("status")
+    status = status if isinstance(status, int) else -1
+    return (has_pk, status, str(v.get("time") or ""))
+
+
+def _dedupe_events(records):
+    """Collapse LevelDB event history to one record per logical event.
+
+    Events are keyed by their message id (unique per logical message); the
+    richest/confirmed version is kept (see _event_rank). Events without an id
+    (some system events) are de-duplicated on a content signature instead.
+    """
+    best = {}
+    order = []
+    passthrough = {}
+    for rec in records:
+        v = rec.get("value")
+        if not isinstance(v, dict):
+            continue
+        eid = v.get("id")
+        if eid:
+            if eid not in best:
+                order.append(("id", eid))
+                best[eid] = rec
+            elif _event_rank(v) > _event_rank(best[eid]["value"]):
+                best[eid] = rec
+        else:
+            sig = (v.get("type"), v.get("conversation"), v.get("from"), str(v.get("time")))
+            if sig not in passthrough:
+                order.append(("sig", sig))
+                passthrough[sig] = rec
+    out = []
+    for kind, key in order:
+        out.append(best[key] if kind == "id" else passthrough[key])
+    return out
+
+
 # --------------------------------------------------------------------------- #
 # Cross-referencing (users, self identities, account labels)
 # --------------------------------------------------------------------------- #
@@ -711,7 +758,7 @@ def wireMessages(context):
         conv_names[cid] = name
 
     rows = []
-    for rec in stores.get("events", []):
+    for rec in _dedupe_events(stores.get("events", [])):
         v = rec.get("value")
         if not isinstance(v, dict):
             continue
@@ -760,7 +807,7 @@ def wireAttachments(context):
             conv_names[v["id"]] = v.get("name") or v["id"]
 
     data_list = []
-    for rec in stores.get("events", []):
+    for rec in _dedupe_events(stores.get("events", [])):
         v = rec.get("value")
         if not isinstance(v, dict) or v.get("type") != "conversation.asset-add":
             continue
@@ -872,7 +919,7 @@ def wireCalls(context):
                   "conversation.voice-channel-deactivate")
 
     rows = []
-    for rec in stores.get("events", []):
+    for rec in _dedupe_events(stores.get("events", [])):
         v = rec.get("value")
         if not isinstance(v, dict) or v.get("type") not in call_types:
             continue
