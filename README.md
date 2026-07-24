@@ -1,8 +1,8 @@
 ![DLEAPP](https://github.com/abrignoni/DLEAPP/blob/main/assets/DLEAPP_logo.png)
 
-# Desktop Logs Events And Properties Parser
+# Desktop Logs Events And Protobuf Parser
 
-**DLEAPP** parses artifacts left behind by **desktop applications** — the logs, events, and properties of Electron/Chromium-based desktop apps: IndexedDB/LevelDB stores, Local Storage, service-worker and HTTP caches, cookies, and application logs. It is a member of the LEAPP family, built on the RLEAPP framework.
+**DLEAPP** parses artifacts left behind by **desktop applications** — the logs, events, and stored data of Electron/Chromium-based desktop apps: IndexedDB/LevelDB stores (including protobuf-encoded values), Local Storage, service-worker and HTTP caches, cookies, and application logs. It is a member of the LEAPP family, built on the RLEAPP framework.
 
 The initial release ships a full **Wire** (app.wire.com desktop) parser — accounts, devices, conversations, messages, calls, attachments, cached assets, and media recovered by decrypting the app's cached asset blobs with the per-asset keys. More desktop-application parsers will be added over time.
 
@@ -162,4 +162,4 @@ def get_cool_data1(files_found, report_folder, seeker, wrap_text):
 
 This tool is the result of a collaborative effort of many people in the DFIR community.
 
-DLEAPP logo courtesy of Derek Eiri.
+DLEAPP is built on the RLEAPP framework by Alexis Brignoni and contributors.

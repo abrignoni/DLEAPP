@@ -159,7 +159,7 @@ def create_casedata(path):
     return
 
 def main():
-    parser = argparse.ArgumentParser(description='DLEAPP: Desktop, Logs, Events, and Properties Parser.')
+    parser = argparse.ArgumentParser(description='DLEAPP: Desktop, Logs, Events, and Protobuf Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
@@ -346,8 +346,8 @@ def crunch_artifacts(
     logfunc('Processing started. Please wait. This may take a few minutes...')
 
     logfunc('\n--------------------------------------------------------------------------------------')
-    logfunc(f'DLEAPP v{dleapp_version}: DLEAPP Desktop, Logs, Events, and Properties Parser')
-    logfunc('Objective: Triage desktop application artifacts (logs, events, and properties).')
+    logfunc(f'DLEAPP v{dleapp_version}: DLEAPP Desktop, Logs, Events, and Protobuf Parser')
+    logfunc('Objective: Triage desktop application artifacts (logs, events, and protobuf).')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
     

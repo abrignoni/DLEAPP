@@ -231,7 +231,7 @@ def create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type,
     # WRITE INDEX.HTML LAST
     filename = 'index.html'
     page_title = 'DLEAPP Report'
-    body_heading = 'Returns Logs Events And Properties Parser'
+    body_heading = 'Desktop Logs Events And Protobuf Parser'
     body_description = 'DLEAPP is an open source project that aims to parse service provider returns '\
         'for the purpose of triage analysis.'
     active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
