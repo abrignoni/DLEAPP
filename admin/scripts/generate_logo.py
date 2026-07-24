@@ -174,9 +174,13 @@ def make_banner(design_h=640):
 
 
 if __name__ == "__main__":
-    save(render(1024), "assets/DLEAPP_logo.png")
-    save(render(1024), "assets/icon.png")
-    save(render(1024), "scripts/_elements/logo.png")
+    save(render(1024), "assets/DLEAPP_logo.png")   # square master (README/icns)
+    save(render(256), "assets/icon.png")            # window icon (mirror RLEAPP 256)
+    save(render(1024), "scripts/_elements/logo.png")  # report footer card logo
+    # Wide wordmark banner: used at 88px in the HTML report and, resized, as the
+    # GUI header logo (mirrors RLEAPP's wide header logo).
     save(make_banner(640), "scripts/_elements/DLEAPP_banner.png")
-    save(make_banner(360), "assets/leapps_r_logo.png")
+    save(make_banner(640), "assets/DLEAPP_banner.png")
+    # NOTE: assets/leapps_r_logo.png is the shared leapps.org family logo (same
+    # across all LEAPPs); it is not generated here.
     print("done")
