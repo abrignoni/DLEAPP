@@ -86,6 +86,37 @@ The plugin source file must contain a dictionary named `__artifacts_v2__` at the
 - `notes`: Any additional notes as a string.
 - `paths`: A tuple of strings containing glob search patterns to match the path of the data that the plugin expects for the artifact.
 - `function`: The name of the function which is the entry point for the artifact's processing as a string.
+- `sample_data`: Optional. A mapping of test corpus name to a short note about what that corpus produced, for example `{"discord_macos": "Discord 0.0.402 macOS | 12940 rows"}`. The artifact processor ignores it; it records where the artifact has actually been run.
+
+### Test corpora and `sample_data`
+
+Corpora live outside this repository, because sample images are usually private. A corpus directory carries a `samples.json` registry:
+
+```json
+{
+  "version": 1,
+  "samples": {
+    "corpus_name": {
+      "match": { "zip": "relative/path.zip", "sha256": "..." },
+      "platform": "macos",
+      "os_version": "macOS 26.5.2 (build 25F84)",
+      "app_versions": { "discord": "0.0.402" },
+      "notes": "how the capture was made and what it is good for"
+    }
+  }
+}
+```
+
+The keys in that registry are what artifacts cite in `sample_data`. `admin/scripts/validate_sample_data.py` keeps the two in step:
+
+```
+python3 admin/scripts/validate_sample_data.py                                  # structure only
+python3 admin/scripts/validate_sample_data.py --registry <path>/samples.json   # + keys resolve, corpora present
+python3 admin/scripts/validate_sample_data.py --registry <path> --verify-hashes
+python3 admin/scripts/validate_sample_data.py --registry <path> --run <corpus> # + re-parse and diff row counts
+```
+
+The structural check needs no test data and runs in CI on every pull request. The registry and row-count checks need the images, so run those locally before changing a parser's output.
 
 For example:
 
