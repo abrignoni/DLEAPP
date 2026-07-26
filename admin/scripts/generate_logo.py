@@ -1,42 +1,42 @@
-"""Generate DLEAPP logo/banner assets.
+"""Generate DLEAPP logo/banner assets from the source artwork.
 
-A desktop application window (bright cyan bezel, title bar, lit screen) with a
-glowing Electron atom inside, in the Electron-Teal-on-Navy palette. Rendered
-supersampled (SS x) then downscaled for crisp high-resolution output.
+The DLEAPP icon is artwork by Johann Polewczyk: three stacked application
+windows with a pointer, in a flat style with heavy dark outlines. The original
+is kept untouched at ``assets/source/DLEAPP_art_original.png`` (rust tile); this
+script recolors the tile to DLEAPP's plum brand color and derives every asset
+used by the app, the HTML report and the repo.
+
+DLEAPP brand palette (taken from the artwork itself):
+    tile   #5F3A5C  plum / aubergine     (unclaimed in the LEAPP family)
+    ink    #2A1710  dark brown outlines
+    gold   #F2B035  primary accent
+    blue   #2A7FD4  secondary accent
+    grey   #D5D9DE  neutral / inputs
+    cream  #F7F0E0  light text
 
 Run:  python admin/scripts/generate_logo.py
-Outputs: assets/ (logo, icon, badge) and scripts/_elements/ (report banner, logo).
 """
-import math
 import os
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 DL = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SS = 4  # supersample factor
+SOURCE = os.path.join(DL, "assets", "source", "DLEAPP_art_original.png")
 
-TILE_TOP = (22, 52, 79)     # #16344F
-TILE_BOT = (8, 20, 32)      # #081420
-BEZEL    = (10, 29, 46)     # #0A1D2E  window frame
-BORDER   = (76, 212, 232)   # #4CD4E8  bright bezel line
-SCR_TOP  = (28, 62, 92)     # #1C3E5C  screen
-SCR_BOT  = (18, 41, 62)     # #12293E
-TITLE    = (14, 34, 52)     # #0E2234
-DIVIDER  = (52, 132, 168)   # #3484A8
-TEAL     = (51, 214, 192)   # #33D6C0
-CYAN     = (111, 230, 255)  # #6FE6FF
-DOTMUT   = (70, 120, 150)
-WHITE    = (233, 252, 255)
-TAGLINE_GRAY = (150, 179, 199)
+RUST = (163, 78, 42)      # tile color in the source artwork
+PLUM = (95, 58, 92)       # #5F3A5C  DLEAPP tile
+PILL = (74, 45, 72)       # #4A2D48  slightly darker plum for banner pills
+INK = (42, 23, 16)        # #2A1710
+GOLD = (242, 176, 53)     # #F2B035
+CREAM = (247, 240, 224)   # #F7F0E0
 
 
-def _font(bold, size):
+def _font(size, bold=True):
     cands = ([
         "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
         "/System/Library/Fonts/HelveticaNeue.ttc",
-    ] if bold else [
-        "/System/Library/Fonts/Supplemental/Arial.ttf",
-        "/System/Library/Fonts/Helvetica.ttc",
-    ])
+    ] if bold else ["/System/Library/Fonts/Supplemental/Arial.ttf"])
     for p in cands:
         if os.path.exists(p):
             try:
@@ -46,141 +46,87 @@ def _font(bold, size):
     return ImageFont.load_default()
 
 
-def _rmask(size, radius):
+def recolor(img, new=PLUM, old=RUST, tol=70.0):
+    """Replace the tile color, feathering anti-aliased fringes so the artwork
+    (outlines, windows, pointer) is left untouched."""
+    arr = np.array(img.convert("RGBA")).astype(np.float32)
+    rgb = arr[..., :3]
+    dist = np.sqrt(((rgb - np.array(old, dtype=np.float32)) ** 2).sum(axis=-1))
+    weight = np.clip(1.0 - (dist / tol) ** 2, 0.0, 1.0)[..., None]
+    arr[..., :3] = rgb + (np.array(new, dtype=np.float32) - rgb) * weight
+    return Image.fromarray(arr.round().astype(np.uint8), "RGBA")
+
+
+def tile_only(img, tile_color=PLUM, tol=70.0):
+    """Crop to the rounded tile, dropping the artwork's outer drop shadow."""
+    arr = np.array(img.convert("RGBA"))
+    rgb = arr[..., :3].astype(np.float32)
+    dist = np.sqrt(((rgb - np.array(tile_color, dtype=np.float32)) ** 2).sum(axis=-1))
+    ys, xs = np.where((dist < tol) & (arr[..., 3] > 200))
+    if not len(xs):
+        return img
+    return img.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+
+
+def _rounded_mask(size, radius):
     m = Image.new("L", size, 0)
-    ImageDraw.Draw(m).rounded_rectangle([0, 0, size[0], size[1]], radius=radius, fill=255)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, size[0] - 1, size[1] - 1],
+                                        radius=radius, fill=255)
     return m
 
 
-def _vgrad(size, top, bot, radius=0):
-    w, h = size
-    col = Image.new("RGB", (1, h))
-    for y in range(h):
-        t = y / max(1, h - 1)
-        col.putpixel((0, y), tuple(int(top[i] + (bot[i] - top[i]) * t) for i in range(3)))
-    im = col.resize((w, h)).convert("RGBA")
-    if radius:
-        im.putalpha(_rmask((w, h), radius))
-    return im
+def make_banner(mark, design_h=640, pill=PILL, text=GOLD):
+    """Wide wordmark banner: tile mark + large DLEAPP wordmark on a pill.
 
+    Mirrors the other LEAPP banners (a tight ~4:1 lockup, no tagline) so it can
+    be shown small in the HTML report and the GUI header.
+    """
+    pad = int(design_h * 0.09)
+    gap = int(design_h * 0.06)
+    mark_h = int(design_h * 0.82)
+    font = _font(int(design_h * 0.60))
 
-def draw_mark(S, tile=True):
-    """Draw the mark at pixel size S (call via render() for supersampling)."""
-    k = S / 512.0
-    def R(x): return x * k
-    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    if tile:
-        img.alpha_composite(_vgrad((S, S), TILE_TOP, TILE_BOT, int(R(112))))
+    probe = ImageDraw.Draw(Image.new("RGBA", (4, 4)))
+    bb = probe.textbbox((0, 0), "DLEAPP", font=font)
+    tw, th = bb[2] - bb[0], bb[3] - bb[1]
 
-    wx0, wy0, wx1, wy1 = R(84), R(120), R(428), R(404)
-    rad, tbar, ins = R(26), R(58), R(10)
-    d = ImageDraw.Draw(img)
+    width = pad + mark_h + gap + tw + pad
+    banner = Image.new("RGBA", (width, design_h), (0, 0, 0, 0))
+    plate = Image.new("RGBA", (width, design_h), pill + (255,))
+    plate.putalpha(_rounded_mask((width, design_h), int(design_h * 0.20)))
+    banner.alpha_composite(plate)
 
-    # bezel outer glow
-    glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    ImageDraw.Draw(glow).rounded_rectangle([wx0, wy0, wx1, wy1], radius=rad,
-                                           outline=BORDER + (150,), width=int(R(6)))
-    img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(R(10))))
+    m = mark.resize((mark_h, mark_h), Image.LANCZOS)
+    banner.alpha_composite(m, (pad, (design_h - mark_h) // 2))
 
-    # frame
-    d.rounded_rectangle([wx0, wy0, wx1, wy1], radius=rad, fill=BEZEL)
-
-    # lit screen
-    sx0, sy0, sx1, sy1 = wx0 + ins, wy0 + tbar, wx1 - ins, wy1 - ins
-    screen = _vgrad((int(sx1 - sx0), int(sy1 - sy0)), SCR_TOP, SCR_BOT, int(R(12)))
-    gw, gh = screen.size
-    rg = Image.new("L", (gw, gh), 0)
-    rgd = ImageDraw.Draw(rg)
-    cxg, cyg = gw * 0.5, gh * 0.52
-    for i in range(28, 0, -1):
-        a = int(64 * (i / 28.0) ** 2)
-        rr = R(165) * (i / 28.0)
-        rgd.ellipse([cxg - rr, cyg - rr * 0.72, cxg + rr, cyg + rr * 0.72], fill=a)
-    rg = rg.filter(ImageFilter.GaussianBlur(R(22)))
-    wash = Image.new("RGBA", (gw, gh), TEAL + (0,))
-    wash.putalpha(rg)
-    screen.alpha_composite(wash)
-    img.alpha_composite(screen, (int(sx0), int(sy0)))
-
-    # title bar + divider + dots
-    tb = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    ImageDraw.Draw(tb).rounded_rectangle([wx0 + ins, wy0 + ins, wx1 - ins, wy0 + tbar],
-                                         radius=R(12), corners=(True, True, False, False), fill=TITLE)
-    img.alpha_composite(tb)
-    d.line([wx0 + ins, wy0 + tbar, wx1 - ins, wy0 + tbar], fill=DIVIDER + (255,), width=max(1, int(R(3))))
-    for i, c in enumerate((CYAN, TEAL, DOTMUT)):
-        cx, cy, rr = wx0 + ins + R(24) + i * R(30), wy0 + ins + R(20), R(10)
-        d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=c)
-
-    # bright inner bezel line
-    d.rounded_rectangle([wx0, wy0, wx1, wy1], radius=rad, outline=BORDER, width=max(2, int(R(4))))
-
-    # Electron atom (glow + sharp)
-    cx, cy, rx, ry = R(256), R(288), R(92), R(35)
-    lw = max(2, int(R(9)))
-    orbits = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    for ang in (0, 60, 120):
-        layer = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-        ImageDraw.Draw(layer).ellipse([cx - rx, cy - ry, cx + rx, cy + ry], outline=TEAL, width=lw)
-        orbits.alpha_composite(layer.rotate(ang, resample=Image.BICUBIC, center=(cx, cy)))
-    img.alpha_composite(orbits.filter(ImageFilter.GaussianBlur(R(5))))
-    img.alpha_composite(orbits)
-
-    fg = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    fd = ImageDraw.Draw(fg)
-    for ang in (0, 120, 240):
-        ex, ey, er = cx + rx * math.cos(math.radians(ang)), cy + rx * math.sin(math.radians(ang)), R(11)
-        fd.ellipse([ex - er, ey - er, ex + er, ey + er], fill=CYAN)
-        fd.ellipse([ex - er * 0.4, ey - er * 0.4, ex + er * 0.4, ey + er * 0.4], fill=WHITE)
-    nr = R(17)
-    fd.ellipse([cx - nr, cy - nr, cx + nr, cy + nr], fill=CYAN)
-    fd.ellipse([cx - nr * 0.45, cy - nr * 0.45, cx + nr * 0.45, cy + nr * 0.45], fill=WHITE)
-    img.alpha_composite(fg.filter(ImageFilter.GaussianBlur(R(4))))
-    img.alpha_composite(fg)
-    return img
-
-
-def render(target, tile=True):
-    return draw_mark(target * SS, tile=tile).resize((target, target), Image.LANCZOS)
+    d = ImageDraw.Draw(banner)
+    d.text((pad + mark_h + gap, (design_h - th) // 2 - bb[1]), "DLEAPP",
+           font=font, fill=text)
+    return banner
 
 
 def save(img, rel):
     path = os.path.join(DL, rel)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     img.save(path)
-    print("wrote", rel, img.size)
-
-
-def make_banner(design_h=640):
-    """Tight LEAPP-family-style banner: mark + big DLEAPP wordmark filling the
-    height (no tagline), on a snug navy pill. Sized at ``design_h`` px tall for
-    crisp downscaling in the report."""
-    pad = int(design_h * 0.10)
-    gap = int(design_h * 0.05)
-    mark_h = int(design_h * 0.84)
-    name_font = _font(True, int(design_h * 0.72))
-    probe = ImageDraw.Draw(Image.new("RGBA", (4, 4)))
-    bb = probe.textbbox((0, 0), "DLEAPP", font=name_font)
-    tw, th = bb[2] - bb[0], bb[3] - bb[1]
-    W = pad + mark_h + gap + tw + pad
-    b = Image.new("RGBA", (W, design_h), (0, 0, 0, 0))
-    b.alpha_composite(_vgrad((W, design_h), TILE_TOP, TILE_BOT, int(design_h * 0.18)))
-    mark = draw_mark(mark_h * SS, tile=False).resize((mark_h, mark_h), Image.LANCZOS)
-    b.alpha_composite(mark, (pad, (design_h - mark_h) // 2))
-    d = ImageDraw.Draw(b)
-    ty = (design_h - th) // 2 - bb[1]
-    d.text((pad + mark_h + gap, ty), "DLEAPP", font=name_font, fill=CYAN)
-    return b
+    print(f"wrote {rel} {img.size}")
 
 
 if __name__ == "__main__":
-    save(render(1024), "assets/DLEAPP_logo.png")   # square master (README/icns)
-    save(render(256), "assets/icon.png")            # window icon (mirror RLEAPP 256)
-    save(render(1024), "scripts/_elements/logo.png")  # report footer card logo
-    # Wide wordmark banner: used at 88px in the HTML report and, resized, as the
-    # GUI header logo (mirrors RLEAPP's wide header logo).
-    save(make_banner(640), "scripts/_elements/DLEAPP_banner.png")
-    save(make_banner(640), "assets/DLEAPP_banner.png")
-    # NOTE: assets/leapps_r_logo.png is the shared leapps.org family logo (same
-    # across all LEAPPs); it is not generated here.
+    src = Image.open(SOURCE).convert("RGBA")
+    plum = recolor(src, PLUM)          # full artwork, plum tile, with shadow
+    mark = tile_only(plum, PLUM)       # just the tile, no drop shadow
+
+    # square marks
+    save(plum.resize((1024, 1024), Image.LANCZOS), "assets/DLEAPP_logo.png")
+    save(mark.resize((256, 256), Image.LANCZOS), "assets/icon.png")
+    save(plum.resize((512, 512), Image.LANCZOS), "scripts/_elements/logo.png")
+
+    # wide wordmark banner: HTML report (shown ~88px) and GUI header (208x52)
+    banner = make_banner(mark)
+    save(banner, "scripts/_elements/DLEAPP_banner.png")
+    save(banner, "assets/DLEAPP_banner.png")
+
+    # NOTE: assets/leapps_r_logo.png is the shared leapps.org family logo and is
+    # intentionally not generated here.
     print("done")

@@ -760,12 +760,12 @@ modules_filter_var = tk.StringVar()
 modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on input change
 pickModules()
 
-## Theme properties  (DLEAPP: Electron-Teal-on-Navy, matches the logo/report)
-theme_bgcolor = '#0E2438'      # deep navy base
-theme_inputcolor = '#D9EEF4'   # pale cyan input fields (black text)
-theme_inputfgcolor = '#45C4E0' # cyan accent
-theme_fgcolor = '#EAF6FB'      # near-white text on navy
-theme_button = '#2EC4B6'       # teal accent buttons (black text)
+## Theme properties  (DLEAPP brand palette, taken from the logo artwork)
+theme_bgcolor = '#5F3A5C'      # plum / aubergine base
+theme_inputcolor = '#D5D9DE'   # grey input fields (black text)
+theme_inputfgcolor = '#F2B035' # gold accent
+theme_fgcolor = '#F7F0E0'      # cream text on plum
+theme_button = '#F2B035'       # gold accent buttons (black text)
 
 if is_platform_macos():
     mlist_window_height = 24
