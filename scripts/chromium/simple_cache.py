@@ -75,9 +75,23 @@ class CacheEntry:
                  "response_time", "status_code", "status_line", "headers",
                  "body_offset", "body_size")
 
-    def __init__(self, **kwargs):
-        for slot in self.__slots__:
-            setattr(self, slot, kwargs.get(slot))
+    # Assigned one by one rather than by looping over __slots__: a loop hides
+    # the attributes from static analysis, and a cache of tens of thousands of
+    # entries is a poor place for a typo to go unnoticed.
+    def __init__(self, path=None, key=None, url=None, key_prefix=None,
+                 request_time=None, response_time=None, status_code=None,
+                 status_line=None, headers=None, body_offset=None, body_size=None):
+        self.path = path
+        self.key = key
+        self.url = url
+        self.key_prefix = key_prefix
+        self.request_time = request_time
+        self.response_time = response_time
+        self.status_code = status_code
+        self.status_line = status_line
+        self.headers = headers
+        self.body_offset = body_offset
+        self.body_size = body_size
 
     @property
     def content_type(self):
@@ -131,7 +145,8 @@ def decode_body(data, encoding):
 
                 return zstandard.ZstdDecompressor().decompress(data)
             return zstd.decompress(data)
-    except Exception:
+    # Deliberately broad: any decompressor may fail on a truncated body.
+    except Exception:  # pylint: disable=broad-exception-caught
         # A partially evicted or unsupported body is still worth returning raw.
         return data
     return data

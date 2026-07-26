@@ -128,7 +128,8 @@ def _service_id_labels(connection, labels):
     try:
         rows = connection.execute(
             "SELECT serviceId, id FROM conversations WHERE serviceId IS NOT NULL")
-    except Exception:
+    # Deliberately broad: an older schema may lack the attachment table.
+    except Exception:  # pylint: disable=broad-exception-caught
         return mapping
     for service_id, cid in rows:
         if service_id:
@@ -167,7 +168,8 @@ def signalMessages(context):
         for message_id, path, local_key, size, content_type, file_name, plain_hash in rows:
             attachments.setdefault(message_id, []).append(
                 (path, local_key, size, content_type, file_name, plain_hash))
-    except Exception as ex:
+    # Deliberately broad: an older schema may lack the attachment table.
+    except Exception as ex:  # pylint: disable=broad-exception-caught
         logfunc(f"Signal Messages: attachment table unavailable ({ex}).")
 
     data_list = []

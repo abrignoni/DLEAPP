@@ -176,7 +176,8 @@ def signalAccount(context):
             ("Protocol Sessions", "SELECT COUNT(*) FROM sessions")):
         try:
             add(f"Records: {label}", connection.execute(query).fetchone()[0], database_path)
-        except Exception:
+        # Deliberately broad: a missing table must not stop the summary.
+        except Exception:  # pylint: disable=broad-exception-caught
             continue
 
     connection.close()
