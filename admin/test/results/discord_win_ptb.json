@@ -1,0 +1,1309 @@
+{
+  "artifacts": {
+    "Discord Account & Application": {
+      "column_digests": {
+        "property": "6ed726a6ffbc856d203abe6e81eff50fabb327ce64be7d957945c954baccd31e",
+        "source_file": "a264fefbdf28433d008717e7a569d5cbe7f5907243ba0b4813cc56f4885aa683",
+        "value": "970b80cd9e9c00d7bd2b845f42c11a4f31d00a038299300827e7b88a297663b1"
+      },
+      "columns": [
+        {
+          "name": "property",
+          "type": "text"
+        },
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {},
+      "digest": "857bfba8fea9ca689dc1c771dc66456e751ababf15cae1aaf755091fcdffb494",
+      "non_empty": {
+        "property": 36,
+        "source_file": 36,
+        "value": 36
+      },
+      "rows": 36
+    },
+    "Discord Attachments": {
+      "column_digests": {
+        "attachment_id": "5c7437ea6e3fc528673cb4d28bef0e2b1d183541bab9e0a55c9785007566b73f",
+        "cached_copy": "7765e59c2cd7a0eac693d3050ef2d23a6906f41de09d20c9079c0745295c83e2",
+        "channel": "6290de93ee24d4e71bc94bb7f89a8ff17feba533e83c81628202ab0225aaeb35",
+        "channel_id": "6290de93ee24d4e71bc94bb7f89a8ff17feba533e83c81628202ab0225aaeb35",
+        "content_type": "c4a093ddb8c3c0a6854adef05577c2f0b37bdde4f35f86a53e707f2595a44b43",
+        "declared_size_bytes": "36f6a5a9ad02df167607c978a70fcae14e34b5efb1ecdeeb3a2e59721a9631e8",
+        "dimensions": "e22d26466ec18c8d355d514e5d7e3b210ef741967af0daa6e8d65a4a732789be",
+        "filename": "6262005faab92e082fd7f3bd74af05c7d43f09e76f18156e28dbb031e0e83f62",
+        "message": "4c81e0054f7cfe127ab59723298dff8280ab423cbe14bca92ca615896a5213b9",
+        "message_id": "d3bf038d7115daca09acf7c78ff7fc6a61e552ef3a604075370d56cb94c68398",
+        "message_sent": "a9f2c8eea5643e5b469478e40422b775664bcb4bf74fb29dbb0b543944084c3d",
+        "recovered_file": "d1b9a8adfa6bf19c9e17ca00c2be09e09f4d2097094c95c03cabcf23401ee5ec",
+        "sender": "8ff5de46eca91ef5de2d0ec42d8f965b41dcf6534ee720523dbfcdfe4cf85797",
+        "sender_id": "3ffc5d1258ee8a74b0eecb0f41a224d83f75340ff66064e1788e0dc416a46850",
+        "source_cache_file": "d1b9a8adfa6bf19c9e17ca00c2be09e09f4d2097094c95c03cabcf23401ee5ec",
+        "uploaded": "2ba73aea1f9dbce698dcd7deebc9a643a86f252b7fe8359c48264107a36a09d2",
+        "url": "16741d389527e3fe93b26d4e515854545cb50246eec9ef930af7aff8079b9dee"
+      },
+      "columns": [
+        {
+          "name": "uploaded",
+          "type": "datetime"
+        },
+        {
+          "name": "sender",
+          "type": "text"
+        },
+        {
+          "name": "channel",
+          "type": "text"
+        },
+        {
+          "name": "filename",
+          "type": "text"
+        },
+        {
+          "name": "recovered_file",
+          "type": "media"
+        },
+        {
+          "name": "declared_size_bytes",
+          "type": "text"
+        },
+        {
+          "name": "content_type",
+          "type": "text"
+        },
+        {
+          "name": "dimensions",
+          "type": "text"
+        },
+        {
+          "name": "cached_copy",
+          "type": "text"
+        },
+        {
+          "name": "message_sent",
+          "type": "datetime"
+        },
+        {
+          "name": "message",
+          "type": "text"
+        },
+        {
+          "name": "sender_id",
+          "type": "text"
+        },
+        {
+          "name": "channel_id",
+          "type": "text"
+        },
+        {
+          "name": "attachment_id",
+          "type": "text"
+        },
+        {
+          "name": "message_id",
+          "type": "text"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "message_sent": {
+          "in_plausible_range": true,
+          "parsed": 12
+        },
+        "uploaded": {
+          "in_plausible_range": true,
+          "parsed": 12
+        }
+      },
+      "digest": "1f99e624d9c6396bdce5b78ac3e88f84f0c4db962c2e4352f2b09675e6d39b79",
+      "non_empty": {
+        "attachment_id": 12,
+        "cached_copy": 12,
+        "channel": 12,
+        "channel_id": 12,
+        "content_type": 12,
+        "declared_size_bytes": 12,
+        "dimensions": 12,
+        "filename": 12,
+        "message": 4,
+        "message_id": 12,
+        "message_sent": 12,
+        "recovered_file": 0,
+        "sender": 12,
+        "sender_id": 12,
+        "source_cache_file": 0,
+        "uploaded": 12,
+        "url": 12
+      },
+      "rows": 12
+    },
+    "Discord Cache Records": {
+      "column_digests": {
+        "body_size_bytes": "b7445561f9e3d9baec56248472985aa3ca511247ccecd993110c448772b17051",
+        "cached": "52af32e00981ab2702b6e657154e0e05f1988c5cbbfb9e5ccafbbec4c158c1e2",
+        "content_type": "a1c581fff88e6228d80090436f7193921593ec5889b9b75e099d60277f0b9828",
+        "host": "705da32e459539f7d35402a5e6a56113843264a2911bd08ebfb780723282b831",
+        "http_status": "f9db1fb3404085ef44d6fc494260ddbd09380b320f4115d82e755989f34bf241",
+        "media_kind": "18e98adf9eb0b51c23138a6b287c2bf8ebabe33d4d19fbfe9ae025ddeba7bc5b",
+        "path": "9b7e807f42b5be86e8c8a58f1cc11561248c965602f5f19f17acdb007c355999",
+        "query": "626e8c39f74701f3fa31e6023c5a4e9618ab103851b38c50f7997f0fd1c517cf",
+        "requested": "28addcf37d9918ea047b6344a471f13e19a1fd2e7a03580ac296436e63635d15",
+        "source_cache_file": "cc5cf6ba7dfac2fc92ee50476fb9bc0cf7b582f274a945c638c41caf5a0abe9d",
+        "url": "359b9cc086dee2e3df121613ba3069e2d6d6b476cd394d9cc39faa52686e06ee"
+      },
+      "columns": [
+        {
+          "name": "requested",
+          "type": "datetime"
+        },
+        {
+          "name": "cached",
+          "type": "datetime"
+        },
+        {
+          "name": "host",
+          "type": "text"
+        },
+        {
+          "name": "path",
+          "type": "text"
+        },
+        {
+          "name": "query",
+          "type": "text"
+        },
+        {
+          "name": "media_kind",
+          "type": "text"
+        },
+        {
+          "name": "http_status",
+          "type": "text"
+        },
+        {
+          "name": "content_type",
+          "type": "text"
+        },
+        {
+          "name": "body_size_bytes",
+          "type": "text"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "cached": {
+          "in_plausible_range": true,
+          "parsed": 189
+        },
+        "requested": {
+          "in_plausible_range": true,
+          "parsed": 189
+        }
+      },
+      "digest": "a0e874e66e7201c94f58efdda141bc7177cd400deb3ecddae841c2cb5f51c203",
+      "non_empty": {
+        "body_size_bytes": 189,
+        "cached": 189,
+        "content_type": 189,
+        "host": 189,
+        "http_status": 189,
+        "media_kind": 86,
+        "path": 189,
+        "query": 174,
+        "requested": 189,
+        "source_cache_file": 189,
+        "url": 189
+      },
+      "rows": 189
+    },
+    "Discord Channel Navigation": {
+      "column_digests": {
+        "channel_id": "f7b8d08d00230b22c965cb31993f7963717c29b2375950583d0f9d064af9f2c5",
+        "destination": "83cae46202cfa5a52124675a160323ff724a8de46813b30790023a5c2a2b9f2a",
+        "message_id": "9f8c398449e9c0fd84df93ecdc6e83e444da7191f5ccaa7f94582c096a229a4b",
+        "server_id": "f58976d60af49a2b1f9b166aa3e10b48677713530a5928cf670e865c7596c98a",
+        "source_file": "0cd5e25438555decbe71121eeb2cb685c8fe0cd50c3fee52e4ea640567ae932c",
+        "timestamp_device_local_time": "15b95d799a00850eac1e627dbad96cdf7d29b3f618109a1f86c8a4641a838afc"
+      },
+      "columns": [
+        {
+          "name": "timestamp_device_local_time",
+          "type": "datetime"
+        },
+        {
+          "name": "destination",
+          "type": "text"
+        },
+        {
+          "name": "server_id",
+          "type": "text"
+        },
+        {
+          "name": "channel_id",
+          "type": "text"
+        },
+        {
+          "name": "message_id",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "timestamp_device_local_time": {
+          "in_plausible_range": true,
+          "parsed": 153
+        }
+      },
+      "digest": "37c91f13e0498ffa2482b33758defe3e04054cb2ed60961300fe6cd4888a05b1",
+      "non_empty": {
+        "channel_id": 153,
+        "destination": 153,
+        "message_id": 4,
+        "server_id": 139,
+        "source_file": 153,
+        "timestamp_device_local_time": 153
+      },
+      "rows": 153
+    },
+    "Discord Channels": {
+      "column_digests": {
+        "channel": "fbc7abc2d7aa755bb66d0854a1d0c2ebd5d76fd22a04448b3593866f665ad8cd",
+        "channel_created": "6071b3d337e0fcad8e8575fca939e9228fe7d9273ea22b220623e22300b52219",
+        "channel_id": "eb556858bdfdbfe702a24fe5152cd6422d8fd8e944db2f4b992374ed05ed5883",
+        "first_message": "0e9a9afde8895729db0a90d3e9b6272cbb934a5f79a914c9429bd246b55dce0f",
+        "last_message": "08855fb6a958e46ff730c60688a2ac2b9b674a0e16550a31745a091e6aabd91a",
+        "messages_recovered": "8283c4cc8029bcaa2d0473dc7f11fad036f81f3ebe4a688b5e4a65ffc7ca9858",
+        "parent_channel_id": "10e7fb50515179ec39dc8dec4958a936e4efad045cc441d1698cfb4783870386",
+        "participants": "10e7fb50515179ec39dc8dec4958a936e4efad045cc441d1698cfb4783870386",
+        "server": "fcade8a5d587c1a68891063e13fb889a4a346f8ae4a72da16a588516fb6ffec1",
+        "server_id": "f6016b3e3c87bfe1013dafb5a44ba953889418ef6ceb09d20484e64b272cb4aa",
+        "topic": "10e7fb50515179ec39dc8dec4958a936e4efad045cc441d1698cfb4783870386",
+        "type": "ae396eaf62c873ec900cbc7a46b69291cc58e579f19171afeb36ae41360f1da9"
+      },
+      "columns": [
+        {
+          "name": "channel",
+          "type": "text"
+        },
+        {
+          "name": "server",
+          "type": "text"
+        },
+        {
+          "name": "type",
+          "type": "text"
+        },
+        {
+          "name": "messages_recovered",
+          "type": "text"
+        },
+        {
+          "name": "first_message",
+          "type": "datetime"
+        },
+        {
+          "name": "last_message",
+          "type": "datetime"
+        },
+        {
+          "name": "participants",
+          "type": "text"
+        },
+        {
+          "name": "topic",
+          "type": "text"
+        },
+        {
+          "name": "channel_id",
+          "type": "text"
+        },
+        {
+          "name": "server_id",
+          "type": "text"
+        },
+        {
+          "name": "channel_created",
+          "type": "datetime"
+        },
+        {
+          "name": "parent_channel_id",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "channel_created": {
+          "in_plausible_range": true,
+          "parsed": 4
+        },
+        "first_message": {
+          "in_plausible_range": true,
+          "parsed": 4
+        },
+        "last_message": {
+          "in_plausible_range": true,
+          "parsed": 4
+        }
+      },
+      "digest": "970077fbc1e16cb70360b6b38b2e625e88cb7634bcdb9cf47ad367482bf5ed33",
+      "non_empty": {
+        "channel": 4,
+        "channel_created": 4,
+        "channel_id": 4,
+        "first_message": 4,
+        "last_message": 4,
+        "messages_recovered": 4,
+        "parent_channel_id": 0,
+        "participants": 0,
+        "server": 2,
+        "server_id": 2,
+        "topic": 0,
+        "type": 1
+      },
+      "rows": 4
+    },
+    "Discord Client Activity": {
+      "column_digests": {
+        "detail": "202851973cec218a13e200a4c115aaca910ba59e25e45fbdfda68fe52572a086",
+        "event": "f4bd137074a6d2c68ec04270485b198ea0d195c9210707698d0a543dbe367171",
+        "leveldb_sequence": "a9fc24d6f17f9732e686b42e6072b938cb6e06b6c7c717ad69d5598202117bf8",
+        "local_storage_key": "bdc12b48d8744718b235fad91d8bfb85d1c309febb31f1a2ceeed493cdd114ac",
+        "source_file": "69972efbd78e94396ef47b2015c53b4ce1b8c9b5cf74213fddd37b70bb4365c9",
+        "target_id": "1eeb14ef626103869c061a8175ca6bf56ecf8f1cc4703989770b17fde59f0387",
+        "timestamp": "bc9553a929c4c33ee83b31a31bbee5b6b0926213f5e74c81a092fa9a39629eb8"
+      },
+      "columns": [
+        {
+          "name": "timestamp",
+          "type": "datetime"
+        },
+        {
+          "name": "event",
+          "type": "text"
+        },
+        {
+          "name": "target_id",
+          "type": "text"
+        },
+        {
+          "name": "detail",
+          "type": "text"
+        },
+        {
+          "name": "local_storage_key",
+          "type": "text"
+        },
+        {
+          "name": "leveldb_sequence",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "timestamp": {
+          "in_plausible_range": true,
+          "parsed": 204
+        }
+      },
+      "digest": "1d8dde4541dd84a6cf44e3e9e4e1af2ccdeaeca910abbdff0fd0a5c8655e3c39",
+      "non_empty": {
+        "detail": 99,
+        "event": 303,
+        "leveldb_sequence": 303,
+        "local_storage_key": 303,
+        "source_file": 303,
+        "target_id": 303,
+        "timestamp": 204
+      },
+      "rows": 303
+    },
+    "Discord Gateway Sessions": {
+      "column_digests": {
+        "detail": "a99797c7fb81b7f183bfe1481df0803c95dc138cc649c85d5f51b41d3a53bd13",
+        "duration_ms": "d43e7d09901ced7af0d0aeb61b8e39c125c90e5af575931db58ab93e7494336b",
+        "event": "3749fdd516e6f7124548b007ceae5071ec6cb3e9c08ab3b87784cf35a125801c",
+        "gateway_host": "59b86211105d20cf288ef230932246c8dd14af3231b4233d613b946378c89259",
+        "session_id": "396e6cdde5996b66ce1c0135fe0584877d71e8b9d366f2cf76f6ddfecce57185",
+        "source_file": "eb308300bfe2f78b80ad300bfb4eda0f4b0cf0b938668813b6df1442f9ad900d",
+        "timestamp_device_local_time": "0e612d887995b07da46d8c3639d26ad4c4e11f15e4f0ac46b5e0d85809f265f0"
+      },
+      "columns": [
+        {
+          "name": "timestamp_device_local_time",
+          "type": "datetime"
+        },
+        {
+          "name": "event",
+          "type": "text"
+        },
+        {
+          "name": "gateway_host",
+          "type": "text"
+        },
+        {
+          "name": "session_id",
+          "type": "text"
+        },
+        {
+          "name": "duration_ms",
+          "type": "text"
+        },
+        {
+          "name": "detail",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "timestamp_device_local_time": {
+          "in_plausible_range": true,
+          "parsed": 194
+        }
+      },
+      "digest": "f15acf3805ad7a3b4a13d2b00f5c132b761aa0400f56bbd9713e1da48ed1d45c",
+      "non_empty": {
+        "detail": 194,
+        "duration_ms": 94,
+        "event": 194,
+        "gateway_host": 94,
+        "session_id": 27,
+        "source_file": 194,
+        "timestamp_device_local_time": 194
+      },
+      "rows": 194
+    },
+    "Discord Invites": {
+      "column_digests": {
+        "channel_id": "9654bfe44d9fa7294ea7c1b085feb504da7298e943f14b9ab15b54a75f53a96c",
+        "created_by": "f0f637fe8b9a278425b36b05dc2a2458c55ba83e6ca9137716487740d8b23ca2",
+        "invite_code": "1aacbfb3c03d3c0dd648237e6714c87529cdbf6b3b50062c3c38eef20677d087",
+        "invite_expires": "974739cc88cc0b3f1f3f187a689f2e0c499a241f3f4d63901e909e26ae9afc46",
+        "inviter_id": "c3dc664be81f8e2ecca23936656966159f1869bbcea0ffbbe13228386745dacc",
+        "looked_up": "3c63f2ef81e249925a9148e44742f8235a5176bbd4c0ff997012558c24cdb964",
+        "members_approx": "d713ad7758fba4de0ec7bfe73e2bae621dc364772a830fb9489e213bba7d6e2d",
+        "online_approx": "62a6c266283fb296dbd95a81c8573668f9cb9c79004740292649ad2b2eb138c8",
+        "server": "7cd0b7900f772567fb1ddf0b3ea8617af6c0bbca1d263da77009c363ed5e930e",
+        "server_id": "fc6fc40b195a9492290dd312263848ae4a9e092aa02d259005fa84dc10ec226f",
+        "source_cache_file": "23b19ef37a535c1b889bf06f66ac46fca2eb7ebcc8eede443272575190f1456c",
+        "target_channel": "22cc9bd00e7977a2a2c9df675684eac2a34954aaa6a90ce18418e10f4527b8d0"
+      },
+      "columns": [
+        {
+          "name": "looked_up",
+          "type": "datetime"
+        },
+        {
+          "name": "invite_code",
+          "type": "text"
+        },
+        {
+          "name": "server",
+          "type": "text"
+        },
+        {
+          "name": "target_channel",
+          "type": "text"
+        },
+        {
+          "name": "created_by",
+          "type": "text"
+        },
+        {
+          "name": "members_approx",
+          "type": "text"
+        },
+        {
+          "name": "online_approx",
+          "type": "text"
+        },
+        {
+          "name": "invite_expires",
+          "type": "datetime"
+        },
+        {
+          "name": "server_id",
+          "type": "text"
+        },
+        {
+          "name": "channel_id",
+          "type": "text"
+        },
+        {
+          "name": "inviter_id",
+          "type": "text"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "invite_expires": {
+          "in_plausible_range": true,
+          "parsed": 1
+        },
+        "looked_up": {
+          "in_plausible_range": true,
+          "parsed": 1
+        }
+      },
+      "digest": "30d950c20aa7c792e61934f5c6873135cd3521a9dc379f725c5a61f9ee745495",
+      "non_empty": {
+        "channel_id": 1,
+        "created_by": 1,
+        "invite_code": 1,
+        "invite_expires": 1,
+        "inviter_id": 1,
+        "looked_up": 1,
+        "members_approx": 1,
+        "online_approx": 1,
+        "server": 1,
+        "server_id": 1,
+        "source_cache_file": 1,
+        "target_channel": 1
+      },
+      "rows": 1
+    },
+    "Discord Local Storage": {
+      "column_digests": {
+        "key": "b38c1055b226606ad24043b8d4ab6926cb09f93a169b8c9883734cd4da9122f6",
+        "leveldb_sequence": "2868df13e089a939a02bcab596e48daca66ac09fbc3f2b588b5e1c5ab009ca01",
+        "origin": "70daf68d0f542d8fbdb11b96fdd3b75bad021b3df9ea1cfdf9722aaff2d01f99",
+        "record_state": "6fb2305297279b593e177e045d9ed5698bd1607d8a340674be2e7491ef261b31",
+        "source_file": "29eb7635502c9b80663f22efecccffab6b1bb1cbce0c76cddd077593d2968771",
+        "value": "837d410babf7d70a66a2c114a9ac328e3f4dcfd1b3fd00410bef096a0e3f2a14",
+        "value_length": "cc172d0125ff02d014fc7493083f9cfda6147cdcfd2ae84757a3d17157a5dc90"
+      },
+      "columns": [
+        {
+          "name": "origin",
+          "type": "text"
+        },
+        {
+          "name": "key",
+          "type": "text"
+        },
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "value_length",
+          "type": "text"
+        },
+        {
+          "name": "leveldb_sequence",
+          "type": "text"
+        },
+        {
+          "name": "record_state",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {},
+      "digest": "3b018170105c0f06242819c40fef45a7dce6d22045391cedf5765b5c6a01f6c8",
+      "non_empty": {
+        "key": 654,
+        "leveldb_sequence": 654,
+        "origin": 654,
+        "record_state": 654,
+        "source_file": 654,
+        "value": 594,
+        "value_length": 654
+      },
+      "rows": 654
+    },
+    "Discord Message Drafts": {
+      "column_digests": {
+        "account_id": "29bcf18474bbf13f8bc9a3a2901458ce31a5f4bf36c771c743ce184d5e04813d",
+        "channel_id": "caf40ad06452def4bbbbe965f4500420d7b7fba95e713cc19ca646dd94b7c912",
+        "draft_saved": "dc1211a39bd19a05417b8e98dc5b16636385745de7103375ec3bcb03e73aa45a",
+        "draft_text": "17a609b8c0130fe538169d79da5e425b645443092dbd3dc0a6660836a85f3357",
+        "draft_type": "cd83ac96cca273246106fbbb6166a76cfbc786d4260abe3506e5517a332e1b7f",
+        "leveldb_sequence": "954ec736da90e16b5c053571fc8ef7911153f142cdf3dec1edb31c99f3abc6db",
+        "record_state": "3a6263e25a46fcd2cf6618877785cb947e922df1baba24891b5190ed64de1e14",
+        "source_file": "93718c015fbae7e2c47970fb356dcaca7b2da86cf5d2bf2dd8b01dd1ab2f5e53"
+      },
+      "columns": [
+        {
+          "name": "draft_saved",
+          "type": "datetime"
+        },
+        {
+          "name": "draft_text",
+          "type": "text"
+        },
+        {
+          "name": "channel_id",
+          "type": "text"
+        },
+        {
+          "name": "account_id",
+          "type": "text"
+        },
+        {
+          "name": "draft_type",
+          "type": "text"
+        },
+        {
+          "name": "leveldb_sequence",
+          "type": "text"
+        },
+        {
+          "name": "record_state",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "draft_saved": {
+          "in_plausible_range": true,
+          "parsed": 64
+        }
+      },
+      "digest": "2b1f445284baf8ed11952d704550bbd4957a11a6e09263dad9629eded441c269",
+      "non_empty": {
+        "account_id": 64,
+        "channel_id": 64,
+        "draft_saved": 64,
+        "draft_text": 64,
+        "draft_type": 64,
+        "leveldb_sequence": 64,
+        "record_state": 64,
+        "source_file": 64
+      },
+      "rows": 64
+    },
+    "Discord Messages": {
+      "column_digests": {
+        "attachment_names": "8f1030f4d2b02d1666cab41804d44c72286947a333ff93981ba68de58640a80b",
+        "attachments": "6b1c260d7161699e2e1dc93bc5e7280260d131bacbd53967d9ca5649175ab531",
+        "cached": "599bdaa5429e98838d35c7484bfc5767409aee64f69ae1fedabb1a0e603792df",
+        "channel": "7455211aa0905e436d88ee4ae1492275044ea0c43a1382120fbb47dbcd9c9875",
+        "channel_id": "6c5e2c5407844ec841f63b5b82251aaf800559c72f583f596fb52efed988c340",
+        "direction": "62f0d464e24632952c731c2519c9da21278155bdea051269c6b3fe3a3aa2d40a",
+        "edited": "4bc5aa6e3c0787ba635ce1811d1c741a3670aeb51033735d7d0225b68b452a32",
+        "embeds": "d9a659b90b4dd24d9903ce54d2b5f4270ba2f0094df8baf29300afb152649129",
+        "mentions": "660fe96b592fc75f6e316a026ca8cf3963231b772ffb0d5a7faeb3b5bf7240c4",
+        "message": "07d3a41935eca7622ed880d2e5deeaa99326afbf17d3041f53f02cd41bd46996",
+        "message_id": "d8e23f77a169d5dfe27f696ae5b4153b91aa0cd29f03082bc6560ced590affe0",
+        "message_type": "aa190ad2d93cc08c25ca70e49499cbe45e035c6c0cf8b8924d4966742f950643",
+        "pinned": "6a773169cfe86f66b0fa7ee568ec00b794ed4960e41def110404a6c69c471544",
+        "reply_to": "8b16310ef5c87cf21a1470348be4eafad8acd3fe3139367e69980321b8a4cc8f",
+        "sender": "96ffd123328321b5ff3870aa8168aad675229615aae71e9613acb469c81d80e1",
+        "sender_id": "1d3b3795e8b9b87de7c8819744834f8de1db9ea6c57568932511a02d921ee61b",
+        "source_cache_file": "a725a1539097aead771ee09bf7ddb3257fce0483a46bd8f5d318940199de77f5",
+        "stickers": "6a773169cfe86f66b0fa7ee568ec00b794ed4960e41def110404a6c69c471544",
+        "timestamp": "4103c4bac90bf187373c55c58c879a3f9840ce3614d0e433b3ae9045564e32a5"
+      },
+      "columns": [
+        {
+          "name": "timestamp",
+          "type": "datetime"
+        },
+        {
+          "name": "direction",
+          "type": "text"
+        },
+        {
+          "name": "sender",
+          "type": "text"
+        },
+        {
+          "name": "channel",
+          "type": "text"
+        },
+        {
+          "name": "message",
+          "type": "text"
+        },
+        {
+          "name": "attachments",
+          "type": "media"
+        },
+        {
+          "name": "attachment_names",
+          "type": "text"
+        },
+        {
+          "name": "edited",
+          "type": "datetime"
+        },
+        {
+          "name": "reply_to",
+          "type": "text"
+        },
+        {
+          "name": "mentions",
+          "type": "text"
+        },
+        {
+          "name": "embeds",
+          "type": "text"
+        },
+        {
+          "name": "stickers",
+          "type": "text"
+        },
+        {
+          "name": "message_type",
+          "type": "text"
+        },
+        {
+          "name": "pinned",
+          "type": "text"
+        },
+        {
+          "name": "sender_id",
+          "type": "text"
+        },
+        {
+          "name": "channel_id",
+          "type": "text"
+        },
+        {
+          "name": "message_id",
+          "type": "text"
+        },
+        {
+          "name": "cached",
+          "type": "datetime"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "cached": {
+          "in_plausible_range": true,
+          "parsed": 164
+        },
+        "edited": {
+          "in_plausible_range": true,
+          "parsed": 6
+        },
+        "timestamp": {
+          "in_plausible_range": true,
+          "parsed": 164
+        }
+      },
+      "digest": "d177086a0ae7e0de35598df6eb7122f44dc74256e6bdf9d6f5a41b09e70bf97a",
+      "non_empty": {
+        "attachment_names": 12,
+        "attachments": 164,
+        "cached": 164,
+        "channel": 164,
+        "channel_id": 164,
+        "direction": 164,
+        "edited": 6,
+        "embeds": 5,
+        "mentions": 27,
+        "message": 156,
+        "message_id": 164,
+        "message_type": 164,
+        "pinned": 0,
+        "reply_to": 24,
+        "sender": 164,
+        "sender_id": 164,
+        "source_cache_file": 164,
+        "stickers": 0,
+        "timestamp": 164
+      },
+      "rows": 164
+    },
+    "Discord Reactions": {
+      "column_digests": {
+        "cached": "ef39ff94870ae0cb03f5257abf8b3a1d7979782159e88111498e51379e37e98f",
+        "channel": "dcdec0a53a13d69b9e7feec17b11d5470e3ee6d8eabc66b468e1030c9504ffb6",
+        "channel_id": "29364998654a51ac969df90e0dbc118fc9fc78f2f900667968b045f57b25abee",
+        "emoji": "d423997b1c5529e1e9975b7c4459beb2be9feeb346cdbe62c230a7a5aa4e1e6f",
+        "message": "c60b1f6ce4ac96cdb68fdab9e25e13fc2a4e1711f13ae42e028921c40b9abf5e",
+        "message_id": "0b6626470be19179f9d501d034335324d4d98f08c919cf43a7fd86515035d6c0",
+        "message_sent": "5e85f060d792779d6627de31837f4ed65bf9ceeba06bfb743dea4ea50767e89e",
+        "reacting_user": "0020d8490f196ffdeb1716115c29fd19a35b1c246a21a0c0cc161fe5f7d15207",
+        "source_cache_file": "d5d7320e4ec5b8634f870eeee48fc6de34e4e951d251cb579ec90dc13eaa7a7c",
+        "user_id": "d0ac14e7f744c5b7cde2bed1b644a2894c33f1090bbdba8dc685f22d2bae33d7"
+      },
+      "columns": [
+        {
+          "name": "message_sent",
+          "type": "datetime"
+        },
+        {
+          "name": "emoji",
+          "type": "text"
+        },
+        {
+          "name": "reacting_user",
+          "type": "text"
+        },
+        {
+          "name": "channel",
+          "type": "text"
+        },
+        {
+          "name": "message",
+          "type": "text"
+        },
+        {
+          "name": "user_id",
+          "type": "text"
+        },
+        {
+          "name": "message_id",
+          "type": "text"
+        },
+        {
+          "name": "channel_id",
+          "type": "text"
+        },
+        {
+          "name": "cached",
+          "type": "datetime"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "cached": {
+          "in_plausible_range": true,
+          "parsed": 3
+        },
+        "message_sent": {
+          "in_plausible_range": true,
+          "parsed": 3
+        }
+      },
+      "digest": "04e4e48665d56b0539b87538cacf55b890cb64ba90608f2469c0bf04645e765f",
+      "non_empty": {
+        "cached": 3,
+        "channel": 3,
+        "channel_id": 3,
+        "emoji": 3,
+        "message": 0,
+        "message_id": 3,
+        "message_sent": 3,
+        "reacting_user": 3,
+        "source_cache_file": 3,
+        "user_id": 3
+      },
+      "rows": 3
+    },
+    "Discord Recovered Media": {
+      "column_digests": {
+        "cached": "1692a29741dd2112cdf1e2b8b5d64c5cbb18245fc685821eade1b16bea783ce0",
+        "channel": "49afbbe4e9ca6505e71b983e13b3875b705f193797318a9088f01c3695b8ff40",
+        "content_type": "d7e647e321c100b15dbe56162175b94ee169e029e4d942b1f8c0477b7f31327b",
+        "created": "af6e57d8d48692cf8f083d145d4f4354c149c5e1ee0928eb6104d93fe5874c02",
+        "filename": "580c85fd758e443eec6427d7ae92ccf048f811e3bea48ae0e92923bf0547536c",
+        "kind": "4976e5d203b7d1bc4df8e8fe3fb0e242757e6a7ae867137f971fc2f7d9770788",
+        "media": "69e76a3719b4b1f1c77e9d5de69dfcc3e918ee340b9806a3147b65d8b3aba3c3",
+        "message_recovered": "58e6c5a36563da8bf3ac44bb66bf1025e0b6300be83155b12207115d765a3b30",
+        "owner_id": "743ad034c8b6050d80c70249e8ff115529d98f2a0f08abe2a92a672099d2278c",
+        "related_id": "f607a0111b8a37bd88a11d68a0188db1775437974cb0456fc73051043fc5498a",
+        "size_bytes": "8f89877ff4dfc88215742bfd98de6070309ffe3745e7801d8ee237582265299e",
+        "source_cache_file": "29bc4a130220965f6a1c53f20854b23cccf7393e4d9ebb2d0fe470263b2f5f3e",
+        "url": "a12cee09df510a0e3db3ec111cf1e30e4e4e20782fee76df7e9a0a7f079b1fff"
+      },
+      "columns": [
+        {
+          "name": "created",
+          "type": "datetime"
+        },
+        {
+          "name": "kind",
+          "type": "text"
+        },
+        {
+          "name": "media",
+          "type": "media"
+        },
+        {
+          "name": "filename",
+          "type": "text"
+        },
+        {
+          "name": "channel",
+          "type": "text"
+        },
+        {
+          "name": "message_recovered",
+          "type": "text"
+        },
+        {
+          "name": "content_type",
+          "type": "text"
+        },
+        {
+          "name": "size_bytes",
+          "type": "text"
+        },
+        {
+          "name": "owner_id",
+          "type": "text"
+        },
+        {
+          "name": "related_id",
+          "type": "text"
+        },
+        {
+          "name": "cached",
+          "type": "datetime"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "cached": {
+          "in_plausible_range": true,
+          "parsed": 84
+        },
+        "created": {
+          "in_plausible_range": true,
+          "parsed": 54
+        }
+      },
+      "digest": "5d82102a0b5e2dd6133032442c322d06cd178ab05731fe82fe7b8f4bc951e4af",
+      "non_empty": {
+        "cached": 84,
+        "channel": 52,
+        "content_type": 84,
+        "created": 54,
+        "filename": 52,
+        "kind": 84,
+        "media": 84,
+        "message_recovered": 52,
+        "owner_id": 72,
+        "related_id": 52,
+        "size_bytes": 84,
+        "source_cache_file": 84,
+        "url": 84
+      },
+      "rows": 84
+    },
+    "Discord Searches": {
+      "column_digests": {
+        "cached": "8a78e737ff4cf651895edd8f3ae98883c183cf9affaf5b310bb901e63ff52242",
+        "filters": "ffe679bb831c95b67dc17819c63c5090d221aac6f4c7bf530f594ab43d21fa1e",
+        "hits_in_response": "ffe679bb831c95b67dc17819c63c5090d221aac6f4c7bf530f594ab43d21fa1e",
+        "request_url": "65fa54d84a9676293851f6c45f0886698e487005358c23ac46eb1cafd5a1c5dc",
+        "requested": "20736b8193f7722610325091c9d62fdfa63036aea334cd66d5356a642fb15944",
+        "scope": "1f5e41ce991484253d3603e71ab8546dae3b429ff82c7d583cef434c570aa64e",
+        "search_terms": "04ad33c11fd8e0fd92e908210a55f1f596a548c90842bf62bccd3d64af857ee9",
+        "search_type": "126c61b14a3929c21f0ce258ced74f4697f53d944064c8e7691a071f5940b86b",
+        "source_cache_file": "f58b51fa892f0911d1812d1428414d4865f3413d1899998f9ad7bb4e2e8d73d6",
+        "total_results": "ffe679bb831c95b67dc17819c63c5090d221aac6f4c7bf530f594ab43d21fa1e"
+      },
+      "columns": [
+        {
+          "name": "requested",
+          "type": "datetime"
+        },
+        {
+          "name": "search_type",
+          "type": "text"
+        },
+        {
+          "name": "search_terms",
+          "type": "text"
+        },
+        {
+          "name": "filters",
+          "type": "text"
+        },
+        {
+          "name": "scope",
+          "type": "text"
+        },
+        {
+          "name": "total_results",
+          "type": "text"
+        },
+        {
+          "name": "hits_in_response",
+          "type": "text"
+        },
+        {
+          "name": "cached",
+          "type": "datetime"
+        },
+        {
+          "name": "request_url",
+          "type": "text"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "cached": {
+          "in_plausible_range": true,
+          "parsed": 1
+        },
+        "requested": {
+          "in_plausible_range": true,
+          "parsed": 1
+        }
+      },
+      "digest": "bd82e1b12bb9f2a5872e2d57067ac6bf97c6720d8c034906d03f4704e09212c3",
+      "non_empty": {
+        "cached": 1,
+        "filters": 0,
+        "hits_in_response": 0,
+        "request_url": 1,
+        "requested": 1,
+        "scope": 1,
+        "search_terms": 1,
+        "search_type": 1,
+        "source_cache_file": 1,
+        "total_results": 0
+      },
+      "rows": 1
+    },
+    "Discord Servers": {
+      "column_digests": {
+        "channels_seen": "5c52551e70b546c58915a4b3314aa6a7b82f854d8d212b760ea8fa89dac9ba36",
+        "description": "b8c9e440ead3ddaccf7cc7e879d512a263272270df2d5504c0c3d1f85d16f9d9",
+        "features": "a4878af68e5c96897a4750e73bccf06b3e0197b665337391048ad1de4192968e",
+        "members_approx": "0bed2142c9b70873498d8b23d6eac941fcb8b18fd930c2e1a17cc6a82791a45e",
+        "messages_recovered": "b52d611c4d19dedf7cbdd7e6a7e395678a933058eb8a3bb97b5159598c4374c7",
+        "server": "e50b0a86c7094b45c09b7cee64ee844c06674d52b54d96d0abc9f05824320dd4",
+        "server_created": "3fd71a9f3fda875fd410052a369a45d6ed64a92dbb8f890a6b598bfe28649b77",
+        "server_id": "149c7efbe5c88266360f34c8c2d8f820c36381bedc317053c62c536bb6dedece",
+        "source_cache_file": "f60be6214bb67f3134bc256fe226ccbe25723952245d6a066567cdbfa01f7316",
+        "vanity_url": "b8c9e440ead3ddaccf7cc7e879d512a263272270df2d5504c0c3d1f85d16f9d9"
+      },
+      "columns": [
+        {
+          "name": "server",
+          "type": "text"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "members_approx",
+          "type": "text"
+        },
+        {
+          "name": "channels_seen",
+          "type": "text"
+        },
+        {
+          "name": "messages_recovered",
+          "type": "text"
+        },
+        {
+          "name": "server_created",
+          "type": "datetime"
+        },
+        {
+          "name": "server_id",
+          "type": "text"
+        },
+        {
+          "name": "vanity_url",
+          "type": "text"
+        },
+        {
+          "name": "features",
+          "type": "text"
+        },
+        {
+          "name": "source_cache_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "server_created": {
+          "in_plausible_range": true,
+          "parsed": 2
+        }
+      },
+      "digest": "8d61a48579b6f936354a97db8825c7611f93e877e22e3f397935fb0b4701d84e",
+      "non_empty": {
+        "channels_seen": 2,
+        "description": 0,
+        "features": 1,
+        "members_approx": 1,
+        "messages_recovered": 2,
+        "server": 2,
+        "server_created": 2,
+        "server_id": 2,
+        "source_cache_file": 2,
+        "vanity_url": 0
+      },
+      "rows": 2
+    },
+    "Discord Users Seen": {
+      "column_digests": {
+        "account_created": "6d1c90b5a99f52b85817abe3725229430e29063387ace9ec32420210cb521b11",
+        "avatar": "7226639fb3427b2e8748ec1191e20d50b01ae09b802cf73a02da1dd9312745ae",
+        "bio": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "bot": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "connected_accounts": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "display_name": "02ff4c988f7eda0db500b498f5e506e8d2551d8ad0680262b36d355e28a42cc4",
+        "first_seen_cached": "396383e9ea071abc0f127e08bc13dd46fd4c1024ce4f1693370b5689751892de",
+        "last_seen_cached": "ac3083a726528102d627e67dd410753cdc1e9769e2c1804c0b9f0a8009706fbb",
+        "legacy_username": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "mutual_servers": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "private_note": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "profile_cached": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "pronouns": "0d15bee55b36b97b299488049b537f6b735faff7b51c4bda50ec8c7fc40e821c",
+        "seen_as": "8fdd7a37c9a350f09b5de36e2811ed182ed5a4e6d645f71ea3016cc49bb3354a",
+        "user_id": "5aae9a193990f14a6ef1816fdf0884b4f6a288d56adc8547b403d795a70c31b5",
+        "username": "00a98520186e4dc3569d0d8f4ca82f6c88babab3f5d56a3a8ff18ea73de4fc0a"
+      },
+      "columns": [
+        {
+          "name": "username",
+          "type": "text"
+        },
+        {
+          "name": "display_name",
+          "type": "text"
+        },
+        {
+          "name": "avatar",
+          "type": "media"
+        },
+        {
+          "name": "user_id",
+          "type": "text"
+        },
+        {
+          "name": "account_created",
+          "type": "datetime"
+        },
+        {
+          "name": "bot",
+          "type": "text"
+        },
+        {
+          "name": "private_note",
+          "type": "text"
+        },
+        {
+          "name": "pronouns",
+          "type": "text"
+        },
+        {
+          "name": "bio",
+          "type": "text"
+        },
+        {
+          "name": "legacy_username",
+          "type": "text"
+        },
+        {
+          "name": "connected_accounts",
+          "type": "text"
+        },
+        {
+          "name": "mutual_servers",
+          "type": "text"
+        },
+        {
+          "name": "seen_as",
+          "type": "text"
+        },
+        {
+          "name": "first_seen_cached",
+          "type": "datetime"
+        },
+        {
+          "name": "last_seen_cached",
+          "type": "datetime"
+        },
+        {
+          "name": "profile_cached",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "account_created": {
+          "in_plausible_range": true,
+          "parsed": 10
+        },
+        "first_seen_cached": {
+          "in_plausible_range": true,
+          "parsed": 10
+        },
+        "last_seen_cached": {
+          "in_plausible_range": true,
+          "parsed": 10
+        }
+      },
+      "digest": "28ca44e8bab81afe3d78e4952d548012680e6e0935dcbf67a79c32ac689fcab2",
+      "non_empty": {
+        "account_created": 10,
+        "avatar": 1,
+        "bio": 0,
+        "bot": 0,
+        "connected_accounts": 0,
+        "display_name": 10,
+        "first_seen_cached": 10,
+        "last_seen_cached": 10,
+        "legacy_username": 0,
+        "mutual_servers": 0,
+        "private_note": 0,
+        "profile_cached": 0,
+        "pronouns": 0,
+        "seen_as": 10,
+        "user_id": 10,
+        "username": 10
+      },
+      "rows": 10
+    }
+  },
+  "corpus": "discord_win_ptb",
+  "note": "Content-free fingerprint. Digests and counts only, no rows, because the corpora are private application profiles.",
+  "recorded_with_commit": "d5eafdd1edd812b6e4a7963d7ebd07fe72d53988"
+}
