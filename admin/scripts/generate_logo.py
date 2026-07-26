@@ -1,43 +1,43 @@
-"""Generate DLEAPP logo/banner assets from the source artwork.
+"""Generate DLEAPP logo/banner assets from the source vector artwork.
 
 The DLEAPP icon is artwork by Johann Polewczyk: three stacked application
-windows with a pointer, in a flat style with heavy dark outlines. The original
-is kept untouched at ``assets/source/DLEAPP_art_original.png`` (rust tile); this
-script recolors the tile to DLEAPP's plum brand color and derives every asset
-used by the app, the HTML report and the repo.
+windows with a pointer, in a flat style with heavy dark outlines. His original
+vector is kept untouched at ``assets/source/DLEAPP_art_original.svg`` (rust
+tile). This script recolors the tile to DLEAPP's plum brand color and renders
+every asset used by the app, the HTML report and the repo.
 
 DLEAPP brand palette (taken from the artwork itself):
     tile   #5F3A5C  plum / aubergine     (unclaimed in the LEAPP family)
-    ink    #2A1710  dark brown outlines
+    ink    #2A1710  dark outlines
     gold   #F2B035  primary accent
     blue   #2A7FD4  secondary accent
     grey   #D5D9DE  neutral / inputs
     cream  #F7F0E0  light text
 
-Run:  python admin/scripts/generate_logo.py
+Requires ``rsvg-convert`` (librsvg) for SVG rendering and ``iconutil`` for the
+macOS .icns. Run:  python admin/scripts/generate_logo.py
 """
 import os
+import shutil
+import subprocess
+import tempfile
 
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 DL = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SOURCE = os.path.join(DL, "assets", "source", "DLEAPP_art_original.png")
+SOURCE_SVG = os.path.join(DL, "assets", "source", "DLEAPP_art_original.svg")
 
-RUST = (163, 78, 42)      # tile color in the source artwork
-PLUM = (95, 58, 92)       # #5F3A5C  DLEAPP tile
-PILL = (74, 45, 72)       # #4A2D48  slightly darker plum for banner pills
-INK = (42, 23, 16)        # #2A1710
-GOLD = (242, 176, 53)     # #F2B035
-CREAM = (247, 240, 224)   # #F7F0E0
+RUST = "#A34E2A"          # tile color in the source artwork
+PLUM = "#5F3A5C"          # DLEAPP tile
+PILL = (74, 45, 72)       # #4A2D48  darker plum for banner pills
+GOLD = (242, 176, 53)     # #F2B035  wordmark
+
+ICNS_SIZES = [16, 32, 128, 256, 512]  # each also rendered @2x
 
 
-def _font(size, bold=True):
-    cands = ([
-        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-        "/System/Library/Fonts/HelveticaNeue.ttc",
-    ] if bold else ["/System/Library/Fonts/Supplemental/Arial.ttf"])
-    for p in cands:
+def _font(size):
+    for p in ("/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+              "/System/Library/Fonts/HelveticaNeue.ttc"):
         if os.path.exists(p):
             try:
                 return ImageFont.truetype(p, size)
@@ -46,26 +46,36 @@ def _font(size, bold=True):
     return ImageFont.load_default()
 
 
-def recolor(img, new=PLUM, old=RUST, tol=70.0):
-    """Replace the tile color, feathering anti-aliased fringes so the artwork
-    (outlines, windows, pointer) is left untouched."""
-    arr = np.array(img.convert("RGBA")).astype(np.float32)
-    rgb = arr[..., :3]
-    dist = np.sqrt(((rgb - np.array(old, dtype=np.float32)) ** 2).sum(axis=-1))
-    weight = np.clip(1.0 - (dist / tol) ** 2, 0.0, 1.0)[..., None]
-    arr[..., :3] = rgb + (np.array(new, dtype=np.float32) - rgb) * weight
-    return Image.fromarray(arr.round().astype(np.uint8), "RGBA")
+def plum_svg():
+    """Johann's artwork with the tile recolored to the DLEAPP plum."""
+    with open(SOURCE_SVG, "r", encoding="utf-8") as fh:
+        svg = fh.read()
+    if RUST not in svg:
+        raise SystemExit(f"tile color {RUST} not found in {SOURCE_SVG}")
+    return svg.replace(RUST, PLUM)
 
 
-def tile_only(img, tile_color=PLUM, tol=70.0):
-    """Crop to the rounded tile, dropping the artwork's outer drop shadow."""
-    arr = np.array(img.convert("RGBA"))
-    rgb = arr[..., :3].astype(np.float32)
-    dist = np.sqrt(((rgb - np.array(tile_color, dtype=np.float32)) ** 2).sum(axis=-1))
-    ys, xs = np.where((dist < tol) & (arr[..., 3] > 200))
-    if not len(xs):
-        return img
-    return img.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+def mark_svg(svg):
+    """The tile alone: cropped to the rounded square, drop shadow removed, so
+    it can be placed on a colored pill without a halo."""
+    svg = svg.replace('viewBox="0 0 1024 1024" width="1024" height="1024"',
+                      'viewBox="100 100 824 824" width="824" height="824"')
+    return svg.replace('<g filter="url(#sh)">', "<g>")
+
+
+def render(svg_text, size, out_path):
+    """Render SVG text to a PNG of size x size using rsvg-convert."""
+    with tempfile.NamedTemporaryFile("w", suffix=".svg", delete=False,
+                                     encoding="utf-8") as tmp:
+        tmp.write(svg_text)
+        tmp_path = tmp.name
+    try:
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        subprocess.run(["rsvg-convert", "-w", str(size), "-h", str(size),
+                        tmp_path, "-o", out_path], check=True)
+    finally:
+        os.unlink(tmp_path)
+    return Image.open(out_path).convert("RGBA")
 
 
 def _rounded_mask(size, radius):
@@ -78,8 +88,8 @@ def _rounded_mask(size, radius):
 def make_banner(mark, design_h=640, pill=PILL, text=GOLD):
     """Wide wordmark banner: tile mark + large DLEAPP wordmark on a pill.
 
-    Mirrors the other LEAPP banners (a tight ~4:1 lockup, no tagline) so it can
-    be shown small in the HTML report and the GUI header.
+    Mirrors the other LEAPP banners (a tight lockup, no tagline) so it reads
+    well small in the HTML report and the GUI header.
     """
     pad = int(design_h * 0.09)
     gap = int(design_h * 0.06)
@@ -96,36 +106,60 @@ def make_banner(mark, design_h=640, pill=PILL, text=GOLD):
     plate.putalpha(_rounded_mask((width, design_h), int(design_h * 0.20)))
     banner.alpha_composite(plate)
 
-    m = mark.resize((mark_h, mark_h), Image.LANCZOS)
-    banner.alpha_composite(m, (pad, (design_h - mark_h) // 2))
-
-    d = ImageDraw.Draw(banner)
-    d.text((pad + mark_h + gap, (design_h - th) // 2 - bb[1]), "DLEAPP",
-           font=font, fill=text)
+    banner.alpha_composite(mark.resize((mark_h, mark_h), Image.LANCZOS),
+                           (pad, (design_h - mark_h) // 2))
+    ImageDraw.Draw(banner).text(
+        (pad + mark_h + gap, (design_h - th) // 2 - bb[1]), "DLEAPP",
+        font=font, fill=text)
     return banner
 
 
-def save(img, rel):
-    path = os.path.join(DL, rel)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    img.save(path)
-    print(f"wrote {rel} {img.size}")
+def build_icns(svg, out_rel):
+    """Render each icon size straight from the vector, then pack an .icns."""
+    if not shutil.which("iconutil"):
+        print("skip .icns (iconutil not available)")
+        return
+    work = tempfile.mkdtemp(suffix=".iconset")
+    try:
+        for s in ICNS_SIZES:
+            render(svg, s, os.path.join(work, f"icon_{s}x{s}.png"))
+            render(svg, s * 2, os.path.join(work, f"icon_{s}x{s}@2x.png"))
+        out = os.path.join(DL, out_rel)
+        subprocess.run(["iconutil", "-c", "icns", work, "-o", out], check=True)
+        print(f"wrote {out_rel}")
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
 
 
 if __name__ == "__main__":
-    src = Image.open(SOURCE).convert("RGBA")
-    plum = recolor(src, PLUM)          # full artwork, plum tile, with shadow
-    mark = tile_only(plum, PLUM)       # just the tile, no drop shadow
+    if not shutil.which("rsvg-convert"):
+        raise SystemExit("rsvg-convert (librsvg) is required to render the SVG")
 
-    # square marks
-    save(plum.resize((1024, 1024), Image.LANCZOS), "assets/DLEAPP_logo.png")
-    save(mark.resize((256, 256), Image.LANCZOS), "assets/icon.png")
-    save(plum.resize((512, 512), Image.LANCZOS), "scripts/_elements/logo.png")
+    svg = plum_svg()
+
+    # the brand vector itself (README, leapps.org, print)
+    out_svg = os.path.join(DL, "assets", "DLEAPP_logo.svg")
+    with open(out_svg, "w", encoding="utf-8") as fh:
+        fh.write(svg)
+    print("wrote assets/DLEAPP_logo.svg")
+
+    # square marks, each rendered from the vector at its final size
+    render(svg, 1024, os.path.join(DL, "assets/DLEAPP_logo.png"))
+    print("wrote assets/DLEAPP_logo.png (1024)")
+    render(svg, 256, os.path.join(DL, "assets/icon.png"))
+    print("wrote assets/icon.png (256)")
+    render(svg, 512, os.path.join(DL, "scripts/_elements/logo.png"))
+    print("wrote scripts/_elements/logo.png (512)")
 
     # wide wordmark banner: HTML report (shown ~88px) and GUI header (208x52)
+    mark = render(mark_svg(svg), 1024,
+                  os.path.join(tempfile.gettempdir(), "dleapp_mark.png"))
     banner = make_banner(mark)
-    save(banner, "scripts/_elements/DLEAPP_banner.png")
-    save(banner, "assets/DLEAPP_banner.png")
+    for rel in ("scripts/_elements/DLEAPP_banner.png", "assets/DLEAPP_banner.png"):
+        banner.save(os.path.join(DL, rel))
+        print(f"wrote {rel} {banner.size}")
+
+    build_icns(svg, "assets/icon.icns")
 
     # NOTE: assets/leapps_r_logo.png is the shared leapps.org family logo and is
     # intentionally not generated here.
