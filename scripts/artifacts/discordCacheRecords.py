@@ -27,6 +27,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "list",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 29083 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 189 rows",
+        },
     },
 }
 

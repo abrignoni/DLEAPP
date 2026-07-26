@@ -30,6 +30,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 590 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 10 rows",
+        },
     },
     "discordChannels": {
         "name": "Discord Channels",
@@ -60,6 +64,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hash",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 117 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 4 rows",
+        },
     },
     "discordGuilds": {
         "name": "Discord Servers",
@@ -91,6 +99,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "server",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 25 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 2 rows",
+        },
     },
     "discordInvites": {
         "name": "Discord Invites",
@@ -116,6 +128,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "link",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 27 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 1 rows",
+        },
     },
 }
 

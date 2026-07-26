@@ -24,6 +24,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "navigation",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 461 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 153 rows",
+        },
     },
     "discordGatewaySessions": {
         "name": "Discord Gateway Sessions",
@@ -48,6 +52,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "plug",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 1676 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 194 rows",
+        },
     },
 }
 

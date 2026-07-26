@@ -31,6 +31,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 12940 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 164 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Channel ID",
@@ -74,6 +78,10 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "paperclip",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 1022 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 12 rows",
+        },
     },
 }
 
