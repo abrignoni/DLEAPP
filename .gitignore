@@ -90,6 +90,8 @@ __pypackages__/
 *.mo
 *.manifest
 *.spec
+# ...except the hand-maintained PyInstaller build specs, which are source, not build output
+!scripts/pyinstaller/*.spec
 pip-wheel-metadata/
 share/python-wheels/
 wheels/
