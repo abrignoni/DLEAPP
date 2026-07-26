@@ -1,5 +1,5 @@
 * {
-  scrollbar-color: #2EC4B6 #0E2438 !important;
+  scrollbar-color: #F2B035 #5F3A5C !important;
   scrollbar-width: thin !important;
 }
 
@@ -64,7 +64,7 @@ body {
   left: 10px;
   width: 3px;
   height: 1.5em; /* légèrement plus grand que le texte (1em) */
-  background-color: #2EC4B6;
+  background-color: #F2B035;
 }
 
 .sidebar-heading {
@@ -92,7 +92,7 @@ body {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   font-size: 1rem;
-  background-color: rgba(46, 196, 182, 0.28);
+  background-color: rgba(242, 176, 53, 0.30);
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.5);
 }
 
@@ -129,13 +129,13 @@ table.table-xsm td {
   padding-bottom: 0.3rem;
 }
 
-/* --- DLEAPP Electron-Teal-on-Navy theme --- */
-.bg-dark { background-color: #0E2438 !important; }
-.navbar.bg-dark { background-color: #0A1826 !important; }
+/* --- DLEAPP plum/gold theme (from the logo artwork) --- */
+.bg-dark { background-color: #5F3A5C !important; }
+.navbar.bg-dark { background-color: #4A2D48 !important; }
 .navbar-brand {
-  color: #45C4E0 !important;
+  color: #F2B035 !important;
   font-weight: 600;
   letter-spacing: 0.4px;
 }
-.sidebar .nav-link.active { color: #45C4E0; }
-.sidebar .nav-link.active::before { background-color: #2EC4B6; }
+.sidebar .nav-link.active { color: #F2B035; }
+.sidebar .nav-link.active::before { background-color: #F2B035; }
