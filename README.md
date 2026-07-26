@@ -8,7 +8,26 @@
 
 DLEAPP is also meant to be a home for parsers that don't fit neatly into any of the other LEAPPs — a place for desktop-application and other odds-and-ends artifacts to live rather than being forced into iLEAPP, ALEAPP, RLEAPP, and the like.
 
-The initial release ships a full **Wire** (app.wire.com desktop) parser — accounts, devices, conversations, messages, calls, attachments, cached assets, and media recovered by decrypting the app's cached asset blobs with the per-asset keys. More desktop-application parsers will be added over time.
+### Supported applications
+
+| Application | What is parsed |
+| --- | --- |
+| **Wire** (desktop) | Accounts, devices, conversations, messages, calls, attachments, cookies, service-worker cache, and media recovered by decrypting cached asset blobs. |
+| **Discord** (desktop) | Messages, attachments and recovered media, servers, channels, users, searches, reactions, message drafts, client activity, channel navigation, gateway sessions, account and application details, and a full cache index. |
+
+Discord Desktop keeps no message database of its own: the client renders from
+REST API responses, and those responses stay in the Chromium HTTP cache. The
+Discord artifacts read that cache directly, so messages, attachments and the
+images themselves are recoverable after they were deleted server-side. The
+approach follows Alex Caithness's work on treating a web app's browser
+artifacts as an application in their own right
+([browser-forensics-presentation-2025](https://github.com/cclgroupltd/browser-forensics-presentation-2025),
+[mister-skinnylegs](https://github.com/cclgroupltd/mister-skinnylegs)).
+
+The Chromium container formats these parsers rely on live in `scripts/chromium/`
+(Simple Cache reader, Local Storage LevelDB reader) and are reusable by any
+future Electron application parser. More desktop-application parsers will be
+added over time.
 
 If you want to contribute hit me up on twitter: https://twitter.com/AlexisBrignoni   
 
