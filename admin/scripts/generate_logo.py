@@ -1,10 +1,18 @@
 """Generate DLEAPP logo/banner assets from the source vector artwork.
 
 The DLEAPP icon is artwork by Johann Polewczyk: three stacked application
-windows with a pointer, in a flat style with heavy dark outlines. His original
-vector is kept untouched at ``assets/source/DLEAPP_art_original.svg`` (rust
-tile). This script recolors the tile to DLEAPP's plum brand color and renders
-every asset used by the app, the HTML report and the repo.
+windows with a pointer. James Habben's idea gave each window the window
+controls of a different desktop OS, so the icon says "desktop apps, any
+platform" at a glance:
+
+    back   amber  - Linux  : circular controls on the left
+    middle blue   - Windows: line glyphs on the right
+    front  light  - macOS  : traffic lights on the left
+
+``assets/source/DLEAPP_art.svg`` is the working master (plum tile, OS controls,
+dimensional shading). Johann's original flat artwork is kept untouched beside it
+as ``DLEAPP_art_original.svg``. This script renders every asset used by the app,
+the HTML report and the repo straight from the master vector.
 
 DLEAPP brand palette (taken from the artwork itself):
     tile   #5F3A5C  plum / aubergine     (unclaimed in the LEAPP family)
@@ -25,9 +33,8 @@ import tempfile
 from PIL import Image, ImageDraw, ImageFont
 
 DL = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SOURCE_SVG = os.path.join(DL, "assets", "source", "DLEAPP_art_original.svg")
+SOURCE_SVG = os.path.join(DL, "assets", "source", "DLEAPP_art.svg")
 
-RUST = "#A34E2A"          # tile color in the source artwork
 PLUM = "#5F3A5C"          # DLEAPP tile
 PILL = (74, 45, 72)       # #4A2D48  darker plum for banner pills
 GOLD = (242, 176, 53)     # #F2B035  wordmark
@@ -46,13 +53,13 @@ def _font(size):
     return ImageFont.load_default()
 
 
-def plum_svg():
-    """Johann's artwork with the tile recolored to the DLEAPP plum."""
+def brand_svg():
+    """The master artwork (plum tile, per-OS window controls)."""
     with open(SOURCE_SVG, "r", encoding="utf-8") as fh:
         svg = fh.read()
-    if RUST not in svg:
-        raise SystemExit(f"tile color {RUST} not found in {SOURCE_SVG}")
-    return svg.replace(RUST, PLUM)
+    if PLUM not in svg:
+        raise SystemExit(f"tile color {PLUM} not found in {SOURCE_SVG}")
+    return svg
 
 
 def mark_svg(svg):
@@ -60,7 +67,7 @@ def mark_svg(svg):
     it can be placed on a colored pill without a halo."""
     svg = svg.replace('viewBox="0 0 1024 1024" width="1024" height="1024"',
                       'viewBox="100 100 824 824" width="824" height="824"')
-    return svg.replace('<g filter="url(#sh)">', "<g>")
+    return svg.replace('<g filter="url(#tileSh)">', "<g>")
 
 
 def render(svg_text, size, out_path):
@@ -135,7 +142,7 @@ if __name__ == "__main__":
     if not shutil.which("rsvg-convert"):
         raise SystemExit("rsvg-convert (librsvg) is required to render the SVG")
 
-    svg = plum_svg()
+    svg = brand_svg()
 
     # the brand vector itself (README, leapps.org, print)
     out_svg = os.path.join(DL, "assets", "DLEAPP_logo.svg")

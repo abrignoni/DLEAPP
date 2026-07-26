@@ -166,6 +166,7 @@ def get_cool_data1(files_found, report_folder, seeker, wrap_text):
 
 This tool is the result of a collaborative effort of many people in the DFIR community.
 
-DLEAPP logo artwork courtesy of Johann Polewczyk.
+DLEAPP logo artwork courtesy of Johann Polewczyk, with the per-OS window
+controls (Linux, Windows, macOS) suggested by James Habben.
 
 DLEAPP is built on the RLEAPP framework by Alexis Brignoni and contributors.
