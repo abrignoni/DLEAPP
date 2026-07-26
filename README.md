@@ -14,6 +14,7 @@ DLEAPP is also meant to be a home for parsers that don't fit neatly into any of 
 | --- | --- |
 | **Wire** (desktop) | Accounts, devices, conversations, messages, calls, attachments, cookies, service-worker cache, and media recovered by decrypting cached asset blobs. |
 | **Discord** (desktop) | Messages, attachments and recovered media, servers, channels, users, searches, reactions, message drafts, client activity, channel navigation, gateway sessions, account and application details, and a full cache index. |
+| **Signal** (desktop) | Messages, attachments decrypted from disk, conversations and groups, calls, reactions, protocol sessions and identity keys, and account details. Requires the database credential — see below. |
 
 Discord Desktop keeps no message database of its own: the client renders from
 REST API responses, and those responses stay in the Chromium HTTP cache. The
@@ -28,6 +29,32 @@ The Chromium container formats these parsers rely on live in `scripts/chromium/`
 (Simple Cache reader, Local Storage LevelDB reader) and are reusable by any
 future Electron application parser. More desktop-application parsers will be
 added over time.
+
+### Signal Desktop needs a credential
+
+Signal encrypts its message database with SQLCipher, and encrypts every file in
+`attachments.noindex` with a key held inside that database. Recent versions wrap
+the database key with the OS credential store, so it is **not** in the profile:
+
+* macOS — login Keychain, service `Signal Safe Storage`
+* Windows — Credential Manager
+
+Capture it from the host and pass it in. DLEAPP accepts the credential, the
+64 character database key itself, or a file holding either:
+
+```
+python3 dleapp.py -t fs -i <profile> -o <output> --signal-key
+```
+
+Given the flag with no value it prompts without echo, which keeps the secret out
+of shell history and the process list. The GUI has an equivalent Signal key
+field. A file named `signal_password.txt` beside the extraction is also picked
+up, which suits batch runs. Older profiles that still hold a plaintext `key` in
+`config.json` need nothing at all.
+
+Without a credential the Signal artifacts report why and produce no rows, rather
+than failing silently. `scripts/sqlcipher_decrypt.py` is the same pure-python
+reader ALEAPP and iLEAPP use, so it needs no native SQLCipher build.
 
 If you want to contribute hit me up on twitter: https://twitter.com/AlexisBrignoni   
 
