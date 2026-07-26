@@ -3,6 +3,7 @@
 import tkinter as tk
 import typing
 import json
+import os
 import dleapp
 import webbrowser
 import base64
@@ -454,6 +455,12 @@ def process(casedata):
         casedata = {key: value.get() for key, value in casedata.items()}
         out_params = OutputParameters(output_folder, output_folder_name_entry.get().strip())
         Context.set_output_params(out_params)
+        # A field value may be the secret itself or a file holding it
+        signal_key = signal_key_entry.get().strip()
+        if signal_key and os.path.isfile(signal_key):
+            with open(signal_key, 'r', encoding='utf-8', errors='replace') as signal_key_file:
+                signal_key = signal_key_file.read(4096).strip()
+        Context.set_app_secret('signal', signal_key or None)
         wrap_text = True
         bottom_frame.pack_forget()
         mlist_frame.pack_forget()
@@ -866,6 +873,16 @@ output_folder_name_entry.configure(
     validate='key',
     validatecommand=(main_window.register(allow_output_folder_name_chars), '%P'))
 output_folder_name_entry.pack(side='left', fill='x', expand=True)
+
+# Secrets for applications that encrypt their data are gathered here, before
+# processing starts. An artifact cannot ask for one mid-run: modules execute on
+# a worker thread, so a dialog raised from there would deadlock the interface.
+app_secret_row = ttk.Frame(output_frame)
+app_secret_row.pack(fill='x', padx=5, pady=(0, 4))
+ttk.Label(app_secret_row, text='Signal key:').pack(side='left', padx=(0, 5))
+signal_key_entry = ttk.Entry(app_secret_row, show='•')
+signal_key_entry.pack(side='left', fill='x', expand=True)
+ttk.Label(app_secret_row, text='(optional)').pack(side='left', padx=(5, 0))
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
