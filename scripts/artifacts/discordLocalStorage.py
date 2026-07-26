@@ -20,6 +20,10 @@ __artifacts_v2__ = {
         "paths": ('*/discord*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "edit-3",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 64 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 64 rows",
+        },
     },
     "discordActivity": {
         "name": "Discord Client Activity",
@@ -43,6 +47,10 @@ __artifacts_v2__ = {
         "paths": ('*/discord*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "activity",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 303 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 303 rows",
+        },
     },
     "discordLocalStorage": {
         "name": "Discord Local Storage",
@@ -63,6 +71,10 @@ __artifacts_v2__ = {
         "paths": ('*/discord*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "database",
+        "sample_data": {
+            "discord_macos": "Discord 0.0.402 macOS | 654 rows",
+            "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 654 rows",
+        },
     },
 }
 
