@@ -1,9 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+
 block_cipher = None
 
+# PyInstaller resolves pathex and hookspath against the current working
+# directory, unlike the script and datas paths below, which it resolves against
+# the spec file. Anchor them to SPECPATH so the build works from any directory.
 a = Analysis(['..\\..\\dleappGUI.py'],
-             pathex=['..\\scripts\\artifacts'],
+             pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
              binaries=[],
              datas=[('..\\', '.\\scripts'), ('..\\..\\assets', '.\\assets')],
              hiddenimports=[
@@ -19,7 +24,7 @@ a = Analysis(['..\\..\\dleappGUI.py'],
                 'simplekml',
                 'xlrd',
                 ],
-             hookspath=['.\\'],
+             hookspath=[SPECPATH],
              runtime_hooks=[],
              excludes=[],
              win_no_prefer_redirects=False,

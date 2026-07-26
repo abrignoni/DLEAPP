@@ -1,9 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
 
+# PyInstaller resolves pathex against the current working directory, unlike the
+# script and datas paths below, which it resolves against the spec file. Anchor
+# it to SPECPATH so the build works from any directory.
 a = Analysis(
     ['../../dleappGUI.py'],
-    pathex=['scripts/artifacts'],
+    pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
     binaries=[],
     datas=[('../', 'scripts'), ('../../assets', 'assets')],
     hiddenimports=[
