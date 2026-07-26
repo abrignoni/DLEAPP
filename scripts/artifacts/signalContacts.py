@@ -180,7 +180,8 @@ def signalCalls(context):
     try:
         rows = connection.execute("""SELECT callId, peerId, ringerId, mode, type, direction,
                                             status, timestamp, endedTimestamp FROM callsHistory""")
-    except Exception as ex:
+    # Deliberately broad: an older schema may lack this table.
+    except Exception as ex:  # pylint: disable=broad-exception-caught
         logfunc(f"Signal Calls: call history unavailable ({ex}).")
         connection.close()
         return data_headers, [], ""
@@ -245,7 +246,8 @@ def signalSessions(context):
                 "", "", "",
                 context.get_relative_path(_source(files_found)),
             ))
-    except Exception as ex:
+    # Deliberately broad: an older schema may lack this table.
+    except Exception as ex:  # pylint: disable=broad-exception-caught
         logfunc(f"Signal Sessions: sessions table unavailable ({ex}).")
 
     try:
@@ -265,7 +267,8 @@ def signalSessions(context):
                 "Yes" if record.get("nonblockingApproval") else "",
                 context.get_relative_path(_source(files_found)),
             ))
-    except Exception as ex:
+    # Deliberately broad: an older schema may lack this table.
+    except Exception as ex:  # pylint: disable=broad-exception-caught
         logfunc(f"Signal Sessions: identityKeys table unavailable ({ex}).")
 
     connection.close()

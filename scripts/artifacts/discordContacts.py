@@ -177,7 +177,8 @@ def _channel_to_server(scan, files_found):
     for folder in leveldb_folders(files_found):
         try:
             records = list(read_records(folder))
-        except Exception:
+        # Deliberately broad: a damaged LevelDB must not stop the mapping.
+        except Exception:  # pylint: disable=broad-exception-caught
             continue
         for record in records:
             if record.key != "SelectedChannelStore":

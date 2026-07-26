@@ -96,7 +96,8 @@ def _records(context):
     for folder in leveldb_folders([str(f) for f in context.get_files_found()]):
         try:
             records.extend(read_records(folder))
-        except Exception as ex:
+        # Deliberately broad: a damaged LevelDB must not stop the artifact.
+        except Exception as ex:  # pylint: disable=broad-exception-caught
             logfunc(f"Discord Local Storage: could not read '{folder}': {ex}")
     records.sort(key=lambda record: -record.sequence)
     return records

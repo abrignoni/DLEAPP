@@ -198,7 +198,7 @@ class DiscordCacheScan:
 
     # -- population helpers ------------------------------------------------ #
 
-    def _note_user(self, user, seen_in, when):
+    def note_user(self, user, seen_in, when):
         if not isinstance(user, dict) or not user.get("id"):
             return
         uid = user["id"]
@@ -219,7 +219,7 @@ class DiscordCacheScan:
             if record["last_seen"] is None or when > record["last_seen"]:
                 record["last_seen"] = when
 
-    def _note_channel(self, channel, source=""):
+    def note_channel(self, channel, source=""):
         if not isinstance(channel, dict) or not channel.get("id"):
             return
         cid = channel["id"]
@@ -239,11 +239,11 @@ class DiscordCacheScan:
             record["recipients"] = ", ".join(
                 user_display(r) for r in recipients if isinstance(r, dict))
         for recipient in recipients:
-            self._note_user(recipient, "DM channel", None)
+            self.note_user(recipient, "DM channel", None)
         if channel.get("guild_id"):
-            self._note_guild({"id": channel["guild_id"]}, source)
+            self.note_guild({"id": channel["guild_id"]}, source)
 
-    def _note_guild(self, guild, source=""):
+    def note_guild(self, guild, source=""):
         if not isinstance(guild, dict) or not guild.get("id"):
             return
         gid = str(guild["id"])
@@ -262,7 +262,7 @@ class DiscordCacheScan:
             record["features"] = ", ".join(
                 str(f) for f in guild["features"] if isinstance(f, str))
 
-    def _add_message(self, message, source, cached_at):
+    def add_message(self, message, source, cached_at):
         if not isinstance(message, dict) or not message.get("id"):
             return
         mid = message["id"]
@@ -273,11 +273,11 @@ class DiscordCacheScan:
             return
         self.messages[mid] = {"message": message, "source": source, "cached": cached_at}
         sent = iso_to_datetime(message.get("timestamp")) or snowflake_to_datetime(mid)
-        self._note_user(message.get("author"), "Message author", sent)
+        self.note_user(message.get("author"), "Message author", sent)
         for mention in message.get("mentions") or []:
-            self._note_user(mention, "Mentioned", sent)
+            self.note_user(mention, "Mentioned", sent)
         if message.get("channel_id"):
-            self._note_channel({"id": message["channel_id"]}, source)
+            self.note_channel({"id": message["channel_id"]}, source)
 
 
 def _decode_json(entry):
@@ -322,7 +322,8 @@ def find_local_account(files_found):
     for folder in leveldb_folders(files_found):
         try:
             records = list(read_records(folder))
-        except Exception:
+        # Deliberately broad: one malformed cached response must not stop the scan.
+        except Exception:  # pylint: disable=broad-exception-caught
             continue
         for record in sorted(records, key=lambda r: -r.sequence):
             if record.key == "MultiAccountStore":
@@ -406,7 +407,8 @@ def scan_cache(files_found, log=None):
 
         try:
             _parse_api_entry(scan, entry, endpoint, cached_at, requested_at)
-        except Exception as ex:  # a single malformed response must not stop the scan
+        # Deliberately broad: a damaged LevelDB must not stop key discovery.
+        except Exception as ex:  # a single malformed response must not stop the scan  # pylint: disable=broad-exception-caught
             if log:
                 log(f"Discord: could not parse cached '{endpoint}': {ex}")
 
@@ -421,7 +423,7 @@ def _parse_api_entry(scan, entry, endpoint, cached_at, requested_at):
         payload = _decode_json(entry)
         if isinstance(payload, list):
             for message in payload:
-                scan._add_message(message, entry.path, cached_at)
+                scan.add_message(message, entry.path, cached_at)
         return
 
     match = _MESSAGE_SEARCH_RE.match(endpoint)
@@ -439,11 +441,11 @@ def _parse_api_entry(scan, entry, endpoint, cached_at, requested_at):
         if isinstance(payload, dict):
             for group in payload.get("messages") or []:
                 for message in (group if isinstance(group, list) else [group]):
-                    scan._add_message(message, entry.path, cached_at)
+                    scan.add_message(message, entry.path, cached_at)
                     if isinstance(message, dict) and message.get("hit"):
                         hits.append(message)
             for channel in payload.get("channels") or []:
-                scan._note_channel(channel, entry.path)
+                scan.note_channel(channel, entry.path)
         scan.searches.append({
             "type": "Message search",
             "scope": f"{match.group(1).rstrip('s')} {match.group(2)}",
@@ -462,7 +464,7 @@ def _parse_api_entry(scan, entry, endpoint, cached_at, requested_at):
         emoji = unquote(match.group(3))
         if isinstance(payload, list):
             for user in payload:
-                scan._note_user(user, "Reacted to message", cached_at)
+                scan.note_user(user, "Reacted to message", cached_at)
                 scan.reactions.append({
                     "channel_id": match.group(1), "message_id": match.group(2),
                     "emoji": emoji, "user": user,
@@ -476,21 +478,21 @@ def _parse_api_entry(scan, entry, endpoint, cached_at, requested_at):
         if isinstance(payload, dict) and payload.get("user"):
             scan.profiles[match.group(1)] = {"profile": payload, "source": entry.path,
                                              "cached": cached_at}
-            scan._note_user(payload["user"], "Profile viewed", cached_at)
+            scan.note_user(payload["user"], "Profile viewed", cached_at)
         return
 
     match = _CHANNEL_RE.match(endpoint)
     if match:
         payload = _decode_json(entry)
         if isinstance(payload, dict):
-            scan._note_channel(payload, entry.path)
+            scan.note_channel(payload, entry.path)
         return
 
     match = _GUILD_PROFILE_RE.match(endpoint)
     if match:
         payload = _decode_json(entry)
         if isinstance(payload, dict) and payload.get("name"):
-            scan._note_guild(payload, entry.path)
+            scan.note_guild(payload, entry.path)
         return
 
     match = _INVITE_RE.match(endpoint)
@@ -499,18 +501,18 @@ def _parse_api_entry(scan, entry, endpoint, cached_at, requested_at):
         if isinstance(payload, dict) and payload.get("code"):
             scan.invites.append({"invite": payload, "cached": cached_at,
                                  "source": entry.path})
-            scan._note_user(payload.get("inviter"), "Invite creator", cached_at)
+            scan.note_user(payload.get("inviter"), "Invite creator", cached_at)
             guild = payload.get("guild")
             if guild:
                 guild = dict(guild)
                 guild.setdefault("approximate_member_count",
                                  payload.get("approximate_member_count"))
-                scan._note_guild(guild, entry.path)
+                scan.note_guild(guild, entry.path)
             if payload.get("channel"):
                 channel = dict(payload["channel"])
                 if guild and guild.get("id"):
                     channel.setdefault("guild_id", guild["id"])
-                scan._note_channel(channel, entry.path)
+                scan.note_channel(channel, entry.path)
         return
 
     match = _GIF_SEARCH_RE.match(endpoint)

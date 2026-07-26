@@ -29,6 +29,7 @@ The result is the 64 character hex string Signal passes to
 import base64
 import hashlib
 import hmac
+import importlib.util
 import json
 import os
 import re
@@ -66,11 +67,8 @@ KDF_ALGORITHM = "sha512"
 
 
 def crypto_available():
-    try:
-        import Crypto.Cipher.AES  # noqa: F401
-        return True
-    except ImportError:
-        return False
+    """True when PyCryptodome is installed, which the unwrap and decrypt need."""
+    return importlib.util.find_spec("Crypto.Cipher.AES") is not None
 
 
 def unwrap_encrypted_key(encrypted_key_hex, credential):
@@ -184,7 +182,8 @@ def resolve_database_key(files_found, log=None):
     try:
         from scripts.context import Context
         supplied = Context.get_app_secret("signal")
-    except Exception:
+    except (ImportError, AttributeError):
+        # Older cores have no app-secret store; the other inputs still work.
         supplied = None
     if supplied:
         secrets.insert(0, ("--signal-key", supplied))
@@ -431,7 +430,8 @@ def decrypt_database(database_path, key_hex, output_path, log=None):
             database_path, key_hex, output_path,
             page_size=PAGE_SIZE, hmac_algorithm=HMAC_ALGORITHM,
             kdf_algorithm=KDF_ALGORITHM, raw_key=True, apply_wal=True)
-    except Exception as ex:  # a malformed image should not stop the module
+    # Deliberately broad: a malformed database image must not stop the module.
+    except Exception as ex:  # a malformed image should not stop the module  # pylint: disable=broad-exception-caught
         if log:
             log(f"Signal Desktop: could not decrypt '{database_path}': {ex}")
         return None

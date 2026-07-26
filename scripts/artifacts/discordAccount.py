@@ -147,7 +147,8 @@ def discordAccount(context):
     for folder in leveldb_folders(files_found):
         try:
             records = sorted(read_records(folder), key=lambda r: -r.sequence)
-        except Exception as ex:
+        # Deliberately broad: a damaged LevelDB must not stop the artifact.
+        except Exception as ex:  # pylint: disable=broad-exception-caught
             logfunc(f"Discord Account: could not read Local Storage '{folder}': {ex}")
             continue
         source_path = source_path or folder
