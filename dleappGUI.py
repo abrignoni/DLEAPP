@@ -768,11 +768,13 @@ modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on in
 pickModules()
 
 ## Theme properties  (DLEAPP brand palette, taken from the logo artwork)
+## The accent is the logo's blue (#3290EB) lightened to clear 3:1 against the
+## plum base; the logo gold is left to iLEAPP, which already owns that accent.
 theme_bgcolor = '#5F3A5C'      # plum / aubergine base
 theme_inputcolor = '#D5D9DE'   # grey input fields (black text)
-theme_inputfgcolor = '#F2B035' # gold accent
+theme_inputfgcolor = '#70ADEB' # blue accent
 theme_fgcolor = '#F7F0E0'      # cream text on plum
-theme_button = '#F2B035'       # gold accent buttons (black text)
+theme_button = '#70ADEB'       # blue accent buttons (black text)
 
 if is_platform_macos():
     mlist_window_height = 24
