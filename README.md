@@ -52,8 +52,11 @@ field. A file named `signal_password.txt` beside the extraction is also picked
 up, which suits batch runs. Older profiles that still hold a plaintext `key` in
 `config.json` need nothing at all.
 
-Without a credential the Signal artifacts report why and produce no rows, rather
-than failing silently. `scripts/sqlcipher_decrypt.py` is the same pure-python
+If the database was already decrypted, with DB Browser for SQLCipher or another
+tool, DLEAPP detects that and parses it as it is — no credential needed.
+
+Without a credential, and with the database still encrypted, the Signal
+artifacts report why and produce no rows rather than failing silently. `scripts/sqlcipher_decrypt.py` is the same pure-python
 reader ALEAPP and iLEAPP use, so it needs no native SQLCipher build.
 
 If you want to contribute hit me up on twitter: https://twitter.com/AlexisBrignoni   

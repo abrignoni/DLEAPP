@@ -135,6 +135,23 @@ def config_files(files_found):
             yield file_found
 
 
+_SQLITE_MAGIC = b"SQLite format 3\x00"
+
+
+def is_plaintext_sqlite(path):
+    """True when a file is an unencrypted SQLite database.
+
+    A SQLCipher database has no readable header: its first bytes are the salt.
+    So the magic string is a reliable way to tell a database that still needs a
+    key from one that was decrypted before it reached us.
+    """
+    try:
+        with open(path, "rb") as handle:
+            return handle.read(16) == _SQLITE_MAGIC
+    except OSError:
+        return False
+
+
 def database_files(files_found):
     """Signal's main database, ignoring its -wal and -shm siblings."""
     seen = set()
@@ -349,14 +366,15 @@ _explained = set()
 
 
 def explain(reason, log):
-    """Log the long form of a failure the first time, a short form after."""
-    if not log:
+    """Log a shared condition once, not once per artifact.
+
+    Every Signal artifact opens the same database, so without this each of them
+    repeats the same sentence and buries the rest of the log.
+    """
+    if not log or reason in _explained:
         return
-    if reason in _explained:
-        log("Signal Desktop: still no database credential, see above.")
-    else:
-        _explained.add(reason)
-        log(f"Signal Desktop: {reason}.")
+    _explained.add(reason)
+    log(f"Signal Desktop: {reason}.")
 
 
 def open_database(files_found, log=None):
@@ -376,6 +394,17 @@ def open_database(files_found, log=None):
             return sqlite3.connect(f"file:{cached}?mode=ro", uri=True), "decrypted earlier this run"
         except sqlite3.Error:
             pass
+
+    # An examiner may have decrypted the database already, with DB Browser for
+    # SQLCipher or another tool, and be parsing that copy. It is then a plain
+    # SQLite file and needs no key, so read it as it is rather than refusing.
+    if is_plaintext_sqlite(database_path):
+        explain("the database is already decrypted, so no credential is needed", log)
+        try:
+            return (sqlite3.connect(f"file:{database_path}?mode=ro", uri=True),
+                    "already decrypted before parsing")
+        except sqlite3.Error as ex:
+            return None, f"the decrypted database could not be opened: {ex}"
 
     key_hex, how = resolve_database_key(files_found, log=log)
     if not key_hex:
