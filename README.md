@@ -148,6 +148,34 @@ python3 admin/scripts/validate_sample_data.py --registry <path> --run <corpus> #
 
 The structural check needs no test data and runs in CI on every pull request. The registry and row-count checks need the images, so run those locally before changing a parser's output.
 
+### Output regression tests
+
+`sample_data` records how many rows an artifact produced. To catch a change that
+keeps the count and alters the values, record a fingerprint of a corpus and
+compare against it later:
+
+```
+python3 admin/test/scripts/make_test_data.py   --registry <path> --corpus <key>
+python3 admin/test/scripts/test_module_output.py --registry <path> --corpus <key>
+python3 admin/test/scripts/test_module_output.py --registry <path> --all
+```
+
+Encrypted corpora take their secret the same way a normal run does, and
+`--secret signal` with no value prompts without echo:
+
+```
+python3 admin/test/scripts/test_module_output.py --registry <path> \
+    --corpus signal_macos_needed --secret signal
+```
+
+Baselines live in `admin/test/results/<corpus>.json` and are committed. They
+hold row counts, the column list, per-column digests and how many values were
+populated — **never rows**, because the corpora are private application
+profiles. A digest still changes when any value does, so the regression is
+caught without the baseline carrying anyone's messages.
+
+These need the corpora, so they run locally rather than in CI.
+
 For example:
 
 ```python
