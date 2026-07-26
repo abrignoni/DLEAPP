@@ -70,9 +70,9 @@
     <rect x="334" y="384" width="356" height="256" rx="18" fill="url(#blueG)"/>
     <path d="M334 402a18 18 0 0 1 18-18h320a18 18 0 0 1 18 18v34H334z" fill="url(#winBarG)"/>
     <g stroke="#EDEFF2" stroke-width="3.6" fill="none" stroke-linecap="round">
-      <path d="M570 410h22"/>
-      <rect x="622" y="399" width="22" height="22" rx="1.5"/>
-      <path d="M665 399l22 22M687 399l-22 22"/>
+      <path d="M553 410h22"/>
+      <rect x="605" y="399" width="22" height="22" rx="1.5"/>
+      <path d="M648 399l22 22M670 399l-22 22"/>
     </g>
   </g>
 
