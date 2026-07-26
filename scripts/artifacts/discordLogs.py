@@ -1,19 +1,24 @@
 __artifacts_v2__ = {
     "discordNavigation": {
         "name": "Discord Channel Navigation",
-        "description": "Channels and servers the user moved to inside the "
-                       "client, taken from the renderer log the desktop app "
-                       "writes. Each routing entry names the server, the channel "
-                       "and, when the user jumped to a specific message, that "
-                       "message ID.",
+        "description": "Channels and servers the client routed to inside the "
+                       "application, taken from the renderer log the desktop "
+                       "app writes. Each entry records the destination the "
+                       "client navigated to at that time, naming the server, "
+                       "the channel and, where the route targeted one, a "
+                       "specific message ID. Timestamps are the device's local "
+                       "time, not UTC.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
         "notes": "Renderer log timestamps are written in the device's local "
-                 "time with no offset recorded, so they are reported as local "
-                 "time and must be reconciled with the machine's time zone.",
+                 "time with no offset recorded, so they must be reconciled "
+                 "against the time zone reported by the Discord Account & "
+                 "Application artifact before being placed on a UTC timeline. "
+                 "The log rotates, so coverage reaches back only as far as the "
+                 "retained renderer_js logs.",
         "paths": (
             '*/discord*/logs/renderer_js*.log',
         ),
@@ -24,17 +29,20 @@ __artifacts_v2__ = {
         "name": "Discord Gateway Sessions",
         "description": "Connections the client made to the Discord real-time "
                        "gateway, from the renderer log. Shows when the app came "
-                       "online, which regional gateway it used and which session "
-                       "it resumed, which brackets the periods the account was "
-                       "actually connected.",
+                       "online, which regional gateway it used and which "
+                       "session it resumed, so the events bracket the intervals "
+                       "in which the client held a gateway connection. "
+                       "Timestamps are the device's local time, not UTC.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
-        "notes": "Timestamps are device local time, as written by the client. "
-                 "The gateway hostname identifies the region Discord assigned "
-                 "to the connection.",
+        "notes": "Timestamps are device local time, as written by the client, "
+                 "and must be reconciled against the time zone reported by the "
+                 "Discord Account & Application artifact. The gateway hostname "
+                 "contains the region label Discord assigned to the "
+                 "connection.",
         "paths": (
             '*/discord*/logs/renderer_js*.log',
         ),

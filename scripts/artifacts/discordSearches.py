@@ -1,11 +1,13 @@
 __artifacts_v2__ = {
     "discordSearches": {
         "name": "Discord Searches",
-        "description": "Searches the user ran inside Discord. The search term "
-                       "is part of the request URL, so it survives in the cache "
-                       "key itself, and the cached response shows how many "
-                       "results came back. Covers in-channel and server-wide "
-                       "message searches as well as GIF picker searches.",
+        "description": "Searches issued from the Discord client. The search "
+                       "term is part of the request URL, so it survives in the "
+                       "cache key itself, and the cached response shows how "
+                       "many results came back. The terms are those submitted "
+                       "to Discord's own search from this installation. Covers "
+                       "in-channel and server-wide message searches as well as "
+                       "GIF picker searches.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
@@ -13,7 +15,10 @@ __artifacts_v2__ = {
         "category": "Discord (Desktop)",
         "notes": "Message search hits are also folded into the Discord Messages "
                  "artifact, which means a searched-for message can be recovered "
-                 "even when the channel's own message responses are gone.",
+                 "even when the channel's own message responses are gone. "
+                 "Discord can search on filters alone, with no typed term; "
+                 "those appear with an empty Search Terms and the filter shown "
+                 "in the Filters column.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -25,15 +30,22 @@ __artifacts_v2__ = {
         "name": "Discord Reactions",
         "description": "Users who reacted to a message with a given emoji, from "
                        "cached reaction listings. Each row places a named "
-                       "account on a specific message in a specific channel.",
+                       "account on a specific message in a specific channel, so "
+                       "it records which accounts Discord reported as having "
+                       "reacted to that message. Discord only requests this "
+                       "listing when a reaction list is hovered or opened, so "
+                       "coverage is limited to messages whose reactions were "
+                       "inspected in the client.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
-        "notes": "Discord only requests this endpoint when the user hovers or "
-                 "opens the reaction list, so coverage is limited to messages "
-                 "whose reactions were actually inspected.",
+        "notes": "The listing is capped by the limit Discord requested, so a "
+                 "heavily reacted message may show only the first few accounts. "
+                 "Message Sent is derived from the message snowflake in the "
+                 "request URL and is available even when the message itself was "
+                 "not recovered.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',

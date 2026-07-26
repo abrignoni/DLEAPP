@@ -4,18 +4,23 @@ __artifacts_v2__ = {
         "description": "Chat messages recovered from the Discord Desktop HTTP "
                        "cache. Discord renders its UI from REST API responses, "
                        "and those JSON responses stay in the Chromium cache "
-                       "after the app closes, so messages survive here even "
-                       "when they were later deleted server-side. Where the "
-                       "attachment image is also still cached it is recovered "
-                       "and shown against its message.",
+                       "after the app closes. A cached response is a copy of "
+                       "what the API returned to this client at the moment it "
+                       "was stored, and it is not updated if the message is "
+                       "later edited or deleted server-side. The cache evicts "
+                       "over time, so the absence of a message here does not "
+                       "indicate it was never sent. Where the attachment image "
+                       "is also still cached it is recovered and shown against "
+                       "its message.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
         "notes": "Parses cached responses to /api/v*/channels/<id>/messages and "
-                 "the message search endpoints. Cached copies are point-in-time: "
-                 "the most recently cached version of each message is reported. "
+                 "the message search endpoints. Each cached copy is a "
+                 "point-in-time snapshot and the most recent one is reported, so "
+                 "an edit made after the last cache write is not reflected here. "
                  "Direction is resolved against the signed-in account id taken "
                  "from the Sentry scope and Local Storage.",
         "paths": (
@@ -44,9 +49,14 @@ __artifacts_v2__ = {
         "description": "Files shared in Discord conversations, taken from the "
                        "attachment metadata inside cached message responses and "
                        "linked to the cached copy of the file itself where one "
-                       "survives. The attachment ID is a snowflake, so the "
-                       "upload time is recoverable even when only the URL "
-                       "remains.",
+                       "survives. Each row records an attachment the API "
+                       "reported on a message: its filename, declared size and "
+                       "type, the account that posted the message and the "
+                       "channel it appeared in. The attachment ID is a "
+                       "snowflake, so the upload time is recoverable from the "
+                       "URL alone even when the file itself is gone. The cache "
+                       "evicts over time, so the absence of a file here does "
+                       "not indicate it was never shared.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",

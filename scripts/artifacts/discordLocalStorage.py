@@ -1,12 +1,14 @@
 __artifacts_v2__ = {
     "discordDrafts": {
         "name": "Discord Message Drafts",
-        "description": "Unsent message drafts held in Local Storage. Discord "
-                       "saves the draft box as the user types, and Local Storage "
-                       "is a LevelDB, so superseded versions of the key stay on "
-                       "disk. The result is a keystroke-level history of "
-                       "messages that were composed but never sent, each with "
-                       "its own timestamp and target channel.",
+        "description": "Message drafts held in Local Storage. Discord saves the "
+                       "draft box as text is typed, and Local Storage is a "
+                       "LevelDB, so superseded versions of the key stay on "
+                       "disk. The result is a keystroke-level history of text "
+                       "as it was composed, each version with its own "
+                       "timestamp and target channel. A row records what was in "
+                       "the compose box at that time; whether it was ever sent "
+                       "cannot be determined from this artifact alone.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
@@ -25,8 +27,10 @@ __artifacts_v2__ = {
                        "state Discord keeps between runs: channels opened and "
                        "when, servers selected, voice channels joined, quick "
                        "switcher history and client session heartbeats. This is "
-                       "usage evidence that exists independently of any message "
-                       "content.",
+                       "usage state that exists independently of any message "
+                       "content: it records when the client opened channels, "
+                       "selected servers and started sessions, whether or not "
+                       "any message from those channels was cached.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
@@ -44,8 +48,11 @@ __artifacts_v2__ = {
         "name": "Discord Local Storage",
         "description": "Raw Local Storage keys and values for the Discord "
                        "origins, including superseded and deleted versions "
-                       "recovered from the LevelDB table and log files. Use this "
-                       "when a store is not yet parsed into its own artifact.",
+                       "recovered from the LevelDB table and log files. Because "
+                       "LevelDB does not overwrite in place, a value the app "
+                       "has since changed or deleted can still be read here. "
+                       "Use this when a store is not yet parsed into its own "
+                       "artifact.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",

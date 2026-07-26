@@ -7,7 +7,11 @@ __artifacts_v2__ = {
                        "browsing history database, so this index is the closest "
                        "equivalent: it shows which API calls, CDN images, "
                        "embedded links and third-party resources the client "
-                       "fetched, and when.",
+                       "fetched, and when. Hosts outside Discord appear too, "
+                       "since the client fetches link previews and embedded "
+                       "media from them. The cache evicts over time, so this "
+                       "index is a partial record of what the client fetched "
+                       "rather than a complete one.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",

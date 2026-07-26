@@ -4,19 +4,24 @@ __artifacts_v2__ = {
         "description": "Every Discord account observed anywhere in the cached "
                        "application data: message authors, mentioned users, "
                        "direct message recipients, people who reacted to a "
-                       "message, invite creators and viewed profiles. User IDs "
+                       "message, invite creators and cached profiles. User IDs "
                        "are snowflakes, so each account's registration date is "
                        "recoverable, and a cached avatar is embedded where one "
-                       "survives.",
+                       "survives. Where a profile response was cached, the "
+                       "external accounts Discord recorded as connected to it "
+                       "(Steam, Spotify, Xbox and similar) are listed with "
+                       "their platform and account name. First and last seen "
+                       "describe the surviving cached evidence, not the "
+                       "account's activity window.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
-        "notes": "First and last seen reflect the cached evidence, not the "
-                 "account's real activity window. Profile fields (bio, pronouns, "
-                 "connected accounts) are only present for profiles the user "
-                 "actually opened in the client.",
+        "notes": "Profile fields (bio, pronouns, connected accounts) are only "
+                 "present where a profile response was cached, so a sparse row "
+                 "means no profile response survives, not that the account has "
+                 "no profile.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -32,7 +37,10 @@ __artifacts_v2__ = {
                        "the cached data, with the number of messages recovered "
                        "for each and the span those messages cover. Channel IDs "
                        "are snowflakes, so the channel creation date is "
-                       "recoverable even for a channel only seen once in a URL.",
+                       "recoverable even for a channel only seen once in a URL. "
+                       "The message count is what survived in the cache rather "
+                       "than the volume of the conversation, and the date span "
+                       "covers only the recovered messages.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
@@ -58,18 +66,23 @@ __artifacts_v2__ = {
         "description": "Discord servers (guilds) the client encountered, built "
                        "from cached server profiles, invite lookups, the server "
                        "IDs attached to cached channels and the servers the "
-                       "renderer log shows the user navigating to. Server IDs "
+                       "renderer log shows the client routing to. Server IDs "
                        "are snowflakes, so the server's creation date is "
-                       "recoverable even when only the ID survives.",
+                       "recoverable even when only the ID survives. A server is "
+                       "listed because its ID or profile appeared in cached "
+                       "data or in the navigation log. That records the client "
+                       "encountering the server and does not establish "
+                       "membership, since an invite lookup produces a record "
+                       "for a server that was never joined.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
-        "notes": "A server appearing here means the client saw it, which "
-                 "includes servers reached through an invite link without ever "
-                 "joining. Member counts are the approximate values Discord "
-                 "returned at the time the response was cached.",
+        "notes": "Member counts are the approximate values Discord returned at "
+                 "the time the response was cached, not current figures. "
+                 "Channel and message counts are limited to what the cache and "
+                 "the navigation log revealed about each server.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -84,16 +97,19 @@ __artifacts_v2__ = {
         "description": "Server invite links the client looked up. Discord "
                        "resolves an invite code through the API before showing "
                        "the join prompt, and that response names the server, the "
-                       "channel the invite points at, who created it and when it "
-                       "expires.",
+                       "channel the invite points at, who created it and when "
+                       "it expires. A row records that the client resolved that "
+                       "invite code and what Discord returned for it. It does "
+                       "not establish that the user joined the server.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
-        "notes": "An invite appearing here shows the link was opened or "
-                 "previewed in the client. It does not establish that the user "
-                 "joined the server.",
+        "notes": "One row per invite code, from the most recent cached lookup. "
+                 "The expiry is the value Discord returned when the code was "
+                 "resolved, so an expired invite may still have been valid when "
+                 "it was used.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',

@@ -2,8 +2,14 @@ __artifacts_v2__ = {
     "discordAccount": {
         "name": "Discord Account & Application",
         "description": "The account signed in to Discord Desktop together with "
-                       "the application, device and operating system details the "
-                       "client recorded about the machine it was running on. The "
+                       "the application, device and operating system values the "
+                       "client itself recorded about the machine it was running "
+                       "on. They identify the installation that the other "
+                       "artifacts in this category were parsed from. The "
+                       "time zone recorded here is the one the log-derived "
+                       "artifacts (Channel Navigation, Gateway Sessions) must "
+                       "be read against, since those are written in device "
+                       "local time. The "
                        "Sentry crash-reporting scope is the richest single "
                        "source: it names the account, the app build and the "
                        "hardware, and it is written on every run.",

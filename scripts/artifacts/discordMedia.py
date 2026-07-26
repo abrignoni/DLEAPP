@@ -6,18 +6,23 @@ __artifacts_v2__ = {
                        "extracted and embedded in the report. Attachment URLs "
                        "carry the channel ID and an attachment snowflake, so a "
                        "cached file can be tied to its channel and dated even "
-                       "when the message that carried it is long gone from the "
-                       "cache.",
+                       "when the message that carried it is long gone. The "
+                       "'Message Recovered' column flags files whose "
+                       "attachment ID matches no message recovered from this "
+                       "cache. The cache evicts over time, so the absence of a "
+                       "file here does not indicate it was never present.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
-        "notes": "The 'Message Recovered' column separates media that still has "
-                 "a matching cached message from orphaned media, which is the "
-                 "case that matters when messages have been deleted. Discord "
-                 "serves resized WebP copies to the client, so recovered bytes "
-                 "are often a transcode rather than the original upload.",
+        "notes": "Discord serves resized WebP copies to the client, so "
+                 "recovered bytes are often a transcode rather than the "
+                 "original upload and will not necessarily hash to the file as "
+                 "it was uploaded. One "
+                 "row per cached file: the same image appears more than once "
+                 "where the client fetched it at several sizes, though "
+                 "identical bytes are stored only once.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
