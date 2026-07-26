@@ -42,7 +42,6 @@ _MIN_PLAUSIBLE_EPOCH = 631152000
 _MAX_PLAUSIBLE_EPOCH = 4102444800
 
 _FIELD_SEPARATOR = "\x1f"
-_ROW_SEPARATOR = "\x1e"
 
 
 def load_registry(registry_path):
