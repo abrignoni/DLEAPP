@@ -23,6 +23,7 @@ class Context:
     _files_found = []
     _filename_lookup_map = {}
     _data_folder = None
+    _app_secrets = {}
 
     @staticmethod
     def set_output_params(output_params):
@@ -373,11 +374,39 @@ class Context:
         return full_path
 
     @staticmethod
+    def set_app_secret(name, value):
+        """
+        Stores a secret supplied at invocation for an application that keeps
+        its data encrypted, such as the Signal Desktop database credential.
+
+        Secrets are gathered once when DLEAPP starts, never from inside an
+        artifact: artifacts run in a loop and, in the GUI, off the main thread,
+        so prompting mid-run would stall processing or deadlock the interface.
+
+        Args:
+            name: the application the secret belongs to, for example 'signal'.
+            value: the secret as a string, or None to record that none was given.
+        """
+        if value:
+            Context._app_secrets[name] = value
+
+    @staticmethod
+    def get_app_secret(name):
+        """
+        Returns the secret supplied for an application, or None.
+
+        Args:
+            name: the application the secret belongs to, for example 'signal'.
+        """
+        return Context._app_secrets.get(name)
+
+    @staticmethod
     def clear():
         """
         Resets all context-related class variables to None, effectively
         clearing any stored state or references, except for the device IDs,
-        OS builds, and output parameters which are retained for efficiency.
+        OS builds, output parameters and supplied secrets which are retained
+        for efficiency.
         """
         Context._report_folder = None
         Context._seeker = None

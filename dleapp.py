@@ -1,6 +1,8 @@
 import json
 import argparse
+import getpass
 import io
+import os
 import os.path
 import typing
 import scripts.report as report
@@ -20,6 +22,40 @@ from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
 
 leapp_name = "DLEAPP"
+
+# Sentinel meaning "--signal-key was given with no value", which asks for a
+# prompt instead. Secrets are gathered here, before processing starts, never
+# from inside an artifact: artifacts run in a loop and, under the GUI, off the
+# main thread, so a prompt there would stall the run or deadlock the interface.
+PROMPT_FOR_SECRET = object()
+
+
+def resolve_supplied_secret(value, label):
+    '''Turn a --<app>-key argument into the secret itself.
+
+    The argument may be the secret, the path to a file holding it, or the
+    sentinel asking for an interactive prompt. Reading from a file, or being
+    prompted, keeps the secret out of shell history and the process list.
+    '''
+    if value is None:
+        return None
+    if value is PROMPT_FOR_SECRET:
+        if not sys.stdin.isatty():
+            raise argparse.ArgumentError(
+                None, f'{label} was given with no value, but this is not an interactive '
+                      'terminal so there is nothing to prompt. Pass the value or a file path.')
+        entered = getpass.getpass(f'{label} (input hidden): ').strip()
+        if not entered:
+            raise argparse.ArgumentError(None, f'No {label} was entered.')
+        return entered
+    if os.path.isfile(value):
+        with open(value, 'r', encoding='utf-8', errors='replace') as secret_file:
+            contents = secret_file.read(4096).strip()
+        if not contents:
+            raise argparse.ArgumentError(None, f'The file given for {label} is empty: {value}')
+        return contents
+    return value.strip()
+
 
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
@@ -180,6 +216,14 @@ def main():
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
+    parser.add_argument('--signal-key', dest='signal_key', required=False, nargs='?',
+                        const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        help=("Credential for a Signal Desktop profile, needed because Signal "
+                              "encrypts its database and attachments. Accepts the OS credential "
+                              "store password ('Signal Safe Storage' in the macOS Keychain, or the "
+                              "Windows Credential Manager), the 64 character database key itself, "
+                              "or the path to a file holding either. Give the flag with no value "
+                              "to be prompted without the secret reaching your shell history."))
 
 
     # Check if no arguments were provided
@@ -317,6 +361,13 @@ def main():
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
     custom_output_folder = args.custom_output_folder
+
+    # Gather any application secrets now, while the terminal is still ours
+    try:
+        Context.set_app_secret('signal', resolve_supplied_secret(args.signal_key, 'Signal key'))
+    except argparse.ArgumentError as secret_error:
+        print(secret_error)
+        return
 
     # File system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.

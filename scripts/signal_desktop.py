@@ -156,11 +156,22 @@ def resolve_database_key(files_found, log=None):
     configs = list(config_files(files_found))
     secrets = list(_supplied_secrets(files_found))
 
+    # A secret given at invocation, with --signal-key or the GUI field, comes
+    # first: it is the examiner's explicit choice for this run.
+    try:
+        from scripts.context import Context
+        supplied = Context.get_app_secret("signal")
+    except Exception:
+        supplied = None
+    if supplied:
+        secrets.insert(0, ("--signal-key", supplied))
+
     # 1. A raw key handed to us directly needs nothing else.
     for path, text in secrets:
         if _RAW_KEY_RE.match(text):
-            note(f"Signal Desktop: using the database key supplied in '{os.path.basename(path)}'.")
-            return text.lower(), f"key supplied in {os.path.basename(path)}"
+            source = path if path == "--signal-key" else os.path.basename(path)
+            note(f"Signal Desktop: using the database key supplied by {source}.")
+            return text.lower(), f"key supplied by {source}"
 
     # 2. Older profiles carry the key in the clear.
     for path in configs:
@@ -192,9 +203,9 @@ def resolve_database_key(files_found, log=None):
         for path, text in secrets:
             key = unwrap_encrypted_key(wrapped, text)
             if key:
-                name = os.path.basename(path)
-                note(f"Signal Desktop: unwrapped encryptedKey with the credential in '{name}'.")
-                return key.lower(), f"encryptedKey unwrapped with the credential in {name}"
+                source = path if path == "--signal-key" else f"'{os.path.basename(path)}'"
+                note(f"Signal Desktop: unwrapped encryptedKey with the credential from {source}.")
+                return key.lower(), f"encryptedKey unwrapped with the credential from {source}"
         return None, ("the supplied credential did not unwrap encryptedKey; it may belong to a "
                       "different profile or host")
 
@@ -202,8 +213,8 @@ def resolve_database_key(files_found, log=None):
         return None, ("config.json holds an encryptedKey, which is wrapped with the OS credential "
                       "store. That credential is not part of the profile, so capture it from the "
                       "host (macOS login Keychain service 'Signal Safe Storage', or Windows "
-                      "Credential Manager) and place it in a file named signal_password.txt "
-                      "beside the extraction")
+                      "Credential Manager) and pass it with --signal-key, the Signal key field in "
+                      "the GUI, or a file named signal_password.txt beside the extraction")
 
     if configs:
         return None, "config.json carries neither a plaintext key nor an encryptedKey"
