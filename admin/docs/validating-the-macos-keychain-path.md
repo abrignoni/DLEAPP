@@ -1,17 +1,57 @@
 # Validating the offline macOS keychain path
 
 `scripts/macos_keychain.py` recovers a generic-password item from a
-`login.keychain-db` given the account's login password. That is the dead-box
+`login.keychain-db` given **the keychain's password**. That is the dead-box
 route to an Electron app's `safeStorage` credential, and for Signal it is what
-`scripts/signal_desktop.py` uses when the examiner supplies a login password
+`scripts/signal_desktop.py` uses when the examiner supplies that password
 instead of the credential itself.
 
-**Status: unverified against a system-created login keychain.** The derivation is
-confirmed from Apple's source, and the table walk, key unwrap and item decrypt
-are tested against keychains that `security create-keychain` writes
-(`admin/test/scripts/test_macos_keychain.py`). What has never been exercised is a
-keychain that macOS itself created at first login. This document is how to build
-one and close that gap.
+Read "the keychain's password", not "the account's login password". They are the
+same on older macOS, and the interface invites you to assume they always are.
+On current macOS they frequently are not — see the finding below, which is the
+single most important thing on this page.
+
+## Finding: on macOS 26 the login password does not open the login keychain
+
+Established 2026-07-27 against three independent `0x200` login keychains on a
+macOS 26 host. None of them is unlocked by its account's login password, and one
+case is airtight:
+
+- A throwaway local account was created fresh and its password never changed.
+- `dscl . -authonly <user> <password>` returns 0 — proof the string really is
+  that account's current login password.
+- macOS itself rejects that same password on the account's `login.keychain-db`
+  (`SecKeychainUnlock` → `-25293`, "the passphrase you entered is not correct"),
+  tested against a copy that the logged-in session does not auto-unlock.
+- `Keychain Access → Reset Default Keychains`, which recreates the login
+  keychain, produced another `0x200` file that also rejects the login password.
+
+So the keychain is encrypted with something other than the login password from
+creation onward, not only after a password reset. The most likely mechanism —
+macOS keys the login keychain with a system-managed secret and releases it
+through the SecureToken/login chain, so the login password unlocks the *stash*
+rather than the keychain — is **a hypothesis, not confirmed from source**. The
+divergence itself is proven; the reason is not.
+
+**Consequence for the tool.** The reader is correct: it agrees with macOS on
+every keychain tried, matches Apple's documented derivation, and parses the
+`0x200` structure. What it cannot do is turn a modern login *password* into a
+modern login *keychain* key, because on these systems the two are unrelated.
+Supplying the actual keychain password still works; supplying the login password
+often will not. This is not specific to DLEAPP — every tool built on the
+"login password == keychain password" assumption meets the same ceiling on
+current macOS.
+
+**Status of the `0x200` decrypt path: still unverified end to end**, for the
+plain reason that this host cannot produce a `0x200` keychain whose password is
+known. The derivation is confirmed from Apple's source, the table walk, key
+unwrap and item decrypt are tested against `security create-keychain` keychains
+(`0x100`, `admin/test/scripts/test_macos_keychain.py`), the reader parses real
+`0x200` structure, and its key-unwrap never branches on blob version. The one
+untested combination is "correct keychain password applied to a `0x200` file".
+The rest of this document is how to close that gap on a host where the login and
+keychain passwords are still in sync — an older macOS, or a fresh VM where they
+have not yet diverged.
 
 ## Why a normal test keychain is not enough
 
@@ -29,30 +69,41 @@ A convenient property: it is the *keychain file* that carries the version, not
 the item. Adding an item to an existing login keychain leaves it `0x200`, so a
 test item planted in a real login keychain exercises the real format.
 
-## Why the obvious test case does not work
+## Verifying a candidate password without fooling yourself
 
-The login keychain on the machine this was developed on is not opened by its
-account password. That is not a fault: a login keychain keeps its **old**
-password when the account password is reset through Apple ID or by an
-administrator, and macOS goes on unlocking it from the stashed session key, so
-nothing on a live host reveals the divergence.
+You cannot trust a test case until you have confirmed the password actually
+opens the keychain, and there are two independent traps in doing so.
 
-This has a sharp corollary. **No `security` subcommand can validate a keychain
-password on a live host.** `unlock-keychain -p`, `set-keychain-password -o` and
-friends all return success for *any* password — empty string included — against
-a copy of the login keychain, because securityd auto-unlocks it. Do not build a
-check on one; an earlier investigation did, and spent a day chasing a bug that
-did not exist.
+**Trap 1: the logged-in session auto-unlocks its own keychain.** `security
+unlock-keychain -p`, `set-keychain-password -o` and friends return success for
+*any* password against a copy of the *current* user's login keychain, because
+securityd auto-unlocks it from the session. An earlier investigation built its
+whole diagnosis on this and chased a bug that did not exist. A keychain from a
+*different* account, copied out and tested from your own session, is not
+auto-unlocked, so there `security` is a valid oracle — with the next caveat.
 
-The only trustworthy oracle is **how many of the keychain's symmetric keys the
-recovered database key unwraps**. A correct key opens essentially all of them, a
-wrong one opens none. Padding validation is not enough on its own: a wrong 3DES
-key produces valid PKCS#7 padding about 1 time in 256, and because the salt and
-password are fixed, that false positive reproduces on every run and reads
-convincingly like a finding.
+**Trap 2: an empty password argument is not a test.** `unlock-keychain -p ''`
+returns success even on a keychain keyed with a real, non-empty password —
+`-p ''` falls back to a stashed/interactive unlock rather than trying the empty
+string. Only **non-empty wrong passwords** exercise the check; those correctly
+return `-25293`. When in doubt, use the reader itself as the tie-breaker:
+`_database_key` feeds the password through PBKDF2 for real and refuses the empty
+string, where the CLI accepts it.
 
-So the test case has to be a login keychain whose password is **known to work**,
-which means one created fresh and never subjected to a password reset.
+**The strongest oracle is structural: how many of the keychain's symmetric keys
+the recovered database key unwraps.** A correct key opens essentially all of
+them, a wrong one opens none. Padding validation alone is not enough — a wrong
+3DES key produces valid PKCS#7 padding about 1 time in 256, and because the salt
+and password are fixed, that false positive reproduces on every run and reads
+convincingly like a finding. This is what mislabelled SHA-256/10000 as the
+answer once; do not repeat it.
+
+So the test case has to be a login keychain whose password is **confirmed to
+open it**, not merely believed to. On current macOS that is the hard part: see
+the finding at the top of this page. Confirm with `dscl . -authonly` that the
+string is the account password, then confirm *separately* that the same string
+opens the keychain. If the first passes and the second fails, you have
+reproduced the finding, not built a test case.
 
 ### Never create a test keychain named `login.keychain-db`
 
@@ -73,10 +124,17 @@ in *creating* one, so it never affects a genuine login keychain copied out of an
 image or a VM. It will bite anyone trying to fake a test case, which is why it is
 written down here.
 
-## Option A — a second local user account (fast)
+## Option A — a second local user account (fast, but verify before trusting)
 
 About five minutes, and it produces a genuine system-created login keychain.
 Needs an administrator password, so run it yourself rather than delegating it.
+
+**On macOS 26 this was tried and the login keychain did not open with the
+account password** — the fresh account's keychain diverged from creation, per
+the finding above. Do not assume the account password will work; step 5 is
+therefore not optional. If it fails, either the host is new enough to have this
+behaviour (use an older macOS or a VM at an older version), or fall back to a
+host where login and keychain passwords are still in sync.
 
 1. System Settings, Users & Groups, add a user. Give it a password you choose
    and record it. Do not reset that password afterwards.
@@ -127,14 +185,21 @@ hosts can virtualise Intel macOS. There is no cross-architecture option.
 
 ### Building the corpus
 
-1. Create the VM and complete Setup Assistant. **Set a local account password
-   you choose and never change it, and skip Apple ID sign-in** — an Apple ID
-   password reset is exactly the event that desynchronises a login keychain.
-2. Confirm the keychain exists and note its format:
+An Apple Silicon VM installs a *current* macOS, and current macOS is where the
+login/keychain-password divergence was observed. Prefer a VM at an **older
+macOS version** for this test — one old enough that the login keychain is still
+keyed with the account password. If you must use a current version, treat step 2
+as a gate: if the account password does not open the keychain there, this VM
+cannot serve as a positive test case, only as another confirmation of the
+finding.
 
-   ```bash
-   ls -l ~/Library/Keychains/login.keychain-db
-   ```
+1. Create the VM and complete Setup Assistant. **Set a local account password
+   you choose and never change it, and skip Apple ID sign-in** — Apple ID
+   sign-in and any later password reset both risk desynchronising the keychain.
+2. Confirm the account password actually opens the keychain before trusting the
+   VM. From your host, against a copy (so the guest session does not auto-unlock
+   it), run the validation script below; `database key recovered` must be True.
+   Do not skip this — a keychain the password does not open is not a test case.
 
 3. Plant a known item, or install Signal Desktop and link it to a test account
    for a genuine `encryptedKey` profile:
