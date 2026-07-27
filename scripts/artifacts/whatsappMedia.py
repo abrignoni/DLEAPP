@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "The media kind shown is derived from the stored file's extension, "
                  "so it reflects the file itself. Latitude and longitude are shown "
                  "only when the row holds a non-zero coordinate. A row can list a "
@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "image",
-        "sample_data": {"whatsapp_macos": "WhatsApp Desktop macOS | 43910 rows"},
+        "sample_data": {"whatsapp_macos": "WhatsApp macOS | 43910 rows"},
     },
 }
 

@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "Direction is taken from the ZISFROMME column: a set flag is "
                  "reported as Outgoing, a clear flag as Incoming. Type Code is the "
                  "ZMESSAGETYPE value the database stores and is left as the integer "
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "message-circle",
         "sample_data": {
-            "whatsapp_macos": "WhatsApp Desktop macOS | 45363 rows",
+            "whatsapp_macos": "WhatsApp macOS | 45363 rows",
         },
         "data_views": {
             "conversation": {
