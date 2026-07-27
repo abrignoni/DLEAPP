@@ -16,9 +16,10 @@ The format is Apple's ``securityd`` database (``AppleFileDL`` / ``CSSM``),
 documented in Apple's open-source ``securityd`` ``BLOBFORMAT`` and independently
 described many times. The recovery is three deterministic steps:
 
-1. Master key = PBKDF2-HMAC-SHA1(password, DbBlob salt, 1000 iterations, 24
-   bytes), then 3DES-CBC decrypt the DbBlob's crypto region with it and the
-   DbBlob IV to get the 24-byte database key.
+1. Master key = PBKDF2(password, DbBlob salt, 24 bytes), then 3DES-CBC decrypt
+   the DbBlob's crypto region with it and the DbBlob IV to get the 24-byte
+   database key. The blob does not say which PBKDF2 parameters were used, so
+   both documented sets are tried (see ``_KDF_PARAMETERS``).
 2. For each symmetric-key record, unwrap its key blob with the database key
    using the CMS 3DES key-unwrap (decrypt with the magic IV, reverse the first
    32 bytes, decrypt again with the blob IV). Index the result by the record's
@@ -26,9 +27,11 @@ described many times. The recovery is three deterministic steps:
 3. A generic-password record carries an SSGP blob whose ``ssgp``+label tag
    selects one unwrapped key; 3DES-CBC decrypt the SSGP body with it.
 
-There is no key searching here: every value is computed by the documented
-formula and used once. A wrong password fails the padding check at step 1 and
-the whole thing returns nothing.
+There is no key searching here. The only thing tried more than once is the pair
+of published PBKDF2 parameter sets at step 1, because the blob does not record
+which one it used; every other value is computed by the documented formula and
+used once. A wrong password fails the padding check under both parameter sets
+and the whole thing returns nothing.
 """
 
 import hashlib
@@ -57,6 +60,14 @@ _KEY_BLOB = struct.Struct("> 8s I I 8s")           # commonBlob(magic+ver), star
 _KEY_BLOB_REC_HEADER_SIZE = 132
 _GENERIC_PW_FIELDS = 22                             # uint32 fields before the variable-length data
 _SSGP_HEADER = struct.Struct("> 4s 16s 8s")        # magic, label, iv
+
+# The DbBlob does not record which KDF produced its master key, so both known
+# parameter sets are tried in turn and the one whose 3DES padding validates is
+# the right one. Current macOS releases write SHA-256 with 10000 rounds; a
+# keychain created by older releases (and by `security create-keychain` on any
+# release) uses SHA-1 with 1000. Verified against a live login.keychain-db,
+# which only the SHA-256 set opens.
+_KDF_PARAMETERS = (("sha256", 10000), ("sha1", 1000))
 
 
 def crypto_available():
@@ -147,12 +158,14 @@ def _database_key(data, blob_base, password):
     """Steps 1: password + DbBlob -> 24-byte database key, or None."""
     _common, start_crypto, total_len, _sig, _seq, _params, salt, iv, _bsig = struct.unpack_from(
         "> 8s I I 16s I 8s 20s 8s 20s", data, blob_base)
-    master = hashlib.pbkdf2_hmac("sha1", password.encode("utf-8"), salt, 1000, _KEY_LENGTH)
     ciphertext = data[blob_base + start_crypto:blob_base + total_len]
-    plain = _des3_decrypt(master, iv, ciphertext)
-    if not plain or len(plain) < _KEY_LENGTH:
-        return None
-    return plain[:_KEY_LENGTH]
+    secret = password.encode("utf-8")
+    for digest, rounds in _KDF_PARAMETERS:
+        master = hashlib.pbkdf2_hmac(digest, secret, salt, rounds, _KEY_LENGTH)
+        plain = _des3_decrypt(master, iv, ciphertext)
+        if plain and len(plain) >= _KEY_LENGTH:
+            return plain[:_KEY_LENGTH]
+    return None
 
 
 def _unwrap_key(ciphertext, iv, db_key):
