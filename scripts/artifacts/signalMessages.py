@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (Desktop)",
+        "category": "Signal (macOS)",
         "notes": "Message bodies come from the messages table. A row with an "
                  "empty body is not necessarily an empty message: it may be a "
                  "view-once message that was opened, a message whose body was "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (Desktop)",
+        "category": "Signal (macOS)",
         "notes": "Signal pads a stored attachment with zeroes to hide its true "
                  "length, so the file is truncated to the size the database "
                  "records. The Verified column reports whether the recovered "
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (Desktop)",
+        "category": "Signal (macOS)",
         "notes": "A reaction is stored separately from the message it targets, "
                  "so it survives here even where the message body is empty.",
         "paths": (
