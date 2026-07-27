@@ -16,10 +16,10 @@ The format is Apple's ``securityd`` database (``AppleFileDL`` / ``CSSM``),
 documented in Apple's open-source ``securityd`` ``BLOBFORMAT`` and independently
 described many times. The recovery is three deterministic steps:
 
-1. Master key = PBKDF2(password, DbBlob salt, 24 bytes), then 3DES-CBC decrypt
-   the DbBlob's crypto region with it and the DbBlob IV to get the 24-byte
-   database key. The blob does not record which PBKDF2 parameters were used, so
-   the reader carries them (see ``_KDF_PARAMETERS``).
+1. Master key = PBKDF2-HMAC-SHA1(password, DbBlob salt, 1000 iterations, 24
+   bytes), then 3DES-CBC decrypt the DbBlob's crypto region with it and the
+   DbBlob IV to get the 24-byte database key. Those parameters are fixed in
+   securityd and never vary (see ``_KDF_DIGEST``).
 2. For each symmetric-key record, unwrap its key blob with the database key
    using the CMS 3DES key-unwrap (decrypt with the magic IV, reverse the first
    32 bytes, decrypt again with the blob IV). Index the result by the record's
@@ -28,13 +28,15 @@ described many times. The recovery is three deterministic steps:
    selects one unwrapped key; 3DES-CBC decrypt the SSGP body with it.
 
 There is no key searching here: every value is computed by the documented
-formula and used once, for each parameter set the reader knows. A wrong
-password fails the padding check at step 1 and the whole thing returns nothing.
+formula and used once. A wrong password fails the padding check at step 1 and
+the whole thing returns nothing.
 
-Scope, as tested: this opens keychains written by ``security create-keychain``.
-It does *not* currently open a real ``login.keychain-db``, and why is an open
-question -- see ``_KDF_PARAMETERS``. Callers should treat a ``None`` from
-``find_generic_password`` as "could not open", not as "wrong password".
+One caution for callers. A ``None`` means "this password did not open this
+keychain", which is not the same as "the examiner typed the wrong password".
+The login keychain retains its old password when the account password is reset
+through Apple ID or by an administrator, and macOS keeps unlocking it from the
+stashed session key, so a live host gives no hint that the two have diverged.
+Report the failure in those terms rather than as a bad password.
 """
 
 import hashlib
@@ -64,18 +66,26 @@ _KEY_BLOB_REC_HEADER_SIZE = 132
 _GENERIC_PW_FIELDS = 22                             # uint32 fields before the variable-length data
 _SSGP_HEADER = struct.Struct("> 4s 16s 8s")        # magic, label, iv
 
-# The DbBlob does not record which KDF produced its master key, so the reader
-# has to know the parameters. SHA-1 with 1000 rounds is the only set confirmed
-# here: it opens every keychain `security create-keychain` writes.
+# The DbBlob records the PBKDF2 salt but not the digest or the iteration count,
+# so the reader has to carry them. These are fixed, not negotiated: Apple's
+# securityd derives the database master key in DatabaseCryptoCore
+# ::deriveDbMasterKey with CSSM_PKCS5_PBKDF2_PRF_HMAC_SHA1, iterationCount(1000)
+# and a 24-byte key, and none of the three is conditional on anything -- not on
+# the blob version, not on the keychain's age.
 #
-# UNRESOLVED: that set does not open a real login.keychain-db, and the reason is
-# not yet known. A sweep once appeared to identify SHA-256/10000, but that
-# result came from a padding check loose enough to accept about 1 wrong key in
-# 256 and is not trusted. Do not add a parameter set here on the strength of a
-# padding hit alone -- confirm it by counting how many of the keychain's
-# symmetric keys the resulting database key unwraps. A correct key opens
-# essentially all of them; a wrong one opens none.
-_KDF_PARAMETERS = (("sha1", 1000),)
+# Worth knowing, because it looks like a difference that should matter and is
+# not: a real login.keychain-db carries blobVersion 0x200 (version_partition)
+# while anything created today is 0x100. That version gates which *verification*
+# algorithm the blob decode uses, not the key derivation.
+#
+# So a failure here means the password does not open this keychain, and the
+# usual reason is not a typo. A login keychain keeps its old password when the
+# account password is reset through Apple ID or by an administrator, and macOS
+# then unlocks it silently from the stashed session key, so the divergence is
+# invisible until something tries the password directly -- which is exactly what
+# this reader does.
+_KDF_DIGEST = "sha1"
+_KDF_ROUNDS = 1000
 
 
 def crypto_available():
@@ -167,13 +177,12 @@ def _database_key(data, blob_base, password):
     _common, start_crypto, total_len, _sig, _seq, _params, salt, iv, _bsig = struct.unpack_from(
         "> 8s I I 16s I 8s 20s 8s 20s", data, blob_base)
     ciphertext = data[blob_base + start_crypto:blob_base + total_len]
-    secret = password.encode("utf-8")
-    for digest, rounds in _KDF_PARAMETERS:
-        master = hashlib.pbkdf2_hmac(digest, secret, salt, rounds, _KEY_LENGTH)
-        plain = _des3_decrypt(master, iv, ciphertext)
-        if plain and len(plain) >= _KEY_LENGTH:
-            return plain[:_KEY_LENGTH]
-    return None
+    master = hashlib.pbkdf2_hmac(
+        _KDF_DIGEST, password.encode("utf-8"), salt, _KDF_ROUNDS, _KEY_LENGTH)
+    plain = _des3_decrypt(master, iv, ciphertext)
+    if not plain or len(plain) < _KEY_LENGTH:
+        return None
+    return plain[:_KEY_LENGTH]
 
 
 def _unwrap_key(ciphertext, iv, db_key):

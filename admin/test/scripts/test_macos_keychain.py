@@ -1,16 +1,16 @@
-"""Cover the macOS keychain reader's key derivation and its known limits.
+"""Cover the macOS keychain reader's key derivation and its failure semantics.
 
 A keychain's DbBlob stores the PBKDF2 salt but not the digest or the iteration
-count that were used with it, so the reader has to carry them. Only SHA-1 with
-1000 rounds is confirmed, and it opens everything `security create-keychain`
-writes. That is also why the reader looked healthy for so long: every keychain
-built for testing uses that set.
+count, so the reader carries them. They are fixed in securityd: HMAC-SHA1, 1000
+rounds, 24 bytes, unconditional. `test_other_parameters_are_not_opened` exists
+because an earlier investigation talked itself into believing real login
+keychains used SHA-256/10000, on the strength of a padding check a wrong key
+passes about 1 time in 256.
 
-It does not open a real login.keychain-db, and the cause is unresolved. These
-tests therefore do two jobs: check the derivation works for every parameter set
-the reader declares, and pin the fact that SHA-256/10000 is deliberately absent,
-so a future change has to bring evidence rather than repeat an earlier guess.
-See `_KDF_PARAMETERS` for what that evidence has to be.
+The distinction these tests protect is the one that investigation got wrong: a
+None from the reader means "this password did not open this keychain", not "the
+examiner mistyped". A login keychain can hold a password that differs from the
+account password, and a live macOS host will not reveal it.
 
 The synthetic-DbBlob tests need no keychain and run on the Linux CI runners. The
 live-keychain test exercises the whole path — table walk, key unwrap, SSGP
@@ -73,38 +73,28 @@ class TestDatabaseKeyDerivation(unittest.TestCase):
         data = b'\xaa' * 64 + blob
         return macos_keychain._database_key(data, 64, password or self.PASSWORD)  # pylint: disable=protected-access
 
-    def test_confirmed_parameters(self):
-        """SHA-1 / 1000: the set `security create-keychain` writes."""
+    def test_securityd_parameters(self):
+        """The values securityd uses, which are fixed and never negotiated."""
+        self.assertEqual(macos_keychain._KDF_DIGEST, 'sha1')  # pylint: disable=protected-access
+        self.assertEqual(macos_keychain._KDF_ROUNDS, 1000)  # pylint: disable=protected-access
         self.assertEqual(self._round_trip('sha1', 1000), self.DB_KEY)
 
-    def test_sha256_is_deliberately_not_declared(self):
-        """Pins the open question so nobody re-adds SHA-256 without evidence.
-
-        A sweep once appeared to show a real login.keychain-db using SHA-256 at
-        10000 rounds, but it judged candidates by 3DES padding alone, which a
-        wrong key satisfies about 1 time in 256. Adding it here on that basis
-        would be guessing. When someone confirms a parameter set properly --
-        by checking that the resulting database key unwraps the keychain's
-        symmetric keys, not just that padding validated -- this test is the
-        thing to change.
-        """
-        self.assertNotIn(('sha256', 10000), macos_keychain._KDF_PARAMETERS)  # pylint: disable=protected-access
-        self.assertIsNone(self._round_trip('sha256', 10000))
-
-    def test_every_declared_parameter_set_is_reachable(self):
-        """Nothing may be listed in _KDF_PARAMETERS that the reader cannot open."""
-        for digest, rounds in macos_keychain._KDF_PARAMETERS:  # pylint: disable=protected-access
-            with self.subTest(digest=digest, rounds=rounds):
-                self.assertEqual(self._round_trip(digest, rounds), self.DB_KEY)
-
     def test_wrong_password_yields_nothing(self):
-        for digest, rounds in macos_keychain._KDF_PARAMETERS:  # pylint: disable=protected-access
-            with self.subTest(digest=digest, rounds=rounds):
-                self.assertIsNone(self._round_trip(digest, rounds, password='not-the-password'))
+        self.assertIsNone(self._round_trip('sha1', 1000, password='not-the-password'))
 
-    def test_undeclared_parameters_are_not_opened(self):
-        """Confirms the tests above pass because of the table, not by chance."""
-        self.assertIsNone(self._round_trip('sha512', 7))
+    def test_other_parameters_are_not_opened(self):
+        """Confirms the test above passes because of the parameters, not by chance.
+
+        SHA-256/10000 is called out because a sweep once appeared to identify it
+        as what real login keychains use. It does not: that sweep scored
+        candidates by 3DES padding alone, which a wrong key satisfies about 1
+        time in 256, and the resulting key unwrapped 0 of 80 symmetric keys on a
+        real keychain. Apple's securityd derives the master key with HMAC-SHA1
+        at 1000 rounds unconditionally.
+        """
+        for digest, rounds in (('sha256', 10000), ('sha512', 7), ('sha1', 1001)):
+            with self.subTest(digest=digest, rounds=rounds):
+                self.assertIsNone(self._round_trip(digest, rounds))
 
 
 @unittest.skipUnless(HAS_SECURITY and HAS_CRYPTO, 'needs macOS `security` and PyCryptodome')

@@ -239,9 +239,13 @@ def resolve_database_key(files_found, log=None):
             if key:
                 return key, how
         return None, ("the supplied secret did not unwrap encryptedKey directly"
-                      + (", and did not unlock any login.keychain-db in the extraction"
+                      + (", and did not open any login.keychain-db in the extraction. "
+                         "Note that a login keychain keeps its old password when the account "
+                         "password is reset through Apple ID or by an administrator, and macOS "
+                         "hides the difference by unlocking it from the stashed session key, so "
+                         "the current account password is not always the keychain's password"
                          if keychains else "")
-                      + "; it may be the wrong credential, or belong to a different profile or host")
+                      + "; the credential may also belong to a different profile or host")
 
     if wrapped:
         return None, ("config.json holds an encryptedKey, which is wrapped with the OS credential "
