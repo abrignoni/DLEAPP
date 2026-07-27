@@ -8,14 +8,14 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "These are the contacts WhatsApp stored, which is not necessarily "
                  "the same set as the device address book. A row can exist for a "
                  "correspondent the account never messaged.",
         "paths": ('*/ContactsV2.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
-        "sample_data": {"whatsapp_macos": "WhatsApp Desktop macOS | 244 rows"},
+        "sample_data": {"whatsapp_macos": "WhatsApp macOS | 244 rows"},
     },
     "whatsappChatSessions": {
         "name": "WhatsApp Chat Sessions",
@@ -26,13 +26,13 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "The last message text and date are a summary the chat row caches; "
                  "the full messages are in the WhatsApp Messages artifact.",
         "paths": ('*/ChatStorage.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "list",
-        "sample_data": {"whatsapp_macos": "WhatsApp Desktop macOS | 159 rows"},
+        "sample_data": {"whatsapp_macos": "WhatsApp macOS | 159 rows"},
     },
     "whatsappGroupMembers": {
         "name": "WhatsApp Group Members",
@@ -43,13 +43,13 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "A member row reflects the membership WhatsApp last recorded for "
                  "the group, not necessarily the membership at any earlier time.",
         "paths": ('*/ChatStorage.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
-        "sample_data": {"whatsapp_macos": "WhatsApp Desktop macOS | 1033 rows"},
+        "sample_data": {"whatsapp_macos": "WhatsApp macOS | 1033 rows"},
     },
     "whatsappBlocked": {
         "name": "WhatsApp Blocked Contacts",
@@ -59,13 +59,13 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "The table stores the JID only. A matching name, where shown, is "
                  "looked up from the push-name and chat tables in the same database.",
         "paths": ('*/ChatStorage.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "slash",
-        "sample_data": {"whatsapp_macos": "WhatsApp Desktop macOS | 45 rows"},
+        "sample_data": {"whatsapp_macos": "WhatsApp macOS | 45 rows"},
     },
     "whatsappPushNames": {
         "name": "WhatsApp Push Names",
@@ -76,14 +76,14 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "A push name is chosen by the correspondent, not by the account "
                  "holder or their address book, so it can differ from a saved "
                  "contact name and is not a verified identity.",
         "paths": ('*/ChatStorage.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "tag",
-        "sample_data": {"whatsapp_macos": "WhatsApp Desktop macOS | 493 rows"},
+        "sample_data": {"whatsapp_macos": "WhatsApp macOS | 493 rows"},
     },
 }
 

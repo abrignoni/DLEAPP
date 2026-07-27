@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-07-27",
         "requirements": "none",
-        "category": "WhatsApp (Desktop)",
+        "category": "WhatsApp (Apple)",
         "notes": "Outcome Code is the ZOUTCOME value the database holds and is "
                  "reported as the raw integer rather than a guessed label such as "
                  "missed or outgoing. A duration of zero is shown as stored and "
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "paths": ('*/CallHistory.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "phone",
-        "sample_data": {"whatsapp_macos": "WhatsApp Desktop macOS | 212 rows"},
+        "sample_data": {"whatsapp_macos": "WhatsApp macOS | 212 rows"},
     },
 }
 
