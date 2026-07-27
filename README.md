@@ -52,6 +52,14 @@ field. A file named `signal_password.txt` beside the extraction is also picked
 up, which suits batch runs. Older profiles that still hold a plaintext `key` in
 `config.json` need nothing at all.
 
+On a dead-box macOS image there is no host to read the credential from, but the
+`login.keychain-db` is in the extraction. Supply the account's **login
+password** in the same place, and if a `login.keychain-db` is present DLEAPP
+recovers the `Signal Safe Storage` credential from it offline
+(`scripts/macos_keychain.py`) and unwraps the key with no external tooling. The
+same field therefore accepts either the safeStorage credential or the login
+password — DLEAPP tries the credential interpretation first, then the keychain.
+
 If the database was already decrypted, with DB Browser for SQLCipher or another
 tool, DLEAPP detects that and parses it as it is — no credential needed.
 
