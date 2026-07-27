@@ -1,17 +1,20 @@
-"""Guard the macOS keychain reader against the KDF parameters drifting again.
+"""Cover the macOS keychain reader's key derivation and its known limits.
 
 A keychain's DbBlob stores the PBKDF2 salt but not the digest or the iteration
-count that were used with it, so the reader has to know them. The reader
-originally hardcoded PBKDF2-HMAC-SHA1 with 1000 rounds, which is what
-`security create-keychain` still writes and therefore what every throwaway test
-keychain uses. A real login.keychain-db from a current macOS release uses
-SHA-256 with 10000 rounds, so the reader failed on the only file examiners
-actually feed it while passing every test built on a synthetic one.
+count that were used with it, so the reader has to carry them. Only SHA-1 with
+1000 rounds is confirmed, and it opens everything `security create-keychain`
+writes. That is also why the reader looked healthy for so long: every keychain
+built for testing uses that set.
 
-The synthetic-DbBlob tests below cover both parameter sets without needing a
-keychain at all, so they run on the Linux CI runners. The live-keychain test
-exercises the whole path — table walk, key unwrap, SSGP decrypt — and skips
-where `security` is unavailable.
+It does not open a real login.keychain-db, and the cause is unresolved. These
+tests therefore do two jobs: check the derivation works for every parameter set
+the reader declares, and pin the fact that SHA-256/10000 is deliberately absent,
+so a future change has to bring evidence rather than repeat an earlier guess.
+See `_KDF_PARAMETERS` for what that evidence has to be.
+
+The synthetic-DbBlob tests need no keychain and run on the Linux CI runners. The
+live-keychain test exercises the whole path — table walk, key unwrap, SSGP
+decrypt — and skips where `security` is unavailable.
 """
 import hashlib
 import os
@@ -70,13 +73,23 @@ class TestDatabaseKeyDerivation(unittest.TestCase):
         data = b'\xaa' * 64 + blob
         return macos_keychain._database_key(data, 64, password or self.PASSWORD)  # pylint: disable=protected-access
 
-    def test_current_parameters(self):
-        """SHA-256 / 10000: what a current macOS login.keychain-db uses."""
-        self.assertEqual(self._round_trip('sha256', 10000), self.DB_KEY)
-
-    def test_legacy_parameters(self):
-        """SHA-1 / 1000: older keychains, and anything `security create-keychain` makes."""
+    def test_confirmed_parameters(self):
+        """SHA-1 / 1000: the set `security create-keychain` writes."""
         self.assertEqual(self._round_trip('sha1', 1000), self.DB_KEY)
+
+    def test_sha256_is_deliberately_not_declared(self):
+        """Pins the open question so nobody re-adds SHA-256 without evidence.
+
+        A sweep once appeared to show a real login.keychain-db using SHA-256 at
+        10000 rounds, but it judged candidates by 3DES padding alone, which a
+        wrong key satisfies about 1 time in 256. Adding it here on that basis
+        would be guessing. When someone confirms a parameter set properly --
+        by checking that the resulting database key unwraps the keychain's
+        symmetric keys, not just that padding validated -- this test is the
+        thing to change.
+        """
+        self.assertNotIn(('sha256', 10000), macos_keychain._KDF_PARAMETERS)  # pylint: disable=protected-access
+        self.assertIsNone(self._round_trip('sha256', 10000))
 
     def test_every_declared_parameter_set_is_reachable(self):
         """Nothing may be listed in _KDF_PARAMETERS that the reader cannot open."""

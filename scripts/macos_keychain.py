@@ -18,8 +18,8 @@ described many times. The recovery is three deterministic steps:
 
 1. Master key = PBKDF2(password, DbBlob salt, 24 bytes), then 3DES-CBC decrypt
    the DbBlob's crypto region with it and the DbBlob IV to get the 24-byte
-   database key. The blob does not say which PBKDF2 parameters were used, so
-   both documented sets are tried (see ``_KDF_PARAMETERS``).
+   database key. The blob does not record which PBKDF2 parameters were used, so
+   the reader carries them (see ``_KDF_PARAMETERS``).
 2. For each symmetric-key record, unwrap its key blob with the database key
    using the CMS 3DES key-unwrap (decrypt with the magic IV, reverse the first
    32 bytes, decrypt again with the blob IV). Index the result by the record's
@@ -27,11 +27,14 @@ described many times. The recovery is three deterministic steps:
 3. A generic-password record carries an SSGP blob whose ``ssgp``+label tag
    selects one unwrapped key; 3DES-CBC decrypt the SSGP body with it.
 
-There is no key searching here. The only thing tried more than once is the pair
-of published PBKDF2 parameter sets at step 1, because the blob does not record
-which one it used; every other value is computed by the documented formula and
-used once. A wrong password fails the padding check under both parameter sets
-and the whole thing returns nothing.
+There is no key searching here: every value is computed by the documented
+formula and used once, for each parameter set the reader knows. A wrong
+password fails the padding check at step 1 and the whole thing returns nothing.
+
+Scope, as tested: this opens keychains written by ``security create-keychain``.
+It does *not* currently open a real ``login.keychain-db``, and why is an open
+question -- see ``_KDF_PARAMETERS``. Callers should treat a ``None`` from
+``find_generic_password`` as "could not open", not as "wrong password".
 """
 
 import hashlib
@@ -61,13 +64,18 @@ _KEY_BLOB_REC_HEADER_SIZE = 132
 _GENERIC_PW_FIELDS = 22                             # uint32 fields before the variable-length data
 _SSGP_HEADER = struct.Struct("> 4s 16s 8s")        # magic, label, iv
 
-# The DbBlob does not record which KDF produced its master key, so both known
-# parameter sets are tried in turn and the one whose 3DES padding validates is
-# the right one. Current macOS releases write SHA-256 with 10000 rounds; a
-# keychain created by older releases (and by `security create-keychain` on any
-# release) uses SHA-1 with 1000. Verified against a live login.keychain-db,
-# which only the SHA-256 set opens.
-_KDF_PARAMETERS = (("sha256", 10000), ("sha1", 1000))
+# The DbBlob does not record which KDF produced its master key, so the reader
+# has to know the parameters. SHA-1 with 1000 rounds is the only set confirmed
+# here: it opens every keychain `security create-keychain` writes.
+#
+# UNRESOLVED: that set does not open a real login.keychain-db, and the reason is
+# not yet known. A sweep once appeared to identify SHA-256/10000, but that
+# result came from a padding check loose enough to accept about 1 wrong key in
+# 256 and is not trusted. Do not add a parameter set here on the strength of a
+# padding hit alone -- confirm it by counting how many of the keychain's
+# symmetric keys the resulting database key unwraps. A correct key opens
+# essentially all of them; a wrong one opens none.
+_KDF_PARAMETERS = (("sha1", 1000),)
 
 
 def crypto_available():
