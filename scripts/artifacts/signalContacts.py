@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (Desktop)",
+        "category": "Signal (macOS)",
         "notes": "A conversation exists here once Signal has learned of the "
                  "account, which includes accounts that were never messaged "
                  "from this device. The message count distinguishes those.",
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (Desktop)",
+        "category": "Signal (macOS)",
         "notes": "Signal Desktop records calls it observed. A call placed or "
                  "answered on a phone linked to the same account may not appear "
                  "here, so an absent call is not evidence no call took place.",
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (Desktop)",
+        "category": "Signal (macOS)",
         "notes": "These records show cryptographic contact at the protocol "
                  "level, which can name accounts that no longer appear in any "
                  "message. Key material itself is not reported.",
