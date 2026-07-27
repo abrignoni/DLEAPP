@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Versioned application bundle assets (js, css, fonts, icons) "
                  "are excluded because they carry no investigative value and "
                  "dominate the cache by volume. Everything else is listed, "

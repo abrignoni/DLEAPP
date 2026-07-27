@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Parses https_app.wire.com_0.indexeddb.leveldb via the vendored "
                  "CCL Chromium IndexedDB reader and Spyder Forensics IndexedDBtoJSON logic.",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -43,7 +43,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-24",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "'Relationship' separates the account owner's own device from a "
                  "contact's device. A contact device is a recipient device the "
                  "app set up encryption with; its class (e.g. 'phone') describes "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Recovered thumbnails are decrypted from the on-disk asset "
                  "caches when present.",
         "paths": (
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Wire assets are end-to-end encrypted and stored server-side; "
                  "only recoverable (cached) assets show a decrypted image.",
         "paths": (
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-24",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Timestamps are workbox cache-write times: the app can re-cache "
                  "on reload/focus/cache-warming, so treat them as 'the asset was "
                  "fetched by the app at this time', a proxy for activity rather "
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Duration is taken from the voice-channel-deactivate event "
                  "(milliseconds). End-reason labels follow the Wire AVS reason "
                  "enum and are shown alongside the raw code.",
@@ -177,7 +177,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "lava"],
@@ -192,7 +192,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Metadata only. Presence and counts of key stores, not the keys.",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "lava"],

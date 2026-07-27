@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Message search hits are also folded into the Discord Messages "
                  "artifact, which means a searched-for message can be recovered "
                  "even when the channel's own message responses are gone. "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "The listing is capped by the limit Discord requested, so a "
                  "heavily reacted message may show only the first few accounts. "
                  "Message Sent is derived from the message snowflake in the "

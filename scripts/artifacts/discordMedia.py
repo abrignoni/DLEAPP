@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Discord serves resized WebP copies to the client, so "
                  "recovered bytes are often a transcode rather than the "
                  "original upload and will not necessarily hash to the file as "

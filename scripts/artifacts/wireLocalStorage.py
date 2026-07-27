@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Only entries for wire.com origins are reported.",
         "paths": ('*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "lava"],

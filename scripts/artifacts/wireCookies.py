@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Only cookies for wire.com hosts are reported.",
         "paths": ('*/Network/Cookies',),
         "output_types": ["html", "tsv", "timeline", "lava"],

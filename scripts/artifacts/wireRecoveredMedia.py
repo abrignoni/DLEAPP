@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "PyCryptodome",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Only assets still present in an on-disk cache can be recovered. "
                  "Decryption follows Wire's asset scheme: blob = IV(16) || "
                  "AES-256-CBC ciphertext, SHA-256 taken over the blob.",

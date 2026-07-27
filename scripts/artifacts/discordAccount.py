@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Reads sentry/scope_v3.json, settings.json, Preferences, "
                  "Local State, ShipIt_request.json and the account stores in "
                  "Local Storage. Authentication tokens are reported as present "
