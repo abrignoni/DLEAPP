@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Profile fields (bio, pronouns, connected accounts) are only "
                  "present where a profile response was cached, so a sparse row "
                  "means no profile response survives, not that the account has "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Channel names and topics are only known where the client "
                  "cached a channel object or a search response describing them; "
                  "otherwise only the ID is reported. The server a channel "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Member counts are the approximate values Discord returned at "
                  "the time the response was cached, not current figures. "
                  "Channel and message counts are limited to what the cache and "
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "One row per invite code, from the most recent cached lookup. "
                  "The expiry is the value Discord returned when the code was "
                  "resolved, so an expired invite may still have been valid when "

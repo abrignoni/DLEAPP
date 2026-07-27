@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Parses cached responses to /api/v*/channels/<id>/messages and "
                  "the message search endpoints. Each cached copy is a "
                  "point-in-time snapshot and the most recent one is reported, so "
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Cached copies are frequently the WebP variant Discord serves "
                  "to the client rather than the original upload, so the "
                  "recovered bytes can differ from the file the sender chose. "

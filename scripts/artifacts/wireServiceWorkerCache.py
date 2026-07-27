@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-07-23",
         "requirements": "none",
-        "category": "Wire (Desktop)",
+        "category": "Wire (Windows)",
         "notes": "Parses Chromium Simple Cache entry files (*_0). Bodies remain "
                  "encrypted; only request/CDN URLs and metadata are extracted.",
         "paths": ('*/Service Worker/CacheStorage/*/*/*_0',),

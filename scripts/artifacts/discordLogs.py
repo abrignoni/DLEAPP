@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Renderer log timestamps are written in the device's local "
                  "time with no offset recorded, so they must be reconciled "
                  "against the time zone reported by the Discord Account & "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Timestamps are device local time, as written by the client, "
                  "and must be reconciled against the time zone reported by the "
                  "Discord Account & Application artifact. The gateway hostname "

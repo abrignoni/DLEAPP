@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Rows come from every surviving version of the DraftStore key, "
                  "so the same draft usually appears several times as it grew. "
                  "The highest sequence number is the most recent version.",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Channel-open events come from the frecency store, which keeps "
                  "a rolling window of recent usages; older versions of the key "
                  "extend that window further back. Entries without a stored "
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Discord (macOS)",
         "notes": "Values are truncated in the report at 5,000 characters. "
                  "Authentication token values are redacted.",
         "paths": ('*/discord*/Local Storage/leveldb/*',),
