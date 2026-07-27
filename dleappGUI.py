@@ -958,11 +958,15 @@ def open_signal_key_dialog():
 
 app_secret_row = ttk.Frame(output_frame)
 app_secret_row.pack(fill='x', padx=5, pady=(0, 4))
-ttk.Label(app_secret_row, text='Decryption:').pack(side='left', padx=(0, 5))
-ttk.Button(app_secret_row, text='Signal key…',
-           command=open_signal_key_dialog).pack(side='left')
-signal_key_status = ttk.Label(app_secret_row, text='not set')
-signal_key_status.pack(side='left', padx=(8, 0))
+# Right-aligned so the button sits under the Browse column and fills the row's
+# dead space, rather than floating alone at the left.
+app_secret_group = ttk.Frame(app_secret_row)
+app_secret_group.pack(side='right')
+ttk.Label(app_secret_group, text='Decryption:').pack(side='left', padx=(0, 5))
+signal_key_status = ttk.Label(app_secret_group, text='not set')
+signal_key_status.pack(side='right')
+ttk.Button(app_secret_group, text='Signal key…',
+           command=open_signal_key_dialog).pack(side='right', padx=(8, 8))
 
 
 def _update_signal_key_status(*_args):
