@@ -81,8 +81,8 @@ def _sender(is_from_me, chat_jid, partner_name, contact_jid, from_jid,
 @artifact_processor
 def whatsappMessages(context):
     data_headers = (
-        ("Message Date", "datetime"), "Direction", "Sender", "Chat", "Message",
-        ("Media", "media"), "Media Filename", "Type Code", "Starred",
+        ("Message Date", "datetime"), "Direction", "Sender", "Chat",
+        ("Media", "media"), "Message", "Media Filename", "Type Code", "Starred",
         ("Sent Date", "datetime"), "Chat Type", "Sender JID", "Chat JID",
         "Message ID", "Source File",
     )
@@ -127,8 +127,8 @@ def whatsappMessages(context):
             direction,
             sender,
             partner_name or contact_jid or "",
-            text or "",
             media_ref,
+            text or "",
             media_name,
             message_type if message_type is not None else "",
             "Yes" if starred else "",
