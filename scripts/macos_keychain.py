@@ -18,7 +18,8 @@ described many times. The recovery is three deterministic steps:
 
 1. Master key = PBKDF2-HMAC-SHA1(password, DbBlob salt, 1000 iterations, 24
    bytes), then 3DES-CBC decrypt the DbBlob's crypto region with it and the
-   DbBlob IV to get the 24-byte database key.
+   DbBlob IV to get the 24-byte database key. Those parameters are fixed in
+   securityd and never vary (see ``_KDF_DIGEST``).
 2. For each symmetric-key record, unwrap its key blob with the database key
    using the CMS 3DES key-unwrap (decrypt with the magic IV, reverse the first
    32 bytes, decrypt again with the blob IV). Index the result by the record's
@@ -29,6 +30,13 @@ described many times. The recovery is three deterministic steps:
 There is no key searching here: every value is computed by the documented
 formula and used once. A wrong password fails the padding check at step 1 and
 the whole thing returns nothing.
+
+One caution for callers. A ``None`` means "this password did not open this
+keychain", which is not the same as "the examiner typed the wrong password".
+The login keychain retains its old password when the account password is reset
+through Apple ID or by an administrator, and macOS keeps unlocking it from the
+stashed session key, so a live host gives no hint that the two have diverged.
+Report the failure in those terms rather than as a bad password.
 """
 
 import hashlib
@@ -57,6 +65,27 @@ _KEY_BLOB = struct.Struct("> 8s I I 8s")           # commonBlob(magic+ver), star
 _KEY_BLOB_REC_HEADER_SIZE = 132
 _GENERIC_PW_FIELDS = 22                             # uint32 fields before the variable-length data
 _SSGP_HEADER = struct.Struct("> 4s 16s 8s")        # magic, label, iv
+
+# The DbBlob records the PBKDF2 salt but not the digest or the iteration count,
+# so the reader has to carry them. These are fixed, not negotiated: Apple's
+# securityd derives the database master key in DatabaseCryptoCore
+# ::deriveDbMasterKey with CSSM_PKCS5_PBKDF2_PRF_HMAC_SHA1, iterationCount(1000)
+# and a 24-byte key, and none of the three is conditional on anything -- not on
+# the blob version, not on the keychain's age.
+#
+# Worth knowing, because it looks like a difference that should matter and is
+# not: a real login.keychain-db carries blobVersion 0x200 (version_partition)
+# while anything created today is 0x100. That version gates which *verification*
+# algorithm the blob decode uses, not the key derivation.
+#
+# So a failure here means the password does not open this keychain, and the
+# usual reason is not a typo. A login keychain keeps its old password when the
+# account password is reset through Apple ID or by an administrator, and macOS
+# then unlocks it silently from the stashed session key, so the divergence is
+# invisible until something tries the password directly -- which is exactly what
+# this reader does.
+_KDF_DIGEST = "sha1"
+_KDF_ROUNDS = 1000
 
 
 def crypto_available():
@@ -144,11 +173,12 @@ class _Keychain:
 
 
 def _database_key(data, blob_base, password):
-    """Steps 1: password + DbBlob -> 24-byte database key, or None."""
+    """Step 1: password + DbBlob -> 24-byte database key, or None."""
     _common, start_crypto, total_len, _sig, _seq, _params, salt, iv, _bsig = struct.unpack_from(
         "> 8s I I 16s I 8s 20s 8s 20s", data, blob_base)
-    master = hashlib.pbkdf2_hmac("sha1", password.encode("utf-8"), salt, 1000, _KEY_LENGTH)
     ciphertext = data[blob_base + start_crypto:blob_base + total_len]
+    master = hashlib.pbkdf2_hmac(
+        _KDF_DIGEST, password.encode("utf-8"), salt, _KDF_ROUNDS, _KEY_LENGTH)
     plain = _des3_decrypt(master, iv, ciphertext)
     if not plain or len(plain) < _KEY_LENGTH:
         return None
