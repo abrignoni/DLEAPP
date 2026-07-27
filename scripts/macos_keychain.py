@@ -155,7 +155,7 @@ class _Keychain:
 
 
 def _database_key(data, blob_base, password):
-    """Steps 1: password + DbBlob -> 24-byte database key, or None."""
+    """Step 1: password + DbBlob -> 24-byte database key, or None."""
     _common, start_crypto, total_len, _sig, _seq, _params, salt, iv, _bsig = struct.unpack_from(
         "> 8s I I 16s I 8s 20s 8s 20s", data, blob_base)
     ciphertext = data[blob_base + start_crypto:blob_base + total_len]
