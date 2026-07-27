@@ -11,10 +11,18 @@ changed across releases:
   the macOS login Keychain (service ``Signal Safe Storage``) or the Windows
   Credential Manager, and never in the profile folder.
 
-An extraction of the profile alone therefore cannot be decrypted: the credential
-has to be captured from the running host and supplied alongside. This module
-resolves whichever of those inputs is present, in that order, and reports which
-one it used so the report records how the database was opened.
+An extraction of a *current* profile alone therefore cannot be decrypted: the
+credential has to be captured from the running host and supplied alongside, or
+the already-unwrapped 64-character database key supplied directly. (Older
+plaintext-``key`` profiles need nothing.) This module resolves whichever input
+is present, in that order, and reports which one it used so the report records
+how the database was opened.
+
+It does not attempt to recover the credential from a ``login.keychain-db`` with
+a login password. On current macOS the login keychain is not encrypted with the
+account login password, so that path fails on exactly the systems that use
+``encryptedKey``; offering it only invites an examiner to burn time on an input
+that cannot work. Supply the credential (or the key) instead.
 
 The unwrap follows Chromium's safeStorage scheme, which Signal inherits from
 Electron::
@@ -222,84 +230,28 @@ def resolve_database_key(files_found, log=None):
     if wrapped and secrets:
         if not crypto_available():
             return None, "PyCryptodome is not installed, so encryptedKey cannot be unwrapped"
-        # 3a. The secret is the safeStorage credential itself.
+        # The secret is the safeStorage credential itself (or a raw key, which
+        # section 1 already handled). Anything that unwraps encryptedKey wins.
         for path, text in secrets:
             key = unwrap_encrypted_key(wrapped, text)
             if key:
                 source = path if path == "--signal-key" else f"'{os.path.basename(path)}'"
                 note(f"Signal Desktop: unwrapped encryptedKey with the credential from {source}.")
                 return key.lower(), f"encryptedKey unwrapped with the credential from {source}"
-        # 3b. The secret is the macOS login password, and a login.keychain-db is
-        # in the extraction. Recover the 'Signal Safe Storage' credential from
-        # it offline, then unwrap. This is the dead-box path: no live host, no
-        # security(1), just the keychain file and the account password.
-        keychains = _keychain_files(files_found)
-        if keychains:
-            key, how = _key_via_keychain(wrapped, secrets, keychains, note)
-            if key:
-                return key, how
-        return None, ("the supplied secret did not unwrap encryptedKey directly"
-                      + (", and did not open any login.keychain-db in the extraction. "
-                         "Note that a login keychain keeps its old password when the account "
-                         "password is reset through Apple ID or by an administrator, and macOS "
-                         "hides the difference by unlocking it from the stashed session key, so "
-                         "the current account password is not always the keychain's password"
-                         if keychains else "")
-                      + "; the credential may also belong to a different profile or host")
+        return None, ("the supplied secret did not unwrap encryptedKey; it may be the wrong "
+                      "credential, or belong to a different profile or host")
 
     if wrapped:
         return None, ("config.json holds an encryptedKey, which is wrapped with the OS credential "
-                      "store. That credential is not part of the profile. Either capture it from "
-                      "the host (macOS login Keychain service 'Signal Safe Storage', or Windows "
-                      "Credential Manager), or supply the macOS account password together with the "
-                      "login.keychain-db from the image, via --signal-key, the Signal key field in "
-                      "the GUI, or a file named signal_password.txt beside the extraction")
+                      "store. That credential is not part of the profile and must be captured from "
+                      "the host: the macOS login Keychain service 'Signal Safe Storage', or the "
+                      "Windows Credential Manager. Supply it (or the 64-character database key) via "
+                      "--signal-key, the Signal key button in the GUI, or a file named "
+                      "signal_safe_storage.txt beside the extraction")
 
     if configs:
         return None, "config.json carries neither a plaintext key nor an encryptedKey"
     return None, "no Signal Desktop config.json was found"
-
-
-_KEYCHAIN_NAMES = ("login.keychain-db", "login.keychain")
-_SIGNAL_KEYCHAIN_SERVICE = "Signal Safe Storage"
-
-
-def _keychain_files(files_found):
-    """macOS login keychains present in the extraction or supplied beside it."""
-    found = []
-    seen = set()
-    for file_found in files_found:
-        file_found = str(file_found)
-        if os.path.basename(file_found) in _KEYCHAIN_NAMES:
-            real = os.path.realpath(file_found)
-            if real not in seen:
-                seen.add(real)
-                found.append(file_found)
-    return found
-
-
-def _key_via_keychain(wrapped, secrets, keychains, note):
-    """Treat each secret as a login password, recover the Signal credential
-    from a keychain, and unwrap encryptedKey with it. Returns (key, how) or
-    (None, None)."""
-    try:
-        from scripts.macos_keychain import find_generic_password
-    except ImportError:
-        return None, None
-    for keychain_path in keychains:
-        name = os.path.basename(keychain_path)
-        for path, password in secrets:
-            credential = find_generic_password(keychain_path, password, _SIGNAL_KEYCHAIN_SERVICE)
-            if not credential:
-                continue
-            key = unwrap_encrypted_key(wrapped, credential)
-            if key:
-                source = "--signal-key" if path == "--signal-key" else f"'{os.path.basename(path)}'"
-                note(f"Signal Desktop: recovered the 'Signal Safe Storage' credential from "
-                     f"'{name}' with the password from {source}, then unwrapped encryptedKey.")
-                return key.lower(), (f"encryptedKey unwrapped with the credential recovered from "
-                                     f"'{name}' using the password from {source}")
-    return None, None
 
 
 def js_ms_to_datetime(value):

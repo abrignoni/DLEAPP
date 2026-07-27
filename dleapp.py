@@ -218,11 +218,13 @@ def main():
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
     parser.add_argument('--signal-key', dest='signal_key', required=False, nargs='?',
                         const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
-                        help=("Credential for a Signal Desktop profile, needed because Signal "
-                              "encrypts its database and attachments. Accepts the OS credential "
-                              "store password ('Signal Safe Storage' in the macOS Keychain, or the "
-                              "Windows Credential Manager), the 64 character database key itself, "
-                              "or the path to a file holding either. Give the flag with no value "
+                        help=("Credential for a current Signal Desktop profile, needed because "
+                              "Signal encrypts its database and attachments (older profiles store "
+                              "the key in the clear and need nothing). Accepts the 'Signal Safe "
+                              "Storage' credential from the OS credential store (macOS login "
+                              "Keychain, or the Windows Credential Manager), the 64 character "
+                              "database key itself, or the path to a file holding either. A macOS "
+                              "account login password will not work. Give the flag with no value "
                               "to be prompted without the secret reaching your shell history."))
 
 

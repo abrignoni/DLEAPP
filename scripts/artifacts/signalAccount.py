@@ -28,8 +28,6 @@ __artifacts_v2__ = {
             '*/signal_password.txt',
             '*/signal-keychain.txt',
             '*/signal_db_key.txt',
-            '*/login.keychain-db',
-            '*/login.keychain',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",

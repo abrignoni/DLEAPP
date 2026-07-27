@@ -455,8 +455,8 @@ def process(casedata):
         casedata = {key: value.get() for key, value in casedata.items()}
         out_params = OutputParameters(output_folder, output_folder_name_entry.get().strip())
         Context.set_output_params(out_params)
-        # A field value may be the secret itself or a file holding it
-        signal_key = signal_key_entry.get().strip()
+        # The value may be the secret itself or the path of a file holding it
+        signal_key = signal_key_var.get().strip()
         if signal_key and os.path.isfile(signal_key):
             with open(signal_key, 'r', encoding='utf-8', errors='replace') as signal_key_file:
                 signal_key = signal_key_file.read(4096).strip()
@@ -879,12 +879,97 @@ output_folder_name_entry.pack(side='left', fill='x', expand=True)
 # Secrets for applications that encrypt their data are gathered here, before
 # processing starts. An artifact cannot ask for one mid-run: modules execute on
 # a worker thread, so a dialog raised from there would deadlock the interface.
+#
+# The value is held in a variable and edited through a small dialog rather than a
+# permanent text box: it is needed only for the occasional encrypted profile, and
+# the dialog has room to explain what to paste and when nothing is needed.
+signal_key_var = tk.StringVar(value='')
+
+
+def open_signal_key_dialog():
+    '''Modal dialog to supply a Signal Desktop database key or safeStorage credential.'''
+    dialog = tk.Toplevel(main_window)
+    dialog.transient(main_window)
+    dialog.title('Signal Desktop key')
+    dialog.configure(bg=theme_bgcolor)
+    dialog.resizable(False, False)
+    width, height = 470, 310
+    main_window.update_idletasks()
+    pos_x = main_window.winfo_x() + (main_window.winfo_width() - width) // 2
+    pos_y = main_window.winfo_y() + (main_window.winfo_height() - height) // 2
+    dialog.geometry(f'{width}x{height}+{pos_x}+{pos_y}')
+
+    explanation = (
+        "Only needed for a current Signal profile whose config.json holds an "
+        "encryptedKey. Older profiles store the key in the clear and need nothing "
+        "here.\n\n"
+        "Paste one of, captured from the running host:\n"
+        "  •  the 64-character database key, or\n"
+        "  •  the 'Signal Safe Storage' credential (macOS login Keychain, or "
+        "Windows Credential Manager).\n\n"
+        "A macOS account login password will not work: on current macOS the login "
+        "keychain is not encrypted with it."
+    )
+    ttk.Label(dialog, text=explanation, wraplength=width - 28,
+              justify='left').pack(anchor='w', padx=14, pady=(12, 8))
+
+    entry_var = tk.StringVar(value=signal_key_var.get())
+    entry = ttk.Entry(dialog, textvariable=entry_var, show='•')
+    entry.pack(fill='x', padx=14)
+
+    controls = ttk.Frame(dialog)
+    controls.pack(fill='x', padx=14, pady=(6, 0))
+    show_var = tk.BooleanVar(value=False)
+    ttk.Checkbutton(controls, text='Show', variable=show_var,
+                    command=lambda: entry.config(show='' if show_var.get() else '•')
+                    ).pack(side='left')
+
+    def browse_for_file():
+        chosen = tk_filedialog.askopenfilename(
+            parent=dialog, title='Select a file containing the key or credential')
+        if chosen:
+            entry_var.set(chosen)
+    ttk.Button(controls, text='…or choose a file',
+               command=browse_for_file).pack(side='left', padx=(10, 0))
+
+    button_row = ttk.Frame(dialog)
+    button_row.pack(fill='x', padx=14, pady=14, side='bottom')
+
+    def save_and_close():
+        signal_key_var.set(entry_var.get().strip())
+        dialog.destroy()
+
+    def clear_and_close():
+        signal_key_var.set('')
+        dialog.destroy()
+
+    ttk.Button(button_row, text='Save', command=save_and_close).pack(side='right')
+    ttk.Button(button_row, text='Cancel', command=dialog.destroy).pack(side='right', padx=(0, 6))
+    ttk.Button(button_row, text='Clear', command=clear_and_close).pack(side='left')
+
+    entry.focus_set()
+    entry.bind('<Return>', lambda _event: save_and_close())
+    dialog.bind('<Escape>', lambda _event: dialog.destroy())
+    if is_platform_macos():
+        dialog.grab_set_global()
+    else:
+        dialog.grab_set()
+
+
 app_secret_row = ttk.Frame(output_frame)
 app_secret_row.pack(fill='x', padx=5, pady=(0, 4))
-ttk.Label(app_secret_row, text='Signal key:').pack(side='left', padx=(0, 5))
-signal_key_entry = ttk.Entry(app_secret_row, show='•')
-signal_key_entry.pack(side='left', fill='x', expand=True)
-ttk.Label(app_secret_row, text='(optional)').pack(side='left', padx=(5, 0))
+ttk.Label(app_secret_row, text='Decryption:').pack(side='left', padx=(0, 5))
+ttk.Button(app_secret_row, text='Signal key…',
+           command=open_signal_key_dialog).pack(side='left')
+signal_key_status = ttk.Label(app_secret_row, text='not set')
+signal_key_status.pack(side='left', padx=(8, 0))
+
+
+def _update_signal_key_status(*_args):
+    signal_key_status.config(text='✓ set' if signal_key_var.get().strip() else 'not set')
+
+
+signal_key_var.trace_add('write', _update_signal_key_status)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
