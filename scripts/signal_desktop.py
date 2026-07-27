@@ -7,16 +7,27 @@ changed across releases:
 
 * Older builds wrote the key straight into ``config.json`` as ``key``.
 * Current builds store it as ``encryptedKey``, wrapped with Electron's
-  safeStorage. The wrapping password lives in the OS credential store, which is
-  the macOS login Keychain (service ``Signal Safe Storage``) or the Windows
-  Credential Manager, and never in the profile folder.
+  safeStorage, whose backend differs by platform and is never in the profile:
+  the macOS login Keychain (service ``Signal Safe Storage``) and Linux
+  libsecret/kwallet both wrap it with a password-derived key, while Windows
+  wraps it with DPAPI, bound to the user account with no password to supply.
 
-An extraction of a *current* profile alone therefore cannot be decrypted: the
-credential has to be captured from the running host and supplied alongside, or
-the already-unwrapped 64-character database key supplied directly. (Older
-plaintext-``key`` profiles need nothing.) This module resolves whichever input
-is present, in that order, and reports which one it used so the report records
-how the database was opened.
+The database parsing itself is platform-independent: the SQLCipher database and
+the attachments decrypt the same way once the key is in hand, so a profile from
+any desktop OS is read given its key. What differs is recovering that key from
+``encryptedKey``:
+
+* macOS and Linux use the safeStorage password scheme this module implements
+  (see ``unwrap_encrypted_key``), so supplying that credential unwraps the key.
+* Windows uses DPAPI, which this module does NOT implement. A current Windows
+  profile therefore needs the already-unwrapped 64-character database key
+  supplied directly, recovered out of band (for example from the DPAPI master
+  key and the user password with a separate tool). Supplying a value from the
+  Windows Credential Manager will not unwrap ``encryptedKey`` here.
+
+Older plaintext-``key`` profiles need nothing on any platform. This module
+resolves whichever input is present, in that order, and reports which one it
+used so the report records how the database was opened.
 
 It does not attempt to recover the credential from a ``login.keychain-db`` with
 a login password. On current macOS the login keychain is not encrypted with the
@@ -242,12 +253,13 @@ def resolve_database_key(files_found, log=None):
                       "credential, or belong to a different profile or host")
 
     if wrapped:
-        return None, ("config.json holds an encryptedKey, which is wrapped with the OS credential "
-                      "store. That credential is not part of the profile and must be captured from "
-                      "the host: the macOS login Keychain service 'Signal Safe Storage', or the "
-                      "Windows Credential Manager. Supply it (or the 64-character database key) via "
-                      "--signal-key, the Signal key button in the GUI, or a file named "
-                      "signal_safe_storage.txt beside the extraction")
+        return None, ("config.json holds an encryptedKey, wrapped by the OS and not part of the "
+                      "profile. On macOS or Linux, supply the safeStorage password (the macOS "
+                      "Keychain item 'Signal Safe Storage', or the Linux libsecret/kwallet secret) "
+                      "and it is unwrapped here. On Windows the key is wrapped with DPAPI, which is "
+                      "not unwrapped here: supply the already-recovered 64-character database key "
+                      "instead. Provide the value via --signal-key, the Signal key button in the "
+                      "GUI, or a file named signal_safe_storage.txt beside the extraction")
 
     if configs:
         return None, "config.json carries neither a plaintext key nor an encryptedKey"
