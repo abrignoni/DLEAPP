@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "version, session IDs and result state.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "memProfStorage is rolling state and generally describes the most "
@@ -19,17 +19,16 @@ __artifacts_v2__ = {
         "artifact_icon": "clock",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 1 row",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 1 row",
         },
     },
     "robloxPresence": {
         "name": "Roblox Presence",
-        "description": "Retained Roblox user-presence state from WebKit or WebView2 "
+        "description": "Retained Roblox user-presence state from embedded-browser "
                        "Local Storage, identifying users, their presence type and "
                        "last reported location.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "Presence type values are preserved numerically because Roblox may "
@@ -42,22 +41,21 @@ __artifacts_v2__ = {
         "artifact_icon": "users",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 2 rows",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 5 rows",
         },
     },
     "robloxNotifications": {
         "name": "Roblox Real-Time Notifications",
-        "description": "Real-time notifications retained in Roblox WebKit or "
-                       "WebView2 Local Storage. Chat notifications can preserve the "
-                       "sender, conversation ID and message text shown to the user.",
+        "description": "Real-time notifications retained in Roblox embedded-browser "
+                       "Local Storage. Chat notifications can preserve the sender, "
+                       "conversation ID and message text shown to the user.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
-        "notes": "The live key is overwritten as notifications arrive. WebView2 "
-                 "LevelDB can retain superseded versions, but this remains a partial "
-                 "notification history.",
+        "notes": "Only live Local Storage versions are parsed. The key can be "
+                 "overwritten as notifications arrive, so output is a partial "
+                 "notification history rather than a complete message record.",
         "paths": (
             "*/Library/WebKit/com.roblox.RobloxPlayer/WebsiteData/*/*/*/"
             "LocalStorage/localstorage.sqlite3",
@@ -66,7 +64,6 @@ __artifacts_v2__ = {
         "artifact_icon": "bell",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 1 row",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 1 row",
         },
     },
 }

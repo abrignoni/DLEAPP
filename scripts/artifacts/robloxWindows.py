@@ -17,17 +17,14 @@ from scripts.artifacts.robloxLogs import (
 from scripts.ilapfuncs import artifact_processor
 
 
-def _windows_artifact(parser, paths):
+def _windows_artifact(parser, paths, sample_description):
     original = parser.__wrapped__
     source = original.__globals__["__artifacts_v2__"][original.__name__]
     metadata = dict(source)
     metadata["name"] = source["name"].replace("Roblox ", "Roblox Windows ", 1)
     metadata["category"] = "Roblox (Windows)"
     metadata["paths"] = paths
-    metadata["sample_data"] = {
-        key: value for key, value in source.get("sample_data", {}).items()
-        if "windows" in key.lower()
-    }
+    metadata["sample_data"] = {"roblox_windows": sample_description}
     return metadata
 
 
@@ -38,14 +35,17 @@ __artifacts_v2__ = {
     "robloxWindowsPresence": _windows_artifact(
         _roblox_presence,
         (_WEBVIEW2 + "Local Storage/leveldb/*",),
+        "Roblox 0.732.23.7321040 Windows | 5 rows",
     ),
     "robloxWindowsNotifications": _windows_artifact(
         _roblox_notifications,
         (_WEBVIEW2 + "Local Storage/leveldb/*",),
+        "Roblox 0.732.23.7321040 Windows | 1 row",
     ),
     "robloxWindowsGameJoins": _windows_artifact(
         _roblox_game_joins,
         (_LOCAL_ROBLOX + "logs/*_Player_*.log",),
+        "Roblox 0.732.23.7321040 Windows | 2 rows",
     ),
     "robloxWindowsAccount": _windows_artifact(
         _roblox_account,
@@ -53,6 +53,7 @@ __artifacts_v2__ = {
             _LOCAL_ROBLOX + "LocalStorage/appStorage.json",
             _LOCAL_ROBLOX + "AnalysticsSettings.xml",
         ),
+        "Roblox 0.732.23.7321040 Windows | 22 rows",
     ),
 }
 

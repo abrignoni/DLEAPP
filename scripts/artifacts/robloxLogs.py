@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "RCC server addresses recorded by the client.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "UDMUX and RCC labels follow the source log. In the tested corpus "
@@ -21,7 +21,6 @@ __artifacts_v2__ = {
         "artifact_icon": "log-in",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 3 rows",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 2 rows",
         },
     },
     "robloxHttpActivity": {
@@ -31,12 +30,14 @@ __artifacts_v2__ = {
                        "server IP, elapsed time, body size and retry state.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "URLs and query parameters are reported verbatim for evidentiary "
-                 "analysis and may contain usable credentials. Player-log URLs form "
-                 "a partial activity record, not browser history.",
+                 "analysis and may contain tokens or credential-like values. The "
+                 "parser does not determine whether those values remain valid or "
+                 "reusable. Player-log URLs form a partial activity record, not "
+                 "browser history.",
         "paths": (
             "*/Library/Logs/Roblox/*_Player_*.log",
         ),
@@ -44,7 +45,6 @@ __artifacts_v2__ = {
         "artifact_icon": "globe",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 71 rows",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 119 rows",
         },
     },
     "robloxPlayerLog": {
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
                        "component and message.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "Long messages are limited to 10,000 characters. The first "
@@ -66,7 +66,6 @@ __artifacts_v2__ = {
         "artifact_icon": "file-text",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 2249 rows",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 3644 rows",
         },
     },
 }

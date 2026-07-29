@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "and complete DPAPI-protected blob.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "CookiesData is encrypted with Windows DPAPI and cannot be decrypted "
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                        "Windows WebView2 profile.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Chromium v10 cookie values depend on the WebView2 Local State "
@@ -48,12 +48,13 @@ __artifacts_v2__ = {
                        "and referring visit identifiers.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "URLs and query parameters are reported in full and may contain "
-                 "challenge tokens or other credentials. History is a retained "
-                 "partial record and can include repeated visits.",
+                 "challenge tokens or credential-like values. The parser does not "
+                 "determine whether those values remain valid or reusable. History "
+                 "is a retained partial record and can include repeated visits.",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/History",
         ),
@@ -69,12 +70,13 @@ __artifacts_v2__ = {
                        "recovered from Roblox's Windows WebView2 LevelDB.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "LevelDB table and log files preserve historical versions. Values "
-                 "are reported in full; JSON is compacted and may contain usable "
-                 "credentials, notifications and account state.",
+                 "are reported in full; JSON is compacted and may contain tokens, "
+                 "notifications and account state. The parser does not determine "
+                 "whether token-like values remain valid or reusable.",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/"
             "Local Storage/leveldb/*",
@@ -92,7 +94,7 @@ __artifacts_v2__ = {
                        "origin, map, key and sequence attribution.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Chromium Session Storage namespaces map origins to numbered maps. "
@@ -117,12 +119,14 @@ __artifacts_v2__ = {
                        "Roblox's Windows WebView2 IndexedDB LevelDB.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "The vendored Chromium IndexedDB reader returns decoded JavaScript "
                  "values where supported and explicit placeholders otherwise. "
-                 "Historical versions can repeat. Output may contain credentials.",
+                 "Historical versions can repeat. Output may contain tokens or "
+                 "credential-like values whose validity and reusability are not "
+                 "assessed.",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/"
             "IndexedDB/https_www.roblox.com_0.indexeddb.leveldb/*",
@@ -141,13 +145,14 @@ __artifacts_v2__ = {
                        "storage details.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Parses Chromium v3 index, data_N blocks and f_XXXXXX streams using "
                  "the published blockfile format. URLs and headers are reported in "
-                 "full. The cache is partial and can contain credential-bearing "
-                 "query parameters.",
+                 "full. The cache is partial and can contain tokens or "
+                 "credential-like query values; their validity and reusability are "
+                 "not assessed.",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/"
             "Cache/Cache_Data/*",
@@ -165,7 +170,7 @@ __artifacts_v2__ = {
                        "from cached Roblox API responses.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Only user-specific API endpoints are included; general feature "
@@ -190,7 +195,7 @@ __artifacts_v2__ = {
                        "cached Roblox API responses.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "One row is emitted per relationship, membership or search action. "
@@ -215,7 +220,7 @@ __artifacts_v2__ = {
                        "Storage.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Purchase-flow telemetry documents page views, available products "
@@ -242,13 +247,16 @@ __artifacts_v2__ = {
                        "Roblox API responses.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Only records containing an actual user-linked item or wall post "
                  "are emitted. Empty lists, endpoint errors, category catalogs, "
                  "feature metadata and settings-option catalogs are excluded. "
-                 "Identical retained response versions are deduplicated.",
+                 "Identical retained response versions are deduplicated. The tested "
+                 "Windows corpus produced zero rows, so the supported endpoint "
+                 "schemas are parser capabilities rather than observed sample "
+                 "evidence.",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/"
             "Cache/Cache_Data/*",
@@ -264,7 +272,7 @@ __artifacts_v2__ = {
                        "HTML body, created and updated times, and read/system state.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Recovered from retained privatemessages.roblox.com response bodies. "

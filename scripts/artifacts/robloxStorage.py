@@ -6,12 +6,14 @@ __artifacts_v2__ = {
                        "locale data and identity-verification state.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "UTF-16 values are decoded and JSON is normalized. Values are "
-                 "reported in full and may contain usable credentials. JSON "
-                 "normalization can change whitespace without changing its data.",
+                 "reported in full and may contain tokens or credential-like data; "
+                 "the parser does not determine whether they remain valid or "
+                 "reusable. JSON normalization can change whitespace without "
+                 "changing its data.",
         "paths": (
             "*/Library/WebKit/com.roblox.RobloxPlayer/WebsiteData/*/*/*/"
             "LocalStorage/localstorage.sqlite3",
@@ -31,13 +33,14 @@ __artifacts_v2__ = {
                        "for follow-up analysis.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "WebKit uses a binary structured-clone encoding. This parser does "
                  "not fully deserialize every JavaScript value type; it extracts "
                  "embedded readable strings and limits each preview to 5,000 "
-                 "characters. Preview output may contain usable credentials.",
+                 "characters. Preview output may contain tokens or credential-like "
+                 "data whose validity and reusability are not assessed.",
         "paths": (
             "*/Library/WebKit/com.roblox.RobloxPlayer/WebsiteData/*/*/*/"
             "IndexedDB/*/IndexedDB.sqlite3",
@@ -57,7 +60,7 @@ __artifacts_v2__ = {
                        "signatures.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "The 16-byte IDs are opaque cache keys. Atime behaves as Unix "
@@ -78,7 +81,7 @@ __artifacts_v2__ = {
                        "metadata, record size and any companion blob size.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "WebKit's cache is an internal, versioned implementation format. "

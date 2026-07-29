@@ -7,12 +7,14 @@ __artifacts_v2__ = {
                        "theme, subscription state and installed client version.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "Values are reported verbatim for evidentiary analysis, including "
-                 "PlayerHydrationBlob and PlayerHydrationSignature. Output must be "
-                 "handled as credential-bearing evidence. Timestamps are UTC.",
+                 "PlayerHydrationBlob and PlayerHydrationSignature. These values can "
+                 "contain sensitive account state, but the parser does not classify "
+                 "the signature as a reusable authentication credential. Timestamps "
+                 "are UTC.",
         "paths": (
             "*/Library/Roblox/LocalStorage/appStorage.json",
             "*/Library/Preferences/com.roblox.RobloxPlayer.plist",
@@ -22,7 +24,6 @@ __artifacts_v2__ = {
         "artifact_icon": "user",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 28 rows",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 22 rows",
         },
     },
     "robloxSettings": {
@@ -32,7 +33,7 @@ __artifacts_v2__ = {
                        "audio, input and window settings.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "Compound XML values such as vectors are flattened into a compact "
@@ -44,7 +45,6 @@ __artifacts_v2__ = {
         "artifact_icon": "settings",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 74 rows",
-            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 74 rows",
         },
     },
 }
