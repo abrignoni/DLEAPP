@@ -6,12 +6,13 @@ __artifacts_v2__ = {
                        "time, flags and the complete stored value.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "All values are reported verbatim for evidentiary analysis. The "
-                 "output can contain live authentication, anti-bot, "
-                 "identity-verification and session credentials.",
+                 "output can contain authentication, anti-bot, identity-verification "
+                 "and session values; the parser does not test whether they remain "
+                 "valid or reusable.",
         "paths": (
             "*/Library/HTTPStorages/com.roblox.RobloxPlayer.binarycookies",
         ),
