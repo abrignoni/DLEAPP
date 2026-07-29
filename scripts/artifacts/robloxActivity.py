@@ -12,16 +12,19 @@ __artifacts_v2__ = {
         "category": "Roblox (macOS)",
         "notes": "memProfStorage is rolling state and generally describes the most "
                  "recent session only. Unix timestamps are reported in UTC.",
-        "paths": ("*/Library/Roblox/LocalStorage/memProfStorage*.json",),
+        "paths": (
+            "*/Library/Roblox/LocalStorage/memProfStorage*.json",
+        ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "clock",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 1 row",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 1 row",
         },
     },
     "robloxPresence": {
         "name": "Roblox Presence",
-        "description": "Recently retained Roblox user-presence state from WebKit "
+        "description": "Retained Roblox user-presence state from WebKit or WebView2 "
                        "Local Storage, identifying users, their presence type and "
                        "last reported location.",
         "author": "@AlexisBrignoni, Codex",
@@ -39,20 +42,22 @@ __artifacts_v2__ = {
         "artifact_icon": "users",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 2 rows",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 5 rows",
         },
     },
     "robloxNotifications": {
         "name": "Roblox Real-Time Notifications",
-        "description": "The latest real-time notification retained in Roblox "
-                       "WebKit Local Storage. Chat notifications can preserve the "
+        "description": "Real-time notifications retained in Roblox WebKit or "
+                       "WebView2 Local Storage. Chat notifications can preserve the "
                        "sender, conversation ID and message text shown to the user.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-28",
         "requirements": "none",
         "category": "Roblox (macOS)",
-        "notes": "This key is overwritten as notifications arrive, so it is a "
-                 "latest-state artifact rather than a complete notification history.",
+        "notes": "The live key is overwritten as notifications arrive. WebView2 "
+                 "LevelDB can retain superseded versions, but this remains a partial "
+                 "notification history.",
         "paths": (
             "*/Library/WebKit/com.roblox.RobloxPlayer/WebsiteData/*/*/*/"
             "LocalStorage/localstorage.sqlite3",
@@ -61,12 +66,14 @@ __artifacts_v2__ = {
         "artifact_icon": "bell",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 1 row",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 1 row",
         },
     },
 }
 
 import json
 
+from scripts.chromium.local_storage import leveldb_folders, read_records
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
 from scripts.roblox import decode_webkit_value, epoch_datetime, read_json
 
@@ -86,6 +93,17 @@ def robloxSessionState(context):
     for file_found in map(str, context.get_files_found()):
         payload = read_json(file_found)
         if not isinstance(payload, dict):
+            continue
+        session_fields = (
+            "SessionStartTime", "AppSessionStartTime", "SyncTime",
+            "LaunchTimestamp", "SessionType", "DebugUserId", "UserId",
+            "LastPlaceId", "UniverseId", "GameInstanceId", "ServerIp",
+            "ServerPort", "PlaySessionId", "AppSessionIdL0",
+            "SessionResultV2", "SessionResult", "SessionSuccess",
+            "AppVersion", "EngineVersion", "Channel", "Device", "OSType",
+            "OSVersion",
+        )
+        if not any(payload.get(field) not in (None, "") for field in session_fields):
             continue
         source_paths.append(file_found)
         data_list.append((
@@ -115,7 +133,7 @@ def robloxSessionState(context):
     return data_headers, data_list, "\n".join(source_paths)
 
 
-def _local_storage_items(path):
+def _webkit_storage_items(path):
     connection = open_sqlite_db_readonly(path)
     if not connection:
         return []
@@ -128,34 +146,53 @@ def _local_storage_items(path):
     return rows
 
 
+def _local_storage_items(files_found):
+    files = list(map(str, files_found))
+    for path in files:
+        if path.endswith("localstorage.sqlite3"):
+            for key, value in _webkit_storage_items(path):
+                yield key, decode_webkit_value(value), "", "Live", path
+    for folder in leveldb_folders(files):
+        try:
+            for record in read_records(folder):
+                if record.is_live:
+                    yield (
+                        record.key, record.value, record.sequence,
+                        record.state, record.source,
+                    )
+        except Exception as ex:  # pylint: disable=broad-exception-caught
+            logfunc(f"Roblox Local Storage: could not read '{folder}': {ex}")
+
+
 @artifact_processor
 def robloxPresence(context):
     data_headers = (
         ("Last Updated", "datetime"), "User ID", "Presence Type",
-        "Last Location", "Source File",
+        "Last Location", "Storage Sequence", "Source File",
     )
     data_list = []
     source_paths = []
-    for file_found in map(str, context.get_files_found()):
-        for key, value in _local_storage_items(file_found):
-            if key != "PresenceData":
+    for key, value, sequence, _state, source in _local_storage_items(
+            context.get_files_found()):
+        if key != "PresenceData":
+            continue
+        try:
+            payload = json.loads(value)
+        except (TypeError, ValueError):
+            continue
+        source_paths.append(source)
+        for stored_user_id, entry in payload.items():
+            if not isinstance(entry, dict):
                 continue
-            try:
-                payload = json.loads(decode_webkit_value(value))
-            except (TypeError, ValueError):
-                continue
-            source_paths.append(file_found)
-            for stored_user_id, entry in payload.items():
-                if not isinstance(entry, dict):
-                    continue
-                presence = entry.get("data") or {}
-                data_list.append((
-                    epoch_datetime(entry.get("lastUpdated")),
-                    presence.get("userId") or stored_user_id,
-                    presence.get("userPresenceType", ""),
-                    presence.get("lastLocation", ""),
-                    context.get_relative_path(file_found),
-                ))
+            presence = entry.get("data") or {}
+            data_list.append((
+                epoch_datetime(entry.get("lastUpdated")),
+                presence.get("userId") or stored_user_id,
+                presence.get("userPresenceType", ""),
+                presence.get("lastLocation", ""),
+                sequence,
+                context.get_relative_path(source),
+            ))
     data_list.sort(key=lambda row: row[0] if row[0] else epoch_datetime(1))
     logfunc(f"Roblox Presence: {len(data_list)} presence record(s).")
     return data_headers, data_list, "\n".join(source_paths)
@@ -189,35 +226,37 @@ def robloxNotifications(context):
     data_headers = (
         ("Delivered", "datetime"), "Notification Type", "Namespace", "Title",
         "Text", "Sender User ID", "Conversation ID", "Notification ID",
-        "Priority", "Sequence Number", "Realtime Message ID", "Source File",
+        "Priority", "Sequence Number", "Realtime Message ID", "Storage Sequence",
+        "Source File",
     )
     data_list = []
     source_paths = []
-    for file_found in map(str, context.get_files_found()):
-        for key, value in _local_storage_items(file_found):
-            if key != "Roblox.RealTime.Events.Notification":
-                continue
-            try:
-                payload = json.loads(decode_webkit_value(value))
-            except (TypeError, ValueError):
-                continue
-            detail, content, sender, title, text, conversation = \
-                _notification_fields(payload)
-            source_paths.append(file_found)
-            data_list.append((
-                epoch_datetime(detail.get("deliverTimestamp")),
-                content.get("notificationType", ""),
-                payload.get("namespace", ""),
-                title,
-                text,
-                sender,
-                conversation,
-                content.get("id", ""),
-                content.get("priority", ""),
-                detail.get("SequenceNumber")
-                or payload.get("namespaceSequenceNumber", ""),
-                detail.get("RealtimeMessageIdentifier", ""),
-                context.get_relative_path(file_found),
-            ))
+    for key, value, storage_sequence, _state, source in _local_storage_items(
+            context.get_files_found()):
+        if key != "Roblox.RealTime.Events.Notification":
+            continue
+        try:
+            payload = json.loads(value)
+        except (TypeError, ValueError):
+            continue
+        detail, content, sender, title, text, conversation = \
+            _notification_fields(payload)
+        source_paths.append(source)
+        data_list.append((
+            epoch_datetime(detail.get("deliverTimestamp")),
+            content.get("notificationType") or detail.get("Type", ""),
+            payload.get("namespace", ""),
+            title,
+            text,
+            sender,
+            conversation,
+            content.get("id") or detail.get("MessageId", ""),
+            content.get("priority", ""),
+            detail.get("SequenceNumber")
+            or payload.get("namespaceSequenceNumber", ""),
+            detail.get("RealtimeMessageIdentifier", ""),
+            storage_sequence,
+            context.get_relative_path(source),
+        ))
     logfunc(f"Roblox Real-Time Notifications: {len(data_list)} notification(s).")
     return data_headers, data_list, "\n".join(source_paths)

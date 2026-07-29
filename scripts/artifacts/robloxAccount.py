@@ -22,6 +22,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 28 rows",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 22 rows",
         },
     },
     "robloxSettings": {
@@ -36,11 +37,14 @@ __artifacts_v2__ = {
         "category": "Roblox (macOS)",
         "notes": "Compound XML values such as vectors are flattened into a compact "
                  "name=value representation.",
-        "paths": ("*/Library/Roblox/GlobalBasicSettings_*.xml",),
+        "paths": (
+            "*/Library/Roblox/GlobalBasicSettings_*.xml",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 74 rows",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 74 rows",
         },
     },
 }
@@ -143,6 +147,16 @@ def robloxAccount(context):
                 }.get(key)
                 if label:
                     _add(data_list, label, value, file_found, context)
+        elif name == "AnalysticsSettings.xml":
+            try:
+                root = ET.parse(file_found).getroot()
+            except (OSError, ET.ParseError):
+                continue
+            source_paths.append(file_found)
+            ga_id = root.find(".//string[@name='gaID']")
+            if ga_id is not None:
+                _add(data_list, "Google Analytics ID", ga_id.text,
+                     file_found, context)
 
     logfunc(f"Roblox Account & Application: {len(data_list)} property value(s).")
     return data_headers, data_list, "\n".join(source_paths)

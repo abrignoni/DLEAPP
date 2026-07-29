@@ -5,7 +5,9 @@ Author: @AlexisBrignoni, Codex
 
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+
+_WINDOWS_EPOCH = datetime(1601, 1, 1, tzinfo=timezone.utc)
 
 
 def read_json(path):
@@ -39,6 +41,20 @@ def iso_datetime(value):
     try:
         return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
+        return ""
+
+
+def chromium_datetime(value):
+    """Convert Chromium microseconds since 1601-01-01 to an aware UTC datetime."""
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return ""
+    if value <= 0:
+        return ""
+    try:
+        return _WINDOWS_EPOCH + timedelta(microseconds=value)
+    except (OverflowError, OSError, ValueError):
         return ""
 
 
