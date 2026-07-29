@@ -5,9 +5,7 @@
 [CmdletBinding()]
 param(
     [string]$LabRoot = "C:\DLEAPP_Lab",
-    [string]$KnownImagePath = (
-        Join-Path $PSScriptRoot "..\..\assets\DLEAPP_logo.png"
-    ),
+    [string]$KnownImagePath = "",
     [switch]$LaunchApplications
 )
 
@@ -16,6 +14,9 @@ Set-StrictMode -Version 2.0
 . "$PSScriptRoot\DLEAPPLab.Common.ps1"
 
 $journalScript = Join-Path $PSScriptRoot "Write-DLEAPPAction.ps1"
+if ([string]::IsNullOrWhiteSpace($KnownImagePath)) {
+    $KnownImagePath = Join-Path $PSScriptRoot "..\..\assets\DLEAPP_logo.png"
+}
 $knownInputRoot = Join-Path $LabRoot "KnownInputs"
 New-DLEAPPDirectory -Path $knownInputRoot
 
