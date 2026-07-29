@@ -20,6 +20,9 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "file-lines",
+        "sample_data": {
+            "telegram_macos": "Telegram Desktop 7.0.6 macOS | 12 rows",
+        },
     },
 }
 
