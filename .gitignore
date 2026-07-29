@@ -68,6 +68,7 @@ $RECYCLE.BIN/
 ?LEAPP_Reports_*
 path_list.txt
 coordinates.db
+.lab-output/
 
 # Documentation
 docs/_build/
