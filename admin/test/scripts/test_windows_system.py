@@ -1,5 +1,7 @@
 """Tests for the Windows system artifacts migrated from WLEAPP."""
 
+# pylint: disable=protected-access
+
 import sqlite3
 from datetime import datetime, timezone
 
