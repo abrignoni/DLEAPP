@@ -171,7 +171,7 @@ def _plausible_time(value):
     return _MIN_BASE_TIME <= value <= _MAX_BASE_TIME
 
 
-def _parse_response_info(stream0):
+def parse_response_info(stream0):
     """Pull request/response times and raw headers out of an HttpResponseInfo.
 
     The pickle is ``payload_size, flags, <times>, header_length, headers``, but
@@ -290,7 +290,7 @@ def read_entry(path):
     except (OSError, struct.error, ValueError):
         return None
 
-    request_time, response_time, status_line, headers = _parse_response_info(stream0)
+    request_time, response_time, status_line, headers = parse_response_info(stream0)
     status_match = _STATUS_RE.match(status_line or "")
     prefix, url = key_to_url(key)
 

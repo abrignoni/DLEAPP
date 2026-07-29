@@ -14,11 +14,14 @@ __artifacts_v2__ = {
                  "UDMUX was public-routable and RCC used private address space, but "
                  "that relationship is an observation rather than a guaranteed "
                  "Roblox format rule. Log rotation limits historical coverage.",
-        "paths": ("*/Library/Logs/Roblox/*_Player_*.log",),
+        "paths": (
+            "*/Library/Logs/Roblox/*_Player_*.log",
+        ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "log-in",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 3 rows",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 2 rows",
         },
     },
     "robloxHttpActivity": {
@@ -34,11 +37,14 @@ __artifacts_v2__ = {
         "notes": "URLs and query parameters are reported verbatim for evidentiary "
                  "analysis and may contain usable credentials. Player-log URLs form "
                  "a partial activity record, not browser history.",
-        "paths": ("*/Library/Logs/Roblox/*_Player_*.log",),
+        "paths": (
+            "*/Library/Logs/Roblox/*_Player_*.log",
+        ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "globe",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 71 rows",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 119 rows",
         },
     },
     "robloxPlayerLog": {
@@ -53,11 +59,14 @@ __artifacts_v2__ = {
         "category": "Roblox (macOS)",
         "notes": "Long messages are limited to 10,000 characters. The first "
                  "untimestamped policy line and multiline continuations are omitted.",
-        "paths": ("*/Library/Logs/Roblox/*_Player_*.log",),
+        "paths": (
+            "*/Library/Logs/Roblox/*_Player_*.log",
+        ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "file-text",
         "sample_data": {
             "roblox_macos": "Roblox 0.732.0.7321040 macOS | 2249 rows",
+            "roblox_windows": "Roblox 0.732.23.7321040 Windows | 3644 rows",
         },
     },
 }
