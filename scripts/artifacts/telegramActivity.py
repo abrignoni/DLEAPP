@@ -23,6 +23,9 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
+        "sample_data": {
+            "telegram_macos": "Telegram Desktop 7.0.6 macOS | 2 rows",
+        },
     },
     "telegramLocalFiles": {
         "name": "Telegram Desktop Local Files",
@@ -49,6 +52,9 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "file",
+        "sample_data": {
+            "telegram_macos": "Telegram Desktop 7.0.6 macOS | 2 rows",
+        },
     },
 }
 

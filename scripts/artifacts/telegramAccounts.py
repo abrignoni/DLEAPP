@@ -23,6 +23,9 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
+        "sample_data": {
+            "telegram_macos": "Telegram Desktop 7.0.6 macOS | 1 row",
+        },
     },
 }
 
