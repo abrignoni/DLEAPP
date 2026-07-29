@@ -34,6 +34,14 @@ TARGETS = (
         "Packages/Microsoft.Windows.Photos_*/LocalState/MediaDb*.sqlite",
     ),
     (
+        "Windows Photos",
+        "Packages/Microsoft.Windows.Photos_*/LocalState/shared.sqlite",
+    ),
+    (
+        "Windows Photos",
+        "Packages/Microsoft.Windows.Photos_*/LocalState/standalone.sqlite",
+    ),
+    (
         "Windows Sticky Notes",
         "Packages/Microsoft.MicrosoftStickyNotes_*/LocalState/plum.sqlite",
     ),

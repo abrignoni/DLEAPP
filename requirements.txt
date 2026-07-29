@@ -20,3 +20,4 @@ bencoding
 pytz
 requests
 pdfminer.six
+python-registry==1.3.1

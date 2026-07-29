@@ -19,6 +19,7 @@ a = Analysis(
         'openpyxl',
         'pillow_heif',
         'pypdf',
+        'Registry',
         'requests',
         'xlrd',
     ],

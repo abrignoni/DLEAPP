@@ -429,26 +429,26 @@ def update_markdown_file(v1_data, v2_data, error_data, issue_data):
 
     # Generate new markdown content
     new_module_info = f"## {section_title('Summary')}\n\n"
-    new_module_info += f"Total number of modules: {total_modules}  \n"
-    new_module_info += f"Total number of artifacts: {total_artifacts}  \n"
-    new_module_info += f"Number of v1 artifacts: {v1_count}  \n"
-    new_module_info += f"Number of v2 artifacts: {v2_count}  \n"
+    new_module_info += f"Total number of modules: {total_modules}<br>\n"
+    new_module_info += f"Total number of artifacts: {total_artifacts}<br>\n"
+    new_module_info += f"Number of v1 artifacts: {v1_count}<br>\n"
+    new_module_info += f"Number of v2 artifacts: {v2_count}<br>\n"
     new_module_info += "Number of artifacts with 'lava output': " + \
-        f"{lava_output_count}  \n"
+        f"{lava_output_count}<br>\n"
     new_module_info += "Number of artifacts using 'artifact_icon': " + \
-        f"{artifact_icon_count}  \n"
+        f"{artifact_icon_count}<br>\n"
     new_module_info += "Number of artifacts using 'last_update_date': " + \
-        f"{last_update_date_count}  \n"
+        f"{last_update_date_count}<br>\n"
     new_module_info += "Number of artifacts using context parameter: " + \
-        f"{context_count}  \n"
+        f"{context_count}<br>\n"
     new_module_info += "Number of artifacts with errors or no recognized " + \
-        f"artifacts: {error_count}  \n"
+        f"artifacts: {error_count}<br>\n"
     new_module_info += "Number of modules with artifact metadata issues: " + \
-        f"{issue_count}  \n"
+        f"{issue_count}<br>\n"
     new_module_info += "Number of artifacts using **deprecated** 'version' " + \
-        f"key: {version_count}  \n"
+        f"key: {version_count}<br>\n"
     new_module_info += "Number of artifacts using **deprecated** 'function' " + \
-        f"key: {function_key_count}  \n\n"
+        f"key: {function_key_count}<br>\n\n"
 
     if v2_data:
         new_module_info += \

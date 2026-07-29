@@ -31,6 +31,18 @@ The inventory is written to `C:\DLEAPP_Lab\Inventory`. It records the operating
 system and time-zone context, relevant AppX packages and Start applications,
 candidate artifact paths, file timestamps, sizes, and SHA-256 hashes.
 
+For before/after discovery of modern Photos and Clock storage:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File `
+  "\\Mac\Home\Documents\GitHub\DLEAPP\admin\windows_lab\Get-DLEAPPAppStorageInventory.ps1" `
+  -Phase "baseline"
+```
+
+Each phase is stored separately under
+`C:\DLEAPP_Lab\AppStorageInventory`. Hash failures caused by a live file lock
+are retained rather than silently omitted.
+
 ## Action journal
 
 Record an action immediately before or after performing it:
@@ -62,6 +74,19 @@ databases; those actions must be completed through the applications.
 The script intentionally does not enable firewall logging. That is a
 security-sensitive system setting and should be handled as a separately
 documented test.
+
+## Controlled Photos and Clock validation
+
+`Invoke-DLEAPPPhotosValidation.ps1` copies a known local image, hashes it,
+journals the action, and launches Photos. Adding its local folder through the
+Photos UI produced records in the current `LocalState\shared.sqlite` database;
+the script does not write that database.
+
+`Invoke-DLEAPPClockValidation.ps1` journals and launches a Clock session. Create
+the named alarm through the normal UI, journal its actual settings, close Clock,
+and then collect `Settings\settings.dat` and its transaction logs. DLEAPP reads
+the offline hive with `python-registry`; it does not load evidence into the
+examiner system registry.
 
 ## Logical collection
 
