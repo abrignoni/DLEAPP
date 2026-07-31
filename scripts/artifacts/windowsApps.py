@@ -41,7 +41,8 @@ __artifacts_v2__ = {
                  "database is LocalState/shared.sqlite. Numeric timestamps "
                  "are converted from Windows FILETIME; their original "
                  "application-level timezone semantics may vary. Alternate "
-                 "Date Taken is an app-maintained fallback and must not be "
+                 "Date Taken is a separate app-recorded date whose "
+                 "derivation is not documented; it must not be "
                  "treated as proof of capture time. Zero coordinates are "
                  "retained as stored and do not by themselves prove a "
                  "location. A blank preview accompanied by 'Original file "
@@ -93,14 +94,17 @@ __artifacts_v2__ = {
                        "including scheduled, created, and updated times.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "python-registry",
         "category": "Windows Apps",
         "notes": "Modernized from WLEAPP and validated with Clock "
                  "11.2605.10.0. Scheduled fields are device-local; created "
                  "and updated values are converted from Windows FILETIME. "
-                 "The registry parser reads offline hives without loading "
-                 "them into the examiner system registry.",
+                 "Days of Week is reported as stored, undecoded. When the "
+                 "source carries no IsRecurring value, Recurring is derived "
+                 "from a nonzero Days of Week value. The registry parser "
+                 "reads offline hives without loading them into the "
+                 "examiner system registry.",
         "paths": (
             "*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/"
             "LocalState/Alarms/Alarms.json",
@@ -471,7 +475,7 @@ def windowsAlarms(context):
         "Alarm Time (device local)",
         "Enabled",
         "Recurring",
-        "Days of Week (bitmask)",
+        "Days of Week (database value)",
         "Snooze Interval (minutes)",
         "Chime Name / Resource",
         "Chime Path",

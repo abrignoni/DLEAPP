@@ -51,11 +51,12 @@ __artifacts_v2__ = {
                        "text, and the preserved payload.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "beautifulsoup4",
         "category": "Windows System",
-        "notes": "Modernized from WLEAPP. Arrival, expiry, and boot values use "
-                 "the Windows FILETIME epoch and are reported in UTC.",
+        "notes": "Modernized from WLEAPP. Arrival and expiry values use the "
+                 "Windows FILETIME epoch and are reported in UTC. Boot ID is "
+                 "reported as stored because its encoding is not documented.",
         "paths": (
             "*/AppData/Local/Microsoft/Windows/Notifications/wpndatabase.db*",
         ),
@@ -96,13 +97,14 @@ __artifacts_v2__ = {
                        "present, and recorded exit status.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "Windows System",
-        "notes": "Modernized from WLEAPP. Times are explicitly device-local "
-                 "because setupapi.dev.log does not record a UTC offset. A "
-                 "section start is not automatically labeled as a device's "
-                 "first connection.",
+        "notes": "Modernized from WLEAPP. Timestamps in setupapi.dev.log "
+                 "carry no UTC offset and are treated as device-local, "
+                 "consistent with Microsoft's documented SetupAPI logging "
+                 "behavior. A section start is not automatically labeled as "
+                 "a device's first connection.",
         "paths": (
             "*/Windows/INF/setupapi.dev.log",
             "*/WINDOWS/INF/setupapi.dev.log",
@@ -322,7 +324,7 @@ def windowsNotifications(context):
         ("Expiry Time (UTC)", "datetime"),
         "Handler Created (database value)",
         "Handler Modified (database value)",
-        ("Boot ID Time (UTC)", "datetime"),
+        "Boot ID (database value)",
         "Notification ID",
         "Handler ID",
         "Handler Primary ID",
@@ -373,7 +375,7 @@ def windowsNotifications(context):
                 _utc_from_filetime(record[1]),
                 record[2] or "",
                 record[3] or "",
-                _utc_from_filetime(record[4]),
+                "" if record[4] is None else record[4],
                 record[5],
                 record[6],
                 record[7] or "",
