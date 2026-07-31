@@ -101,6 +101,8 @@ def test_notifications_include_handler_and_payload_hash(tmp_path):
         _Context([database_path])
     )
     assert len(rows) == 1
+    # BootId is reported as stored, never decoded as a FILETIME timestamp
+    assert rows[0][4] == 116444736000000000
     assert rows[0][7] == "test.handler"
     assert rows[0][11] == "DLEAPP-NOTIFICATION-TEST-001"
     assert len(rows[0][16]) == 64
