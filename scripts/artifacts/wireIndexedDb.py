@@ -20,12 +20,12 @@ __artifacts_v2__ = {
     },
     "wireUsers": {
         "name": "Wire Users",
-        "description": "All Wire users (self and contacts) known to the client: "
+        "description": "Wire users (self and contacts) known to the client: "
                        "user id, handle, display name, email, phone, domain, team "
                        "and profile-picture asset keys.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "",

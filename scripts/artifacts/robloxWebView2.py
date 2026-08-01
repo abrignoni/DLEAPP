@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Roblox Windows Cookie Vault",
         "description": "The Roblox Player CookiesData vault retained in "
                        "LocalStorage/RobloxCookies.dat, including the format version "
-                       "and complete DPAPI-protected blob.",
+                       "and the DPAPI-protected blob.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
@@ -26,11 +26,11 @@ __artifacts_v2__ = {
     },
     "robloxWebView2Cookies": {
         "name": "Roblox WebView2 Cookies",
-        "description": "Cookie metadata and complete encrypted values from Roblox's "
+        "description": "Cookie metadata and encrypted values from Roblox's "
                        "Windows WebView2 profile.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Chromium v10 cookie values depend on the WebView2 Local State "

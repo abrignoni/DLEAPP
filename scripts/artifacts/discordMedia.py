@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "discordRecoveredMedia": {
         "name": "Discord Recovered Media",
-        "description": "Every cached file this parser could identify as Discord "
+        "description": "Cached files this parser could identify as Discord "
                        "media and decode, extracted and embedded in the report: "
                        "images, video, avatars, emoji, stickers and server "
                        "icons. Attachment URLs carry the channel ID and an "

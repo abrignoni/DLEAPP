@@ -3,10 +3,10 @@ __artifacts_v2__ = {
         "name": "Roblox Cookies",
         "description": "Cookies from Roblox Desktop's macOS binary cookie store, "
                        "including domain, name, path, creation, expiry, last-access "
-                       "time, flags and the complete stored value.",
+                       "time, flags and the stored value.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "All values are reported verbatim for evidentiary analysis. The "
