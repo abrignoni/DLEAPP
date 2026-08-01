@@ -1,9 +1,10 @@
 __artifacts_v2__ = {
     "discordCacheRecords": {
         "name": "Discord Cache Records",
-        "description": "Index of every response held in the Discord Desktop "
-                       "HTTP cache, with the time the client requested it and "
-                       "the time the response was stored. Discord has no "
+        "description": "Index of the cached responses held in the Discord "
+                       "Desktop HTTP cache, excluding versioned application "
+                       "bundle assets, with the time the client requested each "
+                       "one and the time the response was stored. Discord has no "
                        "browsing history database, so this index is the closest "
                        "equivalent: it shows which API calls, CDN images, "
                        "embedded links and third-party resources the client "
@@ -14,7 +15,7 @@ __artifacts_v2__ = {
                        "rather than a complete one.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Versioned application bundle assets (js, css, fonts, icons) "

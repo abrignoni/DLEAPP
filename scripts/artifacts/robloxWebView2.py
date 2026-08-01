@@ -6,12 +6,17 @@ __artifacts_v2__ = {
                        "and complete DPAPI-protected blob.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "CookiesData is encrypted with Windows DPAPI and cannot be decrypted "
                  "from AppData alone. The complete base64 value is retained for "
-                 "decryption when matching Windows account material is available.",
+                 "decryption when matching Windows account material is available. "
+                 "First 20 Bytes is the leading hex of the decoded value, reported "
+                 "as stored; the parser does not verify it against the DPAPI "
+                 "provider GUID. "
+                 "Reference: Microsoft, 'Windows Data Protection (DPAPI)', "
+                 "https://learn.microsoft.com/en-us/windows/win32/seccng/cng-dpapi",
         "paths": ("*/AppData/Local/Roblox/LocalStorage/RobloxCookies.dat",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
@@ -48,13 +53,19 @@ __artifacts_v2__ = {
                        "and referring visit identifiers.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "URLs and query parameters are reported in full and may contain "
                  "challenge tokens or credential-like values. The parser does not "
                  "determine whether those values remain valid or reusable. History "
-                 "is a retained partial record and can include repeated visits.",
+                 "is a retained partial record and can include repeated visits. "
+                 "Transition names and the microsecond visit duration follow the "
+                 "Chromium definitions. "
+                 "Reference: Chromium, 'ui/base/page_transition_types.h and the "
+                 "History database schema', "
+                 "https://chromium.googlesource.com/chromium/src/+/main/ui/base/"
+                 "page_transition_types.h",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/History",
         ),
@@ -170,12 +181,17 @@ __artifacts_v2__ = {
                        "from cached Roblox API responses.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Only user-specific API endpoints are included; general feature "
                  "configuration metadata is excluded. Nested JSON is flattened to "
-                 "field paths. Empty collections are retained as negative evidence. "
+                 "field paths. Empty collections are retained as stored rather "
+                 "than dropped. "
+                 "Responses with no user ID in the URL are attributed from the "
+                 "current appStorage account, so Subject User ID can be "
+                 "misattributed where the profile was used by more than one "
+                 "account or the signed-in account was switched. "
                  "Output can contain PII, contact details and privacy settings.",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/"
@@ -220,13 +236,19 @@ __artifacts_v2__ = {
                        "Storage.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
         "notes": "Purchase-flow telemetry documents page views, available products "
                  "and session state; it does not by itself prove a completed purchase. "
                  "Payment-card data was not present in the tested AppData corpus. "
-                 "One row is emitted per balance, session or purchase-flow event.",
+                 "One row is emitted per balance, session or purchase-flow event. "
+                 "Responses with no user ID in the URL are attributed from the "
+                 "current appStorage account, so Subject User ID can be "
+                 "misattributed where the profile was used by more than one "
+                 "account or the signed-in account was switched. "
+                 "Client-Reported Event Time is the lt parameter of a "
+                 "client-generated telemetry URL, not a server timestamp.",
         "paths": (
             "*/AppData/Local/Roblox/UniversalApp/WebView2/EBWebView/Default/"
             "Cache/Cache_Data/*",
@@ -456,7 +478,7 @@ def _cache_json(entry):
 def robloxWindowsCookieVault(context):
     data_headers = (
         "Format Version", "DPAPI Blob (base64)", "Decoded Blob Size (bytes)",
-        "DPAPI Header", "Source File",
+        "First 20 Bytes (hex)", "Source File",
     )
     data_list = []
     source_paths = []
@@ -869,7 +891,8 @@ def _commerce_cache_type(url):
 @artifact_processor
 def robloxWebView2Commerce(context):
     data_headers = (
-        ("Event Time", "datetime"), "Activity Type", "Subject User ID",
+        ("Client-Reported Event Time (lt)", "datetime"), "Activity Type",
+        "Subject User ID",
         "Payment Session ID", "Purchase Flow UUID", "View Name", "Event Type",
         "Message", "Status", "Current View", "Robux Balance",
         "Robux Package IDs", "Subscription Product IDs", "Application Type",

@@ -7,11 +7,13 @@ __artifacts_v2__ = {
                        "details. One LevelDB can hold more than one login.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Parses https_app.wire.com_0.indexeddb.leveldb via the vendored "
-                 "CCL Chromium IndexedDB reader and Spyder Forensics IndexedDBtoJSON logic.",
+                 "CCL Chromium IndexedDB reader and Spyder Forensics IndexedDBtoJSON logic. "
+                 "'MLS Identity Created' is the mls_credentials created_at value "
+                 "read as epoch seconds, the unit the sampled values match.",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "user",
@@ -36,22 +38,20 @@ __artifacts_v2__ = {
         "description": "Client devices from the IndexedDB clients store, "
                        "attributed to their owner: the signed-in account's own "
                        "device(s) (local_identity) AND the contact devices the "
-                       "account established end-to-end sessions with. Includes "
-                       "class/model, registration, last active and the fingerprint "
+                       "client has records for. Includes class/model, "
+                       "registration, last active and the fingerprint "
                        "verification state where known.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-24",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "'Relationship' separates the account owner's own device from a "
                  "contact's device. A contact device is a recipient device the "
                  "app set up encryption with; its class (e.g. 'phone') describes "
                  "the CONTACT's device, NOT a device the account owner used. "
-                 "'Fingerprint Verified' is whether that device's identity was "
-                 "manually verified in Wire: own devices are trusted "
-                 "automatically (true); contact devices are unverified (false) "
-                 "unless the user verified them.",
+                 "'Fingerprint Verified' is the meta.is_verified value the "
+                 "client stored for that device record.",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "smartphone",
@@ -78,11 +78,13 @@ __artifacts_v2__ = {
                        "conversation names.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Recovered thumbnails are decrypted from the on-disk asset "
-                 "caches when present.",
+                 "caches when present. 'Outgoing' is left blank on events that "
+                 "carry no sender, such as a conversation creation, because "
+                 "those are not a message in either direction.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
             '*/Service Worker/CacheStorage/*/*/*_0',
@@ -154,15 +156,21 @@ __artifacts_v2__ = {
         "name": "Wire Calls",
         "description": "Voice and video calls recorded in the Wire IndexedDB "
                        "(conversation voice-channel events): call end time, "
-                       "conversation, initiator, duration and end reason.",
+                       "conversation, the user each event came from, duration "
+                       "and end reason.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Duration is taken from the voice-channel-deactivate event "
-                 "(milliseconds). End-reason labels follow the Wire AVS reason "
-                 "enum and are shown alongside the raw code.",
+                 "(milliseconds). 'Event From User' is the event's 'from' "
+                 "value, reported for the start and end events alike; the "
+                 "'from' user on an end event is not established to be who "
+                 "ended the call. End-reason labels are an interpretation of "
+                 "the stored reason code and could not be tied to a published "
+                 "Wire AVS enum, so the raw code is always shown alongside and "
+                 "a code outside the mapping is left unlabelled.",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "phone",
@@ -170,12 +178,14 @@ __artifacts_v2__ = {
     "wireProteusSessions": {
         "name": "Wire Proteus Sessions",
         "description": "Proteus end-to-end sessions the account established, one "
-                       "per contact device (domain@user@client). Evidence of "
-                       "which users and which of their devices were messaged "
-                       "securely. Session key bytes are not exported.",
+                       "per contact device (domain@user@client). A session "
+                       "record exists per contact device the client set up "
+                       "Proteus encryption with; it does not by itself "
+                       "establish that a message was exchanged. Session key "
+                       "bytes are not exported.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "",
@@ -213,7 +223,9 @@ from scripts.ccl.wire_assets import build_asset_index, recover_assets
 # Reference data
 # --------------------------------------------------------------------------- #
 
-# Wire AVS call end-reason enum -> label (raw code is always shown too).
+# Call end-reason code -> label. The labels are an interpretation and were not
+# tied to a published Wire AVS enum, so the raw code is always shown too and an
+# unrecognized code is left unlabelled.
 CALL_END_REASON = {
     0: "Completed (normal)", 1: "Error", 2: "Timeout", 3: "Lost media",
     4: "Canceled", 5: "Answered elsewhere", 6: "I/O error", 7: "Still ongoing",
@@ -505,7 +517,10 @@ def wireAccountInfo(context):
             if uid not in local_clients or _completeness(v) > _completeness(local_clients[uid]["value"]):
                 local_clients[uid] = rec
 
-    # client-id and MLS-identity creation time per account from mls_credentials
+    # client-id and MLS-identity creation time per account from mls_credentials.
+    # created_at is epoch SECONDS, not the milliseconds used elsewhere in this
+    # module: the values seen in a Wire IndexedDB sample were 10-digit numbers,
+    # which land in the present day as seconds and in 1970 as milliseconds.
     cred_clients = {}
     cred_created = {}
     for rec in stores.get("mls_credentials", []):
@@ -786,12 +801,19 @@ def wireMessages(context):
         kind, text, attachment = _event_text(etype, d, users, self_ids)
         sender_id = v.get("from") or ""
         cid = v.get("conversation") or ""
+        # Only an event with a sender has a direction. Conversation creations
+        # and some member events carry no 'from', and scoring those 0 would
+        # render them as messages the account received.
+        if not sender_id:
+            outgoing = ""
+        else:
+            outgoing = 1 if sender_id in self_ids else 0
         rows.append((
             _iso_to_dt(v.get("time")),
             _account_label(users, self_ids, rec.get("db_name")),
             conv_names.get(cid, cid),
             _display_name(users, sender_id, self_ids),
-            1 if sender_id in self_ids else 0,
+            outgoing,
             media_for(d) if etype == "conversation.asset-add" else "",
             kind,
             text or "",
@@ -996,7 +1018,7 @@ def wireCalls(context):
                              else datetime.min.replace(tzinfo=timezone.utc)))
 
     data_headers = (
-        ("Timestamp", "datetime"), "Account", "Conversation", "Initiated/Ended By",
+        ("Timestamp", "datetime"), "Account", "Conversation", "Event From User",
         "Event", "Duration", "Duration (ms)", "End Reason", "Reason Code",
         "Call Event ID", "From User ID", "Conversation ID",
     )

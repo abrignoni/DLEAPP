@@ -5,12 +5,11 @@ __artifacts_v2__ = {
                        "installation and how the client is configured, from the "
                        "database's own key-value store together with the "
                        "unencrypted profile files. Includes the linked device "
-                       "name and when it was created, which dates the link "
-                       "between this computer and the phone that owns the "
-                       "account.",
+                       "name and the time the client stored for this linked "
+                       "device record.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "PyCryptodome; the Signal database credential for the "
                         "account fields",
         "category": "Signal (macOS)",
@@ -111,8 +110,8 @@ def signalAccount(context):
                 continue
             source_path = source_path or file_found
             if config.get("key"):
-                add("Database Key Storage", "Plaintext 'key' in config.json "
-                    "(older Signal Desktop)", file_found)
+                add("Database Key Storage", "Plaintext 'key' in config.json",
+                    file_found)
             if config.get("encryptedKey"):
                 add("Database Key Storage", "'encryptedKey', wrapped with the OS "
                     "credential store", file_found)

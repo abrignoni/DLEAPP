@@ -6,16 +6,18 @@ __artifacts_v2__ = {
                        "client itself recorded about the machine it was running "
                        "on. They identify the installation that the other "
                        "artifacts in this category were parsed from. The "
-                       "time zone recorded here is the one the log-derived "
-                       "artifacts (Channel Navigation, Gateway Sessions) must "
-                       "be read against, since those are written in device "
-                       "local time. The "
+                       "time zone recorded here is the time zone the client "
+                       "recorded when this file was last written; it is the "
+                       "best available reference for the log-derived "
+                       "artifacts (Channel Navigation, Gateway Sessions), "
+                       "which are written in device local time, but the host "
+                       "time zone may have changed over the log's span. The "
                        "Sentry crash-reporting scope is the richest single "
                        "source: it names the account, the app build and the "
-                       "hardware, and it is written on every run.",
+                       "hardware.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Reads sentry/scope_v3.json, settings.json, Preferences, "

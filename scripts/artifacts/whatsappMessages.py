@@ -9,11 +9,16 @@ __artifacts_v2__ = {
                        "against the message.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-27",
-        "last_update_date": "2026-07-27",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
         "notes": "Direction is taken from the ZISFROMME column: a set flag is "
-                 "reported as Outgoing, a clear flag as Incoming. Type Code is the "
+                 "reported as Outgoing, a clear flag as Incoming. It is left "
+                 "blank where ZISFROMME is NULL and on ZMESSAGETYPE 6 rows, "
+                 "which in the tested corpus occurred only in group chats and "
+                 "never carried a set flag, so reporting them as Incoming "
+                 "would present a system entry as a received message. "
+                 "Type Code is the "
                  "ZMESSAGETYPE value the database stores and is left as the integer "
                  "rather than a guessed label; where a message carries a file, the "
                  "file itself is embedded so its kind is visible directly. A row "
@@ -53,6 +58,11 @@ from scripts.ilapfuncs import (artifact_processor, check_in_media,
 
 _EPOCH_MIN = datetime.min.replace(tzinfo=timezone.utc)
 
+# ZMESSAGETYPE values that are not a sent or received message. Established by
+# testing: every type 6 row in the tested corpus sat in a group chat and had
+# ZISFROMME clear, which is the shape of a system entry rather than a message.
+_NON_MESSAGE_TYPES = {6}
+
 _QUERY = """
     SELECT
         m.Z_PK,
@@ -66,6 +76,18 @@ _QUERY = """
     LEFT JOIN ZWAGROUPMEMBER  gm ON m.ZGROUPMEMBER = gm.Z_PK
     LEFT JOIN ZWAMEDIAITEM    mi ON m.ZMEDIAITEM   = mi.Z_PK
 """
+
+
+def _direction(is_from_me, message_type):
+    """Direction only where the row is a message and the flag was recorded.
+
+    A NULL ZISFROMME and a non-message row both fall through to Incoming if
+    the flag is read as a plain boolean, which would show a system entry as a
+    message the account received.
+    """
+    if is_from_me is None or message_type in _NON_MESSAGE_TYPES:
+        return ""
+    return "Outgoing" if is_from_me else "Incoming"
 
 
 def _sender(is_from_me, chat_jid, partner_name, contact_jid, from_jid,
@@ -116,7 +138,7 @@ def whatsappMessages(context):
                     media_ref = reference
                     embedded += 1
 
-        direction = "Outgoing" if is_from_me else "Incoming"
+        direction = _direction(is_from_me, message_type)
         sender = _sender(is_from_me, contact_jid, partner_name, contact_jid,
                          from_jid, push_name, member_name, member_jid)
         sender_jid = "" if is_from_me else (

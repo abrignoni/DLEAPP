@@ -8,11 +8,12 @@ __artifacts_v2__ = {
                        "title and contact-card name are reported alongside.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-27",
-        "last_update_date": "2026-07-27",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
-        "notes": "The media kind shown is derived from the stored file's extension, "
-                 "so it reflects the file itself. Latitude and longitude are shown "
+        "notes": "The media kind shown is derived from the file extension recorded "
+                 "in the database path; it is not verified against the file's "
+                 "content. Latitude and longitude are shown "
                  "only when the row holds a non-zero coordinate. A row can list a "
                  "media path whose file is no longer in the extraction, in which "
                  "case no file is embedded.",

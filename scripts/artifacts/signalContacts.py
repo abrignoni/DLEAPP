@@ -33,12 +33,16 @@ __artifacts_v2__ = {
                        "direction, how it ended and when.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "Signal Desktop records calls it observed. A call placed or "
                  "answered on a phone linked to the same account may not appear "
-                 "here, so an absent call is not evidence no call took place.",
+                 "here, so an absent call is not evidence no call took place. "
+                 "Start To End (s) is the difference between the row's start "
+                 "and end timestamps. It is reported for every row, including "
+                 "missed, declined and unanswered outcomes, so it is not by "
+                 "itself the length of a connected call.",
         "paths": (
             '*/Signal*/sql/db.sqlite',
             '*/Signal*/config.json',
@@ -55,13 +59,14 @@ __artifacts_v2__ = {
     "signalSessions": {
         "name": "Signal Sessions & Identity Keys",
         "description": "Signal Protocol sessions and identity keys the client "
-                       "holds. A session exists for each device the client has "
-                       "exchanged messages with, and an identity key record is "
-                       "kept for each account whose key it has seen, together "
-                       "with when that key was first recorded.",
+                       "holds. A session row exists for each device this client "
+                       "established a Signal Protocol session with, and an "
+                       "identity key record is kept for each account whose key "
+                       "it has seen, together with the timestamp stored on that "
+                       "record.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "These records show cryptographic contact at the protocol "
@@ -160,7 +165,7 @@ def signalConversations(context):
 def signalCalls(context):
     data_headers = (
         ("Started", "datetime"), "With", "Call Type", "Direction", "Status",
-        ("Ended", "datetime"), "Duration (s)", "Ringer", "Call ID", "Peer ID",
+        ("Ended", "datetime"), "Start To End (s)", "Ringer", "Call ID", "Peer ID",
         "Source File",
     )
 
@@ -214,7 +219,7 @@ def signalCalls(context):
 @artifact_processor
 def signalSessions(context):
     data_headers = (
-        "Record", "Account", "Service ID", "Device ID", ("First Seen", "datetime"),
+        "Record", "Account", "Service ID", "Device ID", ("Record Timestamp", "datetime"),
         "Verified State", "Non-Blocking Approval", "Source File",
     )
 

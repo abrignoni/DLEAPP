@@ -56,11 +56,11 @@ __artifacts_v2__ = {
         "name": "Roblox Asset Cache Index",
         "description": "Roblox's rbx-storage cache index, recording cached object "
                        "identifiers, last-access times, logical sizes, hit counts, "
-                       "categories, raw score values, expiry values and stored-content "
+                       "categories, raw score values, TTL values and stored-content "
                        "signatures.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "The 16-byte IDs are opaque cache keys. Atime behaves as Unix "
@@ -281,7 +281,8 @@ def _content_signature(content):
 @artifact_processor
 def robloxAssetCache(context):
     data_headers = (
-        ("Last Access", "datetime"), ("Expires", "datetime"), "Cache ID",
+        ("Last Access", "datetime"),
+        ("TTL (database value, as Unix seconds)", "datetime"), "Cache ID",
         "Category", "Logical Size (bytes)", "Hit Count", "Score",
         "Stored Content Size (bytes)", "Content Signature", "Source File",
     )

@@ -85,7 +85,14 @@ _CHANNEL_TYPES = {
 
 
 def snowflake_to_datetime(snowflake):
-    """Convert a Discord snowflake ID to its embedded creation time (UTC)."""
+    """Convert a Discord snowflake ID to its embedded creation time (UTC).
+
+    The 2015-01-01 epoch and the 22-bit shift are the documented snowflake
+    layout.
+
+    Reference: Discord Developer Documentation, 'Snowflakes (ID format)',
+    https://discord.com/developers/docs/reference#snowflakes
+    """
     try:
         value = int(snowflake)
     except (TypeError, ValueError):

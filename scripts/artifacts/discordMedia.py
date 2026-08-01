@@ -1,10 +1,11 @@
 __artifacts_v2__ = {
     "discordRecoveredMedia": {
         "name": "Discord Recovered Media",
-        "description": "Every Discord image, video, avatar, emoji, sticker and "
-                       "server icon still held in the application cache, "
-                       "extracted and embedded in the report. Attachment URLs "
-                       "carry the channel ID and an attachment snowflake, so a "
+        "description": "Every cached file this parser could identify as Discord "
+                       "media and decode, extracted and embedded in the report: "
+                       "images, video, avatars, emoji, stickers and server "
+                       "icons. Attachment URLs carry the channel ID and an "
+                       "attachment snowflake, so a "
                        "cached file can be tied to its channel and dated even "
                        "when the message that carried it is long gone. The "
                        "'Message Recovered' column flags files whose "
@@ -13,11 +14,12 @@ __artifacts_v2__ = {
                        "file here does not indicate it was never present.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "Discord serves resized WebP copies to the client, so "
-                 "recovered bytes are often a transcode rather than the "
+        "notes": "The served content type is frequently WebP rather than the "
+                 "uploaded type, so recovered bytes are often a transcode "
+                 "rather than the "
                  "original upload and will not necessarily hash to the file as "
                  "it was uploaded. One "
                  "row per cached file: the same image appears more than once "
@@ -83,8 +85,8 @@ def discordRecoveredMedia(context):
 
         content_type = (media.get("content_type") or "").split(";")[0].strip()
         filename = discord_api.attachment_filename(media["url"])
-        # Prefer the served type for images and video (Discord transcodes to
-        # WebP), otherwise keep the extension the file was uploaded with.
+        # Prefer the served type for images and video (frequently WebP rather
+        # than the uploaded type), otherwise keep the uploaded extension.
         if content_type.startswith(("image/", "video/", "audio/")):
             extension = content_type.split("/")[-1]
         else:

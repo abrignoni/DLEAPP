@@ -4,14 +4,14 @@ __artifacts_v2__ = {
         "description": "Message drafts held in Local Storage. Discord saves the "
                        "draft box as text is typed, and Local Storage is a "
                        "LevelDB, so superseded versions of the key stay on "
-                       "disk. The result is a keystroke-level history of text "
-                       "as it was composed, each version with its own "
-                       "timestamp and target channel. A row records what was in "
+                       "disk. The result is successive saved versions of the "
+                       "draft text, each with its own stored timestamp and "
+                       "target channel. A row records what was in "
                        "the compose box at that time; whether it was ever sent "
                        "cannot be determined from this artifact alone.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Rows come from every surviving version of the DraftStore key, "
@@ -29,21 +29,27 @@ __artifacts_v2__ = {
         "name": "Discord Client Activity",
         "description": "Application usage reconstructed from the Local Storage "
                        "state Discord keeps between runs: channels opened and "
-                       "when, servers selected, voice channels joined, quick "
-                       "switcher history and client session heartbeats. This is "
+                       "when, servers selected, the selected voice channel, "
+                       "quick switcher history and client session heartbeats. "
+                       "This is "
                        "usage state that exists independently of any message "
                        "content: it records when the client opened channels, "
                        "selected servers and started sessions, whether or not "
                        "any message from those channels was cached.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Channel-open events come from the frecency store, which keeps "
                  "a rolling window of recent usages; older versions of the key "
                  "extend that window further back. Entries without a stored "
-                 "timestamp are reported in order with no time.",
+                 "timestamp are reported in order with no time. The 'Selected "
+                 "voice channel (state)' row pairs the store's "
+                 "lastConnectedTime with its selectedVoiceChannelId: both are "
+                 "co-resident fields of one rolling state object, so the "
+                 "pairing is inferred rather than a recorded association "
+                 "between that time and that channel.",
         "paths": ('*/discord*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "activity",
@@ -204,8 +210,14 @@ def discordActivity(context):
         elif record.key == "SelectedChannelStore":
             connected = state.get("lastConnectedTime") if isinstance(state, dict) else None
             if state.get("selectedVoiceChannelId"):
-                add(discord_api.epoch_ms_to_datetime(connected), "Voice channel connected",
-                    str(state["selectedVoiceChannelId"]), "", record)
+                # lastConnectedTime and selectedVoiceChannelId are independent
+                # members of one rolling state object. The store does not record
+                # that this time belongs to this channel, so the row is labelled
+                # as state rather than as a join event.
+                add(discord_api.epoch_ms_to_datetime(connected),
+                    "Selected voice channel (state)",
+                    str(state["selectedVoiceChannelId"]),
+                    "timestamp is the store's lastConnectedTime", record)
             for guild_id, channel_id in (state.get("selectedChannelIds") or {}).items():
                 add("", "Last channel for server", str(channel_id),
                     f"server {guild_id}", record)
