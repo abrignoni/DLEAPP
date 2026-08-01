@@ -52,7 +52,7 @@ __artifacts_v2__ = {
     },
     "robloxPlayerLog": {
         "name": "Roblox Player Log",
-        "description": "All structured Roblox Player log events with the "
+        "description": "Structured Roblox Player log events with the "
                        "timestamp as written in the log (UTC where the line "
                        "carries a Z suffix), process-relative elapsed time, "
                        "severity, logging component and message.",

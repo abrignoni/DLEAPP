@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "description": "Files shared in Signal conversations, decrypted from "
                        "attachments.noindex. Each stored file is encrypted with "
                        "its own key held in the database, so the files cannot be "
-                       "read without it. Every recovered file is checked against "
+                       "read without it. Each recovered file is checked against "
                        "the message authentication code and, where the database "
                        "recorded one, its SHA-256.",
         "author": "@AlexisBrignoni",

@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "discordUsers": {
         "name": "Discord Users Seen",
-        "description": "Every Discord account seen in the cached responses this "
+        "description": "Discord accounts seen in the cached responses this "
                        "parser decodes: message authors, mentioned users, DM "
                        "recipients, reaction users, profiles and invite "
                        "creators. User IDs are snowflakes, so each account's "

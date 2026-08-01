@@ -2,8 +2,8 @@ __artifacts_v2__ = {
     "wireDesktopLog": {
         "name": "Wire Desktop Log",
         "description": "Activity timeline parsed from the Wire desktop app log "
-                       "(logs/electron.log and electron.old): every timestamped "
-                       "line from the Wire desktop log except repetitive "
+                       "(logs/electron.log and electron.old): timestamped "
+                       "lines from the Wire desktop log except repetitive "
                        "config-restore entries. Timestamps are the device's "
                        "local time as written by the app.",
         "author": "@AlexisBrignoni",
