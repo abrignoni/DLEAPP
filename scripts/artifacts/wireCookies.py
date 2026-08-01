@@ -2,13 +2,13 @@ __artifacts_v2__ = {
     "wireCookies": {
         "name": "Wire Cookies",
         "description": "Cookies from the Wire desktop app's network stores "
-                       "(Network/Cookies, main profile and Electron partitions). "
-                       "Includes the Wire 'zuid' auth session cookie with its "
-                       "creation, expiry and last-access times. Cookie values are "
+                       "(Network/Cookies, main profile and Electron partitions), "
+                       "including the cookie named 'zuid', with its creation, "
+                       "expiry and last-access times. Cookie values are "
                        "OS-encrypted and are not decrypted here.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Only cookies for wire.com hosts are reported.",
@@ -22,7 +22,8 @@ import os
 import sqlite3
 from datetime import datetime, timezone
 
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import (artifact_processor, logfunc,
+                               open_sqlite_db_readonly)
 
 # Chromium/WebKit timestamps: microseconds since 1601-01-01 UTC.
 _CHROME_EPOCH_OFFSET = 11644473600
@@ -66,8 +67,10 @@ def wireCookies(context):
             continue
         parsed.add(real)
 
+        con = open_sqlite_db_readonly(file_found)
+        if con is None:
+            continue
         try:
-            con = sqlite3.connect(f"file:{file_found}?mode=ro", uri=True)
             cur = con.cursor()
             cur.execute("""
                 SELECT host_key, name, path, creation_utc, expires_utc,

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
                        "signatures. Recovered cleartext is embedded in the report.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "PyCryptodome",
         "category": "Telegram Desktop",
         "notes": "Only live binlog entries whose backing object exists and passes "
@@ -17,7 +17,10 @@ __artifacts_v2__ = {
                  "cache key is an opaque Telegram media identifier and does not "
                  "by itself identify a chat or message. Cache tags come from "
                  "Telegram's own image/sticker/voice/video-message/animation "
-                 "classification.",
+                 "classification. The tag-to-label mapping was established "
+                 "from the Telegram Desktop cache implementation cited in "
+                 "scripts/telegram.py; a tag outside that mapping is reported "
+                 "as Unknown with the raw value shown alongside.",
         "paths": (
             "*/Telegram Desktop/tdata/key_data*",
             "*/Telegram Desktop/tdata/user_data/cache/*/binlog*",

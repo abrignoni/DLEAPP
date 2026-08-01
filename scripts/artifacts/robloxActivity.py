@@ -47,10 +47,11 @@ __artifacts_v2__ = {
         "name": "Roblox Real-Time Notifications",
         "description": "Real-time notifications retained in Roblox embedded-browser "
                        "Local Storage. Chat notifications can preserve the sender, "
-                       "conversation ID and message text shown to the user.",
+                       "conversation ID and the message text the notification "
+                       "payload carried.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "Only live Local Storage versions are parsed. The key can be "

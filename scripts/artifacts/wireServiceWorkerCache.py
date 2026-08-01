@@ -4,16 +4,25 @@ __artifacts_v2__ = {
         "description": "Assets cached on disk by the Wire web app's service "
                        "worker (Service Worker/CacheStorage). Each entry records "
                        "the requested asset URL, the resolved CDN (CloudFront) "
-                       "download URL and its expiry. The cached bodies are Wire "
+                       "download URL and its expiry. Cached asset bodies are Wire "
                        "end-to-end-encrypted (application/octet-stream), so they "
                        "cannot be rendered as images without the asset keys.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "Parses Chromium Simple Cache entry files (*_0). Bodies remain "
-                 "encrypted; only request/CDN URLs and metadata are extracted.",
+        "notes": "Parses Chromium Simple Cache entry files (*_0). No body is "
+                 "decoded; only request/CDN URLs and metadata are extracted. An "
+                 "entry can also be matched on any wire.com URL, which admits "
+                 "responses that are not assets, so the encrypted-body note is "
+                 "shown only where an /assets/ URL was resolved. 'Content Type "
+                 "(heuristic)' is the first MIME-shaped string found anywhere in "
+                 "the raw entry, not a parsed response header. 'CDN Expires' "
+                 "reads the CloudFront Expires query parameter as Unix seconds. "
+                 "Reference: AWS, 'CloudFront signed URLs (Expires is Unix time "
+                 "in seconds)', https://docs.aws.amazon.com/AmazonCloudFront/"
+                 "latest/DeveloperGuide/private-content-signed-urls.html",
         "paths": ('*/Service Worker/CacheStorage/*/*/*_0',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "hard-drive",
@@ -72,6 +81,10 @@ def wireServiceWorkerCache(context):
         text = raw.decode("latin1", "replace")
         req = _ASSET_URL_RE.search(text)
         req_url = req.group(0) if req else ""
+        # The fallback below matches any wire.com URL, so it can pick up a
+        # response that is not an asset at all. Only a resolved /assets/ URL
+        # justifies saying anything about the body.
+        is_asset = bool(req_url)
         if not req_url:
             any_url = _ANY_WIRE_URL_RE.search(text)
             req_url = any_url.group(0) if any_url else ""
@@ -101,12 +114,13 @@ def wireServiceWorkerCache(context):
             expires,
             ctype,
             len(raw),
-            "Body is Wire-encrypted (not an image)",
+            "Asset bodies in this cache are Wire-encrypted; not decoded here"
+            if is_asset else "",
         ))
 
     data_headers = (
         "Cache Entry", "Request URL", "Asset ID", "CDN Download URL",
-        ("CDN Expires", "datetime"), "Content Type", "Entry Size (bytes)",
-        "Note",
+        ("CDN Expires", "datetime"), "Content Type (heuristic)",
+        "Entry Size (bytes)", "Note",
     )
     return data_headers, data_list, source_path

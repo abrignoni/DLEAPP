@@ -1,11 +1,11 @@
 __artifacts_v2__ = {
     "discordUsers": {
         "name": "Discord Users Seen",
-        "description": "Every Discord account observed anywhere in the cached "
-                       "application data: message authors, mentioned users, "
-                       "direct message recipients, people who reacted to a "
-                       "message, invite creators and cached profiles. User IDs "
-                       "are snowflakes, so each account's registration date is "
+        "description": "Every Discord account seen in the cached responses this "
+                       "parser decodes: message authors, mentioned users, DM "
+                       "recipients, reaction users, profiles and invite "
+                       "creators. User IDs are snowflakes, so each account's "
+                       "registration date is "
                        "recoverable, and a cached avatar is embedded where one "
                        "survives. Where a profile response was cached, the "
                        "external accounts Discord recorded as connected to it "
@@ -15,13 +15,16 @@ __artifacts_v2__ = {
                        "account's activity window.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Profile fields (bio, pronouns, connected accounts) are only "
                  "present where a profile response was cached, so a sparse row "
                  "means no profile response survives, not that the account has "
-                 "no profile.",
+                 "no profile. "
+                 "Reference: Discord Developer Documentation, "
+                 "'Snowflakes (ID format)', "
+                 "https://discord.com/developers/docs/reference#snowflakes",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -47,7 +50,7 @@ __artifacts_v2__ = {
                        "covers only the recovered messages.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Channel names and topics are only known where the client "
@@ -55,7 +58,10 @@ __artifacts_v2__ = {
                  "otherwise only the ID is reported. The server a channel "
                  "belongs to is resolved from cached channel objects, the "
                  "renderer log's routing entries and the Local Storage channel "
-                 "selection state.",
+                 "selection state. "
+                 "Reference: Discord Developer Documentation, "
+                 "'Snowflakes (ID format)', "
+                 "https://discord.com/developers/docs/reference#snowflakes",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -84,13 +90,16 @@ __artifacts_v2__ = {
                        "for a server that was never joined.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Member counts are the approximate values Discord returned at "
                  "the time the response was cached, not current figures. "
                  "Channel and message counts are limited to what the cache and "
-                 "the navigation log revealed about each server.",
+                 "the navigation log revealed about each server. "
+                 "Reference: Discord Developer Documentation, "
+                 "'Snowflakes (ID format)', "
+                 "https://discord.com/developers/docs/reference#snowflakes",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -106,22 +115,24 @@ __artifacts_v2__ = {
     },
     "discordInvites": {
         "name": "Discord Invites",
-        "description": "Server invite links the client looked up. Discord "
-                       "resolves an invite code through the API before showing "
-                       "the join prompt, and that response names the server, the "
-                       "channel the invite points at, who created it and when "
-                       "it expires. A row records that the client resolved that "
-                       "invite code and what Discord returned for it. It does "
-                       "not establish that the user joined the server.",
+        "description": "Server invite links the client looked up. A cached "
+                       "`/invites/<code>` response records that the client "
+                       "resolved that invite code and what Discord returned: "
+                       "the server, the channel the invite points at, who "
+                       "created it and when it expires. It does not establish "
+                       "that the user joined the server.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "One row per invite code, from the most recent cached lookup. "
                  "The expiry is the value Discord returned when the code was "
                  "resolved, so an expired invite may still have been valid when "
-                 "it was used.",
+                 "it was used. "
+                 "Reference: Discord Developer Documentation, "
+                 "'Snowflakes (ID format)', "
+                 "https://discord.com/developers/docs/reference#snowflakes",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',

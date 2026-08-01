@@ -2,12 +2,14 @@ __artifacts_v2__ = {
     "wireLocalStorage": {
         "name": "Wire Local Storage",
         "description": "Key/value pairs from the Wire desktop app's Chromium "
-                       "Local Storage (main profile and Electron partitions): "
-                       "app-instance id, analytics (Countly) device id, favourite "
-                       "camera/mic device hashes, UI language and preferences.",
+                       "Local Storage (main profile and Electron partitions), "
+                       "reported as keys and values as stored. Keys observed in "
+                       "the tested corpus included an app-instance id, an "
+                       "analytics (Countly) device id, favourite camera/mic "
+                       "device hashes, UI language and preferences.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Only entries for wire.com origins are reported.",

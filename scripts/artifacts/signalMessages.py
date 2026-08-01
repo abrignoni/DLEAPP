@@ -53,13 +53,18 @@ __artifacts_v2__ = {
                        "recorded one, its SHA-256.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
-        "notes": "Signal pads a stored attachment with zeroes to hide its true "
-                 "length, so the file is truncated to the size the database "
-                 "records. The Verified column reports whether the recovered "
-                 "bytes matched the SHA-256 the database holds for the original.",
+        "notes": "The stored plaintext is longer than the recorded size, so it "
+                 "is truncated to the size the database records. The Verified "
+                 "column reports whether the recovered bytes matched the "
+                 "SHA-256 the database holds for the original. Where no file "
+                 "was recovered it names only the causes that can be told "
+                 "apart here (no attachments folder, no key or no path in the "
+                 "database, or the file absent from disk); every other failure "
+                 "is reported as 'Could not decrypt' rather than asserting a "
+                 "single cause for all of them.",
         "paths": (
             '*/Signal*/sql/db.sqlite',
             '*/Signal*/config.json',
@@ -135,6 +140,28 @@ def _service_id_labels(connection, labels):
         if service_id:
             mapping[service_id.lower()] = labels.get(cid, cid)
     return mapping
+
+
+def _recovery_failure(root, relative_path, local_key):
+    """Why decrypt_attachment recovered nothing, limited to what is knowable.
+
+    That function returns no plaintext for several distinct reasons: no
+    attachments root, no stored path, no key held in the database, the file
+    not being readable, a blob too short to hold the IV and MAC, key material
+    that is not valid base64 or is under 64 bytes, and an AES failure. Only
+    the causes that can be told apart from here are named. Everything else is
+    reported as a failed decryption rather than asserting one specific cause
+    for all of them.
+    """
+    if not root:
+        return "Attachments folder not in extraction"
+    if not local_key:
+        return "No key recorded"
+    if not relative_path:
+        return "No stored path recorded"
+    if not os.path.exists(os.path.join(root, relative_path.replace("/", os.sep))):
+        return "File not in extraction"
+    return "Could not decrypt"
 
 
 @artifact_processor
@@ -279,7 +306,7 @@ def signalAttachments(context):
                 force_extension=extension)
 
         if plaintext is None:
-            verified = "File not in extraction"
+            verified = _recovery_failure(root, path, local_key)
         elif matched is True:
             verified = "Yes, SHA-256 matched"
         elif matched is False:

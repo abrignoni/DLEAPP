@@ -2,13 +2,13 @@ __artifacts_v2__ = {
     "wireDesktopLog": {
         "name": "Wire Desktop Log",
         "description": "Activity timeline parsed from the Wire desktop app log "
-                       "(logs/electron.log and electron.old): app launches, "
-                       "auth/login navigation, team info sync, updates and other "
-                       "notable events. Timestamps are the device's local time as "
-                       "written by the app.",
+                       "(logs/electron.log and electron.old): every timestamped "
+                       "line from the Wire desktop log except repetitive "
+                       "config-restore entries. Timestamps are the device's "
+                       "local time as written by the app.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Repetitive config-restore lines are filtered out.",

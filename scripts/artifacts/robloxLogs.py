@@ -2,12 +2,13 @@ __artifacts_v2__ = {
     "robloxGameJoins": {
         "name": "Roblox Game Joins",
         "description": "Roblox experience joins reconstructed from Player logs, "
-                       "including UTC time, place and universe IDs, game instance, "
-                       "account, join attempt, party, join origin, and the UDMUX and "
-                       "RCC server addresses recorded by the client.",
+                       "with the timestamp as written in the log (UTC where the "
+                       "line carries a Z suffix), place and universe IDs, game "
+                       "instance, account, join attempt, party, join origin, and "
+                       "the UDMUX and RCC server addresses recorded by the client.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "UDMUX and RCC labels follow the source log. In the tested corpus "
@@ -30,14 +31,16 @@ __artifacts_v2__ = {
                        "server IP, elapsed time, body size and retry state.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "URLs and query parameters are reported verbatim for evidentiary "
                  "analysis and may contain tokens or credential-like values. The "
                  "parser does not determine whether those values remain valid or "
                  "reusable. Player-log URLs form a partial activity record, not "
-                 "browser history.",
+                 "browser history. External is empty where the log line carried "
+                 "no external: field, since an absent field is not a recorded "
+                 "value.",
         "paths": (
             "*/Library/Logs/Roblox/*_Player_*.log",
         ),
@@ -49,12 +52,13 @@ __artifacts_v2__ = {
     },
     "robloxPlayerLog": {
         "name": "Roblox Player Log",
-        "description": "All structured Roblox Player log events with their UTC "
-                       "timestamp, process-relative elapsed time, severity, logging "
-                       "component and message.",
+        "description": "All structured Roblox Player log events with the "
+                       "timestamp as written in the log (UTC where the line "
+                       "carries a Z suffix), process-relative elapsed time, "
+                       "severity, logging component and message.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
         "notes": "Long messages are limited to 10,000 characters. The first "
@@ -133,7 +137,7 @@ def _sort_time(value):
 def robloxGameJoins(context):
     data_headers = (
         ("Joined", "datetime"), "Place ID", "Universe ID", "Game Instance ID",
-        "User ID", "Public Server", "Public Port", "RCC Server", "RCC Port",
+        "User ID", "UDMUX Address", "UDMUX Port", "RCC Server", "RCC Port",
         "Join Attempt ID", "Party ID", "Join Origin", "Source File", "Line",
     )
     joins = []
@@ -232,7 +236,9 @@ def robloxHttpActivity(context):
             ip_address.group(1) if ip_address else "",
             timing.group(1) if timing else "",
             body_size.group(1) if body_size else "",
-            "Yes" if external and external.group(1) == "1" else "No",
+            # No external: field in the line means the log did not record the
+            # value; reporting "No" would assert a value the log never carried.
+            ("Yes" if external.group(1) == "1" else "No") if external else "",
             retries.group(1) if retries else "",
             context.get_relative_path(path), line_number,
         ))

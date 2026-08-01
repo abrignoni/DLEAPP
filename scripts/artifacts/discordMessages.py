@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                        "its message.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "Parses cached responses to /api/v*/channels/<id>/messages and "
@@ -22,7 +22,13 @@ __artifacts_v2__ = {
                  "point-in-time snapshot and the most recent one is reported, so "
                  "an edit made after the last cache write is not reflected here. "
                  "Direction is resolved against the signed-in account id taken "
-                 "from the Sentry scope and Local Storage.",
+                 "from the Sentry scope and Local Storage, so it is only "
+                 "resolvable when that account id was found; where it was not, "
+                 "Direction is left empty for every row rather than defaulted. "
+                 "The Attachments and Attachment Names columns list at most ten "
+                 "attachments per message. Ten is an observed cap rather than a "
+                 "limit Discord documents; the Discord Attachments artifact "
+                 "reports every attachment the API declared.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -63,13 +69,16 @@ __artifacts_v2__ = {
                        "not indicate it was never shared.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "Cached copies are frequently the WebP variant Discord serves "
-                 "to the client rather than the original upload, so the "
-                 "recovered bytes can differ from the file the sender chose. "
-                 "The reported size is the size declared by the API.",
+        "notes": "Cached copies are frequently WebP rather than the uploaded "
+                 "type, so the recovered bytes can differ from the file the "
+                 "sender chose. "
+                 "The reported size is the size declared by the API. "
+                 "Reference: Discord Developer Documentation, "
+                 "'Snowflakes (ID format)', "
+                 "https://discord.com/developers/docs/reference#snowflakes",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
@@ -92,7 +101,9 @@ from scripts.chromium import discord_api
 from scripts.chromium.simple_cache import read_entry
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
 
-# Discord caps a message at ten attachments, so this never truncates a message.
+# Attachments embedded per message row are capped. Ten is an observed cap, not
+# a limit Discord documents, so a message carrying more would be truncated here.
+# The Discord Attachments artifact reports every attachment without a cap.
 _MAX_MEDIA_PER_MESSAGE = 10
 
 
@@ -127,7 +138,8 @@ def _recover_media(path, media, filename):
         return None
     extension = os.path.splitext(filename)[1].lstrip(".")
     content_type = media.get("content_type", "").split(";")[0].strip()
-    # Discord transcodes to WebP on delivery; trust the served type over the name.
+    # The served type is frequently WebP rather than the uploaded type; trust
+    # the served type over the name.
     if content_type.startswith("image/") or content_type.startswith("video/"):
         extension = content_type.split("/")[-1]
     return check_in_embedded_media(
@@ -201,6 +213,17 @@ def discordMessages(context):
         sent = discord_api.iso_to_datetime(message.get("timestamp")) \
             or discord_api.snowflake_to_datetime(message_id)
 
+        # Direction is only resolvable against the signed-in account id. When
+        # find_local_account resolved nothing, local_ids is empty and every
+        # message would otherwise be labelled "Received", so the column is left
+        # empty rather than asserting a direction the data does not support.
+        if not local_ids:
+            direction = ""
+        elif author_id and author_id in local_ids:
+            direction = "Sent"
+        else:
+            direction = "Received"
+
         media_refs = []
         names = []
         for attachment in (message.get("attachments") or [])[:_MAX_MEDIA_PER_MESSAGE]:
@@ -216,7 +239,7 @@ def discordMessages(context):
 
         data_list.append((
             sent,
-            "Sent" if author_id and author_id in local_ids else "Received",
+            direction,
             discord_api.user_display(author),
             _channel_label(scan, str(message.get("channel_id") or "")),
             message.get("content") or "",

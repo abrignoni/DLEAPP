@@ -36,13 +36,12 @@ __artifacts_v2__ = {
                        "cached reaction listings. Each row places a named "
                        "account on a specific message in a specific channel, so "
                        "it records which accounts Discord reported as having "
-                       "reacted to that message. Discord only requests this "
-                       "listing when a reaction list is hovered or opened, so "
-                       "coverage is limited to messages whose reactions were "
-                       "inspected in the client.",
+                       "reacted to that message. Rows exist only where a "
+                       "reactions listing response was cached, so coverage is "
+                       "limited to messages for which the client requested one.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Discord (macOS)",
         "notes": "The listing is capped by the limit Discord requested, so a "
