@@ -5,7 +5,7 @@ An artifact's `sample_data` records which test corpora it has been run against
 and what each produced, for example::
 
     "sample_data": {
-        "discord_macos": "Discord 0.0.402 macOS | 12940 rows",
+        "corpus_key": "AppName 1.2.3 | 12940 rows",
     }
 
 Those keys are meant to name entries in a corpus registry (`samples.json`),
@@ -30,7 +30,7 @@ Usage::
     python3 admin/scripts/validate_sample_data.py
     python3 admin/scripts/validate_sample_data.py --registry /path/samples.json
     python3 admin/scripts/validate_sample_data.py --registry /path/samples.json --verify-hashes
-    python3 admin/scripts/validate_sample_data.py --registry /path/samples.json --run discord_win_ptb
+    python3 admin/scripts/validate_sample_data.py --registry /path/samples.json --run corpus_key
 
 The registry path may also be supplied through the ``DLEAPP_SAMPLES``
 environment variable. Exit status is 1 if any error was reported; warnings
@@ -219,6 +219,23 @@ def check_registry(artifacts, registry, registry_path, verify_hashes, report):
                 f"artifacts cite {len(cited)}")
 
 
+def input_type_for(source):
+    """Map a corpus file's extension to the tool's -t input type.
+
+    The registry's match key is spelled "zip" for historical reasons but may
+    point at any container the tool accepts. Returns None when the extension
+    names no known type, so the caller reports it instead of guessing.
+    """
+    name = source.name.lower()
+    if name.endswith((".tar.gz", ".tgz", ".gz")):
+        return "gz"
+    if name.endswith(".tar"):
+        return "tar"
+    if name.endswith(".zip"):
+        return "zip"
+    return None
+
+
 def run_corpus(registry, registry_path, corpus, report, keep=False):
     """Step 3: parse a corpus and compare produced rows against declared rows."""
     entry = registry["samples"].get(corpus)
@@ -234,9 +251,15 @@ def run_corpus(registry, registry_path, corpus, report, keep=False):
         report.error(f"--run '{corpus}' points at a missing file: {source}")
         return
 
+    input_type = input_type_for(source)
+    if input_type is None:
+        report.error(f"--run '{corpus}': cannot pick a -t input type for {source.name}; "
+                     "known extensions are .zip, .tar, .tar.gz, .tgz")
+        return
+
     output_root = tempfile.mkdtemp(prefix="dleapp-validate-")
     folder = "validate_run"
-    command = [sys.executable, str(REPO_ROOT / "dleapp.py"), "-t", "zip",
+    command = [sys.executable, str(REPO_ROOT / "dleapp.py"), "-t", input_type,
                "-i", str(source), "-o", output_root, "--custom_output_folder", folder]
     print(f"  running {source.name} ...")
     completed = subprocess.run(command, cwd=str(REPO_ROOT),
