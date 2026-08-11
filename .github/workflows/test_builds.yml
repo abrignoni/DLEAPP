@@ -1,0 +1,109 @@
+name: Test builds
+
+# Build the CLI and GUI binaries with PyInstaller on every platform PyInstaller
+# cannot cross-build for, smoke-test them on their own architecture, and upload
+# them as workflow artifacts.
+#
+# Manual only. This is not the release pipeline; it exists so testable binaries can
+# be produced and actually executed per platform without anyone owning the hardware.
+#
+# The smoke tests are the point, not decoration: iLEAPP's frozen builds shipped a
+# startup crash for a long time (missing hidden imports) precisely because nothing
+# ever ran a built binary. Every step here that runs a binary is a regression test
+# for that class of failure. Ported from iLEAPP's test_builds.yml minus its
+# unifiedlog parser steps, which have no DLEAPP counterpart.
+# Windows only: DLEAPP has no Linux spec files. The macOS specs exist but no
+# core builds macOS in CI; that stays a local build.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            arch: x64
+          - runner: windows-11-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # Latest supported Python. PyMuPDF and pillow-heif may lack win_arm64
+          # wheels; that leg is exploratory until a run proves it.
+          python-version: '3.14'
+
+      - name: Provide OpenSSL for the cryptography source build (arm64 only)
+        # pdfminer.six depends on cryptography, which publishes no win_arm64
+        # wheels, so on Windows-on-ARM pip builds it from source: Rust is on the
+        # runner already, OpenSSL is not. Step taken verbatim from iLEAPP's
+        # test_builds.yml, which hit the same wall.
+        if: matrix.arch == 'arm64'
+        run: |
+          $vcpkg = 'vcpkg'
+          if (-not (Get-Command vcpkg -ErrorAction SilentlyContinue)) {
+            git clone --depth 1 https://github.com/microsoft/vcpkg C:\vcpkg-local
+            & C:\vcpkg-local\bootstrap-vcpkg.bat
+            $vcpkg = 'C:\vcpkg-local\vcpkg.exe'
+          }
+          & $vcpkg install openssl:arm64-windows-static-md
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $roots = @('C:\vcpkg-local', $env:VCPKG_INSTALLATION_ROOT) | Where-Object { $_ }
+          $installed = $roots | ForEach-Object { Join-Path $_ 'installed\arm64-windows-static-md' } | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $installed) { Write-Error 'vcpkg OpenSSL install dir not found'; exit 1 }
+          "OPENSSL_DIR=$installed" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "OPENSSL_STATIC=1" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Install dependencies
+        # Requirements install alone in this step: a pwsh multi-line run does not
+        # stop on a failed command, so bundling more commands after it lets a
+        # failed install pass silently and surface later as a missing-module
+        # crash in the frozen exe (seen on the arm64 leg, run 31444496033).
+        run: pip install -r requirements.txt
+
+      - name: Install PyInstaller
+        # Separate from the requirements on purpose: requirements.txt pins
+        # packaging==20.1, and resolving pyinstaller in the same command drags it
+        # back to 4.5.1 (the last release satisfied by that pin), which imports
+        # pkg_resources and cannot run on Python 3.14. Installing afterwards lets
+        # pip upgrade packaging for the build environment.
+        run: pip install "pyinstaller>=6.22"
+
+      - name: Build CLI and GUI with PyInstaller
+        working-directory: scripts/pyinstaller
+        run: |
+          pyinstaller dleapp.spec --distpath ..\..\dist_build --workpath ..\..\build_tmp --noconfirm
+          pyinstaller dleappGUI.spec --distpath ..\..\dist_build --workpath ..\..\build_tmp --noconfirm
+
+      - name: Smoke test the frozen CLI
+        # --help proves the exe survives its imports (the historical crash class).
+        # The empty-input run proves module loading, report generation, and clean
+        # exit end to end; it must succeed with "no data found" everywhere.
+        run: |
+          dist_build\dleapp.exe --help
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          New-Item -ItemType Directory -Path smoke_in, smoke_out | Out-Null
+          "placeholder" | Out-File smoke_in\placeholder.txt
+          dist_build\dleapp.exe -t fs -i smoke_in -o smoke_out
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Package artifact
+        run: |
+          New-Item -ItemType Directory -Path artifact | Out-Null
+          Copy-Item dist_build\dleapp.exe artifact\
+          Copy-Item dist_build\dleappGUI.exe artifact\
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dleapp-windows-${{ matrix.arch }}-test
+          path: artifact/
+          retention-days: 14
