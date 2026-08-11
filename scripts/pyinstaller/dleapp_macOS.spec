@@ -11,6 +11,15 @@ a = Analysis(
     binaries=[],
     datas=[('../', 'scripts')],
     hiddenimports=[
+        # Stdlib that only artifacts import. Artifacts are bundled as data
+        # files and imported from disk at runtime, so PyInstaller's
+        # import-graph analysis never sees these, and it prunes stdlib it
+        # cannot see used (mailbox below is the same case, added earlier).
+        'base64',
+        'email.utils',
+        'plistlib',
+        'struct',
+        'xml.etree.ElementTree',
         'bencoding',
         'fitz',
         'ijson',
