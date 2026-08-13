@@ -6,13 +6,13 @@ import os
 # script and datas paths below, which it resolves against the spec file. Anchor
 # it to SPECPATH so the build works from any directory.
 a = Analysis(
-    ['../../dleapp.py'],
+    ['../../dleappGUI.py'],
     pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
     binaries=[],
     datas=[
         ('../', 'scripts'),
-        ('../../leapp_functions', 'leapp_functions'),
-        ('../../assets', 'assets')],
+        ('../../assets', 'assets'),
+        ('../../leapp_functions', 'leapp_functions')],
     hiddenimports=[
         # Stdlib that only artifacts import. Artifacts are bundled as data
         # files and imported from disk at runtime, so PyInstaller's
@@ -29,6 +29,7 @@ a = Analysis(
         'mailbox',
         'mammoth',
         'openpyxl',
+        'PIL._tkinter_finder',
         'pillow_heif',
         'pypdf',
         'Registry',
@@ -41,6 +42,7 @@ a = Analysis(
     excludes=[],
     noarchive=False,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -49,7 +51,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='dleapp',
+    name='dleappGUI',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -60,6 +62,4 @@ exe = EXE(
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
 )

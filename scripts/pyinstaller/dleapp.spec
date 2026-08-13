@@ -7,54 +7,63 @@ block_cipher = None
 # PyInstaller resolves pathex and hookspath against the current working
 # directory, unlike the script and datas paths below, which it resolves against
 # the spec file. Anchor them to SPECPATH so the build works from any directory.
-a = Analysis(['..\\..\\dleapp.py'],
-             pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
-             binaries=[],
-             datas=[('..\\', '.\\scripts')],
-             hiddenimports=[
-                # Stdlib that only artifacts import. Artifacts are bundled as data
-                # files and imported from disk at runtime, so PyInstaller's
-                # import-graph analysis never sees these, and it prunes stdlib it
-                # cannot see used (mailbox below is the same case, added earlier).
-                'base64',
-                'email.utils',
-                'plistlib',
-                'struct',
-                'xml.etree.ElementTree',
-                'bencoding',
-                'fitz',
-                'ijson',
-                'mailbox',
-                'mammoth',
-                'openpyxl',
-                'pillow_heif',
-                'pypdf',
-                'Registry',
-                'requests',
-                'simplekml',
-                'xlrd',
-                ],
-             hookspath=[SPECPATH],
-             runtime_hooks=[],
-             excludes=[],
-             win_no_prefer_redirects=False,
-             win_private_assemblies=False,
-             cipher=block_cipher,
-             noarchive=False)
-pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
-exe = EXE(pyz,
-          a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
-          [],
-          name='dleapp',
-          debug=False,
-          bootloader_ignore_signals=False,
-          strip=False,
-          upx=True,
-          upx_exclude=[],
-          runtime_tmpdir=None,
-          version='dleapp-file_version_info.txt',
-          console=True )
+a = Analysis(
+   ['..\\..\\dleapp.py'],
+   pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
+   binaries=[],
+   datas=[
+      ('..\\', '.\\scripts'),
+      ('..\\..\\leapp_functions', '.\\leapp_functions'),
+      ('..\\..\\assets', '.\\assets')],
+   hiddenimports=[
+      # Stdlib that only artifacts import. Artifacts are bundled as data
+      # files and imported from disk at runtime, so PyInstaller's
+      # import-graph analysis never sees these, and it prunes stdlib it
+      # cannot see used (mailbox below is the same case, added earlier).
+      'base64',
+      'email.utils',
+      'plistlib',
+      'struct',
+      'xml.etree.ElementTree',
+      'bencoding',
+      'fitz',
+      'ijson',
+      'mailbox',
+      'mammoth',
+      'openpyxl',
+      'pillow_heif',
+      'pypdf',
+      'Registry',
+      'requests',
+      'simplekml',
+      'xlrd',
+      ],
+   hookspath=[SPECPATH],
+   runtime_hooks=[],
+   excludes=[],
+   win_no_prefer_redirects=False,
+   win_private_assemblies=False,
+   cipher=block_cipher,
+   noarchive=False)
+
+pyz = PYZ(
+   a.pure,
+   a.zipped_data,
+   cipher=block_cipher)
+
+exe = EXE(
+   pyz,
+   a.scripts,
+   a.binaries,
+   a.zipfiles,
+   a.datas,
+   [],
+   name='dleapp',
+   debug=False,
+   bootloader_ignore_signals=False,
+   strip=False,
+   upx=True,
+   upx_exclude=[],
+   runtime_tmpdir=None,
+   version='dleapp-file_version_info.txt',
+   console=True )
