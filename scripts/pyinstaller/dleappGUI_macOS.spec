@@ -9,7 +9,10 @@ a = Analysis(
     ['../../dleappGUI.py'],
     pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
     binaries=[],
-    datas=[('../', 'scripts'), ('../../assets', 'assets')],
+    datas=[
+        ('../', 'scripts'),
+        ('../../assets', 'assets'),
+        ('../../leapp_functions', 'leapp_functions')],
     hiddenimports=[
         # Stdlib that only artifacts import. Artifacts are bundled as data
         # files and imported from disk at runtime, so PyInstaller's
@@ -38,6 +41,7 @@ a = Analysis(
     excludes=[],
     noarchive=False,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -71,5 +75,5 @@ app = BUNDLE(
     name='dleappGUI.app',
     icon='../../assets/icon.icns',
     bundle_identifier='4n6.brigs.DLEAPP',
-    version='2.2.0',
+    version='2026.3.0',
 )
