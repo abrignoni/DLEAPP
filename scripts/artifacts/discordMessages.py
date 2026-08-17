@@ -189,10 +189,24 @@ def _reply_reference(message):
 @artifact_processor
 def discordMessages(context):
     data_headers = (
-        ("Timestamp", "datetime"), "Direction", "Sender", "Channel", "Message",
-        ("Attachments", "media"), "Attachment Names", ("Edited", "datetime"),
-        "Reply To", "Mentions", "Embeds", "Stickers", "Message Type", "Pinned",
-        "Sender ID", "Channel ID", "Message ID", ("Cached", "datetime"),
+        ("Timestamp", "datetime"),
+        ("Edited", "datetime"),
+        ("Cached", "datetime"),
+        "Direction",
+        "Sender",
+        "Channel",
+        "Message",
+        ("Attachments", "media"),
+        "Attachment Names",
+        "Reply To",
+        "Mentions",
+        "Embeds",
+        "Stickers",
+        "Message Type",
+        "Pinned",
+        "Sender ID",
+        "Channel ID",
+        "Message ID",
         "Source Cache File",
     )
 
@@ -239,13 +253,14 @@ def discordMessages(context):
 
         data_list.append((
             sent,
+            discord_api.iso_to_datetime(message.get("edited_timestamp")),
+            wrapper["cached"],
             direction,
             discord_api.user_display(author),
             _channel_label(scan, str(message.get("channel_id") or "")),
             message.get("content") or "",
             media_refs,
             ", ".join(n for n in names if n),
-            discord_api.iso_to_datetime(message.get("edited_timestamp")),
             _reply_reference(message),
             ", ".join(discord_api.user_display(m) for m in (message.get("mentions") or [])
                       if isinstance(m, dict)),
@@ -256,7 +271,6 @@ def discordMessages(context):
             author_id,
             str(message.get("channel_id") or ""),
             message_id,
-            wrapper["cached"],
             context.get_relative_path(wrapper["source"]),
         ))
 

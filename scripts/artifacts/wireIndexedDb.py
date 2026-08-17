@@ -810,13 +810,13 @@ def wireMessages(context):
             outgoing = 1 if sender_id in self_ids else 0
         rows.append((
             _iso_to_dt(v.get("time")),
-            _account_label(users, self_ids, rec.get("db_name")),
-            conv_names.get(cid, cid),
-            _display_name(users, sender_id, self_ids),
             outgoing,
-            media_for(d) if etype == "conversation.asset-add" else "",
-            kind,
+            _display_name(users, sender_id, self_ids),
+            conv_names.get(cid, cid),
             text or "",
+            media_for(d) if etype == "conversation.asset-add" else "",
+            _account_label(users, self_ids, rec.get("db_name")),
+            kind,
             attachment,
             v.get("id", ""),
             sender_id,
@@ -828,8 +828,8 @@ def wireMessages(context):
                              else datetime.min.replace(tzinfo=timezone.utc)))
 
     data_headers = (
-        ("Timestamp", "datetime"), "Account", "Conversation", "Sender",
-        "Outgoing", ("Media", "media"), "Message Type", "Message", "Attachment",
+        ("Timestamp", "datetime"), "Outgoing", "Sender", "Conversation",
+        "Message", ("Media", "media"), "Account", "Message Type", "Attachment",
         "Message ID", "Sender ID", "Conversation ID", "Status",
     )
     return data_headers, rows, _source(context, dirs)

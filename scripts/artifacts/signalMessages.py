@@ -167,11 +167,24 @@ def _recovery_failure(root, relative_path, local_key):
 @artifact_processor
 def signalMessages(context):
     data_headers = (
-        ("Sent", "datetime"), "Direction", "Sender", "Conversation", "Message",
-        ("Attachments", "media"), "Attachment Names", "Message Type",
-        ("Received", "datetime"), ("Server Timestamp", "datetime"),
-        "Read Status", "View Once", "Erased", "Expires In (s)",
-        ("Expires At", "datetime"), "Conversation ID", "Message ID", "Source File",
+        ("Sent", "datetime"),
+        ("Received", "datetime"),
+        ("Server Timestamp", "datetime"),
+        ("Expires At", "datetime"),
+        "Direction",
+        "Sender",
+        "Conversation",
+        "Message",
+        ("Attachments", "media"),
+        "Attachment Names",
+        "Message Type",
+        "Read Status",
+        "View Once",
+        "Erased",
+        "Expires In (s)",
+        "Conversation ID",
+        "Message ID",
+        "Source File",
     )
 
     files_found = [str(f) for f in context.get_files_found()]
@@ -240,6 +253,9 @@ def signalMessages(context):
 
         data_list.append((
             signal_desktop.js_ms_to_datetime(sent_at),
+            signal_desktop.js_ms_to_datetime(received_at),
+            signal_desktop.js_ms_to_datetime(server_ts),
+            signal_desktop.js_ms_to_datetime(expires_at),
             direction,
             sender,
             labels.get(conversation_id, conversation_id or ""),
@@ -247,13 +263,10 @@ def signalMessages(context):
             media_refs,
             ", ".join(names),
             message_type or "",
-            signal_desktop.js_ms_to_datetime(received_at),
-            signal_desktop.js_ms_to_datetime(server_ts),
             read_status if read_status is not None else "",
             "Yes" if view_once else "",
             "Yes" if erased else "",
             expire_timer if expire_timer else "",
-            signal_desktop.js_ms_to_datetime(expires_at),
             conversation_id or "",
             message_id or "",
             context.get_relative_path(next(iter(signal_desktop.database_files(files_found)), "")),

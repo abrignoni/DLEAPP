@@ -103,10 +103,21 @@ def _sender(is_from_me, chat_jid, partner_name, contact_jid, from_jid,
 @artifact_processor
 def whatsappMessages(context):
     data_headers = (
-        ("Message Date", "datetime"), "Direction", "Sender", "Chat",
-        ("Media", "media"), "Message", "Media Filename", "Type Code", "Starred",
-        ("Sent Date", "datetime"), "Chat Type", "Sender JID", "Chat JID",
-        "Message ID", "Source File",
+        ("Message Date", "datetime"),
+        ("Sent Date", "datetime"),
+        "Direction",
+        "Sender",
+        "Chat",
+        "Message",
+        ("Media", "media"),
+        "Media Filename",
+        "Type Code",
+        "Starred",
+        "Chat Type",
+        "Sender JID",
+        "Chat JID",
+        "Message ID",
+        "Source File",
     )
 
     files_found = [str(f) for f in context.get_files_found()]
@@ -146,15 +157,15 @@ def whatsappMessages(context):
 
         data_list.append((
             whatsapp.cocoa_to_datetime(message_date),
+            whatsapp.cocoa_to_datetime(sent_date),
             direction,
             sender,
             partner_name or contact_jid or "",
-            media_ref,
             text or "",
+            media_ref,
             media_name,
             message_type if message_type is not None else "",
             "Yes" if starred else "",
-            whatsapp.cocoa_to_datetime(sent_date),
             whatsapp.jid_kind(contact_jid),
             sender_jid,
             contact_jid or "",
