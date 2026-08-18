@@ -104,6 +104,24 @@ instance/
 .python-version
 
 
+# Parser output and test corpora. These carry evidence content from real
+# extractions and must never be committed, however they were produced.
+*LEAPP_Output_*/
+_lava_data.lava
+_lava_data.json
+_lava_artifacts.db
+*.rlprofile
+samples.json
+*.jsonl
+
+# Test corpora and acquisitions
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+!admin/**/*.zip
+
 # Personal Claude Code context, not shared with the team
 CLAUDE.local.md
 .claude/settings.local.json
