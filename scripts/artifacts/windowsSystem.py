@@ -97,7 +97,7 @@ __artifacts_v2__ = {
                        "present, and recorded exit status.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Windows System",
         "notes": "Modernized from WLEAPP. Timestamps in setupapi.dev.log "
@@ -106,8 +106,7 @@ __artifacts_v2__ = {
                  "behavior. A section start is not automatically labeled as "
                  "a device's first connection.",
         "paths": (
-            "*/Windows/INF/setupapi.dev.log",
-            "*/WINDOWS/INF/setupapi.dev.log",
+            "*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/INF/setupapi.dev.log",
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "plug",
