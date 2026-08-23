@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "imessageMessages": {
         "name": "iMessage Messages",
-        "description": "Every row in chat.db's message table: composed/read/"
+        "description": "Each row in chat.db's message table: composed/read/"
                        "delivered time, direction, sender, the chat it "
                        "belongs to, body text, service (iMessage vs SMS/"
                        "RCS), whether it carries an attachment, and tapback/"
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
     },
     "imessageAttachments": {
         "name": "iMessage Attachments",
-        "description": "Every row in chat.db's attachment table: filename, "
+        "description": "Each row in chat.db's attachment table: filename, "
                        "MIME type, size and created/start time, linked back "
                        "to the message it was sent or received on. The file "
                        "itself is embedded when it's present in the "
