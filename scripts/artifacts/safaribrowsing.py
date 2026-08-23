@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "safariHistory": {
         "name": "Safari History",
-        "description": "Every row in History.db's history_visits table, "
+        "description": "Each row in History.db's history_visits table, "
                        "joined back to history_items for the URL, domain "
                        "and lifetime visit count.",
         "author": "Gear-I & Claude",
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
     },
     "safariBookmarks": {
         "name": "Safari Bookmarks",
-        "description": "Every leaf bookmark in Bookmarks.plist -- "
+        "description": "Each leaf bookmark in Bookmarks.plist -- "
                        "Bookmarks Bar, Bookmarks Menu and Reading List -- "
                        "with its folder path, title and URL.",
         "author": "Gear-I & Claude",
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
     },
     "safariTopSites": {
         "name": "Safari Top Sites",
-        "description": "Every entry in TopSites.plist's TopSites list, "
+        "description": "Each entry in TopSites.plist's TopSites list, "
                        "flagging which are Apple's shipped built-in "
                        "defaults versus frecency-derived from real "
                        "browsing.",
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
     },
     "safariRecentlyClosedTabs": {
         "name": "Safari Recently Closed Tabs",
-        "description": "Every tab in RecentlyClosedTabs.plist's "
+        "description": "Each tab in RecentlyClosedTabs.plist's "
                        "ClosedTabOrWindowPersistentStates -- window and "
                        "tab UUIDs, close time, title and URL.",
         "author": "Gear-I & Claude",
