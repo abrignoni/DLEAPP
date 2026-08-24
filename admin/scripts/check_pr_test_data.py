@@ -178,7 +178,7 @@ def render_comment(repo, fixture, ask):
             "The changed artifact modules cite public research images in their `sample_data`, "
             "so a maintainer can generate the test fixtures from those images. Nothing is "
             "needed from you, though you are welcome to add the fixtures yourself with "
-            "`admin/test/scripts/make_test_data.py`.", ""]
+            "`admin/test/scripts/make_case_data.py`.", ""]
     for module, cited in fixture.items():
         cited_text = ", ".join(f"`{k}`" for k in cited)
         lines.append(f"- `{module}.py`: cites {cited_text}; a maintainer can generate the fixture.")
@@ -189,7 +189,7 @@ def render_comment(repo, fixture, ask):
             "", "**Adding a fixture**", "",
             "Generate it from your extraction with the helper (details in "
             f"[create_module_test_cases.md]({doc}/create_module_test_cases.md)):", "",
-            "    python admin/test/scripts/make_test_data.py <module> --case <case_number> "
+            "    python admin/test/scripts/make_case_data.py <module> --case <case_number> "
             "--input <extraction.zip>", "",
             "It writes `admin/test/cases/testdata.<module>.json` and one zip per artifact "
             "under `admin/test/cases/data/<module>/`.", "",

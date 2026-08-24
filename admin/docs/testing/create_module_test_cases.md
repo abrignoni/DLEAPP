@@ -1,19 +1,19 @@
 # Creating Module Test Cases
 
-This document describes the process of creating test cases for LEAPP modules using the `make_test_data.py` script.
+This document describes the process of creating test cases for LEAPP modules using the `make_case_data.py` script.
 
 ## Overview
 
-The `make_test_data.py` script is designed to generate test data for LEAPP modules. It processes input files (zip, tar, or tar.gz) to extract relevant files based on the module's artifact patterns and creates structured test cases.
+The `make_case_data.py` script is designed to generate test data for LEAPP modules. It processes input files (zip, tar, or tar.gz) to extract relevant files based on the module's artifact patterns and creates structured test cases.
 
 ## Usage
 
 To create test cases for a module, use one of the following commands:
 
 ```bash
-python make_test_data.py <module_name> --image <image_name>
-python make_test_data.py <module_name> --case <case_number> --input <input_file>
-python make_test_data.py <module_name> --image-prompt
+python make_case_data.py <module_name> --image <image_name>
+python make_case_data.py <module_name> --case <case_number> --input <input_file>
+python make_case_data.py <module_name> --image-prompt
 ```
 
 Arguments:
@@ -43,7 +43,7 @@ The script generates the following outputs:
 ## Example
 
 ```bash
-python make_test_data.py keyboard --image ios_15_image
+python make_case_data.py keyboard --image ios_15_image
 ```
 
 This command will create test data for the keyboard module, using the specified image from the manifest.
@@ -93,9 +93,9 @@ The script generates a JSON file (e.g., `testdata.<module_name>.json`) that cont
   - `maker`: The person who created or last verified the test case (to be filled in manually).
   - `os_name`: Include the name of the operating system this case data originated from (iOS, Android, etc)
   - `os_version`: The specific OS version string (e.g., "12.5.5", "14.1") that this test case represents. `test_module.py` will use this to mock `iOS.get_version()`.
-  - `make_data`: Information about the `make_test_data.py` run that generated this case's input data.
+  - `make_data`: Information about the `make_case_data.py` run that generated this case's input data.
     - `input_data_path`: The path to the original full image/archive used.
-    - `os`: The operating system on which `make_test_data.py` was run.
+    - `os`: The operating system on which `make_case_data.py` was run.
     - `timestamp`: The date and time when the input data ZIP was created.
     - `last_commit`: Information about the module's Git commit at the time of data creation.
   - `artifacts`: A dictionary where keys are artifact function names from the module.
@@ -124,7 +124,7 @@ For example, the `sms.py` module:
 
 This approach presents challenges for automated test case creation:
 
-- The `make_test_data.py` script only uses the initial search patterns defined in the module.
+- The `make_case_data.py` script only uses the initial search patterns defined in the module.
 - It cannot anticipate or include files that would be found by secondary searches within the module.
 
 #### Impact on Test Coverage
@@ -135,7 +135,7 @@ This limitation may result in incomplete test data for modules that employ this 
 
 To address this issue and improve test coverage, we need to consider the following approaches:
 
-1. Enhance the `make_test_data.py` script to simulate the module's dynamic file searching behavior.
+1. Enhance the `make_case_data.py` script to simulate the module's dynamic file searching behavior.
 2. Modify the module structure to separate file searching from data processing, allowing for more comprehensive initial search patterns.
 3. Implement a two-pass system in the test case creation process to capture files found by secondary searches.
 
@@ -143,7 +143,7 @@ Until these improvements are implemented, be aware that modules using dynamic fi
 
 ## Updating the JSON File
 
-After creating test cases with `make_test_data.py`, it's important to manually update the `testdata.<module_name>.json` file with:
+After creating test cases with `make_case_data.py`, it's important to manually update the `testdata.<module_name>.json` file with:
 
 1. A meaningful `description` for each test case.
 2. Your name as the `maker`.
