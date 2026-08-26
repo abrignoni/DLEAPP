@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "module_name": "SlackSession",
+    "artifact_name": "Slack Client Sessions",
+    "function_name": "slackSessions",
+    "case_number": "1",
+    "number_of_columns": 9,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 982,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\SlackSession\\testdata.SlackSession.slackSessions.1.zip",
+    "start_time": "2026-08-26T20:10:45.012361+00:00",
+    "end_time": "2026-08-26T20:10:45.233342+00:00",
+    "run_time_seconds": 0.025086402893066406,
+    "last_commit": {
+      "hash": "6cebec2da30556f5326cac8924be535c2a9f8dd4",
+      "author_name": "Gear-I",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-26T15:10:18-04:00",
+      "message": "Added sample synthetic data to the parser script"
+    }
+  },
+  "headers": [
+    "Team ID",
+    "Session ID",
+    "Session Start",
+    "Last Activity",
+    "Last Logged",
+    "Duration",
+    "LevelDB Sequence",
+    "Record State",
+    "Source File"
+  ],
+  "data": [
+    [
+      "TH40ENU8OPA",
+      "gJYfKM1BtVt",
+      1779611904,
+      1779611907,
+      1779611941,
+      "3s",
+      10,
+      "Live",
+      "C\\Users\\j.tanaka\\AppData\\Local\\Packages\\91600ABC.SlackTechnologies_8wekyb3d8bbwe\\LocalCache\\Roaming\\Slack\\Local Storage\\leveldb\\000005.ldb"
+    ],
+    [
+      "TPFCMFSLCJ8",
+      "DXMSJFlNRZ6",
+      1744964287,
+      1744964304,
+      1744964320,
+      "16s",
+      7,
+      "Live",
+      "C\\Users\\j.tanaka\\AppData\\Local\\Packages\\91600ABC.SlackTechnologies_8wekyb3d8bbwe\\LocalCache\\Roaming\\Slack\\Local Storage\\leveldb\\000005.ldb"
+    ],
+    [
+      "TPFCMFSLCJ8",
+      "ksMLvwCjxgq",
+      1744963872,
+      1744963964,
+      1744963962,
+      "1m 31s",
+      5,
+      "Live",
+      "C\\Users\\j.tanaka\\AppData\\Local\\Packages\\91600ABC.SlackTechnologies_8wekyb3d8bbwe\\LocalCache\\Roaming\\Slack\\Local Storage\\leveldb\\000005.ldb"
+    ],
+    [
+      "TPFCMFSLCJ8",
+      "ksMLvwCjxgq",
+      1744963872,
+      1744963925,
+      1744963902,
+      "52s",
+      3,
+      "Live",
+      "C\\Users\\j.tanaka\\AppData\\Local\\Packages\\91600ABC.SlackTechnologies_8wekyb3d8bbwe\\LocalCache\\Roaming\\Slack\\Local Storage\\leveldb\\000005.ldb"
+    ],
+    [
+      "TPFCMFSLCJ8",
+      "ksMLvwCjxgq",
+      1744963872,
+      1744963872,
+      "",
+      "0s",
+      1,
+      "Live",
+      "C\\Users\\j.tanaka\\AppData\\Local\\Packages\\91600ABC.SlackTechnologies_8wekyb3d8bbwe\\LocalCache\\Roaming\\Slack\\Local Storage\\leveldb\\000005.ldb"
+    ]
+  ]
+}

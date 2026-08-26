@@ -1,0 +1,10 @@
+{
+  "samples": {
+    "slack_desktop_win": {
+      "match": {
+        "zip": "C:\\Users\\diell\\Downloads\\Slack_Test_Data_Windows11.zip",
+        "sha256": "3016c04da65b0d6260444cbf79bc3bd1c51fd9860d0f3116e0acf4b4f68a52e3"
+      }
+    }
+  }
+}

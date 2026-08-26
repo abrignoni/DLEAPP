@@ -1,0 +1,17 @@
+{
+  "1": {
+    "description": "Slack Desktop synthetic fixture (anonymized from a real capture)",
+    "make_data": {
+      "input_data_path": "testdata.slackWorkspaces.slackWorkspaces.1.zip"
+    },
+    "image_info": {
+      "image_name": "Slack Desktop synthetic fixture",
+      "os_version": "Windows 11"
+    },
+    "artifacts": {
+      "slackWorkspaces": {
+        "file_count": 6
+      }
+    }
+  }
+}

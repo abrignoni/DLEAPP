@@ -1,0 +1,189 @@
+{
+  "artifacts": {
+    "Slack Client Sessions": {
+      "column_digests": {
+        "duration": "a989caf273cf2cad95d022f1bbe973a3b8710189ef437319b015b07ad639f8b5",
+        "last_activity": "b4d49f20b8c5778fa77263686c06c9085059e2d214e8573ec8318097957c8538",
+        "last_logged": "a2c65f628a111774226ff731ab0bfbbd22102f1d1257871b8a8e9787aa7e630a",
+        "leveldb_sequence": "c3f0688d4e38d88f9c3c56ef76e4c3e3d5a7a61ab88f9cde13e328108520a6f4",
+        "record_state": "182e5733c0dda73c222b29f5bea93f522758a93b042b370581d269f0f4b284b1",
+        "session_id": "341c16a17f13d9d6d3af6e67261fdfeb9a38327be14be588a778bebf48a6a3ce",
+        "session_start": "8d0a151d056042ece34a0583c61ffb34ff6f7115cdd6fc1581f6324aaec8bba6",
+        "source_file": "4f3272c304212861182519228a4f5b5528809d50e5137111b39f670458c6d3d0",
+        "team_id": "ac8bb258ae9cc9c0e2a79ddb58beeb8836d4935a7704dbb28afadc1f373fd557"
+      },
+      "columns": [
+        {
+          "name": "team_id",
+          "type": "text"
+        },
+        {
+          "name": "session_id",
+          "type": "text"
+        },
+        {
+          "name": "session_start",
+          "type": "datetime"
+        },
+        {
+          "name": "last_activity",
+          "type": "datetime"
+        },
+        {
+          "name": "last_logged",
+          "type": "datetime"
+        },
+        {
+          "name": "duration",
+          "type": "text"
+        },
+        {
+          "name": "leveldb_sequence",
+          "type": "text"
+        },
+        {
+          "name": "record_state",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "last_activity": {
+          "in_plausible_range": true,
+          "parsed": 5
+        },
+        "last_logged": {
+          "in_plausible_range": true,
+          "parsed": 4
+        },
+        "session_start": {
+          "in_plausible_range": true,
+          "parsed": 5
+        }
+      },
+      "digest": "243232b8b6d0ce3fb21984abc1f93933f719a3e59cefd53fde44ad52f528178e",
+      "non_empty": {
+        "duration": 5,
+        "last_activity": 5,
+        "last_logged": 4,
+        "leveldb_sequence": 5,
+        "record_state": 5,
+        "session_id": 5,
+        "session_start": 5,
+        "source_file": 5,
+        "team_id": 5
+      },
+      "rows": 5
+    },
+    "Slack Workspaces": {
+      "column_digests": {
+        "domain": "943faf0ad06c8a1fe33c6739fe410a2d90c81e51375aefb5c862d20de7761e27",
+        "last_active": "6f01003097ebd0eb0c49a076ea88eaf1a3107b4ed07150d0603cbd47ca8b7759",
+        "last_viewed_channeldm_id": "4ebaac0b2115ce54e1fa20bfd037dc732c7e308a667b2180aae00b2930a21307",
+        "leveldb_sequence": "4cba611b0b69c09601d9b78461baff5a64938e28374aac62e9d5157d8c7e6f87",
+        "most_recently_used": "01124e28e07d3e4951972e33495aaaeacb53b957121c8f45d9ca7f0ea7d6ccee",
+        "other_fields": "a0157b2c67ade6ac56ab51f7ccb7ee6ed0dc1f692aea94375d6932f7a3c54eac",
+        "record_state": "cc710113deeaa3c24cfe971becbf307eb34e44f6074cbd7c249f862b79919e9a",
+        "source_file": "64efc270fbc2a7c6857d65ba0a561eb37be6866e138a36fd2fe250222a10c29a",
+        "team_id": "26e093ff533098c09c0539ef6b32d650b6a7ea23fdb8586c3aa071d265c717d7",
+        "team_name": "b29905e5b73feb143c8550ac45d5b5bb1810840e4b7e102949e957f7aca7eed2",
+        "team_url": "2c0f05a967d63fc69db1b415507ab2f2296fb22918444f7314c40c725f95a112",
+        "token_masked": "a640f6cd89cdb9e1a140e9ba0de155d24b1071465dd82e5ee44463ebdc559ff1",
+        "user_id": "efe49a01a7b30bc8fb6cf79f92244aeb1df0e96885fe4e3ad7a031050a223240",
+        "version_timestamp": "6b1a382c82e85d8e64e104788ad716e192940d0acd5fa30d9311d46fdad980dc"
+      },
+      "columns": [
+        {
+          "name": "team_id",
+          "type": "text"
+        },
+        {
+          "name": "team_name",
+          "type": "text"
+        },
+        {
+          "name": "team_url",
+          "type": "text"
+        },
+        {
+          "name": "user_id",
+          "type": "text"
+        },
+        {
+          "name": "domain",
+          "type": "text"
+        },
+        {
+          "name": "most_recently_used",
+          "type": "datetime"
+        },
+        {
+          "name": "version_timestamp",
+          "type": "datetime"
+        },
+        {
+          "name": "last_viewed_channeldm_id",
+          "type": "text"
+        },
+        {
+          "name": "token_masked",
+          "type": "text"
+        },
+        {
+          "name": "last_active",
+          "type": "text"
+        },
+        {
+          "name": "other_fields",
+          "type": "text"
+        },
+        {
+          "name": "leveldb_sequence",
+          "type": "text"
+        },
+        {
+          "name": "record_state",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "most_recently_used": {
+          "in_plausible_range": true,
+          "parsed": 4
+        },
+        "version_timestamp": {
+          "in_plausible_range": true,
+          "parsed": 7
+        }
+      },
+      "digest": "6253eb2cdacbd03bf80b9d3dc9b9ba8eb29fdb6d7750dd91e236a2389af62190",
+      "non_empty": {
+        "domain": 7,
+        "last_active": 4,
+        "last_viewed_channeldm_id": 4,
+        "leveldb_sequence": 7,
+        "most_recently_used": 4,
+        "other_fields": 7,
+        "record_state": 7,
+        "source_file": 7,
+        "team_id": 7,
+        "team_name": 7,
+        "team_url": 7,
+        "token_masked": 7,
+        "user_id": 7,
+        "version_timestamp": 7
+      },
+      "rows": 7
+    }
+  },
+  "corpus": "slack_desktop_win",
+  "note": "Content-free fingerprint. Digests and counts only, no rows, because the corpora are private application profiles.",
+  "recorded_with_commit": "6cebec2da30556f5326cac8924be535c2a9f8dd4"
+}
