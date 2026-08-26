@@ -23,8 +23,11 @@ __artifacts_v2__ = {
             '*/Slack/Local Storage/leveldb/*',
             '*/slack/Local Storage/leveldb/*',
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "clock",
+        "sample_data": {
+    "slack_desktop_win": "Slack Desktop synthetic fixture (anonymized from a real capture) | 5 rows",
+},
     },
 }
 
