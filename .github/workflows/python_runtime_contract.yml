@@ -17,6 +17,9 @@ on:
       - 'dleapp.py'
       - 'dleappGUI.py'
 
+permissions:
+  contents: read
+
 jobs:
   runtime-contract:
     runs-on: ubuntu-latest
