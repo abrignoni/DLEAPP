@@ -160,7 +160,7 @@ __artifacts_v2__ = {
                        "and end reason.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Duration is taken from the voice-channel-deactivate event "
@@ -169,7 +169,7 @@ __artifacts_v2__ = {
                  "'from' user on an end event is not established to be who "
                  "ended the call. End-reason labels are an interpretation of "
                  "the stored reason code and could not be tied to a published "
-                 "Wire AVS enum, so the raw code is always shown alongside and "
+                 "Wire AVS enum, so the raw code is shown alongside regardless and "
                  "a code outside the mapping is left unlabelled.",
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -224,7 +224,7 @@ from scripts.ccl.wire_assets import build_asset_index, recover_assets
 # --------------------------------------------------------------------------- #
 
 # Call end-reason code -> label. The labels are an interpretation and were not
-# tied to a published Wire AVS enum, so the raw code is always shown too and an
+# tied to a published Wire AVS enum, so the raw code is shown too regardless and an
 # unrecognized code is left unlabelled.
 CALL_END_REASON = {
     0: "Completed (normal)", 1: "Error", 2: "Timeout", 3: "Lost media",

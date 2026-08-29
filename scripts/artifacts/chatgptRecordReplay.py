@@ -11,10 +11,10 @@ __artifacts_v2__ = {
                        "snapshot attached to the record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-18",
-        "last_update_date": "2026-08-18",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "ChatGPT (macOS)",
-        "notes": "Recording is user-initiated and time-limited by the app, so "
+        "notes": "Recording is started from within the app and time-limited by it, so "
                  "these files cover the recorded sessions only and are not a "
                  "continuous activity record. The app's bundle identifier is "
                  "com.openai.codex. Event kind values are reported as stored; "
