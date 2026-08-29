@@ -184,15 +184,27 @@ CHECKED_FIELDS = {
     'notes': NOTES_PATTERN,
 }
 
-# Reviewed exceptions, keyed by (filename, artifact_key, field). Every entry
+# Reviewed exceptions, as (filename, artifact_key, field, term). Each needs a
+# reason. The term is part of the key, so an entry silences the one word it was
+# granted for and never the next claim added to the same text.
 # needs a comment justifying it. See the module docstring before adding one.
 ALLOWLIST = {
     # The match is inside the hedge itself: the description closes with "the
     # cache evicts over time, so this index is a partial record of what the
     # client fetched rather than a complete one". Removing the word would remove
     # the caution it belongs to.
-    ("discordCacheRecords.py", "discordCacheRecords", "description"),
+    ("discordCacheRecords.py", "discordCacheRecords", "description", "complete"),
 }
+
+
+def unallowlisted(filename, artifact_key, field, terms):
+    """The terms no ALLOWLIST entry covers for this field.
+
+    An entry is keyed on the term it was granted for, so allowlisting one word does
+    not pre-approve the next claim somebody adds to the same text.
+    """
+    return [term for term in terms
+            if (filename, str(artifact_key), field, term) not in ALLOWLIST]
 
 STANDARD_NOTE = (
     "Artifact name/description reach the examiner through the HTML report and the LAVA\n"
@@ -267,17 +279,18 @@ def scan_file(path):
                 kept = [hit for hit in hits if not negated(text, hit.start())]
                 negated_count += len(hits) - len(kept)
                 hits = kept
-            terms = [hit.group(0) for hit in hits]
-            if not terms:
+            found = sorted({hit.group(0).lower() for hit in hits})
+            if not found:
                 continue
-            allowlisted = (path.name, str(artifact_key), field) in ALLOWLIST
-            matches.append((path, str(artifact_key), field, text, terms, allowlisted))
+            remaining = unallowlisted(path.name, artifact_key, field, found)
+            matches.append((path, str(artifact_key), field, text,
+                            remaining or found, not remaining, found))
     return matches, None, negated_count
 
 
 def format_match(match):
     """Render one match as `path:artifact_key:field: <text>`."""
-    path, artifact_key, field, text, terms, _ = match
+    path, artifact_key, field, text, terms = match[:5]
     collapsed = " ".join(text.split())
     if len(collapsed) > 300:
         collapsed = collapsed[:297] + "..."
@@ -313,7 +326,8 @@ def main():
             continue
         for match in matches:
             entry = (rel_path,) + match[1:]
-            fired.add((path.name, match[1], match[2]))
+            for term in match[6]:
+                fired.add((path.name, match[1], match[2], term))
             if match[5]:
                 allowlisted.append(entry)
             else:
@@ -346,7 +360,7 @@ def main():
         print(f"Stale ALLOWLIST entr(ies) ({len(stale)}) -- these no longer match "
               f"anything and should be deleted:")
         for entry in stale:
-            print(f"  {entry[0]}:{entry[1]}:{entry[2]}")
+            print(f"  {entry[0]}:{entry[1]}:{entry[2]}  [{entry[3]}]")
         print()
 
     if args.list_all and allowlisted:
