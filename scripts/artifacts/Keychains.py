@@ -21,7 +21,7 @@ __artifacts_v2__ = {
             "*/Library/Keychains/*.keychain-db",
             "*/Library/Keychains/System.keychain",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "key",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
             "*/Library/Keychains/*.keychain-db",
             "*/Library/Keychains/System.keychain",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "globe",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Keychains/*/keychain-2.db",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "lock",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
