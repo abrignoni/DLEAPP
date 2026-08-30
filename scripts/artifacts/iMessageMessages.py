@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Messages/chat.db*",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "message-circle",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / thisisdfir "
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
             "*/Library/Messages/chat.db*",
             "*/Library/Messages/Attachments/*",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "paperclip",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / thisisdfir "
@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Messages/chat.db*",
         ),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "users",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / thisisdfir "
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Messages/chat.db*",
         ),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "trash-2",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / thisisdfir "
