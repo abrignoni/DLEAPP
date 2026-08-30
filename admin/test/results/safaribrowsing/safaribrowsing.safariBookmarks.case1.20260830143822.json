@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "module_name": "safaribrowsing",
+    "artifact_name": "Safari Bookmarks",
+    "function_name": "safariBookmarks",
+    "case_number": "case1",
+    "number_of_columns": 5,
+    "number_of_rows": 7,
+    "total_data_size_bytes": 1057,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/safaribrowsing/testdata.safaribrowsing.safariBookmarks.case1.zip",
+    "start_time": "2026-08-30T14:38:22.422183+00:00",
+    "end_time": "2026-08-30T14:38:22.431801+00:00",
+    "run_time_seconds": 0.00018095970153808594,
+    "last_commit": {
+      "hash": "3a6007b031dd3b7a749e75cb161e658d24260306",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-30T10:30:56-04:00",
+      "message": "Corrected results for Recently Closed Tabs for Safari"
+    }
+  },
+  "headers": [
+    "Folder Path",
+    "Title",
+    "URL",
+    "Bookmark UUID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "BookmarksBar",
+      "Apple",
+      "https://www.apple.com/",
+      "4D98B1AE-8E3C-47E3-B6C1-C2FB7865F045",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/Bookmarks.plist"
+    ],
+    [
+      "BookmarksBar",
+      "Bing",
+      "https://www.bing.com/",
+      "C99275EB-0F49-4F80-8823-3564FF998F56",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/Bookmarks.plist"
+    ],
+    [
+      "BookmarksBar",
+      "Google",
+      "https://www.google.com/?client=safari&channel=iphone_bm",
+      "5B538E3C-D440-444A-A41E-B05BBFE4F5C5",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/Bookmarks.plist"
+    ],
+    [
+      "BookmarksBar",
+      "Yahoo",
+      "https://yahoo.com/",
+      "BC105CB7-4BA4-4112-BE3C-334AA82F6FBD",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/Bookmarks.plist"
+    ],
+    [
+      "BookmarksBar",
+      "Mac Rumors",
+      "https://www.macrumors.com/",
+      "BDE4ABCD-0A5C-4453-9D66-8C69CDBA5840",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/Bookmarks.plist"
+    ],
+    [
+      "BookmarksBar",
+      "Ars Technica",
+      "https://arstechnica.com/",
+      "252D3E5D-2B36-42F2-A655-8A1590662A19",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/Bookmarks.plist"
+    ],
+    [
+      "BookmarksBar",
+      "Cult of Mac",
+      "https://www.cultofmac.com/",
+      "A27FDC44-2A21-4448-B07A-190599424CCE",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/Bookmarks.plist"
+    ]
+  ]
+}

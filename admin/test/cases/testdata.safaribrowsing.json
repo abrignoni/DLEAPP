@@ -1,0 +1,80 @@
+{
+  "case1": {
+    "description": "Real macOS 11.2.1 (Big Sur) device data from Josh Hickman's public forensic training image (thisisdfir account), same source as the Keychains and iMessage case1 fixtures. Validates all six Safari artifacts: History (27 visits), Bookmarks (7 bookmarks), Top Sites (12 entries), Recently Closed Tabs (2 tabs), iCloud Tabs/CloudTabs.db (2 synced tabs), and Last Session/Open Tabs (2 tabs). All six artifacts returned real, non-empty data — no known gaps for this case.",
+    "maker": "@Gear-I",
+    "make_data": {
+      "input_data_path": "macOS-BigSur-full.zip",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-08-30T10:35:10.712953",
+      "last_commit": {
+        "hash": "3a6007b031dd3b7a749e75cb161e658d24260306",
+        "author_name": "Dielle De Noon",
+        "author_email": "N/A",
+        "date": "2026-08-30T10:30:56-04:00",
+        "message": "Corrected results for Recently Closed Tabs for Safari"
+      }
+    },
+    "artifacts": {
+      "safariHistory": {
+        "search_patterns": [
+          "*/Library/Safari/History.db*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "safariBookmarks": {
+        "search_patterns": [
+          "*/Library/Safari/Bookmarks.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "safariTopSites": {
+        "search_patterns": [
+          "*/Library/Safari/TopSites.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "safariRecentlyClosedTabs": {
+        "search_patterns": [
+          "*/Library/Safari/RecentlyClosedTabs.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "safariCloudTabs": {
+        "search_patterns": [
+          "*/Library/Safari/CloudTabs.db*"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "safariLastSession": {
+        "search_patterns": [
+          "*/Library/Safari/LastSession.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}

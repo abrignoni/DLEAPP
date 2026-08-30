@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "safaribrowsing",
+    "artifact_name": "Safari Last Session (Open Tabs)",
+    "function_name": "safariLastSession",
+    "case_number": "case1",
+    "number_of_columns": 10,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 467,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/safaribrowsing/testdata.safaribrowsing.safariLastSession.case1.zip",
+    "start_time": "2026-08-30T14:38:22.444523+00:00",
+    "end_time": "2026-08-30T14:38:22.456531+00:00",
+    "run_time_seconds": 0.0004191398620605469,
+    "last_commit": {
+      "hash": "3a6007b031dd3b7a749e75cb161e658d24260306",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-30T10:30:56-04:00",
+      "message": "Corrected results for Recently Closed Tabs for Safari"
+    }
+  },
+  "headers": [
+    "Tab Title",
+    "URL",
+    "Window Closed",
+    "Last Visit Time",
+    "Window UUID",
+    "Tab UUID",
+    "Tab Index",
+    "Private Window",
+    "Session State Size (bytes)",
+    "Source File"
+  ],
+  "data": [
+    [
+      "reddit: the front page of the internet",
+      "https://www.reddit.com/",
+      1613613906,
+      1613594902,
+      "ABE5FF4F-9597-402C-BE92-C99E53EAEB95",
+      "56E957DF-77B6-45A8-BE84-AA584AA4ADC8",
+      0,
+      "No",
+      1516728,
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/LastSession.plist"
+    ],
+    [
+      "/r/Memes the original since 2008",
+      "https://www.reddit.com/r/memes/",
+      1613613906,
+      1613595429,
+      "ABE5FF4F-9597-402C-BE92-C99E53EAEB95",
+      "5E01C263-426D-4605-A95E-7126DA274557",
+      1,
+      "No",
+      244757,
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/LastSession.plist"
+    ]
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "module_name": "safaribrowsing",
+    "artifact_name": "Safari iCloud Tabs (CloudTabs.db)",
+    "function_name": "safariCloudTabs",
+    "case_number": "case1",
+    "number_of_columns": 11,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 444,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/safaribrowsing/testdata.safaribrowsing.safariCloudTabs.case1.zip",
+    "start_time": "2026-08-30T14:38:22.466191+00:00",
+    "end_time": "2026-08-30T14:38:22.476040+00:00",
+    "run_time_seconds": 0.00041222572326660156,
+    "last_commit": {
+      "hash": "3a6007b031dd3b7a749e75cb161e658d24260306",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-30T10:30:56-04:00",
+      "message": "Corrected results for Recently Closed Tabs for Safari"
+    }
+  },
+  "headers": [
+    "Tab Title",
+    "URL",
+    "Device Name",
+    "Device UUID",
+    "Device Last Modified",
+    "Ephemeral Device",
+    "Pinned",
+    "Showing Reader",
+    "Reader Scroll Page",
+    "Tab UUID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "/r/Memes the original since 2008",
+      "https://www.reddit.com/r/memes/",
+      "This\u2019s Mac",
+      "80B6064F-5AF9-4D65-BE9C-13ECFDD5DC24",
+      1613595906,
+      "",
+      "",
+      "",
+      0,
+      "5E01C263-426D-4605-A95E-7126DA274557",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/CloudTabs.db"
+    ],
+    [
+      "reddit: the front page of the internet",
+      "https://www.reddit.com/",
+      "This\u2019s Mac",
+      "80B6064F-5AF9-4D65-BE9C-13ECFDD5DC24",
+      1613595906,
+      "",
+      "",
+      "",
+      0,
+      "56E957DF-77B6-45A8-BE84-AA584AA4ADC8",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/CloudTabs.db"
+    ]
+  ]
+}

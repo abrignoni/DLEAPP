@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "safaribrowsing",
+    "artifact_name": "Safari Recently Closed Tabs",
+    "function_name": "safariRecentlyClosedTabs",
+    "case_number": "case1",
+    "number_of_columns": 10,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 397,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/safaribrowsing/testdata.safaribrowsing.safariRecentlyClosedTabs.case1.zip",
+    "start_time": "2026-08-30T14:38:22.406200+00:00",
+    "end_time": "2026-08-30T14:38:22.421909+00:00",
+    "run_time_seconds": 0.00013208389282226562,
+    "last_commit": {
+      "hash": "3a6007b031dd3b7a749e75cb161e658d24260306",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-30T10:30:56-04:00",
+      "message": "Corrected results for Recently Closed Tabs for Safari"
+    }
+  },
+  "headers": [
+    "Tab Title",
+    "URL",
+    "Closed",
+    "Last Visit Time",
+    "Window UUID",
+    "Tab UUID",
+    "Tab Index",
+    "Private Window",
+    "Session State Size (bytes)",
+    "Source File"
+  ],
+  "data": [
+    [
+      "iCloud - Apple",
+      "https://www.apple.com/icloud/",
+      1613440101,
+      null,
+      "CDC3DA36-7575-4D74-AF19-52AA59D4575D",
+      "02BB679F-69A3-4AC6-9F52-80185CE96149",
+      0,
+      "No",
+      "",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/RecentlyClosedTabs.plist"
+    ],
+    [
+      "Start Page",
+      "favorites://",
+      1613611415,
+      null,
+      "B8164B46-64C9-4D5A-9F12-F4530B5247D7",
+      "4F771DE3-460D-4A6D-92D1-F17767CDD437",
+      0,
+      "No",
+      "",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/RecentlyClosedTabs.plist"
+    ]
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "module_name": "safaribrowsing",
+    "artifact_name": "Safari Top Sites",
+    "function_name": "safariTopSites",
+    "case_number": "case1",
+    "number_of_columns": 4,
+    "number_of_rows": 12,
+    "total_data_size_bytes": 1246,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/safaribrowsing/testdata.safaribrowsing.safariTopSites.case1.zip",
+    "start_time": "2026-08-30T14:38:22.456855+00:00",
+    "end_time": "2026-08-30T14:38:22.465914+00:00",
+    "run_time_seconds": 0.00011706352233886719,
+    "last_commit": {
+      "hash": "3a6007b031dd3b7a749e75cb161e658d24260306",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-30T10:30:56-04:00",
+      "message": "Corrected results for Recently Closed Tabs for Safari"
+    }
+  },
+  "headers": [
+    "Title",
+    "URL",
+    "Built-in Default",
+    "Source File"
+  ],
+  "data": [
+    [
+      "",
+      "https://www.apple.com/startpage/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "iCloud",
+      "https://www.icloud.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "Yahoo",
+      "https://www.yahoo.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "Bing",
+      "https://www.bing.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "Google",
+      "https://www.google.com/?client=safari&channel=mac_bm",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "Wikipedia",
+      "https://www.wikipedia.org/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "Facebook",
+      "https://www.facebook.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "Twitter",
+      "https://twitter.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "LinkedIn",
+      "https://www.linkedin.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "The Weather Channel",
+      "https://www.weather.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "Yelp",
+      "https://www.yelp.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ],
+    [
+      "TripAdvisor",
+      "https://www.tripadvisor.com/",
+      "Yes",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Safari/TopSites.plist"
+    ]
+  ]
+}
