@@ -1,0 +1,52 @@
+{
+  "case1": {
+    "description": "Test case for extracting keychain artifacts from macOS Big Sur",
+    "maker": "@Gear-I",
+    "make_data": {
+      "input_data_path": "macOS-BigSur-full.zip",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-08-30T09:30:04.625704",
+      "last_commit": {
+        "hash": "df486e19e50b411a8077bcf8c27292b968b5a264",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-08-29T15:43:02-04:00",
+        "message": "Update Keychains.py"
+      }
+    },
+    "artifacts": {
+      "keychainGenericPasswords": {
+        "search_patterns": [
+          "*/Library/Keychains/*.keychain-db",
+          "*/Library/Keychains/System.keychain"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keychainInternetPasswords": {
+        "search_patterns": [
+          "*/Library/Keychains/*.keychain-db",
+          "*/Library/Keychains/System.keychain"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keychainLocalItems": {
+        "search_patterns": [
+          "*/Library/Keychains/*/keychain-2.db"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}
