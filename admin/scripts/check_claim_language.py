@@ -109,31 +109,99 @@ CLAIM_PATTERN = re.compile(
     r"|\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent"
     r"|created|hid|chose)\b"
     r"|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b"
-    r"|\bsearched by\b"
-    r"|\btyped by\b"
-    r"|\bviewed by\b"
-    r"|\bread by\b"
+    r"|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|delet"
+    r"ed|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b"
     r"|\bmanually\b"
     r"|\bproves?\b"
     r"|\bdefinitively\b"
     r"|\balways\b"
     r"|\breliable"
     r"|\bvisited\b"
-    r"|\bhabit",
+    r"|\bhabits?\b",
     re.IGNORECASE)
 
-# Fields that reach the examiner through the report and the LAVA manifest.
-CHECKED_FIELDS = ("name", "description")
+# `notes` reaches the examiner too, in the report and in the artifact info modal, so
+# the same standard applies to it. It cannot use the same vocabulary, because notes do
+# a job name and description do not: they state what was tested. "empty on all 18
+# copies tested" and "NULL for every account tested" are the coverage discipline this
+# project asks for, not claims about a person, and the completeness words fire on every
+# one of them. Measured 2026-08-29: the full vocabulary flags 368 of the 1,477
+# artifacts carrying notes across the five cores, dominated by `every` and `all`,
+# almost all describing a test set.
+#
+# `read by` comes out for the same reason. In a note it means read by the code, not by
+# a person: "columns are read by position", "not read by this artifact".
+#
+# What is left is attribution and certainty, which mean the same thing in a note as in
+# a description.
+NOTES_PATTERN = re.compile(
+    r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent'
+    r'|created|hid|chose)\b'
+    r'|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b'
+    r'|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|delet'
+    r'ed|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b'
+    r'|\bmanually\b'
+    r'|\bproves?\b'
+    r'|\bdefinitively\b'
+    r'|\balways\b'
+    r'|\breliable'
+    r'|\bvisited\b'
+    r'|\bhabits?\b',
+    re.IGNORECASE)
 
-# Reviewed exceptions, keyed by (filename, artifact_key, field). Every entry
+# A note that *denies* a claim uses the same words as one that makes it: "not terms the
+# user searched for", "does not establish that the user viewed them". That denial is the
+# wording this project asks for, so matching it and demanding an allowlist entry would
+# tax the correct behaviour and grow the allowlist without bound. A match in `notes`
+# preceded by a negation inside the same clause is therefore not reported.
+#
+# The window is deliberately short. A negation two sentences back says nothing about
+# this clause, and a long window would swallow real claims. Suppressed matches are
+# counted and printed under --verbose, because a check that narrows its own scope
+# silently is worse than no check.
+NEGATION_WINDOW = 60
+NEGATION_PATTERN = re.compile(
+    r"\b(not|no|never|nor|neither|without|cannot|rather than|instead of"
+    r"|isn't|doesn't|don't|does not|do not)\b",
+    re.IGNORECASE)
+
+
+def negated(text, start):
+    """True when a negation appears close enough before `start` to govern it."""
+    window = text[max(0, start - NEGATION_WINDOW):start]
+    # A sentence boundary ends the clause, so a negation before it does not govern.
+    window = window.rsplit('. ', 1)[-1]
+    return bool(NEGATION_PATTERN.search(window))
+
+
+# Fields that reach the examiner through the report and the LAVA manifest.
+CHECKED_FIELDS = {
+    'name': CLAIM_PATTERN,
+    'description': CLAIM_PATTERN,
+    'notes': NOTES_PATTERN,
+}
+
+# Reviewed exceptions, as (filename, artifact_key, field, term). Each needs a
+# reason. The term is part of the key, so an entry silences the one word it was
+# granted for and never the next claim added to the same text.
 # needs a comment justifying it. See the module docstring before adding one.
 ALLOWLIST = {
     # The match is inside the hedge itself: the description closes with "the
     # cache evicts over time, so this index is a partial record of what the
     # client fetched rather than a complete one". Removing the word would remove
     # the caution it belongs to.
-    ("discordCacheRecords.py", "discordCacheRecords", "description"),
+    ("discordCacheRecords.py", "discordCacheRecords", "description", "complete"),
 }
+
+
+def unallowlisted(filename, artifact_key, field, terms):
+    """The terms no ALLOWLIST entry covers for this field.
+
+    An entry is keyed on the term it was granted for, so allowlisting one word does
+    not pre-approve the next claim somebody adds to the same text.
+    """
+    return [term for term in terms
+            if (filename, str(artifact_key), field, term) not in ALLOWLIST]
 
 STANDARD_NOTE = (
     "Artifact name/description reach the examiner through the HTML report and the LAVA\n"
@@ -185,34 +253,41 @@ def load_artifacts(path):
 
 
 def scan_file(path):
-    """Return (matches, skip_reason) for one artifact module.
+    """Return (matches, skip_reason, negated_count) for one artifact module.
 
     Each match is a (path, artifact_key, field, text, matched_terms, allowlisted)
     tuple.
     """
     artifacts, skip_reason = load_artifacts(path)
     if artifacts is None:
-        return [], skip_reason
+        return [], skip_reason, 0
 
     matches = []
+    negated_count = 0
     for artifact_key, entry in artifacts.items():
         if not isinstance(entry, dict):
             continue
-        for field in CHECKED_FIELDS:
+        for field, pattern in CHECKED_FIELDS.items():
             text = entry.get(field)
             if not isinstance(text, str):
                 continue
-            terms = CLAIM_PATTERN.findall(text)
-            if not terms:
+            hits = list(pattern.finditer(text))
+            if field == 'notes':
+                kept = [hit for hit in hits if not negated(text, hit.start())]
+                negated_count += len(hits) - len(kept)
+                hits = kept
+            found = sorted({hit.group(0).lower() for hit in hits})
+            if not found:
                 continue
-            allowlisted = (path.name, str(artifact_key), field) in ALLOWLIST
-            matches.append((path, str(artifact_key), field, text, terms, allowlisted))
-    return matches, None
+            remaining = unallowlisted(path.name, artifact_key, field, found)
+            matches.append((path, str(artifact_key), field, text,
+                            remaining or found, not remaining, found))
+    return matches, None, negated_count
 
 
 def format_match(match):
     """Render one match as `path:artifact_key:field: <text>`."""
-    path, artifact_key, field, text, terms, _ = match
+    path, artifact_key, field, text, terms = match[:5]
     collapsed = " ".join(text.split())
     if len(collapsed) > 300:
         collapsed = collapsed[:297] + "..."
@@ -238,15 +313,18 @@ def main():
     allowlisted = []
     skipped = []
     fired = set()
+    negated_total = 0
     for path in paths:
         rel_path = os.path.relpath(path, REPO_ROOT)
-        matches, skip_reason = scan_file(path)
+        matches, skip_reason, negated_here = scan_file(path)
+        negated_total += negated_here
         if skip_reason:
             skipped.append((rel_path, skip_reason))
             continue
         for match in matches:
             entry = (rel_path,) + match[1:]
-            fired.add((path.name, match[1], match[2]))
+            for term in match[6]:
+                fired.add((path.name, match[1], match[2], term))
             if match[5]:
                 allowlisted.append(entry)
             else:
@@ -271,13 +349,15 @@ def main():
               f"{len(skipped)} skipped.")
         print(f"Allowlist holds {len(ALLOWLIST)} entr(ies); {len(allowlisted)} fired "
               f"this run.")
+        print(f'{negated_total} match(es) in notes were preceded by a negation and '
+              f'not reported.')
         print()
 
     if stale:
         print(f"Stale ALLOWLIST entr(ies) ({len(stale)}) -- these no longer match "
               f"anything and should be deleted:")
         for entry in stale:
-            print(f"  {entry[0]}:{entry[1]}:{entry[2]}")
+            print(f"  {entry[0]}:{entry[1]}:{entry[2]}  [{entry[3]}]")
         print()
 
     if args.list_all and allowlisted:
