@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "module_name": "iMessageMessages",
+    "artifact_name": "iMessage Attachments",
+    "function_name": "imessageAttachments",
+    "case_number": "case1",
+    "number_of_columns": 11,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 1495,
+    "media_checkins": 5,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/iMessageMessages/testdata.iMessageMessages.imessageAttachments.case1.zip",
+    "start_time": "2026-08-30T14:12:14.149330+00:00",
+    "end_time": "2026-08-30T14:12:14.180075+00:00",
+    "run_time_seconds": 0.0009958744049072266,
+    "last_commit": {
+      "hash": "4307bab21c5ef895e1843a2b7c8a9a658de28be4",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-30T10:05:57-04:00",
+      "message": "Changed output type to standard"
+    }
+  },
+  "headers": [
+    "Created",
+    "Start",
+    "Filename",
+    "File",
+    "MIME Type",
+    "Size (bytes)",
+    "Is Sticker",
+    "Transfer State (raw)",
+    "Attachment GUID",
+    "Message GUID",
+    "Source File"
+  ],
+  "data": [
+    [
+      1613413590,
+      1613413591,
+      "~/Library/Messages/Attachments/f9/09/4FDF67D5-B84F-485B-9626-FADFCA72ED1A/IMG_0176.JPG",
+      "mock_hash_for_IMG_0176.JPG",
+      "image/jpeg",
+      345895,
+      "",
+      5,
+      "4FDF67D5-B84F-485B-9626-FADFCA72ED1A",
+      "9AA13BC9-94C0-4E86-A685-BCADE31953D7",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Messages/chat.db"
+    ],
+    [
+      1613413822,
+      1613413822,
+      "~/Library/Messages/Attachments/de/14/4D573429-0298-4561-BBD3-3ABA055BBD7B/IMG_0028.JPG",
+      "mock_hash_for_IMG_0028.JPG",
+      "image/jpeg",
+      266636,
+      "",
+      5,
+      "4D573429-0298-4561-BBD3-3ABA055BBD7B",
+      "6EEA22B7-4C69-4D54-AB81-735F3A27D6C5",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Messages/chat.db"
+    ],
+    [
+      1613413997,
+      1613413998,
+      "~/Library/Messages/Attachments/be/14/49280626-3E94-44E0-927A-221AF7CE950C/IMG_0018.JPG",
+      "mock_hash_for_IMG_0018.JPG",
+      "image/jpeg",
+      378772,
+      "",
+      5,
+      "49280626-3E94-44E0-927A-221AF7CE950C",
+      "C3BF0178-45E2-4A2B-8560-2F4413EB1A68",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Messages/chat.db"
+    ],
+    [
+      1613762543,
+      1613762545,
+      "~/Library/Messages/Attachments/dc/12/CB948861-7F53-44AD-9146-E686DE1C4B3F/Memes 3.zip",
+      "mock_hash_for_Memes 3.zip",
+      "application/zip",
+      3272322,
+      "",
+      5,
+      "CB948861-7F53-44AD-9146-E686DE1C4B3F",
+      "D96CF4D7-7619-43B7-BBAB-6A563EA5C61E",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Messages/chat.db"
+    ],
+    [
+      1613764174,
+      1613764174,
+      "~/Library/Messages/Attachments/ba/10/D1BDCB24-8484-4BC1-BE76-25D151E566F8/iOS_Bug_Reporting_for_Forensic_Purposes_1.2.pdf",
+      "mock_hash_for_iOS_Bug_Reporting_for_Forensic_Purposes_1.2.pdf",
+      "application/pdf",
+      7073725,
+      "",
+      5,
+      "D1BDCB24-8484-4BC1-BE76-25D151E566F8",
+      "7D31E9DE-0196-476B-9EBF-986F19CB859F",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Messages/chat.db"
+    ]
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "case1": {
+    "description": "Real macOS 11.2.1 (Big Sur) device data from Josh Hickman's public forensic training image (thisisdfir account), same source as the Keychains case1 fixture. Validates imessageMessages (25 real messages), imessageAttachments (5 real files, all embedded), and imessageChats (1 real thread). No deletion tombstones exist in this account's chat.db, so this case does not have the imessageDeletedItems path.",
+    "maker": "@Gear-I",
+    "make_data": {
+      "input_data_path": "macOS-BigSur-full.zip",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-08-30T10:06:53.246359",
+      "last_commit": {
+        "hash": "4307bab21c5ef895e1843a2b7c8a9a658de28be4",
+        "author_name": "Dielle De Noon",
+        "author_email": "N/A",
+        "date": "2026-08-30T10:05:57-04:00",
+        "message": "Changed output type to standard"
+      }
+    },
+    "artifacts": {
+      "imessageMessages": {
+        "search_patterns": [
+          "*/Library/Messages/chat.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "imessageAttachments": {
+        "search_patterns": [
+          "*/Library/Messages/chat.db*",
+          "*/Library/Messages/Attachments/*"
+        ],
+        "file_count": 24,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "imessageChats": {
+        "search_patterns": [
+          "*/Library/Messages/chat.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "imessageDeletedItems": {
+        "search_patterns": [
+          "*/Library/Messages/chat.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}

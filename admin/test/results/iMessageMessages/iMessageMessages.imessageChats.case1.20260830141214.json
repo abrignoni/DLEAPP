@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "module_name": "iMessageMessages",
+    "artifact_name": "iMessage Chat Threads",
+    "function_name": "imessageChats",
+    "case_number": "case1",
+    "number_of_columns": 8,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 119,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/iMessageMessages/testdata.iMessageMessages.imessageChats.case1.zip",
+    "start_time": "2026-08-30T14:12:14.137236+00:00",
+    "end_time": "2026-08-30T14:12:14.149025+00:00",
+    "run_time_seconds": 0.0011951923370361328,
+    "last_commit": {
+      "hash": "4307bab21c5ef895e1843a2b7c8a9a658de28be4",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-30T10:05:57-04:00",
+      "message": "Changed output type to standard"
+    }
+  },
+  "headers": [
+    "Chat Identifier",
+    "Display Name",
+    "Service",
+    "Style (raw)",
+    "Archived",
+    "Participants",
+    "Chat GUID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "+19198887386",
+      "",
+      "iMessage",
+      45,
+      "",
+      "+19198887386",
+      "iMessage;-;+19198887386",
+      "tsk-data-volume-full/Users/thisisdfir/Library/Messages/chat.db"
+    ]
+  ]
+}
