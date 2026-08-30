@@ -99,7 +99,7 @@ __artifacts_v2__ = {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
                 "thisisdfir public test image, acquired 2021-02-20), "
                 "RecentlyClosedTabs.plist | 2 closed windows, 1 tab each "
-                "(reddit.com, apple.com/icloud)",
+                "(start page favorites://, apple.com/icloud)",
         },
     },
     "safariCloudTabs": {
