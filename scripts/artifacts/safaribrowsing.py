@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/History.db*",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/Bookmarks.plist",
         ),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "bookmark",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/TopSites.plist",
         ),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "star",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/RecentlyClosedTabs.plist",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "x-circle",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/CloudTabs.db*",
         ),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "cloud",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/LastSession.plist",
         ),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["standard"],
         "artifact_icon": "layout",
         "sample_data": {
             "macos_bigsur_thisisdfir": "macOS Big Sur (Josh Hickman / "
