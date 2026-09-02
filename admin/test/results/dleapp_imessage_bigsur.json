@@ -191,11 +191,11 @@
           "type": "text"
         },
         {
-          "name": "chat_display_name",
+          "name": "text",
           "type": "text"
         },
         {
-          "name": "text",
+          "name": "chat_display_name",
           "type": "text"
         },
         {
@@ -249,7 +249,7 @@
           "parsed": 17
         }
       },
-      "digest": "2b6fb24d8309b8f4f9dd2d5c9157286222138de69eebbc478c0ec1be45edcf47",
+      "digest": "0e3a1c5be9e95b99080d91eb8b52f37d0168ea6cfeac0af12d735bdb8f2d1a3d",
       "non_empty": {
         "associated_message_guid": 0,
         "body_source": 25,
@@ -274,5 +274,5 @@
   },
   "corpus": "dleapp_imessage_bigsur",
   "note": "Content-free fingerprint. Digests and counts only, no rows, because the corpora are private application profiles.",
-  "recorded_with_commit": "5c99ed324e9bd1022e21627036817111e2e49198"
+  "recorded_with_commit": "fae8bd17c03690b8d7cf7294f1f7ac2dedeb178d"
 }

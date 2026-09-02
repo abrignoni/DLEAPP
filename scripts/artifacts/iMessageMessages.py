@@ -209,7 +209,7 @@ def imessageMessages(context):
     data_headers = (
         ("Date", "datetime"), ("Date Read", "datetime"),
         ("Date Delivered", "datetime"), "Direction", "Sender",
-        "Chat Identifier", "Chat Display Name", "Text", "Body Source",
+        "Chat Identifier", "Text", "Chat Display Name", "Body Source",
         "Service", "Has Attachment", "Tapback", "Associated Message GUID",
         "Item Type (raw)", "Group Action Type (raw)", "Message GUID",
         "Source File",
@@ -245,7 +245,7 @@ def imessageMessages(context):
             data_list.append((
                 _cocoa_to_utc(date, "auto"), _cocoa_to_utc(date_read, "auto"),
                 _cocoa_to_utc(date_delivered, "auto"), direction, sender,
-                chat_identifier or "", display_name or "", display_text,
+                chat_identifier or "", display_text, display_name or "",
                 body_source, service or "",
                 "Yes" if has_attachments else "",
                 _TAPBACK_LABELS.get(assoc_type, ""),
