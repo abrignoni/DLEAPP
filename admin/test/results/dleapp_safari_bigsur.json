@@ -1,0 +1,401 @@
+{
+  "artifacts": {
+    "Safari Bookmarks": {
+      "column_digests": {
+        "bookmark_uuid": "eb1d677d8a6f86bb96cb12dd1e8c68df8e148a9705d002019854437948e5898d",
+        "folder_path": "ebb04ffadcc8a49078003a3869dbfa80d12a5c9abab77e39d63afb3be3609000",
+        "source_file": "82610aee63ea4d3ab76a4f4a76d090059182cf57a5bca41b8c472e36a7ec2815",
+        "title": "64f288ddfd409549e2b7445b7522866db0dd4392d23dd36b1398941d0bf36ce5",
+        "url": "a83980fc770445cd101939059919e2f4b5d937971cac026f641bc7b66f0451ee"
+      },
+      "columns": [
+        {
+          "name": "folder_path",
+          "type": "text"
+        },
+        {
+          "name": "title",
+          "type": "text"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "bookmark_uuid",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {},
+      "digest": "1bad9d41b9b9dbde89b83dfa9c82a544da116cf3de4a22c7ae3ea9d5446edd97",
+      "non_empty": {
+        "bookmark_uuid": 7,
+        "folder_path": 7,
+        "source_file": 7,
+        "title": 7,
+        "url": 7
+      },
+      "rows": 7
+    },
+    "Safari History": {
+      "column_digests": {
+        "domain": "c56c73f38453b99f60587b904c170442e724f0b5c524db59da05c3aa9262e1c0",
+        "http_nonget": "ae37755be3d9e08dc02cbd925a821db4fd9e9438ed724618481222f32d59fe4b",
+        "item_visit_count_lifetime": "4fc220925505a2a7bde8f0eff09e2f7a445c25dcc5f2b6d7e8f54014762d2f29",
+        "load_successful": "9a33122554221749f21625df7627991250570b7fad322c8ecbe45b7ee49b1846",
+        "origin_raw": "bb4973be0fd3e81e564c8e22ca0e28f44686918ddf0a8828a1fa71309ff7529e",
+        "source_file": "d4697d5369dcfa99c294e285e4fb0ca15592684ad5d1664994399a0971669686",
+        "synthesized": "ae37755be3d9e08dc02cbd925a821db4fd9e9438ed724618481222f32d59fe4b",
+        "url": "568ec9f6c9e98fca29e16f224cfb524208176fafd46fac7a599c74cb6f1216ec",
+        "visit_time": "2a0151c60f740e2c835f6fcbf3feea7e56893081edf902fe504af166b8407ede",
+        "visit_title": "166fc49d8c216bc7694ebbf1c9f25f6e12f6f231df09ca2ab6cdbd1501f8f90c"
+      },
+      "columns": [
+        {
+          "name": "visit_time",
+          "type": "datetime"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "domain",
+          "type": "text"
+        },
+        {
+          "name": "visit_title",
+          "type": "text"
+        },
+        {
+          "name": "item_visit_count_lifetime",
+          "type": "text"
+        },
+        {
+          "name": "load_successful",
+          "type": "text"
+        },
+        {
+          "name": "http_nonget",
+          "type": "text"
+        },
+        {
+          "name": "synthesized",
+          "type": "text"
+        },
+        {
+          "name": "origin_raw",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "visit_time": {
+          "in_plausible_range": true,
+          "parsed": 27
+        }
+      },
+      "digest": "260f79d02cfa1c2a518806de4af63d8a0d17577c537a3254b2c426a99ca8acbc",
+      "non_empty": {
+        "domain": 27,
+        "http_nonget": 0,
+        "item_visit_count_lifetime": 27,
+        "load_successful": 27,
+        "origin_raw": 27,
+        "source_file": 27,
+        "synthesized": 0,
+        "url": 27,
+        "visit_time": 27,
+        "visit_title": 17
+      },
+      "rows": 27
+    },
+    "Safari Last Session (Open Tabs)": {
+      "column_digests": {
+        "last_visit_time": "b3a0940ab15b1cb78135447d201b16c2675153ee25d2cae526682eda99b22a60",
+        "private_window": "af2fb91825ee7ea9b8212edeafbabfa586273578da665bed7406033bb19bb41a",
+        "session_state_size_bytes": "ab2264435ca25411729221435afb56a537a7804ac9a27ff7da32b537d73480f5",
+        "source_file": "1c3a0d941ceb3cf0e2aa4d6b13db2eb010eaf3f5b0efb7488dd673f82d4b4c5e",
+        "tab_index": "1ef9940a0ca40e0276fde7000d087452e85a63a29d9f08253d8e12ba024e8010",
+        "tab_title": "5a8eae2ffd638fbf286ad1f7f6cbcbfe76db5d5259fd26332eb5f357c9ec20fa",
+        "tab_uuid": "87e581b50c29eb0f5394c3009aa14f27db9ce5ab9d4c46cbcb3fc4ec1ae1b6ec",
+        "url": "742f956bfb3fb1a36f1ba27af3c3b03193e118054f0120a5ee1cd9390e22ff10",
+        "window_closed": "67d83461783a2a2e54bc41fc09f9aed33636e18fd6ef1a2586af040021b5457a",
+        "window_uuid": "fae6777b024b204267a46ddbdd4da40552b31656d70128666b6ba0351663d089"
+      },
+      "columns": [
+        {
+          "name": "tab_title",
+          "type": "text"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "window_closed",
+          "type": "datetime"
+        },
+        {
+          "name": "last_visit_time",
+          "type": "datetime"
+        },
+        {
+          "name": "window_uuid",
+          "type": "text"
+        },
+        {
+          "name": "tab_uuid",
+          "type": "text"
+        },
+        {
+          "name": "tab_index",
+          "type": "text"
+        },
+        {
+          "name": "private_window",
+          "type": "text"
+        },
+        {
+          "name": "session_state_size_bytes",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "last_visit_time": {
+          "in_plausible_range": true,
+          "parsed": 2
+        },
+        "window_closed": {
+          "in_plausible_range": true,
+          "parsed": 2
+        }
+      },
+      "digest": "e32e7d23e57e386cb31645095a466c52fc5cd820ec76bf932b025decf6242506",
+      "non_empty": {
+        "last_visit_time": 2,
+        "private_window": 2,
+        "session_state_size_bytes": 2,
+        "source_file": 2,
+        "tab_index": 2,
+        "tab_title": 2,
+        "tab_uuid": 2,
+        "url": 2,
+        "window_closed": 2,
+        "window_uuid": 2
+      },
+      "rows": 2
+    },
+    "Safari Recently Closed Tabs": {
+      "column_digests": {
+        "closed": "82f3097909ef7ad7976c0c110b5c0bebda51e4abd8caec8ae7585b449e8f5634",
+        "last_visit_time": "b8c9e440ead3ddaccf7cc7e879d512a263272270df2d5504c0c3d1f85d16f9d9",
+        "private_window": "af2fb91825ee7ea9b8212edeafbabfa586273578da665bed7406033bb19bb41a",
+        "session_state_size_bytes": "b8c9e440ead3ddaccf7cc7e879d512a263272270df2d5504c0c3d1f85d16f9d9",
+        "source_file": "67587e514ed5cbf45c6bf7f641717df0c7594d970c4647c911010ecb30f19990",
+        "tab_index": "7f6d4121b40c2dcf17c55a01ee72fd6af9c57ad6361f79162c21d903888c79b9",
+        "tab_title": "d5475946812fed5dfcea879049d96eccff638b9f263df8be577bbe3987600f37",
+        "tab_uuid": "6da02b35a36e7f8c9fd1e0ce4ccfa39dc5fada2ee467b696589bc075fa19d2c1",
+        "url": "f8cb6c8d0c4a12af1ffcdffba163d8ebd9daa12aba97a9d2327f15750924cbea",
+        "window_uuid": "633ff02c8cf4e3af304be679fe96797a809c71d6bfbcf9848c059c083321058e"
+      },
+      "columns": [
+        {
+          "name": "tab_title",
+          "type": "text"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "closed",
+          "type": "datetime"
+        },
+        {
+          "name": "last_visit_time",
+          "type": "datetime"
+        },
+        {
+          "name": "window_uuid",
+          "type": "text"
+        },
+        {
+          "name": "tab_uuid",
+          "type": "text"
+        },
+        {
+          "name": "tab_index",
+          "type": "text"
+        },
+        {
+          "name": "private_window",
+          "type": "text"
+        },
+        {
+          "name": "session_state_size_bytes",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "closed": {
+          "in_plausible_range": true,
+          "parsed": 2
+        },
+        "last_visit_time": {
+          "in_plausible_range": true,
+          "parsed": 0
+        }
+      },
+      "digest": "1f239d0fba4941aefc8eb0d46e5d08e8031c0936dcaf704ba45dcc6227ccdb72",
+      "non_empty": {
+        "closed": 2,
+        "last_visit_time": 0,
+        "private_window": 2,
+        "session_state_size_bytes": 0,
+        "source_file": 2,
+        "tab_index": 2,
+        "tab_title": 2,
+        "tab_uuid": 2,
+        "url": 2,
+        "window_uuid": 2
+      },
+      "rows": 2
+    },
+    "Safari Top Sites": {
+      "column_digests": {
+        "builtin_default": "185a93662f58c4c786ebcb194345a539b673df3b3b020c90aca91bac93e76571",
+        "source_file": "04acd64b0925a4931a99e439765cfcd526ba33c06629b1f7c0a4f0b0071106ff",
+        "title": "1d7e61ccbe50fe929ab195826040a41ba4b8d53af29965e54727b7d892477e82",
+        "url": "8190a048a5973ed897b57d09f89d71163ec6af0ec42e1ac9468fdfdc35ffcd3c"
+      },
+      "columns": [
+        {
+          "name": "title",
+          "type": "text"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "builtin_default",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {},
+      "digest": "5347aa7e5bf3243f5a77ad86a92740761595089294f2aeb9610f7b92bd4c8213",
+      "non_empty": {
+        "builtin_default": 12,
+        "source_file": 12,
+        "title": 11,
+        "url": 12
+      },
+      "rows": 12
+    },
+    "Safari iCloud Tabs (CloudTabs.db)": {
+      "column_digests": {
+        "device_last_modified": "b2383b3734ac913860728def4faeb46ea188e17dbb1569f9f82fa8b3677d15eb",
+        "device_name": "41d1e757ff005f821557169de33b0726ae35e3f49405e61f08625fd62a70e8f8",
+        "device_uuid": "4d733af0ea9059353f93db24258e958e71885145f4e7e6cec83713dabcf66cde",
+        "ephemeral_device": "b8c9e440ead3ddaccf7cc7e879d512a263272270df2d5504c0c3d1f85d16f9d9",
+        "pinned": "b8c9e440ead3ddaccf7cc7e879d512a263272270df2d5504c0c3d1f85d16f9d9",
+        "reader_scroll_page": "7f6d4121b40c2dcf17c55a01ee72fd6af9c57ad6361f79162c21d903888c79b9",
+        "showing_reader": "b8c9e440ead3ddaccf7cc7e879d512a263272270df2d5504c0c3d1f85d16f9d9",
+        "source_file": "49fb08f8d829b13b9a4bf0e343650e799eb6c7c4c80d7ebb1b69b429ecd3c3fe",
+        "tab_title": "6035cf15b016698dc8d0a4b1fd515705f9ae59b86f9094b9b8d28363419be721",
+        "tab_uuid": "3e398d24e872c354ae6fbe13115db40955ba06c54a69aaf815a2419c5469f2fd",
+        "url": "b3da3febce1d8ae639ac8e0bac917064da150eb6158c801150747631ccb6287b"
+      },
+      "columns": [
+        {
+          "name": "tab_title",
+          "type": "text"
+        },
+        {
+          "name": "url",
+          "type": "text"
+        },
+        {
+          "name": "device_name",
+          "type": "text"
+        },
+        {
+          "name": "device_uuid",
+          "type": "text"
+        },
+        {
+          "name": "device_last_modified",
+          "type": "datetime"
+        },
+        {
+          "name": "ephemeral_device",
+          "type": "text"
+        },
+        {
+          "name": "pinned",
+          "type": "text"
+        },
+        {
+          "name": "showing_reader",
+          "type": "text"
+        },
+        {
+          "name": "reader_scroll_page",
+          "type": "text"
+        },
+        {
+          "name": "tab_uuid",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "device_last_modified": {
+          "in_plausible_range": true,
+          "parsed": 2
+        }
+      },
+      "digest": "2c1dde3b1fd8c42c0d2bbc8b8ad91767797111e03aeeac0bfc0f9b8d877593d0",
+      "non_empty": {
+        "device_last_modified": 2,
+        "device_name": 2,
+        "device_uuid": 2,
+        "ephemeral_device": 0,
+        "pinned": 0,
+        "reader_scroll_page": 2,
+        "showing_reader": 0,
+        "source_file": 2,
+        "tab_title": 2,
+        "tab_uuid": 2,
+        "url": 2
+      },
+      "rows": 2
+    }
+  },
+  "corpus": "dleapp_safari_bigsur",
+  "note": "Content-free fingerprint. Digests and counts only, no rows, because the corpora are private application profiles.",
+  "recorded_with_commit": "5c99ed324e9bd1022e21627036817111e2e49198"
+}
