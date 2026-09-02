@@ -1,0 +1,278 @@
+{
+  "artifacts": {
+    "iMessage Attachments": {
+      "column_digests": {
+        "attachment_guid": "bd2765210fac19039443aa7c9746ab458c25534b44caa0790589e2b53574d560",
+        "created": "e1a95d6e8a8a0813c1fda0dc8d91f9a235dcf91b507915667a10b149b163889a",
+        "file": "b3b9b08788135dd41aa6d200525327dcda1bfd6deaa77b6ede64389b3cc8018c",
+        "filename": "51940b637048141982918415f728761c0de3d147ca4c50e4f30586722665edc4",
+        "is_sticker": "de2d1aa0509a80c5446acd90700fbcd632b3bb5065b5096a7603dc7b205892da",
+        "message_guid": "1ed65e75cbb37ee31938f4409be2f481defd7079ffa318c8c6fce29bd2bffd5a",
+        "mime_type": "60a5d57f99c3ab586676727fb6d45df536473cd2395c5ad81e50536cad1564a7",
+        "size_bytes": "0c9d3834bfec20c896973b8d49e1fc4acec1bc178adaa4c158c72dd1a8fb8308",
+        "source_file": "ade820f0a6f7d1889ab924991108b8f7c541362e7b403847f3274a6aff5fe4ca",
+        "start": "c71f928f33661ca32fa44591ac4723cd66a037622879c01f5558cfad10d1ef89",
+        "transfer_state_raw": "be2342d1c2b4e2eda0e283e560abfe13f428df7f41dc65b7aa5ee596521c0650"
+      },
+      "columns": [
+        {
+          "name": "created",
+          "type": "datetime"
+        },
+        {
+          "name": "start",
+          "type": "datetime"
+        },
+        {
+          "name": "filename",
+          "type": "text"
+        },
+        {
+          "name": "file",
+          "type": "media"
+        },
+        {
+          "name": "mime_type",
+          "type": "text"
+        },
+        {
+          "name": "size_bytes",
+          "type": "text"
+        },
+        {
+          "name": "is_sticker",
+          "type": "text"
+        },
+        {
+          "name": "transfer_state_raw",
+          "type": "text"
+        },
+        {
+          "name": "attachment_guid",
+          "type": "text"
+        },
+        {
+          "name": "message_guid",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "created": {
+          "in_plausible_range": true,
+          "parsed": 5
+        },
+        "start": {
+          "in_plausible_range": true,
+          "parsed": 5
+        }
+      },
+      "digest": "28309aaab31fd33857fd91dabe95ad92dbca9c638bec4eabd443971097dadcae",
+      "non_empty": {
+        "attachment_guid": 5,
+        "created": 5,
+        "file": 5,
+        "filename": 5,
+        "is_sticker": 0,
+        "message_guid": 5,
+        "mime_type": 5,
+        "size_bytes": 5,
+        "source_file": 5,
+        "start": 5,
+        "transfer_state_raw": 5
+      },
+      "rows": 5
+    },
+    "iMessage Chat Threads": {
+      "column_digests": {
+        "archived": "ffe679bb831c95b67dc17819c63c5090d221aac6f4c7bf530f594ab43d21fa1e",
+        "chat_guid": "8ef9af549667fe664eb380885028186a1e707f9876ab09ae1a89c6b56a92b299",
+        "chat_identifier": "fbd27f24e5bc50c49f555166411b27af587c7c657fa10a0c902c9bacc5ad3d05",
+        "display_name": "ffe679bb831c95b67dc17819c63c5090d221aac6f4c7bf530f594ab43d21fa1e",
+        "participants": "fbd27f24e5bc50c49f555166411b27af587c7c657fa10a0c902c9bacc5ad3d05",
+        "service": "49926fe651cac62fdf0fc7eec6e18bfff002c8f6c62d5588824f81a3f24a3d36",
+        "source_file": "b1c141ef236bf57d75ed10093cb413c337666683b1518e5001c70777d0cd81e8",
+        "style_raw": "a25fa4e52f269490377ef695b0ccb5d35a53a808ce628a551766e85d1b3fb73d"
+      },
+      "columns": [
+        {
+          "name": "chat_identifier",
+          "type": "text"
+        },
+        {
+          "name": "display_name",
+          "type": "text"
+        },
+        {
+          "name": "service",
+          "type": "text"
+        },
+        {
+          "name": "style_raw",
+          "type": "text"
+        },
+        {
+          "name": "archived",
+          "type": "text"
+        },
+        {
+          "name": "participants",
+          "type": "text"
+        },
+        {
+          "name": "chat_guid",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {},
+      "digest": "ce4269497eb2870c58c663523c41420d7790fe0b97abd4b4cca040ad1906f041",
+      "non_empty": {
+        "archived": 0,
+        "chat_guid": 1,
+        "chat_identifier": 1,
+        "display_name": 0,
+        "participants": 1,
+        "service": 1,
+        "source_file": 1,
+        "style_raw": 1
+      },
+      "rows": 1
+    },
+    "iMessage Messages": {
+      "column_digests": {
+        "associated_message_guid": "a249c08b5d285dcaf9172d44afde32ac6a66ffa8fa12aa94272cdfb4e70d7fd6",
+        "body_source": "3bd952f775807298076ac5cb916b976756981905d90b89649d1f73d8f0209c67",
+        "chat_display_name": "a249c08b5d285dcaf9172d44afde32ac6a66ffa8fa12aa94272cdfb4e70d7fd6",
+        "chat_identifier": "a14551d2aa4cd88910a14ed11b55f3867237b27736eb92d27763e29bf85cd270",
+        "date": "a06355976e268c928cabfae47532fffad82b03af5807eeaa0eb6d36ef15f36e4",
+        "date_delivered": "f4e95d5521c4cfdd7ec04c0f4604822bfe9643ed1e474d4807aa24126c58aecb",
+        "date_read": "664f6ac8c93c575cf5853de665720e94b55e9abd37b55abb8d61192188530d33",
+        "direction": "f941194037b84b4bd7d3f397ea6a590f115ef94e7afb4a450c2c813a859974ef",
+        "group_action_type_raw": "59220831e3d9dbecc14b740a0255c54105d9cb9f23745a9fbd4539018b55e0b5",
+        "has_attachment": "850d4b5274bec8bc389edb7bbdbe31c17c4cd41cb3f1c49c921b94fd560d355c",
+        "item_type_raw": "59220831e3d9dbecc14b740a0255c54105d9cb9f23745a9fbd4539018b55e0b5",
+        "message_guid": "daccaf41edb0ddaf8adc7e031c8b1ff2be2afc81bae394b7dfb407c003b1bd21",
+        "sender": "6a19a66b9d59ed6d714da41e38d97a9d2eb11e8f68a24fd9e642aa58ff368d13",
+        "service": "1f1fe4ffeb2f754906d15bb793d527ec20c5f30cd5a8dadb89e764832894ea6c",
+        "source_file": "1ce748742cbb925609dab435d616def61f30493589560625476a24512d55c6be",
+        "tapback": "a249c08b5d285dcaf9172d44afde32ac6a66ffa8fa12aa94272cdfb4e70d7fd6",
+        "text": "67fa5060554388efb7ca08aed73ed94a7d1718abb045c43408c97b1cab4b221a"
+      },
+      "columns": [
+        {
+          "name": "date",
+          "type": "datetime"
+        },
+        {
+          "name": "date_read",
+          "type": "datetime"
+        },
+        {
+          "name": "date_delivered",
+          "type": "datetime"
+        },
+        {
+          "name": "direction",
+          "type": "text"
+        },
+        {
+          "name": "sender",
+          "type": "text"
+        },
+        {
+          "name": "chat_identifier",
+          "type": "text"
+        },
+        {
+          "name": "text",
+          "type": "text"
+        },
+        {
+          "name": "chat_display_name",
+          "type": "text"
+        },
+        {
+          "name": "body_source",
+          "type": "text"
+        },
+        {
+          "name": "service",
+          "type": "text"
+        },
+        {
+          "name": "has_attachment",
+          "type": "text"
+        },
+        {
+          "name": "tapback",
+          "type": "text"
+        },
+        {
+          "name": "associated_message_guid",
+          "type": "text"
+        },
+        {
+          "name": "item_type_raw",
+          "type": "text"
+        },
+        {
+          "name": "group_action_type_raw",
+          "type": "text"
+        },
+        {
+          "name": "message_guid",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "date": {
+          "in_plausible_range": true,
+          "parsed": 25
+        },
+        "date_delivered": {
+          "in_plausible_range": true,
+          "parsed": 19
+        },
+        "date_read": {
+          "in_plausible_range": true,
+          "parsed": 17
+        }
+      },
+      "digest": "0e3a1c5be9e95b99080d91eb8b52f37d0168ea6cfeac0af12d735bdb8f2d1a3d",
+      "non_empty": {
+        "associated_message_guid": 0,
+        "body_source": 25,
+        "chat_display_name": 0,
+        "chat_identifier": 25,
+        "date": 25,
+        "date_delivered": 19,
+        "date_read": 17,
+        "direction": 25,
+        "group_action_type_raw": 25,
+        "has_attachment": 5,
+        "item_type_raw": 25,
+        "message_guid": 25,
+        "sender": 25,
+        "service": 25,
+        "source_file": 25,
+        "tapback": 0,
+        "text": 25
+      },
+      "rows": 25
+    }
+  },
+  "corpus": "dleapp_imessage_bigsur",
+  "note": "Content-free fingerprint. Digests and counts only, no rows, because the corpora are private application profiles.",
+  "recorded_with_commit": "fae8bd17c03690b8d7cf7294f1f7ac2dedeb178d"
+}
