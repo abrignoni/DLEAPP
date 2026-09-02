@@ -1,0 +1,191 @@
+{
+  "artifacts": {
+    "Keychain Generic Passwords": {
+      "column_digests": {
+        "account": "05368a56c5df71f0eff4aa548187402c4c9234878ae69b42421c59d5817970cb",
+        "comment": "e3e05cee8cac3c7ebf77a5434eb26e4ae31dcf282ef0b43f7055c16d3085d561",
+        "created": "834c8e67737c4cfd3b17f6aad115227bed68f5302f5d0f19ac621ffbe74366e8",
+        "creator_raw": "0f005a04ba4de5fbe15ecd5cc5a531d12f3c7d57d76ad7a64f5be2da9ca7ceb9",
+        "description": "bab15d1e4a0d046ea63a4b375110a6979c7f48b6ac7c5ea4d118af5316d91427",
+        "encrypted_secret_present": "47c29d9676b92a6fb5f453eb36d91a3ea8eecf7d364501436b8da2985168f4f6",
+        "invisible": "bab15d1e4a0d046ea63a4b375110a6979c7f48b6ac7c5ea4d118af5316d91427",
+        "modified": "f07cdfecbd21366d075e4390002c3df9f79b2159cbd7b5ecd98ce25aeb3f6c74",
+        "negative": "bab15d1e4a0d046ea63a4b375110a6979c7f48b6ac7c5ea4d118af5316d91427",
+        "print_name": "0e2e371707943eb34f5ab4c3684953b8d79c00c67f84d8b379a4663d53fb4b92",
+        "service": "8b7074d618e59ae11960123b3e41879d0595c485aa823244989c6476bea1a362",
+        "source_file": "4c6f245de62a8ba64bea4c364d31f3a094fb2a6117389b71fbb6cda218d0c8e8",
+        "type_raw": "bab15d1e4a0d046ea63a4b375110a6979c7f48b6ac7c5ea4d118af5316d91427"
+      },
+      "columns": [
+        {
+          "name": "created",
+          "type": "datetime"
+        },
+        {
+          "name": "modified",
+          "type": "datetime"
+        },
+        {
+          "name": "print_name",
+          "type": "text"
+        },
+        {
+          "name": "account",
+          "type": "text"
+        },
+        {
+          "name": "service",
+          "type": "text"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "comment",
+          "type": "text"
+        },
+        {
+          "name": "creator_raw",
+          "type": "text"
+        },
+        {
+          "name": "type_raw",
+          "type": "text"
+        },
+        {
+          "name": "invisible",
+          "type": "text"
+        },
+        {
+          "name": "negative",
+          "type": "text"
+        },
+        {
+          "name": "encrypted_secret_present",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "created": {
+          "in_plausible_range": true,
+          "parsed": 18
+        },
+        "modified": {
+          "in_plausible_range": true,
+          "parsed": 18
+        }
+      },
+      "digest": "544554cbc05ce429e9e8743d827e92c3696b8751e905210153e4e7b7d17d4645",
+      "non_empty": {
+        "account": 16,
+        "comment": 2,
+        "created": 18,
+        "creator_raw": 2,
+        "description": 0,
+        "encrypted_secret_present": 18,
+        "invisible": 0,
+        "modified": 18,
+        "negative": 0,
+        "print_name": 18,
+        "service": 18,
+        "source_file": 18,
+        "type_raw": 0
+      },
+      "rows": 18
+    },
+    "Keychain Local Items (keychain-2.db)": {
+      "column_digests": {
+        "access_group": "02b8f55b8fdc9e295d4cd76351df3593e63674347b8eaf2e004ef5acb77c5e54",
+        "account": "ecd32540d4400c823af2cbf219810ac6824e61aa672a1865e468780780ee1712",
+        "created": "c27f9a40fd8b01a7cd9325653e814562a4367ede207973a01da0f427961b52c3",
+        "encrypted_data_size_bytes": "2883ecbbc66e4a06db7ce5199a097980754e198befd54e175892a7e693f81690",
+        "item_class": "938e7d45c0e8a9bc2ae62a441ba1c6edc5166e0398dca36fed423ddd770baba8",
+        "label": "b3f8d395a023aa7d75fca8f831c64077979fbd5f64b47c468db0c9cfebe5c43d",
+        "modified": "e8210ca5481739debbbf491ff8bffdae0872644ed8d94f4087f61d463f252c9f",
+        "protection_domain_raw": "b9a682d2cc08765a59503b16c0e34453a7249afdb4865572967c1003674c9ed9",
+        "resolved_sha1_dictionary_match": "6fa5f5e813686f06c0d0f04ea16e1aba89199b0841d852da219bff7e02d7bb5e",
+        "serviceserver": "71c6f8a92f7b10e48bc5a6df7ca80d33009e818f9e7d1a2e4ccf336d036f321f",
+        "source_file": "757d16b0bd3abef3145082ede563d4f542a354af885f1d588d1e7ed2c006d96a"
+      },
+      "columns": [
+        {
+          "name": "item_class",
+          "type": "text"
+        },
+        {
+          "name": "created",
+          "type": "datetime"
+        },
+        {
+          "name": "modified",
+          "type": "datetime"
+        },
+        {
+          "name": "label",
+          "type": "text"
+        },
+        {
+          "name": "account",
+          "type": "text"
+        },
+        {
+          "name": "serviceserver",
+          "type": "text"
+        },
+        {
+          "name": "resolved_sha1_dictionary_match",
+          "type": "text"
+        },
+        {
+          "name": "access_group",
+          "type": "text"
+        },
+        {
+          "name": "protection_domain_raw",
+          "type": "text"
+        },
+        {
+          "name": "encrypted_data_size_bytes",
+          "type": "text"
+        },
+        {
+          "name": "source_file",
+          "type": "text"
+        }
+      ],
+      "datetime_columns": {
+        "created": {
+          "in_plausible_range": true,
+          "parsed": 327
+        },
+        "modified": {
+          "in_plausible_range": true,
+          "parsed": 327
+        }
+      },
+      "digest": "a00e033e31cba6b4004299d74703d0f8ac5264b7c70aac7d477cf88654d9e4a0",
+      "non_empty": {
+        "access_group": 327,
+        "account": 301,
+        "created": 327,
+        "encrypted_data_size_bytes": 327,
+        "item_class": 327,
+        "label": 139,
+        "modified": 327,
+        "protection_domain_raw": 327,
+        "resolved_sha1_dictionary_match": 128,
+        "serviceserver": 301,
+        "source_file": 327
+      },
+      "rows": 327
+    }
+  },
+  "corpus": "dleapp_keychains_bigsur",
+  "note": "Content-free fingerprint. Digests and counts only, no rows, because the corpora are private application profiles.",
+  "recorded_with_commit": "5c99ed324e9bd1022e21627036817111e2e49198"
+}
