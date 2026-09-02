@@ -48,12 +48,13 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Keychains (macOS)",
         "notes": "Shares the classic-keychain parser with Keychain Generic "
-                 "Passwords, which is confirmed against security "
-                 "dump-keychain. The validation image held no internet "
-                 "password records, so this record type's own attribute "
-                 "layout (server, protocol, port, path added after the shared "
-                 "attributes) follows Apple's internet-password relation "
-                 "schema but was not exercised against real data.",
+                 "Passwords. The internet-password attribute layout (server, "
+                 "protocol, port, path added after the shared attributes) "
+                 "follows Apple's internet-password relation schema. The public "
+                 "validation image held no internet password records, but the "
+                 "layout was confirmed against security dump-keychain on a "
+                 "private sample that did carry them, matching server and "
+                 "account exactly.",
         "paths": (
             "*/Library/Keychains/*.keychain-db",
             "*/Library/Keychains/System.keychain",
