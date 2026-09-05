@@ -115,12 +115,7 @@ __artifacts_v2__ = {
     },
     "discordInvites": {
         "name": "Discord Invites",
-        "description": "Server invite links the client looked up. A cached "
-                       "`/invites/<code>` response records that the client "
-                       "resolved that invite code and what Discord returned: "
-                       "the server, the channel the invite points at, who "
-                       "created it and when it expires. It does not establish "
-                       "that the user joined the server.",
+        "description": "Server invite links the client looked up. A cached `/invites/<code>` response records that the client resolved that invite code and what Discord returned: the server, the channel the invite points at, who created it and when it expires. It does not establish that the server was joined.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-01",
