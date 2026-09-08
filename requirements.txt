@@ -4,7 +4,7 @@ Brotli
 ijson
 mammoth
 openpyxl
-packaging==20.1
+packaging==24.1
 pillow-heif
 PyCryptodome
 simplekml
