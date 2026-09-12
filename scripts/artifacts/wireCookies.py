@@ -55,7 +55,7 @@ def _source_label(path):
 @artifact_processor
 def wireCookies(context):
     data_list = []
-    source_path = ""
+    source_paths = []
     parsed = set()
 
     for file_found in context.get_files_found():
@@ -87,7 +87,7 @@ def wireCookies(context):
             continue
 
         if rows:
-            source_path = file_found
+            source_paths.append(file_found)
         label = _source_label(file_found)
         for (host, name, path, created, expires, last_access,
              secure, httponly, enc_len) in rows:
@@ -109,4 +109,4 @@ def wireCookies(context):
         ("Expires", "datetime"), ("Last Access", "datetime"), "Secure",
         "HttpOnly", "Encrypted Value Length",
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
