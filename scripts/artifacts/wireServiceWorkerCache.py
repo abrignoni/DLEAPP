@@ -58,7 +58,7 @@ def _unix_to_dt(value):
 @artifact_processor
 def wireServiceWorkerCache(context):
     data_list = []
-    source_path = ""
+    source_paths = []
     parsed = set()
 
     for file_found in context.get_files_found():
@@ -105,7 +105,7 @@ def wireServiceWorkerCache(context):
         ctypes = [c for c in _CTYPE_RE.findall(text) if c != "application/json"]
         ctype = ctypes[0] if ctypes else ""
 
-        source_path = file_found
+        source_paths.append(file_found)
         data_list.append((
             os.path.basename(file_found),
             req_url,
@@ -123,4 +123,4 @@ def wireServiceWorkerCache(context):
         ("CDN Expires", "datetime"), "Content Type (heuristic)",
         "Entry Size (bytes)", "Note",
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
