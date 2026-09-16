@@ -51,12 +51,17 @@ __artifacts_v2__ = {
                        "text, and the preserved payload.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-09-16",
         "requirements": "beautifulsoup4",
         "category": "Windows System",
         "notes": "Modernized from WLEAPP. Arrival and expiry values use the "
                  "Windows FILETIME epoch and are reported in UTC. Boot ID is "
-                 "reported as stored because its encoding is not documented.",
+                 "reported as stored because its encoding is not documented. The "
+                 "Boot ID and Expires on Reboot columns are absent from the "
+                 "Notification table on the tested Windows 10 1809 image and are "
+                 "reported blank there; both are present on the tested Windows 11 "
+                 "22H2 image, and the build where they first appear was not "
+                 "established.",
         "paths": (
             "*/AppData/Local/Microsoft/Windows/Notifications/wpndatabase.db*",
         ),
@@ -64,6 +69,8 @@ __artifacts_v2__ = {
         "artifact_icon": "bell",
         "sample_data": {
             "windows11_arm_parallels": "Windows build 26200 | 3 rows",
+            "af_case2_win10": "Windows 10 1809 (build 17763) | 8 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 (build 22621) | 19 rows",
         },
     },
     "windowsStickyNotes": {
@@ -348,12 +355,25 @@ def windowsNotifications(context):
         if database is None:
             continue
         try:
+            # BootId and ExpiresOnReboot are absent from the Notification table on
+            # older Windows 10 builds (observed missing on 1809, present on
+            # Windows 11), so probe the schema and substitute NULL where a column
+            # is not present rather than letting the whole query fail.
+            notification_columns = {
+                row[1].lower() for row in database.execute(
+                    "PRAGMA table_info('Notification')").fetchall()
+            }
+            boot_id = ("n.BootId" if "bootid" in notification_columns
+                       else "NULL AS BootId")
+            expires_on_reboot = ("n.ExpiresOnReboot"
+                                 if "expiresonreboot" in notification_columns
+                                 else "NULL AS ExpiresOnReboot")
             records = database.execute(
-                """
+                f"""
                 SELECT n.ArrivalTime, n.ExpiryTime, h.CreatedTime,
-                       h.ModifiedTime, n.BootId, n.Id, n.HandlerId,
+                       h.ModifiedTime, {boot_id}, n.Id, n.HandlerId,
                        h.PrimaryId, h.HandlerType, n.Type, n.PayloadType,
-                       n.Payload, n.Tag, n."Group", n.ExpiresOnReboot
+                       n.Payload, n.Tag, n."Group", {expires_on_reboot}
                   FROM Notification AS n
                   LEFT JOIN NotificationHandler AS h
                     ON h.RecordId = n.HandlerId
