@@ -5,9 +5,13 @@ c456746d7a0f0bb25e8968a59f25aae1ad519935 (2026-05-15), files impacket/structure.
 and impacket/ese.py. Distributed under the Apache Software License, kept beside
 this file as LICENSE-impacket. The two modules are folded into this single
 self-contained file and their impacket/six/logging dependencies are inlined
-below, so nothing outside the Python standard library is required. No line of the
-parsing bodies is changed; only the import lines were removed and the shims below
-added.
+below, so nothing outside the Python standard library is required. The import
+lines were removed and the shims below added. One behavior change is made on top
+of that: a tagged column stored with ESE 7-bit compression, which upstream
+returns as None with an "Unsupported tag column" log, is decoded to its string
+here (see _ese_decompress_value and the compressed-tag branch); other
+compression schemes still return None. The change is additive, so a column that
+was never compressed decodes exactly as before.
 
 Not tracked in scripts/vendor/vendored.json, because it is adapted rather than a
 verbatim copy: the check_vendored gate requires the body to match upstream byte
@@ -52,6 +56,34 @@ class _Six:
 
 
 six = _Six()
+
+
+def _ese_decompress_value(value):
+    """Decode an ESE compressed tagged-column value.
+
+    ESE stores some tagged columns (for example the Windows Search property
+    store's paths and names) compressed, with a one-byte header. A header of
+    0x10-0x17 marks 7-bit compression: the bytes after it pack one 7-bit
+    character each, least-significant-bit first. That case is decoded here and
+    returned as a str. Any other scheme (an Xpress-compressed value, header
+    0x18 and up) is not decoded and returns None rather than a guess.
+    """
+    if not value:
+        return None
+    header = value[0]
+    if 0x10 <= header <= 0x17:
+        chars = []
+        acc = 0
+        nbits = 0
+        for byte in value[1:]:
+            acc |= byte << nbits
+            nbits += 8
+            while nbits >= 7:
+                chars.append(acc & 0x7F)
+                acc >>= 7
+                nbits -= 7
+        return "".join(chr(c) for c in chars).rstrip("\x00")
+    return None
 
 
 
@@ -1661,8 +1693,7 @@ class ESENT_DB:
 
                     #print "ID: %d, itemFlag: 0x%x" %( columnRecord['Identifier'], itemFlag)
                     if itemFlag & (TAGGED_DATA_TYPE_COMPRESSED ):
-                        LOG.error('Unsupported tag column: %s, flag:0x%x' % (column, itemFlag))
-                        record[column] = None
+                        record[column] = _ese_decompress_value(tag[offsetItem:][:itemSize])
                     elif itemFlag & TAGGED_DATA_TYPE_MULTI_VALUE:
                         # ToDo: Parse multi-values properly
                         LOG.debug('Multivalue detected in column %s, returning raw results' % (column))
@@ -1677,7 +1708,10 @@ class ESENT_DB:
 
             # If we understand the data type, we unpack it and cast it accordingly
             # otherwise, we just encode it in hex
-            if type(record[column]) is tuple:
+            if isinstance(record[column], str):
+                # Already decoded (a 7-bit-decompressed tagged column); leave as is.
+                pass
+            elif type(record[column]) is tuple:
                 # A multi value data, we won't decode it, just leave it this way
                 record[column] = record[column][0]
             elif columnRecord['ColumnType'] == JET_coltypText or columnRecord['ColumnType'] == JET_coltypLongText: 
