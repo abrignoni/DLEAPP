@@ -48,12 +48,47 @@ _SOURCE_COLUMN = re.compile(r'^source\s*(file|path)s?$', re.IGNORECASE)
 _USER_ROOT = re.compile(
     r'(^|/)\*?/?(Users|Library|AppData|Documents|Profiles|Accounts|\.config)(/|$)',
     re.IGNORECASE)
-# A path anchored at a system-wide location, which does not repeat per user.
-_SYSTEM_ROOT = re.compile(r'(^|/)(Windows|ProgramData|System32|PerfLogs)(/|$)',
-                          re.IGNORECASE)
+# Android exposes one app directory under several storage views (data/data,
+# data/user/<n>, data_mirror/...) and once per Android user, so a pattern naming
+# an app directory matches several real files even though it names one logical
+# store. The reverse-DNS segment is the tell, and the same shape names an app
+# container on iOS.
+_PACKAGE_SEGMENT = re.compile(r'^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z0-9_-]+)+$')
+_ANDROID_ROOT = re.compile(
+    r'(^|/)(data/data|data/user|data_mirror|shared_prefs|databases)(/|$)',
+    re.IGNORECASE)
+# A path anchored at a directory that exists once per machine. Flagging is
+# positive: unless the pattern is anchored at one of these, it is assumed it can
+# match more than one file and the column is left alone. That keeps the check
+# conservative, because a wrongly removed column costs per-row attribution while
+# a wrongly kept one costs only a repeated cell.
+_SYSTEM_ROOT = re.compile(
+    r'(^|/)(Windows|ProgramData|System32|PerfLogs'          # Windows
+    r'|system|misc|efs'                                     # Android /data/system, /data/misc, /efs
+    r'|private/var/db|var/db)(/|$)',                        # iOS and macOS
+    re.IGNORECASE)
 
 # module:artifact -> reason. Keep each entry keyed to the exact artifact and say why.
-ALLOWLIST = {}
+#
+# The ALEAPP entries below are artifacts whose own notes state that their path
+# pattern is tolerant, so a second copy of the system file elsewhere in an
+# extraction would contribute its rows again and the column names the file each
+# row came from. That is a deliberate design decision by the artifact's author,
+# documented in examiner-facing notes, so the column stays.
+_TOLERANT_SYSTEM_COPY = ('the artifact\'s notes state its path pattern is tolerant, so a '
+                         'second copy of this system file in an extraction adds its rows '
+                         'again and the column names the file each row came from')
+ALLOWLIST = {
+    'adbAuthorizations.py:adb_authorizations': _TOLERANT_SYSTEM_COPY,
+    'appOpsAccesses.py:appops_accesses': _TOLERANT_SYSTEM_COPY,
+    'installSessions.py:install_sessions': _TOLERANT_SYSTEM_COPY,
+    'packageDexUsage.py:package_dex_usage_app_code': _TOLERANT_SYSTEM_COPY,
+    'packageDexUsage.py:package_dex_usage_cross_package': _TOLERANT_SYSTEM_COPY,
+    'packageDexUsage.py:package_dex_usage_secondary': _TOLERANT_SYSTEM_COPY,
+    'packageDexUsageList.py:package_dex_usage_list_cross_package': _TOLERANT_SYSTEM_COPY,
+    'packageDexUsageList.py:package_dex_usage_list_secondary': _TOLERANT_SYSTEM_COPY,
+    'sRecoveryhist.py:get_sRecoveryhist': _TOLERANT_SYSTEM_COPY,
+}
 
 
 def _file_name(pattern):
@@ -71,6 +106,14 @@ def _can_match_several_files(patterns):
         if any('*' in segment for segment in body.split('/')[:-1]):
             return True
         if _USER_ROOT.search('/' + body) and not _SYSTEM_ROOT.search('/' + body):
+            return True
+        if not _SYSTEM_ROOT.search('/' + body):
+            # Not anchored at a once-per-machine directory, so assume it can match
+            # more than one file rather than risk removing real attribution.
+            return True
+        if _ANDROID_ROOT.search('/' + body):
+            return True
+        if any(_PACKAGE_SEGMENT.match(segment) for segment in body.split('/')[:-1]):
             return True
     return False
 
