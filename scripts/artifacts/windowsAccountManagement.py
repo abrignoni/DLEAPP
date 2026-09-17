@@ -54,7 +54,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-15",
         "requirements": "python-evtx",
         "category": "Windows",
-        "notes": "Read from Security.evtx, named in Source File. Reported are the "
+        "notes": "Read from Security.evtx, named in the report's located-at line. Reported are the "
                  "account-lifecycle events (creation, enabling, disabling, "
                  "change, deletion, lockout, unlock, and password change or "
                  "reset) and the security-group membership changes (a member "
@@ -114,7 +114,7 @@ def _member(data):
     return (data.get('MemberSid') or '').strip()
 
 
-def _account_row(xml_text, relative_source):
+def _account_row(xml_text):
     root = ElementTree.fromstring(xml_text)
     system = root.find('{*}System')
     if system is None:
@@ -137,15 +137,14 @@ def _account_row(xml_text, relative_source):
         _utc_from_iso(when), event_id, _ACCOUNT_EVENTS[event_id],
         data.get('TargetUserName', ''), data.get('TargetDomainName', ''),
         _member(data), data.get('SubjectUserName', ''),
-        computer.text if computer is not None and computer.text else '',
-        relative_source)
+        computer.text if computer is not None and computer.text else '')
 
 
 @artifact_processor
 def accountManagement(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Event',
                     'Target Account', 'Target Domain', 'Member', 'Performed By',
-                    'Computer', 'Source File')
+                    'Computer')
     data_list = []
     sources = []
     if evtx is None:
@@ -160,7 +159,7 @@ def accountManagement(context):
             with evtx.Evtx(source) as log:
                 for record in log.records():
                     try:
-                        row = _account_row(record.xml(), relative_source)
+                        row = _account_row(record.xml())
                     except ElementTree.ParseError:
                         continue
                     if row is not None:

@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-16",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from the SYSTEM hive, named in Source File. Each row is one "
+        "notes": "Read from the SYSTEM hive, named in the report's located-at line. Each row is one "
                  "AppCompatCache entry under a control set's Control\\Session "
                  "Manager\\AppCompatCache value; every ControlSet00N in the hive is "
                  "read. Only the Windows 10 and 11 \"10ts\" entry format is parsed; "
@@ -142,8 +142,7 @@ def _entries(reg, relative_source):
 
 @artifact_processor
 def appCompatCache(context):
-    data_headers = (('File Modified (UTC)', 'datetime'), 'Path', 'Cache Position',
-                    'Source File')
+    data_headers = (('File Modified (UTC)', 'datetime'), 'Path', 'Cache Position')
     data_list = []
     sources = []
     if Registry is None:
@@ -157,8 +156,7 @@ def appCompatCache(context):
         try:
             reg = Registry.Registry(source)
             for position, path, filetime in _entries(reg, relative_source):
-                data_list.append((_filetime_datetime(filetime), path, position,
-                                  relative_source))
+                data_list.append((_filetime_datetime(filetime), path, position))
                 rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'AppCompatCache: could not read {relative_source}: {exc}')

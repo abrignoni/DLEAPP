@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-15",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in Source File. Each row is one "
+        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one "
                  "InventoryApplicationFile entry. File Path is LowerCaseLongPath "
                  "as stored (lowercased by Windows). SHA-1 is the FileId value "
                  "with its leading four zeroes removed; FileId is the file's "
@@ -96,7 +96,7 @@ def _inventory_key(hive_path):
 def amcacheApplicationFiles(context):
     data_headers = (('Key Last Write (UTC)', 'datetime'), 'File Path', 'SHA-1',
                     'Name', 'Publisher', 'Product Name', 'Version', 'Size (bytes)',
-                    'Link Date', 'Program ID', 'Source File')
+                    'Link Date', 'Program ID')
     data_list = []
     sources = []
     if Registry is None:
@@ -126,8 +126,7 @@ def amcacheApplicationFiles(context):
                     _value(entry, 'Version') or '',
                     '' if size is None else size,
                     _value(entry, 'LinkDate') or '',
-                    _value(entry, 'ProgramId') or '',
-                    relative_source))
+                    _value(entry, 'ProgramId') or ''))
                 rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Amcache: could not read {relative_source}: {exc}')

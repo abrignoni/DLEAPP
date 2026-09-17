@@ -59,7 +59,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-17",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from the SAM hive, named in Source File. One row per "
+        "notes": "Read from the SAM hive, named in the report's located-at line. One row per "
                  "local account under SAM\\Domains\\Account\\Users. RID is the "
                  "account's relative identifier, taken from its registry subkey "
                  "name (hexadecimal) as a decimal number; the built-in accounts "
@@ -221,7 +221,7 @@ def samLocalAccounts(context):
                     ('Last Password Change (UTC)', 'datetime'),
                     ('Last Incorrect Password (UTC)', 'datetime'),
                     ('Account Expires (UTC)', 'datetime'),
-                    'Login Count', 'Failed Login Count', 'Source File')
+                    'Login Count', 'Failed Login Count')
     data_list = []
     sources = []
     if Registry is None:
@@ -237,7 +237,7 @@ def samLocalAccounts(context):
             for rid, username, fullname, comment, ff in _iter_accounts(reg):
                 if ff is None:
                     data_list.append((username, rid, fullname, comment, '',
-                                      '', '', '', '', '', '', relative_source))
+                                      '', '', '', '', '', ''))
                 else:
                     data_list.append((
                         username, rid, fullname, comment, _decode_acb(ff['acb']),
@@ -245,7 +245,7 @@ def samLocalAccounts(context):
                         _filetime_datetime(ff['pwd_last_set']),
                         _filetime_datetime(ff['pwd_fail']),
                         _filetime_datetime(ff['acct_expires']),
-                        ff['login_count'], ff['failed_count'], relative_source))
+                        ff['login_count'], ff['failed_count']))
                 rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'SAM local accounts: could not read {relative_source}: {exc}')

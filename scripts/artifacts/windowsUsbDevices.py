@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the current control set's Enum\\USBSTOR key in the "
-                 "SYSTEM hive, named in Source File, one row per device instance. "
+                 "SYSTEM hive, named in the report's located-at line, one row per device instance. "
                  "Vendor, Product and Revision are parsed from the model key name "
                  "(Disk&Ven_x&Prod_y&Rev_z), with underscores shown as spaces. "
                  "Serial is the instance sub-key name as stored; a device that "
@@ -131,7 +131,7 @@ def usbDevices(context):
     data_headers = ('Friendly Name', 'Vendor', 'Product', 'Revision', 'Serial',
                     ('First Install (UTC)', 'datetime'),
                     ('Last Connected (UTC)', 'datetime'),
-                    ('Last Removed (UTC)', 'datetime'), 'Source File')
+                    ('Last Removed (UTC)', 'datetime'))
     data_list = []
     sources = []
     if Registry is None:
@@ -157,8 +157,7 @@ def usbDevices(context):
                     instance.name(),
                     _property_filetime(instance, _FIRST_INSTALL),
                     _property_filetime(instance, _LAST_ARRIVAL),
-                    _property_filetime(instance, _LAST_REMOVAL),
-                    relative_source))
+                    _property_filetime(instance, _LAST_REMOVAL)))
                 rows_here += 1
         if rows_here:
             sources.append(source)

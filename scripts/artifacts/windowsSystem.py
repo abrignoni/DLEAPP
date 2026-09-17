@@ -534,7 +534,7 @@ def _setup_device(header):
     return match.group(1).strip() if match else ""
 
 
-def _parse_setup_sections(text, source):
+def _parse_setup_sections(text):
     rows = []
     for section in _SETUP_SECTION.finditer(text):
         start_match = _SETUP_START.search(section.group("body"))
@@ -557,7 +557,6 @@ def _parse_setup_sections(text, source):
             _setup_device(header),
             status_match.group(1).strip() if status_match else "",
             duration,
-            source,
         ))
     return rows
 
@@ -571,7 +570,6 @@ def setupapiSections(context):
         "Device Instance ID",
         "Exit Status",
         "Duration (seconds)",
-        "Source File",
     )
     rows = []
     sources = []
@@ -585,7 +583,5 @@ def setupapiSections(context):
             logfunc(f"SetupAPI Sections: could not read '{file_found}': {exception}")
             continue
         sources.append(file_found)
-        rows.extend(_parse_setup_sections(
-            text, context.get_relative_path(file_found)
-        ))
+        rows.extend(_parse_setup_sections(text))
     return data_headers, rows, "\n".join(sources)
