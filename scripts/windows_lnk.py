@@ -13,6 +13,11 @@ shell path rebuilt from the target id list), target size, the volume the target
 lived on (drive type, serial, label), command-line arguments, and the machine id
 the shell link recorded when it was written. It is also used by the Jump Lists
 parser, whose destination streams are themselves shell links.
+
+`parse_destlist(data)` parses an automatic jump list's DestList stream (libyal
+dtformats "Jump lists format"). It returns the DestList entries in the order the
+stream stores them, each with its entry number (which names the numbered shell-
+link stream), the recorded FILETIME, the pin status and the host name.
 """
 
 import struct
@@ -225,3 +230,59 @@ def target_path(parsed):
     """The best available target locator: local path, else network path, else
     the shell path rebuilt from the target id list."""
     return parsed.get("local_path") or parsed.get("network_path") or parsed.get("shell_path") or ""
+
+
+# DestList entry layout, per libyal dtformats "Jump lists format", which
+# documents version 1 (Windows 7) and version 2 or later (versions 3 and 4,
+# Windows 10). The fields read here sit at the same offsets in both: host name
+# at 72, entry number at 88, last-recorded FILETIME at 100, pin status at 108.
+# Only the fixed size before the variable-length path, the path-size offset and
+# the trailing padding differ between the two. Any version of 2 or higher is
+# read with the later layout; a Windows 11 22H2 test image stored version 6 and
+# parsed correctly that way (every entry landed exactly at the next entry, and
+# the entry numbers resolved to real numbered streams).
+_DESTLIST_LAYOUT = {
+    1: {"fixed": 114, "path_size_off": 112, "trailing": 0},
+    2: {"fixed": 130, "path_size_off": 128, "trailing": 4},
+}
+
+
+def parse_destlist(data):
+    """Parse a DestList stream. Returns a list of entry dicts in the stream's
+    stored order (each: entry_number, position, entry_time, pinned, hostname,
+    path). Returns [] for a stream too short or an unrecognised version, and
+    stops at the first entry that would read past the end of the stream. Never
+    raises on ordinary bad input."""
+    entries = []
+    if len(data) < 32:
+        return entries
+    try:
+        version = struct.unpack_from("<I", data, 0)[0]
+    except struct.error:
+        return entries
+    layout = _DESTLIST_LAYOUT.get(version if version < 2 else 2)
+    if layout is None:
+        return entries
+    fixed, path_size_off, trailing = layout["fixed"], layout["path_size_off"], layout["trailing"]
+    off = 32
+    while off + fixed <= len(data):
+        hostname = data[off + 72:off + 88].split(b"\x00")[0].decode("ascii", "replace")
+        entry_number = struct.unpack_from("<I", data, off + 88)[0]
+        entry_time = _filetime(struct.unpack_from("<Q", data, off + 100)[0])
+        pin_status = struct.unpack_from("<i", data, off + 108)[0]
+        path_size = struct.unpack_from("<H", data, off + path_size_off)[0]
+        path_start = off + fixed
+        path_end = path_start + path_size * 2
+        if path_end > len(data):
+            break
+        path = data[path_start:path_end].decode("utf-16-le", "replace")
+        entries.append({
+            "entry_number": entry_number,
+            "position": len(entries) + 1,
+            "entry_time": entry_time,
+            "pinned": pin_status >= 0,
+            "hostname": hostname,
+            "path": path,
+        })
+        off = path_end + trailing
+    return entries
