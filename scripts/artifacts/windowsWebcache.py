@@ -56,8 +56,10 @@ __artifacts_v2__ = {
                  "Access Count is the entry's AccessCount as stored. Container is the "
                  "container Name. An entry records that the URL or file was accessed "
                  "through these components, not who was at the keyboard. Any record the "
-                 "ESE reader cannot parse is skipped and counted in the run log; the "
-                 ".jfm and .log transaction logs beside "
+                 "ESE reader cannot parse is skipped and counted in the run log. A "
+                 "WebCacheV01.dat with no Containers table gives this artifact no "
+                 "container index, so it yields no rows for that file and the file is "
+                 "named in the run log. The .jfm and .log transaction logs beside "
                  "WebCacheV01.dat are not replayed. Format: libyal esedb-kb, MSIE web "
                  "cache, https://github.com/libyal/esedb-kb/blob/main/documentation/"
                  "MSIE%20web%20cache.asciidoc",
@@ -94,8 +96,10 @@ __artifacts_v2__ = {
                  "Directory, which names the application whose cache the entry "
                  "belongs to. An entry records that the resource was fetched and "
                  "cached, not that a person deliberately requested it. Any record the "
-                 "ESE reader cannot parse is skipped and counted in the run log; the "
-                 ".jfm and .log transaction logs beside "
+                 "ESE reader cannot parse is skipped and counted in the run log. A "
+                 "WebCacheV01.dat with no Containers table gives this artifact no "
+                 "container index, so it yields no rows for that file and the file is "
+                 "named in the run log. The .jfm and .log transaction logs beside "
                  "WebCacheV01.dat are not replayed. Format: libyal esedb-kb, MSIE web "
                  "cache, https://github.com/libyal/esedb-kb/blob/main/documentation/"
                  "MSIE%20web%20cache.asciidoc",
@@ -215,11 +219,21 @@ def _run(context, headers, select, row_builder, label):
                 database.mountDB()
                 table_names = _table_names(database)
                 rows = []
-                for container_id, name, directory in _containers(database):
-                    if not select(name):
-                        continue
-                    _read_container(database, table_names, container_id, name,
-                                    directory, row_builder, rows, label)
+                if _CONTAINERS not in table_names:
+                    # A WebCacheV01.dat that never populated (for example the
+                    # SYSTEM account's store on a device nobody browsed with)
+                    # carries the ESE system tables but no Containers table, so
+                    # openTable would return None and there are no history or
+                    # content containers to enumerate.
+                    logfunc(f"{label}: {relative_source} has no Containers "
+                            "table, so it holds no WebCache history or content")
+                else:
+                    for container_id, name, directory in _containers(database):
+                        if not select(name):
+                            continue
+                        _read_container(database, table_names, container_id,
+                                        name, directory, row_builder, rows,
+                                        label)
                 for row in rows:
                     data_list.append(row + (relative_source,))
                     rows_here += 1
