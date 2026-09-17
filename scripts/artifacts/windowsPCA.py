@@ -124,7 +124,7 @@ def _utc_from_pca(value):
 
 @artifact_processor
 def pcaAppLaunch(context):
-    data_headers = (('Last Executed (UTC)', 'datetime'), 'Executable Path', 'Source File')
+    data_headers = (('Last Executed (UTC)', 'datetime'), 'Executable Path')
     data_list = []
     sources = []
     for source in [str(f) for f in context.get_files_found()
@@ -137,7 +137,7 @@ def pcaAppLaunch(context):
                 if len(parts) != 2:
                     continue
                 path, ts = parts
-                data_list.append((_utc_from_pca(ts), path.strip(), relative_source))
+                data_list.append((_utc_from_pca(ts), path.strip()))
                 rows_here += 1
         except OSError as exc:
             logfunc(f'PCA App Launch: could not read {relative_source}: {exc}')

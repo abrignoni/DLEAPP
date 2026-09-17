@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "category": "Windows",
         "notes": "Rows from the SystemIndex_<n>_PropertyStore table in Windows.db, the "
                  "Windows 11 (22H2 and later) Windows Search index, read from the file "
-                 "named in Source File and opened read only. Windows.db keeps each "
+                 "named in the report's located-at line and opened read only. Windows.db keeps each "
                  "indexed item's properties as (WorkId, ColumnId, Value) rows; the "
                  "SystemIndex_<n>_PropertyStore_Metadata table maps each ColumnId to "
                  "its System.* property name, and this artifact pivots the rows back "
@@ -187,7 +187,7 @@ def windowsSearchDb(context):
                     ('Date Created (UTC)', 'datetime'),
                     ('Date Accessed (UTC)', 'datetime'),
                     'Item Name', 'Item Path', 'Item URL', 'Type', 'Kind',
-                    'Size (bytes)', 'Work ID', 'Source File')
+                    'Size (bytes)', 'Work ID')
     data_list = []
     sources = []
     for source in [str(f) for f in context.get_files_found()
@@ -199,7 +199,7 @@ def windowsSearchDb(context):
             logfunc(f'Windows Search (Windows.db): could not read {relative_source}: {exc}')
             continue
         for row in rows:
-            data_list.append(row + (relative_source,))
+            data_list.append(row)
         if rows:
             sources.append(source)
     return data_headers, data_list, "\n".join(sources)

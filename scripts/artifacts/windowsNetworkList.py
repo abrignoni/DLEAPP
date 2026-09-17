@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the NetworkList keys in the SOFTWARE hive, named in "
-                 "Source File, one row per network profile. Network Name is the "
+                 "the report's located-at line, one row per network profile. Network Name is the "
                  "profile's ProfileName. Category is the profile's Category value "
                  "mapped through the NLM_NETWORK_CATEGORY vocabulary (0 Public, 1 "
                  "Private, 2 Domain) and shown with the stored number; a value "
@@ -122,7 +122,7 @@ def _signatures(reg):
 @artifact_processor
 def networkList(context):
     data_headers = ('Network Name', 'Category', 'Date Created', 'Date Last Connected',
-                    'Default Gateway MAC', 'DNS Suffix', 'Managed', 'Source File')
+                    'Default Gateway MAC', 'DNS Suffix', 'Managed')
     data_list = []
     sources = []
     if Registry is None:
@@ -148,7 +148,7 @@ def networkList(context):
                 _category(_value(profile, 'Category')),
                 _systemtime(_value_bytes(profile, 'DateCreated')),
                 _systemtime(_value_bytes(profile, 'DateLastConnected')),
-                mac, dns, managed, relative_source))
+                mac, dns, managed))
             rows_here += 1
         if rows_here:
             sources.append(source)

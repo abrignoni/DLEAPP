@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-15",
         "requirements": "python-evtx",
         "category": "Windows",
-        "notes": "Read from System.evtx, named in Source File. Each row is a "
+        "notes": "Read from System.evtx, named in the report's located-at line. Each row is a "
                  "Service Control Manager event 7045, which Microsoft records as "
                  "a service being installed in the system; only that provider and "
                  "Event ID are read, because an Event ID means different things "
@@ -88,7 +88,7 @@ def _utc_from_iso(value):
         return ''
 
 
-def _service_row(xml_text, relative_source):
+def _service_row(xml_text):
     root = ElementTree.fromstring(xml_text)
     system = root.find('{*}System')
     if system is None:
@@ -112,14 +112,13 @@ def _service_row(xml_text, relative_source):
         _utc_from_iso(when), data.get('ServiceName', ''), data.get('ImagePath', ''),
         data.get('ServiceType', ''), data.get('StartType', ''),
         data.get('AccountName', ''),
-        computer.text if computer is not None and computer.text else '',
-        relative_source)
+        computer.text if computer is not None and computer.text else '')
 
 
 @artifact_processor
 def serviceInstalls(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Service Name', 'Image Path',
-                    'Service Type', 'Start Type', 'Account', 'Computer', 'Source File')
+                    'Service Type', 'Start Type', 'Account', 'Computer')
     data_list = []
     sources = []
     if evtx is None:
@@ -134,7 +133,7 @@ def serviceInstalls(context):
             with evtx.Evtx(source) as log:
                 for record in log.records():
                     try:
-                        row = _service_row(record.xml(), relative_source)
+                        row = _service_row(record.xml())
                     except ElementTree.ParseError:
                         continue
                     if row is not None:

@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-15",
         "requirements": "python-evtx",
         "category": "Windows",
-        "notes": "Read from System.evtx, named in Source File. Each row is one "
+        "notes": "Read from System.evtx, named in the report's located-at line. Each row is one "
                  "power event, matched on both its provider and Event ID because "
                  "an Event ID means different things for different providers: "
                  "EventLog 6005 (service started, a proxy for boot), 6006 "
@@ -116,7 +116,7 @@ def _shutdown_detail(event_data):
     return '; '.join(parts)
 
 
-def _power_row(xml_text, relative_source):
+def _power_row(xml_text):
     root = ElementTree.fromstring(xml_text)
     system = root.find('{*}System')
     if system is None:
@@ -134,14 +134,13 @@ def _power_row(xml_text, relative_source):
     detail = _shutdown_detail(root.find('{*}EventData')) if event_id == '1074' else ''
     return (
         _utc_from_iso(when), meaning, provider_name, event_id, detail,
-        computer.text if computer is not None and computer.text else '',
-        relative_source)
+        computer.text if computer is not None and computer.text else '')
 
 
 @artifact_processor
 def systemPowerEvents(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Event', 'Provider',
-                    'Event ID', 'Detail', 'Computer', 'Source File')
+                    'Event ID', 'Detail', 'Computer')
     data_list = []
     sources = []
     if evtx is None:
@@ -156,7 +155,7 @@ def systemPowerEvents(context):
             with evtx.Evtx(source) as log:
                 for record in log.records():
                     try:
-                        row = _power_row(record.xml(), relative_source)
+                        row = _power_row(record.xml())
                     except ElementTree.ParseError:
                         continue
                     if row is not None:

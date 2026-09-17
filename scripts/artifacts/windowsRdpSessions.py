@@ -99,7 +99,7 @@ def _user_data_field(inner, name):
     return element.text if element is not None and element.text else ''
 
 
-def _session_row(xml_text, relative_source):
+def _session_row(xml_text):
     root = ElementTree.fromstring(xml_text)
     system = root.find('{*}System')
     if system is None:
@@ -117,14 +117,13 @@ def _session_row(xml_text, relative_source):
         _utc_from_iso(when), event_id, _SESSION_EVENTS[event_id],
         _user_data_field(inner, 'User'), _user_data_field(inner, 'SessionID'),
         _user_data_field(inner, 'Address'),
-        computer.text if computer is not None and computer.text else '',
-        relative_source)
+        computer.text if computer is not None and computer.text else '')
 
 
 @artifact_processor
 def rdpSessions(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Event', 'User',
-                    'Session ID', 'Address', 'Computer', 'Source File')
+                    'Session ID', 'Address', 'Computer')
     data_list = []
     sources = []
     if evtx is None:
@@ -139,7 +138,7 @@ def rdpSessions(context):
             with evtx.Evtx(source) as log:
                 for record in log.records():
                     try:
-                        row = _session_row(record.xml(), relative_source)
+                        row = _session_row(record.xml())
                     except ElementTree.ParseError:
                         continue
                     if row is not None:

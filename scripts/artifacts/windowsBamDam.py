@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-16",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from the SYSTEM hive, named in Source File. Each row is one "
+        "notes": "Read from the SYSTEM hive, named in the report's located-at line. Each row is one "
                  "executable entry under a control set's Services\\bam or "
                  "Services\\dam, State\\UserSettings\\<SID> on Windows 10 1809 and "
                  "later or UserSettings\\<SID> before it. Every ControlSet00N in the "
@@ -113,7 +113,7 @@ def _iter_entries(reg):
 @artifact_processor
 def backgroundActivityModerator(context):
     data_headers = (('Last Execution (UTC)', 'datetime'), 'Executable', 'User SID',
-                    'Service', 'Source File')
+                    'Service')
     data_list = []
     sources = []
     if Registry is None:
@@ -128,7 +128,7 @@ def backgroundActivityModerator(context):
             reg = Registry.Registry(source)
             for executable, blob, sid, service in _iter_entries(reg):
                 data_list.append((_filetime_datetime(blob), executable, sid,
-                                  service, relative_source))
+                                  service))
                 rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'BAM/DAM: could not read {relative_source}: {exc}')

@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-15",
         "requirements": "python-evtx",
         "category": "Windows",
-        "notes": "Read from Security.evtx, named in Source File. Only the logon "
+        "notes": "Read from Security.evtx, named in the report's located-at line. Only the logon "
                  "family of events is reported: 4624 and 4625 (a logon that "
                  "succeeded or failed), 4634 and 4647 (a logoff), and 4648 (a "
                  "logon attempted with explicit credentials); the Event column "
@@ -147,7 +147,7 @@ def _event_rows(xml_text):
 def securityLogons(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Event',
                     'Account Name', 'Account Domain', 'Logon Type', 'Source IP',
-                    'Workstation', 'Logon Process', 'Computer', 'Source File')
+                    'Workstation', 'Logon Process', 'Computer')
     data_list = []
     sources = []
     if evtx is None:
@@ -166,7 +166,7 @@ def securityLogons(context):
                     except ElementTree.ParseError:
                         continue
                     if row is not None:
-                        data_list.append(row + (relative_source,))
+                        data_list.append(row)
                         rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows Security Logons: could not read {relative_source}: {exc}')

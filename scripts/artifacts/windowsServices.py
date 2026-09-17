@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows are the direct subkeys of the current control set's "
-                 "Services key in the SYSTEM hive, named in Source File, one row "
+                 "Services key in the SYSTEM hive, named in the report's located-at line, one row "
                  "per service or driver. The current control set is resolved from "
                  "Select\\Current (ControlSet00N), falling back to ControlSet001. "
                  "This is the service configuration recorded in the registry at "
@@ -160,7 +160,7 @@ def _service_type(value):
 @artifact_processor
 def windowsServices(context):
     data_headers = ('Service', 'Display Name', 'Description', 'Image Path',
-                    'Start', 'Service Type', 'Run As', 'Source File')
+                    'Start', 'Service Type', 'Run As')
     data_list = []
     sources = []
     if Registry is None:
@@ -186,8 +186,7 @@ def windowsServices(context):
                 _text(_value(service, 'ImagePath')),
                 _start_type(_value(service, 'Start')),
                 _service_type(_value(service, 'Type')),
-                _text(_value(service, 'ObjectName')),
-                relative_source))
+                _text(_value(service, 'ObjectName'))))
             rows_here += 1
         if rows_here:
             sources.append(source)
