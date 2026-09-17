@@ -65,10 +65,13 @@ __artifacts_v2__ = {
                  "Correlated Path and Correlated Name are the item's path and name "
                  "from the Windows Search index, joined on the index's "
                  "System_ThumbnailCacheId matching this entry's id; they are blank "
-                 "when the search index did not index the item (many cached "
-                 "thumbnails, in particular user interface icons, are for items the "
-                 "index does not cover, so on a system with few indexed user files "
-                 "most image entries carry no name). The search index is read from "
+                 "when the search index did not index the item. How many image "
+                 "entries carry a name depends on how much of the user's own content "
+                 "the search index covered: on a system with few indexed user files "
+                 "most image thumbnails are user interface icons the index does not "
+                 "cover and carry no name, while on a system whose user kept indexed "
+                 "photos and documents a majority of the image thumbnails resolve to "
+                 "a name. The search index is read from "
                  "Windows.edb (Windows 10 and earlier, with the vendored ESE reader) "
                  "or Windows.db (Windows 11, SQLite, read only) when present beside "
                  "the thumbnail caches. A cached thumbnail records that Explorer "
@@ -87,6 +90,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 142 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 144 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 52 rows",
         },
     },
 }
