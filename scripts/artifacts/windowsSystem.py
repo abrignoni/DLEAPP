@@ -30,17 +30,27 @@ __artifacts_v2__ = {
                        "fields, and preserved payload content.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Windows System",
         "notes": "Modernized from WLEAPP. Timestamps are interpreted as Unix "
-                 "seconds in UTC. Payloads that are not JSON remain visible.",
+                 "seconds in UTC. Payloads that are not JSON remain visible. "
+                 "The Activity table's columns differ between Windows builds: "
+                 "the Read column (IsRead) is absent from the table on the "
+                 "tested build 16299 image and is reported blank there, and is "
+                 "present on the tested build 17763 and 22621 images. The schema "
+                 "is probed and any absent column is reported blank rather than "
+                 "failing the read.",
         "paths": (
             "*/AppData/Local/ConnectedDevicesPlatform/*/ActivitiesCache.db*",
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "activity",
         "sample_data": {
+            "lonewolf_win10": "Windows 10 1709 (build 16299) | 0 rows "
+                              "(Activity table empty on this image)",
+            "af_case2_win10": "Windows 10 1809 (build 17763) | 76 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 (build 22621) | 344 rows",
             "windows11_arm_parallels": "Windows build 26200 | 5 rows",
         },
     },
@@ -51,26 +61,30 @@ __artifacts_v2__ = {
                        "text, and the preserved payload.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-17",
         "requirements": "beautifulsoup4",
         "category": "Windows System",
         "notes": "Modernized from WLEAPP. Arrival and expiry values use the "
                  "Windows FILETIME epoch and are reported in UTC. Boot ID is "
                  "reported as stored because its encoding is not documented. The "
-                 "Boot ID and Expires on Reboot columns are absent from the "
-                 "Notification table on the tested Windows 10 1809 image and are "
-                 "reported blank there; both are present on the tested Windows 11 "
-                 "22H2 image, and the build where they first appear was not "
-                 "established.",
+                 "Notification table's columns differ between Windows builds: "
+                 "Payload Type (PayloadType) is absent on the tested build 16299 "
+                 "image and present on the tested build 17763 and 22621 images; "
+                 "Boot ID (BootId) and Expires on Reboot (ExpiresOnReboot) are "
+                 "absent on the tested build 16299 and 17763 images and present "
+                 "on the tested build 22621 image. The schema is probed and any "
+                 "absent column is reported blank rather than failing the read; "
+                 "the build where each column first appears was not established.",
         "paths": (
             "*/AppData/Local/Microsoft/Windows/Notifications/wpndatabase.db*",
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "bell",
         "sample_data": {
-            "windows11_arm_parallels": "Windows build 26200 | 3 rows",
+            "lonewolf_win10": "Windows 10 1709 (build 16299) | 34 rows",
             "af_case2_win10": "Windows 10 1809 (build 17763) | 8 rows",
             "pc_mus_001_win11": "Windows 11 22H2 (build 22621) | 19 rows",
+            "windows11_arm_parallels": "Windows build 26200 | 3 rows",
         },
     },
     "windowsStickyNotes": {
@@ -194,6 +208,35 @@ def _decode_text(value):
     return str(value)
 
 
+def _table_columns(database, table):
+    """Column names present in `table`, lowercased.
+
+    Windows changes these schemas between builds, so a fixed SELECT fails with
+    "no such column" on a build that lacks one. PRAGMA table_info returns an
+    empty result for a table that is not present, which yields an empty set
+    here; the query then fails on the missing FROM table and is caught and
+    logged like any other read error.
+    """
+    return {
+        row[1].lower()
+        for row in database.execute(
+            f'PRAGMA table_info("{table}")').fetchall()
+    }
+
+
+def _column_or_null(present, column, alias=None):
+    """A SELECT term for a column that may be absent across Windows builds.
+
+    When the column is present it is selected (qualified by `alias` for a join);
+    when it is absent it is emitted as `NULL AS <column>` so the whole query
+    still runs and the positional record layout the caller unpacks stays fixed.
+    `column` may be a quoted identifier such as '"Group"'.
+    """
+    if column.replace('"', '').lower() in present:
+        return f"{alias}.{column}" if alias else column
+    return f"NULL AS {column}"
+
+
 def _application_ids(raw_app_id):
     text = _decode_text(raw_app_id)
     try:
@@ -268,15 +311,21 @@ def activitiesCache(context):
         if database is None:
             continue
         try:
+            # The Activity schema differs between Windows builds (IsRead is
+            # absent on the tested build 16299 image and present on the newer
+            # tested builds), so probe the table and substitute NULL for any
+            # absent column rather than letting the whole query fail.
+            columns = _table_columns(database, "Activity")
+            select_list = ", ".join(
+                _column_or_null(columns, name) for name in (
+                    "StartTime", "EndTime", "LastModifiedTime", "ExpirationTime",
+                    "LastModifiedOnClient", "AppActivityId", "AppId", "Payload",
+                    "ActivityType", "ActivityStatus", "Tag", '"Group"',
+                    "IsLocalOnly", "IsRead",
+                )
+            )
             records = database.execute(
-                """
-                SELECT StartTime, EndTime, LastModifiedTime, ExpirationTime,
-                       LastModifiedOnClient, AppActivityId, AppId, Payload,
-                       ActivityType, ActivityStatus, Tag, "Group", IsLocalOnly,
-                       IsRead
-                  FROM Activity
-                 ORDER BY StartTime DESC
-                """
+                f"SELECT {select_list} FROM Activity ORDER BY StartTime DESC"
             ).fetchall()
         except Exception as exception:  # pylint: disable=broad-exception-caught
             logfunc(f"ActivitiesCache: could not read '{file_found}': {exception}")
@@ -355,30 +404,37 @@ def windowsNotifications(context):
         if database is None:
             continue
         try:
-            # BootId and ExpiresOnReboot are absent from the Notification table on
-            # older Windows 10 builds (observed missing on 1809, present on
-            # Windows 11), so probe the schema and substitute NULL where a column
-            # is not present rather than letting the whole query fail.
-            notification_columns = {
-                row[1].lower() for row in database.execute(
-                    "PRAGMA table_info('Notification')").fetchall()
-            }
-            boot_id = ("n.BootId" if "bootid" in notification_columns
-                       else "NULL AS BootId")
-            expires_on_reboot = ("n.ExpiresOnReboot"
-                                 if "expiresonreboot" in notification_columns
-                                 else "NULL AS ExpiresOnReboot")
+            # The Notification table's columns differ between Windows builds:
+            # BootId and ExpiresOnReboot are absent on the tested 16299 and
+            # 17763 images, and PayloadType is absent on the tested 16299 image.
+            # Probe both tables and substitute NULL for any absent column rather
+            # than letting the whole query fail. The positional record layout
+            # unpacked below stays fixed.
+            notification = _table_columns(database, "Notification")
+            handler = _table_columns(database, "NotificationHandler")
+            select_list = ", ".join((
+                _column_or_null(notification, "ArrivalTime", "n"),
+                _column_or_null(notification, "ExpiryTime", "n"),
+                _column_or_null(handler, "CreatedTime", "h"),
+                _column_or_null(handler, "ModifiedTime", "h"),
+                _column_or_null(notification, "BootId", "n"),
+                _column_or_null(notification, "Id", "n"),
+                _column_or_null(notification, "HandlerId", "n"),
+                _column_or_null(handler, "PrimaryId", "h"),
+                _column_or_null(handler, "HandlerType", "h"),
+                _column_or_null(notification, "Type", "n"),
+                _column_or_null(notification, "PayloadType", "n"),
+                _column_or_null(notification, "Payload", "n"),
+                _column_or_null(notification, "Tag", "n"),
+                _column_or_null(notification, '"Group"', "n"),
+                _column_or_null(notification, "ExpiresOnReboot", "n"),
+            ))
             records = database.execute(
-                f"""
-                SELECT n.ArrivalTime, n.ExpiryTime, h.CreatedTime,
-                       h.ModifiedTime, {boot_id}, n.Id, n.HandlerId,
-                       h.PrimaryId, h.HandlerType, n.Type, n.PayloadType,
-                       n.Payload, n.Tag, n."Group", {expires_on_reboot}
-                  FROM Notification AS n
-                  LEFT JOIN NotificationHandler AS h
-                    ON h.RecordId = n.HandlerId
-                 ORDER BY n.ArrivalTime DESC
-                """
+                f"SELECT {select_list} "
+                "FROM Notification AS n "
+                "LEFT JOIN NotificationHandler AS h "
+                "ON h.RecordId = n.HandlerId "
+                "ORDER BY n.ArrivalTime DESC"
             ).fetchall()
         except Exception as exception:  # pylint: disable=broad-exception-caught
             logfunc(f"Notifications: could not read '{file_found}': {exception}")
