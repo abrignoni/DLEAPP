@@ -77,6 +77,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2242 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 57 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 2471 rows",
         },
     },
     "srumApplicationResourceUsage": {
@@ -118,6 +119,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 14667 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 1458 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 15055 rows",
         },
     },
     "srumNetworkConnections": {
@@ -158,6 +160,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 224 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 10 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 201 rows",
         },
     },
     "srumExecutionStats": {
@@ -202,6 +205,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 19708 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 2777 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 12332 rows",
         },
     },
 }

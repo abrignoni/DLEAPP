@@ -65,6 +65,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 527 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 184 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 160 rows",
         },
     },
     "prefetchFilesLoaded": {
@@ -102,6 +103,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 55454 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 14460 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 19582 rows",
         },
     },
 }

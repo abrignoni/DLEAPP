@@ -95,6 +95,7 @@ __artifacts_v2__ = {
         "artifact_icon": "search",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 587 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 822 rows",
         },
     },
 }

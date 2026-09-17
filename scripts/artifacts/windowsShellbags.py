@@ -86,6 +86,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 41 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 20 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 29 rows",
         },
     },
 }
