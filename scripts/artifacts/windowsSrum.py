@@ -66,7 +66,10 @@ __artifacts_v2__ = {
                  "account SID; either is blank when the entry's id is 0 or absent "
                  "from the map. SRUM aggregates usage into periodic snapshots, so a "
                  "row is a recorded total for a snapshot and not a single user "
-                 "action, and it does not record who was at the keyboard. The .jfm "
+                 "action, and it does not record who was at the keyboard. A "
+                 "SRUDB.dat that does not carry this provider table gives this "
+                 "artifact no rows for that file, and the file is named in the "
+                 "run log. The .jfm "
                  "and .log transaction logs beside SRUDB.dat are not replayed. GUID "
                  "names: Velocidex, Windows.Forensics.SRUM, https://github.com/"
                  "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
@@ -109,8 +112,10 @@ __artifacts_v2__ = {
                  "blank when the entry's id is 0 or absent from the map. SRUM "
                  "aggregates usage into periodic snapshots, so a row is a recorded "
                  "total for a snapshot and not a single user action, and it does not "
-                 "record who was at the keyboard. The .jfm and .log transaction logs "
-                 "beside SRUDB.dat are not replayed. GUID names: Velocidex, "
+                 "record who was at the keyboard. A SRUDB.dat that does not carry "
+                 "this provider table gives this artifact no rows for that file, and "
+                 "the file is named in the run log. The .jfm and .log transaction "
+                 "logs beside SRUDB.dat are not replayed. GUID names: Velocidex, "
                  "Windows.Forensics.SRUM, https://github.com/Velocidex/velociraptor/"
                  "blob/master/artifacts/definitions/Windows/Forensics/SRUM.yaml",
         "paths": ("*/Windows/System32/sru/SRUDB.dat",),
@@ -149,7 +154,10 @@ __artifacts_v2__ = {
                  "same period as the Connect Start Time FILETIME. SRUM aggregates "
                  "usage into periodic snapshots, so "
                  "a row is a recorded total for a snapshot and not a single user "
-                 "action, and it does not record who was at the keyboard. The .jfm "
+                 "action, and it does not record who was at the keyboard. A "
+                 "SRUDB.dat that does not carry this provider table gives this "
+                 "artifact no rows for that file, and the file is named in the "
+                 "run log. The .jfm "
                  "and .log transaction logs beside SRUDB.dat are not replayed. GUID "
                  "names: Velocidex, Windows.Forensics.SRUM, https://github.com/"
                  "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
@@ -195,8 +203,11 @@ __artifacts_v2__ = {
                  "is 0 or absent from the map. SRUM aggregates usage into periodic "
                  "snapshots, so a row is a recorded total for a snapshot and not a "
                  "single user action, and it does not record who was at the "
-                 "keyboard. The .jfm and .log transaction logs beside SRUDB.dat are "
-                 "not replayed. GUID names: Velocidex, Windows.Forensics.SRUM, "
+                 "keyboard. A SRUDB.dat that does not carry this provider table "
+                 "gives this artifact no rows for that file, and the file is named "
+                 "in the run log. The .jfm and .log transaction logs beside "
+                 "SRUDB.dat are not replayed. GUID names: Velocidex, "
+                 "Windows.Forensics.SRUM, "
                  "https://github.com/Velocidex/velociraptor/blob/master/artifacts/"
                  "definitions/Windows/Forensics/SRUM.yaml",
         "paths": ("*/Windows/System32/sru/SRUDB.dat",),
@@ -258,10 +269,14 @@ def _decode_idblob(blob, id_type):
     return raw.decode("utf-16-le", "replace").rstrip("\x00")
 
 
-def _build_idmap(database):
+def _build_idmap(database, label, relative_source):
     """Map SruDbIdMapTable's IdIndex to its resolved application id or user SID."""
     idmap = {}
     cursor = database.openTable(_IDMAP)
+    if cursor is None:
+        logfunc(f"{label}: {relative_source} has no {_IDMAP}, so Application and "
+                "User are left blank")
+        return idmap
     while True:
         row = database.getNextRow(cursor)
         if row is None:
@@ -305,14 +320,18 @@ def _cell(value):
     return "" if value is None else value
 
 
-def _read_table(source, guid, row_builder):
+def _read_table(source, guid, row_builder, label, relative_source):
     """Open SRUDB.dat, build the id map, and build a row per entry of one table."""
     database = impacket_ese.ESENT_DB(source)
     try:
         database.mountDB()
-        idmap = _build_idmap(database)
+        idmap = _build_idmap(database, label, relative_source)
         rows = []
         cursor = database.openTable(guid)
+        if cursor is None:
+            logfunc(f"{label}: {relative_source} has no {guid} table, so it holds "
+                    "no rows for this SRUM provider")
+            return rows
         while True:
             row = database.getNextRow(cursor)
             if row is None:
@@ -333,7 +352,7 @@ def _run(context, guid, headers, row_builder, label):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            rows = _read_table(source, guid, row_builder)
+            rows = _read_table(source, guid, row_builder, label, relative_source)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f"{label}: could not read {relative_source}: {exc}")
             continue
