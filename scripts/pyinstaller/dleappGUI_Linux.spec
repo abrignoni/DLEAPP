@@ -24,7 +24,6 @@ a = Analysis(
         'struct',
         'xml.etree.ElementTree',
         'bencoding',
-        'fitz',
         'ijson',
         'mailbox',
         'mammoth',
