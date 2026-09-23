@@ -29,6 +29,9 @@ _COUNTS_LINE = re.compile(
     r'Count: (?P<count>\d+), MaxTime: (?P<max>\d+), MaxTimeFile: (?P<file>.*), '
     r'EstimatedImpact: (?P<impact>\d+%?)\s*$')
 _UTC_TIME = re.compile(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.(\d+))?Z$')
+# Line breaks: CR LF, LF or CR, so Line Number counts lines the same way whichever
+# of the three a file uses.
+_LINE_BREAK = re.compile(r'\r\n|\r|\n')
 
 __artifacts_v2__ = {
     "defenderMpLogProcessImpact": {
@@ -73,19 +76,19 @@ __artifacts_v2__ = {
                  "form, because no source for the zone of a time without Z was found. A "
                  "Per-process counts line carries no time and no Pid, so both Logged Time "
                  "columns and Process ID are blank on it. Line Number is the line's number "
-                 "in the decoded file, counting from 1. A file is decoded by its "
-                 "byte-order mark; each MPLog on the registered images began with a UTF-16 "
-                 "little-endian mark. On pc_mus_001_win11 the one MPLog gave 596 rows: 585 "
-                 "lines began with a time ending in Z and carried Pid, and 11 were "
-                 "Per-process counts lines. The MPLog files on af_case2_win10 and "
-                 "lonewolf_win10 hold no line naming ProcessImageName, so this artifact "
-                 "reports no rows there. A line naming ProcessImageName that matches "
-                 "neither form is counted in the run log and not read; there was none on "
-                 "the registered images. Not read: every other line type in the file, "
-                 "including the SDN, detection and EMS detection lines CrowdStrike's post "
-                 "describes. A row records scan activity Defender measured on files the "
-                 "named process accessed; it does not by itself establish who ran the "
-                 "process or why.",
+                 "in the decoded file, counting from 1 and breaking lines at CR LF, LF or "
+                 "CR. A file is decoded by its byte-order mark; each MPLog on the "
+                 "registered images began with a UTF-16 little-endian mark. On "
+                 "pc_mus_001_win11 the one MPLog gave 596 rows: 585 lines began with a "
+                 "time ending in Z and carried Pid, and 11 were Per-process counts lines. "
+                 "The MPLog files on af_case2_win10 and lonewolf_win10 hold no line naming "
+                 "ProcessImageName, so this artifact reports no rows there. A line naming "
+                 "ProcessImageName that matches neither form is counted in the run log and "
+                 "not read; there was none on the registered images. Not read: every other "
+                 "line type in the file, including the SDN, detection and EMS detection "
+                 "lines CrowdStrike's post describes. A row records scan activity Defender "
+                 "measured on files the named process accessed; it does not by itself "
+                 "establish who ran the process or why.",
         "paths": ("*/ProgramData/Microsoft/Windows Defender/Support/MPLog-*.log",),
         "output_types": ["standard"],
         "artifact_icon": "activity",
@@ -147,7 +150,7 @@ def defenderMpLogProcessImpact(context):
             continue
         sources.append(source)
         matched = unmatched = 0
-        for line_number, line in enumerate(text.splitlines(), start=1):
+        for line_number, line in enumerate(_LINE_BREAK.split(text), start=1):
             if 'ProcessImageName:' not in line:
                 continue
             match = _TIMED_LINE.match(line) or _COUNTS_LINE.match(line)
