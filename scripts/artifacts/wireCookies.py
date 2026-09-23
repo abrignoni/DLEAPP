@@ -8,11 +8,18 @@ __artifacts_v2__ = {
                        "OS-encrypted and are not decrypted here.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "Only cookies for wire.com hosts are reported.",
-        "paths": ('*/Network/Cookies',),
+        "notes": "Only cookies whose host is wire.com or one of its subdomains are "
+                 "reported, and only from cookie stores under a folder named Wire.",
+        "paths": ('*/Wire/*Network/Cookies',),
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 1 row",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "circle",
     },
@@ -77,7 +84,7 @@ def wireCookies(context):
                        last_access_utc, is_secure, is_httponly,
                        length(encrypted_value)
                 FROM cookies
-                WHERE host_key LIKE '%wire.com%'
+                WHERE host_key = 'wire.com' OR host_key LIKE '%.wire.com'
                 ORDER BY host_key, name
             """)
             rows = cur.fetchall()
