@@ -75,5 +75,5 @@ app = BUNDLE(
     name='dleappGUI.app',
     icon='../../assets/icon.icns',
     bundle_identifier='4n6.brigs.DLEAPP',
-    version='2026.4.1',
+    version='2026.4.1-dev',
 )
