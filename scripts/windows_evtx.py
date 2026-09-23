@@ -10,10 +10,9 @@ ElementTree.
 
 `read_event_records(context, file_name, label, ...)` reads every matched copy
 of one log and returns the parsed records it kept, with the paths it read. A
-record python-evtx cannot render (it raises, for example, KeyError on some
-record templates) or whose XML does not parse is counted and skipped instead of
-ending the read of the rest of the file, and the count is written to the run
-log for each file.
+record python-evtx cannot render (the call raises) or whose XML does not parse
+is counted and skipped instead of ending the read of the rest of the file, and
+the count is written to the run log for each file.
 
 `utc_from_system_time(value)` parses TimeCreated SystemTime. python-evtx 0.8.x
 renders it as '2018-03-27 09:35:33.595600+00:00' and 0.7.x as
