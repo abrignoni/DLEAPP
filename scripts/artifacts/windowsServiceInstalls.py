@@ -7,7 +7,8 @@ reads the .evtx records directly and is not ported from that artifact.
 Event ID 7045 and its fields are sourced from public research (see the notes).
 """
 
-from datetime import datetime, timezone
+import re
+from datetime import datetime, timedelta, timezone
 from xml.etree import ElementTree
 
 try:
@@ -35,7 +36,7 @@ __artifacts_v2__ = {
                        "account the service runs under.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-23",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is a "
@@ -72,20 +73,31 @@ __artifacts_v2__ = {
 }
 
 
+_SYSTEM_TIME = re.compile(
+    r'^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})?$')
+
+
 def _utc_from_iso(value):
-    """Parse an EVTX SystemTime (ISO 8601, UTC, variable fraction) to UTC."""
-    if not value:
+    """Parse an EVTX SystemTime to UTC.
+
+    python-evtx renders it as '2018-03-27 09:35:33.595600' (0.7.4) or with a
+    '+00:00' offset (0.8.x), and Windows' own rendering uses a T separator and a
+    trailing Z. All three are accepted, and a value with no offset is UTC.
+    """
+    match = _SYSTEM_TIME.match((value or '').strip())
+    if not match:
         return ''
-    text = value.strip().rstrip('Z')
-    fmt = "%Y-%m-%dT%H:%M:%S"
-    if '.' in text:
-        base, frac = text.split('.', 1)
-        text = f"{base}.{(frac + '000000')[:6]}"
-        fmt = "%Y-%m-%dT%H:%M:%S.%f"
+    date_part, time_part, fraction, offset = match.groups()
     try:
-        return datetime.strptime(text, fmt).replace(tzinfo=timezone.utc)
+        parsed = datetime.strptime(f'{date_part} {time_part}', '%Y-%m-%d %H:%M:%S')
     except ValueError:
         return ''
+    if fraction:
+        parsed = parsed.replace(microsecond=int((fraction + '000000')[:6]))
+    if offset and offset != 'Z':
+        sign = -1 if offset[0] == '-' else 1
+        parsed -= sign * timedelta(hours=int(offset[1:3]), minutes=int(offset[4:6]))
+    return parsed.replace(tzinfo=timezone.utc)
 
 
 def _service_row(xml_text):
