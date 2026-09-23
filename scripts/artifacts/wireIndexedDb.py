@@ -78,7 +78,7 @@ __artifacts_v2__ = {
                        "conversation names.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Recovered thumbnails are decrypted from the on-disk asset "
@@ -87,9 +87,15 @@ __artifacts_v2__ = {
                  "those are not a message in either direction.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
-            '*/Service Worker/CacheStorage/*/*/*_0',
-            '*/Cache_Data/f_*',
+            '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
+            '*/Wire/*Cache_Data/f_*',
         ),
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 64 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "message-circle",
         "data_views": {
@@ -114,16 +120,22 @@ __artifacts_v2__ = {
                        "on-disk cache, the decrypted thumbnail is embedded.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Wire assets are end-to-end encrypted and stored server-side; "
                  "only recoverable (cached) assets show a decrypted image.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
-            '*/Service Worker/CacheStorage/*/*/*_0',
-            '*/Cache_Data/f_*',
+            '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
+            '*/Wire/*Cache_Data/f_*',
         ),
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 9 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "paperclip",
     },
@@ -137,7 +149,7 @@ __artifacts_v2__ = {
                        "message send times.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-24",
+        "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Timestamps are workbox cache-write times: the app can re-cache "
@@ -146,9 +158,15 @@ __artifacts_v2__ = {
                  "than a confirmed user view.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
-            '*/Service Worker/CacheStorage/*/*/*_0',
-            '*/Cache_Data/f_*',
+            '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
+            '*/Wire/*Cache_Data/f_*',
         ),
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 28 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "link",
     },
@@ -297,7 +315,7 @@ def _load(context):
     for d in dirs:
         try:
             stores = load_indexeddb(d, log=None)
-        except Exception as ex:  # pragma: no cover - defensive
+        except Exception as ex:  # pylint: disable=broad-exception-caught
             logfunc(f"Wire: could not parse LevelDB '{d}': {ex}")
             continue
         for store, records in stores.items():
@@ -478,7 +496,7 @@ def _display_name(users, uid, self_ids):
     return f"{name} (me)" if uid in self_ids else name
 
 
-def _account_label(users, self_ids, db_name):
+def _account_label(users, self_ids, db_name):  # pylint: disable=unused-argument
     """Friendly label for the account that owns a given database."""
     uid = _account_uuid(db_name)
     if not uid:

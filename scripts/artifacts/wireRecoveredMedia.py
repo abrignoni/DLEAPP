@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        "decrypted with the event otr_key and embedded in the report.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-09-23",
         "requirements": "PyCryptodome",
         "category": "Wire (Windows)",
         "notes": "Only assets still present in an on-disk cache can be recovered. "
@@ -17,9 +17,15 @@ __artifacts_v2__ = {
                  "AES-256-CBC ciphertext, SHA-256 taken over the blob.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
-            '*/Service Worker/CacheStorage/*/*/*_0',
-            '*/Cache_Data/f_*',
+            '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
+            '*/Wire/*Cache_Data/f_*',
         ),
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 7 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "image",
     },
@@ -103,7 +109,7 @@ def _display_name(users, uid, self_ids):
     return f"{name} (me)" if uid in self_ids else name
 
 
-def _account_label(users, self_ids, db_name):
+def _account_label(users, self_ids, db_name):  # pylint: disable=unused-argument
     uid = _account_uuid(db_name)
     if not uid:
         return ""
@@ -163,7 +169,7 @@ def wireRecoveredMedia(context):
         try:
             for store, recs in load_indexeddb(d, log=None).items():
                 stores.setdefault(store, []).extend(recs)
-        except Exception as ex:  # pragma: no cover - defensive
+        except Exception as ex:  # pylint: disable=broad-exception-caught
             logfunc(f"Wire Recovered Media: could not parse '{d}': {ex}")
     if not stores:
         return data_headers, [], ""

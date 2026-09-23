@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        "cannot be rendered as images without the asset keys.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Parses Chromium Simple Cache entry files (*_0). No body is "
@@ -23,7 +23,13 @@ __artifacts_v2__ = {
                  "Reference: AWS, 'CloudFront signed URLs (Expires is Unix time "
                  "in seconds)', https://docs.aws.amazon.com/AmazonCloudFront/"
                  "latest/DeveloperGuide/private-content-signed-urls.html",
-        "paths": ('*/Service Worker/CacheStorage/*/*/*_0',),
+        "paths": ('*/Wire/*Service Worker/CacheStorage/*/*/*_0',),
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 7 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "hard-drive",
     },
