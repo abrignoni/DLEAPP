@@ -25,6 +25,71 @@
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-ewfprobe",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/ccl_segb/__init__.py",
+      "name": "ccl-segb",
+      "version": "unversioned",
+      "upstream": "https://github.com/cclgroupltd/ccl-segb",
+      "upstream_file": "ccl_segb/__init__.py",
+      "commit": "23c3f7d3d969a79627b738ba0a2486c31d675753",
+      "commit_date": "2026-07-13T09:48:49Z",
+      "sha256": "2bc01f1fad94f1e738017042e9e1d5e9ced511020023d23aa3418e1697dfec6d",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-ccl_segb",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/ccl_segb/ccl_segb.py",
+      "name": "ccl-segb",
+      "version": "unversioned",
+      "upstream": "https://github.com/cclgroupltd/ccl-segb",
+      "upstream_file": "ccl_segb/ccl_segb.py",
+      "commit": "23c3f7d3d969a79627b738ba0a2486c31d675753",
+      "commit_date": "2026-07-13T09:48:49Z",
+      "sha256": "754f12f9a8eede673e22ece3048f32d75b7f4f6523d33018a36ff1f02cea3efd",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-ccl_segb",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/ccl_segb/ccl_segb1.py",
+      "name": "ccl-segb",
+      "version": "0.3",
+      "upstream": "https://github.com/cclgroupltd/ccl-segb",
+      "upstream_file": "ccl_segb/ccl_segb1.py",
+      "commit": "23c3f7d3d969a79627b738ba0a2486c31d675753",
+      "commit_date": "2026-07-13T09:48:49Z",
+      "sha256": "155067a189d1304a0ec982520a7ff98cffca14d0369e4eb84bb16bc90618c4cb",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-ccl_segb",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/ccl_segb/ccl_segb2.py",
+      "name": "ccl-segb",
+      "version": "0.4",
+      "upstream": "https://github.com/cclgroupltd/ccl-segb",
+      "upstream_file": "ccl_segb/ccl_segb2.py",
+      "commit": "23c3f7d3d969a79627b738ba0a2486c31d675753",
+      "commit_date": "2026-07-13T09:48:49Z",
+      "sha256": "3c80c25a31b882b6fa68f271ee181817b2a9eb1b1f76e850fd7e7af0d31ac328",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-ccl_segb",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/ccl_segb/ccl_segb_common.py",
+      "name": "ccl-segb",
+      "version": "unversioned",
+      "upstream": "https://github.com/cclgroupltd/ccl-segb",
+      "upstream_file": "ccl_segb/ccl_segb_common.py",
+      "commit": "23c3f7d3d969a79627b738ba0a2486c31d675753",
+      "commit_date": "2026-07-13T09:48:49Z",
+      "sha256": "adc2388239982b920cd6e4a7ac193a4657627e6ba591c1f2e4b07aa6dde2921b",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-ccl_segb",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
     }
   ]
 }
