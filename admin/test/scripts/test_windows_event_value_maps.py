@@ -260,12 +260,12 @@ class TestValueNames(_TempDir):
         self.names = power._ValueNames(_Context(str(self.tmp / 'data'), files))  # pylint: disable=protected-access
 
     def test_a_mapped_number_reads_name_then_number(self):
-        self.assertEqual(self.names.text(self.log0, _wake('1'), self.BOOTS), 'Power Button (1)')
-        self.assertEqual(self.names.text(self.log0, _wake('6', version=3), self.BOOTS),
+        self.assertEqual(self.names.text(self.log0, _wake('1'), self.BOOTS, 'WakeSourceType'), 'Power Button (1)')
+        self.assertEqual(self.names.text(self.log0, _wake('6', version=3), self.BOOTS, 'WakeSourceType'),
                          'Timer - (6)')
 
     def test_a_volume_without_the_english_mui_keeps_the_number(self):
-        self.assertEqual(self.names.text(self.log1, _wake('1'), self.BOOTS), '1')
+        self.assertEqual(self.names.text(self.log1, _wake('1'), self.BOOTS, 'WakeSourceType'), '1')
         self.assertEqual(self.names.kept['no value map'], 1)
 
     def test_a_mui_without_a_message_table_keeps_the_number(self):
@@ -273,33 +273,61 @@ class TestValueNames(_TempDir):
                    pe_with_resource(b'not a table', type_id=6))
         files = [str(p) for p in (self.tmp / 'data/lba1').rglob('*') if p.is_file()]
         names = power._ValueNames(_Context(str(self.tmp / 'data'), files))  # pylint: disable=protected-access
-        self.assertEqual(names.text(self.log1, _wake('1'), self.BOOTS), '1')
+        self.assertEqual(names.text(self.log1, _wake('1'), self.BOOTS, 'WakeSourceType'), '1')
         self.assertEqual(dict(names.kept), {'no value map': 1})
 
     def test_a_record_not_written_under_the_last_build_keeps_the_number(self):
         boots = [(3, '17134'), (20, '17763')]
-        self.assertEqual(self.names.text(self.log0, _wake('1', record_id=10), boots), '1')
-        self.assertEqual(self.names.text(self.log0, _wake('1', record_id=21), boots),
+        self.assertEqual(self.names.text(self.log0, _wake('1', record_id=10), boots, 'WakeSourceType'), '1')
+        self.assertEqual(self.names.text(self.log0, _wake('1', record_id=21), boots, 'WakeSourceType'),
                          'Power Button (1)')
         self.assertEqual(self.names.kept['build'], 1)
 
     def test_a_number_or_version_the_map_lacks_keeps_the_number(self):
-        self.assertEqual(self.names.text(self.log0, _wake('7'), self.BOOTS), '7')
-        self.assertEqual(self.names.text(self.log0, _wake('1', version=0), self.BOOTS), '1')
+        self.assertEqual(self.names.text(self.log0, _wake('7'), self.BOOTS, 'WakeSourceType'), '7')
+        self.assertEqual(self.names.text(self.log0, _wake('1', version=0), self.BOOTS, 'WakeSourceType'), '1')
         self.assertEqual(self.names.kept['not in the map'], 2)
 
     def test_without_pefile_the_number_is_kept(self):
         original = windows_messages.pefile
         windows_messages.pefile = None
         self.addCleanup(setattr, windows_messages, 'pefile', original)
-        self.assertEqual(self.names.text(self.log0, _wake('1'), self.BOOTS), '1')
+        self.assertEqual(self.names.text(self.log0, _wake('1'), self.BOOTS, 'WakeSourceType'), '1')
 
     def test_the_files_that_named_a_number_are_given_for_the_source_path(self):
-        self.names.text(self.log0, _wake('1'), self.BOOTS)
-        self.names.text(self.log1, _wake('1'), self.BOOTS)
+        self.names.text(self.log0, _wake('1'), self.BOOTS, 'WakeSourceType')
+        self.names.text(self.log1, _wake('1'), self.BOOTS, 'WakeSourceType')
         self.assertEqual([os.path.relpath(p, self.tmp / 'data') for p in self.names.files_used()],
                          ['lba0/Windows/System32/en-US/pots.dll.mui',
                           'lba0/Windows/System32/pots.dll'])
+
+
+class TestShutdownNames(_TempDir):
+    """A 109 names its action and its reason, each through the map its manifest binds."""
+
+    KP = '331c3b3a-2005-44c2-ac5e-77220c37d6b4'
+
+    def test_each_field_is_named_through_its_own_map(self):
+        manifest = event_manifest(self.KP, [(109, 0, [
+            ('ShutdownActionType', 'Pop:MapPowerAction'), ('ShutdownEventCode', None),
+            ('ShutdownReason', 'Pop:MapSleepReason')])],
+            {'Pop:MapPowerAction': {5: 0xD0000010}, 'Pop:MapSleepReason': {5: 0xD0000020}})
+        files = [
+            self.write('data/lba0/Windows/System32/microsoft-windows-kernel-power-events.dll',
+                       pe_with_resource(manifest, type_name='WEVT_TEMPLATE')),
+            self.write('data/lba0/Windows/System32/en-US/microsoft-windows-kernel-power-events.dll.mui',
+                       pe_with_resource(message_table({0xD0000010: 'Power Action Reboot',
+                                                       0xD0000020: 'Kernel API'}), type_id=11)),
+        ]
+        names = power._ValueNames(_Context(str(self.tmp / 'data'), files))  # pylint: disable=protected-access
+        log = str(self.tmp / 'data/lba0' / TestValueNames.LOG)
+        found = {'kind': power._SHUTDOWN, 'record_id': 10, 'version': 0,  # pylint: disable=protected-access
+                 'fields': {'ShutdownActionType': '5', 'ShutdownEventCode': '0', 'ShutdownReason': '5'}}
+        boots = [(3, '22621')]
+        self.assertEqual(names.text(log, found, boots, 'ShutdownActionType'), 'Power Action Reboot (5)')
+        self.assertEqual(names.text(log, found, boots, 'ShutdownReason'), 'Kernel API (5)')
+        self.assertEqual(names.text(log, found, boots, 'ShutdownEventCode'), '0')
+        self.assertEqual(dict(names.kept), {'not in the map': 1})
 
 
 class TestPowerRowDetail(unittest.TestCase):
@@ -308,9 +336,20 @@ class TestPowerRowDetail(unittest.TestCase):
     def test_a_42_with_a_reason_shows_it(self):
         found = {'kind': power._SLEEP, 'fields': {'Reason': '7'}, 'values': [], 'time': '',  # pylint: disable=protected-access
                  'meaning': 'The system is entering sleep', 'computer': 'PC'}
-        self.assertEqual(power._power_row(found, 'System Idle (7)')[6],  # pylint: disable=protected-access
+        self.assertEqual(power._power_row(found, {'Reason': 'System Idle (7)'})[6],  # pylint: disable=protected-access
                          'Sleep Reason: System Idle (7)')
-        self.assertEqual(power._power_row(found, '')[6], '')  # pylint: disable=protected-access
+        self.assertEqual(power._power_row(found, {'Reason': ''})[6], '')  # pylint: disable=protected-access
+
+    def test_a_109_shows_its_three_fields_named_ones_as_given(self):
+        found = {'kind': power._SHUTDOWN, 'values': [], 'time': '', 'computer': 'PC',  # pylint: disable=protected-access
+                 'meaning': 'The kernel power manager initiated a shutdown',
+                 'fields': {'ShutdownActionType': '5', 'ShutdownEventCode': '0', 'ShutdownReason': '5'}}
+        row = power._power_row(found, {'ShutdownActionType': 'Power Action Reboot (5)',  # pylint: disable=protected-access
+                                       'ShutdownReason': 'Kernel API (5)'})
+        self.assertEqual(row[6], 'Shutdown Action Type: Power Action Reboot (5); '
+                                 'Shutdown Event Code: 0; Shutdown Reason: Kernel API (5)')
+        self.assertEqual(power._power_row(found, {})[6],  # pylint: disable=protected-access
+                         'Shutdown Action Type: 5; Shutdown Event Code: 0; Shutdown Reason: 5')
 
     def test_a_wake_row_shows_the_type_as_given_and_the_other_fields_as_stored(self):
         found = {'kind': power._WAKE, 'values': [], 'time': '', 'computer': 'PC',  # pylint: disable=protected-access
@@ -318,7 +357,7 @@ class TestPowerRowDetail(unittest.TestCase):
                  'fields': {'WakeSourceType': '6', 'WakeSourceText': 'a task', 'WakeTimerOwner': '',
                             'SleepTime': '2023-02-21 00:00:13.569344+00:00',
                             'WakeTime': '2023-02-22 18:39:30.675520+00:00'}}
-        row = power._power_row(found, 'Timer - (6)')  # pylint: disable=protected-access
+        row = power._power_row(found, {'WakeSourceType': 'Timer - (6)'})  # pylint: disable=protected-access
         self.assertEqual(row[6], 'Wake Source Type: Timer - (6); Wake Source Text: a task')
         self.assertEqual((row[1].isoformat(), row[2].isoformat()),
                          ('2023-02-21T00:00:13.569344+00:00', '2023-02-22T18:39:30.675520+00:00'))
