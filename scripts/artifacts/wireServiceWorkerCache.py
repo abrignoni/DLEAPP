@@ -9,16 +9,19 @@ __artifacts_v2__ = {
                        "cannot be rendered as images without the asset keys.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Parses Chromium Simple Cache entry files (*_0). No body is "
                  "decoded; only request/CDN URLs and metadata are extracted. An "
                  "entry can also be matched on any wire.com URL, which admits "
                  "responses that are not assets, so the encrypted-body note is "
-                 "shown only where an /assets/ URL was resolved. 'Content Type "
-                 "(heuristic)' is the first MIME-shaped string found anywhere in "
-                 "the raw entry, not a parsed response header. 'CDN Expires' "
+                 "shown only where an /assets/ URL was resolved. 'Response Content Type' is the "
+                 "value of the Content-Type header stored with the cached response, found by the "
+                 "way Chromium's Cache Storage metadata encodes a response header rather than by "
+                 "parsing the entry (Reference: Chromium, 'cache_storage.proto', "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/cache_storage/cache_storage.proto#L42-L90); "
+                 "on wire_win it read application/octet-stream on all 7 rows. 'CDN Expires' "
                  "reads the CloudFront Expires query parameter as Unix seconds. "
                  "Reference: AWS, 'CloudFront signed URLs (Expires is Unix time "
                  "in seconds)', https://docs.aws.amazon.com/AmazonCloudFront/"
@@ -49,9 +52,22 @@ _CDN_URL_RE = re.compile(r"https://prod-assets\.wire\.com/" + _URLSAFE + r"+")
 _ANY_WIRE_URL_RE = re.compile(r"https://" + _URLSAFE + r"*wire\.com" + _URLSAFE + r"*")
 _ASSET_ID_RE = re.compile(r"/assets/[^/]+/([0-9]+-[0-9]+-[0-9a-f-]{36})")
 _EXPIRES_RE = re.compile(r"[?&]Expires=(\d+)")
-_CTYPE_RE = re.compile(r"\b((?:application|image|video|audio|text)/[A-Za-z0-9.+\-]+)")
+# Cache Storage keeps each entry's request and response in a CacheMetadata protobuf
+# (Chromium content/browser/cache_storage/cache_storage.proto). A response header is a
+# CacheHeaderMap in field 4 of CacheResponse, so it is tagged 0x22 and holds its name
+# (field 1, tag 0x0a) then its value (field 2, tag 0x12); a request header sits in
+# field 2 of CacheRequest, tagged 0x12, so the request's Accept header cannot match.
+_RESPONSE_CTYPE_RE = re.compile(rb"\x22[\x00-\x7f]\x0a\x0c(?i:content-type)\x12([\x00-\x7f])")
 # CloudFront key-pair ids are upper-case alphanumeric; trim trailing cache bytes.
 _KEYPAIR_TRIM_RE = re.compile(r"(Key-Pair-Id=[A-Z0-9]+).*$")
+
+
+def _response_content_type(raw):
+    """The Content-Type header stored with the cached response, or ''."""
+    match = _RESPONSE_CTYPE_RE.search(raw)
+    if not match:
+        return ""
+    return raw[match.end():match.end() + match.group(1)[0]].decode("latin1", "replace")
 
 
 def _unix_to_dt(value):
@@ -107,9 +123,7 @@ def wireServiceWorkerCache(context):
             em = _EXPIRES_RE.search(cdn_url)
             if em:
                 expires = _unix_to_dt(em.group(1))
-        # content type of the cached response (excluding the request Accept header)
-        ctypes = [c for c in _CTYPE_RE.findall(text) if c != "application/json"]
-        ctype = ctypes[0] if ctypes else ""
+        ctype = _response_content_type(raw)
 
         source_paths.append(file_found)
         data_list.append((
@@ -126,7 +140,7 @@ def wireServiceWorkerCache(context):
 
     data_headers = (
         "Cache Entry", "Request URL", "Asset ID", "CDN Download URL",
-        ("CDN Expires", "datetime"), "Content Type (heuristic)",
+        ("CDN Expires", "datetime"), "Response Content Type",
         "Entry Size (bytes)", "Note",
     )
     return data_headers, data_list, '\n'.join(source_paths)

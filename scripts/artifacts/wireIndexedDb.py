@@ -109,8 +109,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "A Wire profile can hold the databases of more than one account, and the "
-                 "wire_win profile holds two; every account's databases are read, and a "
+        "notes": "Type is the stored type code labelled with its name in Wire's "
+                 "CONVERSATION_TYPE enum: Regular for REGULAR (0), Self for SELF (1), One-to-one "
+                 "for ONE_TO_ONE (2), Connect for CONNECT (3) and Global team for GLOBAL_TEAM "
+                 "(4); any other code is shown as Type and the code (Reference: Wire, "
+                 "'conversation.ts', "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/libraries/api-client/src/conversation/conversation.ts#L28-L34). "
+                 "On wire_win 4 conversations are Self, 2 One-to-one, 2 Connect and 1 Regular. A "
+                 "Wire profile can hold the databases of more than one account, and the wire_win "
+                 "profile holds two; every account's databases are read, and a "
                  "record is compared with earlier versions of itself only within the "
                  "database of the account that holds it, so each account's copy of a "
                  "record both accounts hold is reported. No user, conversation or event id "
@@ -364,16 +371,16 @@ from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, check_in_embedded_media
 from scripts.ccl.indexeddb_to_json import load_indexeddb
-from scripts.ccl.wire_assets import build_asset_index, recover_assets
+from scripts.ccl.wire_assets import build_asset_index, event_rank as _event_rank, recover_assets
 
 
 # --------------------------------------------------------------------------- #
 # Reference data
 # --------------------------------------------------------------------------- #
 
-# Call end-reason code -> label. The labels are an interpretation and were not
-# tied to a published Wire AVS enum, so the raw code is shown too regardless and an
-# unrecognized code is left unlabelled.
+# Call end-reason code -> label, paraphrasing the WCALL_REASON names 0 to 13 in
+# Wire AVS include/avs_wcall.h (AVS also defines 14 to 16). The raw code is shown
+# too, and a code outside this mapping is left unlabelled.
 CALL_END_REASON = {
     0: "Completed (normal)", 1: "Error", 2: "Timeout", 3: "Lost media",
     4: "Canceled", 5: "Answered elsewhere", 6: "I/O error", 7: "Still ongoing",
@@ -381,14 +388,15 @@ CALL_END_REASON = {
     11: "Outdated client", 12: "No one joined", 13: "Everyone left",
 }
 
-# Wire conversation "type" enum -> human label.
+# Wire conversation "type" code -> label, from the CONVERSATION_TYPE enum in
+# wire-webapp libraries/api-client/src/conversation/conversation.ts: REGULAR 0,
+# SELF 1, ONE_TO_ONE 2, CONNECT 3, GLOBAL_TEAM 4.
 CONV_TYPE = {
-    0: "Group / regular",
+    0: "Regular",
     1: "Self",
-    2: "One-to-one (connect)",
-    3: "One-to-one",
-    4: "Connect (pending)",
-    5: "Global team",
+    2: "One-to-one",
+    3: "Connect",
+    4: "Global team",
 }
 
 # Stores that hold private cryptographic key material (inventoried, never dumped).
@@ -544,21 +552,6 @@ def _dedupe_by_id(records, id_field="id"):
         elif _completeness(val) > _completeness(best[ident].get("value")):
             best[ident] = rec
     return [(best[i], best[i]["value"]) for i in order]
-
-
-def _event_rank(v):
-    """Rank an event record so the confirmed/most-complete version wins.
-
-    LevelDB keeps every version of a message as its send state advances, so a
-    single sent item can appear as SENDING (status 1, no primary_key, local
-    time) and then SENT/DELIVERED/SEEN (status >=2, with a primary_key and the
-    server time). Prefer the record that has a primary_key, then the highest
-    status, then the latest timestamp — i.e. the one actually sent.
-    """
-    has_pk = 1 if v.get("primary_key") is not None else 0
-    status = v.get("status")
-    status = status if isinstance(status, int) else -1
-    return (has_pk, status, str(v.get("time") or ""))
 
 
 def _dedupe_events(records):

@@ -79,13 +79,34 @@ def sniff(plain):
     return "", ""
 
 
+def event_rank(v):
+    """Rank versions of one event record so the confirmed/most-complete version wins.
+
+    LevelDB keeps every version of a message as its send state advances, so a
+    single sent item can appear as SENDING (status 1, no primary_key, local
+    time) and then SENT/DELIVERED/SEEN (status >=2, with a primary_key and the
+    server time). Prefer the record that has a primary_key, then the highest
+    status, then the latest timestamp, i.e. the one actually sent.
+    """
+    has_pk = 1 if v.get("primary_key") is not None else 0
+    status = v.get("status")
+    status = status if isinstance(status, int) else -1
+    return (has_pk, status, str(v.get("time") or ""))
+
+
 def build_asset_index(stores):
-    """Map sha256(hex of encrypted blob) -> asset descriptor from asset events."""
+    """Map sha256(hex of encrypted blob) -> asset descriptor from asset events.
+
+    When LevelDB holds several versions of one asset-add event, the descriptor
+    comes from the version event_rank prefers, so its time is the confirmed one.
+    """
     idx = {}
+    ranks = {}
     for rec in stores.get("events", []):
         v = rec.get("value")
         if not isinstance(v, dict) or v.get("type") != "conversation.asset-add":
             continue
+        rank = event_rank(v)
         d = v.get("data") or {}
         base = {
             "db_name": rec.get("db_name"),
@@ -95,13 +116,21 @@ def build_asset_index(stores):
             "event_id": v.get("id"),
         }
         if d.get("otr_key") and d.get("sha256"):
-            idx[bytes(d["sha256"]).hex()] = {
+            sha = bytes(d["sha256"]).hex()
+            if sha in ranks and ranks[sha] >= rank:
+                continue
+            ranks[sha] = rank
+            idx[sha] = {
                 **base, "otr": bytes(d["otr_key"]), "kind": "full",
                 "asset_id": d.get("key"), "ctype": d.get("content_type") or "",
                 "name": (d.get("info") or {}).get("name") or "",
             }
         if d.get("preview_otr_key") and d.get("preview_sha256"):
-            idx[bytes(d["preview_sha256"]).hex()] = {
+            sha = bytes(d["preview_sha256"]).hex()
+            if sha in ranks and ranks[sha] >= rank:
+                continue
+            ranks[sha] = rank
+            idx[sha] = {
                 **base, "otr": bytes(d["preview_otr_key"]), "kind": "preview",
                 "asset_id": d.get("preview_key"), "ctype": "image/jpeg", "name": "",
             }
