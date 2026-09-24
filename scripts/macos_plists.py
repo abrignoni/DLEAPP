@@ -194,7 +194,12 @@ def user_from_path(path):
     return ''
 
 
-def _canonical(relative):
+def canonical_relative(relative):
+    """A path inside the extraction with a leading System/Volumes/Data/ removed.
+
+    macOS firmlinks expose the Data volume's folders both at the root and under
+    System/Volumes/Data/, so a logical extraction can hold one file under both paths.
+    """
     relative = str(relative).replace('\\', '/').lstrip('/')
     return relative[len(_FIRMLINK_PREFIX):] if relative.startswith(_FIRMLINK_PREFIX) else relative
 
@@ -226,7 +231,7 @@ def unique_sources(context, paths, sidecars=(), label=''):
     for path in sorted({str(p) for p in paths}, key=lambda p: (len(p), p)):
         if not os.path.isfile(path):
             continue
-        key = (_canonical(context.get_relative_path(path)), _digest(path, sidecars))
+        key = (canonical_relative(context.get_relative_path(path)), _digest(path, sidecars))
         if key in seen:
             skipped += 1
             continue
