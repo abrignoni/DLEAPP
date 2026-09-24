@@ -1,0 +1,12 @@
+{
+  "leapp": "dleapp",
+  "format_version": 1,
+  "plugins": [
+    "firefoxVisits",
+    "firefoxDownloads",
+    "firefoxBookmarks",
+    "firefoxCookies",
+    "firefoxFormHistory",
+    "firefoxInteractions"
+  ]
+}
