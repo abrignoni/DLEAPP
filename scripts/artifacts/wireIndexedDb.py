@@ -7,13 +7,22 @@ __artifacts_v2__ = {
                        "details. One LevelDB can hold more than one login.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Parses https_app.wire.com_0.indexeddb.leveldb via the vendored "
                  "CCL Chromium IndexedDB reader and Spyder Forensics IndexedDBtoJSON logic. "
                  "'MLS Identity Created' is the mls_credentials created_at value "
-                 "read as epoch seconds, the unit the sampled values match.",
+                 "read as epoch seconds, the unit the sampled values match. "
+                 "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. "
+                 "On wire_win the user records of both account owners hold only a handle, "
+                 "an id, sso_id_deleted, supported_protocols and, on one, assets and a "
+                 "team, so Display Name, Email and Domain are empty on both rows.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 2 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
@@ -31,10 +40,20 @@ __artifacts_v2__ = {
                        "and profile-picture asset keys.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "",
+        "notes": "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. Account names the account whose "
+                 "database held the user record, and Is Account Owner marks the owner of "
+                 "that account, so a user two accounts know appears once for each. "
+                 "On wire_win Phone was empty on all 4 rows and Supported Protocols held "
+                 "one value on every row. The two account owners' own records there hold "
+                 "no name or email.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 4 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
@@ -55,7 +74,7 @@ __artifacts_v2__ = {
                        "verification state where known.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "'Relationship' separates the account owner's own device from a "
@@ -63,7 +82,14 @@ __artifacts_v2__ = {
                  "app set up encryption with; its class (e.g. 'phone') describes "
                  "the CONTACT's device, NOT a device the account owner used. "
                  "'Fingerprint Verified' is the meta.is_verified value the "
-                 "client stored for that device record.",
+                 "client stored for that device record. "
+                 "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. A name marked (me) is the owner of "
+                 "the account the row was read from.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 5 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
@@ -80,10 +106,20 @@ __artifacts_v2__ = {
                        "team, resolved participants, archived/muted state.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "",
+        "notes": "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. A name marked (me) is the owner of "
+                 "the account the row was read from. "
+                 "On wire_win no conversation is stored as archived or muted "
+                 "(archived_state is false on all 9 and muted_state is 0 or null), so "
+                 "Archived and Muted are empty on every row, and Domain held one value on "
+                 "every row.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 9 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
@@ -102,13 +138,23 @@ __artifacts_v2__ = {
                        "conversation names.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Recovered thumbnails are decrypted from the on-disk asset "
                  "caches when present. 'Outgoing' is left blank on events that "
                  "carry no sender, such as a conversation creation, because "
-                 "those are not a message in either direction.",
+                 "those are not a message in either direction. "
+                 "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. A name marked (me) is the owner of "
+                 "the account the row was read from. Outgoing is 1 when the sender is that "
+                 "account's owner. "
+                 "All 64 rows on wire_win come from one of the two accounts, so Account "
+                 "held one value.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
             '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
@@ -144,11 +190,21 @@ __artifacts_v2__ = {
                        "on-disk cache, the decrypted thumbnail is embedded.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Wire assets are end-to-end encrypted and stored server-side; "
-                 "only recoverable (cached) assets show a decrypted image.",
+                 "only recoverable (cached) assets show a decrypted image. "
+                 "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. A name marked (me) is the owner of "
+                 "the account the row was read from. "
+                 "On wire_win all 9 rows come from one of the two accounts, so Account "
+                 "held one value, and Asset Domain, Encrypted (OTR key) and SHA-256 "
+                 "present each held one value on every row.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
             '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
@@ -173,13 +229,22 @@ __artifacts_v2__ = {
                        "message send times.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "Timestamps are workbox cache-write times: the app can re-cache "
-                 "on reload/focus/cache-warming, so treat them as 'the asset was "
-                 "fetched by the app at this time', a proxy for activity rather "
-                 "than a confirmed user view.",
+        "notes": "Timestamps are workbox cache-write times: the app can re-cache on "
+                 "reload/focus/cache-warming, so treat them as 'the asset was fetched by "
+                 "the app at this time', a proxy for activity rather than a confirmed user "
+                 "view. A Wire profile can hold the databases of more than one account, "
+                 "and the wire_win profile holds two, but the service-worker cache is kept "
+                 "once for the whole profile: Account is the account whose asset-add event "
+                 "names the cached asset, a row names one account even when both accounts' "
+                 "events name the same asset, and a name marked (me) is that account's "
+                 "owner. No event id is held by both accounts on wire_win. On wire_win all "
+                 "28 rows come from one of the two accounts, so Account held one value; "
+                 "Recovered was Yes and Cache Name held one value on every row; and "
+                 "Filename was empty on all 28, which are 16 images and 12 image previews, "
+                 "the image attachments there carrying no file name.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
             '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
@@ -202,7 +267,7 @@ __artifacts_v2__ = {
                        "and end reason.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-29",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Duration is taken from the voice-channel-deactivate event "
@@ -212,7 +277,14 @@ __artifacts_v2__ = {
                  "ended the call. End-reason labels are an interpretation of "
                  "the stored reason code and could not be tied to a published "
                  "Wire AVS enum, so the raw code is shown alongside regardless and "
-                 "a code outside the mapping is left unlabelled.",
+                 "a code outside the mapping is left unlabelled. "
+                 "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. A name marked (me) is the owner of "
+                 "the account the row was read from.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 1 row",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
@@ -233,10 +305,18 @@ __artifacts_v2__ = {
                        "bytes are not exported.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "",
+        "notes": "A Wire profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read, and a "
+                 "record is compared with earlier versions of itself only within the "
+                 "database of the account that holds it, so each account's copy of a "
+                 "record both accounts hold is reported. No user, conversation or event id "
+                 "is held by both accounts on wire_win. A name marked (me) is the owner of "
+                 "the account the row was read from. "
+                 "On wire_win all 3 rows come from one of the two accounts, so Account "
+                 "held one value, and Domain held one value on every row.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 3 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
@@ -254,12 +334,20 @@ __artifacts_v2__ = {
                        "private key bytes are exported.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-07-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "Metadata only. Presence and counts of key stores, not the keys.",
+        "notes": "Metadata only. Presence and counts of key stores, not the keys. A Wire "
+                 "profile can hold the databases of more than one account, and the "
+                 "wire_win profile holds two; every account's databases are read. Counts "
+                 "are per account: Account names the account whose database holds the "
+                 "store, so on wire_win the 12 stores give 23 rows, proteus_sessions being "
+                 "held by one account only. Record Count counts every record the reader "
+                 "returns for the store, which includes earlier versions of one key that "
+                 "LevelDB still holds, and Distinct Keys counts the keys: on wire_win 95 "
+                 "proteus_sessions records hold 3 keys.",
         "sample_data": {
-            "wire_win": "Windows, version not recorded | 12 rows",
+            "wire_win": "Windows, version not recorded | 23 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
@@ -437,6 +525,10 @@ def _completeness(value):
 def _dedupe_by_id(records, id_field="id"):
     """Keep the most complete record per value[id_field] (LevelDB keeps history).
 
+    Versions are compared only within one database: a profile can hold the
+    databases of several accounts, and the same id in another account's
+    database is that account's own record, so it is kept separately.
+
     Returns list of (record, value) preserving first-seen order.
     """
     best = {}
@@ -445,7 +537,7 @@ def _dedupe_by_id(records, id_field="id"):
         val = rec.get("value")
         if not isinstance(val, dict):
             continue
-        ident = val.get(id_field, rec.get("key"))
+        ident = (rec.get("db_name"), val.get(id_field, rec.get("key")))
         if ident not in best:
             order.append(ident)
             best[ident] = rec
@@ -475,6 +567,8 @@ def _dedupe_events(records):
     Events are keyed by their message id (unique per logical message); the
     richest/confirmed version is kept (see _event_rank). Events without an id
     (some system events) are de-duplicated on a content signature instead.
+    Both keys include the database, so two accounts' copies of one event stay
+    separate (see _dedupe_by_id).
     """
     best = {}
     order = []
@@ -485,13 +579,15 @@ def _dedupe_events(records):
             continue
         eid = v.get("id")
         if eid:
+            eid = (rec.get("db_name"), eid)
             if eid not in best:
                 order.append(("id", eid))
                 best[eid] = rec
             elif _event_rank(v) > _event_rank(best[eid]["value"]):
                 best[eid] = rec
         else:
-            sig = (v.get("type"), v.get("conversation"), v.get("from"), str(v.get("time")))
+            sig = (rec.get("db_name"), v.get("type"), v.get("conversation"), v.get("from"),
+                   str(v.get("time")))
             if sig not in passthrough:
                 order.append(("sig", sig))
                 passthrough[sig] = rec
@@ -506,11 +602,11 @@ def _dedupe_events(records):
 # --------------------------------------------------------------------------- #
 
 def _build_users(stores):
-    """{user_id: value(dict, richest)} for the users store."""
+    """{user_id: value(dict, richest)} for the users store, across every account."""
     users = {}
     for _rec, v in _dedupe_by_id(stores.get("users", [])):
         uid = v.get("id")
-        if uid:
+        if uid and (uid not in users or _completeness(v) > _completeness(users[uid])):
             users[uid] = v
     return users
 
@@ -528,6 +624,36 @@ def _self_user_ids(stores):
         if m:
             ids.add(m.group(1))
     return ids
+
+
+def _row_owner(db_name, self_ids):
+    """The user ids "me" refers to for a record: the owner of the account whose
+    database held it, or every account owner when the database name carries none."""
+    uid = _account_uuid(db_name)
+    return {uid} if uid else self_ids
+
+
+def _conversation_names(stores, users, self_ids):
+    """(database, conversation id) -> name, falling back to the other participants."""
+    names = {}
+    for rec, v in _dedupe_by_id(stores.get("conversations", [])):
+        cid = v.get("id")
+        if not cid:
+            continue
+        owners = _row_owner(rec.get("db_name"), self_ids)
+        name = v.get("name")
+        if not name:
+            parts = set((v.get("roles") or {}).keys())
+            for o in v.get("others") or []:
+                if isinstance(o, dict) and o.get("id"):
+                    parts.add(o["id"])
+                elif isinstance(o, str):
+                    parts.add(o)
+            name = ", ".join(sorted(
+                _display_name(users, p, owners) for p in parts
+                if p and p not in owners)) or cid
+        names[(rec.get("db_name"), cid)] = name
+    return names
 
 
 def _display_name(users, uid, self_ids):
@@ -633,11 +759,15 @@ def wireUsers(context):
     self_ids = _self_user_ids(stores)
 
     data_list = []
-    for uid, v in users.items():
+    for rec, v in _dedupe_by_id(stores.get("users", [])):
+        uid = v.get("id")
+        if not uid:
+            continue
         assets = v.get("assets") or []
         asset_keys = ", ".join(a.get("key", "") for a in assets if isinstance(a, dict))
         data_list.append((
-            "Yes" if uid in self_ids else "",
+            _account_label(users, self_ids, rec.get("db_name")),
+            "Yes" if uid in _row_owner(rec.get("db_name"), self_ids) else "",
             v.get("name", ""),
             f"@{v.get('handle')}" if v.get("handle") else "",
             uid,
@@ -652,7 +782,7 @@ def wireUsers(context):
         ))
 
     data_headers = (
-        "Is Account Owner", "Display Name", "Handle", "User ID", "Email",
+        "Account", "Is Account Owner", "Display Name", "Handle", "User ID", "Email",
         ("Phone", "phonenumber"), "Domain", "Team ID", "Accent Id",
         "Supported Protocols", "Legal Hold Status", "Profile Picture Asset Keys",
     )
@@ -691,7 +821,8 @@ def wireDevices(context):
 
         mls_keys = v.get("mls_public_keys") or {}
         data_list.append((
-            _display_name(users, owner_uid, self_ids) if owner_uid else "",
+            _display_name(users, owner_uid, _row_owner(rec.get("db_name"), self_ids))
+            if owner_uid else "",
             relationship,
             cid or "",
             v.get("class", ""),
@@ -737,14 +868,15 @@ def wireConversations(context):
                 participants.add(o["id"])
         if v.get("creator"):
             participants.add(v["creator"])
-        part_names = sorted(_display_name(users, p, self_ids) for p in participants)
+        owners = _row_owner(rec.get("db_name"), self_ids)
+        part_names = sorted(_display_name(users, p, owners) for p in participants)
 
         data_list.append((
             _account_label(users, self_ids, rec.get("db_name")),
             v.get("name") or "",
             CONV_TYPE.get(v.get("type"), f"Type {v.get('type')}"),
             v.get("protocol", ""),
-            _display_name(users, v.get("creator"), self_ids),
+            _display_name(users, v.get("creator"), owners),
             ", ".join(part_names),
             len(participants),
             "Yes" if v.get("archived_state") else "",
@@ -831,25 +963,8 @@ def wireMessages(context):
     self_ids = _self_user_ids(stores)
     media_for = _recovered_media(context, stores)
 
-    # conversation id -> friendly name
-    conv_names = {}
-    for _rec, v in _dedupe_by_id(stores.get("conversations", [])):
-        cid = v.get("id")
-        if not cid:
-            continue
-        name = v.get("name")
-        if not name:
-            parts = set((v.get("roles") or {}).keys())
-            for o in v.get("others") or []:
-                if isinstance(o, dict) and o.get("id"):
-                    parts.add(o["id"])
-                elif isinstance(o, str):
-                    parts.add(o)
-            parts.discard(None)
-            name = ", ".join(sorted(
-                _display_name(users, p, self_ids) for p in parts
-                if p not in self_ids)) or cid
-        conv_names[cid] = name
+    # (database, conversation id) -> friendly name
+    conv_names = _conversation_names(stores, users, self_ids)
 
     rows = []
     for rec in _dedupe_events(stores.get("events", [])):
@@ -858,7 +973,8 @@ def wireMessages(context):
             continue
         d = v.get("data") or {}
         etype = v.get("type")
-        kind, text, attachment = _event_text(etype, d, users, self_ids)
+        owners = _row_owner(rec.get("db_name"), self_ids)
+        kind, text, attachment = _event_text(etype, d, users, owners)
         sender_id = v.get("from") or ""
         cid = v.get("conversation") or ""
         # Only an event with a sender has a direction. Conversation creations
@@ -867,12 +983,12 @@ def wireMessages(context):
         if not sender_id:
             outgoing = ""
         else:
-            outgoing = 1 if sender_id in self_ids else 0
+            outgoing = 1 if sender_id in owners else 0
         rows.append((
             _iso_to_dt(v.get("time")),
             outgoing,
-            _display_name(users, sender_id, self_ids),
-            conv_names.get(cid, cid),
+            _display_name(users, sender_id, owners),
+            conv_names.get((rec.get("db_name"), cid), cid),
             text or "",
             media_for(d) if etype == "conversation.asset-add" else "",
             _account_label(users, self_ids, rec.get("db_name")),
@@ -903,9 +1019,9 @@ def wireAttachments(context):
     media_for = _recovered_media(context, stores)
 
     conv_names = {}
-    for _rec, v in _dedupe_by_id(stores.get("conversations", [])):
+    for crec, v in _dedupe_by_id(stores.get("conversations", [])):
         if v.get("id"):
-            conv_names[v["id"]] = v.get("name") or v["id"]
+            conv_names[(crec.get("db_name"), v["id"])] = v.get("name") or v["id"]
 
     data_list = []
     for rec in _dedupe_events(stores.get("events", [])):
@@ -923,8 +1039,8 @@ def wireAttachments(context):
         data_list.append((
             _iso_to_dt(v.get("time")),
             _account_label(users, self_ids, rec.get("db_name")),
-            conv_names.get(cid, cid),
-            _display_name(users, v.get("from"), self_ids),
+            conv_names.get((rec.get("db_name"), cid), cid),
+            _display_name(users, v.get("from"), _row_owner(rec.get("db_name"), self_ids)),
             media_for(d),
             info.get("name", ""),
             d.get("content_type", ""),
@@ -956,24 +1072,8 @@ def wireCachedAssets(context):
     users = _build_users(stores)
     self_ids = _self_user_ids(stores)
 
-    # conversation id -> friendly name (participant fallback for unnamed 1:1s)
-    conv_names = {}
-    for _rec, v in _dedupe_by_id(stores.get("conversations", [])):
-        cid = v.get("id")
-        if not cid:
-            continue
-        name = v.get("name")
-        if not name:
-            parts = set((v.get("roles") or {}).keys())
-            for o in v.get("others") or []:
-                if isinstance(o, dict) and o.get("id"):
-                    parts.add(o["id"])
-                elif isinstance(o, str):
-                    parts.add(o)
-            name = ", ".join(sorted(
-                _display_name(users, p, self_ids) for p in parts
-                if p and p not in self_ids)) or cid
-        conv_names[cid] = name
+    # (database, conversation id) -> friendly name (participant fallback for unnamed 1:1s)
+    conv_names = _conversation_names(stores, users, self_ids)
 
     # asset id -> metadata from asset-add events (full key + preview key)
     asset_meta = {}
@@ -1014,8 +1114,8 @@ def wireCachedAssets(context):
         data_list.append((
             _ms_to_dt(ts),
             _account_label(users, self_ids, meta.get("db")),
-            conv_names.get(meta.get("conv"), meta.get("conv") or ""),
-            _display_name(users, meta.get("from"), self_ids),
+            conv_names.get((meta.get("db"), meta.get("conv")), meta.get("conv") or ""),
+            _display_name(users, meta.get("from"), _row_owner(meta.get("db"), self_ids)),
             meta.get("name", ""),
             meta.get("kind", ""),
             "Yes" if aid and aid in recovered else "",
@@ -1042,9 +1142,9 @@ def wireCalls(context):
     self_ids = _self_user_ids(stores)
 
     conv_names = {}
-    for _rec, v in _dedupe_by_id(stores.get("conversations", [])):
+    for crec, v in _dedupe_by_id(stores.get("conversations", [])):
         if v.get("id"):
-            conv_names[v["id"]] = v.get("name") or v["id"]
+            conv_names[(crec.get("db_name"), v["id"])] = v.get("name") or v["id"]
 
     call_types = ("conversation.voice-channel-activate",
                   "conversation.voice-channel-deactivate")
@@ -1062,8 +1162,8 @@ def wireCalls(context):
         rows.append((
             _iso_to_dt(v.get("time")),
             _account_label(users, self_ids, rec.get("db_name")),
-            conv_names.get(cid, cid),
-            _display_name(users, from_id, self_ids),
+            conv_names.get((rec.get("db_name"), cid), cid),
+            _display_name(users, from_id, _row_owner(rec.get("db_name"), self_ids)),
             "Ended" if ended else "Started",
             _fmt_duration_ms(d.get("duration")) if d.get("duration") else "",
             d.get("duration") if d.get("duration") is not None else "",
@@ -1109,7 +1209,7 @@ def wireProteusSessions(context):
         seen.add(sig)
         data_list.append((
             account,
-            _display_name(users, uid, self_ids),
+            _display_name(users, uid, _row_owner(rec.get("db_name"), self_ids)),
             uid,
             client_id,
             domain,
@@ -1125,12 +1225,20 @@ def wireProteusSessions(context):
 @artifact_processor
 def wireKeyMaterialInventory(context):
     stores, dirs = _load(context)
+    users = _build_users(stores)
+    self_ids = _self_user_ids(stores)
 
     data_list = []
     for store in CRYPTO_STORES:
-        recs = stores.get(store, [])
-        if recs:
-            data_list.append((store, len(recs)))
+        counts, keys = {}, {}
+        for rec in stores.get(store, []):
+            account = _account_label(users, self_ids, rec.get("db_name"))
+            counts[account] = counts.get(account, 0) + 1
+            # LevelDB can still hold earlier versions of one key, so the records
+            # returned can outnumber the keys.
+            keys.setdefault(account, set()).add(repr(rec.get("key")))
+        for account in sorted(counts):
+            data_list.append((account, store, counts[account], len(keys[account])))
 
-    data_headers = ("Key-Material Store", "Record Count")
+    data_headers = ("Account", "Key-Material Store", "Record Count", "Distinct Keys")
     return data_headers, data_list, _source(context, dirs)
