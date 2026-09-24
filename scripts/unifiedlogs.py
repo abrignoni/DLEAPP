@@ -18,7 +18,9 @@ format directly. Three properties make it a fit:
 The binary is not committed to this repository. `find_iterator()` looks for it in an
 explicit environment variable, then in a bin/ folder beside dleapp.py or inside a frozen
 build, then on PATH; when it is absent the artifact reports that and does nothing, leaving
-a 'log show' JSON export as the supported route.
+a 'log show' JSON export as the supported route. admin/scripts/fetch_unifiedlog_iterator.py
+places a digest-verified copy in bin/, and the PyInstaller specs bundle it from there; see
+bin/PROVENANCE.md.
 
 Ported from iLEAPP's scripts/unifiedlogs.py.
 """

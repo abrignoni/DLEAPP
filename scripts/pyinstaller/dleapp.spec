@@ -1,6 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
+import sys
+
+sys.path.insert(0, SPECPATH)
+from unifiedlog_binary import unifiedlog_binaries, unifiedlog_datas
+from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
 
@@ -10,11 +15,11 @@ block_cipher = None
 a = Analysis(
    ['..\\..\\dleapp.py'],
    pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
-   binaries=[],
+   binaries=unifiedlog_binaries(windows=True),
    datas=[
       ('..\\', '.\\scripts'),
       ('..\\..\\leapp_functions', '.\\leapp_functions'),
-      ('..\\..\\assets', '.\\assets')],
+      ('..\\..\\assets', '.\\assets')] + unifiedlog_datas(windows=True),
    hiddenimports=[
       # Stdlib that only artifacts import. Artifacts are bundled as data
       # files and imported from disk at runtime, so PyInstaller's
@@ -36,6 +41,10 @@ a = Analysis(
       'requests',
       'simplekml',
       'xlrd',
+      # python-evtx: the .evtx artifacts import Evtx.Evtx from disk at runtime, so the
+      # import graph never sees it, and a build without this entry reads no event log
+      # (the run log says python-evtx is not installed).
+      *collect_submodules('Evtx'),
       ],
    hookspath=[SPECPATH],
    runtime_hooks=[],

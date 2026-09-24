@@ -1,6 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
+import sys
+
+sys.path.insert(0, SPECPATH)
+from unifiedlog_binary import unifiedlog_binaries, unifiedlog_datas
+from PyInstaller.utils.hooks import collect_submodules
 
 # PyInstaller resolves pathex against the current working directory, unlike the
 # script and datas paths below, which it resolves against the spec file. Anchor
@@ -8,11 +13,11 @@ import os
 a = Analysis(
     ['../../dleappGUI.py'],
     pathex=[os.path.join(SPECPATH, '..', 'artifacts')],
-    binaries=[],
+    binaries=unifiedlog_binaries(),
     datas=[
         ('../', 'scripts'),
         ('../../assets', 'assets'),
-        ('../../leapp_functions', 'leapp_functions')],
+        ('../../leapp_functions', 'leapp_functions')] + unifiedlog_datas(),
     hiddenimports=[
         # Stdlib that only artifacts import. Artifacts are bundled as data
         # files and imported from disk at runtime, so PyInstaller's
@@ -33,6 +38,10 @@ a = Analysis(
         'Registry',
         'requests',
         'xlrd',
+        # python-evtx: the .evtx artifacts import Evtx.Evtx from disk at runtime, so the
+        # import graph never sees it, and a build without this entry reads no event log
+        # (the run log says python-evtx is not installed).
+        *collect_submodules('Evtx'),
     ],
     hookspath=[],
     hooksconfig={},
