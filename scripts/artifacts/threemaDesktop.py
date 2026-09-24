@@ -1,7 +1,7 @@
 """Threema Desktop artifacts. Author: @AlexisBrignoni, Codex."""
 
 from scripts import threema_desktop as td
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, check_in_embedded_media
 
 __artifacts_v2__ = {
     "threemaProfile": {
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Codex", "creation_date": "2026-09-24", "last_update_date": "2026-09-24",
         "requirements": "PyCryptodome; the 64-character database key for encrypted databases", "category": "Threema Desktop",
         "notes": "Integer meanings follow the official schema at https://github.com/threema-ch/threema-desktop/tree/93a6615c5567f0cf8371619dc1a5e888eed1d0b6. Public keys and profile-picture blobs are not reported.",
-        "paths": ("*/threema.sqlite", "*/threema.sqlite-wal", "*/threema.sqlite-shm", "*/threema-key.txt", "*/threema_key.txt", "*/threema-db-key.txt", "*/threema_db_key.txt"),
+        "paths": ("*/threema.sqlite", "*/threema.sqlite-wal", "*/threema.sqlite-shm", "*/keystorage.bin", "*/threema-key.txt", "*/threema_key.txt", "*/threema-db-key.txt", "*/threema_db_key.txt"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "address-book"},
     "threemaConversations": {
@@ -41,18 +41,19 @@ __artifacts_v2__ = {
         "artifact_icon": "users"},
     "threemaMessages": {
         "name": "Threema Desktop Messages",
-        "description": "Messages stored by Threema Desktop with direction, conversation, sender, timestamps, text, location and poll content.",
+        "description": "Messages stored by Threema Desktop with direction, conversation, sender, timestamps, text, location and poll content. Locally stored attachments are decrypted, authenticated and shown against their parent message.",
         "author": "@AlexisBrignoni, Codex", "creation_date": "2026-09-24", "last_update_date": "2026-09-24",
         "requirements": "PyCryptodome; the 64-character database key for encrypted databases", "category": "Threema Desktop",
-        "notes": "Deleted and edited timestamps are reported when present. Encryption keys and raw protocol bytes are withheld. Schema source: https://github.com/threema-ch/threema-desktop/tree/93a6615c5567f0cf8371619dc1a5e888eed1d0b6.",
-        "paths": ("*/threema.sqlite", "*/threema.sqlite-wal", "*/threema.sqlite-shm", "*/threema-key.txt", "*/threema_key.txt", "*/threema-db-key.txt", "*/threema_db_key.txt"),
+        "notes": "Deleted and edited timestamps are reported when present. Only local files that authenticate are embedded; status explains absent and unsupported files. Encryption keys and raw protocol bytes are withheld. Schema and file format source: https://github.com/threema-ch/threema-desktop/tree/93a6615c5567f0cf8371619dc1a5e888eed1d0b6.",
+        "paths": ("*/threema.sqlite", "*/threema.sqlite-wal", "*/threema.sqlite-shm", "*/data/files/??/*", "*/threema-key.txt", "*/threema_key.txt", "*/threema-db-key.txt", "*/threema_db_key.txt"),
         "artifact_icon": "message",
         "output_types": ["html", "tsv", "timeline", "lava"],
         "data_views": {"conversation": {
             "conversationDiscriminatorColumn": "Conversation UID",
             "conversationLabelColumn": "Conversation", "textColumn": "Content",
             "timeColumn": "Created", "directionColumn": "Direction",
-            "directionSentValue": "Outbound", "senderColumn": "Sender Threema ID"}}},
+            "directionSentValue": "Outbound", "senderColumn": "Sender Threema ID",
+            "mediaColumn": "Attachments"}}},
     "threemaReactions": {
         "name": "Threema Desktop Message Reactions",
         "description": "Emoji reactions stored for Threema Desktop messages, with sender and parent-message context.",
@@ -68,7 +69,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Codex", "creation_date": "2026-09-24", "last_update_date": "2026-09-24",
         "requirements": "PyCryptodome; the 64-character database key for encrypted databases", "category": "Threema Desktop",
         "notes": "This reports metadata only. File and message encryption keys are withheld. Schema source: https://github.com/threema-ch/threema-desktop/tree/93a6615c5567f0cf8371619dc1a5e888eed1d0b6.",
-        "paths": ("*/threema.sqlite", "*/threema.sqlite-wal", "*/threema.sqlite-shm", "*/threema-key.txt", "*/threema_key.txt", "*/threema-db-key.txt", "*/threema_db_key.txt"),
+        "paths": ("*/threema.sqlite", "*/threema.sqlite-wal", "*/threema.sqlite-shm", "*/data/files/??/*", "*/threema-key.txt", "*/threema_key.txt", "*/threema-db-key.txt", "*/threema_db_key.txt"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "paperclip"},
     "threemaGroupCalls": {
@@ -224,12 +225,31 @@ def _message_content(db):
     return "COALESCE(" + ", ".join(parts) + ", '')"
 
 
-def _messages(db):
+def _message_attachments(db):
+    """Attachment storage records grouped by parent message UID."""
+    grouped = {}
+    if not td.columns(db, "fileData"):
+        return grouped
+    for table in ("messageFileData", "messageImageData", "messageVideoData", "messageAudioData"):
+        if not td.columns(db, table) or "fileDataUid" not in td.columns(db, table):
+            continue
+        selected = td.optional(db, table, ("fileName", "mediaType"), "a")
+        for row in db.execute(f"""SELECT a.messageUid, {selected}, f.fileId,
+                f.encryptionKey, f.unencryptedByteCount, f.storageFormatVersion
+            FROM {table} a JOIN fileData f ON f.uid=a.fileDataUid
+            WHERE a.fileDataUid IS NOT NULL ORDER BY a.uid"""):
+            grouped.setdefault(row["messageUid"], []).append(row)
+    return grouped
+
+
+def _messages(db, files_found=()):
     edited = "m.lastEditedAt" if "lastEditedAt" in td.columns(db, "messages") else "NULL"
     deleted = "m.deletedAt" if "deletedAt" in td.columns(db, "messages") else "NULL"
     poll_joins = "LEFT JOIN messagePollData mp ON mp.messageUid=m.uid LEFT JOIN polls p ON p.uid=mp.pollUid" if td.columns(db, "polls") else ""
     location_join = "LEFT JOIN messageLocationData l ON l.messageUid=m.uid" if td.columns(db, "messageLocationData") else ""
     content = _message_content(db)
+    attachments = _message_attachments(db)
+    stored_files = td.stored_file_paths(files_found)
     query = f"""SELECT m.createdAt, m.processedAt, m.deliveredAt, m.readAt,
             {edited} AS lastEditedAt, {deleted} AS deletedAt, m.uid, m.messageId,
             m.messageType, m.threadId, m.senderContactUid, sender.identity AS senderIdentity,
@@ -247,11 +267,35 @@ def _messages(db):
     for row in db.execute(query):
         conversation = row["contactIdentity"] or row["groupName"] or row["distributionListName"]
         sender_name = " ".join(part for part in (row["senderFirstName"], row["senderLastName"]) if part)
+        media_refs, attachment_names, attachment_status = [], [], []
+        for attached in attachments.get(row["uid"], []):
+            file_id = attached["fileId"]
+            name = attached["fileName"] or file_id
+            attachment_names.append(name)
+            path = stored_files.get(file_id)
+            if not path:
+                attachment_status.append(f"{name}: Local file not found")
+                continue
+            plaintext, status = td.decrypt_stored_file(
+                path, file_id, attached["encryptionKey"], attached["unencryptedByteCount"],
+                attached["storageFormatVersion"])
+            if plaintext is None:
+                attachment_status.append(f"{name}: {status}")
+                continue
+            reference = check_in_embedded_media(
+                path, plaintext, name=name, force_type=attached["mediaType"] or None,
+                force_creation_date=td.timestamp(row["createdAt"]))
+            if reference:
+                media_refs.append(reference)
+                attachment_status.append(f"{name}: Authenticated and embedded")
+            else:
+                attachment_status.append(f"{name}: Authenticated; could not embed")
         yield (td.timestamp(row["createdAt"]), td.timestamp(row["processedAt"]),
                td.timestamp(row["deliveredAt"]), td.timestamp(row["readAt"]),
                td.timestamp(row["lastEditedAt"]), td.timestamp(row["deletedAt"]),
                "Inbound" if row["senderContactUid"] else "Outbound", row["senderIdentity"],
-               conversation, row["content"], row["uid"], td.blob_hex(row["messageId"]),
+               conversation, row["content"], media_refs, ", ".join(attachment_names),
+               "; ".join(attachment_status), row["uid"], td.blob_hex(row["messageId"]),
                row["messageType"], row["threadId"], row["conversationUid"],
                row["senderContactUid"], sender_name)
 
@@ -261,10 +305,13 @@ def threemaMessages(context):
     data_headers = (("Created", "datetime"), ("Processed", "datetime"),
                     ("Delivered", "datetime"), ("Read", "datetime"),
                     ("Last Edited", "datetime"), ("Deleted", "datetime"),
-                    "Direction", "Sender Threema ID", "Conversation", "Content", "Message UID",
-                    "Message ID", "Message Type", "Thread ID", "Conversation UID", "Sender UID",
+                    "Direction", "Sender Threema ID", "Conversation", "Content",
+                    ("Attachments", "media"), "Attachment Names", "Attachment Status",
+                    "Message UID", "Message ID", "Message Type", "Thread ID", "Conversation UID", "Sender UID",
                     "Sender Name", "Source File")
-    rows, source = td.read_databases(context, _messages, "Threema Desktop Messages")
+    files_found = [str(path) for path in context.get_files_found()]
+    rows, source = td.read_databases(
+        context, lambda db: _messages(db, files_found), "Threema Desktop Messages")
     return data_headers, rows, source
 
 

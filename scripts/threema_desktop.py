@@ -19,12 +19,15 @@ from datetime import datetime, timedelta, timezone
 from scripts.ilapfuncs import logfunc
 
 _RAW_KEY_RE = re.compile(r"^[0-9a-fA-F]{64}$")
+_FILE_ID_RE = re.compile(r"^[0-9a-f]{48}$")
 _SQLITE_MAGIC = b"SQLite format 3\x00"
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 PAGE_SIZE = 4096
 HMAC_ALGORITHM = "sha512"
 KDF_ALGORITHM = "sha512"
+FILE_CHUNK_SIZE = 1024 * 1024
+FILE_TAG_SIZE = 16
 
 CREDENTIAL_FILENAMES = (
     "threema-key.txt",
@@ -67,6 +70,71 @@ def blob_hex(value):
     if isinstance(value, bytes):
         return value.hex()
     return str(value)
+
+
+def stored_file_paths(files_found):
+    """Map Threema file IDs to encrypted files in data/files/<prefix>/<id>."""
+    found = {}
+    for candidate in files_found:
+        path = str(candidate)
+        normalized = path.replace("\\", "/")
+        parts = normalized.split("/")
+        name = parts[-1]
+        if (_FILE_ID_RE.fullmatch(name)
+                and len(parts) >= 4 and parts[-4:-2] == ["data", "files"]
+                and parts[-2] == name[:2]):
+            found.setdefault(name, path)
+    return found
+
+
+def decrypt_stored_file(path, file_id, key, plaintext_size, storage_version):
+    """Decrypt and authenticate a version-1 Threema local file.
+
+    Returns ``(bytes, status)``. No partial plaintext is returned when a chunk
+    fails authentication or the stored length does not match the database.
+    """
+    if storage_version != 1:
+        return None, f"Unsupported storage format ({storage_version})"
+    if not isinstance(key, bytes) or len(key) != 32:
+        return None, "Invalid file encryption key"
+    if not isinstance(file_id, str) or len(file_id) != 48:
+        return None, "Invalid local file ID"
+    try:
+        size = int(plaintext_size)
+    except (TypeError, ValueError):
+        return None, "Invalid plaintext size"
+    if size < 0:
+        return None, "Invalid plaintext size"
+    try:
+        with open(path, "rb") as handle:
+            encrypted = handle.read()
+    except OSError:
+        return None, "Local file not readable"
+    if size == 0:
+        return (b"", "Authenticated") if not encrypted else (None, "Stored length mismatch")
+
+    from Crypto.Cipher import AES
+    chunks, offset, remaining = [], 0, size
+    count = (size + FILE_CHUNK_SIZE - 1) // FILE_CHUNK_SIZE
+    suffix = bytes.fromhex(file_id[-8:])
+    try:
+        for index in range(1, count + 1):
+            plain_length = min(FILE_CHUNK_SIZE, remaining)
+            stored_length = plain_length + FILE_TAG_SIZE
+            block = encrypted[offset:offset + stored_length]
+            if len(block) != stored_length:
+                return None, "Stored length mismatch"
+            last = index == count
+            nonce = suffix + index.to_bytes(4, "big") + b"\x00\x00\x00" + bytes([last])
+            cipher = AES.new(key, AES.MODE_GCM, nonce=nonce, mac_len=FILE_TAG_SIZE)
+            chunks.append(cipher.decrypt_and_verify(block[:-FILE_TAG_SIZE], block[-FILE_TAG_SIZE:]))
+            offset += stored_length
+            remaining -= plain_length
+    except (ValueError, OverflowError):
+        return None, "Authentication failed"
+    if offset != len(encrypted):
+        return None, "Stored length mismatch"
+    return b"".join(chunks), "Authenticated"
 
 
 def is_plaintext_sqlite(path):
