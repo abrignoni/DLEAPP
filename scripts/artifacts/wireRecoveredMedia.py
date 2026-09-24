@@ -9,10 +9,15 @@ __artifacts_v2__ = {
                        "decrypted with the event otr_key and embedded in the report.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "PyCryptodome",
         "category": "Wire (Windows)",
-        "notes": "Only assets still present in an on-disk cache can be recovered. "
+        "notes": "Only assets still present in an on-disk cache can be recovered. Timestamp is "
+                 "the time of the confirmed version of the asset-add event, the version Wire "
+                 "Attachments reports: of the versions LevelDB keeps of that event, the one with "
+                 "a primary key, then the highest status, then the latest time; on wire_win it "
+                 "equals Wire Attachments' time on all 7 rows. The located-at line lists the "
+                 "LevelDB folder and each cache file an asset was recovered from. "
                  "Decryption follows Wire's asset scheme: blob = IV(16) || "
                  "AES-256-CBC ciphertext, SHA-256 taken over the blob.",
         "paths": (
@@ -206,4 +211,5 @@ def wireRecoveredMedia(context):
     data_list.sort(key=lambda r: (r[0] if isinstance(r[0], datetime)
                                   else datetime.min.replace(tzinfo=timezone.utc)))
     logfunc(f"Wire Recovered Media: decrypted {len(data_list)} cached asset(s).")
-    return data_headers, data_list, (dirs[0] if dirs else "")
+    sources = list(dirs) + sorted({desc["source"] for desc in recovered.values()})
+    return data_headers, data_list, "\n".join(sources)

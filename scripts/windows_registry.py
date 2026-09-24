@@ -100,9 +100,14 @@ def current_control_set(system_reg):
     return f'ControlSet{current:03d}' if isinstance(current, int) else 'ControlSet001'
 
 
-def user_from_path(path):
-    """The folder name after Users in a staged path, or ''."""
-    parts = path.replace('\\', '/').split('/')
+def user_from_path(relative):
+    """The folder name after the first folder named Users in a path, or ''.
+
+    Pass the path within the extraction (context.get_relative_path), never the staged
+    path: the staged path begins with the examiner's own report folder, which on macOS
+    and Windows usually sits under the examiner's Users folder.
+    """
+    parts = relative.replace('\\', '/').split('/')
     for index, part in enumerate(parts):
         if part.lower() == 'users' and index + 1 < len(parts):
             return parts[index + 1]

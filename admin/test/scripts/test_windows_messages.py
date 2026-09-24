@@ -146,11 +146,12 @@ class TestDefenderParameterText(_TempDir):
     def setUp(self):
         super().setUp()
         files = []
-        for relative, text in (('lba0/' + self.INBOX, 'Inbox'),
-                               ('lba0/' + self.PLATFORM.format('4.18.1'), 'Platform'),
-                               ('lba1/' + self.INBOX, 'Other volume')):
-            files.append(self.write('data/' + relative, pe_with_resource(
-                message_table([(802, [(UNICODE, text + '%0\r\n')])]))))
+        for relative, blocks in (
+                ('lba0/' + self.INBOX, [(802, [(UNICODE, 'Inbox%0\r\n')]),
+                                        (901, [(UNICODE, 'Only in the inbox copy%0\r\n')])]),
+                ('lba0/' + self.PLATFORM.format('4.18.1'), [(802, [(UNICODE, 'Platform%0\r\n')])]),
+                ('lba1/' + self.INBOX, [(802, [(UNICODE, 'Other volume%0\r\n')])])):
+            files.append(self.write('data/' + relative, pe_with_resource(message_table(blocks))))
         self.log0 = str(self.tmp / 'data/lba0' / self.LOG)
         self.log1 = str(self.tmp / 'data/lba1' / self.LOG)
         self.text = windowsDefenderEvents._ParameterText(  # pylint: disable=protected-access
@@ -163,6 +164,11 @@ class TestDefenderParameterText(_TempDir):
     def test_the_program_files_copy_serves_a_version_with_no_platform_folder(self):
         self.assertEqual(self.text.text(_Record(self.log0, '4.18.9'), '%%802'),
                          'Inbox (%%802)')
+
+    def test_a_message_the_platform_copy_lacks_comes_from_the_program_files_copy(self):
+        self.assertEqual(self.text.text(_Record(self.log0, '4.18.1'), '%%901'),
+                         'Only in the inbox copy (%%901)')
+        self.assertEqual(self.text.kept, 0)
 
     def test_each_volume_uses_its_own_files(self):
         self.assertEqual(self.text.text(_Record(self.log1, '4.18.1'), '%%802'),

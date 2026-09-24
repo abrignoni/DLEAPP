@@ -24,6 +24,7 @@ except ImportError:
 
 from scripts.windows_lnk import _idlist_path
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import user_from_path
 
 _EXPLORER = r"Software\Microsoft\Windows\CurrentVersion\Explorer"
 
@@ -34,7 +35,7 @@ __artifacts_v2__ = {
                        "key), most-recently-used first, per user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the RunMRU key in each NTUSER.DAT, named in Source "
@@ -64,7 +65,7 @@ __artifacts_v2__ = {
                        "TypedPaths key), per user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the TypedPaths key in each NTUSER.DAT, named in "
@@ -90,7 +91,7 @@ __artifacts_v2__ = {
                        "recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the Internet Explorer TypedURLs key in each "
@@ -120,7 +121,7 @@ __artifacts_v2__ = {
                        "user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the WordWheelQuery key in each NTUSER.DAT, named in "
@@ -149,7 +150,7 @@ __artifacts_v2__ = {
                        "first, per user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the OpenSavePidlMRU key in each NTUSER.DAT, named in "
@@ -183,7 +184,7 @@ __artifacts_v2__ = {
                        "user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the LastVisitedPidlMRU key in each NTUSER.DAT, named "
@@ -207,14 +208,6 @@ __artifacts_v2__ = {
         },
     },
 }
-
-
-def _user_from_path(source):
-    parts = source.replace('\\', '/').split('/')
-    for index, part in enumerate(parts):
-        if part.lower() == 'users' and index + 1 < len(parts):
-            return parts[index + 1]
-    return ''
 
 
 def _key_time(key):
@@ -285,7 +278,7 @@ def _each_hive(context, artifact):
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'{artifact}: could not read {relative_source}: {exc}')
             continue
-        yield reg, source, relative_source, _user_from_path(source)
+        yield reg, source, relative_source, user_from_path(relative_source)
 
 
 @artifact_processor

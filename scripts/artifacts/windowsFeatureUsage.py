@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "NTUSER.DAT, with the key's KeyCreationTime value, reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads every subkey of "
@@ -73,7 +73,7 @@ def featureUsage(context):
         return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
-        user = user_from_path(path)
+        user = user_from_path(relative)
         try:
             root = open_key(Registry.Registry(path), _FEATURE_USAGE)
             created = _creation_time(root) if root is not None else ''
