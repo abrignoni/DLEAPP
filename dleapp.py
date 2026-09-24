@@ -25,7 +25,7 @@ from scripts.lavafuncs import lava_json_name
 
 leapp_name = "DLEAPP"
 
-# Sentinel meaning an application key flag was given with no value, which asks for a
+# Sentinel meaning "--signal-key was given with no value", which asks for a
 # prompt instead. Secrets are gathered here, before processing starts, never
 # from inside an artifact: artifacts run in a loop and, under the GUI, off the
 # main thread, so a prompt there would stall the run or deadlock the interface.
@@ -241,12 +241,6 @@ def main():
                               "database key itself, or the path to a file holding either. A macOS "
                               "account login password will not work. Give the flag with no value "
                               "to be prompted without the secret reaching your shell history."))
-    parser.add_argument('--threema-key', dest='threema_key', required=False, nargs='?',
-                        const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
-                        help=("The 64-character hexadecimal SQLCipher database key for Threema "
-                              "Desktop. Accepts the key itself or a path to a file holding it. "
-                              "Give the flag with no value to be prompted without the key reaching "
-                              "your shell history. Already-decrypted databases need no key."))
 
 
     # Check if no arguments were provided
@@ -391,7 +385,6 @@ def main():
     # Gather any application secrets now, while the terminal is still ours
     try:
         Context.set_app_secret('signal', resolve_supplied_secret(args.signal_key, 'Signal key'))
-        Context.set_app_secret('threema', resolve_supplied_secret(args.threema_key, 'Threema key'))
     except argparse.ArgumentError as secret_error:
         print(secret_error)
         return
