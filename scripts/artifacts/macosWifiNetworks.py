@@ -11,12 +11,14 @@ __artifacts_v2__ = {
                        "security types and the BSSIDs recorded for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Networks (macOS)",
         "notes": "Reads /Library/Preferences/com.apple.wifi.known-networks.plist, one row per "
-                 "top-level entry; the entries are keyed wifi.network.ssid. followed by the SSID, and "
-                 "SSID is the entry's SSID value decoded as UTF-8. The six dates are the entry's "
+                 "top-level entry; the entries are keyed wifi.network.ssid. followed by the "
+                 "SSID, and SSID is the entry's SSID value decoded as UTF-8, or the text after "
+                 "wifi.network.ssid. in the key when that value is not stored as data. The six "
+                 "dates are the entry's "
                  "AddedAt, JoinedByUserAt, JoinedBySystemAt, LastDiscoveredAt, UpdatedAt and "
                  "LastDisconnectTimestamp values as stored; what event each records beyond its name is"
                  " not established. BSSIDs lists each BSSList entry's BSSID, channel and "
@@ -26,8 +28,9 @@ __artifacts_v2__ = {
                  "dates, and 4 carry 10 BSSList entries between them; Hidden holds one value, No, on "
                  "all 5 rows. dleapp_macos_bigsur has no com.apple.wifi.known-networks.plist, and its "
                  "com.apple.airport.preferences.plist holds no KnownNetworks key. When a logical "
-                 "extraction holds the same file under Users/ and under System/Volumes/Data/Users/, a "
-                 "byte-identical second copy is read once and counted in the run log.",
+                 "extraction holds the file under Library/Preferences/ and again under "
+                 "System/Volumes/Data/Library/Preferences/, a second copy byte-identical to the "
+                 "first is not read again, and is counted in the run log.",
         "paths": ('*/Library/Preferences/com.apple.wifi.known-networks.plist',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "wifi",

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "modification and last used times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
         "notes": "Reads each user's client.db under ~/Library/Application "
@@ -36,13 +36,15 @@ __artifacts_v2__ = {
                  "and were identical on every row of the public MacBook Pro logical "
                  "extraction (macOS 15.4, not a registered corpus key). On the MacBook Pro "
                  "version_mtime is 0 on 27 of the 42 items, so Version Modified is blank "
-                 "on those rows, Trash Put-Back Path is empty on every row, and the Users/ "
-                 "and System/Volumes/Data/Users/ copies differ and both are read, so each "
+                 "on those rows, Trash Put-Back Path is empty on every row, and the Users/ and "
+                 "System/Volumes/Data/Users/ copies hold a byte-identical client.db with "
+                 "different -wal files, and both are read, so each "
                  "item appears twice, identical in every column but Source File. server.db "
                  "is not read. All rows on each image come from one user, so User holds "
                  "one value there. When a logical extraction holds the same file under "
-                 "Users/ and under System/Volumes/Data/Users/, a byte-identical second "
-                 "copy is read once and counted in the run log.",
+                 "Users/ and under System/Volumes/Data/Users/, a second copy whose database and "
+                 "-wal file are both byte-identical to the first is not read again, and is "
+                 "counted in the run log.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 72 rows",
                        },

@@ -3,13 +3,14 @@ __artifacts_v2__ = {
         "name": "Wire Local Storage",
         "description": "Key/value pairs from the Wire desktop app's Chromium "
                        "Local Storage (main profile and Electron partitions), "
-                       "one row per key with its newest live value. Keys in the "
+                       "one row per key with its newest live value, cut to its first 2,000 characters. "
+                       "Keys in the "
                        "tested corpus included an analytics (Countly) device id, "
                        "the selected and favourite video input device ids, the UI "
                        "locale and interface preferences.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Only entries for wire.com origins (the host wire.com or one of its "
@@ -25,10 +26,16 @@ __artifacts_v2__ = {
                  "reported. Chromium writes a format byte before each Local Storage key "
                  "and value, 0 for UTF-16 and 1 for Latin-1, and the artifact decodes "
                  "both by it; every key and value in the tested corpus carried the "
-                 "Latin-1 byte, so the UTF-16 branch is unexercised. Reference: "
-                 "Chromium, 'cached_storage_area.cc', "
-                 "https://github.com/chromium/chromium/blob/b8c3e22534db19c8fe58dc0da29d943220721bb9/"
-                 "third_party/blink/renderer/modules/storage/cached_storage_area.cc#L747-L768",
+                 "Latin-1 byte, so the UTF-16 branch is unexercised. Reference: Chromium, "
+                 "'cached_storage_area.cc', "
+                 "https://github.com/chromium/chromium/blob/b8c3e22534db19c8fe58dc0da29d943220721bb9/third_party/blink/renderer/modules/storage/cached_storage_area.cc#L37 "
+                 "(the two format values), "
+                 "https://github.com/chromium/chromium/blob/b8c3e22534db19c8fe58dc0da29d943220721bb9/third_party/blink/renderer/modules/storage/cached_storage_area.cc#L680-L688 "
+                 "(keys and values both use the format byte), "
+                 "https://github.com/chromium/chromium/blob/b8c3e22534db19c8fe58dc0da29d943220721bb9/third_party/blink/renderer/modules/storage/cached_storage_area.cc#L825-L843 "
+                 "(writing it) and "
+                 "https://github.com/chromium/chromium/blob/b8c3e22534db19c8fe58dc0da29d943220721bb9/third_party/blink/renderer/modules/storage/cached_storage_area.cc#L747-L768 "
+                 "(reading it)",
         "paths": ('*/Wire/*Local Storage/leveldb/*',),
         "sample_data": {
             "wire_win": "Windows, version not recorded | 21 rows",

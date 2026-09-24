@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                        "profile, authentication and encryption each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-WLAN-AutoConfig%4Operational.evtx, named in "
@@ -60,8 +60,11 @@ __artifacts_v2__ = {
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of pc_mus_001_win11 "
                  "and two values on lonewolf_win10. af_case2_win10 carries no "
-                 "WLAN-AutoConfig Operational log. Not reported: the log's other events "
-                 "(8000, 11004, 11005 and 11010 on the registered images). A record "
+                 "WLAN-AutoConfig Operational log. Not reported: the OnexEnabled and "
+                 "NonBroadcast fields of 8001, the ReasonCode field of 8003, the OnexEnabled and "
+                 "IhvConnectivitySetting fields of 11000, the MgmtFrameProtection field of "
+                 "11001, and the log's other events (8000, 11004, 11005 and 11010 on the "
+                 "registered images). A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in "
                  "the run log and not reported; every record in this log rendered on the "
                  "registered images. Reading needs the python-evtx package (pip install "

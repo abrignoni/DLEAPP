@@ -92,7 +92,7 @@ __artifacts_v2__ = {
                        "record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Kernel-PnP%4Configuration.evtx, named in the "
@@ -120,8 +120,10 @@ __artifacts_v2__ = {
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of pc_mus_001_win11 "
                  "and two values on af_case2_win10 and lonewolf_win10. Rows cover every "
-                 "device class the log names, not only storage. Not reported: the log's "
-                 "other events (403, 411, 430, 440, 442 on the registered images). A "
+                 "device class the log names, not only storage. Not reported: the DriverInbox, "
+                 "DriverSection, DriverRank, OutrankedDrivers and DeviceUpdated fields of 400, "
+                 "the LowerFilters and UpperFilters fields of 410, and the log's other events "
+                 "(403, 411, 430, 440, 442 on the registered images). A "
                  "record python-evtx cannot render, or whose XML does not parse, is "
                  "counted in the run log and not reported; every record in this log "
                  "rendered on the registered images. Reading needs the python-evtx package "

@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "time zone and the stored trashed, hidden and favorite values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Photos (macOS)",
         "notes": "Reads each Photos library's database/Photos.sqlite, one row per ZASSET "
@@ -39,17 +39,23 @@ __artifacts_v2__ = {
                  "ZTRASHEDSTATE, ZHIDDEN and ZFAVORITE as stored; on dleapp_macos_bigsur 3 "
                  "assets have Trashed State 1 and a Trashed Date, and Hidden and Favorite "
                  "each held one value on all 116 rows. EXIF Timestamp has no value on any "
-                 "row of dleapp_macos_bigsur. The public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key) holds 2 assets in a database "
-                 "with no ZCREATORBUNDLEID column, so Creator Bundle ID is empty there. On "
+                 "row of dleapp_macos_bigsur. The public MacBook Pro logical extraction (macOS "
+                 "15.4, not a registered corpus key) holds 2 assets in the Photos Library "
+                 "database under Pictures and 1 in the Syndication library database under "
+                 "~/Library/Photos/Libraries, and neither database has a ZCREATORBUNDLEID "
+                 "column, so Creator Bundle ID is empty there. On "
                  "the MacBook Pro, Trashed Date has no value on any row and Kind held one "
-                 "value on all rows. Its Users/ and System/Volumes/Data/Users/ copies "
-                 "differ and both are read, so each asset appears twice, identical in "
-                 "every column but Source File. The original and derivative files in the "
+                 "value on all rows. The Users/ and System/Volumes/Data/Users/ copies of its "
+                 "Photos Library database are byte-identical but their -wal files differ, so "
+                 "both are read and each of its 2 assets appears twice, identical in every "
+                 "column but Source File; the two copies of the Syndication library database are "
+                 "byte-identical, -wal included, so that database is read once and its asset "
+                 "appears once. The original and derivative files in the "
                  "library are not read. All rows on each image come from one user, so User "
                  "holds one value there. When a logical extraction holds the same file "
-                 "under Users/ and under System/Volumes/Data/Users/, a byte-identical "
-                 "second copy is read once and counted in the run log. Reference: Apple, "
+                 "under Users/ and under System/Volumes/Data/Users/, a second copy whose "
+                 "database and -wal file are both byte-identical to the first is not read again, "
+                 "and is counted in the run log. Reference: Apple, "
                  "'NSDate', https://developer.apple.com/documentation/foundation/nsdate.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 116 rows",

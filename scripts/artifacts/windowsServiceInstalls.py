@@ -30,37 +30,42 @@ _EVENT_ID = '7045'
 __artifacts_v2__ = {
     "serviceInstalls": {
         "name": "Windows Service Installations",
-        "description": "Services registered on the system, from Service Control "
-                       "Manager event 7045 in the System event log: the service "
+        "description": "Service installations recorded by Service Control Manager event 7045 in the "
+                       "System event log: the service "
                        "name, image path, service and start types, and the "
                        "account the service runs under.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is a "
-                 "Service Control Manager event 7045, which Microsoft records as "
-                 "a service being installed in the system; only that provider and "
+                 "Service Control Manager event 7045, which the provider's message records as 'A "
+                 "service was installed in the system.' (Service Control Manager manifest as "
+                 "registered on Windows 11 build 22621.819, published in nasbench's "
+                 "EVTX-ETW-Resources repository: "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Service%20Control%20Manager.xml#L587-L607); "
+                 "only that provider and "
                  "Event ID are read, because an Event ID means different things "
-                 "for different providers. Event Time (UTC) is the record's "
-                 "TimeCreated SystemTime, stored in UTC. Service Name, Image "
+                 "for different providers. Event Time (UTC) is the record's TimeCreated "
+                 "SystemTime, which python-evtx renders from the FILETIME the record stores, "
+                 "counted in UTC (python-evtx 0.8.1, "
+                 "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
+                 "Service Name, Image "
                  "Path, Service Type, Start Type and Account are the ServiceName, "
                  "ImagePath, ServiceType, StartType and AccountName fields as "
                  "stored; the type and start-type values are the text the event "
-                 "carries. Image Path is the service binary or command line as "
-                 "stored and is worth reviewing: a path outside the usual system "
-                 "or program directories, or a command interpreter, is notable. "
-                 "Account is the account the service is configured to run under, "
+                 "carries. Image Path is the service binary or command line as stored. "
+                 "Account is the value the event's message labels Service Account (manifest "
+                 "cited above), "
                  "not necessarily the account that created the service, and is "
-                 "blank when the event stored none. A service can be installed "
-                 "and then removed, so this event may be the only remaining "
-                 "record of one. Computer is the machine that recorded the event. "
+                 "blank when the event stored none. A 7045 event records an installation; "
+                 "whether the service still exists is not established by this artifact. Computer "
+                 "is the machine that recorded the event. "
                  "Reading needs the python-evtx package (pip install "
                  "python-evtx). Event 7045 and its forensic use: Psmths, "
                  "'windows-forensic-artifacts', "
-                 "https://github.com/Psmths/windows-forensic-artifacts/blob/main/"
-                 "persistence/evtx-7045-service-install.md",
+                 "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/persistence/evtx-7045-service-install.md",
         "paths": ("*/Windows/System32/winevt/Logs/System.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "settings",

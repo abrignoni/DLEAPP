@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                        "name hash the client records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from "
@@ -41,7 +41,8 @@ __artifacts_v2__ = {
                  "the report's located-at line; only records of the "
                  "Microsoft-Windows-TerminalServices-ClientActiveXCore provider with Event "
                  "ID 1024, 1025, 1026, 1027, 1029 or 1102 are read. Event is the provider "
-                 "manifest's message for each, without the values it inserts (manifest as "
+                 "manifest's message for each, without the values it inserts and the text "
+                 "immediately around them (manifest as "
                  "registered on Windows 11 build 22621.819, published in nasbench's "
                  "EVTX-ETW-Resources repository: "
                  "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-TerminalServices-ClientActiveXCore.xml#L816-L877, "

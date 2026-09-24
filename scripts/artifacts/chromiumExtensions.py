@@ -8,7 +8,7 @@ __artifacts_v2__ = {
                        "location, install times, state and disable reasons.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the extensions.settings dictionary "
@@ -34,8 +34,9 @@ __artifacts_v2__ = {
                  "UNPACKED (4) and COMMAND_LINE (8) "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/browser/extension_prefs.cc#L2402-L2408, "
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/common/manifest.h#L66-L69); "
-                 "they are blank where the entry has no manifest. Location shows the stored integer with "
-                 "its name from manifest.mojom "
+                 "they are blank where the entry has no manifest. Location shows the stored "
+                 "integer with its manifest.mojom name written in capitals with underscores, "
+                 "kExternalPrefDownload as EXTERNAL_PREF_DOWNLOAD "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/common/mojom/manifest.mojom#L18-L46). "
                  "Install Time is install_time, which the Chrome 65 release wrote with "
                  "base::Time::ToInternalValue each time it populated the entry "
@@ -43,7 +44,11 @@ __artifacts_v2__ = {
                  "First Install Time and Last Update Time are first_install_time, kept from the first "
                  "write, and last_update_time, rewritten each time, as current Chromium writes them "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/browser/extension_prefs.cc#L2354-L2361); "
-                 "all three are microseconds since 1601-01-01 UTC. The tested images carry install_time "
+                 "all three are microseconds since 1601-01-01 UTC, install_time through "
+                 "base::Time::ToInternalValue, which base/time/time.h describes as microseconds "
+                 "since the Windows epoch "
+                 "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/base/time/time.h#L5-L7). "
+                 "The tested images carry install_time "
                  "only, so First Install Time and Last Update Time are blank on every row of "
                  "pc_mus_001_win11 and lonewolf_win10. State (as stored) is the state key with its name "
                  "from the Chrome 65 extension.h "
@@ -52,8 +57,11 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/browser/extension_prefs.cc#L2700) "
                  "and removes those keys from every entry (same file, lines 2715 to 2724), so State is "
                  "blank where an entry no longer carries the key. Disable Reasons names each bit of the "
-                 "stored disable_reasons, a number in older releases and a list in newer ones, from "
-                 "disable_reason.h "
+                 "stored disable_reasons, a number in the Chrome 65 release "
+                 "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/extensions/browser/extension_prefs.cc#L783-L788) "
+                 "and a list in current Chromium "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/browser/extension_prefs.cc#L2053-L2072), "
+                 "from disable_reason.h "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/browser/disable_reason.h#L26-L72). "
                  "Disable Reasons was blank on every row of pc_mus_001_win11; on lonewolf_win10 it was "
                  "EXTERNAL_EXTENSION (8192) on the one row whose State is DISABLED (0). From Web Store and "
@@ -68,11 +76,12 @@ __artifacts_v2__ = {
                  "a profile's Extensions folder are not read. No member of af_case2_win10 or "
                  "dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
-                 "macOS and Linux, and a store directly inside a user data folder is reported with that "
-                 "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge folders were "
+                 "macOS and Linux, and a store directly inside an Opera user data folder is "
+                 "reported with that folder as its Profile. Only the Windows Google Chrome and "
+                 "Microsoft Edge folders were "
                  "exercised by a registered image; a constructed tree exercised the Brave macOS, Vivaldi "
                  "Linux and Opera Windows folders, the last with its profile kept directly in the user "
-                 "data folder, and the remaining folders were not exercised. "
+                 "data folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical "
                  "is read once and counted in the run log, and copies that differ are both "

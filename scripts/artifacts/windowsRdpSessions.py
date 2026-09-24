@@ -41,29 +41,39 @@ __artifacts_v2__ = {
                        "session id, and source address.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from the Microsoft-Windows-TerminalServices-"
-                 "LocalSessionManager%4Operational.evtx log, named in Source "
-                 "File. The session lifecycle events are reported: 21 (Session "
+                 "LocalSessionManager%4Operational.evtx log, named in the report's located-at "
+                 "line. The session lifecycle events are reported: 21 (Session "
                  "logon succeeded), 22 (Shell start notification received), 23 "
                  "(Session logoff succeeded), 24 (Session has been disconnected) "
                  "and 25 (Session reconnection succeeded); the Event column is "
-                 "the description for the Event ID. Event Time (UTC) is the "
-                 "record's TimeCreated SystemTime, stored in UTC. User, Session "
-                 "ID and Address are read from the event as stored. Address is "
-                 "LOCAL for a local console logon and a network address for a "
-                 "remote (Remote Desktop) session, so it is the field that "
-                 "distinguishes the two. Computer is the machine that recorded "
+                 "the description for the Event ID. Event Time (UTC) is the record's TimeCreated "
+                 "SystemTime, which python-evtx renders from the FILETIME the record stores, "
+                 "counted in UTC (python-evtx 0.8.1, "
+                 "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
+                 "User, Session "
+                 "ID and Address are read from the event as stored. Address is the value the "
+                 "event's message labels Source Network Address, which logoff (23) records do "
+                 "not carry; Psmths describes it as the source IP address of an RDP session "
+                 "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/network/terminal-services-local-21.md#L38-L39), "
+                 "and on the registered images, whose Security logs hold no RemoteInteractive "
+                 "(type 10) logon, it was LOCAL on every row that carries it. Computer is the "
+                 "machine that recorded "
                  "the event. This log covers console sessions as well "
                  "as Remote Desktop, so an entry is not by itself proof of a "
-                 "remote connection. A disconnect (24) with no matching logoff "
-                 "(23) is a session left running rather than ended. Reading needs "
-                 "the python-evtx package (pip install python-evtx). Event "
-                 "meanings: Psmths, 'windows-forensic-artifacts', "
-                 "https://github.com/Psmths/windows-forensic-artifacts/tree/main/"
-                 "lateral-movement",
+                 "remote connection. On the registered images every disconnect (24) was recorded "
+                 "less than a second after a logoff (23) for the same session. Reading needs "
+                 "the python-evtx package (pip install python-evtx). Event meanings: the "
+                 "provider manifest's message for each (manifest as registered on Windows 11 "
+                 "build 22621.819, published in nasbench's EVTX-ETW-Resources repository: "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-TerminalServices-LocalSessionManager.xml#L294-L386); "
+                 "Remote Desktop use of 21 and 24: Psmths, 'windows-forensic-artifacts', "
+                 "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/network/terminal-services-local-21.md "
+                 "and "
+                 "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/network/terminal-services-local-24.md",
         "paths": ("*/Windows/System32/winevt/Logs/"
                   "Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx",),
         "output_types": ["standard"],

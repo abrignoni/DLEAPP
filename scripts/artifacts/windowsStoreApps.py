@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "flags as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the PackageUser table of StateRepository-Machine.srd, one row per package "
@@ -23,10 +23,13 @@ __artifacts_v2__ = {
                  "registered Windows images resolved. Install Time is PackageUser.InstallTime read as "
                  "a FILETIME in UTC. That reading was checked against the NTFS modification time of "
                  "each package's AppxManifest.xml under Program Files\\WindowsApps, taking each "
-                 "package's earliest InstallTime: 83 of 124 comparable packages on pc_mus_001_win11 "
-                 "and 62 of 77 on lonewolf_win10 fall within 60 seconds of it, with medians of 8 and 5"
-                 " seconds after, while on af_case2_win10 all 79 fall between 4443.7 and 4443.9 hours "
-                 "after. What event InstallTime records beyond its name is not established. On "
+                 "package's earliest InstallTime. On pc_mus_001_win11 the InstallTime of 83 of "
+                 "124 comparable packages falls within 60 seconds of that modification time, and "
+                 "on lonewolf_win10 the InstallTime of 62 of 77; over all comparable packages "
+                 "the median is 8 seconds after it on pc_mus_001_win11 and 5 seconds after it on "
+                 "lonewolf_win10. On af_case2_win10 the InstallTime of all 79 falls between "
+                 "4443.7 and 4443.9 hours after it. What event InstallTime records beyond its "
+                 "name is not established. On "
                  "pc_mus_001_win11 three rows for S-1-5-18 store an InstallTime of 0, so Install Time "
                  "is empty there. Display Name and Publisher Display Name are reported as stored, "
                  "including unresolved ms-resource references (102 of the 215 packages on "

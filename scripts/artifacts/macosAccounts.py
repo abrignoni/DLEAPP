@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "account ID, names, DSID, logged-in state and listed services as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
         "notes": "Reads the Accounts array of each user's "
@@ -26,8 +26,8 @@ __artifacts_v2__ = {
                  "and iCloud accounts in the same user's Accounts4.sqlite. The MacBook Pro's account "
                  "has no LoggedIn or AccountUUID value, so Logged In and Account UUID are empty there."
                  " When a logical extraction holds the same file under Users/ and under "
-                 "System/Volumes/Data/Users/, a byte-identical second copy is read once and counted in"
-                 " the run log.",
+                 "System/Volumes/Data/Users/, a second copy byte-identical to the first is not "
+                 "read again, and is counted in the run log.",
         "paths": ('*/Users/*/Library/Preferences/MobileMeAccounts.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
@@ -42,24 +42,27 @@ __artifacts_v2__ = {
                        "flags as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
         "notes": "Reads ZACCOUNT in each user's Accounts4.sqlite or Accounts3.sqlite, joined to "
                  "ZACCOUNTTYPE for the type and to the parent account ZPARENTACCOUNT names. Date is "
                  "ZDATE read as seconds since 00:00:00 UTC on 1 January 2001, the reference date Apple"
-                 " documents for NSDate; on dleapp_macos_bigsur all 12 values then fall between 6 and "
-                 "9 minutes after the earliest InstallHistory.plist entry. What event ZDATE records is"
+                 " documents for NSDate; on dleapp_macos_bigsur all 12 values then fall between "
+                 "6.1 and 9.2 minutes after the earliest InstallHistory.plist entry. What event "
+                 "ZDATE records is"
                  " not established. Active, Authenticated and Visible are the ZACTIVE, ZAUTHENTICATED "
                  "and ZVISIBLE values as stored; on dleapp_macos_bigsur Visible is Yes on all 12 rows "
                  "and 5 of the 12 accounts name a parent account. On the public MacBook Pro logical "
                  "extraction (macOS 15.4, not a registered corpus key) the Users/ and "
-                 "System/Volumes/Data/Users/ copies share the same database file and carry different "
-                 "-wal files, so both are read and each of their 22 accounts appears twice, identical "
+                 "System/Volumes/Data/Users/ copies hold byte-identical database files and "
+                 "different -wal files, so both are read and each of their 22 accounts appears "
+                 "twice, identical "
                  "in every column but Source File. All rows on each image come from one user, so User "
                  "holds one value there. When a logical extraction holds the same file under Users/ "
-                 "and under System/Volumes/Data/Users/, a byte-identical second copy is read once and "
-                 "counted in the run log. Reference: Apple, 'NSDate', "
+                 "and under System/Volumes/Data/Users/, a second copy whose database and -wal "
+                 "file are both byte-identical to the first is not read again, and is counted in "
+                 "the run log. Reference: Apple, 'NSDate', "
                  "https://developer.apple.com/documentation/foundation/nsdate.",
         "paths": ('*/Users/*/Library/Accounts/Accounts3.sqlite*',
                   '*/Users/*/Library/Accounts/Accounts4.sqlite*'),

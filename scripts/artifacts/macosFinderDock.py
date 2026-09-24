@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "com.apple.finder.plist, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
         "notes": "Reads each user's ~/Library/Preferences/com.apple.finder.plist. Recent folder rows "
@@ -28,8 +28,9 @@ __artifacts_v2__ = {
                  "registered corpus key) it holds 9 FXRecentFolders entries, one "
                  "RecentMoveAndCopyDestinations entry and 4 FXDesktopVolumePositions keys. All rows on"
                  " each image come from one user's file, so User holds one value there. When a logical"
-                 " extraction holds the same file under Users/ and under System/Volumes/Data/Users/, a"
-                 " byte-identical second copy is read once. Reference: mac_alias (dmgbuild), "
+                 " extraction holds the same file under Users/ and under "
+                 "System/Volumes/Data/Users/, a second copy byte-identical to the first is not "
+                 "read again, and is counted in the run log. Reference: mac_alias (dmgbuild), "
                  "bookmark.py, "
                  "https://github.com/dmgbuild/mac_alias/blob/d0c076b4562541c1509d9874f42880378245d268/src/mac_alias/bookmark.py#L128-L169.",
         "paths": ('*/Users/*/Library/Preferences/com.apple.finder.plist',),
@@ -46,7 +47,7 @@ __artifacts_v2__ = {
                        "com.apple.dock.plist.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
         "notes": "Reads the persistent-apps, persistent-others and recent-apps lists of each user's "
@@ -59,8 +60,8 @@ __artifacts_v2__ = {
                  "corpus key) it holds 18 persistent-apps tiles, one persistent-others tile and 3 "
                  "recent-apps tiles, 21 of the 22 with a bundle identifier. All rows on each image "
                  "come from one user, so User holds one value there. When a logical extraction holds "
-                 "the same file under Users/ and under System/Volumes/Data/Users/, a byte-identical "
-                 "second copy is read once.",
+                 "the same file under Users/ and under System/Volumes/Data/Users/, a second copy "
+                 "byte-identical to the first is not read again, and is counted in the run log.",
         "paths": ('*/Users/*/Library/Preferences/com.apple.dock.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "layout-sidebar",

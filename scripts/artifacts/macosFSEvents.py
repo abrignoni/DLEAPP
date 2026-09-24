@@ -14,11 +14,13 @@ __artifacts_v2__ = {
                        "node ID and format version.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "File System (macOS)",
-        "notes": "Reads the fseventsd disk log files in each .fseventsd folder at a volume's root, one"
-                 " row per record. Each file is read as one or more gzip members holding pages that "
+        "notes": "Reads the fseventsd disk log files in each .fseventsd folder the declared path "
+                 "matches, at any depth, one row per record; on both tested images the only such "
+                 "folder holding records is the Data volume's. Each file is read as one or more "
+                 "gzip members holding pages that "
                  "begin with a 12-byte header whose signature is 1SLD, 2SLD or 3SLD. A record is a "
                  "NUL-terminated path, an 8-byte event ID and 4-byte flags, followed in 2SLD and 3SLD "
                  "pages by an 8-byte node ID, and in 3SLD pages by one more 4-byte value, read as "
@@ -42,9 +44,10 @@ __artifacts_v2__ = {
                  "registered corpus key) holds 17 such 1SLD files and 652 3SLD files in "
                  "System/Volumes/Data/.fseventsd, 1,759,879 rows, and 6 files of 38 bytes that hold "
                  "only a 12-byte 3SLD header and no record, which the run log names; Record Extra "
-                 "there took 55 values between 0 and 56. Node ID is blank on 1SLD rows. Path has no "
-                 "value on 40 rows of dleapp_macos_bigsur, 25 of them End of transaction records and "
-                 "14 carrying the Mount flag, and on 19 rows of the MacBook Pro, 17 End of transaction"
+                 "there took 55 values between 0 and 56. Node ID is blank on 1SLD rows. Path has "
+                 "no value on 40 rows of dleapp_macos_bigsur, 25 of them End of transaction "
+                 "records, 14 carrying the Mount flag and 1 carrying Renamed and Directory, and "
+                 "on 19 rows of the MacBook Pro, 17 End of transaction"
                  " and 2 Mount.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 528,473 rows",

@@ -6,18 +6,26 @@ Author: @AlexisBrignoni, Claude.
 __artifacts_v2__ = {
     "macosLaunchItems": {
         "name": "Launch Agents and Daemons",
-        "description": "Property lists in /Library/LaunchAgents, /Library/LaunchDaemons and each "
-                       "user's ~/Library/LaunchAgents, with the label, program, arguments and "
+        "description": "Property lists in the Library/LaunchAgents and Library/LaunchDaemons folders "
+                       "outside /System/Library and /Library/Apple, with the label, program, arguments "
+                       "and "
                        "launch keys each one sets.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Persistence (macOS)",
-        "notes": "Reads the property lists in /Library/LaunchAgents, /Library/LaunchDaemons and each "
-                 "user's ~/Library/LaunchAgents, one row per file. Files under /System/Library or "
-                 "/Library/Apple are counted in the run log and not reported; there were 72 on "
-                 "dleapp_macos_bigsur. Label, Program, Program Arguments, Run At Load, Keep Alive, "
+        "notes": "Reads the property lists in every Library/LaunchAgents and "
+                 "Library/LaunchDaemons folder the paths match, among them "
+                 "/Library/LaunchAgents, /Library/LaunchDaemons and each user's "
+                 "~/Library/LaunchAgents, one row per file; Location is User Agent or User "
+                 "Daemon when the path names a folder under Users or /private/var/root, and "
+                 "System Agent or System Daemon otherwise. Files under /System/Library or "
+                 "/Library/Apple are counted in the run log and not reported; the run log "
+                 "counted 72 on dleapp_macos_bigsur, where 617 more files in those folders could "
+                 "not be staged from the image because they are compressed with a method the "
+                 "image reader does not read, and the run log names each one. Label, Program, "
+                 "Program Arguments, Run At Load, Keep Alive, "
                  "Disabled, Start Interval and User Name are the file's Label, Program, "
                  "ProgramArguments, RunAtLoad, KeepAlive, Disabled, StartInterval and UserName keys, "
                  "with lists and dictionaries written as JSON. A file here is a definition; whether it"
@@ -25,14 +33,17 @@ __artifacts_v2__ = {
                  "reported files, one system agent and one system daemon, both use ProgramArguments "
                  "and set none of Program, Disabled, StartInterval or UserName, so Program, Disabled, "
                  "Start Interval, User Name and User are empty there. On the public MacBook Pro "
-                 "logical extraction (macOS 15.4, not a registered corpus key) 868 files were not "
-                 "reported and 7 were. Five of those 7, the com.google.keystone plists of 181 bytes "
-                 "each, parse to an empty dictionary, so their rows carry only Location and Source "
-                 "File, and none of the 7 sets Program, RunAtLoad, KeepAlive, Disabled or UserName, so"
+                 "logical extraction (macOS 15.4, not a registered corpus key) 868 files under "
+                 "/System/Library or /Library/Apple were not reported, 7 byte-identical copies "
+                 "under System/Volumes/Data were not read again, and 7 were reported. Five of "
+                 "those 7, the com.google.keystone plists of 181 bytes "
+                 "each, parse to an empty dictionary, so their rows carry only Location, Source "
+                 "File and, on the two in a user's ~/Library/LaunchAgents, User, and none of the "
+                 "7 sets Program, RunAtLoad, KeepAlive, Disabled or UserName, so"
                  " Program, Run At Load, Keep Alive, Disabled and User Name are empty there. When a "
-                 "logical extraction holds the same file under Users/ and under "
-                 "System/Volumes/Data/Users/, a byte-identical second copy is read once and counted in"
-                 " the run log.",
+                 "logical extraction holds the same file at its own path and again under "
+                 "System/Volumes/Data/, a second copy byte-identical to the first is not read "
+                 "again, and is counted in the run log.",
         "paths": ('*/Library/LaunchAgents/*.plist', '*/Library/LaunchDaemons/*.plist'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "rocket",

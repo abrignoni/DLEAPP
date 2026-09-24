@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "and disposition values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Persistence (macOS)",
         "notes": "Reads BackgroundItems-v*.btm in /private/var/db/com.apple.backgroundtaskmanagement, "
@@ -25,17 +25,19 @@ __artifacts_v2__ = {
                  " the raw values are kept in the as stored columns. Those meanings are DumpBTM's and "
                  "were not tested here. Modification Date and Executable Modification Date are "
                  "modificationDate and executableModificationDate read as seconds since 00:00:00 UTC "
-                 "on 1 January 2001, and a value of 0 is left empty. On the public MacBook Pro logical"
+                 "on 1 January 2001, and a value of 0 or less is left empty. On the public "
+                 "MacBook Pro logical"
                  " extraction (macOS 15.4, not a registered corpus key) the file holds 7 items under 3"
                  " user identifiers; read from 2001 their modification dates fall between 2025-05-23 "
                  "and 2025-12-10, before the 20251225 date in the extraction's file name, while read "
                  "from 1970 they would fall in 1994. One item has type 0x800, a bit DumpBTM does not "
                  "name, and 5 have an executableModificationDate of 0. dleapp_macos_bigsur has no "
-                 "BackgroundItems file. When a logical extraction holds the same file under Users/ and"
-                 " under System/Volumes/Data/Users/, a byte-identical second copy is read once and "
-                 "counted in the run log. Reference: Patrick Wardle (Objective-See), DumpBTM, "
+                 "BackgroundItems file. When a logical extraction holds the file under "
+                 "private/var/db/ and again under System/Volumes/Data/private/var/db/, a second "
+                 "copy byte-identical to the first is not read again, and is counted in the run "
+                 "log. Reference: Patrick Wardle (Objective-See), DumpBTM, "
                  "dumpBTM.m, "
-                 "https://github.com/objective-see/DumpBTM/blob/19ba38005242afe07ba6e66c29f65663fa9b9917/library/code/dumpBTM.m#L388-L426"
+                 "https://github.com/objective-see/DumpBTM/blob/19ba38005242afe07ba6e66c29f65663fa9b9917/library/code/dumpBTM.m#L388-L428"
                  " and "
                  "https://github.com/objective-see/DumpBTM/blob/19ba38005242afe07ba6e66c29f65663fa9b9917/library/code/dumpBTM.m#L476-L518.",
         "paths": ('*/private/var/db/com.apple.backgroundtaskmanagement/BackgroundItems-v*.btm',),

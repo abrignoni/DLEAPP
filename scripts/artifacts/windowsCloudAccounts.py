@@ -15,8 +15,10 @@ __artifacts_v2__ = {
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads each subkey of Software\\Microsoft\\OneDrive\\Accounts in each NTUSER.DAT and "
-                 "reports it when it holds a UserEmail, UserFolder, cid or UserCID value; other "
-                 "subkeys are skipped. CID is cid, or UserCID when cid is absent. Last Sign In and "
+                 "reports it when it holds a non-empty UserEmail, UserFolder, cid or UserCID "
+                 "value; other "
+                 "subkeys are skipped. CID is cid, or UserCID when cid is absent or empty. Last "
+                 "Sign In and "
                  "Client First Sign In are LastSignInTime and ClientFirstSignInTimestamp read as "
                  "seconds since 1970 UTC. That reading was checked against the OneDrive client's own "
                  "log files: on pc_mus_001_win11 a file in the user's OneDrive logs folder was written"

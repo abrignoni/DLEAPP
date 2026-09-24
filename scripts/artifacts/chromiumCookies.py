@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "queried.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the cookies table of each Cookies database in a Chromium-based browser profile, at "
@@ -27,7 +27,9 @@ __artifacts_v2__ = {
                  "and Last Update Time are creation_utc, expires_utc, last_access_utc and last_update_utc, "
                  "microseconds since 1601-01-01 UTC. Current Chromium binds them with Statement::BindTime "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/extras/sqlite/sqlite_persistent_cookie_store.cc#L1354-L1389), "
-                 "which stores ToDeltaSinceWindowsEpoch().InMicroseconds() "
+                 "which stores what Statement::TimeToSqlValue returns "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L300-L316), "
+                 "ToDeltaSinceWindowsEpoch().InMicroseconds() "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L42-L44); "
                  "the Chrome 65 release wrote base::Time::ToInternalValue for creation_utc, expires_utc "
                  "and last_access_utc "
@@ -57,11 +59,13 @@ __artifacts_v2__ = {
                  "65.0.3325.181 on lonewolf_win10. No member of af_case2_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
-                 "and a store directly inside a user data folder is reported with that folder as its "
-                 "Profile. Only the Windows Google Chrome and Microsoft Edge folders were exercised by a "
+                 "and a store directly inside an Opera user data folder, or in the Network "
+                 "folder of any of these user data folders, is reported with that folder as its "
+                 "Profile. Only the Windows Google Chrome and Microsoft Edge folders were "
+                 "exercised by a "
                  "registered image; a constructed tree exercised the Brave macOS, Vivaldi Linux and Opera "
-                 "Windows folders, the last with its profile kept directly in the user data folder, and "
-                 "the remaining folders were not exercised. "
+                 "Windows folders, the last with its profile kept directly in the user data "
+                 "folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "

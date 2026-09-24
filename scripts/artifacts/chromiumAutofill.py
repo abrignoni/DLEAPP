@@ -6,12 +6,13 @@ __artifacts_v2__ = {
                        "stored value, stored count and the created and last used times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the autofill table of each Web Data database in a Chromium-based browser profile: "
-                 "one row per stored form field name and value, with its count and dates. An autofill "
-                 "table without date_created and date_last_used is logged and not read; none of the tested "
+                 "one row per stored form field name and value, with its count and dates. An "
+                 "autofill table missing either date_created or date_last_used is logged and not "
+                 "read; none of the tested "
                  "databases lacked them. Browser, Profile and User come from the path: the browser from "
                  "the user data folder, the profile from the folder inside it, and the user from the home "
                  "folder that holds it; Source File names the file each row came from, so rows from two "
@@ -45,11 +46,12 @@ __artifacts_v2__ = {
                  "address, credit card and IBAN tables of Web Data. No member of af_case2_win10 or "
                  "dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
-                 "macOS and Linux, and a store directly inside a user data folder is reported with that "
-                 "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge folders were "
+                 "macOS and Linux, and a store directly inside an Opera user data folder is "
+                 "reported with that folder as its Profile. Only the Windows Google Chrome and "
+                 "Microsoft Edge folders were "
                  "exercised by a registered image; a constructed tree exercised the Brave macOS, Vivaldi "
                  "Linux and Opera Windows folders, the last with its profile kept directly in the user "
-                 "data folder, and the remaining folders were not exercised. "
+                 "data folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "

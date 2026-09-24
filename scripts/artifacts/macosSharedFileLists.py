@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "recent documents), with the path, URL and volume their bookmarks record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Recent Items (macOS)",
         "notes": "Reads the .sfl2 and .sfl3 files under each user's ~/Library/Application "
@@ -26,10 +26,13 @@ __artifacts_v2__ = {
                  "ItemIsHidden custom properties as stored. User is the folder name under Users, or "
                  "root for /private/var/root. On dleapp_macos_bigsur the 9 files hold 46 entries, 28 "
                  "with a path and 18 with a URL. On the public MacBook Pro logical extraction (macOS "
-                 "15.4, not a registered corpus key) every list is .sfl3: 11 files hold 55 entries, 36"
+                 "15.4, not a registered corpus key) every list is .sfl3: 31 files are read and "
+                 "11 of them hold 55 entries, 36"
                  " with a path and 18 with a URL, and one entry holds no Bookmark, so it carries "
-                 "neither. When a logical extraction holds the same file under Users/ and under "
-                 "System/Volumes/Data/Users/, a byte-identical second copy is read once. Reference: "
+                 "neither. When a logical extraction holds the same file under Users/ or "
+                 "private/var/root/ and again under System/Volumes/Data/, a second copy "
+                 "byte-identical to the first is not read again, and is counted in the run log. "
+                 "Reference: "
                  "mac_alias (dmgbuild), bookmark.py, "
                  "https://github.com/dmgbuild/mac_alias/blob/d0c076b4562541c1509d9874f42880378245d268/src/mac_alias/bookmark.py#L128-L169.",
         "paths": ('*/Library/Application Support/com.apple.sharedfilelist/*.sfl2',

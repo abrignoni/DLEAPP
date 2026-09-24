@@ -1,12 +1,13 @@
 __artifacts_v2__ = {
     "chromiumLoginData": {
         "name": "Chromium Saved Logins",
-        "description": "Saved login metadata from the Login Data and Login Data For Account databases of "
+        "description": "Rows of the logins table, including never-save entries, from the Login Data "
+                       "and Login Data For Account databases of "
                        "Google Chrome, Microsoft Edge, Brave, Vivaldi, Opera and Chromium profiles: "
                        "site, username, dates and use count. The password column is not queried.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the logins table of the Login Data and Login Data For Account databases of each "
@@ -23,7 +24,9 @@ __artifacts_v2__ = {
                  "date_password_modified, microseconds since 1601-01-01 UTC. Current Chromium binds them "
                  "with Statement::BindTime "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/password_manager/core/browser/password_store/login_database.cc#L240-L265), "
-                 "which stores ToDeltaSinceWindowsEpoch().InMicroseconds() "
+                 "which stores what Statement::TimeToSqlValue returns "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L300-L316), "
+                 "ToDeltaSinceWindowsEpoch().InMicroseconds() "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L42-L44); "
                  "the Chrome 65 release wrote base::Time::ToInternalValue for date_created "
                  "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/password_manager/core/browser/login_database.cc#L138), "
@@ -42,9 +45,11 @@ __artifacts_v2__ = {
                  "credential was used to authenticate in an HTML form "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/password_manager/core/browser/password_form.h#L349-L391). "
                  "Blocklisted is blacklisted_by_user, the never-save marker for the form (same file, lines "
-                 "376 to 380), and Signon Realm is signon_realm as stored (lines 224 to 230). Microsoft "
-                 "Edge rows carry the same columns; Edge's source is not published, so these descriptions "
-                 "were not confirmed for Edge. Times Used held one value, 0, on every row of "
+                 "376 to 380), and Signon Realm is signon_realm as stored (lines 224 to 230). "
+                 "The Microsoft Edge Login Data of pc_mus_001_win11 has the same logins columns "
+                 "as the Chrome Login Data on that image; Edge's own source was not examined, so "
+                 "these descriptions were not confirmed for Edge. Times Used held one value, 0, "
+                 "on every row of "
                  "pc_mus_001_win11 and was 0, 2 or 3 on lonewolf_win10. Blocklisted held one value, No, on "
                  "every row of pc_mus_001_win11 and was Yes on 1 of the 6 rows of lonewolf_win10, the one "
                  "row with no Username. Store held one value, Login Data, on every row of both images: the "
@@ -60,12 +65,13 @@ __artifacts_v2__ = {
                  "Edge 108.0.1462.54 on pc_mus_001_win11, and Chrome 65.0.3325.181 on lonewolf_win10. No "
                  "member of af_case2_win10 or dleapp_macos_bigsur matched any of the declared paths. The "
                  "user data folders read are those of Google Chrome, Chromium, Microsoft Edge, Brave, "
-                 "Vivaldi and Opera on Windows, macOS and Linux, and a store directly inside a user data "
-                 "folder is reported with that folder as its Profile. Only the Windows Google Chrome and "
+                 "Vivaldi and Opera on Windows, macOS and Linux, and a store directly inside an "
+                 "Opera user data folder is reported with that folder as its Profile. Only the "
+                 "Windows Google Chrome and "
                  "Microsoft Edge folders were exercised by a registered image; a constructed tree "
                  "exercised the Brave macOS, Vivaldi Linux and Opera Windows folders, the last with its "
-                 "profile kept directly in the user data folder, and the remaining folders were not "
-                 "exercised. "
+                 "profile kept directly in the user data folder, and the remaining folders were "
+                 "exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "

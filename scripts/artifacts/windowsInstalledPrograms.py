@@ -6,7 +6,8 @@ Author: @AlexisBrignoni, Claude.
 __artifacts_v2__ = {
     "installedPrograms": {
         "name": "Installed Programs (Uninstall Keys)",
-        "description": "Entries in the Windows Uninstall registry keys, machine-wide in the "
+        "description": "Entries with a DisplayName in the Windows Uninstall registry keys, "
+                       "machine-wide in the "
                        "SOFTWARE hive (including the 32-bit view) and per user in each "
                        "NTUSER.DAT, with name, version, publisher, install location and "
                        "InstallDate as stored.",
@@ -23,8 +24,9 @@ __artifacts_v2__ = {
                  "no DisplayName is skipped and the number skipped per hive is written to the run log:"
                  " 26, 40 and 26 in the SOFTWARE hives of pc_mus_001_win11, af_case2_win10 and "
                  "lonewolf_win10. For a Windows Installer product, Microsoft documents InstallDate as "
-                 "the last time the product received service, replaced each time a patch is applied or"
-                 " removed or the product is repaired, and as the install time only when it received "
+                 "the last time the product received service, replaced each time a patch is "
+                 "applied or removed or the /v command-line option is used to repair the "
+                 "product, and as the install time only when it received "
                  "none; an entry not created by Windows Installer is outside that description, so "
                  "Install Date is reported as stored. Microsoft documents EstimatedSize as determined "
                  "and set by Windows Installer, without a unit, so it is also reported as stored. "

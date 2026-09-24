@@ -7,11 +7,12 @@ __artifacts_v2__ = {
     "macosScreenTimeAppUsage": {
         "name": "Screen Time App and Web Usage",
         "description": "App and web domain usage times in the Screen Time store (RMAdminStore), "
-                       "one row per app or domain in each usage block, with the block's start, "
+                       "one row per stored app or domain entry of each usage block, with the block's "
+                       "start, "
                        "the stored category, device and account.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Screen Time (macOS)",
         "notes": "Reads each RMAdminStore-*.sqlite under "
@@ -43,8 +44,9 @@ __artifacts_v2__ = {
                  "private/var/folders subfolder hold no usage there, and the public "
                  "MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) "
                  "holds no RMAdminStore. When a logical extraction holds the same file "
-                 "with and without a System/Volumes/Data/ prefix, a byte-identical second "
-                 "copy is read once and counted in the run log. Reference: Apple, "
+                 "with and without a System/Volumes/Data/ prefix, a second copy whose database "
+                 "and -wal file are both byte-identical to the first is not read again, and is "
+                 "counted in the run log. Reference: Apple, "
                  "'NSDate', https://developer.apple.com/documentation/foundation/nsdate.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 110 rows",
@@ -56,11 +58,12 @@ __artifacts_v2__ = {
     "macosScreenTimeCountedItems": {
         "name": "Screen Time Notifications and Pickups",
         "description": "Per-app notification and pickup counts in the Screen Time store "
-                       "(RMAdminStore), one row per app in each usage block, with the block's "
+                       "(RMAdminStore), one row per stored app entry of each usage block, with the "
+                       "block's "
                        "start, device and account.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Screen Time (macOS)",
         "notes": "Reads each RMAdminStore-*.sqlite under "
@@ -89,8 +92,9 @@ __artifacts_v2__ = {
                  "subfolder hold no usage there, and the public MacBook Pro logical "
                  "extraction (macOS 15.4, not a registered corpus key) holds no "
                  "RMAdminStore. When a logical extraction holds the same file with and "
-                 "without a System/Volumes/Data/ prefix, a byte-identical second copy is "
-                 "read once and counted in the run log. Reference: Apple, 'NSDate', "
+                 "without a System/Volumes/Data/ prefix, a second copy whose database and -wal "
+                 "file are both byte-identical to the first is not read again, and is counted in "
+                 "the run log. Reference: Apple, 'NSDate', "
                  "https://developer.apple.com/documentation/foundation/nsdate.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 50 rows",
@@ -106,7 +110,7 @@ __artifacts_v2__ = {
                        "event times, with the device and account.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Screen Time (macOS)",
         "notes": "Reads each RMAdminStore-*.sqlite under "
@@ -140,8 +144,9 @@ __artifacts_v2__ = {
                  "subfolder hold no usage there, and the public MacBook Pro logical "
                  "extraction (macOS 15.4, not a registered corpus key) holds no "
                  "RMAdminStore. When a logical extraction holds the same file with and "
-                 "without a System/Volumes/Data/ prefix, a byte-identical second copy is "
-                 "read once and counted in the run log. Reference: Apple, 'NSDate', "
+                 "without a System/Volumes/Data/ prefix, a second copy whose database and -wal "
+                 "file are both byte-identical to the first is not read again, and is counted in "
+                 "the run log. Reference: Apple, 'NSDate', "
                  "https://developer.apple.com/documentation/foundation/nsdate.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 28 rows",

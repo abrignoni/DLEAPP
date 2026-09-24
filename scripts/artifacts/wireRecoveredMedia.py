@@ -5,8 +5,8 @@ __artifacts_v2__ = {
                        "cached asset blobs (service-worker Cache Storage and the "
                        "HTTP disk cache) with the per-asset keys stored in the "
                        "IndexedDB asset-add events. Each cached blob is matched to "
-                       "its event by SHA-256, integrity-verified, then AES-256-CBC "
-                       "decrypted with the event otr_key and embedded in the report.",
+                       "its event by SHA-256, integrity-verified, then AES-256-CBC decrypted with the "
+                       "event's otr_key (preview_otr_key for a preview) and embedded in the report.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-24",
@@ -18,8 +18,11 @@ __artifacts_v2__ = {
                  "a primary key, then the highest status, then the latest time; on wire_win it "
                  "equals Wire Attachments' time on all 7 rows. The located-at line lists the "
                  "LevelDB folder and each cache file an asset was recovered from. "
-                 "Decryption follows Wire's asset scheme: blob = IV(16) || "
-                 "AES-256-CBC ciphertext, SHA-256 taken over the blob.",
+                 "Decryption follows Wire's asset scheme: blob = IV(16) || AES-256-CBC "
+                 "ciphertext, SHA-256 taken over the blob; on wire_win every key was 32 bytes "
+                 "and each of the 7 recovered blobs decrypted to a JPEG or PNG image. Reference: "
+                 "Wire, 'assetCryptography.ts', "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/libraries/core/src/cryptography/assetCryptography/assetCryptography.ts#L53-L69.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
             '*/Wire/*Service Worker/CacheStorage/*/*/*_0',

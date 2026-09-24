@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                        "with the task name and the account each record names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-TaskScheduler%4Operational.evtx, named in "
@@ -52,8 +52,9 @@ __artifacts_v2__ = {
                  "stores. None of the three registered images carries this log file, so "
                  "the artifact reports nothing on them; it was exercised on the public "
                  "DFIR Madness Szechuan Sauce desktop image, where it reported 144 rows "
-                 "(106: 11, 140: 127, 141: 6), Account held a SID on 60 of them and a "
-                 "domain and account name on the rest, and every record rendered. A record "
+                 "(106: 11, 140: 127, 141: 6), Account held a SID on 60 of them, a domain and "
+                 "account name on 82 and an account name with no domain on 2, and every record "
+                 "rendered. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in "
                  "the run log and not reported. The task definitions themselves are "
                  "reported by the Scheduled Tasks artifact, not here. Reading needs the "
@@ -74,15 +75,16 @@ __artifacts_v2__ = {
                        "action, task instance and return code each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-TaskScheduler%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-TaskScheduler "
-                 "records with Event ID 200 or 201 are read. Event is a short form of the "
-                 "provider manifest's message: 200 'Task Scheduler launched action' and "
-                 "201 'Task Scheduler successfully completed task' with the action and "
-                 "return code (manifest as registered on Windows 11 build 22621.819, "
+                 "records with Event ID 200 or 201 are read. Event is 'Task action launched' on "
+                 "200 and 'Task action finished' on 201, short forms of the provider manifest's "
+                 "messages, which read 'Task Scheduler launched action' and 'Task Scheduler "
+                 "successfully completed task' with the action and return code (manifest as "
+                 "registered on Windows 11 build 22621.819, "
                  "published in nasbench's EVTX-ETW-Resources repository: "
                  "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-TaskScheduler.xml#L1571-L1605 "
                  "and #L1606-L1659). Task Name, Action, Task Instance ID, Return Code and "

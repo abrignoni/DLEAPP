@@ -1,18 +1,19 @@
 __artifacts_v2__ = {
     "wireServiceWorkerCache": {
         "name": "Wire Service Worker Cache",
-        "description": "Assets cached on disk by the Wire web app's service "
-                       "worker (Service Worker/CacheStorage). Each entry records "
-                       "the requested asset URL, the resolved CDN (CloudFront) "
-                       "download URL and its expiry. Cached asset bodies are Wire "
-                       "end-to-end-encrypted (application/octet-stream), so they "
-                       "cannot be rendered as images without the asset keys.",
+        "description": "Entries cached on disk by the Wire web app's service worker (Service "
+                       "Worker/CacheStorage) whose bytes contain wire.com and a URL. An asset entry "
+                       "records the requested asset URL, the resolved CDN (CloudFront) download URL "
+                       "and its expiry. Cached asset bodies are encrypted by the sending Wire client "
+                       "with a per-asset key and served as application/octet-stream, so they cannot be "
+                       "rendered as images without the asset keys.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "Parses Chromium Simple Cache entry files (*_0). No body is "
+        "notes": "Reads Chromium Simple Cache entry files (*_0) whose bytes contain wire.com and "
+                 "searches the raw bytes for URLs; the entry structure is not parsed. No body is "
                  "decoded; only request/CDN URLs and metadata are extracted. An "
                  "entry can also be matched on any wire.com URL, which admits "
                  "responses that are not assets, so the encrypted-body note is "
@@ -23,9 +24,11 @@ __artifacts_v2__ = {
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/cache_storage/cache_storage.proto#L42-L90); "
                  "on wire_win it read application/octet-stream on all 7 rows. 'CDN Expires' "
                  "reads the CloudFront Expires query parameter as Unix seconds. "
-                 "Reference: AWS, 'CloudFront signed URLs (Expires is Unix time "
-                 "in seconds)', https://docs.aws.amazon.com/AmazonCloudFront/"
-                 "latest/DeveloperGuide/private-content-signed-urls.html",
+                 "Reference: AWS, 'Create a signed URL using a canned policy' (Expires is Unix "
+                 "time in seconds), "
+                 "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-creating-signed-url-canned-policy.html; "
+                 "Wire, 'assetCryptography.ts' (per-asset encryption), "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/libraries/core/src/cryptography/assetCryptography/assetCryptography.ts#L53-L69",
         "paths": ('*/Wire/*Service Worker/CacheStorage/*/*/*_0',),
         "sample_data": {
             "wire_win": "Windows, version not recorded | 7 rows",
