@@ -15,19 +15,22 @@ __artifacts_v2__ = {
                        "into the LAVA database: time, process, subsystem, category and message.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "Reading tracev3 data needs the unifiedlog_iterator binary from "
                         "Mandiant's macos-UnifiedLogs, found through the "
-                        "DLEAPP_UNIFIEDLOG_ITERATOR environment variable, a bin folder beside "
-                        "dleapp.py, or PATH",
+                        "DLEAPP_UNIFIEDLOG_ITERATOR environment variable, the bin folder beside "
+                        "dleapp.py or inside a built DLEAPP executable, or PATH",
         "category": "Unified Logs (macOS)",
         "notes": "Imports the Apple Unified Log entries the parser returns into the LAVA database "
                  "only, one row per entry. The tracev3 files under db/diagnostics, with the format "
                  "strings under db/uuidtext, are read by Mandiant's unifiedlog_iterator "
                  "(https://github.com/mandiant/macos-UnifiedLogs), which DLEAPP runs with --mode "
                  "log-archive and --format jsonl and finds through the DLEAPP_UNIFIEDLOG_ITERATOR "
-                 "environment variable, a bin folder beside dleapp.py, or PATH; the run log records "
-                 "the version it reports, unifiedlog_iterator 0.7.0 on the tested images. When no "
+                 "environment variable, the bin folder beside dleapp.py or inside a built DLEAPP "
+                 "executable, or PATH. admin/scripts/fetch_unifiedlog_iterator.py places the "
+                 "binary in the bin folder beside dleapp.py, and a DLEAPP executable built with the "
+                 "PyInstaller specs after that carries it. The run log records the version the "
+                 "binary reports, unifiedlog_iterator 0.7.0 on the tested images. When no "
                  "binary is found the tracev3 data is not read and the run log says so. A log show "
                  "--style json export named logarchive*.json is read directly instead when one is "
                  "present; neither tested image carries one. Timestamp (UTC) is the time the parser "

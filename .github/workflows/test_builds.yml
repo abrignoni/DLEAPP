@@ -10,10 +10,9 @@ name: Test builds
 # The smoke tests are the point, not decoration: iLEAPP's frozen builds shipped a
 # startup crash for a long time (missing hidden imports) precisely because nothing
 # ever ran a built binary. Every step here that runs a binary is a regression test
-# for that class of failure. Ported from iLEAPP's test_builds.yml minus its
-# unifiedlog parser steps, which have no DLEAPP counterpart.
-# Windows only: DLEAPP has no Linux spec files. The macOS specs exist but no
-# core builds macOS in CI; that stays a local build.
+# for that class of failure. Ported from iLEAPP's test_builds.yml, with its
+# steps that fetch, check and bundle the Unified Log parser.
+# Windows only: the Linux and macOS specs are not built here.
 
 on:
   workflow_dispatch:
@@ -63,7 +62,7 @@ jobs:
           "OPENSSL_DIR=$installed" | Out-File -FilePath $env:GITHUB_ENV -Append
           "OPENSSL_STATIC=1" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Install dependencies and PyInstaller
+      - name: Install dependencies
         # Requirements install alone in this step: a pwsh multi-line run does not
         # stop on a failed command, so bundling more commands after it lets a
         # failed install pass silently and surface later as a missing-module
@@ -71,6 +70,28 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Install PyInstaller
+        # PyInstaller is not in requirements.txt, so the build installs it here, in
+        # its own step for the reason given above.
+        run: pip install "pyinstaller>=6.22"
+
+      - name: Fetch the Unified Log parser (digest-verified)
+        run: python admin/scripts/fetch_unifiedlog_iterator.py
+
+      - name: Smoke test the parser binary on Windows
+        # --help proves the binary starts. On the arm64 runner this is the x64 build
+        # under Windows 11's x64 emulation, since Mandiant publishes no windows-arm64
+        # parser, so passing there also proves the path an ARM examiner relies on.
+        run: |
+          bin\unifiedlog_iterator.exe --help
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Check the third-party notices cover the fetched parser
+        # The binary statically links Rust crates under their own licenses, and the
+        # committed notices file carries their texts. This compares the crate versions
+        # whose source paths the binary embeds with that file, without network access.
+        run: python admin/scripts/make_unifiedlog_notices.py --verify bin\unifiedlog_iterator.exe
 
       - name: Build CLI and GUI with PyInstaller
         working-directory: scripts/pyinstaller
@@ -107,11 +128,31 @@ jobs:
             Write-Error "the frozen build did not walk the NTFS fixture"; exit 1
           }
 
+      - name: Verify the parser and python-evtx are bundled inside both builds
+        # A onefile exe unpacks at runtime, so check the build manifests instead:
+        # Analysis-00.toc records everything PyInstaller packed. python-evtx is
+        # imported only by code bundled as data, which the import graph cannot see,
+        # and a build without it reads no event log.
+        run: |
+          foreach ($build in 'dleapp', 'dleappGUI') {
+            $toc = "build_tmp\$build\Analysis-00.toc"
+            # "('Evtx.Evtx'," is the packed module; the bare name is also in the toc's
+            # list of hidden imports requested, whether or not the module was found.
+            foreach ($needle in 'unifiedlog_iterator.exe', 'LICENSE-unifiedlog_iterator', 'THIRD-PARTY-NOTICES-unifiedlog_iterator.txt', "('Evtx.Evtx',") {
+              if (-not (Select-String -Path $toc -Pattern $needle -SimpleMatch -Quiet)) {
+                Write-Error "$needle is not in the $build build"
+                exit 1
+              }
+            }
+          }
+
       - name: Package artifact
         run: |
           New-Item -ItemType Directory -Path artifact | Out-Null
           Copy-Item dist_build\dleapp.exe artifact\
           Copy-Item dist_build\dleappGUI.exe artifact\
+          Copy-Item bin\LICENSE-unifiedlog_iterator artifact\
+          Copy-Item bin\THIRD-PARTY-NOTICES-unifiedlog_iterator.txt artifact\
 
       - uses: actions/upload-artifact@v4
         with:

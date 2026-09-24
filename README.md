@@ -88,6 +88,11 @@ To run on **Linux**, you will also need to install `tkinter` separately like so:
 To install dependencies offline Troy Schnack has a neat process here:
 https://twitter.com/TroySchnack/status/1266085323651444736?s=19
 
+To read Apple Unified Logs (the tracev3 data in a Mac extraction) when running from
+source, DLEAPP needs Mandiant's `unifiedlog_iterator`.
+`python admin/scripts/fetch_unifiedlog_iterator.py` downloads the pinned release for your
+platform into `bin/` after checking its SHA-256; see `bin/PROVENANCE.md`.
+
 ## Usage
 
 ### CLI
@@ -360,3 +365,8 @@ DLEAPP logo artwork courtesy of Johann Polewczyk, with the per-OS window
 controls (Linux, Windows, macOS) suggested by James Habben.
 
 DLEAPP is built on the RLEAPP framework by Alexis Brignoni and contributors.
+
+Apple Unified Log `.tracev3` data is read with the `unifiedlog_iterator` binary from
+Mandiant's [macos-UnifiedLogs](https://github.com/mandiant/macos-UnifiedLogs), licensed under
+Apache-2.0. Builds that include it carry its license and the notices for the Rust crates
+it links; see `bin/PROVENANCE.md`.
