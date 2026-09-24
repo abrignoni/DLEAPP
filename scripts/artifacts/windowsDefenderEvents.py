@@ -396,8 +396,9 @@ class _ParameterText:
     The text comes from the English (en-US) MpEvMsg.dll.mui on the volume the
     record's log was read from: the copy under ProgramData/Microsoft/Windows
     Defender/Platform in the folder named for the record's Product Version when
-    there is one, else the copy under Program Files/Windows Defender. A resolved
-    field reads 'text (%%n)'; a reference neither file resolves is kept as stored.
+    there is one, else, and for a message that copy does not hold, the copy under
+    Program Files/Windows Defender. A resolved field reads 'text (%%n)'; a reference
+    neither file resolves is kept as stored.
     """
 
     _LOG_DIR = '/windows/system32/winevt/logs/'
@@ -428,29 +429,31 @@ class _ParameterText:
     def _relative(self, path):
         return '/' + self.context.get_relative_path(path).replace('\\', '/').lower()
 
-    def _message_file(self, record):
+    def _message_files(self, record):
+        """The message files to try for a record, the copy for its own version first."""
         relative = self._relative(record.source) if record.source else ''
         at = relative.find(self._LOG_DIR)
         if at < 0:
-            return None
+            return []
         root = relative[:at]
         version = record.get('Product Version').lower()
-        return self.platform.get((root, version)) or self.inbox.get(root)
+        return [path for path in (self.platform.get((root, version)), self.inbox.get(root))
+                if path]
 
     def text(self, record, value):
         """The value, or 'text (%%n)' when it is a reference a message file resolves."""
         match = windows_messages.REFERENCE.fullmatch(value or '')
         if not match:
             return value
-        path = self._message_file(record)
-        if path and path not in self.tables:
-            self.tables[path] = windows_messages.read_message_table(path)
-        message = self.tables.get(path, {}).get(int(match.group(1))) if path else ''
-        if not message:
-            self.kept += 1
-            return value
-        self.resolved[path] += 1
-        return f'{message} ({value})'
+        for path in self._message_files(record):
+            if path not in self.tables:
+                self.tables[path] = windows_messages.read_message_table(path)
+            message = self.tables[path].get(int(match.group(1)))
+            if message:
+                self.resolved[path] += 1
+                return f'{message} ({value})'
+        self.kept += 1
+        return value
 
     def files(self):
         """The message files that gave text to at least one field, for the source path."""
