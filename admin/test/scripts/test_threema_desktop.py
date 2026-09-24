@@ -7,12 +7,19 @@ import sys
 import tempfile
 import unittest
 from datetime import datetime, timezone
+from unittest.mock import patch
+
+from Crypto.Cipher import AES
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from scripts import threema_desktop as td  # pylint: disable=wrong-import-position
 from scripts.artifacts import threemaDesktop as artifacts  # pylint: disable=wrong-import-position
+
+FILE_ID = 'ab' + '01' * 23
+FILE_KEY = bytes(range(32))
+FILE_BYTES = b'Synthetic attachment bytes'
 
 
 SCHEMA = """
@@ -61,10 +68,24 @@ def populate(db):
     db.execute("INSERT INTO messages VALUES(7,x'0506',1,6,1704067206123,1704067207123,NULL,1704067208123,'text',9,1704067209123,NULL)")
     db.execute("INSERT INTO messageTextData VALUES(8,7,'Synthetic message',NULL)")
     db.execute("INSERT INTO messageReactions VALUES(9,1704067210123,'👍','TEST0001',7)")
-    db.execute("INSERT INTO fileData VALUES(10,'synthetic-file',x'00',123,1)")
-    db.execute("INSERT INTO messageFileData VALUES(11,7,'synthetic.txt',123,'text/plain','Synthetic caption','synthetic-correlation',10,2,NULL,x'00')")
+    db.execute("INSERT INTO fileData VALUES(?,?,?,?,1)", (10, FILE_ID, FILE_KEY, len(FILE_BYTES)))
+    db.execute("INSERT INTO messageFileData VALUES(11,7,'synthetic.txt',?,'text/plain','Synthetic caption','synthetic-correlation',10,2,NULL,x'00')", (len(FILE_BYTES),))
     db.execute("INSERT INTO runningGroupCalls VALUES(12,2,0,1704067211123,'TEST0001',1,x'00','https://sfu.invalid')")
     db.commit()
+
+
+def encrypt_stored_file(data, file_id=FILE_ID, key=FILE_KEY):
+    """Independently construct Threema storage-format-v1 chunks for tests."""
+    output = bytearray()
+    for offset in range(0, len(data), td.FILE_CHUNK_SIZE):
+        chunk = data[offset:offset + td.FILE_CHUNK_SIZE]
+        index = offset // td.FILE_CHUNK_SIZE + 1
+        last = offset + td.FILE_CHUNK_SIZE >= len(data)
+        nonce = bytes.fromhex(file_id[-8:]) + index.to_bytes(4, 'big') + b'\0\0\0' + bytes([last])
+        cipher = AES.new(key, AES.MODE_GCM, nonce=nonce, mac_len=td.FILE_TAG_SIZE)
+        ciphertext, tag = cipher.encrypt_and_digest(chunk)
+        output.extend(ciphertext + tag)
+    return bytes(output)
 
 
 class ThreemaDesktopTest(unittest.TestCase):
@@ -94,16 +115,46 @@ class ThreemaDesktopTest(unittest.TestCase):
         message = list(artifacts._messages(self.db))[0]
         self.assertEqual(message[6], 'Inbound')
         self.assertEqual(message[9], 'Synthetic message')
+        self.assertEqual(message[11], 'synthetic.txt')
+        self.assertIn('Local file not found', message[12])
         reaction = list(artifacts._reactions(self.db))[0]
         self.assertEqual(reaction[3:5], ('👍', 'TEST0001'))
 
     def test_attachment_and_persisted_call(self):
         attachment = list(artifacts._attachments(self.db))[0]
-        self.assertEqual(attachment[4:8], ('File', 'synthetic.txt', 'text/plain', 123))
+        self.assertEqual(attachment[4:8],
+                         ('File', 'synthetic.txt', 'text/plain', len(FILE_BYTES)))
         self.assertNotIn('00', attachment)
         call = list(artifacts._group_calls(self.db))[0]
         self.assertEqual(call[3:8], ('0102', 'Synthetic Group', 'TEST0001', 1,
                                     'https://sfu.invalid'))
+
+    def test_authenticated_attachment_links_to_parent_message(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = pathlib.Path(folder) / 'data' / 'files' / FILE_ID[:2] / FILE_ID
+            path.parent.mkdir(parents=True)
+            path.write_bytes(encrypt_stored_file(FILE_BYTES))
+            with patch.object(artifacts, 'check_in_embedded_media', return_value='media-ref') as checkin:
+                message = list(artifacts._messages(self.db, [path]))[0]
+            self.assertEqual(message[10], ['media-ref'])
+            self.assertEqual(message[11], 'synthetic.txt')
+            self.assertIn('Authenticated and embedded', message[12])
+            checkin.assert_called_once()
+            self.assertEqual(checkin.call_args.args[1], FILE_BYTES)
+
+    def test_chunked_file_decryption_authenticates_every_chunk(self):
+        plaintext = b'A' * (td.FILE_CHUNK_SIZE + 3)
+        with tempfile.TemporaryDirectory() as folder:
+            path = pathlib.Path(folder) / FILE_ID
+            encrypted = bytearray(encrypt_stored_file(plaintext))
+            path.write_bytes(encrypted)
+            recovered, status = td.decrypt_stored_file(path, FILE_ID, FILE_KEY, len(plaintext), 1)
+            self.assertEqual((recovered, status), (plaintext, 'Authenticated'))
+            encrypted[-1] ^= 1
+            path.write_bytes(encrypted)
+            recovered, status = td.decrypt_stored_file(path, FILE_ID, FILE_KEY, len(plaintext), 1)
+            self.assertIsNone(recovered)
+            self.assertEqual(status, 'Authentication failed')
 
     def test_readonly_plaintext_database_end_to_end(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -156,6 +207,8 @@ class ThreemaDesktopTest(unittest.TestCase):
         for metadata in artifacts.__artifacts_v2__.values():
             self.assertNotIn('sample_data', metadata)
             self.assertEqual(metadata['author'], '@AlexisBrignoni, Codex')
+        conversation = artifacts.__artifacts_v2__['threemaMessages']['data_views']['conversation']
+        self.assertEqual(conversation['mediaColumn'], 'Attachments')
 
 
 if __name__ == '__main__':
