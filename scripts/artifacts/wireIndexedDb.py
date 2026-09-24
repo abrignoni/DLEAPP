@@ -14,6 +14,12 @@ __artifacts_v2__ = {
                  "CCL Chromium IndexedDB reader and Spyder Forensics IndexedDBtoJSON logic. "
                  "'MLS Identity Created' is the mls_credentials created_at value "
                  "read as epoch seconds, the unit the sampled values match.",
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 2 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "user",
@@ -29,6 +35,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "",
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 4 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "users",
@@ -52,6 +64,12 @@ __artifacts_v2__ = {
                  "the CONTACT's device, NOT a device the account owner used. "
                  "'Fingerprint Verified' is the meta.is_verified value the "
                  "client stored for that device record.",
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 5 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "smartphone",
@@ -66,6 +84,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "",
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 9 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "message-square",
@@ -189,6 +213,12 @@ __artifacts_v2__ = {
                  "the stored reason code and could not be tied to a published "
                  "Wire AVS enum, so the raw code is shown alongside regardless and "
                  "a code outside the mapping is left unlabelled.",
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 1 row",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "phone",
@@ -207,6 +237,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "",
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 3 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield",
@@ -222,6 +258,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Metadata only. Presence and counts of key stores, not the keys.",
+        "sample_data": {
+            "wire_win": "Windows, version not recorded | 12 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+        },
         "paths": ('*/https_app.wire.com_0.indexeddb.leveldb/*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
