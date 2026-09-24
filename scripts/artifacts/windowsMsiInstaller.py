@@ -38,11 +38,11 @@ __artifacts_v2__ = {
         "name": "Windows Installer Product Events",
         "description": "Windows Installer (MsiInstaller) product installation, "
                        "removal, configuration and update outcome events from the "
-                       "Application event log, with the product name, version, "
-                       "manufacturer and status each record stores.",
+                       "Application event log, with the product name, version, manufacturer and status "
+                       "where the record stores them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Application.evtx, named in the report's located-at line; only "
@@ -64,7 +64,8 @@ __artifacts_v2__ = {
                  "e103fa4e8810bd8d42c4777e17081e24dbe62dbd/desktop-src/Msi/"
                  "windows-installer-error-messages.md#L92-L114). Product, Version, Language, "
                  "Status (as stored), Manufacturer and Update are the record's insertion "
-                 "strings in that documented order, as stored; Message is the text of the "
+                 "strings in that documented order, as stored less any leading or trailing "
+                 "whitespace; Message is the text of the "
                  "117xx events, which store the product name inside it. Update is filled "
                  "only by 1036 and 1037 and was empty on every row of pc_mus_001_win11 and "
                  "lonewolf_win10. User SID is the SID in the record's Security element and "

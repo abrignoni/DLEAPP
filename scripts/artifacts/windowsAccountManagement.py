@@ -46,13 +46,13 @@ _ACCOUNT_EVENTS = {
 __artifacts_v2__ = {
     "accountManagement": {
         "name": "Windows Account Management",
-        "description": "Local account and group administration from the Security "
-                       "event log: account creation, change, deletion, lockout "
+        "description": "Account and group administration from the Security event log: account "
+                       "creation, change, deletion, lockout "
                        "and password events, and group membership changes, with "
-                       "the affected account, the member, and who performed it.",
+                       "the affected account, the member, and the account that requested it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Security.evtx, named in the report's located-at line. Reported are the "
@@ -60,26 +60,34 @@ __artifacts_v2__ = {
                  "change, deletion, lockout, unlock, and password change or "
                  "reset) and the security-group membership changes (a member "
                  "added to or removed from a global, local or universal group); "
-                 "the Event column is Microsoft's title for the Event ID. Event "
-                 "Time (UTC) is the record's TimeCreated SystemTime, stored in "
-                 "UTC. Target Account is TargetUserName as stored, which is the "
+                 "the Event column is Microsoft's title for the Event ID. Event Time (UTC) is "
+                 "the record's TimeCreated SystemTime, which python-evtx renders from the "
+                 "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
+                 "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
+                 "Target Account is TargetUserName as stored, which is the "
                  "account for the lifecycle events and the group for the "
                  "membership events. Member is the MemberName, or the MemberSid "
                  "when the name is not recorded, and is populated for the group "
-                 "membership events (the account added or removed). Performed By "
-                 "is SubjectUserName, the account that carried out the change. "
-                 "Computer is the machine that recorded the event. Across the "
-                 "tested images the account creation (4720), enabling (4722), "
-                 "disabling (4725), change (4738), deletion (4726) and "
-                 "password-reset (4724) events and the global and local group "
-                 "membership changes (4728, 4729, 4732, 4733) were present; the "
-                 "password-change (4723), lockout (4740), unlock (4767) and "
-                 "universal-group (4756, 4757) events are read and titled but "
-                 "were not present on those images. "
+                 "membership events (the account added or removed). Performed By is "
+                 "SubjectUserName, which Microsoft describes as the account that requested the "
+                 "operation (for example Microsoft, 'Event 4720', "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4720). "
+                 "Computer is the machine that recorded the event. Computer held one value on "
+                 "every row of lonewolf_win10 and pc_mus_001_win11, and two values on "
+                 "af_case2_win10. On af_case2_win10 and "
+                 "lonewolf_win10 the account creation (4720), enabling (4722), disabling (4725), "
+                 "change (4738), deletion (4726) and password-reset (4724) events and the global "
+                 "and local group membership changes (4728, 4729, 4732, 4733) were all present, "
+                 "and on pc_mus_001_win11 only the change (4738) and a local group addition "
+                 "(4732); the password-change (4723), lockout (4740), unlock (4767) and "
+                 "universal-group (4756, 4757) events are read and titled but were not present "
+                 "on any of the three registered images. "
                  "Reading needs the python-evtx package (pip install "
-                 "python-evtx). Event IDs: Microsoft, 'Audit User Account "
-                 "Management', https://learn.microsoft.com/windows/security/"
-                 "threat-protection/auditing/audit-user-account-management",
+                 "python-evtx). Event IDs: Microsoft, 'Audit User Account Management', "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/audit-user-account-management "
+                 "(the account events), and Microsoft, 'Audit Security Group Management', "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/audit-security-group-management "
+                 "(the group membership events)",
         "paths": ("*/Windows/System32/winevt/Logs/Security.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "user-check",

@@ -10,8 +10,9 @@ directly when one is supplied instead.
 __artifacts_v2__ = {
     "macosUnifiedLogs": {
         "name": "Unified Logs",
-        "description": "Apple Unified Log entries from the tracev3 data under db/diagnostics with "
-                       "the uuidtext format strings, or from a 'log show' JSON export, imported "
+        "description": "Apple Unified Log entries from the tracev3 data under db/diagnostics with the "
+                       "uuidtext format strings or in a .logarchive folder, or from a 'log show' JSON "
+                       "export, imported "
                        "into the LAVA database: time, process, subsystem, category and message.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
@@ -22,8 +23,10 @@ __artifacts_v2__ = {
                         "dleapp.py or inside a built DLEAPP executable, or PATH",
         "category": "Unified Logs (macOS)",
         "notes": "Imports the Apple Unified Log entries the parser returns into the LAVA database "
-                 "only, one row per entry. The tracev3 files under db/diagnostics, with the format "
-                 "strings under db/uuidtext, are read by Mandiant's unifiedlog_iterator "
+                 "only, one row per entry. The tracev3 files under db/diagnostics, with the "
+                 "format strings under db/uuidtext, or, when no db/diagnostics folder holds "
+                 "files, the contents of a .logarchive folder, are read by Mandiant's "
+                 "unifiedlog_iterator "
                  "(https://github.com/mandiant/macos-UnifiedLogs), which DLEAPP runs with --mode "
                  "log-archive and --format jsonl and finds through the DLEAPP_UNIFIEDLOG_ITERATOR "
                  "environment variable, the bin folder beside dleapp.py or inside a built DLEAPP "
@@ -43,10 +46,13 @@ __artifacts_v2__ = {
                  " ID has no value on any row read from tracev3 data, which is every row of both "
                  "tested images. A logical extraction of a Mac can hold both "
                  "private/var/db/diagnostics and System/Volumes/Data/private/var/db/diagnostics, and "
-                 "the same for uuidtext; both copies are read together as one store, a file only one "
-                 "copy holds from that copy and a file both hold from the copy whose bytes begin with "
-                 "the other's, and the run log counts each case. On the MacBook Pro the two "
-                 "diagnostics copies held 262 and 267 files: 19 tracev3 files only in "
+                 "the same for uuidtext; both copies are read together as one store, a file only "
+                 "one copy holds from that copy and a file both hold from the copy whose bytes "
+                 "begin with the other's, or, when neither does, from the copy read first, the "
+                 "one with the most files beneath it, and the run log counts each case. On the "
+                 "public MacBook Pro logical extraction (macOS 15.4, not a registered corpus "
+                 "key) private/var/db/diagnostics held 262 files and the System/Volumes/Data "
+                 "copy 267: 19 tracev3 files only in "
                  "private/var/db/diagnostics, 24 files only in the other copy, 6 longer in the "
                  "System/Volumes/Data copy, each beginning with the other copy's bytes, and 237 "
                  "identical. Read alone, the System/Volumes/Data copy gives 22,102,026 entries; read "
@@ -54,8 +60,9 @@ __artifacts_v2__ = {
                  "private/var/db/diagnostics holds give 4,928,289 when unifiedlog_iterator reads them "
                  "on their own. On dleapp_macos_bigsur the store gives 3,024,846 entries from "
                  "2021-02-15 15:25:46 to 2021-02-19 19:53:32 UTC, and on the MacBook Pro 27,030,315 "
-                 "from 2025-11-26 15:51:30 to 2025-12-25 09:43:52 UTC. Warnings the parser writes are "
-                 "copied to the run log: on dleapp_macos_bigsur one, that it failed to get a message "
+                 "from 2025-11-26 15:51:30 to 2025-12-25 09:43:52 UTC. The first 20 lines the "
+                 "parser writes to its error output are copied to the run log and any more are "
+                 "counted: on dleapp_macos_bigsur one, that it failed to get a message "
                  "string from a UUIDText file, and on the MacBook Pro two, about an unsupported number"
                  " size of 16.",
         "sample_data": {

@@ -30,7 +30,7 @@ __artifacts_v2__ = {
                        "process ID each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-WMI-Activity%4Operational.evtx, named in the "
@@ -54,8 +54,9 @@ __artifacts_v2__ = {
                  "5860, ClientMachine on 5860 and Provider on 5859, the names the records "
                  "on the registered images carry where the published manifest dump names "
                  "them processid, MachineName and providerName, and both spellings are "
-                 "read; Possible Cause is PossibleCause. Every value is reported as "
-                 "stored. Client Machine held one value on every 5860 row of each "
+                 "read; Possible Cause is PossibleCause. Every value is reported as stored, with "
+                 "any leading or trailing whitespace removed. Client Machine held one value on "
+                 "every 5860 row of each "
                  "registered image (12, 16 and 3 rows), the same text as Computer on 12 of "
                  "12, 16 of 16 and 2 of 3 of those rows. On each registered image the 5861 "
                  "rows named one Event Filter and Consumer pair (12 rows on "
@@ -90,7 +91,7 @@ __artifacts_v2__ = {
                        "result code).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-WMI-Activity%4Operational.evtx, named in the "
@@ -109,7 +110,8 @@ __artifacts_v2__ = {
                  "ProviderPath; on 5858, Client Machine, Account, Process ID, Component, "
                  "Operation, Result Code and Possible Cause are ClientMachine, User, "
                  "ClientProcessId, Component, Operation, ResultCode and PossibleCause. "
-                 "Every value is reported as stored; the manifest formats both result "
+                 "Every value is reported as stored, with any leading or trailing whitespace "
+                 "removed; the manifest formats both result "
                  "codes as hexadecimal. Result Code held one value on every 5857 row of "
                  "each registered image. Component and Possible Cause held the same text "
                  "as each other on every 5858 row of lonewolf_win10 (156 rows), on 173 of "

@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        "those files, and the file with the longest scan.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from the MPLog-*.log files under ProgramData\\Microsoft\\Windows "
@@ -61,7 +61,8 @@ __artifacts_v2__ = {
                  "(James Lovato, CrowdStrike, 'Mind the MPLog: Leveraging Microsoft "
                  "Protection Logging for Forensic Investigations', 2022-01-20, snapshot "
                  "https://web.archive.org/web/20260305194508/https://www.crowdstrike.com/en-us/blog/how-to-use-microsoft-protection-logging-for-forensic-investigations/). "
-                 "Both forms are read, with or without Pid. Process Image Name, Process "
+                 "Both forms are read, the timed form with or without Pid. Process Image Name, "
+                 "Process "
                  "ID, Total Time (ms), Count, Max Time (ms), Max Time File and Estimated "
                  "Impact are ProcessImageName, Pid, TotalTime, Count, MaxTime, MaxTimeFile "
                  "and EstimatedImpact as stored. Microsoft's page defines TotalTime as the "
@@ -77,7 +78,9 @@ __artifacts_v2__ = {
                  "Per-process counts line carries no time and no Pid, so both Logged Time "
                  "columns and Process ID are blank on it. Line Number is the line's number "
                  "in the decoded file, counting from 1 and breaking lines at CR LF, LF or "
-                 "CR. A file is decoded by its byte-order mark; each MPLog on the "
+                 "CR. A file is decoded by its byte-order mark or, without one, as UTF-16 "
+                 "little-endian when NUL bytes are more than a third of its first 4,096 bytes "
+                 "and as UTF-8 otherwise; each MPLog on the "
                  "registered images began with a UTF-16 little-endian mark. On "
                  "pc_mus_001_win11 the one MPLog gave 596 rows: 585 lines began with a "
                  "time ending in Z and carried Pid, and 11 were Per-process counts lines. "

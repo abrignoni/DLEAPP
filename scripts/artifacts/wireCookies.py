@@ -1,14 +1,15 @@
 __artifacts_v2__ = {
     "wireCookies": {
         "name": "Wire Cookies",
-        "description": "Cookies from the Wire desktop app's network stores "
+        "description": "Cookies for wire.com and its subdomains from the Wire desktop app's network "
+                       "stores "
                        "(Network/Cookies, main profile and Electron partitions), "
                        "including the cookie named 'zuid', with its creation, "
-                       "expiry and last-access times. Cookie values are "
-                       "OS-encrypted and are not decrypted here.",
+                       "expiry and last-access times. Only the length of each cookie's stored "
+                       "encrypted value is reported; cookie values are not decrypted here.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Only cookies whose host is wire.com or one of its subdomains are "

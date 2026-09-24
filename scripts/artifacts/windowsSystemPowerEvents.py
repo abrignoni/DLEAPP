@@ -41,13 +41,13 @@ _POWER_EVENTS = {
 __artifacts_v2__ = {
     "systemPowerEvents": {
         "name": "Windows System Power Events",
-        "description": "The system power timeline from the System event log: "
+        "description": "System power events from the System event log: "
                        "boot, clean and unexpected shutdown, operating system "
                        "start and stop, dirty reboot, sleep, and a process "
                        "initiating a shutdown or restart.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is one "
@@ -57,21 +57,37 @@ __artifacts_v2__ = {
                  "(service stopped, a clean shutdown) and 6008 (the previous "
                  "shutdown was unexpected); Kernel-General 12 (operating system "
                  "started) and 13 (operating system shutting down); Kernel-Power "
-                 "41 (rebooted without a clean shutdown, a power loss, hang or "
-                 "crash), 42 (entering sleep) and 109 (kernel initiated a "
+                 "41 (rebooted without cleanly shutting down first, which its message says could "
+                 "be caused if the system stopped responding, crashed, or lost power "
+                 "unexpectedly), 42 (entering sleep) and 109 (kernel initiated a "
                  "shutdown); and User32 1074 (a process initiated a shutdown or "
                  "restart). The Event column is the description for that "
                  "provider and Event ID. Event Time (UTC) is the record's "
                  "TimeCreated SystemTime, stored in UTC. Detail is populated for "
                  "the 1074 event with the process, action, reason and user as "
                  "the event stores them in its parameters, and is blank for the "
-                 "others. Computer is the machine that recorded the event. A 6005 "
-                 "not preceded by a 6006 (with a 6008 or Kernel-Power 41) is an "
-                 "unclean shutdown, and a gap between a 6006 and the next 6005 is "
-                 "time the system was off. Reading needs the python-evtx package "
-                 "(pip install python-evtx). Event meanings: Kandi Brian, "
-                 "'Windows Event Log Forensics', "
-                 "https://kandibrian.com/articles/windows-event-log-forensics.html",
+                 "others. Computer is the machine that recorded the event. Computer held one "
+                 "value on every row of pc_mus_001_win11, and two values on af_case2_win10 and "
+                 "on lonewolf_win10. A 6008 records an "
+                 "unexpected shutdown, and Kandi Brian notes that a gap between a 6006 and the "
+                 "next 6005 may indicate the system was offline, powered off, or that the logs "
+                 "were manipulated. On the registered images three 6005 events had no 6006 since "
+                 "the previous 6005; a 6008 and a Kernel-Power 41 came between them only on "
+                 "pc_mus_001_win11. Reading needs the python-evtx package "
+                 "(pip install python-evtx). Event meanings: Kandi Brian, 'Windows Event Log "
+                 "Forensics', https://kandibrian.com/articles/windows-event-log-forensics.html "
+                 "(6005, 6006 and 6008); for the others, the provider manifests as registered on "
+                 "Windows 11 build 22621.819, published in nasbench's EVTX-ETW-Resources "
+                 "repository: "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Kernel-General.xml#L330-L365 "
+                 "(12 and 13), "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Kernel-Power.xml#L2102-L2376 "
+                 "(41 and 42) and "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Kernel-Power.xml#L3708-L3728 "
+                 "(109), and "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/User32.xml#L53-L73 "
+                 "(1074, whose message places the process in %1, the reason in %3, the shutdown "
+                 "type in %5 and the user in %7)",
         "paths": ("*/Windows/System32/winevt/Logs/System.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "power",

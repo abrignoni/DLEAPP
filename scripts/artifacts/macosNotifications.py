@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Notifications (macOS)",
         "notes": "Reads the Notification Center database db2/db: under "
@@ -33,8 +33,9 @@ __artifacts_v2__ = {
                  "the req dictionary in that property list, the keys mac_apt reads as "
                  "title, subtitle, message and identifier (#L155-L158); a value stored as "
                  "a list, as on the MacBook Pro's App Store record, is shown with its "
-                 "parts joined by '; '. Other Request Fields (as stored) lists the other "
-                 "text and number values of req as 'key: value'. Presented and Style are "
+                 "parts joined by '; '. Other Request Fields (as stored) lists the other text, "
+                 "number and Boolean (True or False) values of req as 'key: value'. Presented "
+                 "and Style are "
                  "presented and style as stored; on dleapp_macos_bigsur Presented and "
                  "Style each held one value on all 6 rows. The 6 records on "
                  "dleapp_macos_bigsur are in the database of one private/var/folders "
@@ -44,8 +45,9 @@ __artifacts_v2__ = {
                  "MacBook Pro the Users/ copy holds 2 records and the "
                  "System/Volumes/Data/Users/ copy 1 of them, so both are read, and "
                  "Subtitle has no value on any MacBook Pro row. When a logical extraction "
-                 "holds the same file with and without a System/Volumes/Data/ prefix, a "
-                 "byte-identical second copy is read once and counted in the run log. The "
+                 "holds the same file with and without a System/Volumes/Data/ prefix, a second "
+                 "copy whose database and -wal file are both byte-identical to the first is not "
+                 "read again, and is counted in the run log. The "
                  "older com.apple.notificationcenter/db/db database is not read. "
                  "Reference: Apple, 'NSDate', "
                  "https://developer.apple.com/documentation/foundation/nsdate.",

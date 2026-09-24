@@ -2,11 +2,11 @@ __artifacts_v2__ = {
     "chromiumWebVisits": {
         "name": "Chromium Web Visits",
         "description": "Rows of the visits table from the History databases of Google Chrome, Microsoft "
-                       "Edge, Brave, Vivaldi, Opera and Chromium profiles, with the URL, page title, "
-                       "transition and visit source.",
+                       "Edge, Brave, Vivaldi, Opera and Chromium profiles, with the URL and title from "
+                       "each visit's urls row, the transition and the visit source.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the visits table of each History database in a Chromium-based browser profile and "
@@ -20,7 +20,9 @@ __artifacts_v2__ = {
                  "was exercised on a constructed tree only. Visit Time is visits.visit_time, microseconds "
                  "since 1601-01-01 UTC. Current Chromium binds it with Statement::BindTime "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/visit_database.cc#L394), "
-                 "which stores ToDeltaSinceWindowsEpoch().InMicroseconds() "
+                 "which stores what Statement::TimeToSqlValue returns "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L300-L316), "
+                 "ToDeltaSinceWindowsEpoch().InMicroseconds() "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L42-L44); "
                  "the Chrome 65 release wrote base::Time::ToInternalValue for it "
                  "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/history/core/browser/visit_database.cc#L157), "
@@ -42,7 +44,8 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/history_types.h#L50-L59). "
                  "Visit Source was SYNCED (0) on 4 of the 2293 rows of lonewolf_win10 and IE_IMPORTED (4) "
                  "on 12 of the 42 Microsoft Edge rows of pc_mus_001_win11. The names are Chromium's; "
-                 "Microsoft Edge's source is not published, so their meaning in Edge was not confirmed. "
+                 "Microsoft Edge's own source was not examined, so their meaning in Edge was not "
+                 "confirmed. "
                  "Visit Duration (seconds) is visits.visit_duration, written in microseconds "
                  "(visit_database.cc line 399, "
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L331) "
@@ -68,11 +71,13 @@ __artifacts_v2__ = {
                  "and Chrome 65.0.3325.181 (profile Default) on lonewolf_win10. No member of "
                  "af_case2_win10 or dleapp_macos_bigsur matched any of the declared paths. The user data "
                  "folders read are those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and "
-                 "Opera on Windows, macOS and Linux, and a store directly inside a user data folder is "
-                 "reported with that folder as its Profile. Only the Windows Google Chrome and Microsoft "
+                 "Opera on Windows, macOS and Linux, and a store directly inside an Opera user "
+                 "data folder is reported with that folder as its Profile. Only the Windows "
+                 "Google Chrome and Microsoft "
                  "Edge folders were exercised by a registered image; a constructed tree exercised the "
                  "Brave macOS, Vivaldi Linux and Opera Windows folders, the last with its profile kept "
-                 "directly in the user data folder, and the remaining folders were not exercised. "
+                 "directly in the user data folder, and the remaining folders were exercised by "
+                 "neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "
@@ -83,8 +88,12 @@ __artifacts_v2__ = {
                  "Not "
                  "read: other Chrome channels (Beta, Dev, Canary), extension storage partitions under a "
                  "profile's Storage folder, and WebView2 or Electron app profiles such as EBWebView "
-                 "folders, which share the layout but sit in other applications' folders. Also not read: "
-                 "the Archived History database of older Chrome releases. Chromium source is cited at "
+                 "folders, which share the layout but sit in other applications' folders. Also "
+                 "not read: the Archived History database of older Chrome releases; Chromium's "
+                 "history_backend.cc notes that it no longer maintains an archived database as "
+                 "of M37 "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/history_backend.cc#L1577). "
+                 "Chromium source is cited at "
                  "commit 33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
                  "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
         "paths": (
@@ -126,7 +135,7 @@ __artifacts_v2__ = {
                        "time, visit count and typed count as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the urls table of each History database in a Chromium-based browser profile; one "
@@ -141,7 +150,9 @@ __artifacts_v2__ = {
                  "urls.last_visit_time, microseconds since 1601-01-01 UTC. Current Chromium binds it with "
                  "Statement::BindTime "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/url_database.cc#L217), "
-                 "which stores ToDeltaSinceWindowsEpoch().InMicroseconds() "
+                 "which stores what Statement::TimeToSqlValue returns "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L300-L316), "
+                 "ToDeltaSinceWindowsEpoch().InMicroseconds() "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L42-L44); "
                  "the Chrome 65 release wrote base::Time::ToInternalValue for it "
                  "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/history/core/browser/url_database.cc#L112), "
@@ -170,12 +181,13 @@ __artifacts_v2__ = {
                  "108.0.1462.54 (profile Default) on pc_mus_001_win11, and Chrome 65.0.3325.181 (profile "
                  "Default) on lonewolf_win10. No member of af_case2_win10 or dleapp_macos_bigsur matched "
                  "any of the declared paths. The user data folders read are those of Google Chrome, "
-                 "Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, and a "
-                 "store directly inside a user data folder is reported with that folder as its Profile. "
+                 "Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and "
+                 "Linux, and a store directly inside an Opera user data folder is reported with "
+                 "that folder as its Profile. "
                  "Only the Windows Google Chrome and Microsoft Edge folders were exercised by a registered "
                  "image; a constructed tree exercised the Brave macOS, Vivaldi Linux and Opera Windows "
-                 "folders, the last with its profile kept directly in the user data folder, and the "
-                 "remaining folders were not exercised. "
+                 "folders, the last with its profile kept directly in the user data folder, and "
+                 "the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "
@@ -229,7 +241,7 @@ __artifacts_v2__ = {
                        "reason.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the downloads table of each History database in a Chromium-based browser profile, "
@@ -243,7 +255,9 @@ __artifacts_v2__ = {
                  "Access Time are downloads.start_time, end_time and last_access_time, microseconds since "
                  "1601-01-01 UTC. Current Chromium binds them with Statement::BindTime "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/download_database.cc#L689-L700), "
-                 "which stores ToDeltaSinceWindowsEpoch().InMicroseconds() "
+                 "which stores what Statement::TimeToSqlValue returns "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L300-L316), "
+                 "ToDeltaSinceWindowsEpoch().InMicroseconds() "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L42-L44); "
                  "the Chrome 65 release wrote base::Time::ToInternalValue for the same columns "
                  "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/history/core/browser/download_database.cc#L636-L648), "
@@ -295,11 +309,12 @@ __artifacts_v2__ = {
                  "(profile Default) on lonewolf_win10. No member of af_case2_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
-                 "and a store directly inside a user data folder is reported with that folder as its "
-                 "Profile. Only the Windows Google Chrome and Microsoft Edge folders were exercised by a "
+                 "and a store directly inside an Opera user data folder is reported with that "
+                 "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge "
+                 "folders were exercised by a "
                  "registered image; a constructed tree exercised the Brave macOS, Vivaldi Linux and Opera "
-                 "Windows folders, the last with its profile kept directly in the user data folder, and "
-                 "the remaining folders were not exercised. "
+                 "Windows folders, the last with its profile kept directly in the user data "
+                 "folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "
@@ -352,7 +367,7 @@ __artifacts_v2__ = {
                        "search engine where the same profile's Web Data holds the stored keyword id.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the keyword_search_terms table of each History database in a Chromium-based "
@@ -363,6 +378,9 @@ __artifacts_v2__ = {
                  "URL Last Visit Time is urls.last_visit_time of the search URL, microseconds since "
                  "1601-01-01 UTC, which current Chromium binds with Statement::BindTime "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/url_database.cc#L217, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L300-L316, "
+                 "which stores what Statement::TimeToSqlValue returns, "
+                 "ToDeltaSinceWindowsEpoch().InMicroseconds(), "
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L42-L44); "
                  "it is the last visit to that URL, not a time stored for the term, and URL Visit Count is "
                  "that URL's urls.visit_count. Search Engine and Search Engine Keyword are "
@@ -373,8 +391,9 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/search_engines/keyword_table.cc#L256-L259). "
                  "Every row of the tested images matched a keywords row of its own profile: 62 of 62 on "
                  "pc_mus_001_win11 and 190 of 190 on lonewolf_win10. Both columns are blank where the "
-                 "profile has no Web Data or no matching row; the located-at line lists the Web Data of "
-                 "each profile whose History was read. Browser, Profile and User come from the path: the "
+                 "profile has no Web Data or no matching row; the located-at line lists the Web "
+                 "Data of each profile whose History was read, where that Web Data's keywords "
+                 "table was read. Browser, Profile and User come from the path: the "
                  "browser from the user data folder, the profile from the folder inside it, and the user "
                  "from the home folder that holds it; Source File names the file each row came from, so "
                  "rows from two profiles or two users stay apart. A profile under User "
@@ -394,11 +413,12 @@ __artifacts_v2__ = {
                  "(profile Default) on lonewolf_win10. No member of af_case2_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
-                 "and a store directly inside a user data folder is reported with that folder as its "
-                 "Profile. Only the Windows Google Chrome and Microsoft Edge folders were exercised by a "
+                 "and a store directly inside an Opera user data folder is reported with that "
+                 "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge "
+                 "folders were exercised by a "
                  "registered image; a constructed tree exercised the Brave macOS, Vivaldi Linux and Opera "
-                 "Windows folders, the last with its profile kept directly in the user data folder, and "
-                 "the remaining folders were not exercised. "
+                 "Windows folders, the last with its profile kept directly in the user data "
+                 "folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "

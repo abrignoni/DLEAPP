@@ -67,7 +67,7 @@ __artifacts_v2__ = {
                        "line and engine version each event stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Windows PowerShell.evtx, named in the report's located-at line. "
@@ -117,7 +117,9 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11 and two values on lonewolf_win10. A record python-evtx "
                  "cannot render, or whose XML does not parse, is counted in the run log and "
                  "not reported; every record in this log rendered on the registered images. "
-                 "Not reported: 7 records on af_case2_win10 written to this log by another "
+                 "Not reported: the context block's SequenceNumber, PipelineId, CommandName, "
+                 "CommandType, ScriptName, CommandPath and CommandLine lines, 7 records on "
+                 "af_case2_win10 written to this log by another "
                  "event source (Event ID 104), and pipeline execution details (800), which "
                  "the PowerShell Pipeline Execution Details artifact reports. Events 401, 402 "
                  "and 601 are read but appear on none of the registered images. Reading needs "
@@ -256,12 +258,12 @@ __artifacts_v2__ = {
     },
     "powershellConsoleEvents": {
         "name": "PowerShell Console Start-up Events",
-        "description": "PowerShell console start-up events (40961, 40962, 53504) "
-                       "from the PowerShell Operational log, with the process ID "
+        "description": "PowerShell console start-up events (40961, 40962) and IPC listening thread "
+                       "events (53504) from the PowerShell Operational log, with the process ID "
                        "and account SID each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-PowerShell%4Operational.evtx, named in the "

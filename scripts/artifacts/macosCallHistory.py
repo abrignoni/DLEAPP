@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "originated and answered values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Call History (macOS)",
         "notes": "Reads ZCALLRECORD in each user's CallHistory.storedata and "
@@ -39,8 +39,9 @@ __artifacts_v2__ = {
                  "not a registered corpus key) holds a CallHistory.storedata with no call "
                  "records. All rows on dleapp_macos_bigsur come from one user, so User "
                  "holds one value there. When a logical extraction holds the same file "
-                 "under Users/ and under System/Volumes/Data/Users/, a byte-identical "
-                 "second copy is read once and counted in the run log. Reference: Apple, "
+                 "under Users/ and under System/Volumes/Data/Users/, a second copy whose "
+                 "database and -wal file are both byte-identical to the first is not read again, "
+                 "and is counted in the run log. Reference: Apple, "
                  "'NSDate', https://developer.apple.com/documentation/foundation/nsdate.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 25 rows",

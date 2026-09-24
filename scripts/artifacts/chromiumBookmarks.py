@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "path, the date added and the date last used.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the Bookmarks and AccountBookmarks JSON files of each Chromium-based browser "
@@ -21,7 +21,10 @@ __artifacts_v2__ = {
                  "microseconds since 1601-01-01 UTC "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/bookmarks/browser/bookmark_codec.cc#L183-L186; "
                  "the Chrome 65 release wrote date_added with base::Time::ToInternalValue, "
-                 "https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/bookmarks/browser/bookmark_codec.cc#L126-L127); "
+                 "https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/bookmarks/browser/bookmark_codec.cc#L126-L127, "
+                 "which base/time/time.h describes as microseconds since the Windows epoch, "
+                 "1601-01-01 UTC, "
+                 "https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/base/time/time.h#L5-L7); "
                  "Date Last Used is blank where the file has no value or 0. Browser, Profile and User come "
                  "from the path: the browser from the user data folder, the profile from the folder inside "
                  "it, and the user from the home folder that holds it; Source File names the file each row "
@@ -33,15 +36,20 @@ __artifacts_v2__ = {
                  "(Chrome Default) each hold only their root folders, with no bookmarks under them, and no "
                  "AccountBookmarks file is present on either. The walk over nested folders, both file "
                  "names and the handling of an unreadable file were exercised on constructed files only. "
-                 "Not read: Bookmarks.bak, present once on pc_mus_001_win11, and the encrypted "
-                 "EncryptedBookmarks2 and EncryptedAccountBookmarks2 files. No member of af_case2_win10 or "
+                 "Not read: Bookmarks.bak, present once on pc_mus_001_win11, and the "
+                 "EncryptedBookmarks2 and EncryptedAccountBookmarks2 files, whose constants in "
+                 "bookmark_constants.cc name them as encrypted bookmark files "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/bookmarks/common/bookmark_constants.cc#L17-L20). "
+                 "No member of af_case2_win10 or "
                  "dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
-                 "macOS and Linux, and a store directly inside a user data folder is reported with that "
-                 "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge folders were "
-                 "exercised by a registered image; a constructed tree exercised the Brave macOS, Vivaldi "
-                 "Linux and Opera Windows folders, the last with its profile kept directly in the user "
-                 "data folder, and the remaining folders were not exercised. "
+                 "macOS and Linux, and a store directly inside an Opera user data folder is "
+                 "reported with that folder as its Profile. Only the Windows Google Chrome "
+                 "folder was exercised by a registered image, the Microsoft Edge profile of "
+                 "pc_mus_001_win11 holding no Bookmarks file; a constructed tree exercised the "
+                 "Brave macOS, Vivaldi Linux and Opera Windows folders, the last with its "
+                 "profile kept directly in the user data folder, and the remaining folders were "
+                 "exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical "
                  "is read once and counted in the run log, and copies that differ are both "

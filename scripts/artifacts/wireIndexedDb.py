@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "wireAccountInfo": {
         "name": "Wire Account Info",
-        "description": "Signed-in Wire account owner(s) recovered from the "
-                       "app.wire.com IndexedDB/LevelDB store: handle, display "
+        "description": "Wire account owner(s) whose databases the app.wire.com IndexedDB/LevelDB store "
+                       "holds: handle, display "
                        "name, user id, self device (client) and registration "
-                       "details. One LevelDB can hold more than one login.",
+                       "details. One LevelDB can hold more than one account's databases.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-24",
@@ -15,14 +15,18 @@ __artifacts_v2__ = {
                  "'MLS Identity Created' is the mls_credentials created_at value "
                  "read as epoch seconds, the unit the sampled values match. "
                  "A Wire profile can hold the databases of more than one account, and the "
-                 "wire_win profile holds two; every account's databases are read, and a "
-                 "record is compared with earlier versions of itself only within the "
-                 "database of the account that holds it, so each account's copy of a "
-                 "record both accounts hold is reported. No user, conversation or event id "
+                 "wire_win profile holds two; every account's databases are read and one row is "
+                 "reported per account owner, whose handle, name, email, domain, team and "
+                 "protocols come from the most complete copy of that owner's user record in any "
+                 "account's database. No user, conversation or event id "
                  "is held by both accounts on wire_win. "
                  "On wire_win the user records of both account owners hold only a handle, "
                  "an id, sso_id_deleted, supported_protocols and, on one, assets and a "
-                 "team, so Display Name, Email and Domain are empty on both rows.",
+                 "team, so Display Name, Email and Domain are empty on both rows. Device Last "
+                 "Active is the stored last_active value, not established to be a time the "
+                 "device was used: on wire_win both values are exactly midnight UTC, and one of "
+                 "them, 30 July 2026, falls after every message, asset-cache and cookie "
+                 "last-access time in the capture, the latest of which is on 23 July 2026.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 2 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
@@ -67,9 +71,10 @@ __artifacts_v2__ = {
     "wireDevices": {
         "name": "Wire Devices",
         "description": "Client devices from the IndexedDB clients store, "
-                       "attributed to their owner: the signed-in account's own "
-                       "device(s) (local_identity) AND the contact devices the "
-                       "client has records for. Includes class/model, "
+                       "attributed to their owner: the device each account registered on this "
+                       "installation (local_identity) AND the other devices the client has records "
+                       "for, whether a contact's or another device of the account owner. Includes "
+                       "class/model, "
                        "registration, last active and the fingerprint "
                        "verification state where known.",
         "author": "@AlexisBrignoni",
@@ -77,12 +82,25 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "'Relationship' separates the account owner's own device from a "
-                 "contact's device. A contact device is a recipient device the "
-                 "app set up encryption with; its class (e.g. 'phone') describes "
-                 "the CONTACT's device, NOT a device the account owner used. "
-                 "'Fingerprint Verified' is the meta.is_verified value the "
-                 "client stored for that device record. "
+        "notes": "'Relationship' reads Self device for the local_identity record, the client "
+                 "this installation registered for the account, and Contact device for every "
+                 "other client record. Wire's web app also stores the account owner's other "
+                 "devices in this store, and such a record would read Contact device with its "
+                 "Device Owner marked (me); none of the wire_win records is of that kind. "
+                 "Reference: Wire, 'ClientRepository.ts', "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/apps/webapp/src/script/repositories/client/ClientRepository.ts#L69-L71 "
+                 "and "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/apps/webapp/src/script/repositories/client/ClientRepository.ts#L508-L520. "
+                 "A Contact device row is any client record other than local_identity; its class "
+                 "(e.g. 'phone') describes that device, which is a contact's device unless its "
+                 "Device Owner is marked (me). On wire_win each of the 3 contact devices belongs "
+                 "to a contact and also has a Proteus session in the same account's database. "
+                 "'Fingerprint Verified' is the meta.is_verified value the client stored for "
+                 "that device record. 'Last Active' is the stored last_active value, not "
+                 "established to be a time the device was used: on wire_win both self-device "
+                 "values are exactly midnight UTC, and one of them, 30 July 2026, falls after "
+                 "every message, asset-cache and cookie last-access time in the capture, the "
+                 "latest of which is on 23 July 2026. "
                  "A Wire profile can hold the databases of more than one account, and the "
                  "wire_win profile holds two; every account's databases are read, and a "
                  "record is compared with earlier versions of itself only within the "
@@ -140,16 +158,19 @@ __artifacts_v2__ = {
     "wireMessages": {
         "name": "Wire Messages",
         "description": "Wire conversation events flattened to a message timeline: "
-                       "text messages, pings, attachments, member joins and "
-                       "conversation creations, with resolved sender and "
+                       "text messages, pings, attachments, calls, member joins, conversation creations "
+                       "and any other event type, with resolved sender and "
                        "conversation names.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-24",
-        "requirements": "none",
+        "requirements": "PyCryptodome (only to decrypt cached assets for the Media column; the rows are "
+                        "read without it)",
         "category": "Wire (Windows)",
-        "notes": "Recovered thumbnails are decrypted from the on-disk asset "
-                 "caches when present. 'Outgoing' is left blank on events that "
+        "notes": "Recovered media are decrypted from the on-disk asset caches when present: the "
+                 "asset itself, or its preview image when only the preview is cached (on "
+                 "wire_win 5 images and the previews of 2 videos). 'Outgoing' is left blank on "
+                 "events that "
                  "carry no sender, such as a conversation creation, because "
                  "those are not a message in either direction. "
                  "A Wire profile can hold the databases of more than one account, and the "
@@ -193,15 +214,20 @@ __artifacts_v2__ = {
         "description": "Files, images, audio and video shared in Wire "
                        "conversations (asset-add events): filename, MIME type, "
                        "size, sender, conversation and the server asset "
-                       "key/token references. Where the asset is still in an "
-                       "on-disk cache, the decrypted thumbnail is embedded.",
+                       "key/token references. Where the asset is still in an on-disk cache, the "
+                       "decrypted asset is embedded, or its decrypted preview image when only the "
+                       "preview is cached.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-24",
-        "requirements": "none",
+        "requirements": "PyCryptodome (only to decrypt cached assets for the Recovered Media column; "
+                        "the rows are read without it)",
         "category": "Wire (Windows)",
-        "notes": "Wire assets are end-to-end encrypted and stored server-side; "
-                 "only recoverable (cached) assets show a decrypted image. "
+        "notes": "Wire's client encrypts each asset with its own random key, and every asset-add "
+                 "event on wire_win carries that key (otr_key) and the SHA-256 of the encrypted "
+                 "blob; only assets whose encrypted blob is still in an on-disk cache show a "
+                 "decrypted image. Reference: Wire, 'assetCryptography.ts', "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/libraries/core/src/cryptography/assetCryptography/assetCryptography.ts#L53-L69. "
                  "A Wire profile can hold the databases of more than one account, and the "
                  "wire_win profile holds two; every account's databases are read, and a "
                  "record is compared with earlier versions of itself only within the "
@@ -228,30 +254,40 @@ __artifacts_v2__ = {
     },
     "wireCachedAssets": {
         "name": "Wire Asset Cache Timeline",
-        "description": "When each shared asset was fetched/(re)cached on this "
-                       "device, from the Wire service-worker cache (workbox "
-                       "cache-entries). Each cache-write time is cross-referenced "
+        "description": "Times the Wire service worker wrote a shared asset to its cache or served it "
+                       "from there, from workbox's cache-entries store, including earlier times "
+                       "LevelDB still holds. Each time is cross-referenced "
                        "to the asset's filename, conversation and sender, giving "
                        "a device-side asset access timeline distinct from the "
                        "message send times.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-24",
-        "requirements": "none",
+        "requirements": "PyCryptodome (only to fill the Recovered column; the rows are read without it)",
         "category": "Wire (Windows)",
-        "notes": "Timestamps are workbox cache-write times: the app can re-cache on "
-                 "reload/focus/cache-warming, so treat them as 'the asset was fetched by "
-                 "the app at this time', a proxy for activity rather than a confirmed user "
-                 "view. A Wire profile can hold the databases of more than one account, "
+        "notes": "Timestamps are the times workbox's expiration plugin stored for the asset's "
+                 "URL, which it sets when the service worker writes the asset to its cache and "
+                 "again each time it serves the cached copy; the store holds one entry per URL, "
+                 "and earlier times survive as older LevelDB versions of that entry (on wire_win "
+                 "28 records for 7 URLs). Treat them as times the app requested the asset, a "
+                 "proxy for activity rather than a confirmed user view. Reference: Google, "
+                 "'ExpirationPlugin.ts', "
+                 "https://github.com/GoogleChrome/workbox/blob/62b9d8ba8eb3c1a2ab8aac9d84c90cda7865d6a3/packages/workbox-expiration/src/ExpirationPlugin.ts#L145-L164 "
+                 "and "
+                 "https://github.com/GoogleChrome/workbox/blob/62b9d8ba8eb3c1a2ab8aac9d84c90cda7865d6a3/packages/workbox-expiration/src/ExpirationPlugin.ts#L249-L270; "
+                 "Wire, 'sw.js', "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/apps/webapp/src/sw.js#L44-L63. "
+                 "A Wire profile can hold the databases of more than one account, "
                  "and the wire_win profile holds two, but the service-worker cache is kept "
                  "once for the whole profile: Account is the account whose asset-add event "
                  "names the cached asset, a row names one account even when both accounts' "
                  "events name the same asset, and a name marked (me) is that account's "
                  "owner. No event id is held by both accounts on wire_win. On wire_win all "
                  "28 rows come from one of the two accounts, so Account held one value; "
-                 "Recovered was Yes and Cache Name held one value on every row; and "
-                 "Filename was empty on all 28, which are 16 images and 12 image previews, "
-                 "the image attachments there carrying no file name.",
+                 "Recovered was Yes and Cache Name held one value on every row; and Filename was "
+                 "empty on all 28: 16 rows record 5 image attachments, which carry no file name "
+                 "there, and 12 record the preview images of 2 video attachments, for which "
+                 "Filename is never filled.",
         "paths": (
             '*/https_app.wire.com_0.indexeddb.leveldb/*',
             '*/Wire/*Service Worker/CacheStorage/*/*/*_0',
@@ -269,22 +305,28 @@ __artifacts_v2__ = {
     "wireCalls": {
         "name": "Wire Calls",
         "description": "Voice and video calls recorded in the Wire IndexedDB "
-                       "(conversation voice-channel events): call end time, "
-                       "conversation, the user each event came from, duration "
-                       "and end reason.",
+                       "(conversation voice-channel events): the time of each call start or end event, "
+                       "conversation, the event's 'from' user, duration and end reason.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Wire (Windows)",
-        "notes": "Duration is taken from the voice-channel-deactivate event "
-                 "(milliseconds). 'Event From User' is the event's 'from' "
+        "notes": "Duration is taken from the voice-channel-deactivate event, in milliseconds: "
+                 "Wire's web app writes Date.now() minus the call's start time there. Reference: "
+                 "Wire, 'CallingRepository.ts', "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/apps/webapp/src/script/repositories/calling/CallingRepository.ts#L2610-L2617. "
+                 "'Event From User' is the event's 'from' "
                  "value, reported for the start and end events alike; the "
                  "'from' user on an end event is not established to be who "
-                 "ended the call. End-reason labels are an interpretation of "
-                 "the stored reason code and could not be tied to a published "
-                 "Wire AVS enum, so the raw code is shown alongside regardless and "
-                 "a code outside the mapping is left unlabelled. "
+                 "ended the call. End-reason labels paraphrase the WCALL_REASON names that "
+                 "Wire's AVS calling library defines for codes 0 to 13, and Wire's web app "
+                 "stores that AVS reason code in the end event; the raw code is shown alongside, "
+                 "and a code outside the mapping (AVS also defines 14 to 16) is left unlabelled. "
+                 "References: Wire, 'avs_wcall.h', "
+                 "https://github.com/wireapp/wire-avs/blob/b351b36114a910118b0d62ab05a48626113d594f/include/avs_wcall.h#L168-L184; "
+                 "Wire, 'EventBuilder.ts', "
+                 "https://github.com/wireapp/wire-webapp/blob/f3775a1b5d6e99dab24e011d1fcd621dc2d879b7/apps/webapp/src/script/repositories/conversation/EventBuilder/EventBuilder.ts#L776-L797. "
                  "A Wire profile can hold the databases of more than one account, and the "
                  "wire_win profile holds two; every account's databases are read, and a "
                  "record is compared with earlier versions of itself only within the "
@@ -304,11 +346,9 @@ __artifacts_v2__ = {
     },
     "wireProteusSessions": {
         "name": "Wire Proteus Sessions",
-        "description": "Proteus end-to-end sessions the account established, one "
-                       "per contact device (domain@user@client). A session "
-                       "record exists per contact device the client set up "
-                       "Proteus encryption with; it does not by itself "
-                       "establish that a message was exchanged. Session key "
+        "description": "Proteus end-to-end session records held in an account's database, one row per "
+                       "device the session key names (domain@user@client). A session record does not "
+                       "by itself establish that a message was exchanged. Session key "
                        "bytes are not exported.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
@@ -349,10 +389,11 @@ __artifacts_v2__ = {
                  "wire_win profile holds two; every account's databases are read. Counts "
                  "are per account: Account names the account whose database holds the "
                  "store, so on wire_win the 12 stores give 23 rows, proteus_sessions being "
-                 "held by one account only. Record Count counts every record the reader "
-                 "returns for the store, which includes earlier versions of one key that "
-                 "LevelDB still holds, and Distinct Keys counts the keys: on wire_win 95 "
-                 "proteus_sessions records hold 3 keys.",
+                 "held by one account only. Record Count counts every record the reader returns "
+                 "for the store, which includes earlier versions of one key and deletion records "
+                 "that LevelDB still holds, and Distinct Keys counts the keys: on wire_win 95 "
+                 "proteus_sessions records hold 3 keys, and 24 of the 1,051 records counted are "
+                 "deletion records.",
         "sample_data": {
             "wire_win": "Windows, version not recorded | 23 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",

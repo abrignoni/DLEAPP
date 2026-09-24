@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "stored creation and modification dates.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Contacts (macOS)",
         "notes": "Reads each user's AddressBook-v22.abcddb under ~/Library/Application "
@@ -28,8 +28,9 @@ __artifacts_v2__ = {
                  "URLs join the rows of ZABCDPHONENUMBER, ZABCDEMAILADDRESS, "
                  "ZABCDPOSTALADDRESS and ZABCDURLADDRESS that name the contact as ZOWNER, "
                  "in ZORDERINGINDEX order, each with its ZLABEL; a label stored in the "
-                 "_$!<...>!$_ form is shown without that wrapper. Postal Addresses joins "
-                 "the street, city, state, postal code and country fields with commas. "
+                 "_$!<...>!$_ form is shown without that wrapper. Postal Addresses joins the "
+                 "street, city, state, postal code and country fields with commas, except that "
+                 "the state and postal code are separated by a space. "
                  "Note is the ZTEXT of the ZABCDNOTE row for the contact. The name, "
                  "organization, department, job title and unique ID columns are the "
                  "ZABCDRECORD fields of those names as stored. On dleapp_macos_bigsur the "
@@ -39,12 +40,14 @@ __artifacts_v2__ = {
                  "(macOS 15.4, not a registered corpus key) the top-level database and one "
                  "Sources database each hold 1 contact and a second Sources database holds "
                  "none; Postal Addresses and URLs have no value on any MacBook Pro row. "
-                 "The Users/ and System/Volumes/Data/Users/ copies there differ and both "
-                 "are read, so each contact appears twice, identical in every column but "
+                 "The Users/ and System/Volumes/Data/Users/ copies there hold byte-identical "
+                 "database files but different -wal files, and both are read, so each contact "
+                 "appears twice, identical in every column but "
                  "Source File. All rows on each image come from one user, so User holds "
                  "one value there. When a logical extraction holds the same file under "
-                 "Users/ and under System/Volumes/Data/Users/, a byte-identical second "
-                 "copy is read once and counted in the run log. Reference: Apple, "
+                 "Users/ and under System/Volumes/Data/Users/, a second copy whose database and "
+                 "-wal file are both byte-identical to the first is not read again, and is "
+                 "counted in the run log. Reference: Apple, "
                  "'NSDate', https://developer.apple.com/documentation/foundation/nsdate.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 4 rows",

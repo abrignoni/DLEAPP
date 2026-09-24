@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Installed Software (macOS)",
         "notes": "Reads the array in /Library/Receipts/InstallHistory.plist, one row per entry; Date "
@@ -20,8 +20,9 @@ __artifacts_v2__ = {
                  "package identifiers and 12 a content type. On the public MacBook Pro logical "
                  "extraction (macOS 15.4, not a registered corpus key) the 21 entries run from "
                  "2025-11-20 to 2025-12-24, 10 of them from appstoreagent. When a logical extraction "
-                 "holds the same file under Users/ and under System/Volumes/Data/Users/, a "
-                 "byte-identical second copy is read once and counted in the run log.",
+                 "holds the file under Library/Receipts/ and again under "
+                 "System/Volumes/Data/Library/Receipts/, a second copy byte-identical to the "
+                 "first is not read again, and is counted in the run log.",
         "paths": ('*/Library/Receipts/InstallHistory.plist',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "package",

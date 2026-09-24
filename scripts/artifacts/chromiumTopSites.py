@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "holds one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads each Chromium-based browser profile's Top Sites database: the top_sites table of "
@@ -45,11 +45,12 @@ __artifacts_v2__ = {
                  "lonewolf_win10 (thumbnails, 16 rows). No member of af_case2_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
-                 "and a store directly inside a user data folder is reported with that folder as its "
-                 "Profile. Only the Windows Google Chrome and Microsoft Edge folders were exercised by a "
+                 "and a store directly inside an Opera user data folder is reported with that "
+                 "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge "
+                 "folders were exercised by a "
                  "registered image; a constructed tree exercised the Brave macOS, Vivaldi Linux and Opera "
-                 "Windows folders, the last with its profile kept directly in the user data folder, and "
-                 "the remaining folders were not exercised. "
+                 "Windows folders, the last with its profile kept directly in the user data "
+                 "folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "
@@ -103,7 +104,7 @@ __artifacts_v2__ = {
                        "access time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the omni_box_shortcuts table of each Chromium-based browser profile's Shortcuts "
@@ -116,7 +117,9 @@ __artifacts_v2__ = {
                  "was exercised on a constructed tree only. Last Access Time is last_access_time, "
                  "microseconds since 1601-01-01 UTC. Current Chromium binds it with Statement::BindTime "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L48), "
-                 "which stores ToDeltaSinceWindowsEpoch().InMicroseconds() "
+                 "which stores what Statement::TimeToSqlValue returns "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L300-L316), "
+                 "ToDeltaSinceWindowsEpoch().InMicroseconds() "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/sql/statement.cc#L42-L44); "
                  "the Chrome 65 release wrote base::Time::ToInternalValue for it "
                  "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/omnibox/browser/shortcuts_database.cc#L46), "
@@ -147,11 +150,12 @@ __artifacts_v2__ = {
                  "2), and Chrome 65.0.3325.181 on lonewolf_win10 (version 1). No member of af_case2_win10 "
                  "or dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
-                 "macOS and Linux, and a store directly inside a user data folder is reported with that "
-                 "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge folders were "
+                 "macOS and Linux, and a store directly inside an Opera user data folder is "
+                 "reported with that folder as its Profile. Only the Windows Google Chrome and "
+                 "Microsoft Edge folders were "
                  "exercised by a registered image; a constructed tree exercised the Brave macOS, Vivaldi "
                  "Linux and Opera Windows folders, the last with its profile kept directly in the user "
-                 "data folder, and the remaining folders were not exercised. "
+                 "data folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
                  "with any -journal or -wal beside it, is read once and counted in the run "

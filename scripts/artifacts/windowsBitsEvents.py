@@ -34,7 +34,7 @@ __artifacts_v2__ = {
                        "record stores them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Bits-Client%4Operational.evtx, named in the "
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
                  "User, Process Path, Process ID, Bytes Total, Bytes Transferred and File "
                  "Count are jobOwner, User, processPath, processId, bytesTotal, "
                  "bytesTransferred and fileCount; Status Code is hr, which the manifest "
-                 "formats as hexadecimal, shown as hex with the stored decimal. Every "
+                 "formats as hexadecimal, shown as hex with the stored decimal. Every other "
                  "value is reported as stored. Local File was filled on the 173 16403 rows "
                  "of pc_mus_001_win11 and is empty on af_case2_win10 and lonewolf_win10, "
                  "which carry no 16403 records. Bytes Total held 18446744073709551615, the "
@@ -65,9 +65,10 @@ __artifacts_v2__ = {
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Not reported: the "
-                 "transfer ID, peer, proxy, bandwidth and remote file time and length "
-                 "fields, and the log's other events. A record python-evtx cannot render, "
+                 "pc_mus_001_win11 and two values on lonewolf_win10. Not reported: the transfer "
+                 "ID, peer, proxy, bandwidth, fileTime, fileLength, AdditionalInfoHr and "
+                 "ClientProcessStartKey fields, and the log's other events. A record python-evtx "
+                 "cannot render, "
                  "or whose XML does not parse, is counted in the run log and not reported; "
                  "every record in this log rendered on the registered images. On the job "
                  "created (3) rows, Job Owner was an NT AUTHORITY account on 10 of 18 on "

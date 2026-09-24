@@ -41,18 +41,23 @@ __artifacts_v2__ = {
                        "time, product type, serial number, IMEI, firmware and use count as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
         "notes": "Reads the Devices dictionary of each user's "
                  "~/Library/Preferences/com.apple.iPod.plist, one row per device. Connected is the "
                  "device's Connected date as stored; whether it records the first or the latest "
-                 "connection is not established. The other columns are the stored values of the same "
-                 "names. The conn:128:Last Connect value at the top level of the file is not decoded. "
-                 "On dleapp_macos_bigsur the one device's ID equals its key in Devices and matches the"
-                 " end of the pairing record's file name in /private/var/db/lockdown. When a logical "
-                 "extraction holds the same file under Users/ and under System/Volumes/Data/Users/, a "
-                 "byte-identical second copy is read once.",
+                 "connection is not established. Device ID is the device's ID value, or its key "
+                 "in Devices when ID is missing or empty, and User is taken from the file's "
+                 "path; the other columns except Source File are the stored values of the same "
+                 "names. The conn:128:Last Connect value at the top level of the file is not "
+                 "reported. "
+                 "On dleapp_macos_bigsur the one device's ID equals its key in Devices and "
+                 "matches the end of the pairing record's file name in /private/var/db/lockdown "
+                 "when letter case is ignored. When a logical "
+                 "extraction holds the same file under Users/ and under "
+                 "System/Volumes/Data/Users/, a second copy byte-identical to the first is not "
+                 "read again, and is counted in the run log.",
         "paths": ('*/Users/*/Library/Preferences/com.apple.iPod.plist',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "smartphone",

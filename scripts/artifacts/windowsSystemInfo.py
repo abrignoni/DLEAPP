@@ -64,16 +64,18 @@ __artifacts_v2__ = {
                        "from the SYSTEM hive.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the Services\\Tcpip\\Parameters\\Interfaces subkeys of the SYSTEM hive's control "
                  "set named by the Select key's Current value (ControlSet001 when there is none), and "
-                 "reports an interface only when it holds a DhcpIPAddress or an IPAddress value. For a"
+                 "reports an interface only when it holds a non-empty DhcpIPAddress or IPAddress "
+                 "value. For a"
                  " DHCP interface the address, mask, gateway and name servers come from the "
                  "Dhcp-prefixed values; Domain is DhcpDomain, or Domain when that is empty. Adapter "
-                 "Name is the Connection\\Name value for the interface GUID under the network adapter "
-                 "class key {4D36E972-E325-11CE-BFC1-08002BE10318}. Lease Obtained and Lease "
+                 "Name is the Connection\\Name value for the interface GUID under the control "
+                 "set's Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318} key. Lease "
+                 "Obtained and Lease "
                  "Terminates are LeaseObtainedTime and LeaseTerminatesTime read as seconds since 1970 "
                  "UTC. On pc_mus_001_win11 the decoded Lease Obtained is 0.5 seconds before the "
                  "interface key was last written, and on all three registered Windows images "
@@ -82,8 +84,9 @@ __artifacts_v2__ = {
                  " to January 1970, decades before the interface key was last written; why is not "
                  "established, and those rows show 1970 lease times that are not when the lease was "
                  "obtained. For that reason this artifact is not written to the timeline. On "
-                 "pc_mus_001_win11 Default Gateway, DHCP Server and DNS Servers are identical on both "
-                 "rows: empty on the interface with a static address, and one address on the DHCP "
+                 "pc_mus_001_win11 Default Gateway, DHCP Server and DNS Servers hold the same "
+                 "value as each other on each row: empty on the interface with a static address, "
+                 "and one address on the DHCP "
                  "interface, each read from its own registry value. af_case2_win10's DHCP interface "
                  "has no DhcpDefaultGateway value, so Default Gateway is empty there.",
         "paths": ('*/Windows/System32/config/SYSTEM',),

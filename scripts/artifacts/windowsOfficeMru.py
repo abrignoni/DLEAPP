@@ -25,18 +25,23 @@ __artifacts_v2__ = {
                  "established: on lonewolf_win10 two Place MRU entries have a shortcut of the same "
                  "name in the user's Office Recent folder, and their stored times differ from those "
                  "shortcuts' modification times by 4.4 and 21.5 hours. Account Key is the User MRU "
-                 "subkey name as stored and is blank for a list outside User MRU. No NTUSER.DAT on "
-                 "pc_mus_001_win11 or af_case2_win10 has a Software\\Microsoft\\Office key. On "
+                 "subkey name as stored and is blank for a list outside User MRU. No NTUSER.DAT "
+                 "under Users on pc_mus_001_win11 or af_case2_win10 has a "
+                 "Software\\Microsoft\\Office key. On "
                  "lonewolf_win10 all nine items are under Office Version 16.0 in one user's hive, so "
                  "Office Version and User each hold one value there. Reference: Harlan Carvey, "
                  "'RegRipper3.0 msoffice.pl', "
-                 "https://github.com/keydet89/RegRipper3.0/blob/ec96dd4a6a5c3ea70d8fece9b47a374f83582335/plugins/msoffice.pl#L303-L310.",
+                 "https://github.com/keydet89/RegRipper3.0/blob/ec96dd4a6a5c3ea70d8fece9b47a374f83582335/plugins/msoffice.pl#L303-L310, "
+                 "which hands the field to getFileTimeStr and getTime in rip.pl, "
+                 "https://github.com/keydet89/RegRipper3.0/blob/ec96dd4a6a5c3ea70d8fece9b47a374f83582335/rip.pl#L509-L534.",
         "paths": ('*/Users/*/NTUSER.DAT',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "file-text",
         "sample_data": {
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Office key in any NTUSER.DAT)",
-            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Office key in any NTUSER.DAT)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Office key in any NTUSER.DAT under "
+                                "Users)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Office key in any NTUSER.DAT under "
+                              "Users)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
         },
     },

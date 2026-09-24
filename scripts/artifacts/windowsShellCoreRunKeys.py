@@ -30,7 +30,7 @@ __artifacts_v2__ = {
                        "stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Shell-Core%4Operational.evtx, named in the "
@@ -43,7 +43,8 @@ __artifacts_v2__ = {
                  "build 22621.819, published in nasbench's EVTX-ETW-Resources repository: "
                  "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Shell-Core.xml#L15435-L15499). "
                  "Registry Key is the KeyName of 9705 and 9706, Command the Command of "
-                 "9707 and 9708, and Command Process ID the PID of 9708, as stored. "
+                 "9707 and 9708, and Command Process ID the PID of 9708, as stored less leading "
+                 "and trailing whitespace. "
                  "Registry Key names a key path without its hive, so whether it was the "
                  "machine or a user key is not recorded; on the registered images it named "
                  "the CurrentVersion Run and RunOnce keys and, on lonewolf_win10, the "
@@ -56,8 +57,10 @@ __artifacts_v2__ = {
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Command is the text "
-                 "the record stores; on the registered images some commands began with a "
+                 "pc_mus_001_win11 and two values on lonewolf_win10. Command is the text the "
+                 "record stores less leading and trailing whitespace (10 Command values on "
+                 "af_case2_win10 began with a space and named no program); on the registered "
+                 "images some commands began with a "
                  "file name and carried a closing quote with no opening quote and no "
                  "folder (3 of 24 distinct commands on af_case2_win10, 9 of 12 on "
                  "pc_mus_001_win11 and 5 of 11 on lonewolf_win10), so the stored text does "

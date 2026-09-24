@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Mail (macOS)",
         "notes": "Reads each user's Envelope Index under ~/Library/Mail/V<n>/MailData, one "
@@ -54,8 +54,9 @@ __artifacts_v2__ = {
                  "read, and counted in the run log, and there each of the 98 messages was "
                  "reported once, from the Users/ copy. All rows come from one user, so "
                  "User holds one value. When a logical extraction holds the same file "
-                 "under Users/ and under System/Volumes/Data/Users/, a byte-identical "
-                 "second copy is read once and counted in the run log. This artifact does "
+                 "under Users/ and under System/Volumes/Data/Users/, a second copy whose "
+                 "database and -wal file are both byte-identical to the first is not read again, "
+                 "and is counted in the run log. This artifact does "
                  "not read the .emlx message files.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (Mail folders with no Envelope Index)",

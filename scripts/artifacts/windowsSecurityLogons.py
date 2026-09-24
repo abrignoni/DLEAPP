@@ -45,40 +45,55 @@ __artifacts_v2__ = {
     "securityLogons": {
         "name": "Windows Security Logons",
         "description": "Logon activity from the Security event log: successful "
-                       "and failed logons, logoffs, and explicit-credential "
-                       "logons, with the account, logon type, and the source "
+                       "and failed logons, logoffs, and explicit-credential logon attempts, with the "
+                       "account, logon type, and the source "
                        "network address and workstation as recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Security.evtx, named in the report's located-at line. Only the logon "
                  "family of events is reported: 4624 and 4625 (a logon that "
                  "succeeded or failed), 4634 and 4647 (a logoff), and 4648 (a "
                  "logon attempted with explicit credentials); the Event column "
-                 "carries Microsoft's title for each Event ID. Event Time (UTC) "
-                 "is the record's TimeCreated "
-                 "SystemTime, which the log stores in UTC. Account Name and "
+                 "carries Microsoft's title for each Event ID. Event Time (UTC) is the record's "
+                 "TimeCreated SystemTime, which python-evtx renders from the FILETIME the record "
+                 "stores, counted in UTC (python-evtx 0.8.1, "
+                 "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
+                 "Account Name and "
                  "Account Domain are the TargetUserName and TargetDomainName as "
-                 "stored; for 4648 that is the account whose credentials were "
-                 "used. Logon Type is the stored code with Microsoft's label for "
+                 "stored; for 4648 that is the account whose credentials were used (Microsoft, "
+                 "'Event 4648', "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4648). "
+                 "Logon Type is the stored code with Microsoft's label for "
                  "it: 2 Interactive, 3 Network, 4 Batch, 5 Service, 7 Unlock, 8 "
                  "NetworkCleartext, 9 NewCredentials, 10 RemoteInteractive "
                  "(Terminal Services or Remote Desktop), 11 CachedInteractive, "
                  "12 CachedRemoteInteractive, 13 CachedUnlock, 0 System. Source "
-                 "IP and Workstation are IpAddress and WorkstationName, which "
-                 "Microsoft notes are populated only for some authentication "
-                 "protocols, so they are often blank (for example Kerberos "
-                 "network logons carry no workstation and localhost logons carry "
-                 "127.0.0.1 or ::1). Logon Process is LogonProcessName. Computer "
-                 "is the machine that recorded the event. A logon event records "
-                 "an authenticated session on this computer; it does not by "
+                 "IP and Workstation are IpAddress and WorkstationName, which Microsoft notes "
+                 "are populated depending on the authentication context and protocol used (for "
+                 "example, 'network logons with Kerberos likely have no workstation "
+                 "information'), and ::1 or 127.0.0.1 means localhost; on the registered images "
+                 "most rows hold the '-' the event stores, both columns are blank for 4634 and "
+                 "4647, which carry neither field, and Workstation is blank for 4648, which "
+                 "carries no WorkstationName. Logon Process is LogonProcessName. Computer is the "
+                 "machine that recorded the event. Computer held one value on every row of "
+                 "pc_mus_001_win11, and two values on af_case2_win10 and on lonewolf_win10. A "
+                 "successful logon (4624) records a "
+                 "logon session created on this computer (Microsoft, 'Event 4624', cited below); "
+                 "it does not by "
                  "itself establish the person at the keyboard. Reading needs the "
-                 "python-evtx package (pip install python-evtx). Event IDs and "
-                 "the Logon Type table: Microsoft, 'Event 4624', "
-                 "https://learn.microsoft.com/windows/security/threat-protection/"
-                 "auditing/event-4624",
+                 "python-evtx package (pip install python-evtx). Event IDs and the Logon Type "
+                 "table: Microsoft, 'Event 4624', "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4624; "
+                 "the titles of the other events: Microsoft, 'Event 4625', 'Event 4634', 'Event "
+                 "4647' and 'Event 4648', "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4625, "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4634, "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4647 "
+                 "and "
+                 "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4648",
         "paths": ("*/Windows/System32/winevt/Logs/Security.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "log-in",
