@@ -1,6 +1,6 @@
 """Firefox SQLite readers. Author: @AlexisBrignoni, Codex.
 
-Field definitions and validation boundaries: admin/docs/firefox-corpus-20260924.md.
+Field definitions and validation boundaries: admin/docs/firefox-validation.md.
 """
 
 import json
