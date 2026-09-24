@@ -49,7 +49,15 @@ __artifacts_v2__ = {
                  "Profile. Only the Windows Google Chrome and Microsoft Edge folders were exercised by a "
                  "registered image; a constructed tree exercised the Brave macOS, Vivaldi Linux and Opera "
                  "Windows folders, the last with its profile kept directly in the user data folder, and "
-                 "the remaining folders were not exercised. Not read: other Chrome channels (Beta, Dev, "
+                 "the remaining folders were not exercised. "
+                 "When a logical extraction holds a profile under Users/ and under "
+                 "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
+                 "with any -journal or -wal beside it, is read once and counted in the run "
+                 "log, and copies that differ are both read. The macOS Google Chrome "
+                 "folder was also exercised, on the public MacBook Pro logical extraction "
+                 "(macOS 15.4, not a registered corpus key), where each store was "
+                 "byte-identical under the two paths. "
+                 "Not read: other Chrome channels (Beta, Dev, "
                  "Canary), extension storage partitions under a profile's Storage folder, and WebView2 or "
                  "Electron app profiles such as EBWebView folders, which share the layout but sit in other "
                  "applications' folders. Chromium source is cited at commit "
@@ -143,7 +151,15 @@ __artifacts_v2__ = {
                  "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge folders were "
                  "exercised by a registered image; a constructed tree exercised the Brave macOS, Vivaldi "
                  "Linux and Opera Windows folders, the last with its profile kept directly in the user "
-                 "data folder, and the remaining folders were not exercised. Not read: other Chrome "
+                 "data folder, and the remaining folders were not exercised. "
+                 "When a logical extraction holds a profile under Users/ and under "
+                 "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
+                 "with any -journal or -wal beside it, is read once and counted in the run "
+                 "log, and copies that differ are both read. The macOS Google Chrome "
+                 "folder was also exercised, on the public MacBook Pro logical extraction "
+                 "(macOS 15.4, not a registered corpus key), where each store was "
+                 "byte-identical under the two paths. "
+                 "Not read: other Chrome "
                  "channels (Beta, Dev, Canary), extension storage partitions under a profile's Storage "
                  "folder, and WebView2 or Electron app profiles such as EBWebView folders, which share the "
                  "layout but sit in other applications' folders. Chromium source is cited at commit "
@@ -194,7 +210,7 @@ from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfu
 def chromiumTopSites(context):
     data_list = []
     sources = []
-    for store in profile_stores(context, {'Top Sites'}):
+    for store in profile_stores(context, {'Top Sites'}, 'Chromium Top Sites'):
         db = open_store(store, 'Chromium Top Sites')
         if db is None:
             continue
@@ -228,7 +244,7 @@ def chromiumTopSites(context):
 def chromiumShortcuts(context):
     data_list = []
     sources = []
-    for store in profile_stores(context, {'Shortcuts'}):
+    for store in profile_stores(context, {'Shortcuts'}, 'Chromium Omnibox Shortcuts'):
         db = open_store(store, 'Chromium Omnibox Shortcuts')
         if db is None:
             continue

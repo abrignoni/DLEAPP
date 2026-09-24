@@ -65,7 +65,15 @@ __artifacts_v2__ = {
                  "Microsoft Edge folders were exercised by a registered image; a constructed tree "
                  "exercised the Brave macOS, Vivaldi Linux and Opera Windows folders, the last with its "
                  "profile kept directly in the user data folder, and the remaining folders were not "
-                 "exercised. Not read: other Chrome channels (Beta, Dev, Canary), extension storage "
+                 "exercised. "
+                 "When a logical extraction holds a profile under Users/ and under "
+                 "System/Volumes/Data/Users/, a store whose second copy is byte-identical, "
+                 "with any -journal or -wal beside it, is read once and counted in the run "
+                 "log, and copies that differ are both read. The macOS Google Chrome "
+                 "folder was also exercised, on the public MacBook Pro logical extraction "
+                 "(macOS 15.4, not a registered corpus key), where each store was "
+                 "byte-identical under the two paths. "
+                 "Not read: other Chrome channels (Beta, Dev, Canary), extension storage "
                  "partitions under a profile's Storage folder, and WebView2 or Electron app profiles such "
                  "as EBWebView folders, which share the layout but sit in other applications' folders. "
                  "Chromium source is cited at commit 33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the "
@@ -126,7 +134,8 @@ def _yes_no(value):
 def chromiumLoginData(context):
     data_list = []
     sources = []
-    for store in profile_stores(context, {'Login Data', 'Login Data For Account'}):
+    for store in profile_stores(context, {'Login Data', 'Login Data For Account'},
+                                'Chromium Saved Logins'):
         db = open_store(store, 'Chromium Saved Logins')
         if db is None:
             continue

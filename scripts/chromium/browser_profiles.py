@@ -29,6 +29,7 @@ import sqlite3
 from collections import namedtuple
 
 from scripts.ilapfuncs import get_sqlite_db_path, logfunc, open_sqlite_db_readonly
+from scripts.macos_plists import canonical_relative, unique_sources
 
 # (browser name, user data folder relative to the user's home folder)
 BROWSER_ROOTS = (
@@ -59,6 +60,9 @@ _HOME_PARENTS = ('Users', 'home')
 # data folder, the user data folder is read as the profile rather than the
 # folder being read as a profile named Network or Extensions.
 _PROFILE_SUBFOLDERS = ('Network', 'Extensions')
+
+# A SQLite store's rollback journal or write-ahead log, which the store is read with.
+_SIDECARS = ('-journal', '-wal')
 
 # One store of one profile, located from its path inside the extraction.
 #   path       the staged file this run reads
@@ -105,7 +109,7 @@ def locate(relative_path):
     return None
 
 
-def profile_stores(context, names):
+def profile_stores(context, names, label=''):
     """The staged files that are one of `names` in a browser profile.
 
     `names` holds store paths inside a profile folder ('History',
@@ -113,6 +117,13 @@ def profile_stores(context, names):
     patterns matched it, directories are skipped, and the result is sorted by
     its path inside the extraction so the row order does not depend on the
     order the patterns were searched in.
+
+    On a Mac logical extraction a profile can sit under Users/ and under
+    System/Volumes/Data/Users/, where firmlinks expose one folder twice. A store
+    whose copy under the second path is byte-identical, with any -journal or -wal
+    beside it, is returned once (the run log counts it under `label`); copies that
+    differ are both returned. `container` leaves out the System/Volumes/Data/
+    prefix, so the two views of one profile share it.
     """
     stores = {}
     for found in context.get_files_found():
@@ -120,14 +131,15 @@ def profile_stores(context, names):
         if path in stores or not os.path.isfile(path):
             continue
         relative = context.get_relative_path(path)
-        located = locate(relative)
+        located = locate(canonical_relative(relative))
         if located is None:
             continue
         browser, profile, user, container, name = located
         if name not in names:
             continue
         stores[path] = Store(path, relative, browser, profile, user, container, name)
-    return sorted(stores.values(), key=lambda store: store.relative)
+    kept, _skipped = unique_sources(context, stores, sidecars=_SIDECARS, label=label)
+    return sorted((stores[path] for path in kept), key=lambda store: store.relative)
 
 
 def open_store(store, label):
