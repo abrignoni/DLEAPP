@@ -160,6 +160,16 @@ class TestFrozenBuildsCollectPythonEvtx(unittest.TestCase):
                               f'{name} no longer collects python-evtx')
 
 
+class TestFrozenBuildsImportPefile(unittest.TestCase):
+    """Every spec must list pefile, which the Defender artifacts reach only from disk."""
+
+    def test_every_spec_imports_pefile(self):
+        for name in sorted(EXPECTED_SPECS):
+            with self.subTest(spec=name):
+                self.assertIn('pefile', _run_spec(SPEC_DIR / name)['hiddenimports'],
+                              f'{name} no longer lists pefile')
+
+
 class TestBuildsWithoutTheBinary(unittest.TestCase):
     """A checkout that has not run the fetch script must still build."""
 

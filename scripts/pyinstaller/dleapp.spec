@@ -35,6 +35,9 @@ a = Analysis(
       'mailbox',
       'mammoth',
       'openpyxl',
+      # pefile: scripts/windows_messages.py reads Defender's message files with
+      # it, and the artifacts load that module from disk, out of the import graph.
+      'pefile',
       'pillow_heif',
       'pypdf',
       'Registry',
