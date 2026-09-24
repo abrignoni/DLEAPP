@@ -5,9 +5,13 @@ Inspired by the Velociraptor exchange event-log artifacts; the implementation
 reads the .evtx records directly and is not ported from that artifact.
 
 The event meanings are sourced from public boot/shutdown event research and the
-providers' manifests (notes).
+providers' manifests (notes). A stored number that a provider's manifest maps to a
+name is given that name from the DLL and English .mui on the log's own volume
+(_ValueNames).
 """
 
+import collections
+import os
 from xml.etree import ElementTree
 
 try:
@@ -15,6 +19,7 @@ try:
 except ImportError:
     evtx = None
 
+from scripts import windows_messages
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_evtx import utc_from_system_time
 
@@ -26,6 +31,17 @@ from scripts.windows_evtx import utc_from_system_time
 # providers, so each event is matched on both.
 
 _WAKE = ('Microsoft-Windows-Power-Troubleshooter', '1')
+_SLEEP = ('Microsoft-Windows-Kernel-Power', '42')
+_BOOT = ('Microsoft-Windows-Kernel-General', '12')
+
+# (provider, event id) -> (the provider's DLL in System32, its GUID, the field its
+# manifest maps to names). The GUIDs are the providers' own, as their manifests
+# record them.
+_NAMED = {
+    _SLEEP: ('microsoft-windows-kernel-power-events.dll',
+             '331c3b3a-2005-44c2-ac5e-77220c37d6b4', 'Reason'),
+    _WAKE: ('pots.dll', 'cdc05e28-c449-49c6-b9d2-88cf761644df', 'WakeSourceType'),
+}
 
 # (provider, event id) -> description. Sourced from Microsoft event messages and
 # boot/shutdown event-log research (see notes).
@@ -59,11 +75,12 @@ __artifacts_v2__ = {
                        "boot, clean and unexpected shutdown, operating system "
                        "start and stop, dirty reboot, sleep and resume, return "
                        "from a low power state with the sleep and wake times it "
-                       "records, and a process initiating a shutdown or restart.",
+                       "records, the sleep reason and wake source, and a process "
+                       "initiating a shutdown or restart.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-24",
-        "requirements": "python-evtx",
+        "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is one "
                  "power event, matched on both its provider and Event ID because "
@@ -98,31 +115,50 @@ __artifacts_v2__ = {
                  "but that lonewolf_win10 row whose Wake Source Type is 6 was logged within "
                  "2 seconds after its Wake Time (that row 87 minutes after). Detail holds "
                  "the process, action, reason and user a 1074 event stores in its "
-                 "parameters, and for a Power-Troubleshooter 1 event its Wake Source Type, "
-                 "Wake Source Text, Wake Timer Owner and Wake Timer Context as stored, each "
-                 "left out when blank; it is blank for the others. The Power-Troubleshooter "
-                 "1 message shows the wake source as Wake Source Type followed by Wake "
-                 "Source Text, and the provider binds Wake Source Type to a value map of "
-                 "names. Detail keeps the number because the map differs between Windows "
-                 "builds: in the pots.dll on each registered image (builds 16299, 17763 "
-                 "and 22621) and in the manifest for build 17134, 0 is 'Unknown', "
-                 "1 'Power Button', 2 'Sleep Button', 3 'S4 Doze to Hibernate', "
-                 "4 'Predicted Presence User Return', 5 'Device -', 6 'Timer -', "
-                 "7 'Timer Set by Legacy Driver' and 8 'Unknown, but possibily due to "
-                 "timer -' (spelled so in the map), while the manifest for build 10240 "
-                 "has no 'Predicted Presence User Return', so there 4 is 'Device -', "
-                 "5 'Timer -', 6 'Timer Set by Legacy Driver' and 7 'Unknown, but "
-                 "possibily due to timer -'. On the registered images Wake Source Type was "
-                 "1 on both af_case2_win10 rows; 6 on five and 3 on two lonewolf_win10 "
-                 "rows; and 1 on 15, 3 on 15, 0 on 14 and 8 on one pc_mus_001_win11 row. "
+                 "parameters; for a 42 event its Reason, which the 42 message shows as "
+                 "Sleep Reason; and for a Power-Troubleshooter 1 event its Wake Source Type, "
+                 "Wake Source Text, Wake Timer Owner and Wake Timer Context, each left out "
+                 "when blank; it is blank for the others. The providers' manifests bind "
+                 "Reason and Wake Source Type to value maps of names, and the maps differ "
+                 "between Windows builds: the manifests for build 10240 have no 'Predicted "
+                 "Presence User Return' wake source, so there Wake Source Type 4 is "
+                 "'Device -', 5 'Timer -', 6 'Timer Set by Legacy Driver' and 7 'Unknown, "
+                 "but possibily due to timer -', and their sleep reason map calls 6 "
+                 "'Hibernate from Sleep' where later builds say 'Hibernate from Sleep - "
+                 "Fixed Timeout'. So "
+                 "Reason and Wake Source Type are shown as the name followed by the number, "
+                 "as in 'System Idle (7)', only when the provider's DLL in System32 on the "
+                 "log's own volume (microsoft-windows-kernel-power-events.dll or pots.dll) "
+                 "maps that field for the event's version, the English .mui beside the DLL "
+                 "gives the name, and the boot record (Kernel-General 12) before the event "
+                 "names the same Windows build as the last boot record in the log, so the "
+                 "event was written under the build running at the log's last boot. That "
+                 "check does not show that the DLL on disk is the one that build ran; on the "
+                 "registered images the file versions of both DLLs and both .mui files "
+                 "carry the same build number as the boot records. Otherwise the number is "
+                 "kept as stored, and the run log says "
+                 "how many numbers were named or kept and why. The DLL and .mui files that "
+                 "named a number are listed in the located-at line. On each registered "
+                 "image every boot record in the System log names one build (17763 on "
+                 "af_case2_win10, 16299 on lonewolf_win10, 22621 on pc_mus_001_win11) and "
+                 "none of these events comes before the first boot record, so every Reason "
+                 "and Wake Source Type was named. Sleep Reason was System Idle (7) on both "
+                 "af_case2_win10 rows; System Idle (7) on six and Button or Lid (0) on one "
+                 "lonewolf_win10 row; and System Idle (7) on 22, Hibernate from Sleep - "
+                 "Fixed Timeout (6) on 14 and Button or Lid (0) on nine pc_mus_001_win11 "
+                 "rows. Wake Source Type was Power Button (1) on both af_case2_win10 rows; "
+                 "Timer - (6) on five and S4 Doze to Hibernate (3) on two lonewolf_win10 "
+                 "rows; and Power Button (1) on 15, S4 Doze to Hibernate (3) on 15, Unknown "
+                 "(0) on 14 and 'Unknown, but possibily due to timer - (8)' (spelled so in "
+                 "the map) on one pc_mus_001_win11 row. "
                  "Wake Source Text, Wake Timer Owner and Wake Timer Context were filled "
                  "only on the six rows whose Wake Source Type is 6 or 8, where the text "
                  "names a scheduled task that requested waking the computer. The other "
-                 "fields of the 107 and Power-Troubleshooter 1 events are not reported, "
-                 "among them the target, effective and wake-from states, the programmed "
-                 "wake times, the durations and the hibernation counters: neither message "
-                 "shows them, and the providers' resources on the registered images bind "
-                 "no value map to any of them. "
+                 "fields of the 42, 107 and Power-Troubleshooter 1 events are not reported, "
+                 "among them the target, effective and wake-from states, the flags, the "
+                 "programmed wake times, the durations and the hibernation counters: none "
+                 "of the three messages shows them, and the providers' DLLs on the "
+                 "registered images bind no value map to any of them. "
                  "Computer is the machine that recorded the event. Computer held one "
                  "value on every row of pc_mus_001_win11, and two values on af_case2_win10 and "
                  "on lonewolf_win10. A 6008 records an "
@@ -151,12 +187,25 @@ __artifacts_v2__ = {
                  "(1074, listed there as 2147484722, which is 1074 with 32768, the Qualifiers "
                  "value on the 1074 records, in the upper 16 bits; its message places the "
                  "process in %1, the reason in %3, the shutdown "
-                 "type in %5 and the user in %7). Wake source value maps for builds 17134 "
+                 "type in %5 and the user in %7). Value maps as published for builds 17134 "
                  "and 10240: repnz, 'etw-providers-docs', "
+                 "https://github.com/repnz/etw-providers-docs/blob/d5f68e8acda5da154ab44e405b610dd8c2ba1164/Manifests-Win10-17134/Microsoft-Windows-Kernel-Power.xml#L2366-L2371 "
+                 "(Reason bound to Pop:MapSleepReason), "
+                 "https://github.com/repnz/etw-providers-docs/blob/d5f68e8acda5da154ab44e405b610dd8c2ba1164/Manifests-Win10-17134/Microsoft-Windows-Kernel-Power.xml#L580-L594 "
+                 "and "
+                 "https://github.com/repnz/etw-providers-docs/blob/d5f68e8acda5da154ab44e405b610dd8c2ba1164/Manifests-Win10-10240/Microsoft-Windows-Kernel-Power.xml#L296-L305 "
+                 "(the sleep reasons), "
                  "https://github.com/repnz/etw-providers-docs/blob/d5f68e8acda5da154ab44e405b610dd8c2ba1164/Manifests-Win10-17134/Microsoft-Windows-Power-Troubleshooter.xml#L11-L21 "
                  "and "
-                 "https://github.com/repnz/etw-providers-docs/blob/d5f68e8acda5da154ab44e405b610dd8c2ba1164/Manifests-Win10-10240/Microsoft-Windows-Power-Troubleshooter.xml#L11-L20",
-        "paths": ("*/Windows/System32/winevt/Logs/System.evtx",),
+                 "https://github.com/repnz/etw-providers-docs/blob/d5f68e8acda5da154ab44e405b610dd8c2ba1164/Manifests-Win10-10240/Microsoft-Windows-Power-Troubleshooter.xml#L11-L20 "
+                 "(the wake sources). The value map layout in a DLL: libyal, 'Windows Event "
+                 "manifest binary format', "
+                 "https://github.com/libyal/libfwevt/blob/7bfd3403b1bd1476aefbaf2e94b5562cbf724997/documentation/Windows%20Event%20manifest%20binary%20format.asciidoc",
+        "paths": ("*/Windows/System32/winevt/Logs/System.evtx",
+                  "*/Windows/System32/pots.dll",
+                  "*/Windows/System32/en-US/pots.dll.mui",
+                  "*/Windows/System32/microsoft-windows-kernel-power-events.dll",
+                  "*/Windows/System32/en-US/microsoft-windows-kernel-power-events.dll.mui"),
         "output_types": ["standard"],
         "artifact_icon": "power",
         "sample_data": {
@@ -175,9 +224,8 @@ def _positional_data(event_data):
     return [(item.text or '') for item in event_data.findall('{*}Data')]
 
 
-def _shutdown_detail(event_data):
+def _shutdown_detail(values):
     """Render the notable 1074 parameters: process, action, reason, user."""
-    values = _positional_data(event_data)
     labels = ((0, 'Process'), (4, 'Action'), (2, 'Reason'), (6, 'User'))
     parts = [f"{label}: {values[index]}"
              for index, label in labels
@@ -193,13 +241,21 @@ def _named_data(event_data):
             for item in event_data.findall('{*}Data') if item.get('Name')}
 
 
-def _wake_detail(fields):
-    """Render the wake source fields as stored, leaving out the blank ones."""
-    return '; '.join(f'{label}: {fields[name]}'
-                     for name, label in _WAKE_DETAIL if fields.get(name))
+def _wake_detail(fields, wake_source_type):
+    """Render the wake source fields as stored, the type as given, leaving out blanks."""
+    shown = dict(fields, WakeSourceType=wake_source_type)
+    return '; '.join(f'{label}: {shown[name]}'
+                     for name, label in _WAKE_DETAIL if shown.get(name))
 
 
-def _power_row(xml_text):
+def _number(element):
+    """An element's text as an int, or None when it is not a plain number."""
+    text = (element.text or '').strip() if element is not None else ''
+    return int(text) if text.isdigit() else None
+
+
+def _power_record(xml_text):
+    """The parts of a power event the rows are built from, or None for another event."""
     root = ElementTree.fromstring(xml_text)
     system = root.find('{*}System')
     if system is None:
@@ -212,19 +268,142 @@ def _power_row(xml_text):
     if meaning is None:
         return None
     time_created = system.find('{*}TimeCreated')
-    when = time_created.get('SystemTime') if time_created is not None else ''
     computer = system.find('{*}Computer')
+    event_data = root.find('{*}EventData')
+    return {
+        'kind': (provider_name, event_id),
+        'meaning': meaning,
+        'time': utc_from_system_time(
+            time_created.get('SystemTime') if time_created is not None else ''),
+        'record_id': _number(system.find('{*}EventRecordID')),
+        'version': _number(system.find('{*}Version')),
+        'computer': computer.text if computer is not None and computer.text else '',
+        'fields': _named_data(event_data),
+        'values': _positional_data(event_data),
+    }
+
+
+def _written_under_last_build(record_id, boots):
+    """Whether the boot record before this one names the same build as the log's last.
+
+    `boots` holds (record id, BuildVersion) for every Kernel-General 12 record in the
+    log. A record before the first of them, or in a log without one, returns False.
+    """
+    if record_id is None or not boots:
+        return False
+    ordered = sorted(boots)
+    before = [build for boot_id, build in ordered if boot_id < record_id]
+    return bool(before) and before[-1] == ordered[-1][1]
+
+
+class _ValueNames:
+    """Names for the numbers a power event stores, from the value maps on its volume.
+
+    The number in a field that _NAMED lists is shown as 'name (number)' when three
+    things hold: the DLL of that provider in the System32 folder beside the log carries
+    an event manifest that binds a value map to the field for the event's version, the
+    English (en-US) .mui beside that DLL gives the map entry's text, and the boot record
+    (Kernel-General 12) before the event names the same Windows build as the last boot
+    record in the log, so the event was written under the build that was running when
+    the volume was acquired. Otherwise the number is kept as stored.
+    """
+
+    _LOG_DIR = '/windows/system32/winevt/logs/'
+    _SYSTEM32 = '/windows/system32/'
+    _LABEL = 'Windows System Power Events'
+
+    def __init__(self, context):
+        self.context = context
+        self.files = {}      # (volume root, file name) -> staged path
+        self.loaded = {}     # (volume root, DLL) -> (value maps, messages, DLL, .mui)
+        self.named = collections.Counter()   # staged path -> numbers it named
+        self.kept = collections.Counter()    # why a number was kept as stored
+        dlls = sorted({dll for dll, _guid, _field in _NAMED.values()})
+        for path in sorted(str(f) for f in context.get_files_found()):
+            if os.path.isdir(path):
+                continue
+            relative = self._relative(path)
+            for dll in dlls:
+                for name, suffix in ((dll, self._SYSTEM32 + dll),
+                                     (dll + '.mui', f'{self._SYSTEM32}en-us/{dll}.mui')):
+                    if relative.endswith(suffix):
+                        self.files.setdefault((relative[:-len(suffix)], name), path)
+
+    def _relative(self, path):
+        return '/' + self.context.get_relative_path(path).replace('\\', '/').lower()
+
+    def _load(self, root, dll, guid):
+        key = (root, dll)
+        if key not in self.loaded:
+            dll_path = self.files.get((root, dll))
+            mui_path = self.files.get((root, dll + '.mui'))
+            maps, messages = {}, {}
+            if dll_path and mui_path:
+                maps = windows_messages.read_event_value_maps(dll_path, guid)
+                if maps:
+                    messages = windows_messages.read_message_table(mui_path)
+            self.loaded[key] = (maps, messages, dll_path, mui_path)
+        return self.loaded[key]
+
+    def text(self, source, found, boots):
+        """The stored number of the event's named field, as 'name (number)' when it can be."""
+        dll, guid, field = _NAMED[found['kind']]
+        value = found['fields'].get(field, '')
+        if not value.isdigit():
+            return value
+        relative = self._relative(source)
+        at = relative.find(self._LOG_DIR)
+        maps, messages, dll_path, mui_path = (
+            self._load(relative[:at], dll, guid) if at >= 0 else ({}, {}, None, None))
+        if not maps or not messages:
+            self.kept['no value map'] += 1
+            return value
+        if not _written_under_last_build(found['record_id'], boots):
+            self.kept['build'] += 1
+            return value
+        message_id = maps.get((int(found['kind'][1]), found['version']), {}).get(field, {}) \
+            .get(int(value))
+        name = messages.get(message_id, '').strip() if message_id is not None else ''
+        if not name:
+            self.kept['not in the map'] += 1
+            return value
+        self.named[dll_path] += 1
+        self.named[mui_path] += 1
+        return f'{name} ({value})'
+
+    def files_used(self):
+        """The DLL and .mui files that named at least one number, for the source path."""
+        return sorted(self.named)
+
+    def log(self):
+        for path, count in sorted(self.named.items()):
+            logfunc(f'{self._LABEL}: {count} stored number(s) named with '
+                    f'{self.context.get_relative_path(path)}')
+        reasons = {
+            'no value map': 'no DLL with an English .mui beside the log gave a value map'
+                            + ('' if windows_messages.pefile else ' (pefile is not installed)'),
+            'build': 'the boot record before the event did not name the build of the '
+                     "log's last boot record, or no boot record came before it",
+            'not in the map': 'the value map has no entry for the number',
+        }
+        for reason, count in sorted(self.kept.items()):
+            logfunc(f'{self._LABEL}: {count} stored number(s) kept as stored: {reasons[reason]}')
+
+
+def _power_row(found, named_value):
+    """The report row for a parsed power event; named_value is its named field as shown."""
+    kind, fields = found['kind'], found['fields']
     sleep_time = wake_time = detail = ''
-    if event_id == '1074':
-        detail = _shutdown_detail(root.find('{*}EventData'))
-    elif (provider_name, event_id) == _WAKE:
-        fields = _named_data(root.find('{*}EventData'))
+    if kind == ('User32', '1074'):
+        detail = _shutdown_detail(found['values'])
+    elif kind == _SLEEP and named_value:
+        detail = f'Sleep Reason: {named_value}'  # the label the 42 message gives %3
+    elif kind == _WAKE:
         sleep_time = utc_from_system_time(fields.get('SleepTime'))
         wake_time = utc_from_system_time(fields.get('WakeTime'))
-        detail = _wake_detail(fields)
-    return (
-        utc_from_system_time(when), sleep_time, wake_time, meaning, provider_name,
-        event_id, detail, computer.text if computer is not None and computer.text else '')
+        detail = _wake_detail(fields, named_value)
+    return (found['time'], sleep_time, wake_time, found['meaning'], kind[0], kind[1], detail,
+            found['computer'])
 
 
 @artifact_processor
@@ -238,23 +417,33 @@ def systemPowerEvents(context):
         logfunc('Windows System Power Events: python-evtx is not installed (pip install python-evtx)')
         return data_headers, data_list, ''
 
+    names = _ValueNames(context)
     for source in [str(f) for f in context.get_files_found()
                    if str(f).lower().endswith('system.evtx')]:
         relative_source = context.get_relative_path(source)
-        rows_here = 0
+        found_here = []
+        boots = []
         try:
             with evtx.Evtx(source) as log:
                 for record in log.records():
                     try:
-                        row = _power_row(record.xml())
+                        found = _power_record(record.xml())
                     except ElementTree.ParseError:
                         continue
-                    if row is not None:
-                        data_list.append(row)
-                        rows_here += 1
+                    if found is None:
+                        continue
+                    found_here.append(found)
+                    build = found['fields'].get('BuildVersion')
+                    if found['kind'] == _BOOT and build and found['record_id'] is not None:
+                        boots.append((found['record_id'], build))
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows System Power Events: could not read {relative_source}: {exc}')
-        if rows_here:
+        for found in found_here:
+            named_value = names.text(source, found, boots) if found['kind'] in _NAMED else ''
+            data_list.append(_power_row(found, named_value))
+        if found_here:
             sources.append(source)
 
+    names.log()
+    sources.extend(names.files_used())
     return data_headers, data_list, "\n".join(sources)
