@@ -6,10 +6,10 @@ Author: @AlexisBrignoni, Claude.
 __artifacts_v2__ = {
     "macosMailMessages": {
         "name": "Mail Messages",
-        "description": "Messages listed in each user's Mail Envelope Index: received and sent "
-                       "times, sender, recipients with their stored type, subject, the stored "
-                       "summary text, mailbox, attachment names and the stored read, flagged "
-                       "and deleted values.",
+        "description": "Messages listed in each user's Mail Envelope Index: received and "
+                       "sent times, sender, recipients, subject, the stored summary text, "
+                       "mailbox, attachment names and the stored read, flagged and deleted "
+                       "values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
@@ -22,29 +22,41 @@ __artifacts_v2__ = {
                  "15.4, not a registered corpus key) were received between 4 November and "
                  "25 December 2025, where the 2001 epoch would place them in 2056. Sender "
                  "and Sender Name are the address and comment of the addresses row the "
-                 "message names as its sender. Recipients (type as stored) lists the "
-                 "recipients rows for the message, in type and position order, each as its "
-                 "address with the stored type; what the type means is not established "
-                 "here, and on the MacBook Pro the recipients rows of the 98 messages "
-                 "stored type 0 on 98 and type 1 on 2. The recipients table there also "
-                 "holds 9 rows naming 9 message row IDs that the messages table does not "
-                 "hold, and those rows are not reported. Subject is subject_prefix "
-                 "followed by the subjects row the message names. Summary is the text of "
-                 "the summaries row the message names; 73 of the 98 messages name one. "
-                 "Mailbox is the url of the mailboxes row. Attachments lists the names in "
-                 "the attachments table for the message; 3 of the 98 messages have one or "
-                 "more. Read, Flagged, Deleted, Size, Conversation ID and Message Row ID "
-                 "are read, flagged, deleted, size, conversation_id and ROWID as stored; "
-                 "Read was 1 on 18 of the 98 messages, and Flagged and Deleted each held "
-                 "one value on all 98. On dleapp_macos_bigsur there are Mail folders and "
-                 "no Envelope Index, so this artifact reports no rows there. On the "
-                 "MacBook Pro the Users/ and System/Volumes/Data/Users/ copies of the "
-                 "Envelope Index differ and both are read, so each message appears twice, "
-                 "identical in every column but Source File, and all rows come from one "
-                 "user, so User holds one value. When a logical extraction holds the same "
-                 "file under Users/ and under System/Volumes/Data/Users/, a byte-identical "
-                 "second copy is read once and counted in the run log. The message files "
-                 "(.emlx) are not read.",
+                 "message names as its sender. To and Cc are the addresses of the "
+                 "message's recipients rows whose type is 0 and 1, in position order, and "
+                 "Other Recipients (type as stored) lists any recipients row of another "
+                 "type as its address with the stored type. On the MacBook Pro all 98 "
+                 "messages have type 0 rows and 2 have type 1 rows, and in both copies of "
+                 "the Envelope Index each message's type 0 addresses were the addresses of "
+                 "the To header of its .emlx message file, in the same order, and its type "
+                 "1 addresses those of its Cc header; none of the 98 messages had a row of "
+                 "another type or a Bcc header, so Other Recipients (type as stored) was "
+                 "empty on every row. That Mail V10 store on macOS 15.4 is the only one "
+                 "the meaning of the type was measured on. An article by Paris Moschovakos "
+                 "describes the type column as distinguishing To from Cc without giving "
+                 "its values ('What's actually inside Apple Mail's Envelope Index', "
+                 "https://dev.to/paris_moschovakos_5f8f1e0/whats-actually-inside-apple-mails-envelope-index-2loh). "
+                 "On the MacBook Pro the recipients table also holds 9 rows naming 9 "
+                 "message row IDs that the messages table does not hold, and those rows "
+                 "are not reported. Subject is subject_prefix followed by the subjects row "
+                 "the message names. Summary is the text of the summaries row the message "
+                 "names; 73 of the 98 messages name one. Mailbox is the url of the "
+                 "mailboxes row. Attachments lists the names in the attachments table for "
+                 "the message; 3 of the 98 messages have one or more. Read, Flagged, "
+                 "Deleted, Size, Conversation ID and Message Row ID are read, flagged, "
+                 "deleted, size, conversation_id and ROWID as stored; Read was 1 on 18 of "
+                 "the 98 messages, and Flagged and Deleted each held one value on all 98. "
+                 "On dleapp_macos_bigsur there are Mail folders and no Envelope Index, so "
+                 "this artifact reports no rows there. On the MacBook Pro the Users/ and "
+                 "System/Volumes/Data/Users/ copies of the Envelope Index differ and both "
+                 "are read; a message row that a later copy gives again, identical in "
+                 "every column but Source File, is reported once, from the first copy "
+                 "read, and counted in the run log, and there each of the 98 messages was "
+                 "reported once, from the Users/ copy. All rows come from one user, so "
+                 "User holds one value. When a logical extraction holds the same file "
+                 "under Users/ and under System/Volumes/Data/Users/, a byte-identical "
+                 "second copy is read once and counted in the run log. This artifact does "
+                 "not read the .emlx message files.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (Mail folders with no Envelope Index)",
                        },
@@ -62,6 +74,9 @@ from scripts.ilapfuncs import (artifact_processor, does_column_exist_in_db, does
 from scripts.macos_plists import unique_sources, user_from_path
 
 _LABEL = 'Mail Messages'
+# recipients.type values whose meaning was measured against the messages' own headers
+# (see the notes): 0 holds the To addresses and 1 the Cc addresses.
+_TO, _CC = 0, 1
 _INDEX = 'Envelope Index'
 _MESSAGE_COLUMNS = ('ROWID', 'date_received', 'date_sent', 'sender', 'subject_prefix', 'subject',
                     'summary', 'mailbox', 'read', 'flagged', 'deleted', 'size', 'conversation_id')
@@ -125,11 +140,16 @@ def _rows(path):
         (rowid, received, sent, sender, prefix, subject, summary, mailbox, read, flagged, deleted,
          size, conversation) = row
         sender_address, sender_name = _address(addresses, sender)
-        recipient_text = '; '.join(
-            f'{_address(addresses, address)[0]} (type {_text(kind)})'
-            for address, kind in recipients.get(rowid, []))
+        kinds = {_TO: [], _CC: [], None: []}
+        for address, kind in recipients.get(rowid, []):
+            text = _address(addresses, address)[0]
+            if kind in (_TO, _CC):
+                kinds[kind].append(text)
+            else:
+                kinds[None].append(f'{text} (type {_text(kind)})')
         subject_text = _text(prefix) + _text(subjects.get(subject, ('',))[0])
-        yield (_unix_utc(received), _unix_utc(sent), sender_address, sender_name, recipient_text,
+        yield (_unix_utc(received), _unix_utc(sent), sender_address, sender_name,
+               '; '.join(kinds[_TO]), '; '.join(kinds[_CC]), '; '.join(kinds[None]),
                subject_text, _text(summaries.get(summary, ('',))[0]),
                _text(mailboxes.get(mailbox, ('',))[0]),
                '; '.join(_text(name) for (name,) in attachments.get(rowid, [])),
@@ -140,12 +160,14 @@ def _rows(path):
 @artifact_processor
 def macosMailMessages(context):
     data_headers = (('Date Received (UTC)', 'datetime'), ('Date Sent (UTC)', 'datetime'),
-                    'Sender', 'Sender Name', 'Recipients (type as stored)', 'Subject', 'Summary',
+                    'Sender', 'Sender Name', 'To', 'Cc', 'Other Recipients (type as stored)',
+                    'Subject', 'Summary',
                     'Mailbox', 'Attachments', 'Read (as stored)', 'Flagged (as stored)',
                     'Deleted (as stored)', 'Size (as stored)', 'Conversation ID', 'Message Row ID',
                     'User', 'Source File')
     data_list = []
     read = []
+    reported, repeated = set(), 0
     indexes = [p for p in context.get_files_found() if os.path.basename(str(p)) == _INDEX]
     paths, _skipped = unique_sources(context, indexes, sidecars=('-wal',), label=_LABEL)
     for path in paths:
@@ -154,8 +176,20 @@ def macosMailMessages(context):
             logfunc(f'{_LABEL}: no messages table read from {relative}')
             continue
         read.append(path)
-        found = [row + (user_from_path(relative), relative) for row in _rows(path)]
+        found = 0
+        for row in _rows(path):
+            found += 1
+            # A second view of the same store (Users/ and System/Volumes/Data/Users/) that
+            # repeats a message row identically in every column but Source File adds nothing.
+            key = row + (user_from_path(relative),)
+            if key in reported:
+                repeated += 1
+                continue
+            reported.add(key)
+            data_list.append(key + (relative,))
         if not found:
             logfunc(f'{_LABEL}: no messages in {relative}')
-        data_list.extend(found)
+    if repeated:
+        logfunc(f'{_LABEL}: {repeated} message row(s) another copy of the Envelope Index '
+                'already gave, identical in every column but Source File, reported once')
     return data_headers, data_list, '\n'.join(read)
