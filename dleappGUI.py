@@ -512,11 +512,6 @@ def process(casedata):
             with open(signal_key, 'r', encoding='utf-8', errors='replace') as signal_key_file:
                 signal_key = signal_key_file.read(4096).strip()
         Context.set_app_secret('signal', signal_key or None)
-        threema_key = threema_key_var.get().strip()
-        if threema_key and os.path.isfile(threema_key):
-            with open(threema_key, 'r', encoding='utf-8', errors='replace') as threema_key_file:
-                threema_key = threema_key_file.read(4096).strip()
-        Context.set_app_secret('threema', threema_key or None)
         wrap_text = True
         bottom_frame.pack_forget()
         mlist_frame.pack_forget()
@@ -1039,7 +1034,6 @@ output_folder_name_entry.pack(side='left', fill='x', expand=True)
 # permanent text box: it is needed only for the occasional encrypted profile, and
 # the dialog has room to explain what to paste and when nothing is needed.
 signal_key_var = tk.StringVar(value='')
-threema_key_var = tk.StringVar(value='')
 
 
 def open_signal_key_dialog():
@@ -1130,73 +1124,6 @@ def _update_signal_key_status(*_args):
 
 
 signal_key_var.trace_add('write', _update_signal_key_status)
-
-
-def open_threema_key_dialog():
-    '''Modal dialog to supply a Threema Desktop raw database key.'''
-    dialog = tk.Toplevel(main_window)
-    dialog.transient(main_window)
-    dialog.title('Threema Desktop key')
-    dialog.configure(bg=theme_bgcolor)
-    dialog.resizable(False, False)
-    width, height = 470, 235
-    main_window.update_idletasks()
-    pos_x = main_window.winfo_x() + (main_window.winfo_width() - width) // 2
-    pos_y = main_window.winfo_y() + (main_window.winfo_height() - height) // 2
-    dialog.geometry(f'{width}x{height}+{pos_x}+{pos_y}')
-    explanation = (
-        "Only needed for an encrypted Threema Desktop database. Paste the "
-        "64-character hexadecimal database key recovered from the profile's key "
-        "storage, or choose a text file containing it. An already-decrypted "
-        "threema.sqlite needs no key."
-    )
-    ttk.Label(dialog, text=explanation, wraplength=width - 28,
-              justify='left').pack(anchor='w', padx=14, pady=(12, 8))
-    entry_var = tk.StringVar(value=threema_key_var.get())
-    entry = ttk.Entry(dialog, textvariable=entry_var, show='•')
-    entry.pack(fill='x', padx=14)
-    controls = ttk.Frame(dialog)
-    controls.pack(fill='x', padx=14, pady=(6, 0))
-    show_var = tk.BooleanVar(value=False)
-    ttk.Checkbutton(controls, text='Show', variable=show_var,
-                    command=lambda: entry.config(show='' if show_var.get() else '•')).pack(side='left')
-
-    def browse_for_file():
-        chosen = tk_filedialog.askopenfilename(
-            parent=dialog, title='Select a file containing the database key')
-        if chosen:
-            entry_var.set(chosen)
-    ttk.Button(controls, text='…or choose a file', command=browse_for_file).pack(side='left', padx=(10, 0))
-    button_row = ttk.Frame(dialog)
-    button_row.pack(fill='x', padx=14, pady=14, side='bottom')
-
-    def save_and_close():
-        threema_key_var.set(entry_var.get().strip())
-        dialog.destroy()
-
-    ttk.Button(button_row, text='Save', command=save_and_close).pack(side='right')
-    ttk.Button(button_row, text='Cancel', command=dialog.destroy).pack(side='right', padx=(0, 6))
-    ttk.Button(button_row, text='Clear', command=lambda: (threema_key_var.set(''), dialog.destroy())).pack(side='left')
-    entry.focus_set()
-    entry.bind('<Return>', lambda _event: save_and_close())
-    dialog.bind('<Escape>', lambda _event: dialog.destroy())
-    if is_platform_macos():
-        dialog.grab_set_global()
-    else:
-        dialog.grab_set()
-
-
-threema_key_status = ttk.Label(app_secret_group, text='not set')
-threema_key_status.pack(side='right')
-ttk.Button(app_secret_group, text='Threema key…', command=open_threema_key_dialog).pack(side='right', padx=(8, 8))
-ttk.Label(app_secret_group, text='Threema:').pack(side='right', padx=(8, 0))
-
-
-def _update_threema_key_status(*_args):
-    threema_key_status.config(text='✓ set' if threema_key_var.get().strip() else 'not set')
-
-
-threema_key_var.trace_add('write', _update_threema_key_status)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
