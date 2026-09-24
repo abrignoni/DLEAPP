@@ -32,16 +32,26 @@ from scripts.windows_evtx import utc_from_system_time
 
 _WAKE = ('Microsoft-Windows-Power-Troubleshooter', '1')
 _SLEEP = ('Microsoft-Windows-Kernel-Power', '42')
+_SHUTDOWN = ('Microsoft-Windows-Kernel-Power', '109')
 _BOOT = ('Microsoft-Windows-Kernel-General', '12')
 
-# (provider, event id) -> (the provider's DLL in System32, its GUID, the field its
+# (provider, event id) -> (the provider's DLL in System32, its GUID, the fields its
 # manifest maps to names). The GUIDs are the providers' own, as their manifests
 # record them.
+_KERNEL_POWER = ('microsoft-windows-kernel-power-events.dll', '331c3b3a-2005-44c2-ac5e-77220c37d6b4')
 _NAMED = {
-    _SLEEP: ('microsoft-windows-kernel-power-events.dll',
-             '331c3b3a-2005-44c2-ac5e-77220c37d6b4', 'Reason'),
-    _WAKE: ('pots.dll', 'cdc05e28-c449-49c6-b9d2-88cf761644df', 'WakeSourceType'),
+    _SLEEP: _KERNEL_POWER + (('Reason',),),
+    _SHUTDOWN: _KERNEL_POWER + (('ShutdownActionType', 'ShutdownReason'),),
+    _WAKE: ('pots.dll', 'cdc05e28-c449-49c6-b9d2-88cf761644df', ('WakeSourceType',)),
 }
+
+# The Kernel-Power 109 fields shown in Detail, by the names its manifest gives them,
+# in template order.
+_SHUTDOWN_DETAIL = (
+    ('ShutdownActionType', 'Shutdown Action Type'),
+    ('ShutdownEventCode', 'Shutdown Event Code'),
+    ('ShutdownReason', 'Shutdown Reason'),
+)
 
 # (provider, event id) -> description. Sourced from Microsoft event messages and
 # boot/shutdown event-log research (see notes).
@@ -75,7 +85,8 @@ __artifacts_v2__ = {
                        "boot, clean and unexpected shutdown, operating system "
                        "start and stop, dirty reboot, sleep and resume, return "
                        "from a low power state with the sleep and wake times it "
-                       "records, the sleep reason and wake source, and a process "
+                       "records, the sleep reason, shutdown action and reason, and "
+                       "wake source, and a process "
                        "initiating a shutdown or restart.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
@@ -113,52 +124,57 @@ __artifacts_v2__ = {
                  "(af_case2_win10) and Eastern time zones, every Sleep Time was within 2 "
                  "seconds of the time of a 42 record, and every Power-Troubleshooter event "
                  "but that lonewolf_win10 row whose Wake Source Type is 6 was logged within "
-                 "2 seconds after its Wake Time (that row 87 minutes after). Detail holds "
-                 "the process, action, reason and user a 1074 event stores in its "
-                 "parameters; for a 42 event its Reason, which the 42 message shows as "
-                 "Sleep Reason; and for a Power-Troubleshooter 1 event its Wake Source Type, "
-                 "Wake Source Text, Wake Timer Owner and Wake Timer Context, each left out "
-                 "when blank; it is blank for the others. The providers' manifests bind "
-                 "Reason and Wake Source Type to value maps of names, and the maps differ "
-                 "between Windows builds: the manifests for build 10240 have no 'Predicted "
-                 "Presence User Return' wake source, so there Wake Source Type 4 is "
-                 "'Device -', 5 'Timer -', 6 'Timer Set by Legacy Driver' and 7 'Unknown, "
-                 "but possibily due to timer -', and their sleep reason map calls 6 "
-                 "'Hibernate from Sleep' where later builds say 'Hibernate from Sleep - "
-                 "Fixed Timeout'. So "
-                 "Reason and Wake Source Type are shown as the name followed by the number, "
-                 "as in 'System Idle (7)', only when the provider's DLL in System32 on the "
-                 "log's own volume (microsoft-windows-kernel-power-events.dll or pots.dll) "
-                 "maps that field for the event's version, the English .mui beside the DLL "
-                 "gives the name, and the boot record (Kernel-General 12) before the event "
-                 "names the same Windows build as the last boot record in the log, so the "
-                 "event was written under the build running at the log's last boot. That "
-                 "check does not show that the DLL on disk is the one that build ran; on the "
-                 "registered images the file versions of both DLLs and both .mui files "
-                 "carry the same build number as the boot records. Otherwise the number is "
-                 "kept as stored, and the run log says "
-                 "how many numbers were named or kept and why. The DLL and .mui files that "
-                 "named a number are listed in the located-at line. On each registered "
-                 "image every boot record in the System log names one build (17763 on "
-                 "af_case2_win10, 16299 on lonewolf_win10, 22621 on pc_mus_001_win11) and "
-                 "none of these events comes before the first boot record, so every Reason "
-                 "and Wake Source Type was named. Sleep Reason was System Idle (7) on both "
-                 "af_case2_win10 rows; System Idle (7) on six and Button or Lid (0) on one "
-                 "lonewolf_win10 row; and System Idle (7) on 22, Hibernate from Sleep - "
-                 "Fixed Timeout (6) on 14 and Button or Lid (0) on nine pc_mus_001_win11 "
-                 "rows. Wake Source Type was Power Button (1) on both af_case2_win10 rows; "
-                 "Timer - (6) on five and S4 Doze to Hibernate (3) on two lonewolf_win10 "
-                 "rows; and Power Button (1) on 15, S4 Doze to Hibernate (3) on 15, Unknown "
-                 "(0) on 14 and 'Unknown, but possibily due to timer - (8)' (spelled so in "
-                 "the map) on one pc_mus_001_win11 row. "
-                 "Wake Source Text, Wake Timer Owner and Wake Timer Context were filled "
-                 "only on the six rows whose Wake Source Type is 6 or 8, where the text "
-                 "names a scheduled task that requested waking the computer. The other "
-                 "fields of the 42, 107 and Power-Troubleshooter 1 events are not reported, "
-                 "among them the target, effective and wake-from states, the flags, the "
-                 "programmed wake times, the durations and the hibernation counters: none "
-                 "of the three messages shows them, and the providers' DLLs on the "
-                 "registered images bind no value map to any of them. "
+                 "2 seconds after its Wake Time (that row 87 minutes after). Detail holds the process, "
+                 "action, reason and user a 1074 event stores in its parameters; for a 42 event its "
+                 "Reason, which the 42 message shows as Sleep Reason; for a 109 event its Shutdown "
+                 "Action Type, Shutdown Event Code and Shutdown Reason, the ShutdownActionType, "
+                 "ShutdownEventCode and ShutdownReason fields, all three on every build although the "
+                 "109 message on builds 16299 and 17763 shows only the reason; and for a "
+                 "Power-Troubleshooter 1 event its Wake Source Type, Wake Source Text, Wake Timer "
+                 "Owner and Wake Timer Context, each left out when blank; it is blank for the others. "
+                 "The providers' manifests bind the 42's Reason, the 109's ShutdownActionType and "
+                 "ShutdownReason, and Wake Source Type to value maps of names, and the maps differ "
+                 "between Windows builds: the manifests for build 10240 have no 'Predicted Presence "
+                 "User Return' wake source, so there Wake Source Type 4 is 'Device -', 5 'Timer -', 6 "
+                 "'Timer Set by Legacy Driver' and 7 'Unknown, but possibily due to timer -', and "
+                 "their sleep reason map calls 6 'Hibernate from Sleep' where later builds say "
+                 "'Hibernate from Sleep - Fixed Timeout'; and the power action map calls 5 'Power "
+                 "Action Shutdown Reset' in the DLLs of builds 16299 and 17763 and 'Power Action "
+                 "Reboot' in that of build 22621. So these fields are shown as the name followed by "
+                 "the number, as in 'System Idle (7)', only when the provider's DLL in System32 on the "
+                 "log's own volume (microsoft-windows-kernel-power-events.dll or pots.dll) maps that "
+                 "field for the event's version, the English .mui beside the DLL gives the name, and "
+                 "the boot record (Kernel-General 12) before the event names the same Windows build as "
+                 "the last boot record in the log, so the event was written under the build running at "
+                 "the log's last boot. That check does not show that the DLL on disk is the one that "
+                 "build ran; on the registered images the file versions of both DLLs and both .mui "
+                 "files carry the same build number as the boot records. Otherwise the number is kept "
+                 "as stored, and the run log says how many numbers were named or kept and why. The DLL "
+                 "and .mui files that named a number are listed in the located-at line. On each "
+                 "registered image every boot record in the System log names one build (17763 on "
+                 "af_case2_win10, 16299 on lonewolf_win10, 22621 on pc_mus_001_win11) and none of "
+                 "these events comes before the first boot record, so every one of these fields was "
+                 "named. Sleep Reason was System Idle (7) on both af_case2_win10 rows; System Idle (7) "
+                 "on six and Button or Lid (0) on one lonewolf_win10 row; and System Idle (7) on 22, "
+                 "Hibernate from Sleep - Fixed Timeout (6) on 14 and Button or Lid (0) on nine "
+                 "pc_mus_001_win11 rows. Shutdown Reason was Kernel API (5) and Shutdown Event Code 0 "
+                 "on every 109 row; Shutdown Action Type was Power Action Shutdown Reset (5) on 12, "
+                 "Power Action Shutdown Off (6) on six and Power Action Shutdown (4) on three "
+                 "af_case2_win10 rows; Power Action Shutdown Reset (5) on all three lonewolf_win10 "
+                 "rows; and Power Action Reboot (5) on eight and Power Action Shutdown (4) on one "
+                 "pc_mus_001_win11 row. Wake Source Type was Power Button (1) on both af_case2_win10 "
+                 "rows; Timer - (6) on five and S4 Doze to Hibernate (3) on two lonewolf_win10 rows; "
+                 "and Power Button (1) on 15, S4 Doze to Hibernate (3) on 15, Unknown (0) on 14 and "
+                 "'Unknown, but possibily due to timer - (8)' (spelled so in the map) on one "
+                 "pc_mus_001_win11 row. Wake Source Text, Wake Timer Owner and Wake Timer Context were "
+                 "filled only on the six rows whose Wake Source Type is 6 or 8, where the text names a "
+                 "scheduled task that requested waking the computer. The other fields of the 42, 107 "
+                 "and Power-Troubleshooter 1 events are not reported, among them the target, effective "
+                 "and wake-from states, the flags, the programmed wake times, the durations and the "
+                 "hibernation counters: none of the three messages shows them, and the providers' DLLs "
+                 "on the registered images bind no value map to any of them. Nor are the fields of a "
+                 "41 event, among them the bugcheck code and parameters and, on build 22621, two "
+                 "suppression states its manifest maps to names: its message shows none of them. "
                  "Computer is the machine that recorded the event. Computer held one "
                  "value on every row of pc_mus_001_win11, and two values on af_case2_win10 and "
                  "on lonewolf_win10. A 6008 records an "
@@ -241,11 +257,11 @@ def _named_data(event_data):
             for item in event_data.findall('{*}Data') if item.get('Name')}
 
 
-def _wake_detail(fields, wake_source_type):
-    """Render the wake source fields as stored, the type as given, leaving out blanks."""
-    shown = dict(fields, WakeSourceType=wake_source_type)
+def _field_detail(fields, named, labels):
+    """Render labelled fields as stored, named ones as given, leaving out blanks."""
+    shown = dict(fields, **named)
     return '; '.join(f'{label}: {shown[name]}'
-                     for name, label in _WAKE_DETAIL if shown.get(name))
+                     for name, label in labels if shown.get(name))
 
 
 def _number(element):
@@ -318,7 +334,7 @@ class _ValueNames:
         self.loaded = {}     # (volume root, DLL) -> (value maps, messages, DLL, .mui)
         self.named = collections.Counter()   # staged path -> numbers it named
         self.kept = collections.Counter()    # why a number was kept as stored
-        dlls = sorted({dll for dll, _guid, _field in _NAMED.values()})
+        dlls = sorted({dll for dll, _guid, _fields in _NAMED.values()})
         for path in sorted(str(f) for f in context.get_files_found()):
             if os.path.isdir(path):
                 continue
@@ -345,9 +361,9 @@ class _ValueNames:
             self.loaded[key] = (maps, messages, dll_path, mui_path)
         return self.loaded[key]
 
-    def text(self, source, found, boots):
-        """The stored number of the event's named field, as 'name (number)' when it can be."""
-        dll, guid, field = _NAMED[found['kind']]
+    def text(self, source, found, boots, field):
+        """The stored number of one of the event's named fields, as 'name (number)' when it can be."""
+        dll, guid, _fields = _NAMED[found['kind']]
         value = found['fields'].get(field, '')
         if not value.isdigit():
             return value
@@ -390,18 +406,20 @@ class _ValueNames:
             logfunc(f'{self._LABEL}: {count} stored number(s) kept as stored: {reasons[reason]}')
 
 
-def _power_row(found, named_value):
-    """The report row for a parsed power event; named_value is its named field as shown."""
+def _power_row(found, named):
+    """The report row for a parsed power event; named maps its named fields to their text."""
     kind, fields = found['kind'], found['fields']
     sleep_time = wake_time = detail = ''
     if kind == ('User32', '1074'):
         detail = _shutdown_detail(found['values'])
-    elif kind == _SLEEP and named_value:
-        detail = f'Sleep Reason: {named_value}'  # the label the 42 message gives %3
+    elif kind == _SLEEP and named.get('Reason'):
+        detail = f"Sleep Reason: {named['Reason']}"  # the label the 42 message gives %3
+    elif kind == _SHUTDOWN:
+        detail = _field_detail(fields, named, _SHUTDOWN_DETAIL)
     elif kind == _WAKE:
         sleep_time = utc_from_system_time(fields.get('SleepTime'))
         wake_time = utc_from_system_time(fields.get('WakeTime'))
-        detail = _wake_detail(fields, named_value)
+        detail = _field_detail(fields, named, _WAKE_DETAIL)
     return (found['time'], sleep_time, wake_time, found['meaning'], kind[0], kind[1], detail,
             found['computer'])
 
@@ -439,8 +457,9 @@ def systemPowerEvents(context):
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows System Power Events: could not read {relative_source}: {exc}')
         for found in found_here:
-            named_value = names.text(source, found, boots) if found['kind'] in _NAMED else ''
-            data_list.append(_power_row(found, named_value))
+            named = {field: names.text(source, found, boots, field)
+                     for field in _NAMED.get(found['kind'], (None, None, ()))[2]}
+            data_list.append(_power_row(found, named))
         if found_here:
             sources.append(source)
 
