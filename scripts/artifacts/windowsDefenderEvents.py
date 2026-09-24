@@ -7,10 +7,16 @@ behavior detections and the actions taken on them, quarantine restores and
 deletions (1006 to 1011, 1015, 1116 to 1119); protection and configuration
 changes and detection history removal (5000, 5001, 5004, 5007, 5010, 5012, 5013,
 1013); and antimalware scans (1000, 1001, 1002). Event IDs, messages and field
-meanings are sourced in the notes.
+meanings are sourced in the notes. A field holding a parameter reference (%%n)
+is given the text of that message from the English MpEvMsg.dll.mui of the same
+volume, when one is there; see _ParameterText.
 """
 
-from scripts.ilapfuncs import artifact_processor
+import collections
+import os
+
+from scripts import windows_messages
+from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_evtx import read_event_records
 
 _LOG = 'Microsoft-Windows-Windows Defender%4Operational.evtx'
@@ -66,11 +72,11 @@ __artifacts_v2__ = {
         "description": "Microsoft Defender Antivirus detection, action and "
                        "quarantine events from the Defender Operational log, with "
                        "the threat name, severity, path, process, detection source "
-                       "and action each record stores.",
+                       "and action of each record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
-        "requirements": "python-evtx",
+        "last_update_date": "2026-09-24",
+        "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
@@ -108,8 +114,9 @@ __artifacts_v2__ = {
                  "against #L769 of the Windows 11 manifest above; the two templates differ "
                  "in no other field this artifact reads) and in the records of the "
                  "defender_evtx_attack_samples log. A column whose field the manifest does "
-                 "not give an event is blank on that event's rows. Every value is reported "
-                 "as stored. Defender platform 4.18.1906.3, which wrote the records of the "
+                 "not give an event is blank on that event's rows. Every value is reported as "
+                 "stored, except a parameter reference, as described below. Defender platform "
+                 "4.18.1906.3, which wrote the records of the "
                  "defender_evtx_attack_samples log, stores Detection Source, Detection "
                  "Origin, Detection Type and Action as a reference of the form %%818 "
                  "rather than as text. Microsoft's documentation describes a parameter "
@@ -117,14 +124,38 @@ __artifacts_v2__ = {
                  "table of the provider's parameter file (Microsoft Learn, 'ProviderType "
                  "complex type', "
                  "https://learn.microsoft.com/en-us/windows/win32/wes/eventmanifestschema-providertype-complextype), "
-                 "and the Defender provider's registration in the SOFTWARE hive of "
-                 "af_case2_win10, lonewolf_win10 and pc_mus_001_win11 names MpEvMsg.dll as "
-                 "that file. DLEAPP reports the reference as stored and does not resolve "
-                 "it. The English (en-US) MpEvMsg.dll.mui files on those three images, "
-                 "which agree on every reference here, give %%818 as Real-Time Protection, "
-                 "%%845 as Local machine, %%822 as Concrete, %%823 as Generic, %%862 as "
-                 "FastPath, %%887 as Not Applicable, %%809 as Quarantine and %%811 as "
-                 "Allow. No field of any record written by platform 4.18.2210.6 or "
+                 "and the Defender provider's registration in the SOFTWARE hive names "
+                 "MpEvMsg.dll as that file: the copy under Program Files/Windows Defender on "
+                 "af_case2_win10 and lonewolf_win10, and the copy under "
+                 "ProgramData/Microsoft/Windows Defender/Platform/4.18.2211.5-0 on "
+                 "pc_mus_001_win11. A field that holds only such a reference is reported as the "
+                 "text of that message followed by the reference, for example Real-Time "
+                 "Protection (%%818), when an English (en-US) MpEvMsg.dll.mui on the volume the "
+                 "log was read from holds the message: the copy under "
+                 "ProgramData/Microsoft/Windows Defender/Platform in the folder named for the "
+                 "record's Product Version, or else the copy under Program Files/Windows "
+                 "Defender. The text is the message as FormatMessage prints it, without its "
+                 "closing line break or a closing %0 escape, which ends a message without a new "
+                 "line (Microsoft Learn, 'FormatMessage function', "
+                 "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessage); "
+                 "every message referenced on the registered images and in the public samples "
+                 "ends with one. A reference no such file resolves is reported as stored. The "
+                 "run log counts the references given text from each file and those left as "
+                 "stored, and the report's located-at line also names each MpEvMsg.dll.mui that "
+                 "gave text. The copy for the record's own version comes first because a "
+                 "message's wording can change between versions: of the 184 message ids in the "
+                 "six English copies on the registered images, 43 read differently in at least "
+                 "two of them, for example 827, which is Windows Defender Antivirus in the "
+                 "copies on af_case2_win10 and lonewolf_win10 and Microsoft Defender Antivirus "
+                 "in those on pc_mus_001_win11. The defender_evtx_attack_samples log comes "
+                 "without an MpEvMsg.dll.mui, so its references are reported as stored, and no "
+                 "detection record on the registered images or in the two public samples has had "
+                 "a reference given text; the scan artifact's rows on af_case2_win10 and "
+                 "lonewolf_win10 exercise the same code. The English MpEvMsg.dll.mui copies on "
+                 "af_case2_win10, lonewolf_win10 and pc_mus_001_win11 all give %%818 as "
+                 "Real-Time Protection, %%845 as Local machine, %%822 as Concrete, %%823 as "
+                 "Generic, %%862 as FastPath, %%887 as Not Applicable, %%809 as Quarantine and "
+                 "%%811 as Allow. No field of any record written by platform 4.18.2210.6 or "
                  "4.18.2211.5 on pc_mus_001_win11 holds such a reference; none of those "
                  "records is a detection event, so whether newer platforms store these "
                  "four fields as text is not established. Event Time (UTC) is the record's "
@@ -152,9 +183,13 @@ __artifacts_v2__ = {
                  "log, and none of the 6 records of the defender_evtx_to_mitre log, "
                  "another public sample whose file and chunk checksums all match, so that "
                  "log gives no rows. A detection row records what Defender logged; it does "
-                 "not by itself establish who placed the file or ran the process. Reading "
-                 "needs the python-evtx package (pip install python-evtx).",
-        "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",),
+                 "not by itself establish who placed the file or ran the process. Reading needs "
+                 "the python-evtx package (pip install python-evtx); giving references their "
+                 "text needs the pefile package (pip install pefile), and without it they are "
+                 "reported as stored.",
+        "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",
+                  "*/Program Files/Windows Defender/en-US/MpEvMsg.dll.mui",
+                  "*/ProgramData/Microsoft/Windows Defender/Platform/*/en-US/MpEvMsg.dll.mui"),
         "output_types": ["standard"],
         "artifact_icon": "shield",
         "sample_data": {
@@ -173,8 +208,8 @@ __artifacts_v2__ = {
                        "old and new configuration values 5007 records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
-        "requirements": "python-evtx",
+        "last_update_date": "2026-09-24",
+        "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
@@ -194,7 +229,19 @@ __artifacts_v2__ = {
                  "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Windows%20Defender.xml#L589-L613 "
                  "and #L2221-L2380), which gives 5000, 5001, 5010 and 5012 no fields "
                  "beyond the product name and version, so their Old Value, New Value and "
-                 "Detail are blank. Every value is reported as stored. 5007 was 18 of the "
+                 "Detail are blank. Every value is reported as stored, except that an Old Value "
+                 "or New Value holding only a parameter reference, %%n, the identifier of a "
+                 "message in the provider's parameter file, MpEvMsg.dll (Microsoft Learn, "
+                 "'ProviderType complex type', "
+                 "https://learn.microsoft.com/en-us/windows/win32/wes/eventmanifestschema-providertype-complextype), "
+                 "is reported as the text of that message followed by the reference, from an "
+                 "English (en-US) MpEvMsg.dll.mui on the volume the log was read from: the copy "
+                 "under ProgramData/Microsoft/Windows Defender/Platform in the folder named for "
+                 "the record's Product Version, or else the copy under Program Files/Windows "
+                 "Defender, and otherwise as stored. No row on the registered images holds a "
+                 "reference, so no Old Value or New Value has been given text on real data; the "
+                 "scan artifact's rows on af_case2_win10 and lonewolf_win10 exercise the same "
+                 "code. 5007 was 18 of the "
                  "21 rows on af_case2_win10, 48 of 51 on pc_mus_001_win11 and 10 of 10 on "
                  "lonewolf_win10; Old Value was filled on 15 of the 18 5007 rows on "
                  "af_case2_win10 and 47 of 48 on pc_mus_001_win11, and New Value on 16 of "
@@ -215,9 +262,13 @@ __artifacts_v2__ = {
                  "defender_evtx_to_mitre log, another public sample whose file and chunk "
                  "checksums all match, so that log gives no rows. A 5007 row records a "
                  "configuration value Defender logged as changed; it does not by itself "
-                 "establish which person or program changed it. Reading needs the "
-                 "python-evtx package (pip install python-evtx).",
-        "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",),
+                 "establish which person or program changed it. Reading needs the python-evtx "
+                 "package (pip install python-evtx); giving references their text needs the "
+                 "pefile package (pip install pefile), and without it they are reported as "
+                 "stored.",
+        "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",
+                  "*/Program Files/Windows Defender/en-US/MpEvMsg.dll.mui",
+                  "*/ProgramData/Microsoft/Windows Defender/Platform/*/en-US/MpEvMsg.dll.mui"),
         "output_types": ["standard"],
         "artifact_icon": "sliders",
         "sample_data": {
@@ -232,11 +283,11 @@ __artifacts_v2__ = {
         "name": "Microsoft Defender Scan Events",
         "description": "Microsoft Defender Antivirus scan started, finished and stopped "
                        "events from the Defender Operational log, with the scan type, "
-                       "parameters, duration and account each record stores.",
+                       "parameters, duration and account of each record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
-        "requirements": "python-evtx",
+        "last_update_date": "2026-09-24",
+        "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
@@ -258,26 +309,54 @@ __artifacts_v2__ = {
                  "Fields (as stored) lists, as 'name: value', any field a record carries "
                  "beyond those the cited manifest defines for 1000 to 1002, other than its "
                  "Unused fields. Other Fields (as stored) was empty on every row of the "
-                 "registered images. Every value is reported as stored. Scan Resources, "
+                 "registered images. Every value is reported as stored, except a parameter "
+                 "reference, as described below. Scan Resources, "
                  "which only 1000 carries, was empty on every row of the registered "
                  "images. Scan Type, Scan Parameters, User and User SID each held one "
                  "value on every row of pc_mus_001_win11 and lonewolf_win10, and Product "
                  "Version on every row of lonewolf_win10; the two rows on af_case2_win10 "
                  "carry one Scan ID. Defender platforms 4.18.1902.2 and 4.12.17007.18022, "
                  "which wrote the scan records on af_case2_win10 and lonewolf_win10, store "
-                 "Scan Type and Scan Parameters as a reference of the form %%802 rather "
-                 "than as text: every row on those two images holds %%802 and %%806. "
+                 "Scan Type and Scan Parameters as a reference of the form %%802 rather than as "
+                 "text: every record on those two images stores %%802 and %%806. "
                  "Microsoft's documentation describes a parameter string of the form %%n "
                  "as the identifier of a message in the message table of the provider's "
                  "parameter file (Microsoft Learn, 'ProviderType complex type', "
                  "https://learn.microsoft.com/en-us/windows/win32/wes/eventmanifestschema-providertype-complextype), "
-                 "and the Defender provider's registration in the SOFTWARE hive of "
-                 "af_case2_win10, lonewolf_win10 and pc_mus_001_win11 names MpEvMsg.dll as "
-                 "that file. DLEAPP reports the reference as stored and does not resolve "
-                 "it. The English (en-US) MpEvMsg.dll.mui files on the three images, which "
-                 "agree on both references, give %%802 as Antimalware and %%806 as Quick "
-                 "Scan, the text the records of platforms 4.18.2210.6 and 4.18.2211.5 on "
-                 "pc_mus_001_win11 store in those fields. Event Time (UTC) is the record's "
+                 "and the Defender provider's registration in the SOFTWARE hive names "
+                 "MpEvMsg.dll as that file: the copy under Program Files/Windows Defender on "
+                 "af_case2_win10 and lonewolf_win10, and the copy under "
+                 "ProgramData/Microsoft/Windows Defender/Platform/4.18.2211.5-0 on "
+                 "pc_mus_001_win11. A field that holds only such a reference is reported as the "
+                 "text of that message followed by the reference, for example Antimalware "
+                 "(%%802), when an English (en-US) MpEvMsg.dll.mui on the volume the log was "
+                 "read from holds the message: the copy under ProgramData/Microsoft/Windows "
+                 "Defender/Platform in the folder named for the record's Product Version, or "
+                 "else the copy under Program Files/Windows Defender. The text is the message as "
+                 "FormatMessage prints it, without its closing line break or a closing %0 "
+                 "escape, which ends a message without a new line (Microsoft Learn, "
+                 "'FormatMessage function', "
+                 "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessage); "
+                 "every message referenced on the registered images and in the public samples "
+                 "ends with one. A reference no such file resolves is reported as stored. The "
+                 "run log counts the references given text from each file and those left as "
+                 "stored, and the report's located-at line also names each MpEvMsg.dll.mui that "
+                 "gave text. The copy for the record's own version comes first because a "
+                 "message's wording can change between versions: of the 184 message ids in the "
+                 "six English copies on the registered images, 43 read differently in at least "
+                 "two of them, for example 827, which is Windows Defender Antivirus in the "
+                 "copies on af_case2_win10 and lonewolf_win10 and Microsoft Defender Antivirus "
+                 "in those on pc_mus_001_win11. On lonewolf_win10 the records name platform "
+                 "4.12.17007.18022, whose folder under Platform holds the English file; the "
+                 "folder for 4.18.1902.2, the version the records on af_case2_win10 name, holds "
+                 "no MpEvMsg.dll or MpEvMsg.dll.mui, so those records take their text from the "
+                 "Program Files copy. On both images that is the text the English copy of the "
+                 "registered parameter file gives, since the Platform and Program Files copies "
+                 "on lonewolf_win10 are byte-identical. Every row on the two images reads "
+                 "Antimalware (%%802) and Quick Scan (%%806), and all six English copies give "
+                 "those two references the same text; the records of platforms 4.18.2210.6 and "
+                 "4.18.2211.5 on pc_mus_001_win11 store the text Antimalware and Quick Scan in "
+                 "those fields. Event Time (UTC) is the record's "
                  "TimeCreated SystemTime, which python-evtx renders from the FILETIME the "
                  "record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
@@ -292,8 +371,12 @@ __artifacts_v2__ = {
                  "sample whose file and chunk checksums all match, so that log gives no "
                  "rows. A scan row records a scan Defender logged; the User the record "
                  "names does not by itself establish that a person started the scan. "
-                 "Reading needs the python-evtx package (pip install python-evtx).",
-        "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",),
+                 "Reading needs the python-evtx package (pip install python-evtx); giving "
+                 "references their text needs the pefile package (pip install pefile), and "
+                 "without it they are reported as stored.",
+        "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",
+                  "*/Program Files/Windows Defender/en-US/MpEvMsg.dll.mui",
+                  "*/ProgramData/Microsoft/Windows Defender/Platform/*/en-US/MpEvMsg.dll.mui"),
         "output_types": ["standard"],
         "artifact_icon": "search",
         "sample_data": {
@@ -305,6 +388,82 @@ __artifacts_v2__ = {
                        },
     },
 }
+
+
+class _ParameterText:
+    """Text for the parameter references (%%n) a Defender record stores.
+
+    The text comes from the English (en-US) MpEvMsg.dll.mui on the volume the
+    record's log was read from: the copy under ProgramData/Microsoft/Windows
+    Defender/Platform in the folder named for the record's Product Version when
+    there is one, else the copy under Program Files/Windows Defender. A resolved
+    field reads 'text (%%n)'; a reference neither file resolves is kept as stored.
+    """
+
+    _LOG_DIR = '/windows/system32/winevt/logs/'
+    _INBOX = '/program files/windows defender/en-us/mpevmsg.dll.mui'
+    _PLATFORM = '/programdata/microsoft/windows defender/platform/'
+    _MESSAGE_FILE = '/en-us/mpevmsg.dll.mui'
+
+    def __init__(self, context, label):
+        self.context = context
+        self.label = label
+        self.inbox = {}        # volume root -> staged path
+        self.platform = {}     # (volume root, platform version) -> staged path
+        self.tables = {}       # staged path -> {message id: text}
+        self.resolved = collections.Counter()
+        self.kept = 0
+        for path in sorted(str(f) for f in context.get_files_found()):
+            relative = self._relative(path)
+            if not relative.endswith(self._MESSAGE_FILE) or os.path.isdir(path):
+                continue
+            if relative.endswith(self._INBOX):
+                self.inbox.setdefault(relative[:-len(self._INBOX)], path)
+                continue
+            at = relative.find(self._PLATFORM)
+            if at >= 0:
+                folder = relative[at + len(self._PLATFORM):].split('/')[0]
+                self.platform.setdefault((relative[:at], folder.rsplit('-', 1)[0]), path)
+
+    def _relative(self, path):
+        return '/' + self.context.get_relative_path(path).replace('\\', '/').lower()
+
+    def _message_file(self, record):
+        relative = self._relative(record.source) if record.source else ''
+        at = relative.find(self._LOG_DIR)
+        if at < 0:
+            return None
+        root = relative[:at]
+        version = record.get('Product Version').lower()
+        return self.platform.get((root, version)) or self.inbox.get(root)
+
+    def text(self, record, value):
+        """The value, or 'text (%%n)' when it is a reference a message file resolves."""
+        match = windows_messages.REFERENCE.fullmatch(value or '')
+        if not match:
+            return value
+        path = self._message_file(record)
+        if path and path not in self.tables:
+            self.tables[path] = windows_messages.read_message_table(path)
+        message = self.tables.get(path, {}).get(int(match.group(1))) if path else ''
+        if not message:
+            self.kept += 1
+            return value
+        self.resolved[path] += 1
+        return f'{message} ({value})'
+
+    def files(self):
+        """The message files that gave text to at least one field, for the source path."""
+        return sorted(self.resolved)
+
+    def log(self):
+        for path, count in sorted(self.resolved.items()):
+            logfunc(f'{self.label}: {count} parameter reference(s) given their text from '
+                    f'{self.context.get_relative_path(path)}')
+        if self.kept:
+            missing = '' if windows_messages.pefile else ' (pefile is not installed)'
+            logfunc(f'{self.label}: {self.kept} parameter reference(s) reported as stored; '
+                    f'no English MpEvMsg.dll.mui on the same volume gave their text{missing}')
 
 
 def _first(record, *names):
@@ -336,9 +495,10 @@ def defenderDetections(context):
                     'Status', 'Error Code', 'Error Description',
                     'Detection Time (as stored)', 'Detection ID',
                     'Security Intelligence Version', 'Engine Version', 'Record ID', 'Computer')
+    label = 'Microsoft Defender Detection Events'
     records, sources = read_event_records(
-        context, _LOG, 'Microsoft Defender Detection Events',
-        event_ids=set(_DETECTION_EVENTS), provider=_PROVIDER)
+        context, _LOG, label, event_ids=set(_DETECTION_EVENTS), provider=_PROVIDER)
+    parameters = _ParameterText(context, label)
     data_list = []
     for record in records:
         if record.event_id in _STATE_EVENTS:
@@ -354,8 +514,7 @@ def defenderDetections(context):
             detection_type, action = record.get('Detection Type'), record.get('Cleaning Action')
             status = _first(record, 'Execution Status', 'Status Description')
             path = _first(record, 'Path Found', 'Path')
-        data_list.append((
-            record.time, record.event_id, _DETECTION_EVENTS[record.event_id],
+        values = (
             record.get('Threat Name'), record.get('Threat ID'), record.get('Severity Name'),
             record.get('Category Name'), path, record.get('Process Name'), user,
             record.get('SID'), source,
@@ -363,17 +522,22 @@ def defenderDetections(context):
             record.get('Error Description'), record.get('Detection Time'),
             record.get('Detection ID'),
             _first(record, 'Security intelligence Version', 'Signature Version'),
-            record.get('Engine Version'), record.record_id, record.computer))
-    return data_headers, data_list, '\n'.join(sources)
+            record.get('Engine Version'))
+        data_list.append((record.time, record.event_id, _DETECTION_EVENTS[record.event_id])
+                         + tuple(parameters.text(record, value) for value in values)
+                         + (record.record_id, record.computer))
+    parameters.log()
+    return data_headers, data_list, '\n'.join(sources + parameters.files())
 
 
 @artifact_processor
 def defenderProtectionChanges(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Event', 'Old Value',
                     'New Value', 'Detail', 'Product Version', 'Record ID', 'Computer')
+    label = 'Microsoft Defender Protection and Configuration Changes'
     records, sources = read_event_records(
-        context, _LOG, 'Microsoft Defender Protection and Configuration Changes',
-        event_ids=set(_PROTECTION_EVENTS), provider=_PROVIDER)
+        context, _LOG, label, event_ids=set(_PROTECTION_EVENTS), provider=_PROVIDER)
+    parameters = _ParameterText(context, label)
     data_list = []
     for record in records:
         if record.event_id == '5004':
@@ -389,9 +553,11 @@ def defenderProtectionChanges(context):
             detail = ''
         data_list.append((
             record.time, record.event_id, _PROTECTION_EVENTS[record.event_id],
-            record.get('Old Value'), record.get('New Value'), detail,
+            parameters.text(record, record.get('Old Value')),
+            parameters.text(record, record.get('New Value')), detail,
             record.get('Product Version'), record.record_id, record.computer))
-    return data_headers, data_list, '\n'.join(sources)
+    parameters.log()
+    return data_headers, data_list, '\n'.join(sources + parameters.files())
 
 
 @artifact_processor
@@ -400,9 +566,10 @@ def defenderScans(context):
                     'Scan Type', 'Scan Parameters', 'Scan Resources', 'Scan Time (h:m:s)',
                     'User', 'User SID', 'Product Version', 'Other Fields (as stored)',
                     'Record ID', 'Computer')
+    label = 'Microsoft Defender Scan Events'
     records, sources = read_event_records(
-        context, _LOG, 'Microsoft Defender Scan Events', event_ids=set(_SCAN_EVENTS),
-        provider=_PROVIDER)
+        context, _LOG, label, event_ids=set(_SCAN_EVENTS), provider=_PROVIDER)
+    parameters = _ParameterText(context, label)
     data_list = []
     for record in records:
         hours, minutes = record.get('Scan Time Hours'), record.get('Scan Time Minutes')
@@ -414,7 +581,10 @@ def defenderScans(context):
             and value and value.strip())
         data_list.append((
             record.time, record.event_id, _SCAN_EVENTS[record.event_id], record.get('Scan ID'),
-            record.get('Scan Type'), record.get('Scan Parameters'),
-            record.get('Scan Resources'), scan_time, _domain_user(record), record.get('SID'),
-            record.get('Product Version'), other, record.record_id, record.computer))
-    return data_headers, data_list, '\n'.join(sources)
+            parameters.text(record, record.get('Scan Type')),
+            parameters.text(record, record.get('Scan Parameters')),
+            parameters.text(record, record.get('Scan Resources')), scan_time,
+            _domain_user(record), record.get('SID'), record.get('Product Version'), other,
+            record.record_id, record.computer))
+    parameters.log()
+    return data_headers, data_list, '\n'.join(sources + parameters.files())

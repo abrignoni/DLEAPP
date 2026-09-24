@@ -9,7 +9,8 @@ Defender. Each record is rendered to XML by python-evtx and read with
 ElementTree.
 
 `read_event_records(context, file_name, label, ...)` reads every matched copy
-of one log and returns the parsed records it kept, with the paths it read. A
+of one log and returns the parsed records it kept, each with the staged path it
+was read from as `source`, and the paths it read. A
 record python-evtx cannot render (the call raises) or whose XML does not parse
 is counted and skipped instead of ending the read of the rest of the file, and
 the count is written to the run log for each file.
@@ -88,9 +89,10 @@ class EventRecord:
 
     __slots__ = ('provider', 'event_id', 'version', 'level', 'time', 'record_id',
                  'computer', 'user_sid', 'process_id', 'channel', 'fields', 'values',
-                 'user_data_name')
+                 'user_data_name', 'source')
 
-    def __init__(self, root):
+    def __init__(self, root, source=''):
+        self.source = source
         system = root.find('{*}System')
         self.provider = ''
         self.event_id = ''
@@ -182,7 +184,7 @@ def read_event_records(context, file_name, label, event_ids=None, provider=None)
                     except ElementTree.ParseError:
                         unparsed += 1
                         continue
-                    parsed = EventRecord(root)
+                    parsed = EventRecord(root, source)
                     if event_ids is not None and parsed.event_id not in event_ids:
                         continue
                     if provider is not None and parsed.provider != provider:
