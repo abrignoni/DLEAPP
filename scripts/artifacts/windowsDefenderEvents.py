@@ -99,29 +99,61 @@ __artifacts_v2__ = {
                  "1006 and 1015 and Path on the others; Action is Cleaning Action; Status "
                  "is Execution Status on 1006 and 1015 and Status Description on 1007 and "
                  "1008. Error Code, Error Description, Detection Time (as stored), "
-                 "Detection ID, Security Intelligence Version and Engine Version are the "
-                 "fields of those names (Security intelligence Version in the manifest). A "
-                 "column whose field the manifest does not give an event is blank on that "
-                 "event's rows. Every value is reported as stored. Event Time (UTC) is the "
-                 "record's TimeCreated SystemTime, which python-evtx renders from the "
-                 "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
+                 "Detection ID and Engine Version are the fields of those names. Security "
+                 "Intelligence Version is the Security intelligence Version field, also "
+                 "read under the name Signature Version, which the same template position "
+                 "carries in the published manifests of Windows 10 builds 10240, "
+                 "14393.447, 16299.15, 17134.112 and 17763.107 (for example "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1809/W10_1809_Pro_20181113_17763.107/WEPExplorer/Microsoft-Windows-Windows%20Defender.xml#L769, "
+                 "against #L769 of the Windows 11 manifest above; the two templates differ "
+                 "in no other field this artifact reads) and in the records of the "
+                 "defender_evtx_attack_samples log. A column whose field the manifest does "
+                 "not give an event is blank on that event's rows. Every value is reported "
+                 "as stored. Defender platform 4.18.1906.3, which wrote the records of the "
+                 "defender_evtx_attack_samples log, stores Detection Source, Detection "
+                 "Origin, Detection Type and Action as a reference of the form %%818 "
+                 "rather than as text. Microsoft's documentation describes a parameter "
+                 "string of the form %%n as the identifier of a message in the message "
+                 "table of the provider's parameter file (Microsoft Learn, 'ProviderType "
+                 "complex type', "
+                 "https://learn.microsoft.com/en-us/windows/win32/wes/eventmanifestschema-providertype-complextype), "
+                 "and the Defender provider's registration in the SOFTWARE hive of "
+                 "af_case2_win10, lonewolf_win10 and pc_mus_001_win11 names MpEvMsg.dll as "
+                 "that file. DLEAPP reports the reference as stored and does not resolve "
+                 "it. The English (en-US) MpEvMsg.dll.mui files on those three images, "
+                 "which agree on every reference here, give %%818 as Real-Time Protection, "
+                 "%%845 as Local machine, %%822 as Concrete, %%823 as Generic, %%862 as "
+                 "FastPath, %%887 as Not Applicable, %%809 as Quarantine and %%811 as "
+                 "Allow. No field of any record written by platform 4.18.2210.6 or "
+                 "4.18.2211.5 on pc_mus_001_win11 holds such a reference; none of those "
+                 "records is a detection event, so whether newer platforms store these "
+                 "four fields as text is not established. Event Time (UTC) is the record's "
+                 "TimeCreated SystemTime, which python-evtx renders from the FILETIME the "
+                 "record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
-                 "the record stores. No registered image carries a record with any of "
-                 "these Event IDs, so this artifact reported no rows on any tested image: "
-                 "its field mapping is checked against the manifest and Microsoft's page "
-                 "only, and the row building was run only on records constructed for the "
-                 "purpose, not on a record Defender wrote. Not reported: the product name "
-                 "and version, the ID and index fields beside the names, the FWLink, the "
-                 "Status Code, Status Description, State, Execution Name, Pre Execution "
-                 "Status and Post Clean Status fields of 1116 to 1119, and on 1015 the "
-                 "process ID, security intelligence ID, fidelity, image hash and target "
-                 "file fields. A record python-evtx cannot render, or whose XML does not "
-                 "parse, is counted in the run log and not reported; every record in this "
-                 "log rendered on the registered images. A detection row records what "
-                 "Defender logged; it does not by itself establish who placed the file or "
-                 "ran the process. Reading needs the python-evtx package (pip install "
-                 "python-evtx).",
+                 "the record stores. None of the three registered Windows disk images "
+                 "carries a record with any of these Event IDs. The "
+                 "defender_evtx_attack_samples log, a public research sample, carries 11 "
+                 "(six 1116 and five 1117), and every value reported on those rows matched "
+                 "the record field the mapping above names. On those 11 rows Process Name, "
+                 "Detection Source, Detection Origin, Status and Computer each held one "
+                 "value, and User SID was empty, since 1116 and 1117 carry no SID field. "
+                 "The 1006 to 1015, 1118 and 1119 branches were run only on records "
+                 "constructed for the purpose, not on a record Defender wrote. Not "
+                 "reported: the product name and version, the ID and index fields beside "
+                 "the names, the FWLink, the Status Code, Status Description, State, "
+                 "Execution Name, Pre Execution Status and Post Clean Status fields of "
+                 "1116 to 1119, and on 1015 the process ID, security intelligence ID, "
+                 "fidelity, image hash and target file fields. A record python-evtx cannot "
+                 "render, or whose XML does not parse, is counted in the run log and not "
+                 "reported. python-evtx 0.8.1 rendered every record of this log on the "
+                 "registered Windows disk images and in the defender_evtx_attack_samples "
+                 "log, and none of the 6 records of the defender_evtx_to_mitre log, "
+                 "another public sample whose file and chunk checksums all match, so that "
+                 "log gives no rows. A detection row records what Defender logged; it does "
+                 "not by itself establish who placed the file or ran the process. Reading "
+                 "needs the python-evtx package (pip install python-evtx).",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "shield",
@@ -129,6 +161,8 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no detection or quarantine events in the Defender Operational log)",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no detection or quarantine events in the Defender Operational log)",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no detection or quarantine events in the Defender Operational log)",
+                           "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 11 rows",
+                           "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
                        },
     },
     "defenderProtectionChanges": {
@@ -175,11 +209,14 @@ __artifacts_v2__ = {
                  "product name, the Feature ID of 5004, and the log's other events (1150, "
                  "1151, 2000, 2001, 2002, 2010, 2011 and 2014 on the registered images). A "
                  "record python-evtx cannot render, or whose XML does not parse, is "
-                 "counted in the run log and not reported; every record in this log "
-                 "rendered on the registered images. A 5007 row records a configuration "
-                 "value Defender logged as changed; it does not by itself establish which "
-                 "person or program changed it. Reading needs the python-evtx package (pip "
-                 "install python-evtx).",
+                 "counted in the run log and not reported. python-evtx 0.8.1 rendered "
+                 "every record of this log on the registered Windows disk images and in "
+                 "the defender_evtx_attack_samples log, and none of the 6 records of the "
+                 "defender_evtx_to_mitre log, another public sample whose file and chunk "
+                 "checksums all match, so that log gives no rows. A 5007 row records a "
+                 "configuration value Defender logged as changed; it does not by itself "
+                 "establish which person or program changed it. Reading needs the "
+                 "python-evtx package (pip install python-evtx).",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "sliders",
@@ -187,6 +224,8 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 21 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 51 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 10 rows",
+                           "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
+                           "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
                        },
     },
     "defenderScans": {
@@ -224,19 +263,36 @@ __artifacts_v2__ = {
                  "images. Scan Type, Scan Parameters, User and User SID each held one "
                  "value on every row of pc_mus_001_win11 and lonewolf_win10, and Product "
                  "Version on every row of lonewolf_win10; the two rows on af_case2_win10 "
-                 "carry one Scan ID. Event Time (UTC) is the record's TimeCreated "
-                 "SystemTime, which python-evtx renders from the FILETIME the record "
-                 "stores, counted in UTC (python-evtx 0.8.1, "
+                 "carry one Scan ID. Defender platforms 4.18.1902.2 and 4.12.17007.18022, "
+                 "which wrote the scan records on af_case2_win10 and lonewolf_win10, store "
+                 "Scan Type and Scan Parameters as a reference of the form %%802 rather "
+                 "than as text: every row on those two images holds %%802 and %%806. "
+                 "Microsoft's documentation describes a parameter string of the form %%n "
+                 "as the identifier of a message in the message table of the provider's "
+                 "parameter file (Microsoft Learn, 'ProviderType complex type', "
+                 "https://learn.microsoft.com/en-us/windows/win32/wes/eventmanifestschema-providertype-complextype), "
+                 "and the Defender provider's registration in the SOFTWARE hive of "
+                 "af_case2_win10, lonewolf_win10 and pc_mus_001_win11 names MpEvMsg.dll as "
+                 "that file. DLEAPP reports the reference as stored and does not resolve "
+                 "it. The English (en-US) MpEvMsg.dll.mui files on the three images, which "
+                 "agree on both references, give %%802 as Antimalware and %%806 as Quick "
+                 "Scan, the text the records of platforms 4.18.2210.6 and 4.18.2211.5 on "
+                 "pc_mus_001_win11 store in those fields. Event Time (UTC) is the record's "
+                 "TimeCreated SystemTime, which python-evtx renders from the FILETIME the "
+                 "record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of each registered "
                  "image. Not reported: the product name and the index field beside the "
                  "scan type and parameters. A record python-evtx cannot render, or whose "
-                 "XML does not parse, is counted in the run log and not reported; every "
-                 "record in this log rendered on the registered images. A scan row records "
-                 "a scan Defender logged; the User the record names does not by itself "
-                 "establish that a person started the scan. Reading needs the python-evtx "
-                 "package (pip install python-evtx).",
+                 "XML does not parse, is counted in the run log and not reported. "
+                 "python-evtx 0.8.1 rendered every record of this log on the registered "
+                 "Windows disk images and in the defender_evtx_attack_samples log, and "
+                 "none of the 6 records of the defender_evtx_to_mitre log, another public "
+                 "sample whose file and chunk checksums all match, so that log gives no "
+                 "rows. A scan row records a scan Defender logged; the User the record "
+                 "names does not by itself establish that a person started the scan. "
+                 "Reading needs the python-evtx package (pip install python-evtx).",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "search",
@@ -244,6 +300,8 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 2 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 10 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
+                           "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
+                           "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
                        },
     },
 }
@@ -303,7 +361,8 @@ def defenderDetections(context):
             record.get('SID'), source,
             origin, detection_type, action, status, record.get('Error Code'),
             record.get('Error Description'), record.get('Detection Time'),
-            record.get('Detection ID'), record.get('Security intelligence Version'),
+            record.get('Detection ID'),
+            _first(record, 'Security intelligence Version', 'Signature Version'),
             record.get('Engine Version'), record.record_id, record.computer))
     return data_headers, data_list, '\n'.join(sources)
 
