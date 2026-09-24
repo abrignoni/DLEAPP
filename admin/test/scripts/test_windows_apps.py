@@ -2,10 +2,18 @@
 
 # pylint: disable=protected-access
 
+import pathlib
 import sqlite3
+import sys
+import tempfile
+import unittest
 from datetime import datetime, timezone
+from unittest import mock
 
-from scripts.artifacts import windowsApps
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.artifacts import windowsApps  # pylint: disable=wrong-import-position
 
 
 class _Context:
@@ -91,145 +99,155 @@ def _create_photos_database(path):
             );
             """
         )
+    database.close()
 
 
-def test_photos_timestamp_order_preview_and_metadata(tmp_path, monkeypatch):
-    database_path = tmp_path / "shared.sqlite"
-    _create_photos_database(database_path)
-    media_path = tmp_path / "C" / "Evidence" / "Pictures" / (
-        "DLEAPP-PHOTO-TEST-001.png"
-    )
-    media_path.parent.mkdir(parents=True)
-    media_path.write_bytes(b"known image")
-    seeker = _Seeker({
-        "*/Evidence/Pictures/DLEAPP-PHOTO-TEST-001.png": [media_path],
-    })
-    checked_in = []
+class TestWindowsApps(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tmp_path = pathlib.Path(self._tmp.name)
 
-    def _check_in_media(path, name=""):
-        checked_in.append((path, name))
-        return "known-media-reference"
+    def test_photos_timestamp_order_preview_and_metadata(self):
+        database_path = self.tmp_path / "shared.sqlite"
+        _create_photos_database(database_path)
+        media_path = self.tmp_path / "C" / "Evidence" / "Pictures" / (
+            "DLEAPP-PHOTO-TEST-001.png"
+        )
+        media_path.parent.mkdir(parents=True)
+        media_path.write_bytes(b"known image")
+        seeker = _Seeker({
+            "*/Evidence/Pictures/DLEAPP-PHOTO-TEST-001.png": [media_path],
+        })
+        checked_in = []
 
-    monkeypatch.setattr(windowsApps, "check_in_media", _check_in_media)
+        def _check_in_media(path, name=""):
+            checked_in.append((path, name))
+            return "known-media-reference"
 
-    headers, rows, _ = windowsApps.windowsPhotos.__wrapped__(
-        _Context([database_path], seeker)
-    )
+        with mock.patch.object(windowsApps, "check_in_media", _check_in_media):
+            headers, rows, _ = windowsApps.windowsPhotos.__wrapped__(
+                _Context([database_path], seeker)
+            )
 
-    assert [header[0] for header in headers[:6]] == [
-        "Date Ingested (UTC)",
-        "Date Taken (UTC)",
-        "Alternate Date Taken (UTC)",
-        "Date Modified (UTC)",
-        "Date Created (UTC)",
-        "Property Scan Time (UTC)",
-    ]
-    assert headers[6:8] == (
-        ("Media Preview", "media"),
-        "Original File Status",
-    )
-    assert len(rows) == 1
-    assert rows[0][0] == datetime(1970, 1, 1, 0, 0, 3, tzinfo=timezone.utc)
-    assert rows[0][6] == "known-media-reference"
-    assert rows[0][7] == "Present in acquisition; copied to report"
-    assert rows[0][10] == "DLEAPP-PHOTO-TEST-001.png"
-    assert rows[0][17] == "known-tag"
-    assert rows[0][23] == "Known Address"
-    assert rows[0][24] == "document [0.75]"
-    assert checked_in == [(
-        "C:/Evidence/Pictures/DLEAPP-PHOTO-TEST-001.png",
-        "DLEAPP-PHOTO-TEST-001.png",
-    )]
+        self.assertEqual([header[0] for header in headers[:6]], [
+            "Date Ingested (UTC)",
+            "Date Taken (UTC)",
+            "Alternate Date Taken (UTC)",
+            "Date Modified (UTC)",
+            "Date Created (UTC)",
+            "Property Scan Time (UTC)",
+        ])
+        self.assertEqual(headers[6:8], (
+            ("Media Preview", "media"),
+            "Original File Status",
+        ))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(
+            rows[0][0], datetime(1970, 1, 1, 0, 0, 3, tzinfo=timezone.utc)
+        )
+        self.assertEqual(rows[0][6], "known-media-reference")
+        self.assertEqual(rows[0][7], "Present in acquisition; copied to report")
+        self.assertEqual(rows[0][10], "DLEAPP-PHOTO-TEST-001.png")
+        self.assertEqual(rows[0][17], "known-tag")
+        self.assertEqual(rows[0][23], "Known Address")
+        self.assertEqual(rows[0][24], "document [0.75]")
+        self.assertEqual(checked_in, [(
+            "C:/Evidence/Pictures/DLEAPP-PHOTO-TEST-001.png",
+            "DLEAPP-PHOTO-TEST-001.png",
+        )])
 
+    def test_photos_reports_missing_original_without_inferring_deletion(self):
+        database_path = self.tmp_path / "shared.sqlite"
+        _create_photos_database(database_path)
 
-def test_photos_reports_missing_original_without_inferring_deletion(tmp_path):
-    database_path = tmp_path / "shared.sqlite"
-    _create_photos_database(database_path)
+        _, rows, _ = windowsApps.windowsPhotos.__wrapped__(
+            _Context([database_path], _Seeker({}))
+        )
 
-    _, rows, _ = windowsApps.windowsPhotos.__wrapped__(
-        _Context([database_path], _Seeker({}))
-    )
+        self.assertEqual(rows[0][6], "")
+        self.assertEqual(rows[0][7], "Original file not present in acquisition")
 
-    assert rows[0][6] == ""
-    assert rows[0][7] == "Original file not present in acquisition"
+    def test_photos_folders_unix_100ns_scan_time(self):
+        database_path = self.tmp_path / "shared.sqlite"
+        _create_photos_database(database_path)
 
+        headers, rows, _ = windowsApps.windowsPhotosFolders.__wrapped__(
+            _Context([database_path])
+        )
 
-def test_photos_folders_unix_100ns_scan_time(tmp_path):
-    database_path = tmp_path / "shared.sqlite"
-    _create_photos_database(database_path)
+        self.assertEqual(headers[:3], (
+            ("Date Scanned (UTC)", "datetime"),
+            ("Date Modified (UTC)", "datetime"),
+            ("Date Created (UTC)", "datetime"),
+        ))
+        self.assertEqual(
+            rows[0][0], datetime(1970, 1, 1, 0, 0, 3, tzinfo=timezone.utc)
+        )
+        self.assertEqual(rows[0][5], r"C:\Evidence\Pictures")
 
-    headers, rows, _ = windowsApps.windowsPhotosFolders.__wrapped__(
-        _Context([database_path])
-    )
-
-    assert headers[:3] == (
-        ("Date Scanned (UTC)", "datetime"),
-        ("Date Modified (UTC)", "datetime"),
-        ("Date Created (UTC)", "datetime"),
-    )
-    assert rows[0][0] == datetime(1970, 1, 1, 0, 0, 3, tzinfo=timezone.utc)
-    assert rows[0][5] == r"C:\Evidence\Pictures"
-
-
-def test_alarm_composite_timestamp_order_and_fields():
-    alarm = {
-        "Name": "DLEAPP-ALARM-TEST-001\x00",
-        "Hour": 2,
-        "Minute": 5,
-        "IsEnabled": True,
-        "DaysOfWeek": 0,
-        "SnoozeInterval": 10,
-        "ScheduledYear": 2026,
-        "ScheduledMonth": 7,
-        "ScheduledDay": 30,
-        "ScheduledHour": 2,
-        "ScheduledMinute": 5,
-        "ChimeName": "Alarm1/SoundName\x00",
-        "ChimePath": "ms-winsoundevent:Notification.Looping.Alarm\x00",
-        "__Created": 116444736010000000,
-        "__Updated": 116444736020000000,
-    }
-
-    row = windowsApps._alarm_row(
-        alarm, "{KNOWN-RECORD}", "Packaged-app settings hive", "settings.dat"
-    )
-
-    assert row[:3] == (
-        datetime(2026, 7, 30, 2, 5),
-        datetime(1970, 1, 1, 0, 0, 1, tzinfo=timezone.utc),
-        datetime(1970, 1, 1, 0, 0, 2, tzinfo=timezone.utc),
-    )
-    assert row[3:9] == (
-        "DLEAPP-ALARM-TEST-001",
-        "02:05",
-        "Yes",
-        "No",
-        0,
-        10,
-    )
-
-
-def test_alarm_json_retains_every_alarm(tmp_path):
-    alarms_path = tmp_path / "Alarms.json"
-    alarms_path.write_text(
-        """
-        {
-          "Alarms": [
-            {"Name": "one", "Hour": 1, "Minute": 2, "IsEnabled": true},
-            {"Name": "two", "Hour": 3, "Minute": 4, "IsEnabled": false}
-          ]
+    def test_alarm_composite_timestamp_order_and_fields(self):
+        alarm = {
+            "Name": "DLEAPP-ALARM-TEST-001\x00",
+            "Hour": 2,
+            "Minute": 5,
+            "IsEnabled": True,
+            "DaysOfWeek": 0,
+            "SnoozeInterval": 10,
+            "ScheduledYear": 2026,
+            "ScheduledMonth": 7,
+            "ScheduledDay": 30,
+            "ScheduledHour": 2,
+            "ScheduledMinute": 5,
+            "ChimeName": "Alarm1/SoundName\x00",
+            "ChimePath": "ms-winsoundevent:Notification.Looping.Alarm\x00",
+            "__Created": 116444736010000000,
+            "__Updated": 116444736020000000,
         }
-        """,
-        encoding="utf-8",
-    )
 
-    headers, rows, _ = windowsApps.windowsAlarms.__wrapped__(
-        _Context([alarms_path])
-    )
+        row = windowsApps._alarm_row(
+            alarm, "{KNOWN-RECORD}", "Packaged-app settings hive", "settings.dat"
+        )
 
-    assert headers[:3] == (
-        ("Next Scheduled Time (device local)", "datetime"),
-        ("Created Time (UTC)", "datetime"),
-        ("Updated Time (UTC)", "datetime"),
-    )
-    assert [row[3] for row in rows] == ["one", "two"]
+        self.assertEqual(row[:3], (
+            datetime(2026, 7, 30, 2, 5),
+            datetime(1970, 1, 1, 0, 0, 1, tzinfo=timezone.utc),
+            datetime(1970, 1, 1, 0, 0, 2, tzinfo=timezone.utc),
+        ))
+        self.assertEqual(row[3:9], (
+            "DLEAPP-ALARM-TEST-001",
+            "02:05",
+            "Yes",
+            "No",
+            0,
+            10,
+        ))
+
+    def test_alarm_json_retains_every_alarm(self):
+        alarms_path = self.tmp_path / "Alarms.json"
+        alarms_path.write_text(
+            """
+            {
+              "Alarms": [
+                {"Name": "one", "Hour": 1, "Minute": 2, "IsEnabled": true},
+                {"Name": "two", "Hour": 3, "Minute": 4, "IsEnabled": false}
+              ]
+            }
+            """,
+            encoding="utf-8",
+        )
+
+        headers, rows, _ = windowsApps.windowsAlarms.__wrapped__(
+            _Context([alarms_path])
+        )
+
+        self.assertEqual(headers[:3], (
+            ("Next Scheduled Time (device local)", "datetime"),
+            ("Created Time (UTC)", "datetime"),
+            ("Updated Time (UTC)", "datetime"),
+        ))
+        self.assertEqual([row[3] for row in rows], ["one", "two"])
+
+
+if __name__ == "__main__":
+    unittest.main()
