@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "InstallDate as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads every subkey of Microsoft\\Windows\\CurrentVersion\\Uninstall in the SOFTWARE "
@@ -118,7 +118,7 @@ def installedPrograms(context):
         try:
             rows, _kept, skipped = _program_rows(
                 Registry.Registry(path), _SOFTWARE_VIEWS if is_software else _NTUSER_VIEWS,
-                '' if is_software else user_from_path(path), relative)
+                '' if is_software else user_from_path(relative), relative)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Installed Programs: could not read {relative}: {exc}')
             continue

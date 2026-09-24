@@ -14,6 +14,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import user_from_path
 
 # The Run and RunOnce keys list programs set to start automatically. The
 # machine-wide entries live in the SOFTWARE hive under
@@ -21,7 +22,7 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 # applications write on 64-bit Windows under WOW6432Node at the hive's root, and
 # the per-user entries in each NTUSER.DAT under
 # Software\Microsoft\Windows\CurrentVersion\Run and RunOnce. A RunOnce value is
-# deleted before its command runs, so that key is often empty at acquisition time.
+# deleted before its command runs, so a value whose command has run is no longer there.
 # These are common autostart and persistence locations.
 
 # (Key label for the row, subkey path under the hive root)
@@ -44,7 +45,7 @@ __artifacts_v2__ = {
                        "per user from each NTUSER.DAT.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "One row per value in the Windows Run and RunOnce autostart keys."
@@ -103,14 +104,6 @@ __artifacts_v2__ = {
 }
 
 
-def _user_from_path(source):
-    parts = source.replace('\\', '/').split('/')
-    for index, part in enumerate(parts):
-        if part.lower() == 'users' and index + 1 < len(parts):
-            return parts[index + 1]
-    return ''
-
-
 def _open(reg, path):
     try:
         return reg.open(path)
@@ -149,7 +142,7 @@ def runKeys(context):
         is_software = os.path.basename(source).upper() == 'SOFTWARE'
         key_defs = _SOFTWARE_KEYS if is_software else _NTUSER_KEYS
         scope = 'Machine' if is_software else 'User'
-        user = '' if is_software else _user_from_path(source)
+        user = '' if is_software else user_from_path(relative_source)
         rows_here = 0
         try:
             reg = Registry.Registry(source)

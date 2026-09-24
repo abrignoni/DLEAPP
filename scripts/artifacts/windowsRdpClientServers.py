@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "UsernameHint value stored for each server.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads Software\\Microsoft\\Terminal Server Client in each NTUSER.DAT: the MRU values "
@@ -57,7 +57,7 @@ def rdpClientServers(context):
         return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
-        user = user_from_path(path)
+        user = user_from_path(relative)
         try:
             reg = Registry.Registry(path)
             mru = {}

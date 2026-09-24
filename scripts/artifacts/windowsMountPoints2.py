@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "any stored label.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-24",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the subkeys of Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2"
@@ -74,7 +74,7 @@ def mountPoints2(context):
         return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
-        user = user_from_path(path)
+        user = user_from_path(relative)
         try:
             root = open_key(Registry.Registry(path), _MP2)
             for entry in (root.subkeys() if root else []):
