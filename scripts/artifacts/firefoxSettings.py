@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         'output_types': 'standard', 'sample_data': {},
         'notes': 'Reads moz_perms when present, even if empty; otherwise reads legacy moz_hosts. The legacy table may remain after migration and is not combined with the modern table. Dates use Unix milliseconds; zero and absent dates remain blank. Capability and expiry codes are reported as stored because meanings can depend on permission type. A stored permission does not establish that a person accepted a prompt, visited an origin, or used the permitted feature. Origin attributes remain attached to the origin. moz_origin_interactions is excluded: its timestamps can be initialized by migration and are not permission-change times. WAL files are included. Profiles remain distinct and byte-identical macOS firmlink database/WAL copies are deduplicated. User is blank when paths do not name the account. Public tests are synthetic; private corpus details are not published.'
                  " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                 ' profile folder, under its own name, inside a Desktop folder named from the '
+                 ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                  "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                  'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                  'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         'output_types': 'standard', 'sample_data': {},
         'notes': 'One row per addons entry with type extension. Includes browser-supplied extensions; Location is retained to distinguish installation locations. Dates are stored Unix milliseconds and can be derived from package modification times; they do not establish a manual installation. A missing update date is left blank rather than copied from installation time. Active and disabled flags are stored states, not execution events. User Permissions and Optional Permissions preserve the respective JSON objects; optional permissions are not described as granted. The name comes from defaultLocale, without selecting the examiner computer locale. Install Path is a stored evidence value, not a path resolved on the examiner computer. Themes and other non-extension entries, package contents, and permission-change history are excluded. Profiles remain distinct; byte-identical macOS firmlink copies are deduplicated. User is blank when source paths do not identify an account. Public tests are synthetic; private corpus details are not published.'
                  " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                 ' profile folder, under its own name, inside a Desktop folder named from the '
+                 ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                  "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                  'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                  'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '

@@ -10,7 +10,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                    'category': 'Firefox',
                    'notes': 'One row per moz_historyvisits record, including redirects and downloads. Times are Unix microseconds. Transition labels follow Mozilla constants. Source Code is stored without inferring synchronization or who initiated a visit. Titles are current URL metadata, not necessarily their value at visit time. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic.'
                             " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                            ' profile folder, under its own name, inside a Desktop folder named from the '
+                            ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                             "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                             'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                             'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
@@ -38,7 +38,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                       'category': 'Firefox',
                       'notes': 'One row per place carrying download annotations. Metadata may be replaced by later downloads of the same URL and is not multiplied by visit rows. End Time is Unix milliseconds; annotation dates are Unix microseconds, not a download start time. State labels follow Mozilla constants. Deleted Flag is stored metadata, not a filesystem check. Invalid JSON is retained with a parse status. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic.'
                                " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                               ' profile folder, under its own name, inside a Desktop folder named from the '
+                               ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                                'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
@@ -66,7 +66,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                       'category': 'Firefox',
                       'notes': 'Only type 1 URL bookmarks are reported. Folders supply hierarchy and separators are omitted. Times are Unix microseconds. Default and synchronized bookmarks may be present; a bookmark does not establish a local manual save or visit. Broken and cyclic hierarchy references are marked. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic.'
                                " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                               ' profile folder, under its own name, inside a Desktop folder named from the '
+                               ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                                'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
@@ -95,7 +95,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                     'category': 'Firefox',
                     'notes': 'Access, creation and update times are Unix microseconds. Expiry is seconds before schema 16 and milliseconds from schema 16. The schema 17 migration initializes updateTime for existing rows, so it is not necessarily a server replacement time. Zero or invalid dates remain blank. Cookie access does not establish a top-level page visit. Origin attributes and flags are stored values. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic.'
                              " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                             ' profile folder, under its own name, inside a Desktop folder named from the '
+                             ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                              "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                              'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                              'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
@@ -124,7 +124,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                         'category': 'Firefox',
                         'notes': 'One row per form-history entry with linked sources in a JSON list. First and last used dates are Unix microseconds. Stored counters do not reconstruct individual submissions. Deletion tombstones are outside this artifact. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic.'
                                  " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                                 ' profile folder, under its own name, inside a Desktop folder named from the '
+                                 ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                  "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                  'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                                  'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
@@ -154,7 +154,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                          'category': 'Firefox',
                          'notes': 'One row per moz_places_metadata record. Dates and durations use milliseconds; scrolling distance uses pixels. Browser measurements do not establish attention, typed text or a complete session. Document Type is a stored integer. Search-query joins are outside this artifact. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic.'
                                   " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
-                                  ' profile folder, under its own name, inside a Desktop folder named from the '
+                                  ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                   "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                   'name for %S, so the pattern matches a folder on the Desktop whose name contains '
                                   'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
