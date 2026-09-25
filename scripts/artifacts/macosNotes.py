@@ -37,7 +37,17 @@ __artifacts_v2__ = {
                  "and protobuf walk are adapted "
                  "from the iLEAPP notes module, derived from Yogesh Khatri's "
                  "mac_apt Notes plugin (https://github.com/ydkhatri/mac_apt), "
-                 "MIT. The decode was verified against a private macOS Notes "
+                 "MIT. Needs Initial Fetch From Cloud (as stored) is "
+                 "ZNEEDSINITIALFETCHFROMCLOUD, blank when the store has no such "
+                 "column. On a private sample, every row with it set to 1 had no "
+                 "title, snippet, body, folder or dates, and the row with 0 had "
+                 "all of them. Its meaning is not established here; a "
+                 "third-party Notes tool describes such records as CloudKit "
+                 "records whose contents were never fetched and which Notes.app "
+                 "does not display (iangray001, 'applenotes-mcp NOTES.md', "
+                 "https://github.com/iangray001/applenotes-mcp/blob/"
+                 "74a2bb8d9e69d9ab254d10bd89830861dbec4011/NOTES.md#L100). "
+                 "The decode was verified against a private macOS Notes "
                  "sample; the public test image below holds no notes.",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": ["standard"],
@@ -130,7 +140,15 @@ def _pick_note_column(source, prefix, default):
     return best
 
 
-def _build_query(creation_col, account_col):
+def _has_note_column(source, name):
+    return bool(list(get_sqlite_db_records(
+        source,
+        "SELECT name FROM pragma_table_info('ZICCLOUDSYNCINGOBJECT') "
+        f"WHERE name = '{name}'")))
+
+
+def _build_query(creation_col, account_col, fetch_col):
+    fetch_expr = f'TabA.{fetch_col}' if fetch_col else 'NULL'
     return f'''
     SELECT
         TabA.{creation_col},
@@ -143,7 +161,8 @@ def _build_query(creation_col, account_col):
         TabA.ZPASSWORDHINT,
         CASE TabA.ZMARKEDFORDELETION WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
         CASE TabA.ZISPINNED WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
-        TabF.ZDATA
+        TabF.ZDATA,
+        {fetch_expr}
     FROM ZICCLOUDSYNCINGOBJECT TabA
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabB ON TabA.ZFOLDER = TabB.Z_PK
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabC ON TabA.{account_col} = TabC.Z_PK
@@ -156,7 +175,8 @@ def _build_query(creation_col, account_col):
 def notes(context):
     data_headers = (('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents',
                     'Folder', 'Account', ('Last Modified', 'datetime'), 'Password Protected',
-                    'Password Hint', 'Marked for Deletion', 'Pinned', 'Source File')
+                    'Password Hint', 'Marked for Deletion', 'Pinned',
+                    'Needs Initial Fetch From Cloud (as stored)', 'Source File')
     data_list = []
     read_sources = []
 
@@ -169,7 +189,10 @@ def notes(context):
         rows_here = 0
         try:
             query = _build_query(_pick_note_column(source, 'ZCREATIONDATE', 'ZCREATIONDATE1'),
-                                 _pick_note_column(source, 'ZACCOUNT', 'ZACCOUNT2'))
+                                 _pick_note_column(source, 'ZACCOUNT', 'ZACCOUNT2'),
+                                 'ZNEEDSINITIALFETCHFROMCLOUD'
+                                 if _has_note_column(source, 'ZNEEDSINITIALFETCHFROMCLOUD')
+                                 else None)
             for row in get_sqlite_db_records(source, query):
                 contents = ''
                 if row[6] == 'No' and row[10] is not None:
@@ -178,7 +201,8 @@ def notes(context):
                     convert_cocoa_core_data_ts_to_utc(row[0]), row[1] or '', row[2] or '',
                     contents, row[3] or '', row[4] or '',
                     convert_cocoa_core_data_ts_to_utc(row[5]), row[6] or '', row[7] or '',
-                    row[8] or '', row[9] or '', relative_source))
+                    row[8] or '', row[9] or '',
+                    row[11] if row[11] is not None else '', relative_source))
                 rows_here += 1
         except sqlite3.Error as exc:
             logfunc(f'Notes {relative_source}: {exc}')
