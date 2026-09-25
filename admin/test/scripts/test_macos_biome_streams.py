@@ -98,6 +98,15 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['Device (as stored)'], 'router-mac')
         self.assertEqual(row['GUID (as stored)'], 'wifi-guid')
 
+    def test_screentime_app_usage_fields(self):
+        """ScreenTime.AppUsage: Bundle ID is field 3, Event is field 1."""
+        data = _vi(1, 1) + _ld(3, b'com.google.Chrome')
+        row = _run(macosBiome.macosBiomeScreenTimeAppUsage, data)
+        self.assertEqual(row['Bundle ID'], 'com.google.Chrome')
+        self.assertEqual(row['Event (as stored)'], '1')
+        self.assertEqual(row['Record Time (UTC)'],
+                         datetime.datetime(2025, 1, 1, tzinfo=datetime.timezone.utc))
+
     def test_unreadable_timestamp_is_blank(self):
         # field 8 present but not eight bytes: no crash, blank time.
         meta = _ld(1, _vi(8, 5) + _ld(4, b'com.apple.news'))

@@ -1,4 +1,4 @@
-"""Records from six macOS Biome streams, for DLEAPP.
+"""Records from ten macOS Biome streams, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -412,6 +412,22 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": 'wifi',
     },
+    "macosBiomeScreenTimeAppUsage": {
+        "name": 'Biome ScreenTime App Usage',
+        "description": 'Per-app usage events from the ScreenTime.AppUsage Biome stream: record time, the app bundle ID, and the event code as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-25",
+        "last_update_date": "2026-09-25",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record is one protobuf message. Bundle ID is field 3 and Event (as stored) is field 1, as iLEAPP's biomeScreenTimeAppUsage module reads them (Reference: iLEAPP, scripts/artifacts/biomeStreams.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeStreams.py#L249-L259). Event (as stored) held an integer on every record measured and is reported as stored; its meaning is not documented, and iLEAPP's notes for the same stream say the same. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 370 rows from one user's local folder, so User and Sync Origin each held one value there; the rows name 18 distinct bundle IDs, Event (as stored) held 0 on 202 rows and 1 on 168, and Record Time fell in 2025 on every row.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/ScreenTime.AppUsage/local/*', '*/Biome/streams/*/ScreenTime.AppUsage/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'chart-bar',
+    },
 }
 
 from datetime import datetime, timezone
@@ -591,4 +607,13 @@ def macosBiomeDKWifi(context):
         return (_mac2001_double(first(f, 2)), text(first(_submessage(first(f, 1)), 1)),
                 text(first(_submessage(first(f, 4)), 3)), text(first(f, 5)))
     rows, source = _read(context, 'Biome Wi-Fi Connection Events', row_for)
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeScreenTimeAppUsage(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Bundle ID', 'Event (as stored)',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome ScreenTime App Usage', lambda f: (
+        text(first(f, 3)), text(first(f, 1))))
     return data_headers, rows, source
