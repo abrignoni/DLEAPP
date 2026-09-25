@@ -8,10 +8,11 @@ __artifacts_v2__ = {
                        "reaction labels where the message is one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "iMessage (macOS)",
-        "notes": "Every chat.db found is parsed, so a Mac with more than one "
+        "notes": "Rows are listed by message date, then message ROWID, then chat ROWID. "
+                 "Every chat.db found is parsed, so a Mac with more than one "
                  "user account reports each account's messages, tagged by "
                  "Source File. message.date/date_read/date_delivered are Mac "
                  "Absolute Time; the converter treats values above 1e15 as "
@@ -54,10 +55,11 @@ __artifacts_v2__ = {
                        "extraction.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "iMessage (macOS)",
-        "notes": "created_date/start_date are Mac Absolute Time in seconds, a "
+        "notes": "Rows are listed by created_date, then attachment ROWID, then message ROWID. "
+                 "created_date/start_date are Mac Absolute Time in seconds, a "
                  "different unit from the message table's dates. The stored "
                  "filename is a '~/Library/...' path; it is rewritten to a "
                  "'*/Library/...' pattern so the staged copy under the "
@@ -84,10 +86,11 @@ __artifacts_v2__ = {
                        "participant handles joined via chat_handle_join.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "iMessage (macOS)",
-        "notes": "Every chat.db found is parsed, tagged by Source File.",
+        "notes": "Participants are listed in chat_handle_join row order. "
+                 "Every chat.db found is parsed, tagged by Source File.",
         "paths": (
             "*/Library/Messages/chat.db*",
         ),
@@ -200,7 +203,7 @@ _MESSAGES_QUERY = """
     LEFT JOIN handle h ON m.handle_id = h.ROWID
     LEFT JOIN chat_message_join cmj ON cmj.message_id = m.ROWID
     LEFT JOIN chat c ON c.ROWID = cmj.chat_id
-    ORDER BY m.date
+    ORDER BY m.date, m.ROWID, cmj.chat_id
 """
 
 
@@ -272,7 +275,7 @@ _ATTACHMENTS_QUERY = """
     FROM attachment a
     LEFT JOIN message_attachment_join maj ON maj.attachment_id = a.ROWID
     LEFT JOIN message m ON m.ROWID = maj.message_id
-    ORDER BY a.created_date
+    ORDER BY a.created_date, a.ROWID, maj.message_id
 """
 
 
@@ -358,7 +361,8 @@ def imessageChats(context):
             chat_pk, guid, chat_identifier, display_name, service_name, style, is_archived = row
             participants = [r[0] for r in database.execute(
                 "SELECT h.id FROM chat_handle_join chj "
-                "JOIN handle h ON h.ROWID = chj.handle_id WHERE chj.chat_id = ?",
+                "JOIN handle h ON h.ROWID = chj.handle_id WHERE chj.chat_id = ? "
+                "ORDER BY chj.ROWID",
                 (chat_pk,))]
             data_list.append((
                 chat_identifier or "", display_name or "", service_name or "",
