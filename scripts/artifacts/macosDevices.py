@@ -57,8 +57,11 @@ __artifacts_v2__ = {
                  "when letter case is ignored. When a logical "
                  "extraction holds the same file under Users/ and under "
                  "System/Volumes/Data/Users/, a second copy byte-identical to the first is not "
-                 "read again, and is counted in the run log.",
-        "paths": ('*/Users/*/Library/Preferences/com.apple.iPod.plist',),
+                 "read again, and is counted in the run log."
+                 " User is the folder after Users in the source path, or root under private/var/root,"
+                 " and is blank when the input is one user's home folder whose path names no user, as"
+                 " in an acquisition of a single user folder.",
+        "paths": ('*/Library/Preferences/com.apple.iPod.plist',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "smartphone",
         "sample_data": {

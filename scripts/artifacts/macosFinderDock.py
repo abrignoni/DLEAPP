@@ -30,10 +30,14 @@ __artifacts_v2__ = {
                  " each image come from one user's file, so User holds one value there. When a logical"
                  " extraction holds the same file under Users/ and under "
                  "System/Volumes/Data/Users/, a second copy byte-identical to the first is not "
-                 "read again, and is counted in the run log. Reference: mac_alias (dmgbuild), "
+                 "read again, and is counted in the run log."
+                 " User is the folder after Users in the source path, or root under private/var/root,"
+                 " and is blank when the input is one user's home folder whose path names no user, as"
+                 " in an acquisition of a single user folder."
+                 " Reference: mac_alias (dmgbuild), "
                  "bookmark.py, "
                  "https://github.com/dmgbuild/mac_alias/blob/d0c076b4562541c1509d9874f42880378245d268/src/mac_alias/bookmark.py#L128-L169.",
-        "paths": ('*/Users/*/Library/Preferences/com.apple.finder.plist',),
+        "paths": ('*/Library/Preferences/com.apple.finder.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "folder",
         "sample_data": {
@@ -61,8 +65,11 @@ __artifacts_v2__ = {
                  "recent-apps tiles, 21 of the 22 with a bundle identifier. All rows on each image "
                  "come from one user, so User holds one value there. When a logical extraction holds "
                  "the same file under Users/ and under System/Volumes/Data/Users/, a second copy "
-                 "byte-identical to the first is not read again, and is counted in the run log.",
-        "paths": ('*/Users/*/Library/Preferences/com.apple.dock.plist',),
+                 "byte-identical to the first is not read again, and is counted in the run log."
+                 " User is the folder after Users in the source path, or root under private/var/root,"
+                 " and is blank when the input is one user's home folder whose path names no user, as"
+                 " in an acquisition of a single user folder.",
+        "paths": ('*/Library/Preferences/com.apple.dock.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "layout-sidebar",
         "sample_data": {
