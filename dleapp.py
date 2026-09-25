@@ -241,6 +241,19 @@ def main():
                               "database key itself, or the path to a file holding either. A macOS "
                               "account login password will not work. Give the flag with no value "
                               "to be prompted without the secret reaching your shell history."))
+    parser.add_argument('--threema-password', dest='threema_password', required=False, nargs='?',
+                        const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        help=("Local password for a Threema Desktop profile. DLEAPP runs the "
+                              "Argon2id key derivation from keystorage.bin to recover the database "
+                              "key. Accepts the password itself or a path to a file holding it. "
+                              "Give the flag with no value to be prompted without it reaching your "
+                              "shell history. Needs the argon2-cffi and PyNaCl packages."))
+    parser.add_argument('--threema-key', dest='threema_key', required=False, nargs='?',
+                        const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        help=("The 64 character hexadecimal SQLCipher database key for Threema "
+                              "Desktop, for when it was recovered by other means. Accepts the key "
+                              "itself or a path to a file holding it. Prefer --threema-password. "
+                              "An already-decrypted threema.sqlite needs neither."))
 
 
     # Check if no arguments were provided
@@ -385,6 +398,9 @@ def main():
     # Gather any application secrets now, while the terminal is still ours
     try:
         Context.set_app_secret('signal', resolve_supplied_secret(args.signal_key, 'Signal key'))
+        Context.set_app_secret('threema', resolve_supplied_secret(args.threema_key, 'Threema key'))
+        Context.set_app_secret('threema_password',
+                               resolve_supplied_secret(args.threema_password, 'Threema password'))
     except argparse.ArgumentError as secret_error:
         print(secret_error)
         return
