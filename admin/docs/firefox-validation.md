@@ -20,3 +20,8 @@ evidence integrity, and continuation after a corrupt store.
 
 Source definitions are linked at pinned Mozilla revisions in artifact metadata.
 Windows and Linux path tests do not establish real-image validation on those systems.
+
+Profiles that Firefox's Refresh copied to the Desktop are read through a Desktop
+pattern beside the profile-folder patterns; the artifact notes cite the Mozilla source
+for the folder layout. The synthetic suite covers English and German folder names on
+macOS and Windows paths.
