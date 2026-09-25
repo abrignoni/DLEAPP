@@ -81,7 +81,7 @@ def tccAccess(context):
                     "ELSE indirect_object_identifier END") if 'indirect_object_identifier' in cols else "''"
             query = (f"SELECT {last_mod}, REPLACE(service, 'kTCCService', ''), client, "
                      f"{client_type}, {access_sql}, {auth_reason}, {iobj} "
-                     f"FROM access ORDER BY {last_mod if last_mod != 'NULL' else 'client'}")
+                     f"FROM access ORDER BY {last_mod if last_mod != 'NULL' else 'client'}, access.rowid")
             for row in database.execute(query):
                 last_modified = convert_unix_ts_to_utc(row[0]) if row[0] else ''
                 data_list.append((last_modified, row[1], row[2], row[3], row[4],

@@ -365,7 +365,7 @@ def knowledgeCInFocus(context):
     data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'),
                     'App Bundle ID', 'Duration (s)', 'Source File')
     query = ("SELECT ZSTARTDATE, ZENDDATE, ZVALUESTRING FROM ZOBJECT "
-             "WHERE ZSTREAMNAME = '/app/inFocus' ORDER BY ZSTARTDATE")
+             "WHERE ZSTREAMNAME = '/app/inFocus' ORDER BY ZSTARTDATE, ZOBJECT.rowid")
     data_list, sources = _collect(context, query,
         lambda r: (_cd(r[0]), _cd(r[1]), r[2], _dur(r[0], r[1])))
     return data_headers, data_list, sources
@@ -376,7 +376,7 @@ def knowledgeCAppUsage(context):
     data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'),
                     'Application', 'Duration (s)', 'Source File')
     query = ("SELECT ZSTARTDATE, ZENDDATE, ZVALUESTRING FROM ZOBJECT "
-             "WHERE ZSTREAMNAME = '/app/usage' ORDER BY ZSTARTDATE")
+             "WHERE ZSTREAMNAME = '/app/usage' ORDER BY ZSTARTDATE, ZOBJECT.rowid")
     data_list, sources = _collect(context, query,
         lambda r: (_cd(r[0]), _cd(r[1]), r[2], _dur(r[0], r[1])))
     return data_headers, data_list, sources
@@ -423,7 +423,7 @@ def knowledgeCAppIntents(context):
                        sm.Z_DKINTENTMETADATAKEY__DERIVEDINTENTIDENTIFIER
                 FROM ZOBJECT o
                 LEFT JOIN ZSTRUCTUREDMETADATA sm ON o.ZSTRUCTUREDMETADATA = sm.Z_PK
-                WHERE o.ZSTREAMNAME = '/app/intents' ORDER BY o.ZSTARTDATE''')
+                WHERE o.ZSTREAMNAME = '/app/intents' ORDER BY o.ZSTARTDATE, o.rowid, sm.rowid''')
     data_list, sources = _collect(context, query,
         lambda r: (_cd(r[0]), r[1] or '', r[2] or '', r[3] or '',
                    '' if r[4] is None else r[4], r[5] or ''))
@@ -438,7 +438,7 @@ def knowledgeCNotificationUsage(context):
                        sm.Z_DKNOTIFICATIONUSAGEMETADATAKEY__BUNDLEID
                 FROM ZOBJECT o
                 LEFT JOIN ZSTRUCTUREDMETADATA sm ON o.ZSTRUCTUREDMETADATA = sm.Z_PK
-                WHERE o.ZSTREAMNAME = '/notification/usage' ORDER BY o.ZSTARTDATE''')
+                WHERE o.ZSTREAMNAME = '/notification/usage' ORDER BY o.ZSTARTDATE, o.rowid, sm.rowid''')
     data_list, sources = _collect(context, query,
         lambda r: (_cd(r[0]), r[1] or '', r[2] or ''))
     return data_headers, data_list, sources
@@ -474,7 +474,7 @@ def _state_rows(context, stream, status_header, off_label, on_label):
     data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'),
                     status_header, 'Source File')
     query = (f"SELECT ZSTARTDATE, ZENDDATE, ZVALUEINTEGER FROM ZOBJECT "
-             f"WHERE ZSTREAMNAME = '{stream}' ORDER BY ZSTARTDATE")
+             f"WHERE ZSTREAMNAME = '{stream}' ORDER BY ZSTARTDATE, ZOBJECT.rowid")
 
     def _row(r):
         status = {0: off_label, 1: on_label}.get(r[2], r[2] if r[2] is not None else '')

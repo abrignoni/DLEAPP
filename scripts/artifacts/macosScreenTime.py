@@ -289,7 +289,7 @@ def macosScreenTimeBlocks(context):
              pickups) in _select(path, 'ZUSAGEBLOCK', (
                  'Z_PK', 'ZSCREENTIMEINSECONDS', 'ZFIRSTPICKUPDATE', 'ZLONGESTSESSIONSTARTDATE',
                  'ZLONGESTSESSIONENDDATE', 'ZLASTEVENTDATE',
-                 'ZNUMBEROFPICKUPSWITHOUTAPPLICATIONUSAGE'), order='ZSTARTDATE'):
+                 'ZNUMBEROFPICKUPSWITHOUTAPPLICATIONUSAGE'), order='ZSTARTDATE, Z_PK'):
             rows.append(store.block(block_id) + (
                 _text(screen_time), mac_absolute_utc(first), mac_absolute_utc(longest_start),
                 mac_absolute_utc(longest_end), mac_absolute_utc(last), _text(pickups))

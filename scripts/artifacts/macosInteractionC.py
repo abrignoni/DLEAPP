@@ -56,7 +56,7 @@ def interactionCContacts(context):
                        i.ZISRESPONSE, i.ZGROUPNAME
                 FROM ZINTERACTIONS i
                 LEFT JOIN ZCONTACTS ct ON i.ZSENDER = ct.Z_PK
-                ORDER BY i.ZSTARTDATE''')
+                ORDER BY i.ZSTARTDATE, i.rowid, ct.rowid''')
 
     for source in [str(f) for f in context.get_files_found() if str(f).endswith('interactionC.db')]:
         database = open_sqlite_db_readonly(source)

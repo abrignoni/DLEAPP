@@ -405,7 +405,7 @@ _CLOUDTABS_QUERY = """
         ctd.device_uuid, ctd.last_modified, ctd.is_ephemeral_device
     FROM cloud_tabs ct
     LEFT JOIN cloud_tab_devices ctd ON ctd.device_uuid = ct.device_uuid
-    ORDER BY ctd.last_modified DESC
+    ORDER BY ctd.last_modified DESC, ct.rowid, ctd.rowid
 """
 
 
