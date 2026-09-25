@@ -20,7 +20,7 @@ __artifacts_v2__ = {
                        "and its creation and modification dates.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "Notes (macOS)",
         "notes": "Every NoteStore.sqlite found is parsed, tagged by Source "
@@ -31,7 +31,10 @@ __artifacts_v2__ = {
                  "ZICNOTEDATA row carries no body blob (ZDATA null). Times are "
                  "Mac Absolute Time (Core Data), seconds since 2001-01-01 UTC, "
                  "rendered in UTC; the -wal sidecar is read alongside the "
-                 "database. The decompression and protobuf walk are adapted "
+                 "database. Within each NoteStore.sqlite, rows are listed by "
+                 "creation date, then by the note's Z_PK, then by the "
+                 "ZICNOTEDATA row's Z_PK. The decompression "
+                 "and protobuf walk are adapted "
                  "from the iLEAPP notes module, derived from Yogesh Khatri's "
                  "mac_apt Notes plugin (https://github.com/ydkhatri/mac_apt), "
                  "MIT. The decode was verified against a private macOS Notes "
@@ -145,6 +148,7 @@ def _build_query(creation_col, account_col):
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabB ON TabA.ZFOLDER = TabB.Z_PK
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabC ON TabA.{account_col} = TabC.Z_PK
     INNER JOIN ZICNOTEDATA TabF ON TabF.ZNOTE = TabA.Z_PK
+    ORDER BY TabA.{creation_col}, TabA.Z_PK, TabF.Z_PK
     '''
 
 
