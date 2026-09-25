@@ -18,7 +18,7 @@ __artifacts_v2__ = {
                  "RegisteredDevices, read from its GarminDevice.xml and AdditionalInfo.plist. "
                  "Model, Part Number and Software Version are the Description, PartNumber and "
                  "SoftwareVersion of the XML's Model element, and Unit ID is its Id, or the "
-                 "folder name when the XML has none; the XML follows Garmin's published "
+                 "folder name when the XML has none; the XML declares Garmin's published "
                  "GarminDevice v2 schema. Serial Number, Friendly Name, Registration Email, "
                  "Registration User Name, Market Segment and Auto Backup are the "
                  "device_serial_number, friendly_name, registration_email, "
