@@ -512,6 +512,11 @@ def process(casedata):
             with open(signal_key, 'r', encoding='utf-8', errors='replace') as signal_key_file:
                 signal_key = signal_key_file.read(4096).strip()
         Context.set_app_secret('signal', signal_key or None)
+        threema_password = threema_password_var.get().strip()
+        if threema_password and os.path.isfile(threema_password):
+            with open(threema_password, 'r', encoding='utf-8', errors='replace') as threema_pw_file:
+                threema_password = threema_pw_file.read(4096).strip()
+        Context.set_app_secret('threema_password', threema_password or None)
         wrap_text = True
         bottom_frame.pack_forget()
         mlist_frame.pack_forget()
@@ -1106,6 +1111,78 @@ def open_signal_key_dialog():
         dialog.grab_set()
 
 
+threema_password_var = tk.StringVar(value='')
+
+
+def open_threema_password_dialog():
+    '''Modal dialog to supply a Threema Desktop local password.'''
+    dialog = tk.Toplevel(main_window)
+    dialog.transient(main_window)
+    dialog.title('Threema Desktop password')
+    dialog.configure(bg=theme_bgcolor)
+    dialog.resizable(False, False)
+    width, height = 470, 300
+    main_window.update_idletasks()
+    pos_x = main_window.winfo_x() + (main_window.winfo_width() - width) // 2
+    pos_y = main_window.winfo_y() + (main_window.winfo_height() - height) // 2
+    dialog.geometry(f'{width}x{height}+{pos_x}+{pos_y}')
+
+    explanation = (
+        "Threema Desktop encrypts its database. Enter the profile's local "
+        "password and DLEAPP recovers the database key from keystorage.bin by "
+        "running its Argon2id key derivation (needs the argon2-cffi and PyNaCl "
+        "packages).\n\n"
+        "Enter one of:\n"
+        "  •  the local password, or\n"
+        "  •  the path to a file holding it.\n\n"
+        "An already-decrypted threema.sqlite needs nothing here."
+    )
+    ttk.Label(dialog, text=explanation, wraplength=width - 28,
+              justify='left').pack(anchor='w', padx=14, pady=(12, 8))
+
+    entry_var = tk.StringVar(value=threema_password_var.get())
+    entry = ttk.Entry(dialog, textvariable=entry_var, show='•')
+    entry.pack(fill='x', padx=14)
+
+    controls = ttk.Frame(dialog)
+    controls.pack(fill='x', padx=14, pady=(6, 0))
+    show_var = tk.BooleanVar(value=False)
+    ttk.Checkbutton(controls, text='Show', variable=show_var,
+                    command=lambda: entry.config(show='' if show_var.get() else '•')
+                    ).pack(side='left')
+
+    def browse_for_file():
+        chosen = tk_filedialog.askopenfilename(
+            parent=dialog, title='Select a file containing the password')
+        if chosen:
+            entry_var.set(chosen)
+    ttk.Button(controls, text='…or choose a file',
+               command=browse_for_file).pack(side='left', padx=(10, 0))
+
+    button_row = ttk.Frame(dialog)
+    button_row.pack(fill='x', padx=14, pady=14, side='bottom')
+
+    def save_and_close():
+        threema_password_var.set(entry_var.get().strip())
+        dialog.destroy()
+
+    def clear_and_close():
+        threema_password_var.set('')
+        dialog.destroy()
+
+    ttk.Button(button_row, text='Save', command=save_and_close).pack(side='right')
+    ttk.Button(button_row, text='Cancel', command=dialog.destroy).pack(side='right', padx=(0, 6))
+    ttk.Button(button_row, text='Clear', command=clear_and_close).pack(side='left')
+
+    entry.focus_set()
+    entry.bind('<Return>', lambda _event: save_and_close())
+    dialog.bind('<Escape>', lambda _event: dialog.destroy())
+    if is_platform_macos():
+        dialog.grab_set_global()
+    else:
+        dialog.grab_set()
+
+
 app_secret_row = ttk.Frame(output_frame)
 app_secret_row.pack(fill='x', padx=5, pady=(0, 4))
 # Right-aligned so the button sits under the Browse column and fills the row's
@@ -1117,13 +1194,23 @@ signal_key_status = ttk.Label(app_secret_group, text='not set')
 signal_key_status.pack(side='right')
 ttk.Button(app_secret_group, text='Signal key…',
            command=open_signal_key_dialog).pack(side='right', padx=(8, 8))
+threema_password_status = ttk.Label(app_secret_group, text='not set')
+threema_password_status.pack(side='right')
+ttk.Button(app_secret_group, text='Threema password…',
+           command=open_threema_password_dialog).pack(side='right', padx=(8, 8))
 
 
 def _update_signal_key_status(*_args):
     signal_key_status.config(text='✓ set' if signal_key_var.get().strip() else 'not set')
 
 
+def _update_threema_password_status(*_args):
+    threema_password_status.config(
+        text='✓ set' if threema_password_var.get().strip() else 'not set')
+
+
 signal_key_var.trace_add('write', _update_signal_key_status)
+threema_password_var.trace_add('write', _update_threema_password_status)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
