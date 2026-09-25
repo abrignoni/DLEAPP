@@ -160,6 +160,35 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 323 rows",
         },
     },
+    "knowledgeCAppMediaUsage": {
+        "name": "KnowledgeC - App Media Usage",
+        "description": "/app/mediaUsage events from knowledgeC.db: the app bundle "
+                       "identifier, start and end times, and the URL and media URL "
+                       "from the structured metadata where present.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-25",
+        "last_update_date": "2026-09-25",
+        "requirements": "none",
+        "category": "KnowledgeC (macOS)",
+        "notes": "One row per ZOBJECT record whose ZSTREAMNAME is /app/mediaUsage. "
+                 "App Bundle ID is ZVALUESTRING; URL and Media URL are the "
+                 "structured metadata columns Z_DKAPPMEDIAUSAGEMETADATAKEY__URL "
+                 "and Z_DKAPPMEDIAUSAGEMETADATAKEY__MEDIAURL as stored, and are "
+                 "blank when the store has no such column. What media activity a "
+                 "row records is not established. Times are Mac Absolute Time "
+                 "(Core Data) in UTC; the -wal sidecar is read alongside the "
+                 "database. Public regression cases are independently authored "
+                 "synthetic data; local private validation details are not "
+                 "published. Sarah Edwards' APOLLO also reads this stream, in its "
+                 "knowledge_app_media_usage module: "
+                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_app_media_usage.txt#L59-L101",
+        "paths": ('*/Knowledge/knowledgeC.db*',),
+        "output_types": ["standard"],
+        "artifact_icon": "player-play",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows",
+        },
+    },
     "knowledgeCMediaPlaying": {
         "name": "KnowledgeC - Media Playing",
         "description": "/media/nowPlaying events from knowledgeC.db: playing "
@@ -292,6 +321,43 @@ def _dur(start, end):
     if start is None or end is None:
         return ''
     return int(round(end - start))
+
+
+_MEDIA_USAGE_KEYS = ('Z_DKAPPMEDIAUSAGEMETADATAKEY__URL',
+                     'Z_DKAPPMEDIAUSAGEMETADATAKEY__MEDIAURL')
+
+
+@artifact_processor
+def knowledgeCAppMediaUsage(context):
+    data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'),
+                    'App Bundle ID', 'URL', 'Media URL', 'Duration (s)', 'Source File')
+    data_list = []
+    read_sources = []
+    for source in _kc_sources(context):
+        database = open_sqlite_db_readonly(source)
+        if database is None:
+            continue
+        relative_source = context.get_relative_path(source)
+        try:
+            present = {row[1] for row in database.execute('PRAGMA table_info(ZSTRUCTUREDMETADATA)')}
+            wanted = ', '.join(f'sm."{key}"' if key in present else 'NULL'
+                               for key in _MEDIA_USAGE_KEYS)
+            join = ('LEFT JOIN ZSTRUCTUREDMETADATA sm ON o.ZSTRUCTUREDMETADATA = sm.Z_PK'
+                    if present else '')
+            rows = database.execute(
+                f'SELECT o.ZSTARTDATE, o.ZENDDATE, o.ZVALUESTRING, {wanted} FROM ZOBJECT o '
+                f"{join} WHERE o.ZSTREAMNAME = '/app/mediaUsage' ORDER BY o.ZSTARTDATE").fetchall()
+        except sqlite3.OperationalError as exc:
+            logfunc(f'knowledgeC {relative_source}: {exc}')
+            continue
+        finally:
+            database.close()
+        for row in rows:
+            data_list.append((_cd(row[0]), _cd(row[1]), row[2] or '', row[3] or '',
+                              row[4] or '', _dur(row[0], row[1]), relative_source))
+        if rows:
+            read_sources.append(relative_source)
+    return data_headers, data_list, "\n".join(read_sources)
 
 
 @artifact_processor
