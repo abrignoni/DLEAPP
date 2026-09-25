@@ -134,7 +134,7 @@ def _cache_rows(path):
     """Rows from a Calendar Cache (Core Data) store."""
     item_columns = _columns(path, 'ZCALENDARITEM', _CACHE_ITEM_COLUMNS)
     records = get_sqlite_db_records(
-        path, f'SELECT {item_columns} FROM ZCALENDARITEM ORDER BY ZSTARTDATE') or []
+        path, f'SELECT {item_columns} FROM ZCALENDARITEM ORDER BY ZSTARTDATE, Z_PK') or []
     entities = {row[0]: row[1] for row in
                 get_sqlite_db_records(path, 'SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY') or []}
     nodes = {}
