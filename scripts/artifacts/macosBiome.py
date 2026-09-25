@@ -364,10 +364,60 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "wifi",
     },
+    "macosBiomeSiriInteractionHistory": {
+        "name": 'Biome Siri Interaction History',
+        "description": 'Records from the Siri.Remembers.InteractionHistory Biome stream: record time, the interaction time, the app bundle ID, and the intent class and identifiers as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-25",
+        "last_update_date": "2026-09-25",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Reads the Siri.Remembers.InteractionHistory Biome stream. Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record holds one field 1 submessage. Interaction Time (UTC) is that submessage's field 8, eight bytes read as a little-endian double of seconds since 1 January 1970 UTC; Bundle ID, Intent Class (as stored), GUID (as stored) and Interaction GUID (as stored) are its fields 4, 2, 1 and 13, as iLEAPP's biomeSiriRemembersInteractionHistory module reads them (Reference: iLEAPP, scripts/artifacts/biomeSiriRemembersInteractionHistory.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeSiriRemembersInteractionHistory.py#L139-L149). What each field records beyond the field name is not established, and the submessage's other fields are not reported. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 129 rows, all from one user's local folder, so User and Sync Origin each held one value there; Bundle ID held one value, com.apple.news, on all 129 rows; Interaction Time fell in 2025 on the rows checked. The Device.Wireless.Bluetooth and Siri.Remembers.CallHistory streams were also examined and held no written records on that extraction or on the extraction this artifact was built against, so no artifact is added for them here.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/Siri.Remembers.InteractionHistory/local/*', '*/Biome/streams/*/Siri.Remembers.InteractionHistory/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'message-circle',
+    },
+    "macosBiomeSiriMessageHistory": {
+        "name": 'Biome Siri Message History',
+        "description": 'Records from the Siri.Remembers.MessageHistory Biome stream: record time, the message time, direction as stored, the app bundle ID, chat and message identifiers, and the participants the record pairs by name.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-25",
+        "last_update_date": "2026-09-25",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Reads the Siri.Remembers.MessageHistory Biome stream. Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record holds one field 1 submessage and, at the top level, repeated field 2 items. Message Time (UTC) is the submessage's field 8, eight bytes read as a little-endian double of seconds since 1 January 1970 UTC; Direction (as stored), Bundle ID, Intent Class (as stored), Chat ID (as stored) and Message GUID (as stored) are its fields 6, 4, 2, 12 and 13, as iLEAPP's biomeSiriRemembersMessageHistory module reads them (Reference: iLEAPP, scripts/artifacts/biomeSiriRemembersMessageHistory.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeSiriRemembersMessageHistory.py#L148-L154). Participants (as stored) joins each top-level field 2 item as its field 1 name and the field 1 text of its field 2 entity, which that module reads as the parameter names and values (for example sender and recipients); what a value denotes is not established. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 4 rows from one user's local folder, so User and Sync Origin each held one value there, and on those 4 rows Direction (1), Bundle ID (com.apple.MobileSMS), Intent Class (INSendMessageIntent) and Chat ID each held one value; Message Time fell in 2025 on the rows checked.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/Siri.Remembers.MessageHistory/local/*', '*/Biome/streams/*/Siri.Remembers.MessageHistory/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'message-2',
+    },
+    "macosBiomeDKWifi": {
+        "name": 'Biome Wi-Fi Connection Events',
+        "description": 'Records from the _DKEvent.Wifi.Connection Biome stream: record time, the event time, the event, and the device and GUID as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-25",
+        "last_update_date": "2026-09-25",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Reads the _DKEvent.Wifi.Connection Biome stream. Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Event Time (UTC) is field 2, eight bytes read as a little-endian double of seconds since 1 January 2001 UTC (the same reference DLEAPP reports the record time in); Event (as stored) is field 1's field 1, Device (as stored) is field 4's field 3, and GUID (as stored) is field 5, as iLEAPP's biomeWifi module reads them (Reference: iLEAPP, scripts/artifacts/biomeWifi.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeWifi.py#L116-L124). This is a DuetKnowledge event stream, separate from the Device.Wireless.WiFi stream the Biome Wi-Fi Connections artifact reads. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 37 rows from one user's local folder, so User and Sync Origin each held one value there; Event (as stored) held /wifi/connection on the rows checked and Event Time fell in 2025.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/_DKEvent.Wifi.Connection/local/*', '*/Biome/streams/*/_DKEvent.Wifi.Connection/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'wifi',
+    },
 }
 
-from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.macos_biome import fields, first, stream_records, text
+from datetime import datetime, timezone
+
+from scripts.ilapfuncs import artifact_processor, logfunc, webkit_timestampsconv
+from scripts.macos_biome import double, fields, first, stream_records, text
 
 def _as_stored(value):
     return '' if value is None else str(value)
@@ -453,4 +503,92 @@ def macosBiomeWifi(context):
     data_headers = (('Record Time (UTC)', 'datetime'), 'SSID', 'Status', 'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome Wi-Fi Connections', lambda f: (
         text(first(f, 1)), _wifi_status(first(f, 2))))
+    return data_headers, rows, source
+
+
+def _submessage(value):
+    """Re-parse a length-delimited value as a nested message, or {} on failure."""
+    if isinstance(value, (bytes, bytearray)):
+        try:
+            return fields(value)
+        except ValueError:
+            return {}
+    return {}
+
+
+def _unix_double(value):
+    """An 8-byte little-endian double read as seconds since 1970 UTC, or ''."""
+    seconds = double(value)
+    if seconds is None:
+        return ''
+    try:
+        return datetime.fromtimestamp(seconds, tz=timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        return ''
+
+
+def _mac2001_double(value):
+    """An 8-byte little-endian double read as seconds since 2001 UTC, or ''."""
+    seconds = double(value)
+    if seconds is None:
+        return ''
+    try:
+        return webkit_timestampsconv(seconds)
+    except (OverflowError, OSError, ValueError):
+        return ''
+
+
+def _participants(found):
+    """Join each top-level field 2 item as 'name: value' from its field 1 and field 2 entity."""
+    parts = []
+    for item in found.get(2, []):
+        entry = _submessage(item)
+        name = text(first(entry, 1))
+        value = text(first(_submessage(first(entry, 2)), 1))
+        if name or value:
+            parts.append(f'{name}: {value}' if name else value)
+    return '; '.join(parts)
+
+
+@artifact_processor
+def macosBiomeSiriInteractionHistory(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), ('Interaction Time (UTC)', 'datetime'),
+                    'Bundle ID', 'Intent Class (as stored)', 'GUID (as stored)',
+                    'Interaction GUID (as stored)', 'User', 'Sync Origin',
+                    'Source File', 'Record Offset')
+
+    def row_for(f):
+        meta = _submessage(first(f, 1))
+        return (_unix_double(first(meta, 8)), text(first(meta, 4)), text(first(meta, 2)),
+                text(first(meta, 1)), text(first(meta, 13)))
+    rows, source = _read(context, 'Biome Siri Interaction History', row_for)
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeSiriMessageHistory(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), ('Message Time (UTC)', 'datetime'),
+                    'Direction (as stored)', 'Bundle ID', 'Intent Class (as stored)',
+                    'Chat ID (as stored)', 'Message GUID (as stored)', 'Participants (as stored)',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+
+    def row_for(f):
+        meta = _submessage(first(f, 1))
+        return (_unix_double(first(meta, 8)), _as_stored(first(meta, 6)), text(first(meta, 4)),
+                text(first(meta, 2)), text(first(meta, 12)), text(first(meta, 13)),
+                _participants(f))
+    rows, source = _read(context, 'Biome Siri Message History', row_for)
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeDKWifi(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), ('Event Time (UTC)', 'datetime'),
+                    'Event (as stored)', 'Device (as stored)', 'GUID (as stored)', 'User',
+                    'Sync Origin', 'Source File', 'Record Offset')
+
+    def row_for(f):
+        return (_mac2001_double(first(f, 2)), text(first(_submessage(first(f, 1)), 1)),
+                text(first(_submessage(first(f, 4)), 3)), text(first(f, 5)))
+    rows, source = _read(context, 'Biome Wi-Fi Connection Events', row_for)
     return data_headers, rows, source
