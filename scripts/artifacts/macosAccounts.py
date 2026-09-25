@@ -27,8 +27,11 @@ __artifacts_v2__ = {
                  "has no LoggedIn or AccountUUID value, so Logged In and Account UUID are empty there."
                  " When a logical extraction holds the same file under Users/ and under "
                  "System/Volumes/Data/Users/, a second copy byte-identical to the first is not "
-                 "read again, and is counted in the run log.",
-        "paths": ('*/Users/*/Library/Preferences/MobileMeAccounts.plist',),
+                 "read again, and is counted in the run log."
+                 " User is the folder after Users in the source path, or root under private/var/root,"
+                 " and is blank when the input is one user's home folder whose path names no user, as"
+                 " in an acquisition of a single user folder.",
+        "paths": ('*/Library/Preferences/MobileMeAccounts.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
         "sample_data": {
@@ -62,10 +65,14 @@ __artifacts_v2__ = {
                  "holds one value there. When a logical extraction holds the same file under Users/ "
                  "and under System/Volumes/Data/Users/, a second copy whose database and -wal "
                  "file are both byte-identical to the first is not read again, and is counted in "
-                 "the run log. Reference: Apple, 'NSDate', "
+                 "the run log."
+                 " User is the folder after Users in the source path, or root under private/var/root,"
+                 " and is blank when the input is one user's home folder whose path names no user, as"
+                 " in an acquisition of a single user folder."
+                 " Reference: Apple, 'NSDate', "
                  "https://developer.apple.com/documentation/foundation/nsdate.",
-        "paths": ('*/Users/*/Library/Accounts/Accounts3.sqlite*',
-                  '*/Users/*/Library/Accounts/Accounts4.sqlite*'),
+        "paths": ('*/Library/Accounts/Accounts3.sqlite*',
+                  '*/Library/Accounts/Accounts4.sqlite*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "users",
         "sample_data": {
