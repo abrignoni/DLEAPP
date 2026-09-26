@@ -6,6 +6,7 @@ real Biome stream. Every value here is authored for the test.
 """
 import datetime
 import pathlib
+import plistlib
 import struct
 import sys
 import unittest
@@ -59,6 +60,28 @@ def _run(processor, data):
 
 UNIX_2025 = datetime.datetime(2025, 6, 1, 12, 0, tzinfo=datetime.timezone.utc)
 MAC_2025 = datetime.datetime(2025, 6, 1, 12, 0, tzinfo=datetime.timezone.utc)
+
+
+def _interaction_archive(direction, status, start):
+    """A binary NSKeyedArchiver plist holding one INInteraction, authored for the test."""
+    seconds = (start - datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc)).total_seconds()
+    uid = plistlib.UID
+    objects = [
+        '$null',
+        {'$class': uid(6), 'dateInterval': uid(2), 'direction': direction,
+         'intentHandlingStatus': status, 'groupIdentifier': uid(4), 'identifier': uid(5),
+         'intent': uid(0)},
+        {'$class': uid(7), 'NS.startDate': uid(3), 'NS.endDate': uid(3), 'NS.duration': 0.0},
+        {'$class': uid(8), 'NS.time': seconds},
+        'group-1',
+        'interaction-1',
+        {'$classname': 'INInteraction', '$classes': ['INInteraction', 'NSObject']},
+        {'$classname': 'NSDateInterval', '$classes': ['NSDateInterval', 'NSObject']},
+        {'$classname': 'NSDate', '$classes': ['NSDate', 'NSObject']},
+    ]
+    archive = {'$version': 100000, '$archiver': 'NSKeyedArchiver', '$top': {'root': uid(1)},
+               '$objects': objects}
+    return plistlib.dumps(archive, fmt=plistlib.PlistFormat.FMT_BINARY)
 
 
 class BiomeStreamMappingTest(unittest.TestCase):
@@ -115,6 +138,37 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['Field 2 (as stored)'], '131090')
         self.assertEqual(row['Record Time (UTC)'],
                          datetime.datetime(2025, 1, 1, tzinfo=datetime.timezone.utc))
+
+    def test_app_intent_fields_and_interaction(self):
+        """App.Intent: fields 2, 4 and 5, and the INInteraction archived in field 8."""
+        data = (_ld(2, b'com.apple.MobileSMS') + _ld(4, b'INSendMessageIntent')
+                + _ld(5, b'SendMessage') + _ld(8, _interaction_archive(2, 3, MAC_2025)))
+        row = _run(macosBiome.macosBiomeAppIntent, data)
+        self.assertEqual(row['Interval Start (UTC)'], MAC_2025)
+        self.assertEqual(row['Bundle ID'], 'com.apple.MobileSMS')
+        self.assertEqual(row['Intent Class (as stored)'], 'INSendMessageIntent')
+        self.assertEqual(row['Action (as stored)'], 'SendMessage')
+        self.assertEqual(row['Direction'], 'Incoming (2)')
+        self.assertEqual(row['Handling Status'], 'Success (3)')
+        self.assertEqual(row['Group ID (as stored)'], 'group-1')
+        self.assertEqual(row['Interaction ID (as stored)'], 'interaction-1')
+
+    def test_app_intent_number_outside_the_enum_is_shown_alone(self):
+        """A stored number INInteraction.h does not name is reported as the number."""
+        data = _ld(2, b'com.apple.news') + _ld(8, _interaction_archive(9, 42, MAC_2025))
+        row = _run(macosBiome.macosBiomeAppIntent, data)
+        self.assertEqual(row['Direction'], '9')
+        self.assertEqual(row['Handling Status'], '42')
+
+    def test_app_intent_without_field_8_keeps_the_row(self):
+        """No keyed archive: the row is kept and the interaction columns are blank."""
+        data = _ld(2, b'com.apple.news') + _ld(4, b'TodayIntent')
+        row = _run(macosBiome.macosBiomeAppIntent, data)
+        self.assertEqual(row['Bundle ID'], 'com.apple.news')
+        self.assertEqual(row['Intent Class (as stored)'], 'TodayIntent')
+        self.assertEqual(row['Interval Start (UTC)'], '')
+        self.assertEqual(row['Direction'], '')
+        self.assertEqual(row['Interaction ID (as stored)'], '')
 
     def test_unreadable_timestamp_is_blank(self):
         # field 8 present but not eight bytes: no crash, blank time.
