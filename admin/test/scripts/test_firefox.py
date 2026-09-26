@@ -148,6 +148,26 @@ class FirefoxTest(unittest.TestCase):
         self.assertEqual(row[1].microsecond, 456000)
         self.assertEqual(row[6:9], ('https://example.test/a', 333, None))
 
+    def test_favicons_links_then_unlinked_root_icons(self):
+        """Linked icons give one row per link; an unlinked icon gets its own row, page blank."""
+        self.db.executescript('''
+            CREATE TABLE moz_pages_w_icons(id INTEGER PRIMARY KEY, page_url TEXT, page_url_hash INTEGER);
+            CREATE TABLE moz_icons(id INTEGER PRIMARY KEY, icon_url TEXT, fixed_icon_url_hash INTEGER,
+                width INTEGER, root INTEGER, color INTEGER, expire_ms INTEGER, flags INTEGER, data BLOB);
+            CREATE TABLE moz_icons_to_pages(page_id INTEGER, icon_id INTEGER, expire_ms INTEGER);
+            INSERT INTO moz_pages_w_icons VALUES(1, 'https://example.test/page', 0);
+            INSERT INTO moz_icons VALUES(7, 'https://cdn.example.test/icon.png', 0, 32, 0, NULL,
+                1704067200123, 1, X'00010203');
+            INSERT INTO moz_icons VALUES(8, 'https://example.test/favicon.ico', 0, 65535, 1, NULL, 0, 0, X'AA');
+            INSERT INTO moz_icons_to_pages VALUES(1, 7, 1704153600000);
+        ''')
+        linked, root = list(firefox.favicons(self.db))
+        self.assertEqual(linked[0], datetime(2024, 1, 1, 0, 0, 0, 123000, tzinfo=timezone.utc))
+        self.assertEqual(linked[1], datetime(2024, 1, 2, tzinfo=timezone.utc))
+        self.assertEqual(linked[2:], ('https://example.test/page', 'https://cdn.example.test/icon.png',
+                                      32, 0, 1, 4, 7))
+        self.assertEqual(root, ('', '', '', 'https://example.test/favicon.ico', 65535, 1, 0, 1, 8))
+
     def test_patterns_match_profiles_and_sidecars_once(self):
         for artifact in firefoxBrowser.__artifacts_v2__.values():
             filename = artifact['paths'][0].rsplit('/', 1)[1][:-1]

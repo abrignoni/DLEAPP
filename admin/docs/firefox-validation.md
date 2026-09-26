@@ -3,7 +3,7 @@
 Author: @AlexisBrignoni, Codex
 
 The Firefox profile covers visits, downloads, bookmarks, cookies, form history,
-and page interactions. Public tests use independently authored synthetic SQLite
+page interactions, and favicons. Public tests use independently authored synthetic SQLite
 records. Do not generate fixtures, baselines, fingerprints, or published sample
 metadata from private corpus material. Keep source records and identifying or
 aggregate corpus observations out of commits, PR descriptions, and messages.

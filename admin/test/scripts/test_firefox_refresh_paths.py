@@ -42,7 +42,7 @@ class FirefoxRefreshPathsTest(unittest.TestCase):
 
     def test_every_artifact_matches_a_refresh_copy(self):
         paths = _paths()
-        self.assertEqual(len(paths), 8)
+        self.assertEqual(len(paths), 9)
         for key, patterns in paths.items():
             store = patterns[0].rsplit('/', 1)[1].rstrip('*')
             for container in CONTAINERS:

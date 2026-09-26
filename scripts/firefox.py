@@ -188,3 +188,21 @@ def interactions(db):
         yield (timestamp(row['created_at'], 1000), timestamp(row['updated_at'], 1000),
                row['id'], row['place_id'], row['url'], row['title'], row['referring_url'],
                *(row[name] for name in names))
+
+
+def favicons(db):
+    """One row per page-to-icon link, then one per icon that no link names."""
+    link_expiry = 'l.expire_ms' if 'expire_ms' in columns(db, 'moz_icons_to_pages') else 'NULL'
+    for row in db.execute(f'''SELECT i.expire_ms AS icon_expire, {link_expiry} AS link_expire,
+            p.page_url, i.icon_url, i.width, i.root, i.flags, length(i.data) AS size, i.id
+            FROM moz_icons_to_pages l JOIN moz_pages_w_icons p ON p.id=l.page_id
+            JOIN moz_icons i ON i.id=l.icon_id ORDER BY p.page_url, i.width, i.id'''):
+        yield (timestamp(row['icon_expire'], 1000), timestamp(row['link_expire'], 1000),
+               row['page_url'], row['icon_url'], row['width'], row['root'], row['flags'],
+               row['size'], row['id'])
+    for row in db.execute('''SELECT i.expire_ms AS icon_expire, i.icon_url, i.width, i.root,
+            i.flags, length(i.data) AS size, i.id FROM moz_icons i
+            WHERE NOT EXISTS (SELECT 1 FROM moz_icons_to_pages l WHERE l.icon_id=i.id)
+            ORDER BY i.icon_url, i.width, i.id'''):
+        yield (timestamp(row['icon_expire'], 1000), '', '', row['icon_url'], row['width'],
+               row['root'], row['flags'], row['size'], row['id'])
