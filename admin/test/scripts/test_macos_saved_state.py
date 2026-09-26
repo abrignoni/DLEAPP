@@ -3,6 +3,7 @@
 Every value below is authored for the test; none comes from a real device. The fixtures build
 their own keyed archives and encrypt them the way the artifact's notes describe.
 """
+import fnmatch
 import pathlib
 import plistlib
 import struct
@@ -195,6 +196,46 @@ class HelperTest(unittest.TestCase):
         self.assertEqual(saved.saved_text([]), '')
 
 
+class DeclaredPathsTest(unittest.TestCase):
+    """Every file an artifact opens must match one of its own declared paths, or no seeker stages it."""
+
+    def test_each_artifact_declares_the_files_it_reads(self):
+        state = '/case/data/Users/tester/Library/Daemon Containers/C/Data/Library/Saved Application State'
+        needed = {'macosSavedStateWindows': ['UUID.savedState/windows.plist', 'ApplicationMapping.plist'],
+                  'macosTerminalSavedState': ['UUID.savedState/windows.plist', 'UUID.savedState/data.data',
+                                              'ApplicationMapping.plist']}
+        for key, files in needed.items():
+            patterns = saved.__artifacts_v2__[key]['paths']
+            for name in files:
+                self.assertTrue(any(fnmatch.fnmatch(f'{state}/{name}', p) for p in patterns), (key, name))
+
+
+class ApplicationMappingTest(unittest.TestCase):
+    def test_mapping_pairs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp)/'ApplicationMapping.plist'
+            path.write_bytes(plistlib.dumps([
+                'LEADING',
+                {'protected': {'hasPlatformStatus': False, 'signingIdentifier': 'com.example.Signed',
+                               'teamIdentifier': 'TEAMID'}}, 'UUID-1',
+                {'unprotected': {'bundleIdentifier': 'com.example.Bundle'}}, 'UUID-2',
+                {'other': {'signingIdentifier': 'com.example.Other'}}, 'UUID-3',
+                {'protected': {'signingIdentifier': 5}}, 'UUID-4',
+                {'protected': {}, 'unprotected': {'bundleIdentifier': 'com.example.Second'}}, 'UUID-5',
+                {'protected': 'flat'}, 'UUID-6',
+                {'protected': {'signingIdentifier': 'com.example.Orphan'}},
+                {'protected': {'signingIdentifier': 'com.example.First'},
+                 'unprotected': {'bundleIdentifier': 'com.example.Ignored'}}, 'UUID-8',
+                'UUID-7']))
+            self.assertEqual(saved.application_mapping(path), {
+                'UUID-1': 'com.example.Signed', 'UUID-2': 'com.example.Bundle',
+                'UUID-5': 'com.example.Second', 'UUID-8': 'com.example.First'})
+            path.write_bytes(plistlib.dumps({'UUID-1': 'x'}))
+            self.assertIsNone(saved.application_mapping(path))
+            path.write_bytes(b'not a plist')
+            self.assertIsNone(saved.application_mapping(path))
+
+
 class ProcessorTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -271,6 +312,52 @@ class ProcessorTest(unittest.TestCase):
             f'v2 of tab 2 in the record at offset {new_offset} does not follow the text and '
             'descriptor layout, so Saved Text is left blank',
         ])
+
+    def test_folders_named_by_uuid_take_the_mapped_identifier(self):
+        state = pathlib.Path('Users', 'tester', 'Library', 'Daemon Containers', 'CONTAINER', 'Data', 'Library',
+                             'Saved Application State')
+        (self.root/state).mkdir(parents=True)
+        mapping = self.root/state/'ApplicationMapping.plist'
+        mapping.write_bytes(plistlib.dumps([
+            {'protected': {'signingIdentifier': 'com.apple.Terminal', 'teamIdentifier': ''}}, 'UUID-T',
+            {'unprotected': {'bundleIdentifier': 'com.example.Editor'}}, 'UUID-E']))
+        terminal_data = record(2, KEY_WINDOW, b'_NSWindow', terminal_archive('title', [tab(tab_contents(b'a'))]))
+        _t, terminal = self.folder(state/'UUID-T.savedState', WINDOWS, terminal_data)
+        _e, editor = self.folder(state/'UUID-E.savedState', [{'NSTitle': 'Report', 'NSWindowID': 3}])
+        _u, unmapped = self.folder(state/'UUID-U.savedState', [{'NSTitle': 'Other', 'NSWindowID': 4}])
+        other = pathlib.Path('Users', 'tester', 'Library', 'Saved Application State')
+        (self.root/other).mkdir(parents=True)
+        (self.root/other/'ApplicationMapping.plist').write_bytes(plistlib.dumps({'not': 'an array'}))
+        _o, legacy = self.folder(other/'com.example.Legacy.savedState', [{'NSTitle': 'Legacy', 'NSWindowID': 5}])
+        files = terminal + editor + unmapped + legacy + [mapping, self.root/other/'ApplicationMapping.plist']
+
+        _headers, rows, source = saved.macosSavedStateWindows.__wrapped__(Context(self.root, files))
+        self.assertEqual(sorted((row[1], row[3]) for row in rows), [
+            ('UUID-U', 'Other'), ('com.apple.Terminal', 'tester — -zsh — 80×24'),
+            ('com.example.Editor', 'Report'), ('com.example.Legacy', 'Legacy')])
+        self.assertEqual({row[0] for row in rows}, {'tester'})
+        self.assertEqual(source.split('\n').count(str(mapping)), 1)
+        self.assertEqual(self.logged, [
+            f'Saved Application State Windows: {other}/ApplicationMapping.plist is not a plist array, so the '
+            'folders beside it keep their own names'])
+
+        self.logged.clear()
+        _headers, rows, source = saved.macosTerminalSavedState.__wrapped__(Context(self.root, files))
+        self.assertEqual([(row[1], row[3], row[7]) for row in rows], [('com.apple.Terminal', 'title', 'a')])
+        self.assertEqual(source.split('\n'), [str(self.root/state/'UUID-T.savedState'/'windows.plist'),
+                                               str(self.root/state/'UUID-T.savedState'/'data.data'), str(mapping)])
+
+    def test_a_mapping_is_cited_only_for_rows_it_named(self):
+        state = pathlib.Path('Users', 'tester', 'Library', 'Saved Application State')
+        (self.root/state).mkdir(parents=True)
+        mapping = self.root/state/'ApplicationMapping.plist'
+        mapping.write_bytes(plistlib.dumps([{'unprotected': {'bundleIdentifier': 'com.example.Quiet'}}, 'UUID-Q']))
+        _q, quiet = self.folder(state/'UUID-Q.savedState', [{'NSWindowID': 1}])
+        _n, named = self.folder(state/'com.example.Named.savedState', [{'NSTitle': 'x', 'NSWindowID': 2}])
+        _headers, rows, source = saved.macosSavedStateWindows.__wrapped__(
+            Context(self.root, quiet + named + [mapping]))
+        self.assertEqual([row[1] for row in rows], ['com.example.Named'])
+        self.assertNotIn(str(mapping), source.split('\n'))
 
     def test_copies_that_differ_are_both_read(self):
         state = pathlib.Path('Users', 'tester', 'Library', 'Saved Application State')

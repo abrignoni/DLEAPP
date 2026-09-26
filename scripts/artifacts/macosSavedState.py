@@ -8,7 +8,8 @@ __artifacts_v2__ = {
     "macosSavedStateWindows": {
         "name": "Saved Application State Windows",
         "description": "Titled windows listed in the windows.plist of each Saved Application State "
-                       "folder, with that folder's name and the user it belongs to.",
+                       "folder, with the application its folder name or ApplicationMapping.plist "
+                       "gives and the user it belongs to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
@@ -26,15 +27,23 @@ __artifacts_v2__ = {
                  "places. Entries without a title are not reported; in both files on "
                  "dleapp_macos_bigsur those were the entry marked NSIsMainMenuBar and the entry "
                  "marked NSIsGlobal. Application is the savedState folder's name without its "
-                 ".savedState extension, and User is the folder name after Users in the path. "
-                 "Under the talagentd container the folders are named by a unique identifier "
-                 "rather than a bundle identifier, and the ApplicationMapping.plist that maps them "
-                 "(Mothers Ruin, same page; Velociraptor's MacOS.Applications.SavedState by Wes "
-                 "Lambert, "
-                 "https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/MacOS.Applications.SavedState.yaml#L30) "
-                 "is not read, so Application shows that identifier. Velociraptor's description "
-                 "adds that reading the daemon container path requires Full Disk Access, so a "
-                 "collection made without it can come back empty "
+                 ".savedState extension unless an ApplicationMapping.plist names the folder, as "
+                 "described next, and User is the folder name after Users in the path. Under the "
+                 "talagentd container the folders are named by a unique identifier rather than a "
+                 "bundle identifier, and the ApplicationMapping.plist in the same Saved "
+                 "Application State folder maps them: its root is an array in which the dictionary "
+                 "describing an app comes before the name of that app's folder (Mothers Ruin, same "
+                 "page; Velociraptor's MacOS.Applications.SavedState by Wes Lambert, "
+                 "https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/MacOS.Applications.SavedState.yaml#L30). "
+                 "Application takes the identifier that dictionary holds under protected, "
+                 "signingIdentifier, or under unprotected, bundleIdentifier; a folder the file "
+                 "does not name keeps its own name, State Folder always shows the folder's own "
+                 "name, and a mapping file that is not a plist array is logged. Both forms of the "
+                 "dictionary, and the file naming every folder beside it, were measured locally on "
+                 "a private macOS 26 system, where the rows equalled an independent parse of the "
+                 "same files; counts and values from it are not published. Velociraptor's "
+                 "description adds that reading the daemon container path requires Full Disk "
+                 "Access, so a collection made without it can come back empty "
                  "(https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/MacOS.Applications.SavedState.yaml#L5). "
                  "Two copies whose paths differ only by a leading System/Volumes/Data and whose "
                  "windows.plist is byte-identical are read once, and a windows.plist that is not a "
@@ -45,8 +54,11 @@ __artifacts_v2__ = {
                  "com.apple.MobileSMS~iosmac folders there hold a KnownSceneSessions/data.data and "
                  "no windows.plist, and are not read. The public MacBook Pro logical extraction "
                  "(macOS 15.4, not a registered corpus key) holds no Saved Application State "
-                 "folder, so the macOS 15 location was not tested.",
-        "paths": ('*/Saved Application State/*.savedState/windows.plist',),
+                 "folder, so the talagentd location was tested only on that private system.",
+        "paths": (
+            '*/Saved Application State/*.savedState/windows.plist',
+            '*/Saved Application State/ApplicationMapping.plist',
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "app-window",
         "sample_data": {
@@ -79,19 +91,21 @@ __artifacts_v2__ = {
                  "CrowdStrike describes in 'Saved by the Shell: Reconstructing Command-Line "
                  "Activity on MacOS' "
                  "(https://www.crowdstrike.com/en-us/blog/reconstructing-command-line-activity-on-macos/), "
-                 "so the folder's name plays no part. Window Title is the archive's NSTitle, Tab "
-                 "is the dictionary's 1-based position in Window Settings, and Tab Selected, "
-                 "Working Directory URL (the Tab Working Directory URL String value), Tab "
-                 "Scrollback Restorable and Tab Session ID are those keys as stored. Saved Text is "
-                 "built from the dictionary's Tab Contents v2 list, which CrowdStrike decodes into "
-                 "the text of the Terminal session and notes carries no timestamps. On the tested "
-                 "record that list alternated a text item and a 24-byte item whose bytes 8 to 11 "
-                 "held, little-endian, the length of the text item before it; Saved Text joins the "
-                 "text items when the whole list follows that layout, and otherwise is left blank "
-                 "and the run log says so. Latest Record is Yes on the last record, by position in "
-                 "the file, among the decoded records with the same window id and identifier, "
-                 "since the file is append-only and the last record for a window id and identifier "
-                 "is the current one "
+                 "so the folder's name plays no part. User, Application and State Folder are read "
+                 "as in Saved Application State Windows, including the names "
+                 "ApplicationMapping.plist gives. Window Title is the archive's NSTitle, Tab is "
+                 "the dictionary's 1-based position in Window Settings, and Tab Selected, Working "
+                 "Directory URL (the Tab Working Directory URL String value), Tab Scrollback "
+                 "Restorable and Tab Session ID are those keys as stored. Saved Text is built from "
+                 "the dictionary's Tab Contents v2 list, which CrowdStrike decodes into the text "
+                 "of the Terminal session and notes carries no timestamps. On the tested record "
+                 "that list alternated a text item and a 24-byte item whose bytes 8 to 11 held, "
+                 "little-endian, the length of the text item before it; Saved Text joins the text "
+                 "items when the whole list follows that layout, and otherwise is left blank and "
+                 "the run log says so. Latest Record is Yes on the last record, by position in the "
+                 "file, among the decoded records with the same window id and identifier, since "
+                 "the file is append-only and the last record for a window id and identifier is "
+                 "the current one "
                  "(https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/MacOS.Applications.SavedState.yaml#L27; "
                  "Mothers Ruin), and Record Offset is the record's byte offset in data.data. "
                  "Records for a window id that windows.plist holds no NSDataKey for, and records "
@@ -110,13 +124,17 @@ __artifacts_v2__ = {
                  "their magic and each archive by the length stored before it, and its Tab "
                  "Contents v2 held 24 text items each followed by a 24-byte item of the layout "
                  "above. The com.apple.iCal data.data there held 9 records, 6 of them for a window "
-                 "its windows.plist holds no key for. No tab with typed commands, no window with "
-                 "more than one tab and no macOS 15 file was tested; the public MacBook Pro "
-                 "logical extraction (macOS 15.4, not a registered corpus key) holds no Saved "
-                 "Application State folder.",
+                 "its windows.plist holds no key for. No tab with typed commands and no window "
+                 "with more than one tab was tested. On a private macOS 26 system, measured "
+                 "locally, the record layout held and records decrypted with the keys its "
+                 "windows.plist files gave, but no Terminal window record there could be "
+                 "decrypted, so the Terminal decoding was not tested on macOS 15 or later; the "
+                 "public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) "
+                 "holds no Saved Application State folder.",
         "paths": (
             '*/Saved Application State/*.savedState/windows.plist',
             '*/Saved Application State/*.savedState/data.data',
+            '*/Saved Application State/ApplicationMapping.plist',
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "terminal",
@@ -151,6 +169,50 @@ def application_name(folder):
     """A savedState folder's name without its .savedState extension."""
     name = os.path.basename(str(folder).replace('\\', '/').rstrip('/'))
     return name[:-len('.savedState')] if name.endswith('.savedState') else name
+
+
+def application_mapping(path):
+    """{savedState folder name: app identifier} from an ApplicationMapping.plist, or None.
+
+    Its root is an array in which a dictionary describing an app is followed by the name of that
+    app's savedState folder. The dictionary names the app under protected, signingIdentifier, or
+    under unprotected, bundleIdentifier. None when the file is not a plist array.
+    """
+    mapping = load_plist(path)
+    if not isinstance(mapping, list):
+        return None
+    names = {}
+    for info, folder in zip(mapping, mapping[1:]):
+        if not (isinstance(info, dict) and isinstance(folder, str)):
+            continue
+        for side, key in (('protected', 'signingIdentifier'), ('unprotected', 'bundleIdentifier')):
+            inner = info.get(side)
+            if isinstance(inner, dict) and isinstance(inner.get(key), str):
+                names[folder] = inner[key]
+                break
+    return names
+
+
+def application_names(context, folders, label):
+    """{folder: (application, mapping file or '')} for savedState folders.
+
+    A folder named in the ApplicationMapping.plist beside it takes the identifier given there,
+    with that file's path; any other folder takes its own name without the .savedState extension.
+    """
+    mappings, names = {}, {}
+    for folder in folders:
+        parent = os.path.dirname(folder)
+        path = os.path.join(parent, 'ApplicationMapping.plist')
+        if parent not in mappings:
+            mapping = application_mapping(path) if os.path.isfile(path) else {}
+            if mapping is None:
+                logfunc(f'{label}: {context.get_relative_path(path)} is not a plist array, so '
+                        'the folders beside it keep their own names')
+                mapping = {}
+            mappings[parent] = mapping
+        stem = application_name(folder)
+        names[folder] = (mappings[parent][stem], path) if stem in mappings[parent] else (stem, '')
+    return names
 
 
 def state_folders(context, files, names):
@@ -290,17 +352,22 @@ def saved_text(items):
 def macosSavedStateWindows(context):
     data_headers = ('User', 'Application', 'Window ID', 'Window Title', 'State Folder')
     data_list, sources = [], []
-    for folder in state_folders(context, context.get_files_found(), ('windows.plist',)):
+    folders = state_folders(context, context.get_files_found(), ('windows.plist',))
+    applications = application_names(context, folders, 'Saved Application State Windows')
+    for folder in folders:
         path = os.path.join(folder, 'windows.plist')
         relative = context.get_relative_path(folder)
         windows = load_plist(path)
         if not isinstance(windows, list):
             logfunc(f'Saved Application State Windows: {relative}/windows.plist is not a plist array')
             continue
-        for window_id, title in titled_windows(windows):
-            data_list.append((user_from_path(relative), application_name(folder), window_id, title,
-                              relative))
+        application, mapping_path = applications[folder]
+        rows = [(user_from_path(relative), application, window_id, title, relative)
+                for window_id, title in titled_windows(windows)]
+        data_list.extend(rows)
         sources.append(path)
+        if rows and mapping_path and mapping_path not in sources:
+            sources.append(mapping_path)
     return data_headers, data_list, '\n'.join(sources)
 
 
@@ -310,7 +377,10 @@ def macosTerminalSavedState(context):
                     'Working Directory URL', 'Saved Text', 'Tab Scrollback Restorable',
                     'Tab Session ID', 'Latest Record', 'Record Offset', 'State Folder')
     data_list, sources = [], []
-    for folder in state_folders(context, context.get_files_found(), ('windows.plist', 'data.data')):
+    folders = state_folders(context, context.get_files_found(), ('windows.plist', 'data.data'))
+    applications = application_names(context, folders, 'Terminal Saved State')
+    for folder in folders:
+        application, mapping_path = applications[folder]
         data_path = os.path.join(folder, 'data.data')
         if not os.path.isfile(data_path):
             continue
@@ -351,7 +421,7 @@ def macosTerminalSavedState(context):
                                 f'tab {position} in the record at offset {offset} does not follow '
                                 'the text and descriptor layout, so Saved Text is left blank')
                         text = ''
-                rows.append((user_from_path(relative), application_name(folder), window_id, title,
+                rows.append((user_from_path(relative), application, window_id, title,
                              position, stored_text(tab.get('TabSelected')),
                              stored_text(tab.get('Tab Working Directory URL String')), text,
                              stored_text(tab.get('Tab Scrollback Restorable')),
@@ -359,4 +429,6 @@ def macosTerminalSavedState(context):
         if rows:
             data_list.extend(rows)
             sources.extend((os.path.join(folder, 'windows.plist'), data_path))
+            if mapping_path and mapping_path not in sources:
+                sources.append(mapping_path)
     return data_headers, data_list, '\n'.join(sources)
