@@ -107,6 +107,15 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['Record Time (UTC)'],
                          datetime.datetime(2025, 1, 1, tzinfo=datetime.timezone.utc))
 
+    def test_bluetooth_use_case_fields(self):
+        """Device.Wireless.BluetoothUseCase: field 1 and field 2 reported as stored."""
+        data = _vi(1, 1) + _vi(2, 131090)
+        row = _run(macosBiome.macosBiomeBluetoothUseCase, data)
+        self.assertEqual(row['Field 1 (as stored)'], '1')
+        self.assertEqual(row['Field 2 (as stored)'], '131090')
+        self.assertEqual(row['Record Time (UTC)'],
+                         datetime.datetime(2025, 1, 1, tzinfo=datetime.timezone.utc))
+
     def test_unreadable_timestamp_is_blank(self):
         # field 8 present but not eight bytes: no crash, blank time.
         meta = _ld(1, _vi(8, 5) + _ld(4, b'com.apple.news'))
