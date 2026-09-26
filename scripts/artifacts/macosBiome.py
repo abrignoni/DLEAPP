@@ -1,4 +1,4 @@
-"""Records from ten macOS Biome streams, for DLEAPP.
+"""Records from eleven macOS Biome streams, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -428,6 +428,22 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": 'chart-bar',
     },
+    "macosBiomeBluetoothUseCase": {
+        "name": 'Biome Bluetooth Use Case',
+        "description": 'Records from the Device.Wireless.BluetoothUseCase Biome stream: record time and the two integer fields each record holds, reported as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-26",
+        "last_update_date": "2026-09-26",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record is one protobuf message holding two integer fields. Field 1 (as stored) is field 1 and Field 2 (as stored) is field 2, both reported as stored: no source documents what either records, so neither is named or interpreted. iLEAPP has no reader for this stream; its biomeBluetooth module reads the separate Device.Wireless.Bluetooth stream, which holds a device MAC and name and is not this one. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 3,707 rows from one user's local folder, so User and Sync Origin each held one value there; Field 1 (as stored) held 0 on 1,849 rows and 1 on 1,858, Field 2 (as stored) held five distinct values (131090 on 3,346 rows, then 65553 on 167, 65544 on 162, 6 on 22 and 22 on 10), and Record Time fell in 2025 on every row.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/Device.Wireless.BluetoothUseCase/local/*', '*/Biome/streams/*/Device.Wireless.BluetoothUseCase/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'bluetooth',
+    },
 }
 
 from datetime import datetime, timezone
@@ -616,4 +632,13 @@ def macosBiomeScreenTimeAppUsage(context):
                     'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome ScreenTime App Usage', lambda f: (
         text(first(f, 3)), text(first(f, 1))))
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeBluetoothUseCase(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Field 1 (as stored)', 'Field 2 (as stored)',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome Bluetooth Use Case', lambda f: (
+        _as_stored(first(f, 1)), _as_stored(first(f, 2))))
     return data_headers, rows, source
