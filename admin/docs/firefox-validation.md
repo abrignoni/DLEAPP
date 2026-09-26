@@ -4,11 +4,11 @@ Author: @AlexisBrignoni, Codex
 
 The Firefox profile covers visits, downloads, bookmarks, cookies, form history, page
 interactions, favicons, site local storage, IndexedDB records, session store tabs, saved
-login metadata, and the profile list and profile times. Public tests use independently
-authored synthetic SQLite records and session files. Do not generate fixtures,
-baselines, fingerprints, or published sample metadata from private corpus material. Keep
-source records and identifying or aggregate corpus observations out of commits, PR
-descriptions, and messages.
+login metadata, the profile list and profile times, and containers. Public tests use
+independently authored synthetic SQLite records and session files. Do not generate
+fixtures, baselines, fingerprints, or published sample metadata from private corpus
+material. Keep source records and identifying or aggregate corpus observations out of
+commits, PR descriptions, and messages.
 
 Local end-to-end validation may use a read-only mount and temporary copies of
 relevant stores with SQLite sidecars. Reports stay local. Publish only generic
@@ -21,7 +21,7 @@ distinct profiles, firmlink deduplication, WAL-only records, evidence integrity,
 continuation after a corrupt store, raw Snappy decompression, local storage value
 conversion, structured-clone values, IndexedDB key encoding, LZ4 blocks, the session
 store's open, closed and grouped tabs, saved logins in logins.json and both logins.db
-tables, and profiles.ini, installs.ini and times.json.
+tables, and profiles.ini, installs.ini, times.json and containers.json.
 
 Source definitions are linked at pinned Mozilla revisions in artifact metadata.
 Windows and Linux path tests do not establish real-image validation on those systems.

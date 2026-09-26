@@ -50,7 +50,7 @@ def read_profile_list(context, label):
         except (OSError, configparser.Error) as exc:
             logfunc(f'{label}: {relative} was not read ({exc})')
             continue
-        output.extend(row + (parts[-1], user, relative) for row in rows)
+        output.extend(row + (parts[-1], user) for row in rows)
         sources.append(path)
     return output, '\n'.join(sources)
 
@@ -80,6 +80,38 @@ def read_profile_times(context, label):
             logfunc(f'{label}: {relative} was not read ({exc})')
             continue
         profile = parts[-2] if len(parts) >= 2 else ''
-        output.append(times_row(times) + (profile, user, relative))
+        output.append(times_row(times) + (profile, user))
+        sources.append(path)
+    return output, '\n'.join(sources)
+
+
+def container_rows(data):
+    """One row per identity in a parsed containers.json."""
+    identities = data.get('identities') if isinstance(data, dict) else None
+    version = '' if not isinstance(data, dict) or data.get('version') is None else str(data.get('version'))
+    for identity in identities if isinstance(identities, list) else []:
+        if not isinstance(identity, dict):
+            continue
+        yield tuple('' if identity.get(key) is None else str(identity.get(key))
+                    for key in ('userContextId', 'name', 'l10nId', 'public', 'icon', 'color',
+                                'policyId')) + (version,)
+
+
+def read_containers(context, label):
+    found = [str(p) for p in context.get_files_found()
+             if PurePosixPath(str(p).replace('\\', '/')).name == 'containers.json']
+    paths, _ = unique_sources(context, found, label=label)
+    output, sources = [], []
+    for path in paths:
+        relative = context.get_relative_path(path)
+        parts, user = _user(relative)
+        try:
+            with open(path, 'r', encoding='utf-8') as handle:
+                rows = list(container_rows(json.load(handle)))
+        except (OSError, ValueError, UnicodeDecodeError) as exc:
+            logfunc(f'{label}: {relative} was not read ({exc})')
+            continue
+        profile = parts[-2] if len(parts) >= 2 else ''
+        output.extend(row + (profile, user) for row in rows)
         sources.append(path)
     return output, '\n'.join(sources)
