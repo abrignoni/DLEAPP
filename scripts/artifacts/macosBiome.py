@@ -1,4 +1,4 @@
-"""Records from eleven macOS Biome streams, for DLEAPP.
+"""Records from twelve macOS Biome streams, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -444,12 +444,30 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": 'bluetooth',
     },
+    "macosBiomeAppIntent": {
+        "name": 'Biome App Intents',
+        "description": 'Records from the App.Intent Biome stream: record time, the interaction start time, the app bundle ID, the intent class and action as stored, direction, handling status, and the group and interaction identifiers as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-26",
+        "last_update_date": "2026-09-26",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Bundle ID is field 2, Intent Class (as stored) is field 4 and Action (as stored) is field 5, and field 8 is read as an NSKeyedArchiver plist, as iLEAPP's biomeIntents module reads them (Reference: iLEAPP, scripts/artifacts/biomeIntents.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeIntents.py#L94-L127). On every record of the tested extraction the root object of that plist is an INInteraction, and the remaining columns are INInteraction properties that Apple's Intents framework declares in INInteraction.h (read from the macOS 27.0 SDK, where both enumerations below are marked available from macOS 11): Interval Start (UTC) is the start date of dateInterval, Direction is direction, Handling Status is intentHandlingStatus, Group ID (as stored) is groupIdentifier and Interaction ID (as stored) is identifier. Direction and Handling Status show the name INInteraction.h gives the stored number (INInteractionDirection: 0 Unspecified, 1 Outgoing, 2 Incoming; INIntentHandlingStatus: 0 Unspecified, 1 Ready, 2 In Progress, 3 Success, 4 Failure, 5 Deferred To Application, 6 User Confirmation Required) with the number beside it, and a number outside those lists is shown alone. When field 8 is absent or does not read as a keyed archive, those columns are blank and the run log counts the record. The intent's own payload (its backing store bytes) and the intent response are not reported: their content is written by each app, and iLEAPP's notes for the same stream say the fields inside it are not documented. Intent Class (as stored) is not always the class of the archived intent object: on 129 of the 135 records of the tested extraction the archived object is INIntent while field 4 names TodayIntent or TagIntent, and on the other 6 the two are equal. The end date of dateInterval equalled its start on all 135 records of the tested extraction and its duration was 0, so only the start is reported. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 135 rows from one user's local folder, so User and Sync Origin each held one value there. Bundle ID was com.apple.news on 129 rows, com.apple.MobileSMS on 4 and com.apple.parsecd on 2, and Action (as stored) was filled on 6 rows. On the 4 com.apple.MobileSMS rows Direction was Incoming (2), Handling Status was Success (3), Group ID (as stored) was filled, and Record Time was later than Interval Start by up to 2,345,339 seconds (about 27 days); on the other 131 rows Direction and Handling Status were Unspecified (0), Group ID (as stored) was blank and Record Time was within one second of Interval Start. Both times fell in 2025 on every row.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/App.Intent/local/*', '*/Biome/streams/*/App.Intent/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'bolt',
+    },
 }
 
+import plistlib
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, webkit_timestampsconv
 from scripts.macos_biome import double, fields, first, stream_records, text
+from scripts.macos_plists import resolve_keyed_archive
 
 def _as_stored(value):
     return '' if value is None else str(value)
@@ -641,4 +659,58 @@ def macosBiomeBluetoothUseCase(context):
                     'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome Bluetooth Use Case', lambda f: (
         _as_stored(first(f, 1)), _as_stored(first(f, 2))))
+    return data_headers, rows, source
+
+
+_DIRECTIONS = {0: 'Unspecified', 1: 'Outgoing', 2: 'Incoming'}
+_HANDLING_STATUSES = {0: 'Unspecified', 1: 'Ready', 2: 'In Progress', 3: 'Success', 4: 'Failure',
+                      5: 'Deferred To Application', 6: 'User Confirmation Required'}
+
+
+def _named(value, names):
+    """The INInteraction.h name for a stored number, with the number beside it."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        return ''
+    name = names.get(value)
+    return f'{name} ({value})' if name else str(value)
+
+
+def _interaction(found):
+    """The INInteraction archived in field 8 as a plain dict, or None."""
+    raw = first(found, 8)
+    if not isinstance(raw, (bytes, bytearray)):
+        return None
+    try:
+        archive = plistlib.loads(bytes(raw))
+    except (plistlib.InvalidFileException, ValueError, TypeError, OverflowError):
+        return None
+    root = resolve_keyed_archive(archive)
+    return root if isinstance(root, dict) else None
+
+
+@artifact_processor
+def macosBiomeAppIntent(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), ('Interval Start (UTC)', 'datetime'), 'Bundle ID',
+                    'Intent Class (as stored)', 'Action (as stored)', 'Direction', 'Handling Status',
+                    'Group ID (as stored)', 'Interaction ID (as stored)',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    unread = []
+
+    def row_for(f):
+        interaction = _interaction(f)
+        if interaction is None:
+            unread.append(1)
+            interaction = {}
+        interval = interaction.get('dateInterval')
+        start = interval.get('NS.startDate') if isinstance(interval, dict) else None
+        group, identifier = interaction.get('groupIdentifier'), interaction.get('identifier')
+        return (start if isinstance(start, datetime) else '', text(first(f, 2)), text(first(f, 4)),
+                text(first(f, 5)), _named(interaction.get('direction'), _DIRECTIONS),
+                _named(interaction.get('intentHandlingStatus'), _HANDLING_STATUSES),
+                group if isinstance(group, str) else '', identifier if isinstance(identifier, str) else '')
+
+    rows, source = _read(context, 'Biome App Intents', row_for)
+    if unread:
+        logfunc(f'Biome App Intents: field 8 of {len(unread)} record(s) did not read as a keyed '
+                'archive; their interaction columns are blank')
     return data_headers, rows, source
