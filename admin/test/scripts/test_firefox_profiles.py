@@ -79,6 +79,8 @@ class ProfileListTest(unittest.TestCase):
                          [('installs.ini', '308046B0AF4A39CB'), ('profiles.ini', 'General')])
         self.assertEqual({row[10] for row in rows}, {'tester'})
         self.assertEqual(len(rows), 5)
+        self.assertNotIn('.ini\'', repr([row[:9] + row[10:] for row in rows]))
+        self.assertTrue(all(len(row) == 11 for row in rows))
         self.assertEqual(len(source.split('\n')), 2)
         self.assertTrue(any('.mozilla/firefox/profiles.ini was not read' in str(c) for c in logged.call_args_list))
 
@@ -108,8 +110,43 @@ class ProfileTimesTest(unittest.TestCase):
                           datetime(2024, 1, 1, 0, 0, 1, tzinfo=timezone.utc),
                           datetime(2024, 1, 1, 0, 0, 2, tzinfo=timezone.utc), '', 'reset'))
         self.assertEqual(by_profile['cd34.default'][1:5], ('', '', '', ''))
-        self.assertEqual(by_profile['cd34.default'][6], 'linux')
+        self.assertEqual(by_profile['cd34.default'][5:], ('cd34.default', 'linux'))
         self.assertTrue(any('ef56.default/times.json was not read' in str(c) for c in logged.call_args_list))
+
+
+class ContainersTest(unittest.TestCase):
+
+    def test_built_in_user_created_internal_and_policy_identities(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            old = root/'Users'/'tester'/'Library'/'Application Support'/'Firefox'/'Profiles'/'ab12.default-release'
+            new = root/'Users'/'tester'/'Library'/'Application Support'/'Firefox'/'Profiles'/'cd34.default'
+            for folder in (old, new):
+                folder.mkdir(parents=True)
+            (old/'containers.json').write_text(json.dumps({'version': 5, 'identities': [
+                {'userContextId': 1, 'public': True, 'icon': 'fingerprint', 'color': 'blue',
+                 'l10nId': 'user-context-personal'},
+                {'userContextId': 5, 'public': False, 'icon': '', 'color': '',
+                 'name': 'userContextIdInternal.thumbnail', 'accessKey': ''},
+                'not an identity']}), encoding='utf-8')
+            (new/'containers.json').write_text(json.dumps({'version': 8, 'identities': [
+                {'userContextId': 1, 'public': True, 'icon': 'fingerprint', 'color': 'blue'},
+                {'userContextId': 6, 'public': True, 'icon': 'cart', 'color': 'red', 'name': 'Travel'},
+                {'userContextId': 7, 'public': False, 'name': 'corp', 'policy': True, 'policyId': 'corp'}]}),
+                encoding='utf-8')
+            files = [str(p) for p in root.rglob('containers.json')]
+            rows, source = fp.read_containers(Context(root, files), 'Firefox Containers')
+        by_key = {(row[8], row[0]): row for row in rows}
+        self.assertEqual(len(rows), 5)
+        self.assertTrue(all(len(row) == 10 for row in rows))
+        self.assertEqual(by_key[('ab12.default-release', '1')][:8],
+                         ('1', '', 'user-context-personal', 'True', 'fingerprint', 'blue', '', '5'))
+        self.assertEqual(by_key[('ab12.default-release', '5')][1:4], ('userContextIdInternal.thumbnail', '', 'False'))
+        self.assertEqual(by_key[('cd34.default', '1')][1:3], ('', ''))
+        self.assertEqual(by_key[('cd34.default', '6')][1:6], ('Travel', '', 'True', 'cart', 'red'))
+        self.assertEqual(by_key[('cd34.default', '7')][6:], ('corp', '8', 'cd34.default', 'tester'))
+        self.assertNotIn('containers.json', repr(rows))
+        self.assertEqual(len(source.split('\n')), 2)
 
 
 class PatternTest(unittest.TestCase):
@@ -123,7 +160,9 @@ class PatternTest(unittest.TestCase):
                                          '/c/Users/a/AppData/Roaming/Mozilla/Firefox/Profiles/p/{}',
                                          '/c/home/a/.mozilla/firefox/p/{}',
                                          '/c/Users/a/Desktop/Old Firefox Data/p/{}']}
-        names = {'firefoxProfileList': ('profiles.ini', 'installs.ini'), 'firefoxProfileTimes': ('times.json',)}
+        cases['firefoxContainers'] = cases['firefoxProfileTimes']
+        names = {'firefoxProfileList': ('profiles.ini', 'installs.ini'), 'firefoxProfileTimes': ('times.json',),
+                 'firefoxContainers': ('containers.json',)}
         for key, templates in cases.items():
             for template in templates:
                 for name in names[key]:
