@@ -4,9 +4,10 @@ Author: @AlexisBrignoni, Claude.
 Inspired by the Velociraptor exchange Amcache artifact; the implementation reads
 the hive's on-disk structure directly and is not ported from that artifact.
 
-The InventoryApplicationFile field meanings, including FileId being the file's
-SHA-1 prefixed with four zeroes, are sourced from public Amcache research (see
-the artifact notes).
+The InventoryApplicationFile field meanings, including FileId being a SHA-1 of
+the file (of its first 30 MiB when it is larger) prefixed with four zeroes, are
+sourced from public Amcache research and measured on the test images (see the
+artifact notes).
 """
 
 from datetime import timezone
@@ -19,46 +20,58 @@ except ImportError:
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 # Amcache.hve records metadata about executables the system has seen, under
-# Root\InventoryApplicationFile: the full path, the file's SHA-1 (stored as
-# FileId), publisher and version resource strings, size, and the PE compile
-# date. It documents that a file was present, not that it was run.
+# Root\InventoryApplicationFile: the full path, a SHA-1 of the file (stored as
+# FileId), publisher and version strings, size, and the PE link date. It
+# documents that a file was inventoried, not that it was run.
 
 _INVENTORY_PATH = "Root\\InventoryApplicationFile"
 
 __artifacts_v2__ = {
     "amcacheApplicationFiles": {
         "name": "Amcache Application Files",
-        "description": "Executables the system inventoried, from Amcache.hve "
-                       "InventoryApplicationFile: the file path, its SHA-1, "
-                       "publisher, product and version, size, PE link date, and "
-                       "the time the entry was written.",
+        "description": "Executables the system inventoried, from Amcache.hve InventoryApplicationFile: the "
+                       "file path, the SHA-1 Amcache records for it, publisher, product and version, size, "
+                       "link date, and the time the entry was written.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-26",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one "
-                 "InventoryApplicationFile entry. File Path is LowerCaseLongPath "
-                 "as stored (lowercased by Windows). SHA-1 is the FileId value "
-                 "with its leading four zeroes removed; FileId is the file's "
-                 "SHA-1 (of the first 31 MiB on Windows 8 and later) and is shown "
-                 "as stored when it does not have that shape. Name, Publisher, "
-                 "Product Name and Version are the file's version-resource "
-                 "strings as stored. Size is in bytes. Link Date is the PE "
-                 "header compile time as stored and is the time the file was "
-                 "built, not a time it ran or was installed; its timezone is not "
-                 "recorded, so it is shown as stored and not converted. Program "
-                 "ID links a file to an installed application; a blank or zero "
-                 "Program ID means the file was not tied to one. Key Last Write "
-                 "(UTC) is the entry's registry LastWrite time, which is when "
-                 "Amcache wrote the entry and approximates when the file was "
-                 "first inventoried; it is not an execution time. Presence of an "
-                 "entry records that the file was seen on the system, not that it "
-                 "was run and not who ran it. Reading the hive needs the "
-                 "python-registry package; its .LOG1/.LOG2 transaction logs are "
-                 "not replayed. Field meanings: Psmths, 'windows-forensic-"
-                 "artifacts', https://github.com/Psmths/windows-forensic-artifacts/"
-                 "blob/main/execution/amcache.md",
+                 "InventoryApplicationFile entry, a key Psmths's Amcache reference lists from Windows "
+                 "10 build 14393 and describes as updated only when the Microsoft Compatibility "
+                 "Appraiser task runs (Psmths, 'windows-forensic-artifacts', "
+                 "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L68-L69). "
+                 "File Path is LowerCaseLongPath as stored; every value on lonewolf_win10 and "
+                 "pc_mus_001_win11 was lowercase. SHA-1 is the FileId value without its leading four "
+                 "zeroes "
+                 "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L76) "
+                 "and is shown as stored when FileId does not have that shape. It covers the file's "
+                 "first 31,457,280 bytes (30 MiB), or the whole file when the file is smaller, as that "
+                 "reference's warning describes "
+                 "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L82-L83). "
+                 "Hashed against the files at File Path, it matched the first 30 MiB of all 8 files "
+                 "larger than that on the two images (6 on lonewolf_win10 and 2 on pc_mus_001_win11), "
+                 "whose whole-file SHA-1 differs, and the whole file on 48 of 50 smaller files sampled "
+                 "there; the other 2, on lonewolf_win10, hashed differently. Name, Publisher, Product "
+                 "Name and Version are the Name, Publisher, ProductName and Version values as stored. "
+                 "On those 58 files, Name was the file's name, compared without case, on all 58, and "
+                 "Publisher, Product Name and Version equalled the CompanyName, ProductName and "
+                 "FileVersion strings of the file's version resource, compared without case, on 55, 54 "
+                 "and 54 of the 55 that carry them. Size (bytes) is the Size value, which equalled the "
+                 "file's size in bytes on all 58. Link Date is the LinkDate value as stored; on 56 of "
+                 "the 58 it was the TimeDateStamp of the file's PE header written as a UTC time, and "
+                 "on lonewolf_win10 one was blank and one differed. The PE format documentation "
+                 "describes that stamp as indicating when the file was created "
+                 "(https://github.com/MicrosoftDocs/win32/blob/e103fa4e8810bd8d42c4777e17081e24dbe62dbd/desktop-src/Debug/pe-format.md#L111), "
+                 "so it is not a time the file ran or was installed. Program ID is the ProgramId "
+                 "value, which Psmths describes as the installed program the file is tied to, listed "
+                 "under InventoryApplication, a key this artifact does not read "
+                 "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L75). "
+                 "Key Last Write (UTC) is the entry's registry LastWrite time; it is not an execution "
+                 "time. An entry records that the file was inventoried; this artifact does not treat "
+                 "it as proof that the file ran or of who ran it. Reading the hive needs the "
+                 "python-registry package; its .LOG1/.LOG2 transaction logs are not replayed.",
         "paths": ("*/Windows/appcompat/Programs/Amcache.hve",),
         "output_types": ["standard"],
         "artifact_icon": "hash",
