@@ -227,6 +227,7 @@ class FirefoxTest(unittest.TestCase):
             self.assertEqual(by_key['packed'][2], 'xababab')
             self.assertEqual(by_key['broken'][2], '')
             self.assertEqual((by_key['plain'][7], by_key['plain'][8]), ('ab12.default-release', 'tester'))
+            self.assertTrue(all(len(row) == 9 for row in rows))
             self.assertTrue(any('1 value(s) could not be decoded' in str(call) for call in logged.call_args_list))
 
     def test_patterns_match_profiles_and_sidecars_once(self):

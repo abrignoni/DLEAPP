@@ -80,9 +80,8 @@ class SavedLoginsTest(unittest.TestCase):
                          ('', datetime(2024, 1, 1, 0, 0, 4, tzinfo=timezone.utc), '', '1'))
         from_json = by_guid[('{g3}', 'logins.json')]
         self.assertEqual(from_json[6:13], ('4', 'https://c.test', 'https://c.test/login', '', 'email', 'pw', '{g3}'))
-        self.assertEqual(from_json[14:], ('', '', '', 'ab12.default-release', 'tester',
-                                          'Users/tester/Library/Application Support/Firefox/Profiles/'
-                                          'ab12.default-release/logins.json'))
+        self.assertEqual(from_json[14:], ('', '', '', 'ab12.default-release', 'tester'))
+        self.assertTrue(all(len(row) == 19 for row in rows))
         self.assertNotIn('ENC', repr(rows))
         self.assertNotIn('secret', repr(rows))
         self.assertEqual(len(source.split('\n')), 2)

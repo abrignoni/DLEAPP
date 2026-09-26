@@ -151,6 +151,7 @@ class ReadIndexedDBTest(unittest.TestCase):
             self.assertEqual(json.loads(first[3]), json.loads(first[4])['id'])
             self.assertEqual((first[7], first[8]), ('ab12.default-release', 'tester'))
             self.assertEqual(rows[1][6], '1')
+            self.assertTrue(all(len(row) == 9 for row in rows))
             self.assertTrue(any('SCTAG_DOM_BLOB' in str(call) for call in logged.call_args_list))
 
 

@@ -325,7 +325,7 @@ def read_local_storage(context, label):
                 failed += 1
             output.append((origin, key, text, utf16_length, conversion, compression,
                            len(value) if isinstance(value, (bytes, bytearray)) else '',
-                           profile, user, relative))
+                           profile, user))
         sources.append(path)
     if failed:
         logfunc(f'{label}: {failed} value(s) could not be decoded and are left blank')

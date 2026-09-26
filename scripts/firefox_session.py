@@ -174,7 +174,7 @@ def read_session_store(context, label):
             skipped += 1
             logfunc(f'{label}: {relative} was not read ({exc})')
             continue
-        rows = [row + (parts[-1], profile, user, relative) for row in session_rows(state)]
+        rows = [row + (parts[-1], profile, user) for row in session_rows(state)]
         output.extend(rows)
         sources.append(path)
     if skipped:
