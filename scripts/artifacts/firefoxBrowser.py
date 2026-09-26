@@ -217,10 +217,30 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                    '*/Desktop/*Firefox*/*/storage/default/*/idb/*.sqlite*'),
                          'output_types': 'standard',
                          'artifact_icon': 'database',
+                         'sample_data': {}},
+                  'firefoxSessionStore': {'name': 'Firefox Session Store',
+                         'description': "Tabs recorded in a Firefox profile's session store files (open tabs, recently closed tabs and windows, and tab groups), one row per tab history entry, with last accessed and closed times, URL, title, container, session file, profile and source file.",
+                         'author': '@AlexisBrignoni, Claude',
+                         'creation_date': '2026-09-26',
+                         'last_update_date': '2026-09-26',
+                         'requirements': 'none',
+                         'category': 'Firefox',
+                         'notes': "One row per session history entry of each tab in each session file of a Firefox profile: sessionstore.jsonlz4 in the profile folder, and previous.jsonlz4, recovery.jsonlz4, recovery.baklz4 and upgrade.jsonlz4-<platform build ID> in its sessionstore-backups folder (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/SessionFile.sys.mjs#L73-L121; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/SessionFile.sys.mjs#L129-L142). Older Firefox versions wrote the same files uncompressed with .js and .bak names (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/SessionFile.sys.mjs#L187-L189; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/SessionFile.sys.mjs#L211-L220), and those are read too. Each file is a separate copy of the session state, so one tab can appear in several files; Session File names the file a row came from. A compressed file holds the bytes mozLz40, the uncompressed size and one LZ4 block (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/xpcom/ioutils/IOUtils.h#L748-L766; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/xpcom/ioutils/IOUtils.cpp#L2661-L2710), decompressed by a decoder written from the LZ4 block format description (https://github.com/lz4/lz4/blob/0774d05537f9762f838f7ab541b7765f1a729cb5/doc/lz4_Block_format.md#L25-L136). Scope says where the tab sits in the state: Open tab is a window's tabs, Closed tab a window's _closedTabs, Tab in closed window and Closed tab in closed window the same two lists in _closedWindows, and Tab in closed group and Tab in saved group the tabs of closed and saved tab groups. The prefix Last session: marks tabs in lastSessionState, the previous session Firefox keeps in the file while its restore is deferred (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/SessionStore.sys.mjs#L5733-L5736). Structure definitions: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/SessionStore.sys.mjs#L10-L86; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/TabState.sys.mjs#L7-L101; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/TabGroupState.sys.mjs#L10-L73. Last Accessed is the tab's lastAccessed, which the definition describes as when the tab was last selected, and Closed At the closedAt of the closed tab, of the window for a tab in a closed window, or of the group for a group tab that has none of its own; the definitions give both as Date.now() values, milliseconds since 1970. Session Updated is session.lastUpdate, the Date.now() value taken when the state was collected (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/browser/components/sessionstore/SessionStore.sys.mjs#L5711-L5724). Window and Position are 1-based positions in the lists the file holds, and Window is blank for a saved group; the definition gives a window's closed tabs most recently closed first. Entry is the 1-based position in the tab's entries, which the definition gives oldest first, and Current Entry is Yes for the entry the tab's 1-based index names. URL, Title and Original URI are the entry's url, title and originalURI (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/modules/sessionstore/SessionHistory.sys.mjs#L153-L174). User Interaction (as stored) is the entry's hasUserInteraction, copied from session history (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/modules/sessionstore/SessionHistory.sys.mjs#L248); what it records is not established here. Subframe entries, held in an entry's children (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/modules/sessionstore/SessionHistory.sys.mjs#L275-L286), are not reported. Container ID is the tab's userContextId, 0 for the default container. Pinned and Hidden are the tab's pinned and hidden values as stored, blank when the file omits them. Tab Group is the name of the tab's group, blank for a tab that belongs to none. Form data, scroll positions, session storage and cookies the file holds are not reported. Profile is the folder that holds the file, or the folder above sessionstore-backups for a backup. Profiles remain separate; User is blank when source paths do not identify an account. A byte-identical copy of a file under the macOS firmlink path System/Volumes/Data is read once. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic. A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old profile folder, under its own name, made unique if taken, inside a Desktop folder named from the resetBackupDirectory string, 'Old %S Data' in the en-US source with the application name for %S, so the pattern matches a folder on the Desktop whose name contains Firefox, and Source File shows which copy a row came from. A copy Firefox places in the home folder because no Desktop is available is not matched. Refresh sources: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L59-L96; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/locales/en-US/chrome/mozapps/profile/profileSelection.properties#L55-L56.",
+                         'paths': ('*/Library/Application Support/Firefox/Profiles/*/sessionstore.js*',
+                                   '*/Library/Application Support/Firefox/Profiles/*/sessionstore-backups/*',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/sessionstore.js*',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/sessionstore-backups/*',
+                                   '*/.mozilla/firefox/*/sessionstore.js*',
+                                   '*/.mozilla/firefox/*/sessionstore-backups/*',
+                                   '*/Desktop/*Firefox*/*/sessionstore.js*',
+                                   '*/Desktop/*Firefox*/*/sessionstore-backups/*'),
+                         'output_types': 'standard',
+                         'artifact_icon': 'browser',
                          'sample_data': {}}}
 
 from scripts import firefox
 from scripts import firefox_indexeddb
+from scripts import firefox_session
 from scripts.ilapfuncs import artifact_processor
 
 
@@ -396,4 +416,30 @@ def firefoxIndexedDB(context):
      'User',
      'Source File')
     data_list, source_path = firefox_indexeddb.read_indexeddb(context, 'Firefox IndexedDB')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def firefoxSessionStore(context):
+    data_headers = (('Last Accessed', 'datetime'),
+     ('Closed At', 'datetime'),
+     ('Session Updated', 'datetime'),
+     'Scope',
+     'Window',
+     'Position',
+     'Entry',
+     'Current Entry',
+     'URL',
+     'Title',
+     'Original URI',
+     'User Interaction (as stored)',
+     'Container ID',
+     'Pinned',
+     'Hidden',
+     'Tab Group',
+     'Session File',
+     'Profile',
+     'User',
+     'Source File')
+    data_list, source_path = firefox_session.read_session_store(context, 'Firefox Session Store')
     return data_headers, data_list, source_path
