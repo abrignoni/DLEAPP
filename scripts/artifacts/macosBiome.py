@@ -1,4 +1,4 @@
-"""Records from fifteen macOS Biome streams, for DLEAPP.
+"""Records from seventeen macOS Biome streams, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -502,6 +502,36 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": 'brand-safari',
     },
+    "macosBiomeSystemSettingsSearchTerms": {
+        "name": "Biome System Settings Search Terms",
+        "description": "Records from the SystemSettings.SearchTerms Biome stream: record time, the search term, and any result URIs and labels stored with it.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-26",
+        "last_update_date": "2026-09-26",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Search Term is field 1, and Result URIs and Result Labels are fields 1 and 2 of each field 2 submessage, joined with '; ', as iLEAPP's biomeSystemSettingsSearchTerms module reads them (Reference: iLEAPP, scripts/artifacts/biomeSystemSettingsSearchTerms.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeSystemSettingsSearchTerms.py#L78-L89). Result URIs and Result Labels are blank on a record that holds no field 2. What each record says about how the term was entered is not established; the values are reported as stored. Sync Origin is Local on every row when the extraction holds no remote folder for the stream.",
+        "sample_data": {"dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)"},
+        "paths": ("*/Biome/streams/*/SystemSettings.SearchTerms/local/*",
+                  "*/Biome/streams/*/SystemSettings.SearchTerms/remote/*"),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "search",
+    },
+    "macosBiomeAppIntentsTranscript": {
+        "name": "Biome App Intents Transcript",
+        "description": "Records from the App.Intents.Transcript Biome stream: record and intent times, the donating bundle, the intent class, its parameters, entity types and titles, app URL and phrase template.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-26",
+        "last_update_date": "2026-09-26",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Bundle ID is field 1 and Intent Time is field 4 read as a double of seconds since 1970 UTC, as iLEAPP's biomeAppIntentsTranscript module reads them (Reference: iLEAPP, scripts/artifacts/biomeAppIntentsTranscript.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeAppIntentsTranscript.py#L147-L149). That module takes the intent message from field 5 and falls back to field 6; this artifact takes it from field 6 and falls back to field 5, so a record whose parameters are held under field 6 and not under field 5 keeps them, and a record holding both reports field 6. Intent Class is field 1 of the intent message, and for each of its field 7 submessages Parameters is field 1, Entity Types is field 1 of field 3 of field 1 of field 2, Entity Titles is field 1 of field 1 of field 3 of field 2, and App URL is field 4 of that same message, each list joined with '; ' and App URL without repeats, as that module reads them (https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeAppIntentsTranscript.py#L69-L97). Phrase Template is field 1 of field 1 of field 2 of field 8 (https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeAppIntentsTranscript.py#L137-L145). Each of those columns is blank on a record that lacks the field. What an intent in this stream records beyond its stored values is not established. Sync Origin is Local on every row when the extraction holds no remote folder for the stream.",
+        "sample_data": {"dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)"},
+        "paths": ("*/Biome/streams/*/App.Intents.Transcript/local/*",
+                  "*/Biome/streams/*/App.Intents.Transcript/remote/*"),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "bolt",
+    },
 }
 
 import plistlib
@@ -785,4 +815,52 @@ def macosBiomeSafariAutoPlay(context):
                     'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome Safari AutoPlay', lambda f: (
         text(first(f, 1)), _as_stored(first(f, 3)), text(first(f, 4)), _as_stored(first(f, 5))))
+    return data_headers, rows, source
+
+
+def _joined(values):
+    return '; '.join(v for v in values if v)
+
+
+def _search_results(found):
+    uris, labels = [], []
+    for result in found.get(2, []):
+        sub = _submessage(result)
+        uris.append(text(first(sub, 1)))
+        labels.append(text(first(sub, 2)))
+    return _joined(uris), _joined(labels)
+
+
+@artifact_processor
+def macosBiomeSystemSettingsSearchTerms(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Search Term', 'Result URIs', 'Result Labels',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome System Settings Search Terms', lambda f: (
+        (text(first(f, 1)),) + _search_results(f)))
+    return data_headers, rows, source
+
+
+def _intent_row(found):
+    intent = _submessage(first(found, 6)) or _submessage(first(found, 5))
+    params, types, titles, urls = [], [], [], []
+    for slot in intent.get(7, []):
+        slot = _submessage(slot)
+        params.append(text(first(slot, 1)))
+        payload = _submessage(first(slot, 2))
+        types.append(text(first(_submessage(first(_submessage(first(payload, 1)), 3)), 1)))
+        display = _submessage(first(_submessage(first(payload, 3)), 1))
+        titles.append(text(first(display, 1)))
+        urls.append(text(first(display, 4)))
+    phrase = _submessage(first(_submessage(first(_submessage(first(found, 8)), 2)), 1))
+    return (_unix_double(first(found, 4)), text(first(found, 1)), text(first(intent, 1)), _joined(params),
+            _joined(types), _joined(titles), _joined(sorted(set(u for u in urls if u))),
+            text(first(phrase, 1)))
+
+
+@artifact_processor
+def macosBiomeAppIntentsTranscript(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), ('Intent Time', 'datetime'), 'Bundle ID',
+                    'Intent Class', 'Parameters', 'Entity Types', 'Entity Titles', 'App URL',
+                    'Phrase Template', 'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome App Intents Transcript', _intent_row)
     return data_headers, rows, source

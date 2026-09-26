@@ -201,6 +201,38 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['Field 4 (as stored)'], 'US')
         self.assertEqual(row['Field 5 (as stored)'], '0')
 
+    def test_system_settings_search_terms_with_and_without_results(self):
+        """SystemSettings.SearchTerms: field 1, and fields 1 and 2 of each field 2 submessage."""
+        data = (_ld(1, b'wifi') + _ld(2, _ld(1, b'x-apple.systempreferences:wifi') + _ld(2, b'Wi-Fi'))
+                + _ld(2, _ld(1, b'x-apple.systempreferences:network') + _ld(2, b'Network')))
+        row = _run(macosBiome.macosBiomeSystemSettingsSearchTerms, data)
+        self.assertEqual(row['Search Term'], 'wifi')
+        self.assertEqual(row['Result URIs'], 'x-apple.systempreferences:wifi; x-apple.systempreferences:network')
+        self.assertEqual(row['Result Labels'], 'Wi-Fi; Network')
+        row = _run(macosBiome.macosBiomeSystemSettingsSearchTerms, _ld(1, b'dock'))
+        self.assertEqual((row['Search Term'], row['Result URIs'], row['Result Labels']), ('dock', '', ''))
+
+    def test_app_intents_transcript_reads_field_6_first(self):
+        """App.Intents.Transcript: the intent from field 6, its slots, and the phrase template."""
+        payload = (_ld(1, _ld(3, _ld(1, b'NoteEntity')))
+                   + _ld(3, _ld(1, _ld(1, b'Shopping list') + _ld(4, b'notes://1'))))
+        slot = _ld(1, b'target') + _ld(2, payload)
+        data = (_ld(1, b'com.example.notes') + _f64(4, UNIX_2025.timestamp())
+                + _ld(5, _ld(1, b'OpenNoteIntent'))
+                + _ld(6, _ld(1, b'OpenNoteIntent') + _ld(7, slot) + _ld(7, _ld(1, b'mode')))
+                + _ld(8, _ld(2, _ld(1, _ld(1, b'Open ${target}')))))
+        row = _run(macosBiome.macosBiomeAppIntentsTranscript, data)
+        self.assertEqual(row['Intent Time'], UNIX_2025)
+        self.assertEqual((row['Bundle ID'], row['Intent Class']), ('com.example.notes', 'OpenNoteIntent'))
+        self.assertEqual(row['Parameters'], 'target; mode')
+        self.assertEqual((row['Entity Types'], row['Entity Titles'], row['App URL']),
+                         ('NoteEntity', 'Shopping list', 'notes://1'))
+        self.assertEqual(row['Phrase Template'], 'Open ${target}')
+        fallback = _run(macosBiome.macosBiomeAppIntentsTranscript,
+                        _ld(1, b'com.example.x') + _ld(5, _ld(1, b'OnlyInFive') + _ld(7, _ld(1, b'p'))))
+        self.assertEqual((fallback['Intent Class'], fallback['Parameters'], fallback['Intent Time'],
+                          fallback['Phrase Template']), ('OnlyInFive', 'p', '', ''))
+
     def test_unreadable_timestamp_is_blank(self):
         # field 8 present but not eight bytes: no crash, blank time.
         meta = _ld(1, _vi(8, 5) + _ld(4, b'com.apple.news'))
