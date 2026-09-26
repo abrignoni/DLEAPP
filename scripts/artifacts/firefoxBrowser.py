@@ -202,9 +202,25 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                    '*/Desktop/*Firefox*/*/storage/default/*/ls/data.sqlite*'),
                          'output_types': 'standard',
                          'artifact_icon': 'database',
+                         'sample_data': {}},
+                  'firefoxIndexedDB': {'name': 'Firefox IndexedDB',
+                         'description': 'Records from the IndexedDB databases in a Firefox profile\'s origin storage, with origin, database, object store, key and value (decoded to JSON where the format allows), decode status, file references, profile, and source file.',
+                         'author': '@AlexisBrignoni, Claude',
+                         'creation_date': '2026-09-26',
+                         'last_update_date': '2026-09-26',
+                         'requirements': 'none',
+                         'category': 'Firefox',
+                         'notes': 'One row per record in the object_data table of each IndexedDB database, storage/default/<origin>/idb/<name>.sqlite in a Firefox profile. Origin and Database are the origin and name columns of that file\'s database table, and Object Store is the name of the record\'s object store (table definitions: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/indexedDB/DBSchema.cpp#L91-L129). Key is the record\'s key decoded as Firefox\'s Key.cpp decodes it (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/indexedDB/Key.cpp#L467-L545; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/indexedDB/Key.cpp#L755-L848; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/indexedDB/Key.cpp#L872-L891; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/indexedDB/Key.cpp#L959-L982), written as JSON. Value is the record\'s value, which Firefox stores as a SpiderMonkey structured-clone buffer compressed with raw Snappy (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/indexedDB/ActorsParent.cpp#L19366-L19392); it is decompressed by a decoder written from Google\'s format description (https://github.com/google/snappy/blob/9c28114a38866f6deeaa826db918293bc28ae410/format_description.txt) and read by a reader that follows SpiderMonkey\'s own read loop (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/js/src/vm/StructuredClone.cpp#L4081-L4227; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/js/src/vm/StructuredClone.cpp#L3137-L3451), then written as JSON. A Date is written as {"$date": ...} in UTC, an ArrayBuffer as {"$arraybuffer": ...} in hex, a Map as {"$map": [[key, value], ...]}, a Set as {"$set": [...]}, undefined as {"$undefined": true}, a regular expression as {"$regexp": ..., "flags": ...}, a number that is not finite as {"$number": ...}, and a reference to an object already read as {"$backref": n}, n being its position in read order; a Boolean, String or Number object is written as its value. Decode Status says whether the value was decoded. A value that uses a part of the format not read here is left blank and Decode Status names what stopped it, for example a Firefox DOM object tag such as SCTAG_DOM_BLOB, a typed array, a DataView, a BigInt, an error or saved frame object, or a transfer map (tag lists: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/js/src/vm/StructuredClone.cpp#L101-L175; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/base/StructuredCloneTags.h#L17-L80). A value Firefox wrote to a separate file because it was over its size threshold is stored as an integer instead of a blob, holding flags in its upper 32 bits and a position in the record\'s file_ids in its lower 32 bits (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/indexedDB/ActorsParent.cpp#L19348-L19362); it is not read here and Decode Status says so. The run log counts each kind of value not decoded. File IDs (as stored) is the file_ids column. What the keys and values record is not established; they are reported as stored. Profile is the folder that holds storage/default in the store\'s path. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic. A profile copied out by Firefox\'s Refresh is read too: Firefox puts a copy of the old profile folder, under its own name, made unique if taken, inside a Desktop folder named from the resetBackupDirectory string, \'Old %S Data\' in the en-US source with the application name for %S, so the pattern matches a folder on the Desktop whose name contains Firefox, and Source File shows which copy a row came from. A copy Firefox places in the home folder because no Desktop is available is not matched. Refresh sources: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L59-L96; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/locales/en-US/chrome/mozapps/profile/profileSelection.properties#L55-L56.',
+                         'paths': ('*/Library/Application Support/Firefox/Profiles/*/storage/default/*/idb/*.sqlite*',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/storage/default/*/idb/*.sqlite*',
+                                   '*/.mozilla/firefox/*/storage/default/*/idb/*.sqlite*',
+                                   '*/Desktop/*Firefox*/*/storage/default/*/idb/*.sqlite*'),
+                         'output_types': 'standard',
+                         'artifact_icon': 'database',
                          'sample_data': {}}}
 
 from scripts import firefox
+from scripts import firefox_indexeddb
 from scripts.ilapfuncs import artifact_processor
 
 
@@ -364,4 +380,20 @@ def firefoxLocalStorage(context):
      'User',
      'Source File')
     data_list, source_path = firefox.read_local_storage(context, 'Firefox Local Storage')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def firefoxIndexedDB(context):
+    data_headers = ('Origin',
+     'Database',
+     'Object Store',
+     'Key',
+     'Value',
+     'Decode Status',
+     'File IDs (as stored)',
+     'Profile',
+     'User',
+     'Source File')
+    data_list, source_path = firefox_indexeddb.read_indexeddb(context, 'Firefox IndexedDB')
     return data_headers, data_list, source_path

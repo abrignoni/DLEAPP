@@ -180,6 +180,8 @@ class FirefoxTest(unittest.TestCase):
                     b'\x80'):                    # truncated preamble
             with self.assertRaises(ValueError):
                 firefox.snappy_raw_uncompress(bad)
+        with self.assertRaises(TypeError):   # an integer is never read as a length to allocate
+            firefox.snappy_raw_uncompress(4096)
 
     def test_local_storage_value_types(self):
         """Conversion 1 is UTF-8, 0 is raw UTF-16 code units; compression 1 is raw Snappy."""
@@ -189,6 +191,8 @@ class FirefoxTest(unittest.TestCase):
         for conversion, compression in ((2, 0), (1, 2)):
             with self.assertRaises(ValueError):
                 firefox.local_storage_value(b'x', conversion, compression)
+        with self.assertRaises(TypeError):
+            firefox.local_storage_value(4096, 1, 0)
 
     def test_local_storage_reader_origin_profile_and_undecodable(self):
         """Origin comes from the database table, profile from the folder above storage."""

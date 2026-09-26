@@ -214,6 +214,9 @@ def snappy_raw_uncompress(data):
     Raises ValueError on any malformed element, and unless the output is exactly
     the length the preamble declares.
     """
+    if not isinstance(data, (bytes, bytearray, memoryview)):
+        # bytes(n) on an integer would allocate n zero bytes rather than fail.
+        raise TypeError(f'Snappy input is {type(data).__name__}, not bytes')
     data = bytes(data)
     size, shift, pos = 0, 0, 0
     while True:
@@ -267,6 +270,8 @@ def snappy_raw_uncompress(data):
 
 def local_storage_value(value, conversion, compression):
     """A LocalStorage value as text, following Mozilla's LSValue conversion and compression types."""
+    if not isinstance(value, (bytes, bytearray, memoryview)):
+        raise TypeError(f'value is {type(value).__name__}, not bytes')
     raw = bytes(value)
     if compression == 1:
         raw = snappy_raw_uncompress(raw)
@@ -319,7 +324,8 @@ def read_local_storage(context, label):
                 text = ''
                 failed += 1
             output.append((origin, key, text, utf16_length, conversion, compression,
-                           len(value) if value is not None else '', profile, user, relative))
+                           len(value) if isinstance(value, (bytes, bytearray)) else '',
+                           profile, user, relative))
         sources.append(path)
     if failed:
         logfunc(f'{label}: {failed} value(s) could not be decoded and are left blank')
