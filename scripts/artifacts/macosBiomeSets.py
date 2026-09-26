@@ -231,8 +231,6 @@ def _set_artifact(context, label, row_for, per_app=False):
             if per_app:
                 row += (app_match.group(1) if app_match else '',)
             row += row_for(found) + (user,)
-            if per_app:
-                row += (relative,)
             rows.append(row)
     rows.sort(key=lambda r: (r[0] or datetime.min.replace(tzinfo=timezone.utc)))
     return rows, '\n'.join(read)
@@ -296,7 +294,7 @@ def macosBiomeSetsFindMyDevices(context):
 @artifact_processor
 def macosBiomeSetsShortcutPhrases(context):
     data_headers = (('Record Time (UTC)', 'datetime'), 'Source App', 'Phrase', 'Phrase Template',
-                    'Field 3 (as stored)', 'Intent URL', 'Other Fields (as stored)', 'User', 'Source File')
+                    'Field 3 (as stored)', 'Intent URL', 'Other Fields (as stored)', 'User')
     rows, source = _set_artifact(context, 'Biome Sets App Shortcut Phrases', lambda f: (
         text(first(f, 1)), text(first(f, 2)), text(first(f, 3)), text(first(f, 4)), _other(f, {1, 2, 3, 4})),
         per_app=True)
@@ -306,7 +304,7 @@ def macosBiomeSetsShortcutPhrases(context):
 @artifact_processor
 def macosBiomeSetsShortcutEntities(context):
     data_headers = (('Record Time (UTC)', 'datetime'), 'Source App', 'Entity Name', 'Entity Identifier',
-                    'Entity Type', 'Query Provider', 'Other Fields (as stored)', 'User', 'Source File')
+                    'Entity Type', 'Query Provider', 'Other Fields (as stored)', 'User')
     rows, source = _set_artifact(context, 'Biome Sets App Shortcut Entities', lambda f: (
         text(first(f, 1)), text(first(f, 2)), text(first(f, 3)), text(first(f, 4)), _other(f, {1, 2, 3, 4})),
         per_app=True)

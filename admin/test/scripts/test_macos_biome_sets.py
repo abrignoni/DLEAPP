@@ -100,6 +100,8 @@ class BiomeSetsTest(unittest.TestCase):
     def _rows(self, processor, files):
         headers, rows, _ = processor.__wrapped__(Context(self.root, files))
         names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        for row in rows:
+            self.assertEqual(len(row), len(names), 'a row and its headers differ in length')
         return [dict(zip(names, row)) for row in rows]
 
     def test_installed_apps_instance_layout(self):
@@ -144,7 +146,7 @@ class BiomeSetsTest(unittest.TestCase):
         self.assertEqual(row['Source App'], 'com.example.notes')
         self.assertEqual((row['Phrase'], row['Phrase Template'], row['Field 3 (as stored)'], row['Intent URL']),
                          ('Make a note', 'Make a ${x}', 'extra', 'app://intent'))
-        self.assertTrue(row['Source File'].endswith('Set.db'))
+        self.assertNotIn('Source File', row)
 
     def test_a_row_both_views_hold_is_reported_once(self):
         """Users/ and System/Volumes/Data/Users/ copies that differ still collapse shared rows."""
