@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "with the reconstructed path, size, dates and sync flags as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "File Provider (macOS)",
         "notes": "One row per FP_snapshot record in each "
@@ -39,9 +39,7 @@ __artifacts_v2__ = {
                  "not reported; they are named here so a reader knows they were considered. Column "
                  "names are the database's own. The item content itself is not read. Validated "
                  "locally against a private macOS extraction; row counts and values are not "
-                 "published. User is the folder after Users in the source path, and is blank when "
-                 "the input is one user's home folder whose path names no user, as on the "
-                 "extraction this was built against.",
+                 "published. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user, as on the extraction this was built against.",
         "paths": ('*/Library/Application Support/FileProvider/*/database/db',
                   '*/Library/Application Support/FileProvider/*/database/db-wal',
                   '*/Library/Application Support/FileProvider/*/database/db-shm'),
