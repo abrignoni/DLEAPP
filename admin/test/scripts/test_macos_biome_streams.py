@@ -170,6 +170,37 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['Direction'], '')
         self.assertEqual(row['Interaction ID (as stored)'], '')
 
+    def test_discoverability_signal_fields(self):
+        """Discoverability.Signals: signal, value and field 3 as stored."""
+        data = (_ld(1, b'spotlightWillAppear') + _ld(2, b'menu') + _ld(3, b'macOS-24E248'))
+        row = _run(macosBiome.macosBiomeDiscoverabilitySignals, data)
+        self.assertEqual(row['Signal'], 'spotlightWillAppear')
+        self.assertEqual(row['Value'], 'menu')
+        self.assertEqual(row['Field 3 (as stored)'], 'macOS-24E248')
+
+    def test_media_usage_fields(self):
+        """App.MediaUsage: fields 1, 2, 3, 4, 5 and 8 as stored; field 6 is not a column."""
+        data = (_vi(1, 1) + _ld(2, b'com.apple.Safari') + _ld(3, b'https://example.test/embed/')
+                + _ld(4, b'blob:https://example.test/1') + _vi(5, 1)
+                + _f64(6, UNIX_2025.timestamp()) + _ld(8, b'uuid-1'))
+        row = _run(macosBiome.macosBiomeMediaUsage, data)
+        self.assertEqual(row['Field 1 (as stored)'], '1')
+        self.assertEqual(row['Bundle ID (as stored)'], 'com.apple.Safari')
+        self.assertEqual(row['URL (as stored)'], 'https://example.test/embed/')
+        self.assertEqual(row['Blob URL (as stored)'], 'blob:https://example.test/1')
+        self.assertEqual(row['Field 5 (as stored)'], '1')
+        self.assertEqual(row['UUID (as stored)'], 'uuid-1')
+
+    def test_safari_autoplay_fields(self):
+        """Safari.AutoPlay: host and fields 3, 4 and 5 as stored; field 2 is not a column."""
+        data = (_ld(1, b'www.example.test') + _f64(2, UNIX_2025.timestamp()) + _vi(3, 2)
+                + _ld(4, b'US') + _vi(5, 0))
+        row = _run(macosBiome.macosBiomeSafariAutoPlay, data)
+        self.assertEqual(row['Host (as stored)'], 'www.example.test')
+        self.assertEqual(row['Field 3 (as stored)'], '2')
+        self.assertEqual(row['Field 4 (as stored)'], 'US')
+        self.assertEqual(row['Field 5 (as stored)'], '0')
+
     def test_unreadable_timestamp_is_blank(self):
         # field 8 present but not eight bytes: no crash, blank time.
         meta = _ld(1, _vi(8, 5) + _ld(4, b'com.apple.news'))
