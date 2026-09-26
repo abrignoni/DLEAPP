@@ -11,8 +11,8 @@ __artifacts_v2__ = {
     "windowsUsnJournal": {
         "name": "USN Journal",
         "description": "Records of the NTFS change journal ($Extend/$UsnJrnl:$J): the time, file "
-                       "name and reason flags of each, with the parent directory's path taken "
-                       "from the same volume's $MFT.",
+                       "name and reason flags of each, and the parent directory's path where the "
+                       "same volume's $MFT resolves it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
                  "chain does not reach the root. Version 4 records, which describe changed "
                  "ranges and carry no name or time, are counted in the run log, not reported, "
                  "as are bytes that do not form a record. SecurityId is not reported: it held 0 "
-                 "on every record of the tested journal. A record is a change NTFS noted; it "
+                 "on every record of every journal tested, 1,046,880 in all. A record is a change NTFS noted; it "
                  "does not record which user or program made it, and a journal's first record "
                  "is not evidence of when the journal began. Tested on a Windows-written NTFS "
                  "volume from the dissect.ntfs test data (tests/_data/ntfs-cloud.bin.gz at "
@@ -50,11 +50,28 @@ __artifacts_v2__ = {
                  "rows and is one or two microseconds away on the other 88, and on a row of each "
                  "size of difference, checked against the stored value, the difference is in "
                  "dissect.ntfs's reading. Record "
-                 "Version held 2 on all 179 rows. Version 3 records are read by the same code "
+                 "Version held 2 on all 179 rows. Run on three Windows-written volumes read as E01 "
+                 "images: 380,893 rows on pc_mus_001_win11, 312,959 on af_case2_win10 and "
+                 "352,849 on lonewolf_win10. Each staged $J is byte-identical to The Sleuth "
+                 "Kit's icat reading of the stream from its first stored cluster, and the hole "
+                 "in front of it, 768 MiB, 56 MiB and 200 MiB, was not copied. On each image the "
+                 "USNs and file names are equal, as a multiset, to dissect.ntfs 3.16's reading "
+                 "of the same staged stream. A file name that is not valid UTF-16 is decoded "
+                 "with each bad unit replaced by U+FFFD, which 8 rows of pc_mus_001_win11 carry;"
+                 " dissect.ntfs 3.16 stops at such a name, so on that image its decode was set "
+                 "to replace them the same way for the comparison. Record Version held 2 on all "
+                 "1,046,701 of those rows. Source Info has a value on 60 rows of "
+                 "pc_mus_001_win11 and on none of the other two. Parent Path is blank on "
+                 "44,318, 89,164 and 73,804 rows. Version 3 records are read by the same code "
                  "with the wider references and have not been run against a journal holding "
                  "them.",
         "paths": ('*/$Extend/$UsnJrnl:$J', '*/$MFT'),
         "output_types": "standard",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 380893 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 312959 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 352849 rows",
+        },
         "artifact_icon": "history",
     }
 }

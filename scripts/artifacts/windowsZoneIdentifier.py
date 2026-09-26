@@ -40,12 +40,22 @@ __artifacts_v2__ = {
                  "the file still holds what it held when the stream was written, is not "
                  "recorded in it. Tested on the NTFS fixture written by mkntfs and ntfs-3g that "
                  "the raw image seeker tests read (admin/test/data/raw_images/ntfs-streams.img.gz),"
-                 " which holds two such streams: 2 rows, both ZoneId 3. No Windows-written "
-                 "Zone.Identifier stream has been run through this artifact; the one real "
-                 "stream at hand, 26 bytes resident in a deleted record of a public Windows XP "
-                 "$MFT sample, is decoded by the unit test.",
+                 " which holds two such streams: 2 rows, both ZoneId 3. Run on three Windows-written "
+                 "volumes read as E01 images: 12 rows on pc_mus_001_win11, 8 on af_case2_win10 "
+                 "and 13 on lonewolf_win10, equal on each to the number of Zone.Identifier "
+                 "streams qnxprobe 1.37 lists, each of which is byte-identical to The Sleuth "
+                 "Kit's icat reading of the same stream. ZoneId held 3 on all 33 rows, so Zone "
+                 "held URLZONE_INTERNET on all 33. HostUrl has a value on 10, 1 and 12 of those "
+                 "rows, ReferrerUrl on 11, 1 and 12, and Other Values on 0, 4 and 1. A 26-byte "
+                 "stream resident in a deleted record of a public Windows XP $MFT sample is "
+                 "also decoded by the unit test.",
         "paths": ('*:Zone.Identifier',),
         "output_types": "standard",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 12 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 8 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 13 rows",
+        },
         "artifact_icon": "world-download",
     }
 }
