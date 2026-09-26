@@ -112,3 +112,77 @@ class GarminExpressTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+LOG_LINES = (
+    'orphan text before the first record\n'
+    '2026-01-02 03.04.05 (GMT+02:00) | 123456 | I | Starting transfer to [test]\n'
+    '2026-01-02 03.04.06 (GMT+02:00) | 123456 | W | The file[TEST.FIT] was processed\n'
+    '(first continuation, value)\n'
+    '(second continuation, value)\n'
+    '2026-07-08 23.30.00 (UTC-05:30) | 7654321 | E | Error test\n'
+)
+
+
+class GarminExpressLogTest(unittest.TestCase):
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        self.addCleanup(self.tmp.cleanup)
+        self.root = pathlib.Path(self.tmp.name)
+        self.logged = []
+        for target in (garminExpress, macos_plists):
+            patcher = patch.object(target, 'logfunc', self.logged.append)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def _log(self, users_root, name, text):
+        folder = users_root/'Library'/'Application Support'/'Garmin'/'Express'/'Logs'
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder/name
+        path.write_text(text, encoding='utf-8')
+        return path
+
+    def _rows(self, files):
+        headers, rows, _ = garminExpress.garminExpressLog.__wrapped__(Context(self.root, files))
+        names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        return [dict(zip(names, row)) for row in rows]
+
+    def test_records_offsets_continuations_and_orphans(self):
+        """Each record line is a row; UTC uses the line's own offset; continuations join."""
+        path = self._log(self.root/'Users'/'tester', 'Client_test.txt', LOG_LINES)
+        rows = self._rows([path])
+        self.assertEqual(len(rows), 4)
+        orphan, first, second, third = rows
+        self.assertEqual((orphan['Time (UTC)'], orphan['Message'], orphan['Line']),
+                         ('', 'orphan text before the first record', 1))
+        self.assertEqual(first['Time (UTC)'], datetime(2026, 1, 2, 1, 4, 5, tzinfo=timezone.utc))
+        self.assertEqual(first['Local Time (as recorded)'], '2026-01-02 03.04.05')
+        self.assertEqual(first['Offset (as recorded)'], 'GMT+02:00')
+        self.assertEqual((first['ID (as stored)'], first['Level (as stored)']), ('123456', 'I'))
+        self.assertEqual(second['Message'], 'The file[TEST.FIT] was processed\n'
+                         '(first continuation, value)\n(second continuation, value)')
+        self.assertEqual(second['Line'], 3)
+        self.assertEqual(third['Time (UTC)'], datetime(2026, 7, 9, 5, 0, 0, tzinfo=timezone.utc))
+        self.assertEqual(third['Offset (as recorded)'], 'UTC-05:30')
+        self.assertEqual(third['User'], 'tester')
+
+    def test_a_copy_that_extends_the_other_is_read_once(self):
+        """Users/ and System/Volumes/Data/Users/ copies: the longer prefix-extending copy only."""
+        short = self._log(self.root/'Users'/'tester', 'Service_test.txt', LOG_LINES[:-45])
+        long_ = self._log(self.root/'System'/'Volumes'/'Data'/'Users'/'tester', 'Service_test.txt',
+                          LOG_LINES)
+        self.assertTrue(long_.read_bytes().startswith(short.read_bytes()))
+        rows = self._rows([short, long_])
+        self.assertEqual(len(rows), 4)
+        self.assertTrue(all(r['Source File'].startswith('System/') for r in rows))
+        self.assertFalse(any('neither extends the other' in line for line in self.logged))
+
+    def test_copies_that_diverge_are_both_read_and_logged(self):
+        """Neither copy extends the other: both are read, and the run log says so."""
+        one = self._log(self.root/'Users'/'tester', 'Service_test.txt', LOG_LINES)
+        two = self._log(self.root/'System'/'Volumes'/'Data'/'Users'/'tester', 'Service_test.txt',
+                        LOG_LINES.replace('Error test', 'Other test'))
+        rows = self._rows([one, two])
+        self.assertEqual(len(rows), 8)
+        self.assertTrue(any('neither extends the other' in line for line in self.logged))
