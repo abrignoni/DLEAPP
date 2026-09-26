@@ -1,4 +1,4 @@
-"""Pin the profile naming in scripts/artifacts/windowsSysinternalsEula.py."""
+"""Pin profile naming and value rendering in windowsSysinternalsEula.py."""
 import pathlib
 import sys
 import unittest
@@ -18,6 +18,17 @@ class ProfileTest(unittest.TestCase):
 
     def test_hive_at_the_root(self):
         self.assertEqual(eula.profile_of('NTUSER.DAT'), '')
+
+
+class StoredValueTest(unittest.TestCase):
+    def test_numbers_and_strings_are_unchanged(self):
+        self.assertEqual(eula.stored_value(1), 1)
+        self.assertEqual(eula.stored_value(0), 0)
+        self.assertEqual(eula.stored_value('1'), '1')
+
+    def test_binary_is_hex_and_multi_string_is_joined(self):
+        self.assertEqual(eula.stored_value(b'\x01\x00\x00\x00'), '01000000')
+        self.assertEqual(eula.stored_value(['a', 'b']), 'a; b')
 
 
 if __name__ == '__main__':
