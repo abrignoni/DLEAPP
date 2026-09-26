@@ -192,6 +192,11 @@ class HelperTest(unittest.TestCase):
         self.assertIsNone(saved.saved_text([b'abcd', good[1]]))
         self.assertIsNone(saved.saved_text(['abc', good[1]]))
         self.assertIsNone(saved.saved_text([b'abc', 'x' * 24]))
+        several = bytes(range(1, 25)) + bytes(8) + struct.pack('<I', 99) + bytes(12)
+        self.assertEqual(saved.saved_text([b'$ styled\n', several] + tab_contents(b'\n')), '$ styled\n\n')
+        self.assertIsNone(saved.saved_text([b'abc', b'']))
+        self.assertIsNone(saved.saved_text([b'abc', good[1] + b'x']))
+        self.assertIsNone(saved.saved_text([b'abc', several[:47]]))
         self.assertIsNone(saved.saved_text('abc'))
         self.assertEqual(saved.saved_text([]), '')
 
