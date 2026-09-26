@@ -17,7 +17,7 @@ __artifacts_v2__ = {
                  ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                  "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                  'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                 'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                 'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                  'the home folder because no Desktop is available is not matched. Refresh sources: '
                  'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                  ' '
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                  ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                  "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                  'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                 'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                 'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                  'the home folder because no Desktop is available is not matched. Refresh sources: '
                  'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                  ' '
@@ -62,7 +62,7 @@ def firefoxSitePermissions(context):
     data_headers = (('Modified Time', 'datetime'), ('Expiry Time', 'datetime'),
                     'Permission ID', 'Origin or Host', 'Permission Type',
                     'Capability Code (as stored)', 'Expiry Type (as stored)',
-                    'Source Table', 'Profile', 'User', 'Source File')
+                    'Source Table', 'Profile', 'User')
     data_list, source_path = firefox.read_artifact(
         context, 'permissions.sqlite', firefox_settings.permissions, 'Firefox Site Permissions')
     return data_headers, data_list, source_path
@@ -74,6 +74,6 @@ def firefoxExtensions(context):
                     'Extension ID', 'Name', 'Version', 'Location', 'Active (as stored)',
                     'User Disabled (as stored)', 'App Disabled (as stored)', 'Source URI',
                     'Install Path (as stored)', 'User Permissions (JSON)',
-                    'Optional Permissions (JSON)', 'Profile', 'User', 'Source File')
+                    'Optional Permissions (JSON)', 'Profile', 'User')
     data_list, source_path = firefox_settings.read_extensions(context)
     return data_headers, data_list, source_path

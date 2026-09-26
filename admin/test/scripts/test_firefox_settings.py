@@ -99,8 +99,9 @@ class FirefoxSettingsTest(unittest.TestCase):
             with patch('scripts.firefox_settings.logfunc') as log:
                 rows, sources = firefox_settings.read_extensions(Context)
             self.assertEqual(len(rows), 2)
-            self.assertEqual({row[-3] for row in rows}, {'one','two'})
-            self.assertEqual({row[-2] for row in rows}, {'evidence'})
+            self.assertEqual({row[-2] for row in rows}, {'one','two'})
+            self.assertEqual({row[-1] for row in rows}, {'evidence'})
+            self.assertNotIn('extensions.json', repr(rows))
             self.assertEqual(len(sources.splitlines()), 2)
             self.assertEqual(log.call_count, 1)
 

@@ -65,6 +65,6 @@ def read_extensions(context):
         except (OSError, ValueError, TypeError, UnicodeError):
             logfunc('Firefox Extensions: could not read a profile extension inventory')
             continue
-        result.extend(row + (profile, user, relative) for row in rows)
+        result.extend(row + (profile, user) for row in rows)
         sources.append(path)
     return result, '\n'.join(sources)

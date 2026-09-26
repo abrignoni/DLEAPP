@@ -75,7 +75,8 @@ class FirefoxRefreshPathsTest(unittest.TestCase):
 
             rows, _source = firefox.read_artifact(Context, 'places.sqlite', firefox.visits, 'Test')
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0][-3:], ('ab12cd34.default-release', 'tester', relative))
+        self.assertEqual(rows[0][-2:], ('ab12cd34.default-release', 'tester'))
+        self.assertNotIn(relative, rows[0])
 
 
 if __name__ == '__main__':
