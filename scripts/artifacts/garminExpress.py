@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "last sync time as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
         "notes": "One row per folder in ~/Library/Application Support/Garmin/Express/"
@@ -33,8 +33,7 @@ __artifacts_v2__ = {
                  "Recorded counts the file names in the device's CompletedUploadsV2 plists, which "
                  "the Garmin Express Uploads artifact lists. A missing or unreadable file leaves its"
                  " columns blank and is logged. The Logs folder is not read. Only the macOS "
-                 "location is covered. User is the folder after Users in the source path, and is "
-                 "blank when the input is one user's home folder whose path names no user. Public "
+                 "location is covered. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. Public "
                  "regression cases are independently authored synthetic data; local private "
                  "validation details are not published. Reference: Garmin, GarminDevice v2 "
                  "schema, http://www.garmin.com/xmlschemas/GarminDevicev2.xsd.",
@@ -52,7 +51,7 @@ __artifacts_v2__ = {
                        "device, with the FIT file type named in the list's file name.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
         "notes": "One row per string in each CompletedUploadsV2_<name>.plist of a folder in "
@@ -64,9 +63,7 @@ __artifacts_v2__ = {
                  "from the list names and not from a Garmin source. The file names are reported "
                  "as stored and no date is decoded from them. The list records a name, not the "
                  "file: an upload listed here need not be anywhere in the extraction. Model, Unit "
-                 "ID and Serial Number tie each row to its row in Garmin Express Devices. User is "
-                 "the folder after Users in the source path, and is blank when the input is one "
-                 "user's home folder whose path names no user. Public regression cases are "
+                 "ID and Serial Number tie each row to its row in Garmin Express Devices. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. Public regression cases are "
                  "independently authored synthetic data; local private validation details are "
                  "not published. Reference: Garmin, fit-python-sdk profile.py, "
                  "https://github.com/garmin/fit-python-sdk/blob/6db34d7958dce3cef89194e82d6bdc9437c810de/garmin_fit_sdk/profile.py#L26744-L26765.",
