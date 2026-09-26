@@ -98,14 +98,18 @@ __artifacts_v2__ = {
                  "Directory URL (the Tab Working Directory URL String value), Tab Scrollback "
                  "Restorable and Tab Session ID are those keys as stored. Saved Text is built from "
                  "the dictionary's Tab Contents v2 list, which CrowdStrike decodes into the text "
-                 "of the Terminal session and notes carries no timestamps. On the tested record "
-                 "that list alternated a text item and a 24-byte item whose bytes 8 to 11 held, "
-                 "little-endian, the length of the text item before it; Saved Text joins the text "
-                 "items when the whole list follows that layout, and otherwise is left blank and "
-                 "the run log says so. Latest Record is Yes on the last record, by position in the "
-                 "file, among the decoded records with the same window id and identifier, since "
-                 "the file is append-only and the last record for a window id and identifier is "
-                 "the current one "
+                 "of the Terminal session and notes carries no timestamps. On the tested records "
+                 "that list alternated a text item and a descriptor made of 24-byte records. On "
+                 "dleapp_macos_bigsur every descriptor was one record whose bytes 8 to 11 held, "
+                 "little-endian, the length of the text item before it; on a private macOS 26 "
+                 "system, measured locally, a descriptor could also be several such records, whose "
+                 "fields are not interpreted. Saved Text joins the text items when every "
+                 "descriptor is a whole number of 24-byte records and each one-record descriptor "
+                 "holds its text item's length, and otherwise is left blank and the run log says "
+                 "so. Latest Record is Yes on the last record, by position in the file, among the "
+                 "decoded records with the same window id and identifier, since the file is "
+                 "append-only and the last record for a window id and identifier is the current "
+                 "one "
                  "(https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/MacOS.Applications.SavedState.yaml#L27; "
                  "Mothers Ruin), and Record Offset is the record's byte offset in data.data. "
                  "Records for a window id that windows.plist holds no NSDataKey for, and records "
@@ -124,13 +128,16 @@ __artifacts_v2__ = {
                  "their magic and each archive by the length stored before it, and its Tab "
                  "Contents v2 held 24 text items each followed by a 24-byte item of the layout "
                  "above. The com.apple.iCal data.data there held 9 records, 6 of them for a window "
-                 "its windows.plist holds no key for. No tab with typed commands and no window "
-                 "with more than one tab was tested. On a private macOS 26 system, measured "
-                 "locally, the record layout held and records decrypted with the keys its "
-                 "windows.plist files gave, but no Terminal window record there could be "
-                 "decrypted, so the Terminal decoding was not tested on macOS 15 or later; the "
-                 "public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) "
-                 "holds no Saved Application State folder.",
+                 "its windows.plist holds no key for. No window with more than one tab was tested. "
+                 "On the private macOS 26 system, Terminal wrote its window record while it ran, "
+                 "the record decrypted with the key its windows.plist gave, and a command typed "
+                 "there for the test came back in Saved Text; counts and values from it are not "
+                 "published. Mothers Ruin describes this state as kept when an app quits only "
+                 "while Close windows when quitting an application is off, and on that system "
+                 "Terminal's folder was empty after Terminal was quit, so an empty or missing "
+                 "Terminal folder does not show that Terminal went unused. The public MacBook Pro "
+                 "logical extraction (macOS 15.4, not a registered corpus key) holds no Saved "
+                 "Application State folder.",
         "paths": (
             '*/Saved Application State/*.savedState/windows.plist',
             '*/Saved Application State/*.savedState/data.data',
@@ -333,8 +340,9 @@ def terminal_window(archive):
 def saved_text(items):
     """The text of a Tab Contents v2 list, or None when the list does not follow its layout.
 
-    The list alternates a text item and a 24-byte item whose bytes 8 to 11 hold, little-endian,
-    the length of the text item before it. The text items are joined in order.
+    The list alternates a text item and a descriptor of one or more 24-byte records. A
+    descriptor of one record holds, little-endian at bytes 8 to 11, the length of the text item
+    before it; a longer descriptor is not interpreted. The text items are joined in order.
     """
     if not isinstance(items, list) or len(items) % 2:
         return None
@@ -342,7 +350,9 @@ def saved_text(items):
     for text, descriptor in zip(items[0::2], items[1::2]):
         if not isinstance(text, bytes) or not isinstance(descriptor, bytes):
             return None
-        if len(descriptor) != 24 or int.from_bytes(descriptor[8:12], 'little') != len(text):
+        if not descriptor or len(descriptor) % 24:
+            return None
+        if len(descriptor) == 24 and int.from_bytes(descriptor[8:12], 'little') != len(text):
             return None
         parts.append(text.decode('utf-8', 'replace'))
     return ''.join(parts)
