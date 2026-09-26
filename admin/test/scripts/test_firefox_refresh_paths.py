@@ -42,9 +42,9 @@ class FirefoxRefreshPathsTest(unittest.TestCase):
 
     def test_every_artifact_matches_a_refresh_copy(self):
         paths = _paths()
-        self.assertEqual(len(paths), 9)
+        self.assertEqual(len(paths), 10)
         for key, patterns in paths.items():
-            store = patterns[0].rsplit('/', 1)[1].rstrip('*')
+            store = patterns[0].split('Profiles/*/', 1)[1].rstrip('*').replace('*', 'https+++example.test')
             for container in CONTAINERS:
                 with self.subTest(artifact=key, container=container):
                     self.assertTrue(_matches(patterns, f'/case/{container}/ab12cd34.default-release/{store}'))

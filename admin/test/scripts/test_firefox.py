@@ -168,9 +168,66 @@ class FirefoxTest(unittest.TestCase):
                                       32, 0, 1, 4, 7))
         self.assertEqual(root, ('', '', '', 'https://example.test/favicon.ico', 65535, 1, 0, 1, 8))
 
+    def test_snappy_raw_follows_the_format_description(self):
+        """The spec's own example, a long literal, a 2-byte offset copy, and malformed streams."""
+        self.assertEqual(firefox.snappy_raw_uncompress(b'\x07\x08xab\x01\x02'), b'xababab')
+        long_literal = bytes(range(70))
+        self.assertEqual(firefox.snappy_raw_uncompress(b'\x46\xf0\x45' + long_literal), long_literal)
+        self.assertEqual(firefox.snappy_raw_uncompress(b'\x09\x08abc\x16\x03\x00'), b'abcabcabc')
+        for bad in (b'\x07\x08xab\x01\x00',   # offset 0
+                    b'\x08\x08xab\x01\x02',   # output shorter than declared
+                    b'\x07\x08xa',              # truncated literal
+                    b'\x80'):                    # truncated preamble
+            with self.assertRaises(ValueError):
+                firefox.snappy_raw_uncompress(bad)
+
+    def test_local_storage_value_types(self):
+        """Conversion 1 is UTF-8, 0 is raw UTF-16 code units; compression 1 is raw Snappy."""
+        self.assertEqual(firefox.local_storage_value('héllo'.encode('utf-8'), 1, 0), 'héllo')
+        self.assertEqual(firefox.local_storage_value(b'a\x00\x00\xd8', 0, 0), 'a\ufffd')
+        self.assertEqual(firefox.local_storage_value(b'\x07\x08xab\x01\x02', 1, 1), 'xababab')
+        for conversion, compression in ((2, 0), (1, 2)):
+            with self.assertRaises(ValueError):
+                firefox.local_storage_value(b'x', conversion, compression)
+
+    def test_local_storage_reader_origin_profile_and_undecodable(self):
+        """Origin comes from the database table, profile from the folder above storage."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            store = (root/'Users'/'tester'/'storage'/'Library'/'Application Support'/'Firefox'/'Profiles'/
+                     'ab12.default-release'/'storage'/'default'/'https+++example.test'/'ls'/'data.sqlite')
+            store.parent.mkdir(parents=True)
+            db = sqlite3.connect(store)
+            db.executescript('''CREATE TABLE database(origin TEXT, usage INTEGER, last_vacuum_time INTEGER,
+                    last_analyze_time INTEGER, last_vacuum_size INTEGER);
+                CREATE TABLE data(key TEXT PRIMARY KEY, utf16_length INTEGER, conversion_type INTEGER,
+                    compression_type INTEGER, last_access_time INTEGER, value BLOB);
+                INSERT INTO database VALUES('https://example.test', 0, 0, 0, 0);''')
+            db.execute('INSERT INTO data VALUES(?,?,?,?,?,?)', ('plain', 5, 1, 0, 0, b'hello'))
+            db.execute('INSERT INTO data VALUES(?,?,?,?,?,?)', ('packed', 7, 1, 1, 0, b'\x07\x08xab\x01\x02'))
+            db.execute('INSERT INTO data VALUES(?,?,?,?,?,?)', ('broken', 3, 1, 1, 0, b'\x03\x01\x00'))
+            db.commit()
+            db.close()
+
+            class Context:
+                def get_files_found(self):
+                    return [str(store)]
+
+                def get_relative_path(self, path):
+                    return str(pathlib.Path(path).relative_to(root))
+            with patch.object(firefox, 'logfunc') as logged:
+                rows, _ = firefox.read_local_storage(Context(), 'Firefox Local Storage')
+            by_key = {row[1]: row for row in rows}
+            self.assertEqual(by_key['plain'][0], 'https://example.test')
+            self.assertEqual(by_key['plain'][2], 'hello')
+            self.assertEqual(by_key['packed'][2], 'xababab')
+            self.assertEqual(by_key['broken'][2], '')
+            self.assertEqual((by_key['plain'][7], by_key['plain'][8]), ('ab12.default-release', 'tester'))
+            self.assertTrue(any('1 value(s) could not be decoded' in str(call) for call in logged.call_args_list))
+
     def test_patterns_match_profiles_and_sidecars_once(self):
         for artifact in firefoxBrowser.__artifacts_v2__.values():
-            filename = artifact['paths'][0].rsplit('/', 1)[1][:-1]
+            filename = artifact['paths'][0].split('Profiles/*/', 1)[1].rstrip('*').replace('*', 'https+++example.test')
             for prefix in ('root/Library/Application Support/Firefox/Profiles/p/',
                            'root/Users/A/AppData/Roaming/Mozilla/Firefox/Profiles/p/',
                            'root/home/a/.mozilla/firefox/p/'):
