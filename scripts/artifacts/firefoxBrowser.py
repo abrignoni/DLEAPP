@@ -172,6 +172,21 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                    '*/Desktop/*Firefox*/*/places.sqlite*'),
                          'output_types': 'standard',
                          'artifact_icon': 'browser',
+                         'sample_data': {}},
+                  'firefoxFavicons': {'name': 'Firefox Favicons',
+                         'description': 'Page and icon records from Firefox favicons.sqlite: page URL, icon URL, icon and link expiry, width, root and flags as stored, icon size, profile, and source file.',
+                         'author': '@AlexisBrignoni, Claude',
+                         'creation_date': '2026-09-26',
+                         'last_update_date': '2026-09-26',
+                         'requirements': 'none',
+                         'category': 'Firefox',
+                         'notes': "One row per link in moz_icons_to_pages between a page in moz_pages_w_icons and an icon in moz_icons, then one row for each icon in moz_icons that no link names, with Page URL and Link Expires blank. Firefox does not link root icons to pages: an icon whose host is the page's host and whose path is /favicon.ico is treated as valid for the whole origin, and no page URL or link is written for it (References: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/nsFaviconService.cpp#L421-L427; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/FaviconHelpers.cpp#L778-L783). Icon Expires is moz_icons.expire_ms and Link Expires is moz_icons_to_pages.expire_ms, read as milliseconds since 1970 UTC: Firefox writes both as its microsecond time divided by 1000 (icons: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/FaviconHelpers.cpp#L246 and https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/FaviconHelpers.cpp#L269; links: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/FaviconHelpers.cpp#L828 and https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/FaviconHelpers.cpp#L1061-L1077) and reads the icon value back multiplied by 1000 (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/FaviconHelpers.cpp#L338-L341). A stored 0, the column default, is left blank. Width is the stored width; Firefox treats icons as square, keeps one size, and stores 65535 for an SVG icon (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/nsPlacesTables.h#L232-L236). Root (as stored) is moz_icons.root. Flags (as stored) is moz_icons.flags, a bitset whose bit 0 Firefox names ICONDATA_FLAGS_RICH (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/nsIFaviconService.idl#L18-L19); what makes an icon rich is not stated there. Icon Size (bytes) is the length of the stored icon data; the image is not rendered. Icon ID is moz_icons.id. A row records that Firefox stored an icon for a page or an origin; it is not established as a visit, and Firefox's own comment says history removal also expires orphan icons (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/FaviconHelpers.cpp#L790-L792). Table definitions: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/places/nsPlacesTables.h#L224-L263. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic. A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old profile folder, under its own name, made unique if taken, inside a Desktop folder named from the resetBackupDirectory string, 'Old %S Data' in the en-US source with the application name for %S, so the pattern matches a folder on the Desktop whose name contains Firefox, and Source File shows which copy a row came from. A copy Firefox places in the home folder because no Desktop is available is not matched. Refresh sources: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L59-L96; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/locales/en-US/chrome/mozapps/profile/profileSelection.properties#L55-L56.",
+                         'paths': ('*/Library/Application Support/Firefox/Profiles/*/favicons.sqlite*',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/favicons.sqlite*',
+                                   '*/.mozilla/firefox/*/favicons.sqlite*',
+                                   '*/Desktop/*Firefox*/*/favicons.sqlite*'),
+                         'output_types': 'standard',
+                         'artifact_icon': 'photo',
                          'sample_data': {}}}
 
 from scripts import firefox
@@ -299,4 +314,23 @@ def firefoxInteractions(context):
      'Source File')
     data_list, source_path = firefox.read_artifact(
         context, 'places.sqlite', firefox.interactions, 'Firefox Page Interactions')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def firefoxFavicons(context):
+    data_headers = (('Icon Expires', 'datetime'),
+     ('Link Expires', 'datetime'),
+     'Page URL',
+     'Icon URL',
+     'Width',
+     'Root (as stored)',
+     'Flags (as stored)',
+     'Icon Size (bytes)',
+     'Icon ID',
+     'Profile',
+     'User',
+     'Source File')
+    data_list, source_path = firefox.read_artifact(
+        context, 'favicons.sqlite', firefox.favicons, 'Firefox Favicons')
     return data_headers, data_list, source_path
