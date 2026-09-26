@@ -1,4 +1,4 @@
-"""Records from twelve macOS Biome streams, for DLEAPP.
+"""Records from fifteen macOS Biome streams, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -460,6 +460,54 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": 'bolt',
     },
+    "macosBiomeDiscoverabilitySignals": {
+        "name": 'Biome Discoverability Signals',
+        "description": 'Records from the Discoverability.Signals Biome stream: record time, the signal name, its value, and field 3 as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-26",
+        "last_update_date": "2026-09-26",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Signal is field 1 and Value is field 2, as iLEAPP's biomeDiscoverabilitySignals module reads them (Reference: iLEAPP, scripts/artifacts/biomeDiscoverabilitySignals.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeDiscoverabilitySignals.py#L93-L100). Field 3 (as stored) is field 3: that module reads field 3 as a submessage, but on every record of the tested extraction that holds it, field 3 is a plain string, macOS-24E248, and 24E248 is the ProductBuildVersion in that extraction's System/Library/CoreServices/SystemVersion.plist. That module also reads field 4 as a payload; no record of the tested extraction holds a field 4, so it is not reported. What each signal records beyond its name is not established. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 30 rows from one user's local folder, so User and Sync Origin each held one value there; Signal held five distinct names: two in the com.apple.Safari namespace, on 13 rows and on 8, spotlightWillAppear on 6, com.apple.notificationcenter.opened on 2 and com.apple.controlcenter.presented on 1, Value was filled on 23 rows and Field 3 (as stored) on 9, and Record Time fell in 2025 on every row.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/Discoverability.Signals/local/*', '*/Biome/streams/*/Discoverability.Signals/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'radio',
+    },
+    "macosBiomeMediaUsage": {
+        "name": 'Biome App Media Usage',
+        "description": 'Records from the App.MediaUsage Biome stream: record time and the fields each record holds as stored, including an app bundle ID, URLs where present and a UUID.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-26",
+        "last_update_date": "2026-09-26",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. No iLEAPP module reads this stream, so the fields are reported as stored and each column is named for the form of its value, not for a meaning. Field 1 (as stored) is field 1. Bundle ID (as stored) is field 2, which held a reverse-DNS app identifier on every record. URL (as stored) is field 3 and Blob URL (as stored) is field 4, which held an https URL and a blob: URL where present. Field 5 (as stored) is field 5 and UUID (as stored) is field 8. Field 6, read as eight bytes of a little-endian double of seconds since 1 January 1970 UTC, was within 0.012 seconds of Record Time on every record of the tested extraction, so it is not reported separately. What each field records is not established. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 14 rows from one user's local folder, so User and Sync Origin each held one value there; Bundle ID (as stored) was com.apple.AppStore on 10 rows and com.apple.Safari on 4, URL (as stored) and Blob URL (as stored) were filled on the 4 com.apple.Safari rows only, Field 5 (as stored) held 1 on every row, and each of the 7 UUID (as stored) values appeared on two rows with the same Bundle ID (as stored), the earlier with Field 1 (as stored) 1 and the later with 0, between 2 and 301 seconds apart. Record Time fell in 2025 on every row.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/App.MediaUsage/local/*', '*/Biome/streams/*/App.MediaUsage/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'player-play',
+    },
+    "macosBiomeSafariAutoPlay": {
+        "name": 'Biome Safari AutoPlay',
+        "description": 'Records from the Safari.AutoPlay Biome stream: record time, a host name, and fields 3, 4 and 5 as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-26",
+        "last_update_date": "2026-09-26",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder name under Users. Sync Origin is Local for the local folder, or Remote with the name of the folder under remote the record came from. Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. No iLEAPP module reads this stream, so the fields are reported as stored and each column is named for the form of its value, not for a meaning. Host (as stored) is field 1, which held a host name on every record. Field 3 (as stored), Field 4 (as stored) and Field 5 (as stored) are fields 3, 4 and 5. Field 2, read as eight bytes of a little-endian double of seconds since 1 January 1970 UTC, was the first half-hour boundary after Record Time on every record of the tested extraction, so it is not reported separately. What each field records is not established. On the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the stream gives 8 rows from one user's local folder, so User and Sync Origin each held one value there; Host (as stored) held three distinct host names, Field 3 (as stored), Field 4 (as stored) and Field 5 (as stored) held 2, US and 0 on every row, and Record Time fell in 2025 on every row.",
+        "sample_data": {
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
+                 },
+        "paths": ('*/Biome/streams/*/Safari.AutoPlay/local/*', '*/Biome/streams/*/Safari.AutoPlay/remote/*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": 'brand-safari',
+    },
 }
 
 import plistlib
@@ -713,4 +761,34 @@ def macosBiomeAppIntent(context):
     if unread:
         logfunc(f'Biome App Intents: field 8 of {len(unread)} record(s) did not read as a keyed '
                 'archive; their interaction columns are blank')
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeDiscoverabilitySignals(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Signal', 'Value', 'Field 3 (as stored)',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome Discoverability Signals', lambda f: (
+        text(first(f, 1)), text(first(f, 2)), text(first(f, 3))))
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeMediaUsage(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Field 1 (as stored)', 'Bundle ID (as stored)',
+                    'URL (as stored)', 'Blob URL (as stored)', 'Field 5 (as stored)', 'UUID (as stored)',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome App Media Usage', lambda f: (
+        _as_stored(first(f, 1)), text(first(f, 2)), text(first(f, 3)), text(first(f, 4)),
+        _as_stored(first(f, 5)), text(first(f, 8))))
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeSafariAutoPlay(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Host (as stored)', 'Field 3 (as stored)',
+                    'Field 4 (as stored)', 'Field 5 (as stored)',
+                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome Safari AutoPlay', lambda f: (
+        text(first(f, 1)), _as_stored(first(f, 3)), text(first(f, 4)), _as_stored(first(f, 5))))
     return data_headers, rows, source
