@@ -236,10 +236,30 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                    '*/Desktop/*Firefox*/*/sessionstore-backups/*'),
                          'output_types': 'standard',
                          'artifact_icon': 'browser',
+                         'sample_data': {}},
+                  'firefoxSavedLogins': {'name': 'Firefox Saved Logins',
+                         'description': "Saved logins in a Firefox profile's logins.json, logins-backup.json and logins.db, with creation, last use and change times, use count, site and form fields; the encrypted username and password are not reported.",
+                         'author': '@AlexisBrignoni, Claude',
+                         'creation_date': '2026-09-26',
+                         'last_update_date': '2026-09-26',
+                         'requirements': 'none',
+                         'category': 'Firefox',
+                         'notes': "One row per saved login in each Firefox profile's logins.json, its backup copy logins-backup.json, and the local table loginsL and mirror table loginsM of logins.db; Store names which one the row came from (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/storage-json.sys.mjs#L105-L118; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/LoginStore.sys.mjs#L117-L119; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/storage-rust.sys.mjs#L458-L459). Firefox opens both logins.json and logins.db at startup and a migrator picks the store it uses (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/storage-desktop.sys.mjs#L22-L39); this artifact reads both, and GUID is the value Firefox uses to identify a login (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/nsILoginMetaInfo.idl#L20-L28). The logins.json fields hostname and formSubmitURL are reported as Origin and Form Action Origin, the names Firefox gives those values when it writes them (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/storage-json.sys.mjs#L288-L308). Time Created, Time Last Used, Time Password Changed and Breach Alert Dismissed are timeCreated, timeLastUsed, timePasswordChanged and timeLastBreachAlertDismissed, which Firefox defines in Unix epoch milliseconds as the login's first creation, the last time it was submitted in a form or used to begin an HTTP auth session, the last time it was modified, which counts a change of username as well as of password, and the last time the user dismissed its breach alert, blank if it was never dismissed (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/nsILoginMetaInfo.idl#L30-L59). Times Used is timesUsed, the number of times the login was submitted in a form or used to begin an HTTP auth session. The logins.db schema also stores its times in milliseconds (https://github.com/mozilla/application-services/blob/7f0fd9266205f4d88c657fa2e65a94c020f87963/components/logins/src/schema.rs#L99-L113). HTTP Realm is blank for a login obtained from an HTML form, and Form Action Origin for one obtained from HTTP or FTP authentication (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/toolkit/components/passwordmgr/nsILoginInfo.idl#L36-L65). Local Modified is loginsL.local_modified, when the record was changed locally, blank if it never was; Server Modified is loginsM.server_modified, the most recent server modification time seen for the record; Deleted (as stored) is loginsL.is_deleted, set on a tombstone; Sync Status is loginsL.sync_status with its name, 0 Synced, 1 Changed and 2 New; and Mirror Overridden (as stored) is loginsM.is_overridden, set when the mirror copy is to be ignored in favour of loginsL (https://github.com/mozilla/application-services/blob/7f0fd9266205f4d88c657fa2e65a94c020f87963/components/logins/src/schema.rs#L28-L73). Local Modified, Server Modified, Deleted (as stored), Sync Status and Mirror Overridden (as stored) are blank on rows from logins.json, which has no such fields, and each is blank on rows from the logins.db table that lacks it. The encrypted username and password are not reported and not decrypted. Profile is the folder that holds the file. Profiles remain separate; User is blank when source paths do not identify an account. A byte-identical copy of a file, with its WAL, under the macOS firmlink path System/Volumes/Data is read once. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic. A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old profile folder, under its own name, made unique if taken, inside a Desktop folder named from the resetBackupDirectory string, 'Old %S Data' in the en-US source with the application name for %S, so the pattern matches a folder on the Desktop whose name contains Firefox, and Source File shows which copy a row came from. A copy Firefox places in the home folder because no Desktop is available is not matched. Refresh sources: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L59-L96; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/locales/en-US/chrome/mozapps/profile/profileSelection.properties#L55-L56.",
+                         'paths': ('*/Library/Application Support/Firefox/Profiles/*/logins.db*',
+                                   '*/Library/Application Support/Firefox/Profiles/*/logins*.json',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/logins.db*',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/logins*.json',
+                                   '*/.mozilla/firefox/*/logins.db*',
+                                   '*/.mozilla/firefox/*/logins*.json',
+                                   '*/Desktop/*Firefox*/*/logins.db*',
+                                   '*/Desktop/*Firefox*/*/logins*.json'),
+                         'output_types': 'standard',
+                         'artifact_icon': 'key',
                          'sample_data': {}}}
 
 from scripts import firefox
 from scripts import firefox_indexeddb
+from scripts import firefox_logins
 from scripts import firefox_session
 from scripts.ilapfuncs import artifact_processor
 
@@ -442,4 +462,30 @@ def firefoxSessionStore(context):
      'User',
      'Source File')
     data_list, source_path = firefox_session.read_session_store(context, 'Firefox Session Store')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def firefoxSavedLogins(context):
+    data_headers = (('Time Created', 'datetime'),
+     ('Time Last Used', 'datetime'),
+     ('Time Password Changed', 'datetime'),
+     ('Breach Alert Dismissed', 'datetime'),
+     ('Local Modified', 'datetime'),
+     ('Server Modified', 'datetime'),
+     'Times Used',
+     'Origin',
+     'Form Action Origin',
+     'HTTP Realm',
+     'Username Field',
+     'Password Field',
+     'GUID',
+     'Store',
+     'Deleted (as stored)',
+     'Sync Status',
+     'Mirror Overridden (as stored)',
+     'Profile',
+     'User',
+     'Source File')
+    data_list, source_path = firefox_logins.read_saved_logins(context, 'Firefox Saved Logins')
     return data_headers, data_list, source_path
