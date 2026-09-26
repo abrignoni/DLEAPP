@@ -12,7 +12,7 @@ __artifacts_v2__ = {
     "windowsMft": {
         "name": "MFT",
         "description": "Named records of an NTFS master file table, in use or not: the four "
-                       "$STANDARD_INFORMATION and four $FILE_NAME times, full path, size, "
+                       "$STANDARD_INFORMATION and four $FILE_NAME times, the path where it resolves, size, "
                        "named streams and, where the volume's $Secure:$SDS was read, the "
                        "owner SID.",
         "author": "@AlexisBrignoni, Claude",
@@ -71,9 +71,27 @@ __artifacts_v2__ = {
                  "965 of them records not in use, and 964 of those are files whose path "
                  "resolves through their deleted parent directory, /holes, the 965th. On that fixture, SI Created is identical to SI Accessed on "
                  "all 996 rows. On that fixture, FN Created, FN Modified, FN Record Changed and "
-                 "FN Accessed are identical to one another on all 996 rows.",
+                 "FN Accessed are identical to one another on all 996 rows. "
+                 "Run on three Windows-written volumes read as E01 images: 510,672 rows on "
+                 "pc_mus_001_win11 (510,638 and 34 from its two NTFS volumes), 122,289 on "
+                 "af_case2_win10 and 142,987 on lonewolf_win10 (142,956 and 31). A separate walk "
+                 "of each staged $MFT, applying the update sequence fixups and folding extension "
+                 "records, found the same named base records on every volume, and resolving "
+                 "paths by the rule above left the same records blank. In Use is No on 234,658, "
+                 "15 and 3,074 rows. Path is blank on 197,743, 3 and 2,522 rows, every one of "
+                 "them a record not in use. Other Links has a value on 29,216, 26,611 and "
+                 "30,945 rows. Owner SID was compared with dissect.ntfs 3.16's owner for the "
+                 "same Security Id on 5,000 randomly chosen rows of each large volume and every "
+                 "row of the two small ones, 15,065 rows, and was equal on all of them. It is "
+                 "blank on 3, 2 and 6 rows, each with a Security Id of 0, which the $Secure:$SDS "
+                 "beside it does not hold.",
         "paths": ('*/$MFT', '*/$Secure:$SDS'),
         "output_types": "standard",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 510672 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 122289 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 142987 rows",
+        },
         "artifact_icon": "files",
     }
 }
