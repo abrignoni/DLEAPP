@@ -265,7 +265,8 @@ class FirefoxTest(unittest.TestCase):
 
                 rows, source = firefox.read_artifact(Context, 'places.sqlite', firefox.visits, 'Test')
                 self.assertEqual(len(rows), 1)
-                self.assertEqual(rows[0][-3:-1], ('evidence', ''))
+                self.assertEqual(rows[0][-2:], ('evidence', ''))
+                self.assertNotIn('places.sqlite', repr(rows))
                 self.assertEqual(source, str(path))
                 self.assertEqual(before, [hashlib.sha256(p.read_bytes()).hexdigest() for p in paths])
             finally:
@@ -325,8 +326,8 @@ class FirefoxTest(unittest.TestCase):
             with patch('scripts.macos_plists.logfunc'):
                 rows, _ = firefox.read_artifact(Context, 'places.sqlite', firefox.visits, 'Test')
             self.assertEqual(len(rows), 6)
-            self.assertEqual({row[-3] for row in rows}, {'one', 'two'})
-            self.assertEqual({row[-2] for row in rows}, {'A'})
+            self.assertEqual({row[-2] for row in rows}, {'one', 'two'})
+            self.assertEqual({row[-1] for row in rows}, {'A'})
 
 
 if __name__ == '__main__':

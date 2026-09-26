@@ -43,7 +43,7 @@ def optional(db, table, names, alias=''):
 
 
 def read_artifact(context, filename, reader, label):
-    """Read each profile independently, including WAL, with original-path provenance."""
+    """Read each profile independently, including WAL; the paths read go to the located-at list."""
     found = [str(p) for p in context.get_files_found()
              if PurePosixPath(str(p).replace('\\', '/')).name == filename]
     paths, _ = unique_sources(context, found, sidecars=('-wal',), label=label)
@@ -68,7 +68,7 @@ def read_artifact(context, filename, reader, label):
             continue
         finally:
             db.close()
-        output.extend(tuple(row) + (profile, user, relative) for row in rows)
+        output.extend(tuple(row) + (profile, user) for row in rows)
         sources.append(path)
     return output, '\n'.join(sources)
 

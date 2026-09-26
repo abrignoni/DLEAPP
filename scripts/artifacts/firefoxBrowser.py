@@ -13,7 +13,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                             ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                             "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                             'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                            'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                            'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                             'the home folder because no Desktop is available is not matched. Refresh sources: '
                             'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                             ' '
@@ -41,7 +41,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                               'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                               'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                                'the home folder because no Desktop is available is not matched. Refresh sources: '
                                'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                                ' '
@@ -69,7 +69,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                               'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                               'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                                'the home folder because no Desktop is available is not matched. Refresh sources: '
                                'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                                ' '
@@ -98,7 +98,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                              ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                              "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                              'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                             'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                             'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                              'the home folder because no Desktop is available is not matched. Refresh sources: '
                              'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                              ' '
@@ -127,7 +127,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                  ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                  "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                  'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                                 'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                                 'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                                  'the home folder because no Desktop is available is not matched. Refresh sources: '
                                  'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                                  ' '
@@ -157,7 +157,7 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                   ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
                                   "resetBackupDirectory string, 'Old %S Data' in the en-US source with the application "
                                   'name for %S, so the pattern matches a folder on the Desktop whose name contains '
-                                  'Firefox, and Source File shows which copy a row came from. A copy Firefox places in '
+                                  'Firefox, and Profile names the folder a row came from; the located-at list of the report gives the full path of each file. A copy Firefox places in '
                                   'the home folder because no Desktop is available is not matched. Refresh sources: '
                                   'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27;'
                                   ' '
@@ -277,8 +277,7 @@ def firefoxVisits(context):
      'Referring Visit ID',
      'Referring URL',
      'Profile',
-     'User',
-     'Source File')
+     'User')
     data_list, source_path = firefox.read_artifact(
         context, 'places.sqlite', firefox.visits, 'Firefox Visits')
     return data_headers, data_list, source_path
@@ -299,8 +298,7 @@ def firefoxDownloads(context):
      'Metadata Status',
      'Metadata JSON',
      'Profile',
-     'User',
-     'Source File')
+     'User')
     data_list, source_path = firefox.read_artifact(
         context, 'places.sqlite', firefox.downloads, 'Firefox Downloads')
     return data_headers, data_list, source_path
@@ -317,8 +315,7 @@ def firefoxBookmarks(context):
      'Folder Path',
      'Position',
      'Profile',
-     'User',
-     'Source File')
+     'User')
     data_list, source_path = firefox.read_artifact(
         context, 'places.sqlite', firefox.bookmarks, 'Firefox Bookmarks')
     return data_headers, data_list, source_path
@@ -340,8 +337,7 @@ def firefoxCookies(context):
      'HTTP Only Flag (as stored)',
      'SameSite Code (as stored)',
      'Profile',
-     'User',
-     'Source File')
+     'User')
     data_list, source_path = firefox.read_artifact(
         context, 'cookies.sqlite', firefox.cookies, 'Firefox Cookies')
     return data_headers, data_list, source_path
@@ -358,8 +354,7 @@ def firefoxFormHistory(context):
      'Times Used',
      'Sources (JSON)',
      'Profile',
-     'User',
-     'Source File')
+     'User')
     data_list, source_path = firefox.read_artifact(
         context, 'formhistory.sqlite', firefox.form_history, 'Firefox Form History')
     return data_headers, data_list, source_path
@@ -381,8 +376,7 @@ def firefoxInteractions(context):
      'Scrolling Distance (pixels)',
      'Document Type (as stored)',
      'Profile',
-     'User',
-     'Source File')
+     'User')
     data_list, source_path = firefox.read_artifact(
         context, 'places.sqlite', firefox.interactions, 'Firefox Page Interactions')
     return data_headers, data_list, source_path
@@ -403,8 +397,6 @@ def firefoxFavicons(context):
      'User')
     data_list, source_path = firefox.read_artifact(
         context, 'favicons.sqlite', firefox.favicons, 'Firefox Favicons')
-    # read_artifact appends the file path; Profile and User already identify the file.
-    data_list = [row[:-1] for row in data_list]
     return data_headers, data_list, source_path
 
 
