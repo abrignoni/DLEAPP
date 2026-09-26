@@ -153,6 +153,7 @@ class ReadSessionStoreTest(unittest.TestCase):
                              [('recovery.js', 'ab12.default-release', 'tester')] * 2
                              + [('sessionstore.jsonlz4', 'ab12.default-release', 'tester')] * 2)
             self.assertEqual(len(source.split('\n')), 2)
+            self.assertTrue(all(len(row) == 19 for row in rows))
             self.assertTrue(any('upgrade.jsonlz4-20260101 was not read (neither mozLz4 nor JSON)' in str(c)
                                 for c in logged.call_args_list))
 

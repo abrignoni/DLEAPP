@@ -109,6 +109,6 @@ def read_saved_logins(context, label):
             except (OSError, ValueError, UnicodeDecodeError) as exc:
                 logfunc(f'{label}: {relative} was not read ({exc})')
                 continue
-        output.extend(row + (profile, user, relative) for row in rows)
+        output.extend(row + (profile, user) for row in rows)
         sources.append(path)
     return output, '\n'.join(sources)

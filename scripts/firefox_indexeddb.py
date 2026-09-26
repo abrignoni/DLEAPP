@@ -351,7 +351,7 @@ def read_indexeddb(context, label):
             value_text, status = _value(data)
             statuses[status] = statuses.get(status, 0) + 1
             output.append((database[1], database[0], stores.get(store_id, ''), key_text,
-                           value_text, status, file_ids or '', profile, user, relative))
+                           value_text, status, file_ids or '', profile, user))
         sources.append(path)
     for status, count in sorted(statuses.items()):
         if status != 'Decoded':
