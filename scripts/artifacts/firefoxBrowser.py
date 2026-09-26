@@ -187,6 +187,21 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                                    '*/Desktop/*Firefox*/*/favicons.sqlite*'),
                          'output_types': 'standard',
                          'artifact_icon': 'photo',
+                         'sample_data': {}},
+                  'firefoxLocalStorage': {'name': 'Firefox Local Storage',
+                         'description': 'Keys and values from each origin LocalStorage database in a Firefox profile, decoded from their stored compression and encoding, with origin, stored lengths and types, profile, and source file.',
+                         'author': '@AlexisBrignoni, Claude',
+                         'creation_date': '2026-09-26',
+                         'last_update_date': '2026-09-26',
+                         'requirements': 'none',
+                         'category': 'Firefox',
+                         'notes': "One row per key in the data table of each origin's LocalStorage database, storage/default/<origin>/ls/data.sqlite in a Firefox profile (table definitions: https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/ActorsParent.cpp#L367-L374 and https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/ActorsParent.cpp#L383-L389). Origin is the origin column of that database's database table. Value is the stored value decoded as Firefox's LSValue decodes it (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/LSValue.h#L38-L48; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/LSValue.cpp#L80-L90): a Compression Type of 1 is raw Snappy, which Firefox reads with snappy::RawUncompress (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/SnappyUtils.cpp#L51-L75); it is decompressed here by a decoder written from Google's format description (https://github.com/google/snappy/blob/9c28114a38866f6deeaa826db918293bc28ae410/format_description.txt), which rejects a stream whose output is not exactly the length the stream declares. A Conversion Type of 1 means the value was stored as UTF-8; 0 means Firefox copied the UTF-16 code units' bytes unchanged, which it does only for a value that is not valid UTF-16 (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/LSValue.cpp#L19-L31; https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/LSValue.cpp#L104-L118), and such a value is decoded here as little-endian UTF-16 with anything that is not valid UTF-16 replaced. A value that cannot be decoded is left blank, and the run log counts those values and any decoded value whose UTF-16 length differs from the utf16_length Firefox stored. UTF-16 Length (as stored), Conversion Type (as stored) and Compression Type (as stored) are the stored columns, and Stored Size (bytes) is the length of the stored value. The last_access_time column is not reported: in Firefox's LocalStorage source it appears where the table is created and where rows are copied from an older schema (https://github.com/mozilla-firefox/firefox/blob/c32abda0190531351e22da36334f18f9e994d474/dom/localstorage/ActorsParent.cpp#L448-L464), and no code that updates it was found. Keys and values are written by each site's own scripts, and what they record is not established. Profile is the folder that holds storage/default in the store's path. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. Byte-identical macOS firmlink database/WAL copies are deduplicated. Public regression cases are independently authored synthetic data. Local private validation details are not published. Windows and Linux path coverage is synthetic. A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old profile folder, under its own name, made unique if taken, inside a Desktop folder named from the resetBackupDirectory string, 'Old %S Data' in the en-US source with the application name for %S, so the pattern matches a folder on the Desktop whose name contains Firefox, and Source File shows which copy a row came from. A copy Firefox places in the home folder because no Desktop is available is not matched. Refresh sources: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L26-L27; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L59-L96; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/locales/en-US/chrome/mozapps/profile/profileSelection.properties#L55-L56.",
+                         'paths': ('*/Library/Application Support/Firefox/Profiles/*/storage/default/*/ls/data.sqlite*',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/storage/default/*/ls/data.sqlite*',
+                                   '*/.mozilla/firefox/*/storage/default/*/ls/data.sqlite*',
+                                   '*/Desktop/*Firefox*/*/storage/default/*/ls/data.sqlite*'),
+                         'output_types': 'standard',
+                         'artifact_icon': 'database',
                          'sample_data': {}}}
 
 from scripts import firefox
@@ -333,4 +348,20 @@ def firefoxFavicons(context):
      'Source File')
     data_list, source_path = firefox.read_artifact(
         context, 'favicons.sqlite', firefox.favicons, 'Firefox Favicons')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def firefoxLocalStorage(context):
+    data_headers = ('Origin',
+     'Key',
+     'Value',
+     'UTF-16 Length (as stored)',
+     'Conversion Type (as stored)',
+     'Compression Type (as stored)',
+     'Stored Size (bytes)',
+     'Profile',
+     'User',
+     'Source File')
+    data_list, source_path = firefox.read_local_storage(context, 'Firefox Local Storage')
     return data_headers, data_list, source_path

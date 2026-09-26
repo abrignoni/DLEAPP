@@ -206,3 +206,123 @@ def favicons(db):
             ORDER BY i.icon_url, i.width, i.id'''):
         yield (timestamp(row['icon_expire'], 1000), '', '', row['icon_url'], row['width'],
                row['root'], row['flags'], row['size'], row['id'])
+
+
+def snappy_raw_uncompress(data):
+    """Raw Snappy (no framing), as google/snappy format_description.txt defines it.
+
+    Raises ValueError on any malformed element, and unless the output is exactly
+    the length the preamble declares.
+    """
+    data = bytes(data)
+    size, shift, pos = 0, 0, 0
+    while True:
+        if pos >= len(data) or shift > 28:
+            raise ValueError('bad Snappy length preamble')
+        byte = data[pos]
+        pos += 1
+        size |= (byte & 0x7F) << shift
+        if not byte & 0x80:
+            break
+        shift += 7
+    out = bytearray()
+    while pos < len(data):
+        tag = data[pos]
+        pos += 1
+        kind = tag & 3
+        if kind == 0:
+            length = (tag >> 2) + 1
+            if length > 60:
+                extra = length - 60
+                if pos + extra > len(data):
+                    raise ValueError('truncated Snappy literal length')
+                length = int.from_bytes(data[pos:pos + extra], 'little') + 1
+                pos += extra
+            if pos + length > len(data):
+                raise ValueError('truncated Snappy literal')
+            out += data[pos:pos + length]
+            pos += length
+            continue
+        if kind == 1:
+            if pos >= len(data):
+                raise ValueError('truncated Snappy copy')
+            length = ((tag >> 2) & 7) + 4
+            offset = ((tag >> 5) << 8) | data[pos]
+            pos += 1
+        else:
+            width = 2 if kind == 2 else 4
+            if pos + width > len(data):
+                raise ValueError('truncated Snappy copy')
+            length = (tag >> 2) + 1
+            offset = int.from_bytes(data[pos:pos + width], 'little')
+            pos += width
+        if offset == 0 or offset > len(out):
+            raise ValueError('Snappy copy offset out of range')
+        for _ in range(length):
+            out.append(out[-offset])
+    if len(out) != size:
+        raise ValueError('Snappy output length differs from its preamble')
+    return bytes(out)
+
+
+def local_storage_value(value, conversion, compression):
+    """A LocalStorage value as text, following Mozilla's LSValue conversion and compression types."""
+    raw = bytes(value)
+    if compression == 1:
+        raw = snappy_raw_uncompress(raw)
+    elif compression != 0:
+        raise ValueError(f'unknown compression type {compression}')
+    if conversion == 1:
+        return raw.decode('utf-8')
+    if conversion == 0:
+        return raw.decode('utf-16-le', errors='replace')
+    raise ValueError(f'unknown conversion type {conversion}')
+
+
+def read_local_storage(context, label):
+    """Rows from each profile's storage/default/<origin>/ls/data.sqlite."""
+    found = [str(p) for p in context.get_files_found()
+             if PurePosixPath(str(p).replace('\\', '/')).name == 'data.sqlite'
+             and PurePosixPath(str(p).replace('\\', '/')).parent.name == 'ls']
+    paths, _ = unique_sources(context, found, sidecars=('-wal',), label=label)
+    output, sources, failed, mismatched = [], [], 0, 0
+    for path in paths:
+        relative = context.get_relative_path(path)
+        parts = str(relative).replace('\\', '/').split('/')
+        # <profile>/storage/default/<origin>/ls/data.sqlite: count back from the store,
+        # so a folder named storage higher up the path is not read as the profile.
+        profile = parts[-6] if len(parts) >= 6 and parts[-5:-3] == ['storage', 'default'] else ''
+        user = user_from_path(relative)
+        if not user and 'home' in parts and parts.index('home') + 1 < len(parts):
+            user = parts[parts.index('home') + 1]
+        db = open_sqlite_db_readonly(path)
+        if db is None:
+            continue
+        try:
+            origin = ''
+            if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='database'").fetchone():
+                found_origin = db.execute('SELECT origin FROM database LIMIT 1').fetchone()
+                origin = found_origin[0] if found_origin else ''
+            rows = db.execute('SELECT key, utf16_length, conversion_type, compression_type, value '
+                              'FROM data ORDER BY key').fetchall()
+        except sqlite3.Error as exc:
+            logfunc(f'{label}: could not read {relative}: {exc}')
+            continue
+        finally:
+            db.close()
+        for key, utf16_length, conversion, compression, value in rows:
+            try:
+                text = local_storage_value(value, conversion, compression)
+                if len(text.encode('utf-16-le')) // 2 != utf16_length:
+                    mismatched += 1
+            except (ValueError, TypeError, UnicodeDecodeError):
+                text = ''
+                failed += 1
+            output.append((origin, key, text, utf16_length, conversion, compression,
+                           len(value) if value is not None else '', profile, user, relative))
+        sources.append(path)
+    if failed:
+        logfunc(f'{label}: {failed} value(s) could not be decoded and are left blank')
+    if mismatched:
+        logfunc(f'{label}: {mismatched} decoded value(s) differ in length from the stored UTF-16 length')
+    return output, '\n'.join(sources)
