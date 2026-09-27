@@ -63,7 +63,9 @@ def walk(root):
     return sorted(os.path.join(folder, name) for folder, _, names in os.walk(root) for name in names)
 
 
-class ArtifactTest(unittest.TestCase):
+class DriveFSCase(unittest.TestCase):
+    """Setup and database building shared by the test classes below."""
+
     def setUp(self):
         self.root = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.root)
@@ -85,6 +87,8 @@ class ArtifactTest(unittest.TestCase):
         db.close()
         return path
 
+
+class ArtifactTest(DriveFSCase):
     def run_items(self, extra=()):
         return artifact.googleDriveItems.__wrapped__(Context(self.root, walk(self.root) + list(extra)))
 
@@ -237,6 +241,243 @@ class ArtifactTest(unittest.TestCase):
         for member in (DRIVEFS + ACCOUNT + '/mirror_sqlite.db', DRIVEFS + 'root_preference_sqlite.db'):
             self.assertTrue(any(fnmatch.fnmatch(member, pattern) for pattern in mirrored), member)
         self.assertFalse(any(fnmatch.fnmatch(DRIVEFS + 'metadata_sqlite_db', pattern) for pattern in items))
+
+
+OTHER = '111222333444555666777'
+PHENOTYPE = 'CREATE TABLE PhenotypeValues(Key TEXT PRIMARY KEY NOT NULL, Value BLOB NOT NULL)'
+PROPERTIES = 'CREATE TABLE properties (property TEXT PRIMARY KEY, value)'
+AUTHORIZED = ('{} [12345:CrBrowserMain] client.cc:1027:StartAccountAuthComplete Authorized as {} ({})\n')
+
+
+def varint(value):
+    out = bytearray()
+    while True:
+        byte, value = value & 0x7F, value >> 7
+        out.append(byte | (0x80 if value else 0))
+        if not value:
+            return bytes(out)
+
+
+def field(number, payload):
+    """One protobuf field: a varint for an int, length-delimited bytes otherwise."""
+    if isinstance(payload, int):
+        return varint(number << 3) + varint(payload)
+    return varint(number << 3 | 2) + varint(len(payload)) + payload
+
+
+def driveway(account, name, email, photo):
+    inner = field(1, 1) + field(2, account.encode()) + field(3, name.encode()) + field(5, photo.encode()) + field(8, email.encode())
+    return field(1, 0) + field(2, field(1, inner) + field(3, field(1, field(1, 15000000000)))) + field(5, 0)
+
+
+class AccountsTest(DriveFSCase):
+    def run_accounts(self):
+        return artifact.googleDriveAccounts.__wrapped__(Context(self.root, walk(self.root)))
+
+    def experiments(self, folder, account_ids, last_sync=b'1766612931'):
+        rows = [('account_ids', account_ids)] if account_ids is not None else []
+        rows.append(('last_sync', last_sync))
+        rows.append(('registered_package/drive_fs_ph', b'\n\x0bdrive_fs_ph'))
+        return self.database(folder + 'experiments.db', [(PHENOTYPE,), ('INSERT INTO PhenotypeValues VALUES (?, ?)', *rows)])
+
+    def account_database(self, relative, prop, value):
+        return self.database(relative, [(ITEMS,), (PROPERTIES,),
+                                        ('INSERT INTO properties VALUES (?, ?)', (prop, value), ('cache_type', 0))])
+
+    def test_accounts(self):
+        pat = driveway(ACCOUNT, 'Pat Doe', 'pat@example.com', 'https://example.com/pat.png')
+        self.experiments(DRIVEFS, field(1, ACCOUNT.encode()) + field(1, OTHER.encode()))
+        folder = DRIVEFS + ACCOUNT + '/'
+        self.account_database(folder + 'metadata_sqlite_db', 'driveway_account', pat)
+        self.account_database(folder + 'mirror_metadata_sqlite.db', 'driveway_account', pat)
+        # A byte-identical copy of experiments.db under System/Volumes/Data is not read again.
+        copy = os.path.join(self.root, 'System/Volumes/Data', DRIVEFS)
+        os.makedirs(copy)
+        shutil.copy(os.path.join(self.root, DRIVEFS, 'experiments.db'), copy)
+        # Another user's DriveFS folder: no experiments.db, an account database present only under
+        # System/Volumes/Data, and no driveway_account record in it (a record named account is not read).
+        sam = 'Users/sam/Library/Application Support/Google/DriveFS/'
+        record = field(1, field(3, b'Sam Roe') + field(5, b'https://example.com/sam.png') + field(8, b'sam@example.com'))
+        self.account_database('System/Volumes/Data/' + sam + '222333444555666777888/metadata_sqlite_db', 'account', record)
+        headers, rows, source = self.run_accounts()
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['experiments.db last_sync (UTC)', 'Account ID', 'Name', 'Email', 'Photo URL',
+                          'Listed in account_ids', 'Account Database Found', 'Source File'])
+        synced = datetime(2025, 12, 24, 21, 48, 51, tzinfo=UTC)
+        self.assertEqual(rows, [
+            (synced, ACCOUNT, 'Pat Doe', 'pat@example.com', 'https://example.com/pat.png', 'Yes', 'Yes',
+             f'{folder}metadata_sqlite_db\n{folder}mirror_metadata_sqlite.db\n{DRIVEFS}experiments.db'),
+            # Listed and without an account database.
+            (synced, OTHER, '', '', '', 'Yes', 'No', DRIVEFS + 'experiments.db'),
+            # No driveway_account record: blank; no experiments.db leaves Listed blank.
+            ('', '222333444555666777888', '', '', '', '', 'Yes',
+             'System/Volumes/Data/' + sam + '222333444555666777888/metadata_sqlite_db')])
+        self.assertEqual(sorted(source.split('\n')), sorted(os.path.join(self.root, p) for p in (
+            DRIVEFS + 'experiments.db', folder + 'metadata_sqlite_db', folder + 'mirror_metadata_sqlite.db',
+            'System/Volumes/Data/' + sam + '222333444555666777888/metadata_sqlite_db')))
+        self.assertEqual(self.logged, [
+            'Google Drive Accounts (experiments.db): 1 byte-identical copy(ies) under System/Volumes/Data not read again'])
+
+    def test_differing_records_give_a_row_each(self):
+        self.experiments(DRIVEFS, field(1, ACCOUNT.encode()))
+        folder = DRIVEFS + ACCOUNT + '/'
+        self.account_database(folder + 'metadata_sqlite_db', 'driveway_account',
+                              driveway(ACCOUNT, 'Pat Doe', 'pat@example.com', 'https://example.com/pat.png'))
+        # The same account message with extra fields elsewhere in the record is one row; a different name is another.
+        self.account_database(folder + 'mirror_metadata_sqlite.db', 'driveway_account',
+                              driveway(ACCOUNT, 'Pat Doe', 'pat@example.com', 'https://example.com/pat.png') + field(9, b'extra'))
+        _, rows, _ = self.run_accounts()
+        self.assertEqual([(row[2], row[-1]) for row in rows], [
+            ('Pat Doe', f'{folder}metadata_sqlite_db\n{folder}mirror_metadata_sqlite.db\n{DRIVEFS}experiments.db')])
+        self.account_database('System/Volumes/Data/' + folder + 'metadata_sqlite_db', 'driveway_account',
+                              driveway(ACCOUNT, 'Pat Roe', 'pat@example.com', 'https://example.com/pat.png'))
+        _, rows, _ = self.run_accounts()
+        self.assertEqual([(row[2], row[-1]) for row in rows], [
+            ('Pat Doe', f'{folder}metadata_sqlite_db\n{folder}mirror_metadata_sqlite.db\n{DRIVEFS}experiments.db'),
+            ('Pat Roe', f'System/Volumes/Data/{folder}metadata_sqlite_db\n{DRIVEFS}experiments.db')])
+
+    def test_accounts_joined_across_views_and_unreadable_records(self):
+        # experiments.db under Users/, its account database only under System/Volumes/Data/: one folder.
+        self.experiments(DRIVEFS, field(1, ACCOUNT.encode()), last_sync=b'not a number')
+        self.account_database('System/Volumes/Data/' + DRIVEFS + ACCOUNT + '/metadata_sqlite_db', 'driveway_account',
+                              b'\x12\x02\x08\x01')
+        sam = 'Users/sam/Library/Application Support/Google/DriveFS/'
+        self.experiments(sam, b'\x0a\x05ab', last_sync=b'1766612931')
+        self.account_database(sam + OTHER + '/metadata_sqlite_db', 'driveway_account',
+                              driveway(OTHER, 'Sam Roe', 'sam@example.com', 'https://example.com/sam.png'))
+        _, rows, _ = self.run_accounts()
+        self.assertEqual([row[:7] for row in rows], [
+            ('', ACCOUNT, '', '', '', 'Yes', 'Yes'),
+            (datetime(2025, 12, 24, 21, 48, 51, tzinfo=UTC), OTHER, 'Sam Roe', 'sam@example.com',
+             'https://example.com/sam.png', '', 'Yes')])
+        self.assertEqual(sorted(self.logged), sorted([
+            f'Google Drive Accounts: account_ids in {sam}experiments.db not read: field runs past the end of the message',
+            f'Google Drive Accounts: driveway_account in System/Volumes/Data/{DRIVEFS}{ACCOUNT}/metadata_sqlite_db not '
+            'read: no message in field 1']))
+
+
+    def test_accounts_from_two_differing_copies_of_experiments(self):
+        self.experiments(DRIVEFS, field(1, ACCOUNT.encode()))
+        self.experiments('System/Volumes/Data/' + DRIVEFS, field(1, ACCOUNT.encode()), last_sync=b'1766612000')
+        self.account_database(DRIVEFS + ACCOUNT + '/metadata_sqlite_db', 'driveway_account',
+                              driveway(ACCOUNT, 'Pat Doe', 'pat@example.com', 'https://example.com/pat.png'))
+        _, rows, _ = self.run_accounts()
+        where = DRIVEFS + ACCOUNT + '/metadata_sqlite_db'
+        self.assertEqual([(row[0], row[1], row[-1]) for row in rows], [
+            (datetime(2025, 12, 24, 21, 48, 51, tzinfo=UTC), ACCOUNT, f'{where}\n{DRIVEFS}experiments.db'),
+            (datetime(2025, 12, 24, 21, 33, 20, tzinfo=UTC), ACCOUNT, f'{where}\nSystem/Volumes/Data/{DRIVEFS}experiments.db')])
+
+class AuthorizationsTest(DriveFSCase):
+    def run_authorizations(self):
+        return artifact.googleDriveAuthorizations.__wrapped__(Context(self.root, walk(self.root)))
+
+    def log(self, relative, lines):
+        path = os.path.join(self.root, relative)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as handle:
+            handle.writelines(lines)
+        return path
+
+    def test_authorizations(self):
+        logs = DRIVEFS + 'Logs/'
+        self.log(logs + 'drive_fs.txt', [
+            '2025-12-24T22:05:34.100ZI [12345:CrBrowserMain] client.cc:990:RefreshAccountTokens Refreshing\n',
+            AUTHORIZED.format('2025-12-24T22:05:34.659ZI', 'pat@example.com', ACCOUNT),
+            '2025-12-24T22:05:35.000ZE [12345:CrBrowserMain] client.cc:1027:StartAccountAuthComplete Failed\n'])
+        first_log = [AUTHORIZED.format('2025-12-09T21:45:36.347ZI', 'pat@example.com', ACCOUNT),
+                     AUTHORIZED.format('2025-12-10T16:39:47ZI', 'sam@example.com', OTHER)]
+        self.log(logs + 'drive_fs_1.txt', first_log)
+        # Not a drive_fs log.
+        self.log(logs + 'finder_ext.txt', [AUTHORIZED.format('2025-12-01T00:00:00.000ZI', 'x@example.com', '1')])
+        # A byte-identical copy is not read again; a copy that grew is read, and its shared lines are one row.
+        shutil.copytree(os.path.join(self.root, logs), os.path.join(self.root, 'System/Volumes/Data', logs),
+                        ignore=shutil.ignore_patterns('drive_fs_1.txt'))
+        grown = 'System/Volumes/Data/' + logs + 'drive_fs_1.txt'
+        self.log(grown, first_log + [AUTHORIZED.format('2025-12-11T09:00:00.5ZI', 'pat@example.com', ACCOUNT)])
+        headers, rows, source = self.run_authorizations()
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Email', 'Account ID', 'Line', 'Source File'])
+        self.assertEqual(rows, [
+            (datetime(2025, 12, 9, 21, 45, 36, 347000, tzinfo=UTC), 'pat@example.com', ACCOUNT, 1,
+             f'{logs}drive_fs_1.txt\n{grown}'),
+            (datetime(2025, 12, 10, 16, 39, 47, tzinfo=UTC), 'sam@example.com', OTHER, 2, f'{logs}drive_fs_1.txt\n{grown}'),
+            (datetime(2025, 12, 11, 9, 0, 0, 500000, tzinfo=UTC), 'pat@example.com', ACCOUNT, 3, grown),
+            (datetime(2025, 12, 24, 22, 5, 34, 659000, tzinfo=UTC), 'pat@example.com', ACCOUNT, 2, logs + 'drive_fs.txt')])
+        self.assertEqual(sorted(source.split('\n')), sorted(os.path.join(self.root, p) for p in (
+            logs + 'drive_fs.txt', logs + 'drive_fs_1.txt', grown)))
+        self.assertEqual(sorted(self.logged), sorted([
+            'Google Drive Account Authorizations: 1 byte-identical copy(ies) under System/Volumes/Data not read again',
+            'Google Drive Account Authorizations: 1 StartAccountAuthComplete line(s) not in the form read here, not reported']))
+
+
+class PreferencesTest(DriveFSCase):
+    def run_preferences(self):
+        context = Context(self.root, walk(self.root))
+        return (artifact.googleDriveSyncedFolders.__wrapped__(context), artifact.googleDriveVolumes.__wrapped__(context))
+
+    def test_synced_folders_and_volumes(self):
+        preferences = DRIVEFS + 'root_preference_sqlite.db'
+        self.database(preferences, [
+            (ROOTS,), (MEDIA,), ('CREATE TABLE max_ids (id_type TEXT PRIMARY KEY, value INTEGER NOT NULL)',),
+            ('INSERT INTO roots VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, \'\', ?)',
+             (4, 'USB-ID', 'KINGSTON', '', ACCOUNT, 2, 2, 2, 2, 1, '/Volumes/KINGSTON'),
+             (1, VOLUME, 'Work', 'Users/pat/Documents/Work', ACCOUNT, 1, 1, 1, 2, 0, '/Users/pat/Documents/Work')),
+            ('INSERT INTO media VALUES (?, ?, ?, ?, ?, ?, ?)',
+             (VOLUME, 'Macintosh HD - Data', '/', 1, 2, 1000240963584, 0),
+             ('nouuid--home', 'home', '/System/Volumes/Data/home', 7, 3, 0, 0),
+             ('USB2', 'KINGSTON', '/Volumes/KINGSTON', 3, 9, -1, 1)),
+            ("INSERT INTO max_ids VALUES ('max_root_id', 5)",)])
+        # Another DriveFS folder with volumes and no roots table.
+        other = 'Users/sam/Library/Application Support/Google/DriveFS/root_preference_sqlite.db'
+        self.database(other, [(MEDIA,), ('INSERT INTO media VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                         ('D1', 'Data', '/', 1, 2, 500, 0))])
+        (folder_headers, folders, folder_source), (volume_headers, volumes, volume_source) = self.run_preferences()
+        self.assertEqual(list(folder_headers), [
+            'Title', 'Last Seen Absolute Path', 'Root Path', 'Volume', 'Media ID', 'Destination (as stored)',
+            'One Shot (as stored)', 'Account ID', 'Root ID', 'Max Root ID (as stored)', 'Source File'])
+        self.assertEqual(folders, [
+            ('Work', '/Users/pat/Documents/Work', 'Users/pat/Documents/Work', 'Macintosh HD - Data', VOLUME, 1, 0, ACCOUNT,
+             1, 5, preferences),
+            # A media_id with no media row leaves Volume blank.
+            ('KINGSTON', '/Volumes/KINGSTON', '', '', 'USB-ID', 2, 1, ACCOUNT, 4, 5, preferences)])
+        self.assertEqual(folder_source, os.path.join(self.root, preferences))
+        self.assertEqual(list(volume_headers), [
+            'Name', 'Last Mount Point', 'Capacity (as stored)', 'Ignored (as stored)', 'File System Type (as stored)',
+            'Device Type (as stored)', 'Media ID', 'Source File'])
+        # Volumes in the order the table stores them, not by media_id.
+        self.assertEqual(volumes, [
+            ('Macintosh HD - Data', '/', 1000240963584, 0, 1, 2, VOLUME, preferences),
+            ('home', '/System/Volumes/Data/home', 0, 0, 7, 3, 'nouuid--home', preferences),
+            ('KINGSTON', '/Volumes/KINGSTON', -1, 1, 3, 9, 'USB2', preferences),
+            ('Data', '/', 500, 0, 1, 2, 'D1', other)])
+        self.assertEqual(sorted(volume_source.split('\n')), sorted(os.path.join(self.root, p) for p in (preferences, other)))
+        self.assertEqual(self.logged, [f'Google Drive Synced Folders: no roots table in {other}'])
+
+    def test_empty_roots_table(self):
+        self.database(DRIVEFS + 'root_preference_sqlite.db', [
+            (ROOTS,), ('CREATE TABLE max_ids (id_type TEXT PRIMARY KEY, value INTEGER NOT NULL)',),
+            ("INSERT INTO max_ids VALUES ('max_root_id', 3)",)])
+        (_, folders, folder_source), _volumes = self.run_preferences()
+        # No row, whatever max_ids holds.
+        self.assertEqual((folders, folder_source), ([], ''))
+        self.assertEqual(self.logged, [f'Google Drive Volumes: no media table in {DRIVEFS}root_preference_sqlite.db'])
+
+    def test_declared_paths_of_the_account_artifacts(self):
+        meta = artifact.__artifacts_v2__
+        matches = {key: [member for member in (
+            DRIVEFS + 'experiments.db', DRIVEFS + 'experiments.db-wal', DRIVEFS + ACCOUNT + '/metadata_sqlite_db',
+            DRIVEFS + ACCOUNT + '/mirror_metadata_sqlite.db', DRIVEFS + 'Logs/drive_fs.txt', DRIVEFS + 'Logs/drive_fs_11.txt',
+            DRIVEFS + 'Logs/finder_ext.txt', DRIVEFS + 'root_preference_sqlite.db',
+            'Users/pat/AppData/Local/Google/DriveFS/Logs/drive_fs.txt')
+            if any(fnmatch.fnmatch(member, pattern) for pattern in meta[key]['paths'])]
+            for key in ('googleDriveAccounts', 'googleDriveAuthorizations', 'googleDriveSyncedFolders', 'googleDriveVolumes')}
+        self.assertEqual(matches, {
+            'googleDriveAccounts': [DRIVEFS + 'experiments.db', DRIVEFS + 'experiments.db-wal',
+                                    DRIVEFS + ACCOUNT + '/metadata_sqlite_db', DRIVEFS + ACCOUNT + '/mirror_metadata_sqlite.db'],
+            'googleDriveAuthorizations': [DRIVEFS + 'Logs/drive_fs.txt', DRIVEFS + 'Logs/drive_fs_11.txt',
+                                          'Users/pat/AppData/Local/Google/DriveFS/Logs/drive_fs.txt'],
+            'googleDriveSyncedFolders': [DRIVEFS + 'root_preference_sqlite.db'],
+            'googleDriveVolumes': [DRIVEFS + 'root_preference_sqlite.db']})
 
 
 if __name__ == '__main__':
