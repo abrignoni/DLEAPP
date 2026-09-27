@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "FriendlyName and DeviceDesc values and key last-written time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the subkeys of Microsoft\\Windows Portable Devices\\Devices in the SOFTWARE hive"
@@ -24,7 +24,16 @@ __artifacts_v2__ = {
                  "Windows.old, so Source File names the file each row came from."
                  " Key Last "
                  "Written is when the subkey was last written, which is not established as when a "
-                 "device was connected.",
+                 "device was connected."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
+                 "applied, following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it is, with the reason.",
         "paths": ('*/Windows/System32/config/SOFTWARE',
                   '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
                   '*/Windows/System32/config/SYSTEM',
@@ -34,7 +43,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 4 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (Devices key has no subkeys and there is no WPDBUSENUM key)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 6 rows",
         },
     },
 }

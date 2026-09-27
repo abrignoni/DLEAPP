@@ -13,7 +13,7 @@ __artifacts_v2__ = {
                        "InstallDate as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads every subkey of Microsoft\\Windows\\CurrentVersion\\Uninstall in the SOFTWARE "
@@ -32,6 +32,15 @@ __artifacts_v2__ = {
                  "and set by Windows Installer, without a unit, so it is also reported as stored. "
                  "System Component shows Yes where the SystemComponent value is 1. Key Last Written is"
                  " when the subkey was last written, which is not established as the install time. "
+                 "A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, with "
+                 "the sequence numbers applied, and each dirty hive read as it is, with the reason. "
                  "Reference: Microsoft, 'Windows Installer Properties for the Uninstall Registry Key',"
                  " https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key.",
         "paths": ('*/Windows/System32/config/SOFTWARE',

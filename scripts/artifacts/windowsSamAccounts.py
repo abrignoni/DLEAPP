@@ -57,7 +57,7 @@ __artifacts_v2__ = {
                        "change and account-control flags as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from the SAM hive, named in the report's located-at line. One row per "
@@ -92,12 +92,21 @@ __artifacts_v2__ = {
                  "accounts are in the SAM hive; domain and Microsoft-account "
                  "sign-ins are not. The SAM F record carries "
                  "no account-creation timestamp, so none is reported. Reading "
-                 "the hive needs the python-registry package; its .LOG1/.LOG2 "
-                 "transaction logs are not replayed. Field offsets: Velocidex, "
+                 "the hive needs the python-registry package. A dirty hive, one whose base "
+                 "block's two sequence numbers differ, is read after the entries in its .LOG1 "
+                 "and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and "
+                 "neither is a replay that would give a key an earlier last-written time than "
+                 "the hive already holds, a check added here beyond the specification; the "
+                 "run log names each hive replayed, with the sequence numbers applied, and "
+                 "each dirty hive read as it is, with the reason. Field offsets: Velocidex, "
                  "Windows.Forensics.SAM, https://github.com/Velocidex/velocirap"
-                 "tor/blob/master/artifacts/definitions/Windows/Forensics/SAM."
+                 "tor/blob/173e6c0a2c369a8af011c35d9b837ac0c1749467/artifacts/definitions/Windows/Forensics/SAM."
                  "yaml ; and RegRipper samparse, https://github.com/keydet89/"
-                 "RegRipper3.0/blob/master/plugins/samparse.pl (the two agree "
+                 "RegRipper3.0/blob/ec96dd4a6a5c3ea70d8fece9b47a374f83582335/plugins/samparse.pl (the two agree "
                  "on the F and V layouts and the account-control flag names).",
         "paths": ('*/Windows/System32/config/[Ss][Aa][Mm]',
                   '*/Windows/System32/config/[Ss][Aa][Mm].[Ll][Oo][Gg][12]'),

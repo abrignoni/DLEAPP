@@ -2,8 +2,9 @@
 
 Written from Maxim Suhanov's Windows registry file format specification,
 https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md
-(base block and its checksum, the new log format, the dirty state of a hive and the use of two
-logs). Marvin32, the hash that checks each log entry, follows Microsoft's SymCrypt
+(base block and its checksum, the new log format at #L679-L724, the dirty state of a hive at
+#L728 and the use of two logs at #L747-L749). Marvin32, the hash that checks each log entry,
+follows Microsoft's SymCrypt
 (https://github.com/microsoft/SymCrypt/blob/286762b7730e2b780678f5ab11fef2b1bad639e0/lib/marvin32.c#L184-L190
 and https://github.com/microsoft/SymCrypt/blob/286762b7730e2b780678f5ab11fef2b1bad639e0/lib/marvin32.c#L218-L286)
 and reproduces the known answer at the end of that file.
@@ -13,6 +14,14 @@ An older log (file type 1, a dirty vector signed DIRT) is reported and left alon
 whose own base block fails its checksum. A dirty hive bin is written as the log holds it; the
 specification describes replacing one that fails its checks with a dummy bin, which this does
 not do.
+
+One check goes beyond the specification. A key node keeps its cell for its whole life and its
+last-written time only moves forward, so replaying logs newer than the hive can only move a
+key's time forward. When the replay would give a key in a page it rewrites an earlier
+last-written time than the hive already holds for that key (same cell, parent and name), the
+logs are older than the hive and the replay is not used. The SYSTEM hive of
+pc_mus_001_win11 had logs like that: applying them, as the specification's rules allow, set
+three keys, one of them a BAM key, back by 14 to 15 minutes and moved no key forward.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -109,6 +118,51 @@ def log_entries(data):
     return entries
 
 
+def _bins(data):
+    """(start, end) of each hive bin, as offsets from the start of the hive bins data."""
+    bins, offset, total = [], 0, len(data) - _PAGE
+    while offset + 32 <= total and data[_PAGE + offset:_PAGE + offset + 4] == b'hbin':
+        size = struct.unpack_from('<I', data, _PAGE + offset + 8)[0]
+        if size < _PAGE or size % _PAGE or offset + size > total:
+            break
+        bins.append((offset, offset + size))
+        offset += size
+    return bins
+
+
+def _key_times(data, pages):
+    """{cell offset: (parent, name, last written)} for the key nodes that start in pages.
+
+    pages holds page offsets from the start of the hive bins data. Cells are walked from the
+    start of each bin that holds one of the pages, since a cell can begin before its page.
+    """
+    found = {}
+    for start, end in _bins(data):
+        if not any(start <= page < end for page in pages):
+            continue
+        cell = start + 32
+        while cell + 4 <= end:
+            size = struct.unpack_from('<i', data, _PAGE + cell)[0]
+            if abs(size) < 8 or cell + abs(size) > end:
+                break
+            body = _PAGE + cell + 4
+            if (size < 0 and cell - cell % _PAGE in pages and data[body:body + 2] == b'nk'
+                    and abs(size) >= 4 + 76):
+                stamp, = struct.unpack_from('<Q', data, body + 4)
+                parent, = struct.unpack_from('<I', data, body + 16)
+                length, = struct.unpack_from('<H', data, body + 72)
+                found[cell] = (parent, bytes(data[body + 76:body + 76 + length]), stamp)
+            cell += abs(size)
+    return found
+
+
+def _keys_set_back(primary, hive, pages):
+    """How many key nodes in pages the replayed hive gives an earlier last-written time."""
+    before, after = _key_times(primary, pages), _key_times(hive, pages)
+    return sum(1 for cell, (parent, name, stamp) in after.items()
+               if cell in before and before[cell][:2] == (parent, name) and stamp < before[cell][2])
+
+
 def _chain(data, primary_secondary):
     """(first, entries) of a log that can be applied, following the specification's checks."""
     header = base_block(data)
@@ -156,7 +210,7 @@ def recover(primary, logs):
             summary['reasons'][name] = reason
     chains.sort(key=lambda item: (item[0], item[1]))
     hive = bytearray(primary)
-    applied = []
+    applied, pages = [], set()
     for first, name, chain in chains:
         if applied and first != applied[-1]['sequence'] + 1:
             summary['reasons'][name] = 'does not continue the sequence of the log applied before it'
@@ -170,12 +224,22 @@ def recover(primary, logs):
                 if len(hive) < start + len(page):
                     hive.extend(b'\x00' * (start + len(page) - len(hive)))
                 hive[start:start + len(page)] = page
+                pages.update(range(page_offset - page_offset % _PAGE, page_offset + len(page), _PAGE))
             summary['pages'] += len(entry['pages'])
             applied.append(entry)
         summary['applied'].append((name, chain[0]['sequence'], chain[-1]['sequence']))
         summary['entries'] += len(chain)
     if not applied:
         summary['state'] = 'dirty, not recovered'
+        return primary, summary
+    set_back = _keys_set_back(primary, hive, pages)
+    if set_back:
+        sources = ' and '.join(name for name, _first, _last in summary['applied'])
+        summary['reasons']['hive'] = (f"replaying {sources}, sequence {summary['applied'][0][1]} to "
+                                      f"{summary['applied'][-1][2]}, would give {set_back} "
+                                      f"{'key' if set_back == 1 else 'keys'} an earlier last-written "
+                                      f"time than the hive holds")
+        summary.update({'state': 'dirty, not recovered', 'applied': [], 'entries': 0, 'pages': 0})
         return primary, summary
     last = applied[-1]
     struct.pack_into('<II', hive, 4, last['sequence'], last['sequence'])

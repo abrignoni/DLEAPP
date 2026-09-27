@@ -45,7 +45,7 @@ __artifacts_v2__ = {
                        "per user from each NTUSER.DAT.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "One row per value in the Windows Run and RunOnce autostart keys."
@@ -83,8 +83,17 @@ __artifacts_v2__ = {
                  "locations: the presence of an entry does not establish that the "
                  "program ran, and the absence of an entry is not evidence that a "
                  "program was not set to start automatically. Reading the hives "
-                 "requires the python-registry package. The parser reads offline "
-                 "hives and does not replay their transaction logs (.LOG1/.LOG2). "
+                 "requires the python-registry package. A dirty hive, one whose base block's two "
+                 "sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither "
+                 "is a replay that would give a key an earlier last-written time than the hive "
+                 "already holds, a check added here beyond the specification; the run log names "
+                 "each hive replayed, with the sequence numbers applied, and each dirty hive "
+                 "read as it is, with the reason. "
                  "Key layout and the RunOnce deletion behavior: Microsoft, 'Run "
                  "and RunOnce Registry Keys', "
                  "https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys."

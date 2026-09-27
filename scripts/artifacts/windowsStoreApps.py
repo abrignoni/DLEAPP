@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "flags as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the PackageUser table of StateRepository-Machine.srd, one row per package "
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
                  "order Microsoft documents for a package full name. User SID is the User table's "
                  "binary SID written as S-R-A-..., and User Profile is the last folder of that SID's "
                  "ProfileImagePath under ProfileList in the SOFTWARE hive; every SID on the three "
-                 "registered Windows images resolved. Install Time is PackageUser.InstallTime read as "
+                 "tested images resolved. Install Time is PackageUser.InstallTime read as "
                  "a FILETIME in UTC. That reading was checked against the NTFS modification time of "
                  "each package's AppxManifest.xml under Program Files\\WindowsApps, taking each "
                  "package's earliest InstallTime. On pc_mus_001_win11 the InstallTime of 83 of "
@@ -36,7 +36,17 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11). IsInbox, IsExplicitlyInstalled and DeploymentState are reported "
                  "as stored; their meanings are not established. On af_case2_win10 and lonewolf_win10 "
                  "every row is for one user and has DeploymentState 2, so User SID, User Profile and "
-                 "DeploymentState each hold one value there. Reference: Microsoft, 'An overview of "
+                 "DeploymentState each hold one value there. A dirty hive, one whose base block's two "
+                 "sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, following Maxim Suhanov's "
+                 "'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
+                 "the reason. Reference: Microsoft, 'An overview of "
                  "Package Identity in Windows apps', "
                  "https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/package-identity-overview.",
         "paths": ('*/ProgramData/Microsoft/Windows/AppRepository/StateRepository-Machine.srd*',

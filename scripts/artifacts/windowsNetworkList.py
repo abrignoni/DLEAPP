@@ -36,7 +36,7 @@ __artifacts_v2__ = {
                        "gateway MAC address and DNS suffix.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the NetworkList keys in the SOFTWARE hive, named in "
@@ -46,10 +46,11 @@ __artifacts_v2__ = {
                  "Private, 2 Domain) and shown with the stored number; a value "
                  "outside that set is shown as stored. Date Created and Date Last "
                  "Connected are decoded from the profile's DateCreated and "
-                 "DateLastConnected SYSTEMTIME values and reported as stored: a "
-                 "SYSTEMTIME carries no time zone, and on the tested images these "
-                 "were local time (about seven hours from a Windows FILETIME on "
-                 "the same machine), so they are not converted and not labelled "
+                 "DateLastConnected SYSTEMTIME values and reported as stored, since a SYSTEMTIME "
+                 "carries no time zone. On the tested images DateLastConnected was local time: it "
+                 "was a whole number of hours before the profile key's last-written time, a UTC "
+                 "FILETIME, to the millisecond (7 hours on af_case2_win10, 4 on lonewolf_win10 and "
+                 "5 on pc_mus_001_win11). Neither value is converted or labelled "
                  "UTC. Default Gateway MAC and DNS Suffix come from the network's "
                  "signature under Signatures (Managed or Unmanaged), joined to "
                  "the profile by the signature's ProfileGuid; Default Gateway MAC "
@@ -59,7 +60,17 @@ __artifacts_v2__ = {
                  "can place a network at a physical location through public "
                  "geolocation data; a profile records that the computer connected "
                  "to the network, not who was using it. Reading the hive requires "
-                 "python-registry. Category vocabulary: Microsoft "
+                 "python-registry. A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 transaction logs that "
+                 "continue its sequence are applied, following Maxim Suhanov's 'Windows registry "
+                 "file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is "
+                 "a replay that would give a key an earlier last-written time than the hive "
+                 "already holds, a check added here beyond the specification; the run log names "
+                 "each hive replayed, with the sequence numbers applied, and each dirty hive read "
+                 "as it is, with the reason. Category vocabulary: Microsoft "
                  "NLM_NETWORK_CATEGORY, https://learn.microsoft.com/en-us/windows/"
                  "win32/api/netlistmgr/ne-netlistmgr-nlm_network_category",
         "paths": ('*/Windows/System32/config/SOFTWARE',

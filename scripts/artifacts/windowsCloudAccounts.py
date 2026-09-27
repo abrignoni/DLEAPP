@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "sign-in time values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads each subkey of Software\\Microsoft\\OneDrive\\Accounts in each NTUSER.DAT and "
@@ -29,7 +29,17 @@ __artifacts_v2__ = {
                  "and no UserEmail, cid, UserCID, LastSignInTime or ClientFirstSignInTimestamp value, "
                  "so User Email, CID, Last Sign In and Client First Sign In are empty there. On "
                  "lonewolf_win10 the account subkey has no UserEmail or LastSignInTime value, so User "
-                 "Email and Last Sign In are empty.",
+                 "Email and Last Sign In are empty."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
+                 "applied, following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
+                 "the reason.",
         "paths": ('*/Users/*/NTUSER.DAT',
                   '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -47,7 +57,7 @@ __artifacts_v2__ = {
                        "lastusedcredtype values.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads each subkey of Software\\Microsoft\\IdentityCRL\\UserExtendedProperties in each "
@@ -56,7 +66,16 @@ __artifacts_v2__ = {
                  " same user's OneDrive account entry. Last Used Credential Type is the "
                  "lastusedcredtype value as stored; its meaning is not established. Key Last Written "
                  "is when the subkey was last written, which is not established as a sign-in time. "
-                 "af_case2_win10 has no such key.",
+                 "af_case2_win10 has no such key."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
+                 "applied, following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it is, with the reason.",
         "paths": ('*/Users/*/NTUSER.DAT',
                   '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],

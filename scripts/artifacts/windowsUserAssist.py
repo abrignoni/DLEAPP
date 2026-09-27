@@ -38,7 +38,7 @@ __artifacts_v2__ = {
                        "and focus time, and the last time it was executed.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from each NTUSER.DAT, named in Source File. Program is the "
@@ -52,7 +52,19 @@ __artifacts_v2__ = {
                  "is not the 72-byte structure, including the UEME_CTLSESSION "
                  "control value, are skipped. UserAssist Key (GUID) is the parent "
                  "GUID as stored, not interpreted. Reading the hives requires the "
-                 "python-registry package. Structure and ROT13 encoding: Kaspersky "
+                 "python-registry package. A dirty hive, one whose base block's two "
+                 "sequence numbers differ, is read after the entries in its .LOG1 "
+                 "and .LOG2 transaction logs that continue its sequence are "
+                 "applied, following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, "
+                 "and neither is a replay that would give a key an earlier "
+                 "last-written time than the hive already holds, a check added here "
+                 "beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it "
+                 "is, with the reason. Structure and ROT13 encoding: Kaspersky "
                  "Securelist, 'What is UserAssist and how to use it in IR "
                  "activities?', "
                  "https://securelist.com/userassist-artifact-forensic-value-for-incident-response/116911/",

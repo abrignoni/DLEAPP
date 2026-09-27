@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "SOFTWARE and SYSTEM hives.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the SOFTWARE hive's Microsoft\\Windows NT\\CurrentVersion and Winlogon keys and "
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                  "was set. Product Name is reported as stored: pc_mus_001_win11 has CurrentBuild "
                  "22621, which Microsoft lists as Windows 11 version 22H2, and a ProductName beginning"
                  " Windows 10, so Build is the value that identifies the release. InstallDate is read "
-                 "as seconds since 1970 and InstallTime as a FILETIME; on the three registered Windows"
+                 "as seconds since 1970 and InstallTime as a FILETIME; on the three tested"
                  " images they agreed to within a second. What event they record is not established: "
                  "on pc_mus_001_win11 the user's FeatureUsage KeyCreationTime is 51 hours earlier than"
                  " InstallDate, and on lonewolf_win10 the OneDrive ClientFirstSignInTimestamp is 2.4 "
@@ -32,13 +32,23 @@ __artifacts_v2__ = {
                  "Microsoft documents as stored in the registry in plain text when automatic logon is "
                  "turned on; af_case2_win10 has AutoAdminLogon 1 and a DefaultPassword value. Time "
                  "Zone Bias and Active Time Bias are read as signed minutes. Microsoft defines a time "
-                 "zone bias by UTC = local time + bias, and the registered images fit it: Bias 300 "
+                 "zone bias by UTC = local time + bias, and the tested images fit it: Bias 300 "
                  "with Eastern Standard Time on pc_mus_001_win11 and lonewolf_win10, and 480 with "
                  "Pacific Standard Time on af_case2_win10. Last Shutdown is the ShutdownTime value "
                  "under Control\\Windows read as a FILETIME. Checked against the System event log, it "
                  "lies within 0.2 seconds of the latest Kernel-General event 13 on pc_mus_001_win11 "
                  "and lonewolf_win10, and 2.0 seconds after the latest EventLog event 6006 on "
-                 "af_case2_win10, whose log has no event 13 for that shutdown. Reference: Microsoft, "
+                 "af_case2_win10, whose log has no event 13 for that shutdown. A dirty hive, one whose "
+                 "base block's two sequence numbers differ, is read after the entries in its .LOG1 and "
+                 ".LOG2 transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it is, with the reason. "
+                 "Reference: Microsoft, "
                  "'Configure Windows to automate logon', "
                  "https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon."
                  " Reference: Microsoft, 'TIME_ZONE_INFORMATION (timezoneapi.h)', "
@@ -64,7 +74,7 @@ __artifacts_v2__ = {
                        "from the SYSTEM hive.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the Services\\Tcpip\\Parameters\\Interfaces subkeys of the SYSTEM hive's control "
@@ -78,9 +88,9 @@ __artifacts_v2__ = {
                  "Obtained and Lease "
                  "Terminates are LeaseObtainedTime and LeaseTerminatesTime read as seconds since 1970 "
                  "UTC. On pc_mus_001_win11 the decoded Lease Obtained is 0.5 seconds before the "
-                 "interface key was last written, and on all three registered Windows images "
+                 "interface key was last written, and on all three tested images "
                  "LeaseTerminatesTime minus LeaseObtainedTime equals the Lease value. On "
-                 "af_case2_win10 and lonewolf_win10 LeaseObtainedTime holds 4 and 812456, which decode"
+                 "af_case2_win10 and lonewolf_win10 LeaseObtainedTime holds 4 and 830452, which decode"
                  " to January 1970, decades before the interface key was last written; why is not "
                  "established, and those rows show 1970 lease times that are not when the lease was "
                  "obtained. For that reason this artifact is not written to the timeline. On "
@@ -88,7 +98,16 @@ __artifacts_v2__ = {
                  "value as each other on each row: empty on the interface with a static address, "
                  "and one address on the DHCP "
                  "interface, each read from its own registry value. af_case2_win10's DHCP interface "
-                 "has no DhcpDefaultGateway value, so Default Gateway is empty there.",
+                 "has no DhcpDefaultGateway value, so Default Gateway is empty there."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, with "
+                 "the sequence numbers applied, and each dirty hive read as it is, with the reason.",
         "paths": ('*/Windows/System32/config/SYSTEM',
                   '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],

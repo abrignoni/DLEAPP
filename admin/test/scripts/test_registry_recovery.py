@@ -51,6 +51,26 @@ def page(fill):
     return bytes([fill]) * 4096
 
 
+def key_page(bin_offset, stamp, name=b'Run', parent=0x1020):
+    """A one-page hive bin holding one key node and a free cell after it."""
+    data = bytearray(4096)
+    data[0:4] = b'hbin'
+    struct.pack_into('<II', data, 4, bin_offset, 4096)
+    size = -(-(4 + 76 + len(name)) // 8) * 8
+    struct.pack_into('<i', data, 32, -size)
+    data[36:38] = b'nk'
+    struct.pack_into('<Q', data, 40, stamp)
+    struct.pack_into('<I', data, 52, parent)
+    struct.pack_into('<H', data, 108, len(name))
+    data[112:112 + len(name)] = name
+    struct.pack_into('<i', data, 32 + size, 4096 - 32 - size)
+    return bytes(data)
+
+
+def key_hive(primary, secondary, stamp, name=b'Run'):
+    return base_block(primary, secondary, 0, 8192) + key_page(0, stamp, name) + key_page(4096, 1)
+
+
 class Marvin32Test(unittest.TestCase):
     def test_symcrypt_known_answer(self):
         # SymCrypt's self-test: its default seed, the message 'abc', and the eight result bytes.
@@ -155,6 +175,30 @@ class RecoverTest(unittest.TestCase):
         self.assertEqual((data, summary['state']), (bytes(broken), 'dirty, not recovered'))
         self.assertEqual(summary['reasons'], {'hive': 'base block checksum wrong'})
 
+    def test_logs_that_would_set_a_key_back_are_not_applied(self):
+        primary = key_hive(9, 8, stamp=2_000)
+        stale = log(9, [entry(9, [(0, key_page(0, 1_000))])])
+        data, summary = rr.recover(primary, [('SYSTEM.LOG1', stale)])
+        self.assertEqual((data, summary['state']), (primary, 'dirty, not recovered'))
+        self.assertEqual(summary['applied'], [])
+        self.assertEqual(summary['reasons'], {'hive': 'replaying SYSTEM.LOG1, sequence 9 to 9, would give 1 key '
+                                                      'an earlier last-written time than the hive holds'})
+
+    def test_logs_that_move_a_key_forward_or_rewrite_its_cell_for_another_key_are_applied(self):
+        primary = key_hive(9, 8, stamp=2_000)
+        for replacement in (key_page(0, 3_000), key_page(0, 1_000, name=b'RunOnce'), key_page(0, 2_000)):
+            data, summary = rr.recover(primary, [('SYSTEM.LOG1', log(9, [entry(9, [(0, replacement)])]))])
+            self.assertEqual(summary['state'], 'recovered')
+            self.assertEqual(data[4096:8192], replacement)
+
+    def test_a_key_set_back_by_the_second_log_stops_the_whole_replay(self):
+        primary = key_hive(9, 8, stamp=2_000)
+        log1 = log(9, [entry(9, [(0, key_page(0, 3_000))])])
+        log2 = log(10, [entry(10, [(0, key_page(0, 1_500))])])
+        data, summary = rr.recover(primary, [('SYSTEM.LOG1', log1), ('SYSTEM.LOG2', log2)])
+        self.assertEqual((data, summary['state']), (primary, 'dirty, not recovered'))
+        self.assertIn('sequence 9 to 10, would give 1 key', summary['reasons']['hive'])
+
     def test_a_file_that_is_not_a_primary_hive_is_left_alone(self):
         data, summary = rr.recover(b'not a hive', [])
         self.assertEqual((data, summary['state']), (b'not a hive', 'not a hive'))
@@ -178,9 +222,13 @@ class OpenHiveTest(unittest.TestCase):
         return path
 
     def _open(self, path, context=None):
+        """The bytes open_hive hands python-registry."""
+        read = []
         with mock.patch.object(windows_registry, 'logfunc', self.logs.append), \
-                mock.patch.object(windows_registry.Registry, 'Registry', side_effect=lambda f: f.read()):
-            return windows_registry.open_hive(path, context)
+                mock.patch.object(windows_registry.Context, '_data_folder', self.folder), \
+                mock.patch.object(windows_registry.Registry, 'Registry', side_effect=lambda f: read.append(f.read())):
+            windows_registry.open_hive(path, context)
+        return read[0]
 
     def test_logs_beside_the_hive_are_found_without_case_and_replayed(self):
         path = self._write('NTUSER.DAT', hive(8, 7))
@@ -196,13 +244,23 @@ class OpenHiveTest(unittest.TestCase):
         self.assertEqual(data[4096:8192], page(9))
         self.assertEqual(data[8192:12288], page(4))
         self.assertEqual(self.logs, ['Registry: Users/alice/NTUSER.DAT was dirty; replayed 2 transaction log '
-                                     'entr(ies), sequence 8 to 9, from ntuser.dat.LOG1 and ntuser.dat.LOG2.'])
+                                     'entries, sequence 8 to 9, from ntuser.dat.LOG1 and ntuser.dat.LOG2.'])
 
     def test_a_dirty_hive_without_logs_is_read_as_it_is_and_logged(self):
+        # No context is passed, so the hive is named by its path inside the staged data.
         primary = hive(8, 7)
-        path = self._write('SYSTEM', primary)
+        os.makedirs(os.path.join(self.folder, 'Windows'))
+        path = self._write(os.path.join('Windows', 'SYSTEM'), primary)
         self.assertEqual(self._open(path), primary)
-        self.assertEqual(self.logs, ['Registry: SYSTEM is dirty and was read as it is (no transaction log beside it).'])
+        self.assertEqual(self.logs, ['Registry: Windows/SYSTEM is dirty and was read as it is '
+                                     '(no transaction log beside it).'])
+
+    def test_a_single_replayed_entry_is_named_in_the_singular(self):
+        path = self._write('SAM', hive(3, 2))
+        self._write('SAM.LOG1', log(3, [entry(3, [(0, page(7))])]))
+        self._open(path)
+        self.assertEqual(self.logs, ['Registry: SAM was dirty; replayed 1 transaction log entry, '
+                                     'sequence 3 to 3, from SAM.LOG1.'])
 
     def test_a_clean_hive_is_read_as_it_is_without_a_log_line(self):
         primary = hive(8, 8)

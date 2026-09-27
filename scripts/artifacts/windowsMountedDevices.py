@@ -38,7 +38,7 @@ __artifacts_v2__ = {
                        "GUID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "One row per value in the SYSTEM hive's top-level "
@@ -74,7 +74,19 @@ __artifacts_v2__ = {
                  "mapped to a device, not when the mapping was made or by whom, "
                  "and the key can retain entries for devices that are not "
                  "presently mounted (Windows removes those with mountvol /r). "
-                 "Reading the hive requires python-registry. Format reference: "
+                 "Reading the hive requires python-registry. A dirty hive, one "
+                 "whose base block's two sequence numbers differ, is read after "
+                 "the entries in its .LOG1 and .LOG2 transaction logs that "
+                 "continue its sequence are applied, following Maxim Suhanov's "
+                 "'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each "
+                 "hive replayed, with the sequence numbers applied, and each "
+                 "dirty hive read as it is, with the reason. Format reference: "
                  "libyal "
                  "winreg-kb Mounted-devices at commit d149aff1, "
                  "https://github.com/libyal/winreg-kb/blob/"
@@ -89,8 +101,8 @@ __artifacts_v2__ = {
                                 "(2 GPT partitions, 1 USB volume)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 6 rows "
                               "(2 MBR disks, optical and floppy)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 6 rows "
-                              "(GPT partition, USB, optical)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 7 rows "
+                              "(GPT partition, MBR disk, USB, optical)",
         },
     },
 }

@@ -15,6 +15,7 @@ import os
 import struct
 from datetime import datetime, timedelta, timezone
 
+from scripts.context import Context
 from scripts.ilapfuncs import logfunc
 from scripts.registry_recovery import recover
 
@@ -168,12 +169,12 @@ def open_hive(path, context=None):
         except OSError:
             continue
     data, summary = recover(primary, logs)
-    label = context.get_relative_path(path) if context is not None else os.path.basename(str(path))
+    label = (context or Context).get_relative_path(str(path))
     if summary['state'] == 'recovered':
         sources = ' and '.join(name for name, _first, _last in summary['applied'])
-        logfunc(f"Registry: {label} was dirty; replayed {summary['entries']} transaction log "
-                f"entr(ies), sequence {summary['applied'][0][1]} to {summary['applied'][-1][2]}, "
-                f"from {sources}.")
+        entries = f"{summary['entries']} transaction log {'entry' if summary['entries'] == 1 else 'entries'}"
+        logfunc(f"Registry: {label} was dirty; replayed {entries}, sequence "
+                f"{summary['applied'][0][1]} to {summary['applied'][-1][2]}, from {sources}.")
     elif summary['state'] == 'dirty, not recovered':
         reasons = '; '.join(f'{name}: {why}' for name, why in summary['reasons'].items())
         logfunc(f"Registry: {label} is dirty and was read as it is "
