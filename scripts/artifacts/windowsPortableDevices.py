@@ -18,7 +18,11 @@ __artifacts_v2__ = {
                  " and of Enum\\SWD\\WPDBUSENUM in the SYSTEM hive's control set named by the Select "
                  "key's Current value (ControlSet001 when there is none), with each subkey's "
                  "FriendlyName and DeviceDesc values as stored. Device Key is the subkey name as "
-                 "stored and is not parsed. Registry Location names the key a row came from. Key Last "
+                 "stored and is not parsed. "
+                 "Registry Location names the key a row came from. Registry Location does not "
+                 "separate two copies of one hive, and the declared paths also match a hive under "
+                 "Windows.old, so Source File names the file each row came from."
+                 " Key Last "
                  "Written is when the subkey was last written, which is not established as when a "
                  "device was connected.",
         "paths": (
