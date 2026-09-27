@@ -45,12 +45,21 @@ SCHEMA = (
     'CREATE TABLE PLLocaleAgent_EventForward_TimeZone (ID INTEGER PRIMARY KEY AUTOINCREMENT, '
     'timestamp REAL, CountryCode TEXT, LocaleId TEXT, SecondsFromGMT INTEGER, '
     'TimeZoneIsInDST INTEGER, TimeZoneName TEXT, Trigger TEXT)',
+    'CREATE TABLE PLPeripheralAgent_EventForward_ClamshellState (ID INTEGER PRIMARY KEY '
+    'AUTOINCREMENT, timestamp REAL, closed INTEGER)',
+    'CREATE TABLE PLPeripheralAgent_EventForward_DeviceState (ID INTEGER PRIMARY KEY '
+    'AUTOINCREMENT, timestamp REAL, BusVersionOrSpeed INTEGER, DeviceName TEXT, DeviceType INTEGER, '
+    'IsBuiltin INTEGER, NowConnected INTEGER, ProductID INTEGER, RegisterEntryID INTEGER, '
+    'ThunderboltRevisionID INTEGER, VendorID INTEGER)',
+    'CREATE TABLE PLAudioAgent_EventForward_AudioDevice (ID INTEGER PRIMARY KEY AUTOINCREMENT, '
+    'timestamp REAL, timestampLogged REAL, DeviceID INTEGER, IsInput INTEGER, IsRunning INTEGER, '
+    'SourceID INTEGER, TransType INTEGER, Volume REAL)',
 )
 MIDNIGHT = 1767225600.0          # 2026-01-01 00:00:00 UTC
 
 
-def fill(con, offsets=(), states=(), arrays=(), idle=(), frontmost=(), zones=(),
-         schema=SCHEMA):
+def fill(con, offsets=(), states=(), arrays=(), idle=(), frontmost=(), zones=(), lids=(),
+         devices=(), audio=(), schema=SCHEMA):
     for statement in schema:
         con.execute(statement)
     con.executemany('INSERT INTO PLStorageOperator_EventForward_TimeOffset '
@@ -69,6 +78,15 @@ def fill(con, offsets=(), states=(), arrays=(), idle=(), frontmost=(), zones=(),
     con.executemany('INSERT INTO PLLocaleAgent_EventForward_TimeZone (timestamp, CountryCode, '
                     'LocaleId, SecondsFromGMT, TimeZoneIsInDST, TimeZoneName, Trigger) '
                     'VALUES (?, ?, ?, ?, ?, ?, ?)', zones)
+    con.executemany('INSERT INTO PLPeripheralAgent_EventForward_ClamshellState (timestamp, closed) '
+                    'VALUES (?, ?)', lids)
+    con.executemany('INSERT INTO PLPeripheralAgent_EventForward_DeviceState (timestamp, DeviceName, '
+                    'NowConnected, IsBuiltin, DeviceType, VendorID, ProductID, RegisterEntryID, '
+                    'BusVersionOrSpeed, ThunderboltRevisionID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)',
+                    devices)
+    con.executemany('INSERT INTO PLAudioAgent_EventForward_AudioDevice (timestamp, timestampLogged, '
+                    'DeviceID, IsInput, IsRunning, SourceID, TransType, Volume) '
+                    'VALUES (?, ?, ?, ?, ?, ?, ?, ?)', audio)
     con.commit()
 
 
@@ -214,6 +232,24 @@ class ReaderTest(unittest.TestCase):
         self.assertEqual(artifact._seconds(-5942080.88399999), -5942080.884)  # pylint: disable=protected-access
         self.assertEqual(artifact._seconds(None), '')  # pylint: disable=protected-access
 
+    def test_hex_and_four_characters(self):
+        # pylint: disable=protected-access
+        self.assertEqual(artifact._hex(1452), '0x05AC')
+        self.assertEqual(artifact._hex(1970170734), '0x756E6B6E')
+        self.assertEqual(artifact._hex(0), '0x0000')
+        self.assertEqual((artifact._hex(None), artifact._hex(-1)), ('', -1))
+        self.assertEqual(artifact._four_characters(1651274862), 'bltn')
+        self.assertEqual(artifact._four_characters(1970496032), 'usb ')
+        self.assertEqual(artifact._four_characters(1768778083), 'imic')
+        # A code whose bytes are not all printable, or a value that is not a 32-bit
+        # integer, is shown as stored.
+        self.assertEqual(artifact._four_characters(0x626C7400), 0x626C7400)
+        self.assertEqual(artifact._four_characters(5), 5)
+        self.assertEqual(artifact._four_characters(1 << 32), 1 << 32)
+        self.assertEqual(artifact._four_characters(-1), -1)
+        self.assertEqual(artifact._four_characters(None), '')
+        self.assertEqual(artifact._four_characters('bltn'), 'bltn')
+
     def test_merge_sources(self):
         merged = mpl.merge_sources([
             (('a', 1), 'archive'), (('b', 2), 'archive'), (('a', 1), 'live'),
@@ -345,6 +381,41 @@ class ArtifactTest(unittest.TestCase):
                           'Country Code', 'Locale ID', 'Trigger', 'Time Offset (seconds)', 'Source File'])
         self.assertEqual(rows, [(datetime(2026, 1, 1, 0, 0, 4, tzinfo=UTC), 'America/New_York', -18000, 0,
                                  'US', 'en_US', 'powerlog', -1.0, live)])
+
+    def test_lid_peripherals_and_audio_devices(self):
+        write_live(self.live, offsets=[(MIDNIGHT, 2.0)],
+                   lids=[(MIDNIGHT + 20, 1), (MIDNIGHT + 10, 0)],
+                   devices=[(MIDNIGHT + 30, 'Headset', 1, 1, 1, 1452, 1060, 4294968617, 2),
+                            (MIDNIGHT + 40, None, 0, 0, 1, 0, 0, 4294968617, 0)],
+                   audio=[(MIDNIGHT + 50, MIDNIGHT + 55, 93, 0, 0, 1769173099, 1651274862, 0.5),
+                          (MIDNIGHT + 60, MIDNIGHT + 60, 100, 1, 1, 1768778083, 1651275109, 0.0)])
+        live = FOLDER + '/CurrentPowerlog.PLSQL'
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogLid)
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Closed (as stored)', 'Time Offset (seconds)', 'Source File'])
+        self.assertEqual(rows, [(datetime(2026, 1, 1, 0, 0, 12, tzinfo=UTC), 0, 2.0, live),
+                                (datetime(2026, 1, 1, 0, 0, 22, tzinfo=UTC), 1, 2.0, live)])
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogPeripherals)
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Device Name', 'Now Connected (as stored)', 'Is Builtin (as stored)',
+                          'Device Type (as stored)', 'Vendor ID', 'Vendor ID (hex)', 'Product ID',
+                          'Product ID (hex)', 'Register Entry ID', 'Bus Version Or Speed (as stored)',
+                          'Time Offset (seconds)', 'Source File'])
+        self.assertEqual(rows, [
+            (datetime(2026, 1, 1, 0, 0, 32, tzinfo=UTC), 'Headset', 1, 1, 1, 1452, '0x05AC', 1060, '0x0424',
+             4294968617, 2, 2.0, live),
+            (datetime(2026, 1, 1, 0, 0, 42, tzinfo=UTC), '', 0, 0, 1, 0, '0x0000', 0, '0x0000',
+             4294968617, 0, 2.0, live)])
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogAudioDevices)
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Logged Time (UTC)', 'Device ID (as stored)', 'Is Input (as stored)',
+                          'Is Running (as stored)', 'Source ID', 'Transport Type', 'Volume',
+                          'Time Offset (seconds)', 'Source File'])
+        self.assertEqual(rows, [
+            (datetime(2026, 1, 1, 0, 0, 52, tzinfo=UTC), datetime(2026, 1, 1, 0, 0, 57, tzinfo=UTC),
+             93, 0, 0, 'ispk', 'bltn', 0.5, 2.0, live),
+            (datetime(2026, 1, 1, 0, 1, 2, tzinfo=UTC), datetime(2026, 1, 1, 0, 1, 2, tzinfo=UTC),
+             100, 1, 1, 'imic', 'blue', 0.0, 2.0, live)])
 
     def test_unreadable_files_are_logged_and_the_rest_read(self):
         write_live(self.live, offsets=[], idle=[(MIDNIGHT, 1)])
