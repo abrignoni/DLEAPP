@@ -1,36 +1,45 @@
 __artifacts_v2__ = {
     "discordMessages": {
         "name": "Discord Messages",
-        "description": "Chat messages recovered from the Discord Desktop HTTP "
-                       "cache. Discord renders its UI from REST API responses, "
-                       "and those JSON responses stay in the Chromium cache "
-                       "after the app closes. A cached response is a copy of "
-                       "what the API returned to this client at the moment it "
-                       "was stored, and it is not updated if the message is "
-                       "later edited or deleted server-side. The cache evicts "
-                       "over time, so the absence of a message here does not "
-                       "indicate it was never sent. Where the attachment image "
-                       "is also still cached it is recovered and shown against "
-                       "its message.",
+        "description": "Chat messages recovered from JSON responses to Discord's REST API held in the client's "
+                       "Chromium cache: responses listing a channel's messages and message search results. A "
+                       "cached response holds what the API returned when it was received, so a later edit or "
+                       "deletion is not reflected unless the client fetched the same URL again. A cached copy of "
+                       "an attachment is embedded against its message.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "Parses cached responses to /api/v*/channels/<id>/messages and "
-                 "the message search endpoints. Each cached copy is a "
-                 "point-in-time snapshot and the most recent one is reported, so "
-                 "an edit made after the last cache write is not reflected here. "
-                 "Direction is resolved against the signed-in account id taken "
-                 "from the Sentry scope and Local Storage, so it is only "
-                 "resolvable when that account id was found; where it was not, "
-                 "Direction is left empty for every row rather than defaulted. "
-                 "The Attachments and Attachment Names columns list at most ten "
-                 "attachments per message. Ten is an observed cap rather than a "
-                 "limit Discord documents; the Discord Attachments artifact "
-                 "reports every attachment the API declared.",
+        "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
+                 "times. It parses cached responses to api/v<N>/channels/<id>/messages and to "
+                 "channels/<id>/messages/search or guilds/<id>/messages/search. Where several cached "
+                 "responses hold the same message, the copy with the latest Cached time is reported. "
+                 "Timestamp is the message's timestamp field, or the timestamp in the message ID where "
+                 "that field is absent; Edited is its edited_timestamp, and Cached is the Cached time of "
+                 "the response the message was read from. Direction is resolved against the account IDs "
+                 "found in the Sentry scope and Local Storage (see Discord Users Seen), so it is only "
+                 "resolvable when one was found; where none was, Direction is empty on every row rather "
+                 "than defaulted. Message Type names the type with the names Discord documents "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/message.mdx#L82-L120); "
+                 "a number missing from that list is shown as Type and the number, as for the one message "
+                 "of type 47 on discord_macos. Reply To gives the replied-to message's author and first "
+                 "120 characters where the response included that message, and otherwise its message ID. "
+                 "The Attachments and Attachment Names columns list at most ten attachments per message; "
+                 "no message on discord_macos declared more than ten, and the Discord Attachments artifact "
+                 "lists every declared attachment. Source Cache File names the file the response body was "
+                 "read from: the entry's *_0 file in a simple cache, or the data_N or f_ file holding the "
+                 "body in a blockfile cache. Chromium removes cache entries once the cache grows past its "
+                 "size limit (see Discord Cache Records), so a message missing here may still have been "
+                 "sent.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
+            '*/discord*/Cache/index',
+            '*/discord*/Cache/data_*',
+            '*/discord*/Cache/f_*',
+            '*/discord*/Cache/Cache_Data/index',
+            '*/discord*/Cache/Cache_Data/data_*',
+            '*/discord*/Cache/Cache_Data/f_*',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
             '*/discord*/sentry/scope_v3.json',
             '*/discord*/Local Storage/leveldb/*',
@@ -38,8 +47,13 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "message-circle",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 12940 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 164 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
         "data_views": {
             "conversation": {
@@ -56,31 +70,33 @@ __artifacts_v2__ = {
     },
     "discordAttachments": {
         "name": "Discord Attachments",
-        "description": "Files shared in Discord conversations, taken from the "
-                       "attachment metadata inside cached message responses and "
-                       "linked to the cached copy of the file itself where one "
-                       "survives. Each row records an attachment the API "
-                       "reported on a message: its filename, declared size and "
-                       "type, the account that posted the message and the "
-                       "channel it appeared in. The attachment ID is a "
-                       "snowflake, so the upload time is recoverable from the "
-                       "URL alone even when the file itself is gone. The cache "
-                       "evicts over time, so the absence of a file here does "
-                       "not indicate it was never shared.",
+        "description": "Attachments declared on recovered Discord messages: file name, declared size and type, "
+                       "the posting account and the channel, with the cached copy of the file embedded where the "
+                       "cache holds one under the attachment's ID.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "Cached copies are frequently WebP rather than the uploaded "
-                 "type, so the recovered bytes can differ from the file the "
-                 "sender chose. "
-                 "The reported size is the size declared by the API. "
-                 "Reference: Discord Developer Documentation, "
-                 "'Snowflakes (ID format)', "
-                 "https://discord.com/developers/docs/reference#snowflakes",
+        "notes": "One row per attachment declared by a message that Discord Messages recovers. Uploaded is "
+                 "the timestamp in the attachment ID, read with the layout Discord documents "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/reference.mdx#L156); "
+                 "on discord_macos it fell between 5.4 seconds before and 0.2 seconds after the timestamp "
+                 "of the message declaring the attachment, for all 1,022 attachments. Declared Size "
+                 "(bytes), Content Type and Dimensions are the size, content_type, width and height the "
+                 "message declared. Recovered File embeds the largest cached copy under the attachment's "
+                 "ID and Cached Copy says whether one was recovered; a copy can be in another format than "
+                 "the one declared (see Discord Recovered Media). Source Cache File names the file that "
+                 "copy's body was read from, and Message is the first 200 characters of the message text. "
+                 "A missing copy does not show that the file was never shared.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
+            '*/discord*/Cache/index',
+            '*/discord*/Cache/data_*',
+            '*/discord*/Cache/f_*',
+            '*/discord*/Cache/Cache_Data/index',
+            '*/discord*/Cache/Cache_Data/data_*',
+            '*/discord*/Cache/Cache_Data/f_*',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
             '*/discord*/sentry/scope_v3.json',
             '*/discord*/Local Storage/leveldb/*',
@@ -88,8 +104,13 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "paperclip",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 1022 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 12 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -98,7 +119,6 @@ import os
 from datetime import datetime, timezone
 
 from scripts.chromium import discord_api
-from scripts.chromium.simple_cache import read_entry
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
 
 # Attachments embedded per message row are capped. Ten is an observed cap, not
@@ -130,7 +150,7 @@ def _best_cached_media(scan):
 
 def _recover_media(path, media, filename):
     """Check the cached bytes in as a media item and return its reference id."""
-    entry = read_entry(path)
+    entry = discord_api.cached_entry(path)
     if entry is None:
         return None
     body = entry.decoded_body()
@@ -143,7 +163,7 @@ def _recover_media(path, media, filename):
     if content_type.startswith("image/") or content_type.startswith("video/"):
         extension = content_type.split("/")[-1]
     return check_in_embedded_media(
-        path, body, filename or f"{media['owner_id']}.{extension or 'bin'}",
+        media.get("source", path), body, filename or f"{media['owner_id']}.{extension or 'bin'}",
         force_type=content_type or None,
         force_extension=extension or None,
         force_creation_date=_epoch(media.get("cached")),
@@ -337,7 +357,7 @@ def discordAttachments(context):
                 attachment_id,
                 message_id,
                 attachment.get("url", ""),
-                context.get_relative_path(found[0]) if found else "",
+                context.get_relative_path(found[1].get("source", found[0])) if found else "",
             ))
 
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime)

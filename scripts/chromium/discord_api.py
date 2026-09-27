@@ -9,15 +9,23 @@ attachments, reactions, searches and the raw request index.
 A single scan is memoised per file list because several artifacts share it,
 and message bodies are only decompressed for endpoints that are known to carry
 JSON worth keeping.
+
+The cache is read in both of Chromium's formats: the simple cache (one ``*_0``
+file per entry, as on macOS) and the blockfile cache (``index``, ``data_N`` and
+``f_XXXXXX`` files, as on Windows). A blockfile entry has no file of its own, so
+it is keyed by its data file and cache address, and :func:`cached_entry` reads
+either kind back from that key.
 """
 
 import hashlib
 import json
+import os
 import re
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qs, unquote, urlparse
 
-from scripts.chromium.simple_cache import base_time_to_datetime, iter_entries
+from scripts.chromium.blockfile_cache import iter_entries as blockfile_entries
+from scripts.chromium.simple_cache import base_time_to_datetime, iter_entries, read_entry
 
 # Snowflake IDs count milliseconds from 2015-01-01, Discord's first second.
 SNOWFLAKE_EPOCH_MS = 1420070400000
@@ -35,10 +43,14 @@ _GIF_SEARCH_RE = re.compile(r"^gifs/(search|trending)")
 _NOTE_RE = re.compile(r"^users/@me/notes/(\d+)")
 
 # Message-search parameters that describe what was looked for, as opposed to
-# pagination and sort options.
+# pagination and sort options: the filters Discord's API documentation lists
+# for message search, apart from content, which is reported as the search term
+# (discord/discord-api-docs at ce076f016923cc841774dc51d95bde0eb25c4dcb:
+# developers/resources/message.mdx lines 957 to 972).
 _SEARCH_FILTER_PARAMS = {
-    "author_id", "channel_id", "has", "mentions", "mention_everyone",
-    "pinned", "link_hostname", "attachment_filename", "attachment_extension",
+    "author_id", "author_type", "channel_id", "has", "mentions", "mentions_role_id",
+    "mention_everyone", "replied_to_user_id", "replied_to_message_id", "pinned",
+    "link_hostname", "attachment_filename", "attachment_extension",
     "embed_provider", "embed_type",
 }
 
@@ -55,16 +67,26 @@ _ICON_RE = re.compile(r"https://cdn\.discordapp\.com/icons/(\d+)/([^?/]+)")
 _BANNER_RE = re.compile(r"https://cdn\.discordapp\.com/banners/(\d+)/([^?/]+)")
 _EXTERNAL_RE = re.compile(r"https://images-ext-\d\.discordapp\.net/external/[^/]+/(.+)$")
 
-# Versioned SPA bundle assets: high volume, no investigative value.
+# The client's own script, data, style sheet, font, source map and icon files
+# under /assets/, which made up about half of the cached responses on each
+# tested profile. The extension must end the path, so only these are left out.
 _STATIC_ASSET_RE = re.compile(
-    r"https://(?:discord|discordapp)\.com/assets/[^?]+\.(?:js|css|woff2?|map|svg|ico)")
+    r"https://(?:discord|discordapp)\.com/assets/[^?]+"
+    r"\.(?:js|json|css|woff2?|map|svg|ico)(?:\?|$)")
 
+# Message and channel type names as Discord's API documentation lists them
+# (discord/discord-api-docs at ce076f016923cc841774dc51d95bde0eb25c4dcb:
+# developers/resources/message.mdx lines 82 to 120 and
+# developers/resources/channel.mdx lines 66 to 80). A number missing from a
+# table is reported as "Type <number>" rather than given a name.
 _MESSAGE_TYPES = {
     0: "Default", 1: "Recipient Add", 2: "Recipient Remove", 3: "Call",
     4: "Channel Name Change", 5: "Channel Icon Change", 6: "Channel Pinned Message",
     7: "User Join", 8: "Guild Boost", 9: "Guild Boost Tier 1",
     10: "Guild Boost Tier 2", 11: "Guild Boost Tier 3", 12: "Channel Follow Add",
     14: "Guild Discovery Disqualified", 15: "Guild Discovery Requalified",
+    16: "Guild Discovery Grace Period Initial Warning",
+    17: "Guild Discovery Grace Period Final Warning",
     18: "Thread Created", 19: "Reply", 20: "Chat Input Command",
     21: "Thread Starter Message", 22: "Guild Invite Reminder",
     23: "Context Menu Command", 24: "Auto Moderation Action",
@@ -73,7 +95,7 @@ _MESSAGE_TYPES = {
     31: "Stage Topic", 32: "Guild Application Premium Subscription",
     36: "Guild Incident Alert Mode Enabled", 37: "Guild Incident Alert Mode Disabled",
     38: "Guild Incident Report Raid", 39: "Guild Incident Report False Alarm",
-    46: "Poll Result", 47: "Changelog",
+    44: "Purchase Notification", 46: "Poll Result",
 }
 
 _CHANNEL_TYPES = {
@@ -287,6 +309,70 @@ class DiscordCacheScan:
             self.note_channel({"id": message["channel_id"]}, source)
 
 
+class _BlockfileEntry:
+    """A blockfile cache entry with the attributes the scan reads from a simple cache entry.
+
+    A simple cache keeps an entry and its body in one file. A blockfile cache
+    records every entry in a block of ``data_1`` and keeps the body in another
+    block file or in an ``f_XXXXXX`` file of its own. ``entry_path`` is the file
+    holding the entry and ``path`` the file holding the body, falling back to the
+    entry's file when there is no body, so a row built from a response body cites
+    the file that body was read from. ``ref`` adds the entry's cache address to
+    the entry's file, so two entries in one data file keep distinct keys.
+    """
+
+    __slots__ = ("entry", "path", "entry_path", "ref", "url", "request_time",
+                 "response_time", "status_code", "body_size")
+
+    def __init__(self, entry):
+        self.entry = entry
+        self.entry_path = entry.source
+        self.path = entry.body_source or entry.source
+        self.ref = f"{entry.source}#{entry.address:08x}"
+        self.url = entry.url
+        # The blockfile reader has already converted these to datetimes.
+        self.request_time = entry.request_time
+        self.response_time = entry.response_time
+        code = str(entry.status_code or "")
+        self.status_code = int(code) if code.isdigit() else None
+        self.body_size = entry.body_size
+
+    @property
+    def content_type(self):
+        return self.entry.content_type
+
+    def decoded_body(self):
+        return self.entry.decoded_body()
+
+
+# Blockfile entries seen by a scan, by ref, so cached_entry can hand them back.
+_BLOCKFILE_ENTRIES = {}
+
+
+def cached_entry(ref):
+    """The cache entry a scan recorded under ``ref``: a blockfile entry, or a simple cache file."""
+    entry = _BLOCKFILE_ENTRIES.get(ref)
+    if entry is not None:
+        return entry
+    return read_entry(ref)
+
+
+def _when(value):
+    """A cache time as a datetime, whether stored raw (simple cache) or already converted."""
+    if isinstance(value, datetime):
+        return value
+    return base_time_to_datetime(value)
+
+
+def _cache_entries(entry_files, index_files):
+    """Every entry of both cache formats: simple cache files, then blockfile caches."""
+    yield from iter_entries(entry_files)
+    for entry in blockfile_entries(index_files, folder_names=("Cache", "Cache_Data")):
+        adapted = _BlockfileEntry(entry)
+        _BLOCKFILE_ENTRIES[adapted.ref] = adapted
+        yield adapted
+
+
 def _decode_json(entry):
     body = entry.decoded_body()
     if not body:
@@ -368,28 +454,30 @@ def scan_cache(files_found, log=None):
     logs or Local Storage share one scan with those that only search the cache.
     """
     entry_files = sorted(str(f) for f in files_found if str(f).endswith("_0"))
+    index_files = sorted(str(f) for f in files_found if os.path.basename(str(f)) == "index")
     digest = hashlib.sha1(
-        "\n".join(entry_files).encode("utf-8", "replace")).hexdigest()
+        "\n".join(entry_files + index_files).encode("utf-8", "replace")).hexdigest()
     cached = _scan_cache.get(digest)
     if cached is not None:
         return cached
 
     scan = DiscordCacheScan()
-    for entry in iter_entries(entry_files):
+    for entry in _cache_entries(entry_files, index_files):
         url = entry.url
         if not url:
             continue
         scan.entry_count += 1
-        cached_at = base_time_to_datetime(entry.response_time)
-        requested_at = base_time_to_datetime(entry.request_time)
+        cached_at = _when(entry.response_time)
+        requested_at = _when(entry.request_time)
 
         kind, owner_id, related_id = media_kind(url)
         if kind:
-            scan.media[entry.path] = {
+            scan.media[getattr(entry, "ref", entry.path)] = {
                 "kind": kind, "owner_id": owner_id, "related_id": related_id,
                 "url": url, "content_type": entry.content_type,
                 "size": entry.body_size, "requested": requested_at,
                 "cached": cached_at, "status": entry.status_code,
+                "source": entry.path,
             }
 
         if not _STATIC_ASSET_RE.match(url):
@@ -401,7 +489,7 @@ def scan_cache(files_found, log=None):
                 "status": entry.status_code,
                 "content_type": entry.content_type,
                 "size": entry.body_size, "kind": kind,
-                "source": entry.path,
+                "source": getattr(entry, "entry_path", entry.path),
             })
 
         api_match = _API_RE.match(url)
@@ -485,7 +573,7 @@ def _parse_api_entry(scan, entry, endpoint, cached_at, requested_at):
         if isinstance(payload, dict) and payload.get("user"):
             scan.profiles[match.group(1)] = {"profile": payload, "source": entry.path,
                                              "cached": cached_at}
-            scan.note_user(payload["user"], "Profile viewed", cached_at)
+            scan.note_user(payload["user"], "Profile fetched", cached_at)
         return
 
     match = _CHANNEL_RE.match(endpoint)

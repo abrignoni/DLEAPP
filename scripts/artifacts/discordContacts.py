@@ -1,32 +1,44 @@
 __artifacts_v2__ = {
     "discordUsers": {
         "name": "Discord Users Seen",
-        "description": "Discord accounts seen in the cached responses this "
-                       "parser decodes: message authors, mentioned users, DM "
-                       "recipients, reaction users, profiles and invite "
-                       "creators. User IDs are snowflakes, so each account's "
-                       "registration date is "
-                       "recoverable, and a cached avatar is embedded where one "
-                       "survives. Where a profile response was cached, the "
-                       "external accounts Discord recorded as connected to it "
-                       "(Steam, Spotify, Xbox and similar) are listed with "
-                       "their platform and account name. First and last seen "
-                       "describe the surviving cached evidence, not the "
-                       "account's activity window.",
+        "description": "Discord accounts named in the cached API responses this parser reads: message authors, "
+                       "mentioned users, direct message recipients, users listed as having reacted, profiles and "
+                       "invite creators, with profile details and an avatar where the cache holds them.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "Profile fields (bio, pronouns, connected accounts) are only "
-                 "present where a profile response was cached, so a sparse row "
-                 "means no profile response survives, not that the account has "
-                 "no profile. "
-                 "Reference: Discord Developer Documentation, "
-                 "'Snowflakes (ID format)', "
-                 "https://discord.com/developers/docs/reference#snowflakes",
+        "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
+                 "times. The account IDs found in the Sentry scope's user and in the MultiAccountStore and "
+                 "tokens keys of Local Storage are marked by adding (local account) to their Username. "
+                 "Seen As lists the responses that named the account: Message author, Mentioned, DM "
+                 "channel (a recipient of a direct message channel object), Reacted to message, Profile "
+                 "fetched (a cached response to users/<id>/profile) and Invite creator. First Seen "
+                 "(Cached) and Last Seen (Cached) are the earliest and latest of the times attached to "
+                 "those responses: a message's timestamp for its author and the users it mentions, and the "
+                 "Cached time of a reaction listing, profile or invite response; a direct message "
+                 "recipient adds no time. They describe what the cache kept, not when the account was "
+                 "active. Account Created is the timestamp in the user ID, read with the layout Discord "
+                 "documents for its IDs "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/reference.mdx#L156); "
+                 "the documentation gives that part of the ID as milliseconds since the first second of "
+                 "2015 without naming the event it records. Pronouns, Bio, Legacy Username, Connected "
+                 "Accounts (type:name pairs) and Mutual Servers come only from a cached profile response, "
+                 "and Profile Cached says whether one was found, so a blank in them means no profile "
+                 "response was cached, not that the account had no profile. Avatar embeds the largest "
+                 "cached avatar or server avatar image for the account's ID. Bot is Yes when any response "
+                 "marked the account as a bot. Private Note comes from a cached response to "
+                 "users/@me/notes/<id>, and discord_macos held none, so Private Note was empty on all 590 "
+                 "of its rows.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
+            '*/discord*/Cache/index',
+            '*/discord*/Cache/data_*',
+            '*/discord*/Cache/f_*',
+            '*/discord*/Cache/Cache_Data/index',
+            '*/discord*/Cache/Cache_Data/data_*',
+            '*/discord*/Cache/Cache_Data/f_*',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
             '*/discord*/sentry/scope_v3.json',
             '*/discord*/Local Storage/leveldb/*',
@@ -34,36 +46,53 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 590 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 10 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
     "discordChannels": {
         "name": "Discord Channels",
-        "description": "Channels, direct messages and group chats referenced by "
-                       "the cached data, with the number of messages recovered "
-                       "for each and the span those messages cover. Channel IDs "
-                       "are snowflakes, so the channel creation date is "
-                       "recoverable even for a channel only seen once in a URL. "
-                       "The message count is what survived in the cache rather "
-                       "than the volume of the conversation, and the date span "
-                       "covers only the recovered messages.",
+        "description": "Channels named in the cached Discord API responses, with the number of recovered "
+                       "messages in each and the span of their timestamps.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "Channel names and topics are only known where the client "
-                 "cached a channel object or a search response describing them; "
-                 "otherwise only the ID is reported. The server a channel "
-                 "belongs to is resolved from cached channel objects, the "
-                 "renderer log's routing entries and the Local Storage channel "
-                 "selection state. "
-                 "Reference: Discord Developer Documentation, "
-                 "'Snowflakes (ID format)', "
-                 "https://discord.com/developers/docs/reference#snowflakes",
+        "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
+                 "times. A channel is listed when a recovered message names it as its channel, or when a "
+                 "cached channel object, message search response or invite response describes it. Messages "
+                 "Recovered counts the recovered messages whose channel_id is the channel, and First "
+                 "Message and Last Message are the earliest and latest of their timestamps, so they "
+                 "describe what the cache kept rather than the conversation. Channel names come from those "
+                 "channel descriptions; a direct message channel is named by its recipients where a "
+                 "channel object listed them, and a channel with neither is shown by its ID. Type names "
+                 "the channel type with the names Discord documents "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/channel.mdx#L66-L80) "
+                 "and is empty when no response gave a type. Server is resolved from the guild_id of a "
+                 "channel description, from the renderer log's routing lines (Transitioning to "
+                 "/channels/<server>/<channel>), and from the selectedChannelIds and "
+                 "mostRecentSelectedTextChannelIds of the SelectedChannelStore key in Local Storage, which "
+                 "pair a server with a channel. Channel Created is the timestamp in the channel ID, read "
+                 "with the layout Discord documents "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/reference.mdx#L156); "
+                 "the documentation notes that some child objects share their parent's ID "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/reference.mdx#L143), "
+                 "and such a channel carries its parent's time. Topic held no value on any of the 117 rows "
+                 "of discord_macos.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
+            '*/discord*/Cache/index',
+            '*/discord*/Cache/data_*',
+            '*/discord*/Cache/f_*',
+            '*/discord*/Cache/Cache_Data/index',
+            '*/discord*/Cache/Cache_Data/data_*',
+            '*/discord*/Cache/Cache_Data/f_*',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
             '*/discord*/logs/renderer_js*.log',
             '*/discord*/Local Storage/leveldb/*',
@@ -71,37 +100,48 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hash",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 117 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 4 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
     "discordGuilds": {
         "name": "Discord Servers",
-        "description": "Discord servers (guilds) the client encountered, built "
-                       "from cached server profiles, invite lookups, the server "
-                       "IDs attached to cached channels and the servers the "
-                       "renderer log shows the client routing to. Server IDs "
-                       "are snowflakes, so the server's creation date is "
-                       "recoverable even when only the ID survives. A server is "
-                       "listed because its ID or profile appeared in cached "
-                       "data or in the navigation log. That records the client "
-                       "encountering the server and does not establish "
-                       "membership, since an invite lookup produces a record "
-                       "for a server that was never joined.",
+        "description": "Discord servers named in cached server profiles and invite responses, in the guild_id of "
+                       "cached channel descriptions, in the renderer log's routing lines and in the Local "
+                       "Storage channel selection state. A row shows the server was named in one of these and "
+                       "does not establish membership.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "Member counts are the approximate values Discord returned at "
-                 "the time the response was cached, not current figures. "
-                 "Channel and message counts are limited to what the cache and "
-                 "the navigation log revealed about each server. "
-                 "Reference: Discord Developer Documentation, "
-                 "'Snowflakes (ID format)', "
-                 "https://discord.com/developers/docs/reference#snowflakes",
+        "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
+                 "times. It also reads the renderer log and the SelectedChannelStore key in Local Storage, "
+                 "as the Discord Channels notes describe. Server Created is the timestamp in the server "
+                 "ID, read with the layout Discord documents "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/reference.mdx#L156). "
+                 "Members (approx.) is the member_count or approximate_member_count of the first cached "
+                 "server profile or invite response read that gave one, as Discord returned it then; "
+                 "Discord documents approximate_member_count as an approximate count of total members "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/invite.mdx#L26-L27). "
+                 "Channels Seen counts the channels those sources pair with the server, and Messages "
+                 "Recovered the recovered messages in those channels. A server named only by a routing "
+                 "line or the Local Storage state has no Description, Members, Vanity URL or Features, and "
+                 "its Source Cache File reads channel and navigation references, as for 1 of the 2 rows on "
+                 "discord_win_ptb.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
+            '*/discord*/Cache/index',
+            '*/discord*/Cache/data_*',
+            '*/discord*/Cache/f_*',
+            '*/discord*/Cache/Cache_Data/index',
+            '*/discord*/Cache/Cache_Data/data_*',
+            '*/discord*/Cache/Cache_Data/f_*',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
             '*/discord*/logs/renderer_js*.log',
             '*/discord*/Local Storage/leveldb/*',
@@ -109,34 +149,59 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "server",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 25 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 2 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
     "discordInvites": {
         "name": "Discord Invites",
-        "description": "Server invite links the client looked up. A cached `/invites/<code>` response records that the client resolved that invite code and what Discord returned: the server, the channel the invite points at, who created it and when it expires. It does not establish that the server was joined.",
+        "description": "Invite codes the client looked up, from cached responses to Discord's invites/<code> "
+                       "endpoint: the server and channel each invite points to, the account that created it, the "
+                       "approximate member and online counts and the expiry Discord returned. A lookup does not "
+                       "establish that the server was joined.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (macOS)",
-        "notes": "One row per invite code, from the most recent cached lookup. "
-                 "The expiry is the value Discord returned when the code was "
-                 "resolved, so an expired invite may still have been valid when "
-                 "it was used. "
-                 "Reference: Discord Developer Documentation, "
-                 "'Snowflakes (ID format)', "
-                 "https://discord.com/developers/docs/reference#snowflakes",
+        "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
+                 "times. Discord documents invites/<code> as returning the invite object for that code "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/invite.mdx#L171). "
+                 "One row per invite code, from its most recent cached lookup: discord_macos held 37 "
+                 "lookups of 27 codes. Looked Up is the Cached time of that response. Created By is the "
+                 "invite's inviter, which Discord documents as the user who created the invite "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/invite.mdx#L22); "
+                 "Members (approx.) and Online (approx.) are approximate_member_count and "
+                 "approximate_presence_count, which Discord returns when the request asks with_counts "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/invite.mdx#L26-L27). "
+                 "Invite Expires is the expires_at value in that response "
+                 "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/invite.mdx#L28), "
+                 "as Discord reported it at the lookup.",
         "paths": (
             '*/discord*/Cache/Cache_Data/*_0',
+            '*/discord*/Cache/index',
+            '*/discord*/Cache/data_*',
+            '*/discord*/Cache/f_*',
+            '*/discord*/Cache/Cache_Data/index',
+            '*/discord*/Cache/Cache_Data/data_*',
+            '*/discord*/Cache/Cache_Data/f_*',
             '*/discord*/Service Worker/CacheStorage/*/*/*_0',
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "link",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 27 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 1 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -148,7 +213,6 @@ from datetime import datetime
 
 from scripts.chromium import discord_api
 from scripts.chromium.local_storage import leveldb_folders, read_records
-from scripts.chromium.simple_cache import read_entry
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
 
 _ROUTE_RE = re.compile(r"Transitioning to /channels/(\d+)/(\d+)")
@@ -217,7 +281,7 @@ def _avatar_reference(avatars, user_id):
     best = avatars.get(user_id)
     if best is None:
         return None
-    entry = read_entry(best[0])
+    entry = discord_api.cached_entry(best[0])
     if entry is None:
         return None
     body = entry.decoded_body()
@@ -225,7 +289,7 @@ def _avatar_reference(avatars, user_id):
         return None
     content_type = (best[1].get("content_type") or "").split(";")[0].strip()
     return check_in_embedded_media(
-        best[0], body, f"avatar_{user_id}",
+        best[1].get("source", best[0]), body, f"avatar_{user_id}",
         force_type=content_type or None,
         force_extension=content_type.split("/")[-1] if "/" in content_type else None)
 
@@ -403,6 +467,13 @@ def discordGuilds(context):
     return data_headers, data_list, "\n".join(sorted(scan.source_paths)[:50])
 
 
+def _later(candidate, current):
+    """True when ``candidate`` is a datetime later than ``current``, or ``current`` has none."""
+    if not isinstance(candidate, datetime):
+        return False
+    return not isinstance(current, datetime) or candidate > current
+
+
 @artifact_processor
 def discordInvites(context):
     data_headers = (
@@ -417,14 +488,18 @@ def discordInvites(context):
     if not scan.invites:
         return data_headers, [], ""
 
-    data_list = []
-    seen = set()
+    # One row per invite code, from its most recently cached lookup.
+    latest = {}
     for record in scan.invites:
+        code = record["invite"].get("code", "")
+        current = latest.get(code)
+        if current is None or _later(record["cached"], current["cached"]):
+            latest[code] = record
+
+    data_list = []
+    for record in latest.values():
         invite = record["invite"]
         code = invite.get("code", "")
-        if code in seen:
-            continue
-        seen.add(code)
         guild = invite.get("guild") or {}
         channel = invite.get("channel") or {}
         inviter = invite.get("inviter") or {}
