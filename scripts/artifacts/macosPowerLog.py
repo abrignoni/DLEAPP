@@ -380,10 +380,118 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows",
         },
     },
+    "macosPowerLogDeviceConfig": {
+        "name": "PowerLog - Device Configuration",
+        "description": "Rows of PowerLog's PLConfigAgent_EventNone_Config table: time, device boot time, build "
+                       'and last build, last upgrade time, installed version, device, memory and disk sizes, and '
+                       'remaining disk space as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLConfigAgent_EventNone_Config from the PowerLog databases the PowerLog - '
+            'Sleep and Wake artifact reads, with Time corrected, and rows held by more than one '
+            "database reported once, as its notes describe. Device Boot Time is the row's "
+            "DeviceBootTime, read as Unix seconds and corrected with the value added to the row's "
+            'own Time, or on its own for a row whose Time is blank. On the public MacBook Pro '
+            'logical extraction (macOS 15.4 build 24E248, not a registered corpus key), where the '
+            'values added were 5,942,080.9 to 5,942,095.0 seconds, each of the 14 rows then gives '
+            "a boot time 3.3 to 11.2 seconds after a BOOT_TIME record of that Mac's ASL Login and "
+            'Boot Records; corrected on their own, the same values fall from 10.4 seconds before '
+            'such a record to 11.2 seconds after one, and read uncorrected they fall about 68.8 '
+            'days earlier. On dleapp_macos_bigsur, where the value added was 0.001 seconds, 7 of '
+            'the 9 rows give a boot time within one second of such a record, and the other 2 give '
+            "2021-02-15 15:25:46 UTC, a boot the ASL logs hold no record of; that Mac's "
+            'install.log records softwareupdated starting 11 seconds later. Last Upgrade is '
+            'LastUpgradeTimestamp read as Unix seconds with no correction. On the MacBook Pro '
+            'Last Upgrade is 2025-09-04 00:23:07 UTC on all 14 rows, 28 seconds after the '
+            'BOOT_TIME record of 00:22:39, and install.log records softwareupdated starting on '
+            'build 15.4 (24E248) at 00:22:44 UTC; corrected, it would fall on 2025-11-11, a day '
+            'no BOOT_TIME record falls on. On dleapp_macos_bigsur it is 2021-01-17 20:06:08 UTC '
+            "on the first 3 rows, 51 seconds after install.log's first record of softwareupdated "
+            'starting on build 11.1 (20C69), and 2021-02-15 15:59:21 UTC on the other 6, 60 '
+            'seconds after the BOOT_TIME record of 15:58:21, the Device Boot Time of the first '
+            'row whose Build is 20D74. Build and Last Build are Build and LastBuild as stored: on '
+            'dleapp_macos_bigsur Build is 20C69 on the first 2 rows and 20D74 after them, and '
+            'Last Build 20C69 on the first 3 and 20D74 after them; on the MacBook Pro Build holds '
+            'one value, 24E248, on all 14 rows, and Last Build is empty on every row. Installed '
+            'Version is InstalledSplat, which holds one value on all 14 rows of the MacBook Pro. '
+            'Installed Version and Remaining Disk Space are empty on every row of '
+            'dleapp_macos_bigsur, whose databases have no InstalledSplat or RemainingDiskSpace '
+            'column. Device, Memory Size, Disk Size and Remaining Disk Space are Device, '
+            'MemorySize, DeviceDiskSize and RemainingDiskSpace, reported as stored; their units '
+            'are not established. Device, Memory Size and Disk Size each hold one value on each '
+            'tested image, and Remaining Disk Space ranges from 906 to 939 on the MacBook Pro. '
+            'Time Offset (seconds) holds one value, 0.001, on every row of dleapp_macos_bigsur. '
+            'On dleapp_macos_bigsur Last Build separates the rows by Source File only by '
+            'coincidence: the 3 rows whose Last Build is 20C69 are the ones an archive also '
+            'holds. DeviceName and BootArgs are empty on every row of both public images, and '
+            'DeviceSerialNumber on every row of the MacBook Pro, whose databases alone have that '
+            'column; none of them is reported, nor is LastUpgradeSystemTimestamp, which also only '
+            "the MacBook Pro's databases have and whose meaning is not established, nor are the "
+            "table's other columns. ConfigMetrics_DeviceConfig_14_2, whose rows on the MacBook "
+            'Pro have the same times and boot times as these, is not read: its BootReason and '
+            'ShutdownReason columns are empty on every row there. Nor is '
+            'PLSMCAgent_EventNone_ColdBoot, whose one column, VRTC, is empty on all 6 of the '
+            "MacBook Pro's rows. Neither table is in dleapp_macos_bigsur's databases."
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "settings",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 9 rows",
+        },
+    },
+    "macosPowerLogBattery": {
+        "name": "PowerLog - Battery",
+        "description": "Rows of PowerLog's PLBatteryAgent_EventBackward_Battery table: time, battery level, and "
+                       'the external connected, charging and fully charged values as stored.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLBatteryAgent_EventBackward_Battery from the PowerLog databases the PowerLog '
+            '- Sleep and Wake artifact reads, with Time corrected, and rows held by more than one '
+            'database reported once, as its notes describe. Level, External Connected, Is '
+            'Charging and Fully Charged are Level, ExternalConnected, IsCharging and '
+            'FullyCharged, reported as stored. ExternalConnected, IsCharging and FullyCharged are '
+            "also the names of IOKit power source keys that Apple's IOPM.h lists, saying power "
+            'source state is published to the IORegistry under those keys, with no further '
+            'description; that PowerLog records those properties is not established (Reference: '
+            'Apple, IOPM.h, the IOKit power management header of the macOS SDK, '
+            'System/Library/Frameworks/IOKit.framework/Headers/pwr_mgt/IOPM.h in MacOSX26.5.sdk). '
+            "The table is absent from dleapp_macos_bigsur's databases. On the public MacBook Pro "
+            'logical extraction (macOS 15.4 build 24E248, not a registered corpus key) the 7,103 '
+            'rows run from 2025-12-18 05:01 to 2025-12-25 09:34 UTC, consecutive rows 60.0 '
+            'seconds apart at the median; External Connected is 1 on 7,047 rows and 0 on 56, Is '
+            'Charging is 1 on 137 and Fully Charged 1 on 603, and Level runs from 39 to 100. That '
+            "Mac's power management log (Power Management Log (ASL)) holds 212 summaries reading "
+            "'Using AC' or 'Using Batt' with a charge, and each of the 88 that fall within that "
+            'span has a row no more than 26.1 seconds from it whose External Connected is 1 where '
+            'the summary reads AC (3) and 0 where it reads Batt (85), and whose Level is within '
+            'one of the charge on 83 of them and equal to it on 37. The copy of the live database '
+            'under System/Volumes/Data holds 576 rows the copy under private/var does not, '
+            'running to 2025-12-25 09:34 where the other copy stops at 2025-12-24 23:58. The '
+            "table's other columns, among them CycleCount, Temperature, AdapterInfo and its "
+            'capacity, voltage and current columns, are not reported, and neither is '
+            'PLBatteryAgent_EventBackward_BatteryUI, whose only columns besides its ID and time '
+            'are Level and IsCharging.'
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows",
+        },
+    },
 }
 
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from scripts import macos_powerlog
 from scripts.ilapfuncs import artifact_processor, logfunc
@@ -394,6 +502,21 @@ _EARLIEST = datetime.min.replace(tzinfo=timezone.utc)
 
 def _blank(value):
     return '' if value is None else value
+
+
+def _plus(raw, offset):
+    """A stored Unix time plus offset seconds (None adds nothing) as a UTC datetime; blank for
+    a value that is not a clock reading (missing, zero or less) or too large for a date."""
+    try:
+        raw = float(raw)
+    except (TypeError, ValueError):
+        return ''
+    if raw <= 0:
+        return ''
+    try:
+        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=raw + (offset or 0))
+    except OverflowError:
+        return ''
 
 
 def _seconds(offset):
@@ -633,4 +756,48 @@ def macosPowerLogScreenOn(context):
 
     data_list, source = _collect(context, 'PLDisplayAgent_Aggregate_ScreenOn',
                                  ('ID', 'timestamp', 'timeInterval', 'ScreenOn'), build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogDeviceConfig(context):
+    data_headers = (('Time (UTC)', 'datetime'), ('Device Boot Time (UTC)', 'datetime'), 'Build',
+                    'Last Build', ('Last Upgrade (UTC)', 'datetime'), 'Installed Version',
+                    'Device (as stored)', 'Memory Size (as stored)', 'Disk Size (as stored)',
+                    'Remaining Disk Space (as stored)', 'Time Offset (seconds)', 'Source File')
+
+    def build(database, row, _side):
+        time, offset = database.corrected(row['timestamp'])
+        if time is None:
+            # No row offset to apply: correct the boot time as a time of its own.
+            boot = _blank(database.corrected(row['DeviceBootTime'])[0])
+        else:
+            # The boot time is in the clock of the row's own time, so it takes the row's offset.
+            boot = _plus(row['DeviceBootTime'], offset)
+        return (_blank(time), boot, _blank(row['Build']), _blank(row['LastBuild']),
+                _plus(row['LastUpgradeTimestamp'], None), _blank(row['InstalledSplat']),
+                _blank(row['Device']), _blank(row['MemorySize']), _blank(row['DeviceDiskSize']),
+                _blank(row['RemainingDiskSpace']), _seconds(offset))
+
+    data_list, source = _collect(context, 'PLConfigAgent_EventNone_Config',
+                                 ('ID', 'timestamp', 'DeviceBootTime', 'Build', 'LastBuild',
+                                  'LastUpgradeTimestamp', 'InstalledSplat', 'Device', 'MemorySize',
+                                  'DeviceDiskSize', 'RemainingDiskSpace'), build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogBattery(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Level (as stored)',
+                    'External Connected (as stored)', 'Is Charging (as stored)',
+                    'Fully Charged (as stored)', 'Time Offset (seconds)', 'Source File')
+
+    def build(database, row, _side):
+        time, offset = database.corrected(row['timestamp'])
+        return (_blank(time), _blank(row['Level']), _blank(row['ExternalConnected']),
+                _blank(row['IsCharging']), _blank(row['FullyCharged']), _seconds(offset))
+
+    data_list, source = _collect(context, 'PLBatteryAgent_EventBackward_Battery',
+                                 ('ID', 'timestamp', 'Level', 'ExternalConnected', 'IsCharging',
+                                  'FullyCharged'), build)
     return data_headers, data_list, source
