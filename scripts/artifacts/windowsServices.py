@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import is_transaction_log, open_hive
 
 # Windows stores one key per service and driver under
 # <current control set>\Services in the SYSTEM hive. Each key holds the values
@@ -91,7 +92,8 @@ __artifacts_v2__ = {
                  "Services registry layout: Microsoft, CreateServiceW "
                  "(winsvc.h), https://learn.microsoft.com/en-us/windows/win32/"
                  "api/winsvc/nf-winsvc-createservicew",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "sliders",
         "sample_data": {
@@ -167,10 +169,10 @@ def windowsServices(context):
         logfunc('Windows Services: the python-registry package is not installed')
         return data_headers, data_list, ''
 
-    for source in [str(f) for f in context.get_files_found()]:
+    for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             services = reg.open(_current_set(reg) + r"\Services")
         except Registry.RegistryKeyNotFoundException:
             continue

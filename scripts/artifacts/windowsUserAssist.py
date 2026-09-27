@@ -19,6 +19,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # Explorer records GUI program launches per user under
 # NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist.
@@ -55,7 +56,8 @@ __artifacts_v2__ = {
                  "Securelist, 'What is UserAssist and how to use it in IR "
                  "activities?', "
                  "https://securelist.com/userassist-artifact-forensic-value-for-incident-response/116911/",
-        "paths": (r"*/Users/*/NTUSER.DAT",),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "play",
         "sample_data": {
@@ -84,7 +86,7 @@ def _rot13(name):
 
 
 def _user_assist_key(hive_path):
-    reg = Registry.Registry(hive_path)
+    reg = open_hive(hive_path)
     try:
         return reg.open(_UA_PATH)
     except Registry.RegistryKeyNotFoundException:

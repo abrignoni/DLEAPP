@@ -14,7 +14,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import user_from_path
+from scripts.windows_registry import open_hive, user_from_path
 
 # The Run and RunOnce keys list programs set to start automatically. The
 # machine-wide entries live in the SOFTWARE hive under
@@ -90,10 +90,10 @@ __artifacts_v2__ = {
                  "https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys."
                  " These keys as a persistence location: MITRE ATT&CK T1547.001, "
                  "https://attack.mitre.org/techniques/T1547/001/.",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Users/*/NTUSER.DAT',
-        ),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "play",
         "sample_data": {
@@ -146,7 +146,7 @@ def runKeys(context):
         user = '' if is_software else user_from_path(relative_source)
         rows_here = 0
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             for row in _run_rows(reg, key_defs, scope, user, relative_source):
                 data_list.append(row)
                 rows_here += 1

@@ -26,6 +26,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # The local accounts sit under this path from the SAM hive root.
 _USERS_PATH = "SAM\\Domains\\Account\\Users"
@@ -98,7 +99,8 @@ __artifacts_v2__ = {
                  "yaml ; and RegRipper samparse, https://github.com/keydet89/"
                  "RegRipper3.0/blob/master/plugins/samparse.pl (the two agree "
                  "on the F and V layouts and the account-control flag names).",
-        "paths": ("*/Windows/System32/config/[Ss][Aa][Mm]",),
+        "paths": ('*/Windows/System32/config/[Ss][Aa][Mm]',
+                  '*/Windows/System32/config/[Ss][Aa][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
         "sample_data": {
@@ -233,7 +235,7 @@ def samLocalAccounts(context):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             for rid, username, fullname, comment, ff in _iter_accounts(reg):
                 if ff is None:
                     data_list.append((username, rid, fullname, comment, '',

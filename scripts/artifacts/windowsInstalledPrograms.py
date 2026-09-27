@@ -34,10 +34,10 @@ __artifacts_v2__ = {
                  " when the subkey was last written, which is not established as the install time. "
                  "Reference: Microsoft, 'Windows Installer Properties for the Uninstall Registry Key',"
                  " https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key.",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Users/*/NTUSER.DAT',
-        ),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "list",
         "sample_data": {
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_key,
+from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 # (view label, key path under the hive root)
@@ -119,7 +119,7 @@ def installedPrograms(context):
         is_software = os.path.basename(path).upper() == 'SOFTWARE'
         try:
             rows, _kept, skipped = _program_rows(
-                Registry.Registry(path), _SOFTWARE_VIEWS if is_software else _NTUSER_VIEWS,
+                open_hive(path, context), _SOFTWARE_VIEWS if is_software else _NTUSER_VIEWS,
                 '' if is_software else user_from_path(relative), relative)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Installed Programs: could not read {relative}: {exc}')

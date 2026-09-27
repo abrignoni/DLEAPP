@@ -99,10 +99,10 @@ __artifacts_v2__ = {
                  "rules, 26 of them were recorded as deleted in that event log between 05:08:18 "
                  "and 05:09:25 UTC on 2020-09-19, after the FirewallRules key's last written time "
                  "of 03:40:45 UTC.",
-        "paths": (
-            '*/Windows/System32/config/SYSTEM',
-            '*/Windows/System32/config/SOFTWARE',
-        ),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "firewall-check",
         "sample_data": {
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import Registry, current_control_set, found_hives, open_key
+from scripts.windows_registry import Registry, current_control_set, found_hives, open_hive, open_key
 
 _SYSTEM_RULES = 'Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules'
 _POLICY_RULES = 'Policies\\Microsoft\\WindowsFirewall\\FirewallRules'
@@ -207,7 +207,7 @@ def windowsFirewallRules(context):
         hive_name = os.path.basename(hive).upper()
         relative = context.get_relative_path(hive)
         try:
-            reg = Registry.Registry(hive)
+            reg = open_hive(hive, context)
             keys = rule_keys(reg, hive_name)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows Firewall Rules: could not read {relative}: {exc}')

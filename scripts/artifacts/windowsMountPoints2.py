@@ -30,7 +30,8 @@ __artifacts_v2__ = {
                  "letters or devices here. On the three registered Windows images every reported entry"
                  " is a Volume GUID and comes from the one user hive holding the key, so Type and User"
                  " each hold one value there and Share Path is empty.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -42,7 +43,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_key,
+from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 _MP2 = r'Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2'
@@ -78,7 +79,7 @@ def mountPoints2(context):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
         try:
-            root = open_key(Registry.Registry(path), _MP2)
+            root = open_key(open_hive(path, context), _MP2)
             for entry in (root.subkeys() if root else []):
                 if entry.name() == 'CPC':
                     continue

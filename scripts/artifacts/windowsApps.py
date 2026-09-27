@@ -22,6 +22,7 @@ from scripts.ilapfuncs import (
     logfunc,
     open_sqlite_db_readonly,
 )
+from scripts.windows_registry import open_hive
 
 
 __artifacts_v2__ = {
@@ -105,12 +106,9 @@ __artifacts_v2__ = {
                  "from a nonzero Days of Week value. The registry parser "
                  "reads offline hives without loading them into the "
                  "examiner system registry.",
-        "paths": (
-            "*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/"
-            "LocalState/Alarms/Alarms.json",
-            "*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/"
-            "Settings/settings.dat",
-        ),
+        "paths": ('*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/LocalState/Alarms/Alarms.json',
+                  '*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/Settings/settings.dat',
+                  '*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/Settings/[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "clock",
         "sample_data": {
@@ -456,7 +454,7 @@ def _registry_alarms(file_found):
         raise RuntimeError(
             "python-registry is required to read Windows Clock settings.dat"
         )
-    hive = Registry.Registry(file_found)
+    hive = open_hive(file_found)
     key = hive.open(r"LocalState\Alarms")
     return [
         (value.value(), value.name())

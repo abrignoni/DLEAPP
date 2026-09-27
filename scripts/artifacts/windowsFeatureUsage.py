@@ -35,7 +35,8 @@ __artifacts_v2__ = {
                  "hold one value there. Reference: Jai Minton (CrowdStrike), 'How to Employ "
                  "FeatureUsage for Windows 10 Taskbar Forensics', "
                  "https://www.crowdstrike.com/en-us/blog/how-to-employ-featureusage-for-windows-10-taskbar-forensics/.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "activity",
         "sample_data": {
@@ -48,7 +49,8 @@ __artifacts_v2__ = {
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import (Registry, filetime_bytes_utc, filetime_utc, found_hives,
-                                      key_written_utc, open_key, user_from_path, value_of)
+                                      key_written_utc, open_hive, open_key, user_from_path,
+                                      value_of)
 
 _FEATURE_USAGE = r'Software\Microsoft\Windows\CurrentVersion\Explorer\FeatureUsage'
 
@@ -75,7 +77,7 @@ def featureUsage(context):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
         try:
-            root = open_key(Registry.Registry(path), _FEATURE_USAGE)
+            root = open_key(open_hive(path, context), _FEATURE_USAGE)
             created = _creation_time(root) if root is not None else ''
             for feature in (root.subkeys() if root is not None else []):
                 written = key_written_utc(feature)

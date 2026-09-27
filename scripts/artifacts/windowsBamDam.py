@@ -20,6 +20,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # BAM/DAM live under each control set. A raw SYSTEM hive has no CurrentControlSet
 # runtime link, so the real control sets (ControlSet001, ControlSet002, ...) are
@@ -59,7 +60,8 @@ __artifacts_v2__ = {
                  "logs are not replayed. Field meanings: Velocidex, "
                  "Windows.Forensics.Bam, https://github.com/Velocidex/velociraptor/"
                  "blob/master/artifacts/definitions/Windows/Forensics/Bam.yaml",
-        "paths": ("*/Windows/System32/config/SYSTEM",),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "activity",
         "sample_data": {
@@ -125,7 +127,7 @@ def backgroundActivityModerator(context):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             for executable, blob, sid, service in _iter_entries(reg):
                 data_list.append((_filetime_datetime(blob), executable, sid,
                                   service))

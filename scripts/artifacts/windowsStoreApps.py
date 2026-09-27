@@ -40,7 +40,8 @@ __artifacts_v2__ = {
                  "Package Identity in Windows apps', "
                  "https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/package-identity-overview.",
         "paths": ('*/ProgramData/Microsoft/Windows/AppRepository/StateRepository-Machine.srd*',
-                  '*/Windows/System32/config/SOFTWARE'),
+                  '*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "apps",
         "sample_data": {
@@ -54,7 +55,8 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
-from scripts.windows_registry import Registry, filetime_utc, found_hives, open_key, value_of
+from scripts.windows_registry import (Registry, filetime_utc, found_hives, open_hive, open_key,
+                                      value_of)
 
 _PROFILE_LIST = r'Microsoft\Windows NT\CurrentVersion\ProfileList'
 
@@ -87,7 +89,7 @@ def _profiles(context):
         return profiles
     for hive in found_hives(context, 'SOFTWARE'):
         try:
-            root = open_key(Registry.Registry(hive), _PROFILE_LIST)
+            root = open_key(open_hive(hive, context), _PROFILE_LIST)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Store Apps: could not read {context.get_relative_path(hive)}: {exc}')
             continue

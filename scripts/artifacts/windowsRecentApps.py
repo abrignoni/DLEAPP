@@ -17,7 +17,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import filetime_utc, user_from_path
+from scripts.windows_registry import filetime_utc, open_hive, user_from_path
 
 _RECENT_APPS = 'Software\\Microsoft\\Windows\\CurrentVersion\\Search\\RecentApps'
 
@@ -55,7 +55,8 @@ __artifacts_v2__ = {
                  "2018-04-06. Recent Items is the number of subkeys of the application's RecentItems "
                  "key, which RecentApps Items reports; 5 of the 21 had any. User is the folder after "
                  "Users in the hive's path and App Key the subkey's name.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "apps",
         "sample_data": {
@@ -91,7 +92,8 @@ __artifacts_v2__ = {
                  "time, where the same file's item under the Microsoft Edge App ID matched it, and 31 "
                  "minutes after it. Values not reported: Type, which was 0 on all 14, and Points, a "
                  "4-byte value whose meaning was not established.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "files",
         "sample_data": {
@@ -127,7 +129,7 @@ def recent_apps(context, label):
             continue
         relative = context.get_relative_path(source)
         try:
-            root = Registry.Registry(source).open(_RECENT_APPS)
+            root = open_hive(source, context).open(_RECENT_APPS)
         except Registry.RegistryKeyNotFoundException:
             continue
         except Exception as exc:  # pylint: disable=broad-exception-caught

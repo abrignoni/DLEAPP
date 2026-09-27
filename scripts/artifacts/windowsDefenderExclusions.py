@@ -11,7 +11,7 @@ notes.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import Registry, found_hives, key_written_utc, open_key
+from scripts.windows_registry import Registry, found_hives, key_written_utc, open_hive, open_key
 
 # (Location label, key path under the SOFTWARE hive root)
 _EXCLUSION_KEYS = (
@@ -64,7 +64,8 @@ __artifacts_v2__ = {
                  "whether exclusions hidden that way are present in an acquired hive was "
                  "not tested. A row records a value stored under an Exclusions key; it "
                  "does not by itself establish who added it or whether Defender applied it.",
-        "paths": ("*/Windows/System32/config/SOFTWARE",),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "slash",
         "sample_data": {
@@ -105,7 +106,7 @@ def defenderExclusions(context):
     for source in found_hives(context, 'SOFTWARE'):
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             rows = []
             present = []
             for location, key_path in _EXCLUSION_KEYS:

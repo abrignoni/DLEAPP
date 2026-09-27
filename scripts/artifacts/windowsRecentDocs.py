@@ -18,6 +18,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # Explorer records recently opened files and folders per user under
 # NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs.
@@ -59,7 +60,8 @@ __artifacts_v2__ = {
                  "python-registry package. Structure and the LastWrite rule: "
                  "Jason Hale, 'The RecentDocs Key in Windows 10', Forensic 4:cast, "
                  "https://forensic4cast.com/2019/03/the-recentdocs-key-in-windows-10/",
-        "paths": (r"*/Users/*/NTUSER.DAT",),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "file-text",
         "sample_data": {
@@ -97,7 +99,7 @@ def _mru_order(values):
 
 
 def _recent_docs_key(hive_path):
-    reg = Registry.Registry(hive_path)
+    reg = open_hive(hive_path)
     try:
         return reg.open(_RECENTDOCS_PATH)
     except Registry.RegistryKeyNotFoundException:

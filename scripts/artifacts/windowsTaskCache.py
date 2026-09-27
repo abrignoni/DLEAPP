@@ -20,7 +20,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import filetime_utc
+from scripts.windows_registry import filetime_utc, open_hive
 
 _TASKCACHE = 'Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache'
 _TASKS_FOLDER = '/windows/system32/tasks/'
@@ -92,7 +92,9 @@ __artifacts_v2__ = {
                  "on the Szechuan image, none with a definition file. Values not reported include "
                  "Hash, Triggers, SecurityDescriptor, Author, Description, Source, URI, Version, "
                  "Schema and Date.",
-        "paths": ('*/Windows/System32/config/SOFTWARE', '*/Windows/System32/Tasks/*'),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/Tasks/*'),
         "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
@@ -215,7 +217,7 @@ def windowsTaskCache(context):
             continue
         volume_prefix = relative.lower()[:-len('/windows/system32/config/software')]
         try:
-            taskcache = Registry.Registry(source).open(_TASKCACHE)
+            taskcache = open_hive(source, context).open(_TASKCACHE)
         except Registry.RegistryKeyNotFoundException:
             logfunc(f'TaskCache: no TaskCache key in {relative.lstrip("/")}')
             continue

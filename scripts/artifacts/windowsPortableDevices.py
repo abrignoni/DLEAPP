@@ -25,10 +25,10 @@ __artifacts_v2__ = {
                  " Key Last "
                  "Written is when the subkey was last written, which is not established as when a "
                  "device was connected.",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Windows/System32/config/SYSTEM',
-        ),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "smartphone",
         "sample_data": {
@@ -42,8 +42,8 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, current_control_set, found_hives,
-                                      key_written_utc, open_key, value_of)
+from scripts.windows_registry import (Registry, current_control_set, found_hives, key_written_utc,
+                                      open_hive, open_key, value_of)
 
 _DEVICES = r'Microsoft\Windows Portable Devices\Devices'
 
@@ -66,7 +66,7 @@ def portableDevices(context):
     for path in found_hives(context, 'SOFTWARE', 'SYSTEM'):
         relative = context.get_relative_path(path)
         try:
-            reg = Registry.Registry(path)
+            reg = open_hive(path, context)
             if os.path.basename(path).upper() == 'SOFTWARE':
                 where = 'SOFTWARE\\' + _DEVICES
                 root = open_key(reg, _DEVICES)

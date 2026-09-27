@@ -22,6 +22,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 _KEY = "Control\\Session Manager\\AppCompatCache"
 _VALUE = "AppCompatCache"
@@ -63,7 +64,8 @@ __artifacts_v2__ = {
                  "Windows.Registry.AppCompatCache, https://github.com/Velocidex/"
                  "velociraptor/blob/master/artifacts/definitions/Windows/Registry/"
                  "AppCompatCache.yaml",
-        "paths": ("*/Windows/System32/config/SYSTEM",),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
@@ -154,7 +156,7 @@ def appCompatCache(context):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             for position, path, filetime in _entries(reg, relative_source):
                 data_list.append((_filetime_datetime(filetime), path, position))
                 rows_here += 1

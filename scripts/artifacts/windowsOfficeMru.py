@@ -34,7 +34,8 @@ __artifacts_v2__ = {
                  "https://github.com/keydet89/RegRipper3.0/blob/ec96dd4a6a5c3ea70d8fece9b47a374f83582335/plugins/msoffice.pl#L303-L310, "
                  "which hands the field to getFileTimeStr and getTime in rip.pl, "
                  "https://github.com/keydet89/RegRipper3.0/blob/ec96dd4a6a5c3ea70d8fece9b47a374f83582335/rip.pl#L509-L534.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "file-text",
         "sample_data": {
@@ -50,7 +51,7 @@ __artifacts_v2__ = {
 import re
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, filetime_utc, found_hives, open_key,
+from scripts.windows_registry import (Registry, filetime_utc, found_hives, open_hive, open_key,
                                       user_from_path)
 
 _OFFICE = r'Software\Microsoft\Office'
@@ -104,7 +105,7 @@ def officeFileMru(context):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
         try:
-            for version, app, account, kind, key in _lists(Registry.Registry(path)):
+            for version, app, account, kind, key in _lists(open_hive(path, context)):
                 for value in key.values():
                     if not _ITEM.match(value.name()):
                         continue

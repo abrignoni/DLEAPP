@@ -26,7 +26,8 @@ __artifacts_v2__ = {
                  "carry a UsernameHint, and one a CertHash. Reference: Microsoft, 'Remove entries from"
                  " Remote Desktop Connection Computer', "
                  "https://learn.microsoft.com/en-us/troubleshoot/windows-server/remote/remove-entries-from-remote-desktop-connection-computer.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "log-in",
         "sample_data": {
@@ -40,7 +41,7 @@ __artifacts_v2__ = {
 import re
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_key,
+from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 _TSC = r'Software\Microsoft\Terminal Server Client'
@@ -60,7 +61,7 @@ def rdpClientServers(context):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
         try:
-            reg = Registry.Registry(path)
+            reg = open_hive(path, context)
             mru = {}
             default = open_key(reg, _TSC + r'\Default')
             for value in (default.values() if default else []):

@@ -16,7 +16,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import key_written_utc
+from scripts.windows_registry import key_written_utc, open_hive
 
 _KEY = 'Software\\Sysinternals'
 
@@ -52,8 +52,12 @@ __artifacts_v2__ = {
                  "it unchanged. No service profile NTUSER.DAT or DEFAULT hive on the tested images "
                  "held the key, so reading those hives is unexercised. Values under a tool key other "
                  "than EulaAccepted are not reported.",
-        "paths": ('*/Users/*/NTUSER.DAT', '*/Windows/ServiceProfiles/*/NTUSER.DAT',
-                  '*/Windows/System32/config/DEFAULT'),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]',
+                  '*/Windows/ServiceProfiles/*/NTUSER.DAT',
+                  '*/Windows/ServiceProfiles/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/DEFAULT',
+                  '*/Windows/System32/config/[Dd][Ee][Ff][Aa][Uu][Ll][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "tool",
         "sample_data": {
@@ -97,7 +101,7 @@ def windowsSysinternalsEula(context):
             continue
         relative = context.get_relative_path(source)
         try:
-            root = Registry.Registry(source).open(_KEY)
+            root = open_hive(source, context).open(_KEY)
         except Registry.RegistryKeyNotFoundException:
             continue
         except Exception as exc:  # pylint: disable=broad-exception-caught

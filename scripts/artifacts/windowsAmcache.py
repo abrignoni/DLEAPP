@@ -18,6 +18,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # Amcache.hve records metadata about executables the system has seen, under
 # Root\InventoryApplicationFile: the full path, a SHA-1 of the file (stored as
@@ -72,7 +73,8 @@ __artifacts_v2__ = {
                  "time. An entry records that the file was inventoried; this artifact does not treat "
                  "it as proof that the file ran or of who ran it. Reading the hive needs the "
                  "python-registry package; its .LOG1/.LOG2 transaction logs are not replayed.",
-        "paths": ("*/Windows/appcompat/Programs/Amcache.hve",),
+        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "hash",
         "sample_data": {
@@ -98,7 +100,7 @@ def _sha1(file_id):
 
 
 def _inventory_key(hive_path):
-    reg = Registry.Registry(hive_path)
+    reg = open_hive(hive_path)
     try:
         return reg.open(_INVENTORY_PATH)
     except Registry.RegistryKeyNotFoundException:

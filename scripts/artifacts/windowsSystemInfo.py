@@ -45,10 +45,10 @@ __artifacts_v2__ = {
                  "https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information."
                  " Reference: Microsoft, 'Windows 11 - release information', "
                  "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information.",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Windows/System32/config/SYSTEM',
-        ),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
@@ -89,7 +89,8 @@ __artifacts_v2__ = {
                  "and one address on the DHCP "
                  "interface, each read from its own registry value. af_case2_win10's DHCP interface "
                  "has no DhcpDefaultGateway value, so Default Gateway is empty there.",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "globe",
         "sample_data": {
@@ -104,8 +105,8 @@ import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import (Registry, current_control_set, filetime_bytes_utc,
-                                      filetime_utc, found_hives, key_written_utc, open_key,
-                                      signed32, unix_utc, value_of)
+                                      filetime_utc, found_hives, key_written_utc, open_hive,
+                                      open_key, signed32, unix_utc, value_of)
 
 _CURRENT_VERSION = r'Microsoft\Windows NT\CurrentVersion'
 _LOGON_UI = r'Microsoft\Windows\CurrentVersion\Authentication\LogonUI'
@@ -206,7 +207,7 @@ def windowsSystemInfo(context):
             if not path:
                 continue
             try:
-                rows = reader(Registry.Registry(path))
+                rows = reader(open_hive(path, context))
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logfunc(f'Windows System Information: could not read '
                         f'{context.get_relative_path(path)}: {exc}')
@@ -237,7 +238,7 @@ def windowsNetworkInterfaces(context):
     for path in found_hives(context, 'SYSTEM'):
         relative = context.get_relative_path(path)
         try:
-            reg = Registry.Registry(path)
+            reg = open_hive(path, context)
             cs = current_control_set(reg)
             interfaces = open_key(reg, cs + r'\Services\Tcpip\Parameters\Interfaces')
             for iface in (interfaces.subkeys() if interfaces else []):

@@ -16,6 +16,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # When a file is sent to the Recycle Bin, Windows writes a $I metadata file
 # ($Recycle.Bin\<SID>\$Ixxxxxx) that records the file's original path, its size
@@ -64,10 +65,9 @@ __artifacts_v2__ = {
                  "formats, https://github.com/libyal/dtformats/blob/"
                  "4917c9bffc631503c9dbe77dddf14023a572bcef/documentation/"
                  "Windows%20Recycle.Bin%20file%20formats.asciidoc",
-        "paths": (
-            '*/$[Rr]ecycle.[Bb]in/*/$[Ii]*',
-            '*/Windows/System32/config/SOFTWARE',
-        ),
+        "paths": ('*/$[Rr]ecycle.[Bb]in/*/$[Ii]*',
+                  '*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "trash-2",
         "sample_data": {
@@ -115,7 +115,7 @@ def _profile_users(software_hive):
     of each profile's ProfileImagePath)."""
     users = {}
     try:
-        profiles = Registry.Registry(software_hive).open(_PROFILE_LIST)
+        profiles = open_hive(software_hive).open(_PROFILE_LIST)
     except Exception:  # pylint: disable=broad-exception-caught
         return users
     for profile in profiles.subkeys():

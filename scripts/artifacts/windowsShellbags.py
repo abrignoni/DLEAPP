@@ -22,6 +22,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # BagMRU root key paths tried in each hive; the ones absent raise and are skipped.
 _BAG_ROOTS = (
@@ -79,8 +80,10 @@ __artifacts_v2__ = {
                  "Velocidex, Windows.Forensics.Shellbags, https://github.com/"
                  "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
                  "Forensics/Shellbags.yaml",
-        "paths": ("*/AppData/Local/Microsoft/Windows/[Uu]sr[Cc]lass.[Dd]at",
-                  "*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt]"),
+        "paths": ('*/AppData/Local/Microsoft/Windows/[Uu]sr[Cc]lass.[Dd]at',
+                  '*/AppData/Local/Microsoft/Windows/[Uu][Ss][Rr][Cc][Ll][Aa][Ss][Ss].[Dd][Aa][Tt].[Ll][Oo][Gg][12]',
+                  '*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt]',
+                  '*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "folder",
         "sample_data": {
@@ -208,7 +211,7 @@ def shellbags(context):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             for timestamp, path, modified in _bag_rows(reg):
                 data_list.append((timestamp, path, modified, relative_source))
                 rows_here += 1

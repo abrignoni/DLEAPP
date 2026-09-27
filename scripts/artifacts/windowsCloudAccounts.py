@@ -30,7 +30,8 @@ __artifacts_v2__ = {
                  "so User Email, CID, Last Sign In and Client First Sign In are empty there. On "
                  "lonewolf_win10 the account subkey has no UserEmail or LastSignInTime value, so User "
                  "Email and Last Sign In are empty.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "user",
         "sample_data": {
@@ -56,7 +57,8 @@ __artifacts_v2__ = {
                  "lastusedcredtype value as stored; its meaning is not established. Key Last Written "
                  "is when the subkey was last written, which is not established as a sign-in time. "
                  "af_case2_win10 has no such key.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "user",
         "sample_data": {
@@ -68,7 +70,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_key,
+from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
                                       unix_utc, user_from_path, value_of)
 
 _ONEDRIVE = r'Software\Microsoft\OneDrive\Accounts'
@@ -93,7 +95,7 @@ def oneDriveAccounts(context):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
         try:
-            root = open_key(Registry.Registry(path), _ONEDRIVE)
+            root = open_key(open_hive(path, context), _ONEDRIVE)
             for account in (root.subkeys() if root else []):
                 email = _text(value_of(account, 'UserEmail'))
                 folder = _text(value_of(account, 'UserFolder'))
@@ -124,7 +126,7 @@ def microsoftAccounts(context):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
         try:
-            root = open_key(Registry.Registry(path), _IDENTITY_CRL)
+            root = open_key(open_hive(path, context), _IDENTITY_CRL)
             for account in (root.subkeys() if root else []):
                 data_list.append((key_written_utc(account), account.name(),
                                   _text(value_of(account, 'cid')),

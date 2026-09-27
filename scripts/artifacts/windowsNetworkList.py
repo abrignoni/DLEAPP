@@ -14,6 +14,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import is_transaction_log, open_hive
 
 # Windows records each network it has connected to under NetworkList in the
 # SOFTWARE hive. A profile (keyed by a GUID) holds the network name and the
@@ -61,7 +62,8 @@ __artifacts_v2__ = {
                  "python-registry. Category vocabulary: Microsoft "
                  "NLM_NETWORK_CATEGORY, https://learn.microsoft.com/en-us/windows/"
                  "win32/api/netlistmgr/ne-netlistmgr-nlm_network_category",
-        "paths": ('*/Windows/System32/config/SOFTWARE',),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "wifi",
         "sample_data": {
@@ -129,10 +131,10 @@ def networkList(context):
         logfunc('Network Profiles: the python-registry package is not installed')
         return data_headers, data_list, ''
 
-    for source in [str(f) for f in context.get_files_found()]:
+    for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             profiles = reg.open(_NETWORKLIST + '\\Profiles')
         except Registry.RegistryKeyNotFoundException:
             continue

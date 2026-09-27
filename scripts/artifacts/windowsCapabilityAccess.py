@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # Windows records which app was allowed, denied or prompted for a protected
 # capability (microphone, webcam, location, contacts, and so on) in the
@@ -63,10 +64,10 @@ __artifacts_v2__ = {
                  "requires the python-registry package. The parser reads "
                  "offline hives and does not replay their transaction logs "
                  "(.LOG1/.LOG2).",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Users/*/NTUSER.DAT',
-        ),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield",
         "sample_data": {
@@ -96,7 +97,7 @@ def _value(key, name):
 
 
 def _consent_store(hive_path):
-    reg = Registry.Registry(hive_path)
+    reg = open_hive(hive_path)
     is_software = os.path.basename(hive_path).upper() == "SOFTWARE"
     base = _SOFTWARE_PATH if is_software else _NTUSER_PATH
     try:

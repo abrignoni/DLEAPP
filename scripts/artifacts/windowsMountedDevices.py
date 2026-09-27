@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import is_transaction_log, open_hive
 
 # The SYSTEM hive keeps a top-level MountedDevices key (the Mount Manager's
 # persistent name database): one value per mount point, named either
@@ -79,7 +80,8 @@ __artifacts_v2__ = {
                  "https://github.com/libyal/winreg-kb/blob/"
                  "d149aff1b8ff97e1cc8d7416fc583b964bad4ccd/docs/sources/"
                  "system-keys/Mounted-devices.md",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -157,10 +159,10 @@ def mountedDevices(context):
         logfunc('Mounted Devices: the python-registry package is not installed')
         return data_headers, data_list, ''
 
-    for source in [str(f) for f in context.get_files_found()]:
+    for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             key = reg.open('MountedDevices')
         except Registry.RegistryKeyNotFoundException:
             continue

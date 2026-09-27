@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import is_transaction_log, open_hive
 
 # Windows records each USB mass-storage device it has seen under
 # CurrentControlSet\Enum\USBSTOR in the SYSTEM hive: a model key
@@ -61,7 +62,8 @@ __artifacts_v2__ = {
                  "DEVPKEY_Device_FirstInstallDate and its sibling install-date "
                  "keys, https://learn.microsoft.com/en-us/windows-hardware/"
                  "drivers/install/devpkey-device-firstinstalldate",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -138,10 +140,10 @@ def usbDevices(context):
         logfunc('USB Storage Devices: the python-registry package is not installed')
         return data_headers, data_list, ''
 
-    for source in [str(f) for f in context.get_files_found()]:
+    for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             usbstor = reg.open(_current_set(reg) + r"\Enum\USBSTOR")
         except Registry.RegistryKeyNotFoundException:
             continue
