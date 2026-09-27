@@ -369,6 +369,8 @@ review does not stop while we work that out.
 
 This tool is the result of a collaborative effort of many people in the DFIR community.
 
+DLEAPP logo courtesy of Kevin Pagano.
+
 The earlier DLEAPP logo artwork was by Johann Polewczyk, with the per-OS window
 controls (Linux, Windows, macOS) suggested by James Habben.
 
