@@ -17,6 +17,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from scripts import firefox  # pylint: disable=wrong-import-position
 from scripts.artifacts import firefoxBrowser  # pylint: disable=wrong-import-position
+from scripts.macos_plists import unique_sources  # pylint: disable=wrong-import-position
 
 
 class FirefoxTest(unittest.TestCase):
@@ -329,6 +330,28 @@ class FirefoxTest(unittest.TestCase):
             self.assertEqual({row[-2] for row in rows}, {'one', 'two'})
             self.assertEqual({row[-1] for row in rows}, {'A'})
 
+
+    def test_a_data_volume_copy_is_skipped_only_when_file_and_wal_match(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            suffix = 'Users/A/Library/Application Support/Firefox/Profiles/one/places.sqlite'
+            plain, copy = root/suffix, root/('System/Volumes/Data/'+suffix)
+            for path in (plain, copy):
+                path.parent.mkdir(parents=True)
+                path.write_bytes(b'database')
+
+            class Context:
+                @staticmethod
+                def get_relative_path(path):
+                    return str(pathlib.Path(path).relative_to(root))
+
+            with patch('scripts.macos_plists.logfunc'):
+                self.assertEqual(unique_sources(Context, [plain, copy], sidecars=('-wal',))[0], [str(plain)])
+                # A WAL beside only the copy under System/Volumes/Data makes it a different store.
+                pathlib.Path(str(copy) + '-wal').write_bytes(b'wal')
+                self.assertEqual(unique_sources(Context, [plain, copy], sidecars=('-wal',))[0], [str(plain), str(copy)])
+                pathlib.Path(str(plain) + '-wal').write_bytes(b'wal')
+                self.assertEqual(unique_sources(Context, [plain, copy], sidecars=('-wal',))[0], [str(plain)])
 
 if __name__ == '__main__':
     unittest.main()
