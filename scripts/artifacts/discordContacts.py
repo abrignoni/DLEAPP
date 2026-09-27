@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. The account IDs found in the Sentry scope's user and in the MultiAccountStore and "
                  "tokens keys of Local Storage are marked by adding (local account) to their Username. "
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. A channel is listed when a recovered message names it as its channel, or when a "
                  "cached channel object, message search response or invite response describes it. Messages "
@@ -119,7 +119,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. It also reads the renderer log and the SelectedChannelStore key in Local Storage, "
                  "as the Discord Channels notes describe. Server Created is the timestamp in the server "
@@ -168,7 +168,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. Discord documents invites/<code> as returning the invite object for that code "
                  "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/resources/invite.mdx#L171). "

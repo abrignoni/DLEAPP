@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. A response is recovered when its URL has one of the forms named in the "
                  "description and its cached body is not empty; the kind comes from the URL, not from the "

@@ -1,85 +1,133 @@
 __artifacts_v2__ = {
     "discordDrafts": {
         "name": "Discord Message Drafts",
-        "description": "Message drafts held in Local Storage. Discord saves the "
-                       "draft box as text is typed, and Local Storage is a "
-                       "LevelDB, so superseded versions of the key stay on "
-                       "disk. The result is successive saved versions of the "
-                       "draft text, each with its own stored timestamp and "
-                       "target channel. A row records what was in "
-                       "the compose box at that time; whether it was ever sent "
-                       "cannot be determined from this artifact alone.",
+        "description": "Message drafts from Discord's DraftStore key in Local Storage: each stored version of a "
+                       "draft, with the time the client saved it and the channel it was for. Whether a draft was "
+                       "ever sent cannot be determined from this artifact.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
-        "notes": "Rows come from every surviving version of the DraftStore key, "
-                 "so the same draft usually appears several times as it grew. "
-                 "The highest sequence number is the most recent version.",
+        "category": "Discord (Desktop)",
+        "notes": "Discord's client script saves a draft whenever a DRAFT_CHANGE or DRAFT_SAVE action "
+                 "carries text that differs from the stored draft, stamping it with the time of that "
+                 "change, and removes it when the text is empty or a DRAFT_CLEAR arrives (DraftStore in "
+                 "https://discord.com/assets/web.b8b5ddfa0f88ae29.js, the newest client build in the "
+                 "tested macOS profile's cache). LevelDB keeps a superseded value until a compaction drops "
+                 "it "
+                 "(https://github.com/google/leveldb/blob/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/doc/impl.md#L104), "
+                 "so every surviving version of the DraftStore key is read and a draft appears once for "
+                 "each distinct text and time stored: on discord_macos the 64 rows were versions of drafts "
+                 "for 5 channels, up to 36 for one channel. Draft Saved is the stored timestamp of that "
+                 "version. Draft Type names the draft type with the client's own DraftType names in the "
+                 "same script, and a number outside them is shown as Type and the number; Draft Type was "
+                 "Channel message on all 64 rows of discord_macos. Account ID is the account the draft is "
+                 "stored under, and Account ID held one value on all 64 rows of discord_macos. LevelDB "
+                 "Sequence is the record's sequence number, which LevelDB assigns in increasing order as "
+                 "it writes "
+                 "(https://github.com/google/leveldb/blob/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/db/db_impl.cc#L1223-L1228), "
+                 "so the highest one for a draft is its latest stored version. Record State is the record "
+                 "type, Live for a stored value and Deleted for a deletion marker "
+                 "(https://github.com/google/leveldb/blob/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/db/dbformat.h#L54), "
+                 "and Record State was Live on all 64 rows of discord_macos. Source File names the LevelDB "
+                 "file each version was read from.",
         "paths": ('*/discord*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "edit-3",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 64 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 64 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
     "discordActivity": {
         "name": "Discord Client Activity",
-        "description": "Application usage reconstructed from the Local Storage "
-                       "state Discord keeps between runs: channels opened and "
-                       "when, servers selected, the selected voice channel, "
-                       "quick switcher history and client session heartbeats. "
-                       "This is "
-                       "usage state that exists independently of any message "
-                       "content: it records when the client opened channels, "
-                       "selected servers and started sessions, whether or not "
-                       "any message from those channels was cached.",
+        "description": "Channel and server selection state from Discord's Local Storage: channels and servers "
+                       "the client moved to, the last channel per server, recent text, voice and selected "
+                       "channels, the selected voice channel and the client's session times.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
-        "notes": "Channel-open events come from the frecency store, which keeps "
-                 "a rolling window of recent usages; older versions of the key "
-                 "extend that window further back. Entries without a stored "
-                 "timestamp are reported in order with no time. The 'Selected "
-                 "voice channel (state)' row pairs the store's "
-                 "lastConnectedTime with its selectedVoiceChannelId: both are "
-                 "co-resident fields of one rolling state object, so the "
-                 "pairing is inferred rather than a recorded association "
-                 "between that time and that channel.",
+        "category": "Discord (Desktop)",
+        "notes": "Each row comes from one Local Storage key, and the event names follow what Discord's "
+                 "client script does with that key (https://discord.com/assets/web.b8b5ddfa0f88ae29.js, "
+                 "the newest client build in the tested macOS profile's cache). Channel or server selected "
+                 "is an entry of FrecencyStore's pendingUsages, which the client records with the channel "
+                 "or server ID that a CHANNEL_SELECT or VOICE_CHANNEL_SELECT moved to and clears once it "
+                 "has saved those usages to its settings; at least 13 of the 83 such rows on discord_macos "
+                 "named a server, their IDs being servers in SelectedGuildStore. Server selected or left "
+                 "is SelectedGuildStore's selectedGuildTimestampMillis, which the client sets for a server "
+                 "when a channel selection moves into or out of it, and for the selected server when a "
+                 "connection opens. Last channel for server is SelectedChannelStore's selectedChannelIds, "
+                 "pairing a server with a channel. Recent voice channel and Recent text channel are "
+                 "RecentVoiceChannelStore's lists, which the client updates when a voice channel or a "
+                 "server text channel is selected, keeping the ten most recent with the latest at position "
+                 "1. Recently selected channel is QuickSwitcherStore's channelHistory, which the client "
+                 "updates on every channel selection, not only through the quick switcher, keeping the "
+                 "eight most recent with the latest at position 1. Selected voice channel (state) is "
+                 "SelectedChannelStore's selectedVoiceChannelId with its lastConnectedTime; the client "
+                 "sets lastConnectedTime when its own voice state changes and every 60 seconds while it "
+                 "stays in a voice channel, so the time is the last such update rather than a join time. "
+                 "Client session started and Client session last used come from the "
+                 "LAST_CLIENT_HEARTBEAT_SESSION key: the client starts a new session when it is active and "
+                 "30 minutes have passed since the last one was used, updates lastUsedTimestamp while "
+                 "active, and counts itself active only when in the foreground or connected to a call. "
+                 "Rows come from every surviving version of each key, as the Discord Message Drafts notes "
+                 "describe, and a row repeated across versions is reported once. Entries with no stored "
+                 "time are reported without one; a list entry carries its position in Detail, and Last "
+                 "channel for server carries the server.",
         "paths": ('*/discord*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "activity",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 303 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 303 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
     "discordLocalStorage": {
         "name": "Discord Local Storage",
-        "description": "Raw Local Storage keys and values for the Discord "
-                       "origins, including superseded and deleted versions "
-                       "recovered from the LevelDB table and log files. Because "
-                       "LevelDB does not overwrite in place, a value the app "
-                       "has since changed or deleted can still be read here. "
-                       "Use this when a store is not yet parsed into its own "
-                       "artifact.",
+        "description": "Local Storage records from Discord's LevelDB store, including superseded values and "
+                       "deletion markers it still holds.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
-        "notes": "Values are truncated in the report at 5,000 characters. "
-                 "Authentication token values are redacted.",
+        "category": "Discord (Desktop)",
+        "notes": "Reads the Local Storage LevelDB table and log files directly rather than a compacted "
+                 "view. A LevelDB entry is a value or a deletion marker "
+                 "(https://github.com/google/leveldb/blob/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/doc/impl.md#L24-L26), "
+                 "and a value that was overwritten or deleted stays until a compaction drops it "
+                 "(https://github.com/google/leveldb/blob/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/doc/impl.md#L104), "
+                 "so a value the app has since changed or deleted can still appear here. Record State is "
+                 "Live for a stored value and Deleted for a deletion marker "
+                 "(https://github.com/google/leveldb/blob/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/db/dbformat.h#L54), "
+                 "and the highest LevelDB Sequence for a key is its latest write "
+                 "(https://github.com/google/leveldb/blob/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/db/db_impl.cc#L1223-L1228): "
+                 "discord_macos held 654 records of 192 keys, 60 of them deletion markers. Origin is the "
+                 "site the key belongs to, and Origin held https://discordapp.com on all 92 rows of "
+                 "pc_mus_001_win11. Values are cut at 5,000 characters in the report, Value Length gives "
+                 "the full length, and the value of the tokens key is replaced with a redaction note.",
         "paths": ('*/discord*/Local Storage/leveldb/*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "database",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "discord_macos": "Discord 0.0.402 macOS | 654 rows",
             "discord_win_ptb": "Discord 0.0.402 Windows PTB layout | 654 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Discord 1.0.9008 | 92 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -94,6 +142,15 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 _VALUE_LIMIT = 5000
 _EPOCH_MIN = datetime.min.replace(tzinfo=timezone.utc)
 _REDACTED_KEYS = {"tokens"}
+
+# DraftStore keeps each draft under a draft type number; these are the names the
+# client's own DraftType enumeration gives them (Discord's client script
+# https://discord.com/assets/web.b8b5ddfa0f88ae29.js). Other numbers are shown as stored.
+_DRAFT_TYPES = {
+    "0": "Channel message", "1": "Thread settings", "2": "First thread message",
+    "3": "Application launcher command", "4": "Poll", "5": "Slash command",
+    "6": "Forward context message", "7": "Interaction modal",
+}
 
 
 def _records(context):
@@ -128,14 +185,13 @@ def discordDrafts(context):
 
     data_list = []
     seen = set()
-    source_path = ""
+    sources = set()
     for record in _records(context):
         if record.key != "DraftStore":
             continue
         state = _load_state(record)
         if not isinstance(state, dict):
             continue
-        source_path = source_path or record.source
         for account_id, channels in state.items():
             if not isinstance(channels, dict):
                 continue
@@ -150,12 +206,13 @@ def discordDrafts(context):
                     if key in seen:
                         continue
                     seen.add(key)
+                    sources.add(record.source)
                     data_list.append((
                         discord_api.epoch_ms_to_datetime(draft.get("timestamp")),
                         draft["draft"],
                         channel_id,
                         account_id,
-                        "Channel message" if draft_type == "0" else f"Type {draft_type}",
+                        _DRAFT_TYPES.get(str(draft_type), f"Type {draft_type}"),
                         record.sequence,
                         record.state,
                         context.get_relative_path(record.source),
@@ -163,7 +220,7 @@ def discordDrafts(context):
 
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime) else _EPOCH_MIN)
     logfunc(f"Discord Message Drafts: {len(data_list)} draft version(s) recovered.")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sorted(sources))
 
 
 @artifact_processor
@@ -175,13 +232,14 @@ def discordActivity(context):
 
     data_list = []
     seen = set()
-    source_path = ""
+    sources = set()
 
     def add(timestamp, event, target, detail, record):
         key = (timestamp, event, target, detail)
         if key in seen:
             return
         seen.add(key)
+        sources.add(record.source)
         data_list.append((timestamp, event, target, detail, record.key,
                           record.sequence, context.get_relative_path(record.source)))
 
@@ -193,18 +251,22 @@ def discordActivity(context):
             state = _load_state(record)
         if state is None:
             continue
-        source_path = source_path or record.source
 
+        # The labels follow what Discord's client script does with each store
+        # (https://discord.com/assets/web.b8b5ddfa0f88ae29.js): FrecencyStore
+        # records the channel or server a CHANNEL_SELECT or VOICE_CHANNEL_SELECT
+        # moved to, SelectedGuildStore stamps a server when a selection moves into
+        # or out of it, and QuickSwitcherStore keeps the latest selected channels.
         if record.key == "FrecencyStore":
             for usage in state.get("pendingUsages") or []:
                 if not isinstance(usage, dict):
                     continue
                 add(discord_api.epoch_ms_to_datetime(usage.get("timestamp")),
-                    "Channel opened", str(usage.get("key") or ""), "", record)
+                    "Channel or server selected", str(usage.get("key") or ""), "", record)
 
         elif record.key == "SelectedGuildStore":
             for guild_id, when in (state.get("selectedGuildTimestampMillis") or {}).items():
-                add(discord_api.epoch_ms_to_datetime(when), "Server selected",
+                add(discord_api.epoch_ms_to_datetime(when), "Server selected or left",
                     str(guild_id), "", record)
 
         elif record.key == "SelectedChannelStore":
@@ -232,7 +294,7 @@ def discordActivity(context):
 
         elif record.key == "QuickSwitcherStore":
             for position, channel_id in enumerate(state.get("channelHistory") or [], 1):
-                add("", "Quick switcher history", str(channel_id),
+                add("", "Recently selected channel", str(channel_id),
                     f"position {position}", record)
 
         elif record.key == "LAST_CLIENT_HEARTBEAT_SESSION":
@@ -245,7 +307,7 @@ def discordActivity(context):
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime) else _EPOCH_MIN,
                    reverse=True)
     logfunc(f"Discord Client Activity: {len(data_list)} event(s) recovered.")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sorted(sources))
 
 
 @artifact_processor
@@ -256,9 +318,9 @@ def discordLocalStorage(context):
     )
 
     data_list = []
-    source_path = ""
+    sources = set()
     for record in _records(context):
-        source_path = source_path or record.source
+        sources.add(record.source)
         if record.key in _REDACTED_KEYS and record.value:
             value = "[redacted: authentication token]"
         else:
@@ -276,4 +338,4 @@ def discordLocalStorage(context):
         ))
 
     logfunc(f"Discord Local Storage: {len(data_list)} record version(s).")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sorted(sources))
