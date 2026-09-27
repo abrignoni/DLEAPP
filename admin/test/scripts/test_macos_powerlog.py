@@ -54,12 +54,22 @@ SCHEMA = (
     'CREATE TABLE PLAudioAgent_EventForward_AudioDevice (ID INTEGER PRIMARY KEY AUTOINCREMENT, '
     'timestamp REAL, timestampLogged REAL, DeviceID INTEGER, IsInput INTEGER, IsRunning INTEGER, '
     'SourceID INTEGER, TransType INTEGER, Volume REAL)',
+    'CREATE TABLE PLApplicationAgent_EventForward_AppLifecycle (ID INTEGER PRIMARY KEY '
+    'AUTOINCREMENT, timestamp REAL, ASN INTEGER, BundleID TEXT, Event INTEGER, PID INTEGER, '
+    'ParentASN INTEGER)',
+    # The older layout: no ExtensionName, BTCompanionIn or BTCompanionOut column.
+    'CREATE TABLE PLProcessNetworkAgent_EventInterval_UsageDiff (ID INTEGER PRIMARY KEY '
+    'AUTOINCREMENT, timestamp REAL, BundleName TEXT, CellIn INTEGER, CellOut INTEGER, '
+    'ProcessName TEXT, WifiIn INTEGER, WifiOut INTEGER, WiredIn INTEGER, WiredOut INTEGER, '
+    'timestampEnd REAL)',
+    'CREATE TABLE PLDisplayAgent_Aggregate_ScreenOn (ID INTEGER PRIMARY KEY AUTOINCREMENT, '
+    'timestamp REAL, timeInterval REAL, ScreenOn INTEGER)',
 )
 MIDNIGHT = 1767225600.0          # 2026-01-01 00:00:00 UTC
 
 
 def fill(con, offsets=(), states=(), arrays=(), idle=(), frontmost=(), zones=(), lids=(),
-         devices=(), audio=(), schema=SCHEMA):
+         devices=(), audio=(), lifecycle=(), network=(), screen=(), schema=SCHEMA):
     for statement in schema:
         con.execute(statement)
     con.executemany('INSERT INTO PLStorageOperator_EventForward_TimeOffset '
@@ -87,6 +97,13 @@ def fill(con, offsets=(), states=(), arrays=(), idle=(), frontmost=(), zones=(),
     con.executemany('INSERT INTO PLAudioAgent_EventForward_AudioDevice (timestamp, timestampLogged, '
                     'DeviceID, IsInput, IsRunning, SourceID, TransType, Volume) '
                     'VALUES (?, ?, ?, ?, ?, ?, ?, ?)', audio)
+    con.executemany('INSERT INTO PLApplicationAgent_EventForward_AppLifecycle (timestamp, BundleID, '
+                    'Event, PID, ASN, ParentASN) VALUES (?, ?, ?, ?, ?, ?)', lifecycle)
+    con.executemany('INSERT INTO PLProcessNetworkAgent_EventInterval_UsageDiff (timestamp, '
+                    'timestampEnd, BundleName, ProcessName, WifiIn, WifiOut, WiredIn, WiredOut, CellIn, '
+                    'CellOut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', network)
+    con.executemany('INSERT INTO PLDisplayAgent_Aggregate_ScreenOn (timestamp, timeInterval, ScreenOn) '
+                    'VALUES (?, ?, ?)', screen)
     con.commit()
 
 
@@ -416,6 +433,33 @@ class ArtifactTest(unittest.TestCase):
              93, 0, 0, 'ispk', 'bltn', 0.5, 2.0, live),
             (datetime(2026, 1, 1, 0, 1, 2, tzinfo=UTC), datetime(2026, 1, 1, 0, 1, 2, tzinfo=UTC),
              100, 1, 1, 'imic', 'blue', 0.0, 2.0, live)])
+
+    def test_app_lifecycle_network_and_screen_on(self):
+        write_live(self.live, offsets=[(MIDNIGHT, 2.0), (MIDNIGHT + 1000, -3.0)],
+                   lifecycle=[(MIDNIGHT + 10, 'com.example.editor', 1, 501, 7001, 0),
+                              (MIDNIGHT + 20, 'com.example.editor', 2, 501, 7001, 0)],
+                   network=[(MIDNIGHT + 100, MIDNIGHT + 1900, 'com.example.mail', 'Mail', 1200, 300, 0, 0, 0, 0)],
+                   screen=[(MIDNIGHT + 3600, 3600.0, 1800)])
+        live = FOLDER + '/CurrentPowerlog.PLSQL'
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogAppLifecycle)
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Bundle ID', 'Event (as stored)', 'PID', 'ASN (as stored)',
+                          'Parent ASN (as stored)', 'Time Offset (seconds)', 'Source File'])
+        self.assertEqual(rows, [(datetime(2026, 1, 1, 0, 0, 12, tzinfo=UTC), 'com.example.editor', 1, 501, 7001, 0, 2.0, live),
+                                (datetime(2026, 1, 1, 0, 0, 22, tzinfo=UTC), 'com.example.editor', 2, 501, 7001, 0, 2.0, live)])
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogProcessNetwork)
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Start Time (UTC)', 'End Time (UTC)', 'Bundle Name', 'Process Name', 'Extension Name',
+                          'Wifi In', 'Wifi Out', 'Wired In', 'Wired Out', 'Cell In', 'Cell Out', 'BT Companion In',
+                          'BT Companion Out', 'Time Offset (seconds)', 'Source File'])
+        # The end falls after the second offset entry, so it is corrected with that one.
+        self.assertEqual(rows, [(datetime(2026, 1, 1, 0, 1, 42, tzinfo=UTC), datetime(2026, 1, 1, 0, 31, 37, tzinfo=UTC),
+                                 'com.example.mail', 'Mail', '', 1200, 300, 0, 0, 0, 0, '', '', 2.0, live)])
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogScreenOn)
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Time Interval (as stored)', 'Screen On (as stored)',
+                          'Time Offset (seconds)', 'Source File'])
+        self.assertEqual(rows, [(datetime(2026, 1, 1, 0, 59, 57, tzinfo=UTC), 3600.0, 1800, -3.0, live)])
 
     def test_unreadable_files_are_logged_and_the_rest_read(self):
         write_live(self.live, offsets=[], idle=[(MIDNIGHT, 1)])

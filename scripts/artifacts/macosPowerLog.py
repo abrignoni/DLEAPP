@@ -279,6 +279,107 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 61 rows",
         },
     },
+    "macosPowerLogAppLifecycle": {
+        "name": "PowerLog - App Lifecycle",
+        "description": "Rows of PowerLog's PLApplicationAgent_EventForward_AppLifecycle table: "
+                       "time, bundle ID, event code, process ID and ASN values as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLApplicationAgent_EventForward_AppLifecycle from the PowerLog databases the '
+            'PowerLog - Sleep and Wake artifact reads, with times corrected, and rows held by '
+            'more than one database reported once, as its notes describe. Bundle ID, Event, PID, '
+            'ASN and Parent ASN are reported as stored; what Event, ASN and Parent ASN record is '
+            'not established here. On dleapp_macos_bigsur Event held 1 on 3,464 rows, 2 on 3,351 '
+            'and 0 on 61, and the rows of 2,194 of its 2,633 ASNs are one Event 1 followed by one '
+            'Event 2; on the public MacBook Pro logical extraction (macOS 15.4 build 24E248, not '
+            'a registered corpus key) Event held 0 on 505 of 596 rows, 2 on 49 and 1 on 42. Event '
+            '1 and Event 2 are not established as a launch and an exit: 6 of '
+            "dleapp_macos_bigsur's PowerLog - Frontmost App rows name an ASN whose latest Event 1 "
+            'or 2 at or before them was 2. An ASN can appear with more than one PID (421 of the '
+            "2,633 on dleapp_macos_bigsur), Parent ASN held 0 on 6,817 of that image's 6,876 "
+            'rows, and com.apple.wifi.WiFiAgent accounts for 6,381 of them. The public MacBook '
+            "Pro extraction's two copies of the live database differ: 26 of its rows are only in "
+            'the copy under System/Volumes/Data. Time Offset (seconds) held 0.001 on every row of '
+            'dleapp_macos_bigsur.'
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "activity",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 6876 rows",
+        },
+    },
+    "macosPowerLogProcessNetwork": {
+        "name": "PowerLog - Process Network Usage",
+        "description": "Rows of PowerLog's PLProcessNetworkAgent_EventInterval_UsageDiff table: "
+                       "start and end times, bundle and process names, and the in and out values "
+                       "for each interface as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLProcessNetworkAgent_EventInterval_UsageDiff from the PowerLog databases the '
+            'PowerLog - Sleep and Wake artifact reads, with times corrected, and rows held by '
+            "more than one database reported once, as its notes describe. Start Time is the row's "
+            'timestamp and End Time its timestampEnd, each corrected; the rows span 1,767 to '
+            '1,800 seconds on dleapp_macos_bigsur and 300 to 17,090 seconds on the public MacBook '
+            'Pro logical extraction (macOS 15.4 build 24E248, not a registered corpus key), 1,860 '
+            'seconds on 5,561 of its 6,663 rows. Bundle Name, Process Name, Extension Name and '
+            'the In and Out values for each interface are reported as stored, and the unit of the '
+            'In and Out values is not established here. On dleapp_macos_bigsur Wifi In, Wifi Out, '
+            'Cell In and Cell Out held 0 on every row, and Wired In or Wired Out was above 0 on '
+            'every row; its tables have no ExtensionName, BTCompanionIn or BTCompanionOut column, '
+            'so Extension Name, BT Companion In and BT Companion Out are empty there. On the '
+            'public MacBook Pro extraction Cell In, Cell Out, BT Companion In and BT Companion '
+            'Out held 0 on every row, and Extension Name has a value on 458 rows. Bundle Name '
+            'equals Process Name on 258 of the 265 rows of dleapp_macos_bigsur and 5,381 of the '
+            '6,663 of the public MacBook Pro extraction, whose two copies of the live database '
+            'differ: 304 of its rows are only in the copy under System/Volumes/Data. Time Offset '
+            '(seconds) held 0.001 on every row of dleapp_macos_bigsur.'
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 265 rows",
+        },
+    },
+    "macosPowerLogScreenOn": {
+        "name": "PowerLog - Screen On",
+        "description": "Rows of PowerLog's PLDisplayAgent_Aggregate_ScreenOn table: time, time "
+                       "interval and the ScreenOn value as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLDisplayAgent_Aggregate_ScreenOn from the PowerLog databases the PowerLog - '
+            'Sleep and Wake artifact reads, with times corrected, and rows held by more than one '
+            'database reported once, as its notes describe. Time Interval and Screen On are '
+            'reported as stored; what Screen On records is not established here, nor whether Time '
+            'marks the start or the end of the interval. The table is absent from '
+            "dleapp_macos_bigsur's databases. On the public MacBook Pro logical extraction (macOS "
+            '15.4 build 24E248, not a registered corpus key) Time Interval held 3600.0 on all 102 '
+            'rows, Screen On ran from 122 to 3600 and was never above Time Interval, and 91 of '
+            'the 101 gaps between consecutive rows are 3,600 seconds. One interval appears twice '
+            'there, with Screen On 3300 in the copy of the live database under private/var and '
+            '3600 in the copy under System/Volumes/Data, and that copy holds 10 more rows the '
+            'other copy lacks.'
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "sun",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows",
+        },
+    },
 }
 
 import sqlite3
@@ -478,4 +579,58 @@ def macosPowerLogAudioDevices(context):
 
     data_list, source = _collect(context, 'PLAudioAgent_EventForward_AudioDevice', columns,
                                  build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogAppLifecycle(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Bundle ID', 'Event (as stored)', 'PID',
+                    'ASN (as stored)', 'Parent ASN (as stored)', 'Time Offset (seconds)',
+                    'Source File')
+
+    def build(database, row, _side):
+        time, offset = database.corrected(row['timestamp'])
+        return (_blank(time), _blank(row['BundleID']), _blank(row['Event']), _blank(row['PID']),
+                _blank(row['ASN']), _blank(row['ParentASN']), _seconds(offset))
+
+    data_list, source = _collect(context, 'PLApplicationAgent_EventForward_AppLifecycle',
+                                 ('ID', 'timestamp', 'BundleID', 'Event', 'PID', 'ASN',
+                                  'ParentASN'), build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogProcessNetwork(context):
+    counters = ('WifiIn', 'WifiOut', 'WiredIn', 'WiredOut', 'CellIn', 'CellOut',
+                'BTCompanionIn', 'BTCompanionOut')
+    data_headers = (('Start Time (UTC)', 'datetime'), ('End Time (UTC)', 'datetime'),
+                    'Bundle Name', 'Process Name', 'Extension Name', 'Wifi In', 'Wifi Out',
+                    'Wired In', 'Wired Out', 'Cell In', 'Cell Out', 'BT Companion In',
+                    'BT Companion Out', 'Time Offset (seconds)', 'Source File')
+
+    def build(database, row, _side):
+        start, offset = database.corrected(row['timestamp'])
+        end, _ = database.corrected(row['timestampEnd'])
+        return ((_blank(start), _blank(end), _blank(row['BundleName']),
+                 _blank(row['ProcessName']), _blank(row['ExtensionName']))
+                + tuple(_blank(row[name]) for name in counters) + (_seconds(offset),))
+
+    data_list, source = _collect(context, 'PLProcessNetworkAgent_EventInterval_UsageDiff',
+                                 ('ID', 'timestamp', 'timestampEnd', 'BundleName', 'ProcessName',
+                                  'ExtensionName') + counters, build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogScreenOn(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Time Interval (as stored)',
+                    'Screen On (as stored)', 'Time Offset (seconds)', 'Source File')
+
+    def build(database, row, _side):
+        time, offset = database.corrected(row['timestamp'])
+        return (_blank(time), _blank(row['timeInterval']), _blank(row['ScreenOn']),
+                _seconds(offset))
+
+    data_list, source = _collect(context, 'PLDisplayAgent_Aggregate_ScreenOn',
+                                 ('ID', 'timestamp', 'timeInterval', 'ScreenOn'), build)
     return data_headers, data_list, source
