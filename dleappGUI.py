@@ -914,10 +914,10 @@ modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on in
 pickModules()
 
 ## Theme properties  (DLEAPP brand palette, taken from the logo artwork)
-## The base is the logo's deep purple (#8036BF) darkened so light text clears
-## 12:1; the accent is the logo's lilac tile (#CF7BFB), 4.6:1 against the base
-## and 7.9:1 behind black text.
-theme_bgcolor = '#4A1F70'      # deep purple base
+## The base is the logo's deep purple (#8036BF) darkened and muted so light
+## text clears 11:1; the accent is the logo's lilac tile (#CF7BFB), 4.75:1
+## against the base and 7.9:1 behind black text.
+theme_bgcolor = '#3E2A52'      # muted deep purple base
 theme_inputcolor = '#F1E6FB'   # pale lilac input fields (black text)
 theme_inputfgcolor = '#CF7BFB' # lilac accent
 theme_fgcolor = '#F5ECFD'      # near-white lilac text on the base

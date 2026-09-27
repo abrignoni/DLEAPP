@@ -1,5 +1,5 @@
 * {
-  scrollbar-color: #CF7BFB #4A1F70 !important;
+  scrollbar-color: #CF7BFB #3E2A52 !important;
   scrollbar-width: thin !important;
 }
 
@@ -130,8 +130,8 @@ table.table-xsm td {
 }
 
 /* --- DLEAPP purple/lilac theme (from the logo artwork) --- */
-.bg-dark { background-color: #4A1F70 !important; }
-.navbar.bg-dark { background-color: #351650 !important; }
+.bg-dark { background-color: #3E2A52 !important; }
+.navbar.bg-dark { background-color: #2F1F3F !important; }
 .navbar-brand {
   color: #CF7BFB !important;
   font-weight: 600;
