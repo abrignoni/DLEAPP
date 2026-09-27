@@ -489,32 +489,10 @@ __artifacts_v2__ = {
 
 import sqlite3
 
-from scripts.chromium.browser_profiles import (enum_label, open_store,
+from scripts.chromium.browser_profiles import (enum_label, open_store, page_transition,
                                                profile_stores, row_tail, select_list,
                                                table_columns, webkit_time)
 from scripts.ilapfuncs import artifact_processor, logfunc
-
-# ui/base/page_transition_types.h, lines 30 to 108 (core types) and 119 to 155
-# (qualifiers), chromium 33f34ef179f55596f6c2fc8a55878b7ccf6276e4.
-_CORE_TRANSITIONS = {
-    0: 'LINK', 1: 'TYPED', 2: 'AUTO_BOOKMARK', 3: 'AUTO_SUBFRAME', 4: 'MANUAL_SUBFRAME',
-    5: 'GENERATED', 6: 'AUTO_TOPLEVEL', 7: 'FORM_SUBMIT', 8: 'RELOAD', 9: 'KEYWORD',
-    10: 'KEYWORD_GENERATED',
-}
-_QUALIFIERS = (
-    (0x00200000, 'FROM_API_3'),
-    (0x00400000, 'FROM_API_2'),
-    (0x00800000, 'BLOCKED'),
-    (0x01000000, 'FORWARD_BACK'),
-    (0x02000000, 'FROM_ADDRESS_BAR'),
-    (0x04000000, 'HOME_PAGE'),
-    (0x08000000, 'FROM_API'),
-    (0x10000000, 'CHAIN_START'),
-    (0x20000000, 'CHAIN_END'),
-    (0x40000000, 'CLIENT_REDIRECT'),
-    (0x80000000, 'SERVER_REDIRECT'),
-)
-_KNOWN_BITS = 0xFF | sum(mask for mask, _ in _QUALIFIERS)
 
 # components/history/core/browser/history_types.h, lines 50 to 59.
 _VISIT_SOURCES = {
@@ -551,19 +529,6 @@ _INTERRUPT_REASONS = {
     39: 'SERVER_CROSS_ORIGIN_REDIRECT', 40: 'USER_CANCELED', 41: 'USER_SHUTDOWN', 50: 'CRASH',
     51: 'LOCAL_DOWNLOAD_BLOCKED',
 }
-
-
-def _transition(value):
-    """Core type and qualifier names of a stored visits.transition value."""
-    if value is None:
-        return '', ''
-    bits = int(value) & 0xFFFFFFFF
-    core = bits & 0xFF
-    qualifiers = [name for mask, name in _QUALIFIERS if bits & mask]
-    other = bits & ~_KNOWN_BITS & 0xFFFFFFFF
-    if other:
-        qualifiers.append(f'other bits 0x{other:08X}')
-    return enum_label(_CORE_TRANSITIONS, core), ', '.join(qualifiers)
 
 
 def _yes_no(value):
@@ -609,7 +574,7 @@ def chromiumWebVisits(context):
         sources.append(store.path)
         for (visit_id, visit_time, url, title, transition, source_row, source, duration,
              referrer_url) in rows:
-            core, qualifiers = _transition(transition)
+            core, qualifiers = page_transition(transition)
             if not has_source:
                 visit_source = ''
             elif source_row is None:

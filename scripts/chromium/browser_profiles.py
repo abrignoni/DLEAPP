@@ -58,8 +58,8 @@ _HOME_PARENTS = ('Users', 'home')
 
 # Folders a profile keeps its own stores in. When one sits directly in a user
 # data folder, the user data folder is read as the profile rather than the
-# folder being read as a profile named Network or Extensions.
-_PROFILE_SUBFOLDERS = ('Network', 'Extensions')
+# folder being read as a profile named Network, Extensions or Sessions.
+_PROFILE_SUBFOLDERS = ('Network', 'Extensions', 'Sessions', 'Sessions_Encrypted')
 
 # A SQLite store's rollback journal or write-ahead log, which the store is read with.
 _SIDECARS = ('-journal', '-wal')
@@ -232,6 +232,42 @@ def enum_label(names, value):
     except (TypeError, ValueError):
         return str(value)
     return f'{names.get(number, "unknown")} ({number})'
+
+
+# ui/base/page_transition_types.h, lines 30 to 108 (core types) and 119 to 155
+# (qualifiers), chromium 33f34ef179f55596f6c2fc8a55878b7ccf6276e4.
+CORE_TRANSITIONS = {
+    0: 'LINK', 1: 'TYPED', 2: 'AUTO_BOOKMARK', 3: 'AUTO_SUBFRAME', 4: 'MANUAL_SUBFRAME',
+    5: 'GENERATED', 6: 'AUTO_TOPLEVEL', 7: 'FORM_SUBMIT', 8: 'RELOAD', 9: 'KEYWORD',
+    10: 'KEYWORD_GENERATED',
+}
+TRANSITION_QUALIFIERS = (
+    (0x00200000, 'FROM_API_3'),
+    (0x00400000, 'FROM_API_2'),
+    (0x00800000, 'BLOCKED'),
+    (0x01000000, 'FORWARD_BACK'),
+    (0x02000000, 'FROM_ADDRESS_BAR'),
+    (0x04000000, 'HOME_PAGE'),
+    (0x08000000, 'FROM_API'),
+    (0x10000000, 'CHAIN_START'),
+    (0x20000000, 'CHAIN_END'),
+    (0x40000000, 'CLIENT_REDIRECT'),
+    (0x80000000, 'SERVER_REDIRECT'),
+)
+_KNOWN_TRANSITION_BITS = 0xFF | sum(mask for mask, _ in TRANSITION_QUALIFIERS)
+
+
+def page_transition(value):
+    """Core type and qualifier names of a stored ui::PageTransition value."""
+    if value is None:
+        return '', ''
+    bits = int(value) & 0xFFFFFFFF
+    core = bits & 0xFF
+    qualifiers = [name for mask, name in TRANSITION_QUALIFIERS if bits & mask]
+    other = bits & ~_KNOWN_TRANSITION_BITS & 0xFFFFFFFF
+    if other:
+        qualifiers.append(f'other bits 0x{other:08X}')
+    return enum_label(CORE_TRANSITIONS, core), ', '.join(qualifiers)
 
 
 def row_tail(store):
