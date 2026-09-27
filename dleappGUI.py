@@ -914,8 +914,8 @@ modules_filter_var = tk.StringVar()
 modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on input change
 pickModules()
 
-## Theme properties  (DLEAPP brand palette, taken from the logo artwork)
-## The accent is the logo's blue (#3290EB) lightened to clear 3:1 against the
+## Theme properties  (DLEAPP brand palette, taken from the earlier logo artwork)
+## The accent is that logo's blue (#3290EB) lightened to clear 3:1 against the
 ## plum base; the logo gold is left to iLEAPP, which already owns that accent.
 theme_bgcolor = '#5F3A5C'      # plum / aubergine base
 theme_inputcolor = '#D5D9DE'   # grey input fields (black text)
@@ -981,7 +981,9 @@ style.map(
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
 title_frame.pack(padx=14, pady=8, fill='x')
-dleapp_logo = ImageTk.PhotoImage(Image.open(resource_path("DLEAPP_banner.png")).resize((208, 52)))
+dleapp_banner = Image.open(resource_path("DLEAPP_banner.png"))
+dleapp_logo = ImageTk.PhotoImage(dleapp_banner.resize(
+    (round(dleapp_banner.width * 52 / dleapp_banner.height), 52), Image.Resampling.LANCZOS))
 dleapp_logo_label = ttk.Label(title_frame, image=dleapp_logo)
 dleapp_logo_label.pack(side='left')
 

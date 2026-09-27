@@ -362,7 +362,7 @@ review does not stop while we work that out.
 
 This tool is the result of a collaborative effort of many people in the DFIR community.
 
-DLEAPP logo artwork courtesy of Johann Polewczyk, with the per-OS window
+The earlier DLEAPP logo artwork was by Johann Polewczyk, with the per-OS window
 controls (Linux, Windows, macOS) suggested by James Habben.
 
 DLEAPP is built on the RLEAPP framework by Alexis Brignoni and contributors.
