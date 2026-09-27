@@ -18,6 +18,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_evtx import log_records
 
 # The Security event log records local account and group administration under
 # the account-management audit subcategories: an account being created,
@@ -177,7 +178,7 @@ def accountManagement(context):
         rows_here = 0
         try:
             with evtx.Evtx(source) as log:
-                for record in log.records():
+                for record in log_records(log, 'Windows Account Management', relative_source):
                     try:
                         row = _account_row(record.xml())
                     except ElementTree.ParseError:

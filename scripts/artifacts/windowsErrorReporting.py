@@ -146,7 +146,7 @@ __artifacts_v2__ = {
                        "report's files and the report identifier.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Application.evtx, named in the report's located-at line; only records of "
@@ -163,13 +163,12 @@ __artifacts_v2__ = {
                  "Guid %23 from build 17763 (af_case2_win10) on. Event Name is EventName, Problem "
                  "Signature lists P1 to P10 where they hold a value, Attached Files is AttachedFiles, "
                  "Store Path is StorePath, Report ID is ReportId, Report Status is ReportStatus as "
-                 "stored and Hashed Bucket is HashedBucket. On the 65 records whose report is on the "
-                 "image (18 on lonewolf_win10, 47 on pc_mus_001_win11), P1 to P10 equalled that "
+                 "stored and Hashed Bucket is HashedBucket. On the 90 records whose report is on the image (31 on lonewolf_win10, 59 on "
+                 "pc_mus_001_win11), P1 to P10 equalled that "
                  "Report.wer's Sig[0] to Sig[9] values, which its Problem Signature names. One report "
-                 "can be logged more than once: 18 records named 8 report IDs on lonewolf_win10, and "
-                 "53 named 31 on pc_mus_001_win11. Report ID matched a Report.wer's ReportIdentifier "
-                 "for 7 of those IDs on each image and its IntegratorReportIdentifier for 1 "
-                 "(lonewolf_win10) and 18 (pc_mus_001_win11). User SID is the SID in the record's "
+                 "can be logged more than once: 33 records named 17 report IDs on lonewolf_win10, and 68 named 40 on pc_mus_001_win11. Report ID "
+                 "matched a Report.wer's ReportIdentifier for 11 of those IDs on lonewolf_win10 and 7 on pc_mus_001_win11, and its "
+                 "IntegratorReportIdentifier for 4 (lonewolf_win10) and 24 (pc_mus_001_win11). User SID is the SID in the record's "
                  "Security element, and it is blank on every lonewolf_win10 row, because those records "
                  "carry none. Event Time (UTC) is the record's TimeCreated SystemTime, which "
                  "python-evtx renders from the FILETIME the record stores, counted in UTC "
@@ -181,8 +180,8 @@ __artifacts_v2__ = {
         "artifact_icon": "alert-triangle",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Windows Error Reporting 1001 record)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 18 rows",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 53 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 33 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 68 rows",
         },
     },
     "appCrashHangEvents": {
@@ -193,7 +192,7 @@ __artifacts_v2__ = {
                        "report identifier.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Application.evtx, named in the report's located-at line; only Application "
@@ -211,26 +210,26 @@ __artifacts_v2__ = {
                  "%2, time stamp: 0x%3' through 'Faulting package-relative application ID: %15', and "
                  "'The program %1 version %2', Process ID %3, Start Time %4, Termination Time %5, "
                  "Application Path %6, Report Id %7, package %8 and %9, and Hang type %10, which "
-                 "message 1002 on build 16299 lacks. lonewolf_win10 holds one such unnamed 1000 "
-                 "record; no unnamed 1002 record was found, so that reading is unexercised. App Path "
+                 "message 1002 on build 16299 lacks. lonewolf_win10 holds four such unnamed 1000 records; no unnamed 1002 record was found, so "
+                 "that reading is unexercised. Event held one value, Application Error (1000), on every lonewolf_win10 row. App Path "
                  "is AppPath (1000) or ExeFileName (1002). Process ID is ProcessId in decimal, with "
                  "its hexadecimal form: the named records store it with 0x, and message 1000 prints "
                  "the unnamed value after 0x, so that value is read as hexadecimal too; an unnamed "
                  "1002 value is shown as stored. Process Start Time (UTC) is ProcessCreationTime "
                  "(1000) or StartTime (1002) read as a hexadecimal FILETIME counted in UTC. Both "
                  "machines were set to Eastern time, and it fell 0 to 2,059 seconds before the "
-                 "record's own time on all 18 pc_mus_001_win11 records and 1,585 seconds before it on "
-                 "the lonewolf_win10 record, where a local-time reading would put each start after the "
+                 "record's own time on all 24 pc_mus_001_win11 records and 3.7 to 1,585 seconds before it on the four lonewolf_win10 records, "
+                 "where a local-time reading would put each start after the "
                  "crash or hang it precedes. Exception Code and Fault Offset are ExceptionCode and "
                  "FaultingOffset with a 0x prefix, as message 1000 prints them; they and Module Name, "
                  "Module Version and Module Path are blank on 1002 rows, as Hang Type is on 1000 rows. "
-                 "Report ID is IntegratorReportId (1000) or ReportId (1002); each of the 18 on "
-                 "pc_mus_001_win11 and the one on lonewolf_win10 matched the "
+                 "Report ID is IntegratorReportId (1000) or ReportId (1002); each of the 24 on pc_mus_001_win11 and the four on lonewolf_win10 "
+                 "matched the "
                  "IntegratorReportIdentifier of a Report.wer and the Report ID of a Windows Error "
-                 "Reporting Events row. Package Full Name is PackageFullName, blank on 14 of the 18 "
-                 "pc_mus_001_win11 rows and on the lonewolf_win10 row. User SID is the SID in the "
-                 "record's Security element, and it is blank on the lonewolf_win10 row, because that "
-                 "record carries none. Event Time (UTC) is the record's TimeCreated SystemTime, which "
+                 "Reporting Events row. Package Full Name is PackageFullName, blank on 20 of the 24 pc_mus_001_win11 rows and on every "
+                 "lonewolf_win10 row. User SID is the SID in the "
+                 "record's Security element, and it is blank on every lonewolf_win10 row, because those records carry none. Event Time (UTC) is "
+                 "the record's TimeCreated SystemTime, which "
                  "python-evtx renders from the FILETIME the record stores, counted in UTC "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
                  "and Record ID is the record's EventRecordID. Not reported: AppTimeStamp, "
@@ -240,8 +239,8 @@ __artifacts_v2__ = {
         "artifact_icon": "alert-triangle",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Application Error 1000 or Application Hang 1002 record)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 18 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 24 rows",
         },
     },
 }

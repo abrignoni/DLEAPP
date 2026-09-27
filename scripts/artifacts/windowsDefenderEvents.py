@@ -301,7 +301,7 @@ __artifacts_v2__ = {
                        "account of each record and the duration of each finished scan.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
@@ -402,8 +402,8 @@ __artifacts_v2__ = {
         "artifact_icon": "search",
         "sample_data": {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 2 rows",
-                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 10 rows",
-                           "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
+                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 12 rows",
+                           "lonewolf_win10": "Windows 10 Education build 16299 | 7 rows",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
                            "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
                        },

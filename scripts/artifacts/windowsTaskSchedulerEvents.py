@@ -52,9 +52,9 @@ __artifacts_v2__ = {
                  "stores. None of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 carries "
                  "this log file, so the artifact reports nothing on them; it was exercised on "
                  "szechuan_win10, the public "
-                 "DFIR Madness Szechuan Sauce desktop image, where it reported 144 rows "
-                 "(106: 11, 140: 127, 141: 6), Account held a SID on 60 of them, a domain and "
-                 "account name on 82 and an account name with no domain on 2, and every record "
+                 "DFIR Madness Szechuan Sauce desktop image, where it reported 262 rows (106: "
+                 "15, 140: 239, 141: 8), Account held a SID on 111 of them, a domain and "
+                 "account name on 149 and an account name with no domain on 2, and every record "
                  "rendered. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in "
                  "the run log and not reported. The task definitions themselves are "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Task Scheduler Operational log on the image)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Task Scheduler Operational log on the image)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Task Scheduler Operational log on the image)",
-            "szechuan_win10": "Windows 10 2004 build 19041 | 144 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 262 rows",
         },
     },
     "taskSchedulerActions": {
@@ -101,9 +101,9 @@ __artifacts_v2__ = {
                  "stores. None of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 carries "
                  "this log file, so the artifact reports nothing on them; it was exercised on "
                  "szechuan_win10, the public "
-                 "DFIR Madness Szechuan Sauce desktop image, where it reported 201 rows "
-                 "(200: 109, 201: 92), Action was blank on 6 of the 109 200 rows and 5 of "
-                 "the 92 201 rows as stored, and every record rendered. A record "
+                 "DFIR Madness Szechuan Sauce desktop image, where it reported 315 rows (200: "
+                 "170, 201: 145), Action was blank on 8 of the 170 200 rows and 7 of the 145 201 "
+                 "rows as stored, and every record rendered. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in "
                  "the run log and not reported. The log's other events (for example 100, "
                  "102, 129) are not reported. Reading needs the python-evtx package (pip "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Task Scheduler Operational log on the image)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Task Scheduler Operational log on the image)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Task Scheduler Operational log on the image)",
-            "szechuan_win10": "Windows 10 2004 build 19041 | 201 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 315 rows",
         },
     },
 }

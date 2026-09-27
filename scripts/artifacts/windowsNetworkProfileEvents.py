@@ -28,7 +28,7 @@ __artifacts_v2__ = {
                        "name, description and profile GUID each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-NetworkProfile%4Operational.evtx, named in "
@@ -43,8 +43,9 @@ __artifacts_v2__ = {
                  "Guid fields. Type (as stored), State (as stored) and Category (as "
                  "stored) are the Type, State and Category numbers, for which the "
                  "published manifest dump carries no names. Description held the same text "
-                 "as Network Name on every row of the three registered images (39, 173 and "
-                 "22 rows); whether the two can differ was not established. Type held one "
+                 "as Network Name on every row of af_case2_win10, pc_mus_001_win11 and "
+                 "lonewolf_win10 (39, 178 and 22 rows); whether the two can differ was not "
+                 "established. Type held one "
                  "value on every row of each registered image, and Category held one value "
                  "on every row of pc_mus_001_win11 and lonewolf_win10. Event Time (UTC) is "
                  "the record's TimeCreated SystemTime, which python-evtx renders from the "
@@ -65,7 +66,7 @@ __artifacts_v2__ = {
         "artifact_icon": "globe",
         "sample_data": {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 39 rows",
-                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 173 rows",
+                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 178 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 22 rows",
                        },
     },

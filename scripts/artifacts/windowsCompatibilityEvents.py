@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                        "stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Application-Experience%4Program-Telemetry.evtx, named in the "
@@ -45,12 +45,15 @@ __artifacts_v2__ = {
                  "ExePath, Process ID is ProcessId, and Fix Name, Fix ID and Flags are FixName, FixID and "
                  "Flags, all as stored; the manifest does not define the Flags bits. Every 505 row of the "
                  "tested images carried Flags 0x80010101, and every 500 row 0x00010101 except one "
-                 "pc_mus_001_win11 row with 0x00010205. Process Start Time (UTC) is StartTime, a FILETIME "
+                 "pc_mus_001_win11 row with 0x00010205 and two lonewolf_win10 rows with 0x00040102. Process "
+                 "Start Time (UTC) is StartTime, a FILETIME "
                  "that python-evtx renders counted in UTC; on every row of the tested images it was "
-                 "between 0.004 and 3 seconds before the record's own time. User SID is the SID the "
+                 "between 0.004 and 9.939 seconds before the record's own time, and under 3 seconds on every "
+                 "row but one on pc_mus_001_win11. User SID is the SID the "
                  "record's Security element stores: an account SID (S-1-5-21-...) on every row of the "
-                 "tested images except one pc_mus_001_win11 500 row that carried S-1-5-18, and it held one "
-                 "value on every row of lonewolf_win10. Event Time (UTC) is the record's TimeCreated "
+                 "tested images except one pc_mus_001_win11 500 row that carried S-1-5-18 and two "
+                 "lonewolf_win10 500 rows that carried S-1-5-20, and the other rows of lonewolf_win10 held "
+                 "one account SID. Event Time (UTC) is the record's TimeCreated "
                  "SystemTime, which python-evtx renders from the FILETIME the record stores, counted in "
                  "UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
@@ -69,8 +72,8 @@ __artifacts_v2__ = {
         "artifact_icon": "tool",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 1 row",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 196 rows",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 203 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 1563 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 221 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 32 rows",
         },
     },

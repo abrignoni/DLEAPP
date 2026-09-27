@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                        "profile, authentication and encryption each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-WLAN-AutoConfig%4Operational.evtx, named in "
@@ -52,8 +52,7 @@ __artifacts_v2__ = {
                  "of these events carries a BSSID field in the manifest, so no access "
                  "point hardware address is reported. SSID, BSS Type, Adapter and "
                  "Interface GUID each held one value on every row of pc_mus_001_win11 and "
-                 "lonewolf_win10. Disconnect Reason is empty on lonewolf_win10, which "
-                 "carries no 8003 records. Event Time (UTC) is the record's TimeCreated "
+                 "lonewolf_win10. Event Time (UTC) is the record's TimeCreated "
                  "SystemTime, which python-evtx renders from the FILETIME the record "
                  "stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
@@ -73,8 +72,8 @@ __artifacts_v2__ = {
         "output_types": ["standard"],
         "artifact_icon": "wifi",
         "sample_data": {
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 45 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 46 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 13 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no WLAN-AutoConfig Operational log on the image)",
         },
     },

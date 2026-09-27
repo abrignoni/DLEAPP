@@ -30,7 +30,7 @@ __artifacts_v2__ = {
                        "process ID each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-WMI-Activity%4Operational.evtx, named in the "
@@ -56,9 +56,9 @@ __artifacts_v2__ = {
                  "them processid, MachineName and providerName, and both spellings are "
                  "read; Possible Cause is PossibleCause. Every value is reported as stored, with "
                  "any leading or trailing whitespace removed. Client Machine held one value on "
-                 "every 5860 row of each "
-                 "registered image (12, 16 and 3 rows), the same text as Computer on 12 of "
-                 "12, 16 of 16 and 2 of 3 of those rows. On each registered image the 5861 "
+                 "every 5860 row of af_case2_win10, pc_mus_001_win11 and lonewolf_win10 (12, 29 "
+                 "and 3 rows), the same text as Computer on 12 of 12, 29 "
+                 "of 29 and 2 of 3 of those rows. On each registered image the 5861 "
                  "rows named one Event Filter and Consumer pair (12 rows on "
                  "af_case2_win10, 10 on pc_mus_001_win11 and 3 on lonewolf_win10). Event "
                  "Time (UTC) is the record's TimeCreated SystemTime, which python-evtx "
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "artifact_icon": "zap",
         "sample_data": {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 36 rows",
-                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 36 rows",
+                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 49 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
                        },
     },
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
                        "result code).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-WMI-Activity%4Operational.evtx, named in the "
@@ -113,9 +113,9 @@ __artifacts_v2__ = {
                  "Every value is reported as stored, with any leading or trailing whitespace "
                  "removed; the manifest formats both result "
                  "codes as hexadecimal. Result Code held one value on every 5857 row of "
-                 "each registered image. Component and Possible Cause held the same text "
-                 "as each other on every 5858 row of lonewolf_win10 (156 rows), on 173 of "
-                 "174 rows on af_case2_win10 and on 235 of 246 on pc_mus_001_win11. Event "
+                 "each registered image. Component and Possible Cause held the same text as "
+                 "each other on 278 of the 280 5858 rows on lonewolf_win10, 173 of 174 on "
+                 "af_case2_win10 and 305 of 338 on pc_mus_001_win11. Event "
                  "Time (UTC) is the record's TimeCreated SystemTime, which python-evtx "
                  "renders from the FILETIME the record stores, counted in UTC (python-evtx "
                  "0.8.1, "
@@ -134,8 +134,8 @@ __artifacts_v2__ = {
         "artifact_icon": "activity",
         "sample_data": {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 287 rows",
-                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 506 rows",
-                           "lonewolf_win10": "Windows 10 Education build 16299 | 225 rows",
+                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 665 rows",
+                           "lonewolf_win10": "Windows 10 Education build 16299 | 592 rows",
                        },
     },
 }

@@ -18,6 +18,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_evtx import log_records
 
 # The Security event log (Security.evtx) records logon activity. This reads the
 # logon family: a successful or failed logon, a logoff, and a logon attempted
@@ -50,7 +51,7 @@ __artifacts_v2__ = {
                        "network address and workstation as recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Security.evtx, named in the report's located-at line. Only the logon "
@@ -100,7 +101,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1576 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 1103 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 306 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 914 rows",
         },
     },
 }
@@ -187,7 +188,7 @@ def securityLogons(context):
         rows_here = 0
         try:
             with evtx.Evtx(source) as log:
-                for record in log.records():
+                for record in log_records(log, 'Windows Security Logons', relative_source):
                     try:
                         row = _event_rows(record.xml())
                     except ElementTree.ParseError:

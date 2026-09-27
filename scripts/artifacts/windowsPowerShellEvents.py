@@ -67,7 +67,7 @@ __artifacts_v2__ = {
                        "line and engine version each event stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Windows PowerShell.evtx, named in the report's located-at line. "
@@ -130,7 +130,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 157 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 154 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 43 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 48 rows",
         },
     },
     "powershellPipelineExecution": {
@@ -193,7 +193,7 @@ __artifacts_v2__ = {
                        "joined in order.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-PowerShell%4Operational.evtx, named in the "
@@ -220,8 +220,7 @@ __artifacts_v2__ = {
                  "One row per ScriptBlockId: Script Block Text is the ScriptBlockText of "
                  "its parts joined in MessageNumber order, and Parts is how many parts "
                  "were found of the MessageTotal the parts store. Checked against a "
-                 "separate join of the raw records, the text matched for the 47, 3 and 1 "
-                 "script blocks on af_case2_win10, pc_mus_001_win11 and lonewolf_win10, "
+                 "separate join of the raw records, the text matched for the 47, 4 and 1 script blocks on af_case2_win10, pc_mus_001_win11 and lonewolf_win10, "
                  "and every block had every part; af_case2_win10 had 9 blocks split into 2 "
                  "to 12 parts. First Part Time (UTC) and Last Part Time (UTC) are the "
                  "earliest and latest TimeCreated SystemTime of the parts, which "
@@ -229,7 +228,7 @@ __artifacts_v2__ = {
                  "(python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "First Part Time and Last Part Time are the same for a block stored in "
-                 "one part, as on all 3 rows of pc_mus_001_win11. Level is the record's "
+                 "one part, as on all 4 rows of pc_mus_001_win11. Level is the record's "
                  "level with Microsoft's name for it "
                  "(https://github.com/MicrosoftDocs/win32/blob/e103fa4e8810bd8d42c4777e17081e24dbe62dbd/desktop-src/WES/eventmanifestschema-leveltype-complextype.md#L70-L76): "
                  "it held 3 (Warning) on every row on the registered images. Path is the "
@@ -237,8 +236,7 @@ __artifacts_v2__ = {
                  "rows on af_case2_win10). User SID is the SID in the record's Security "
                  "element and Process ID the process ID in its Execution element, both "
                  "from the first part; User SID held one value on every row of "
-                 "af_case2_win10 and pc_mus_001_win11. On pc_mus_001_win11 the Script "
-                 "Block Text of the 3 rows is the same text under three Script Block IDs, "
+                 "af_case2_win10 and pc_mus_001_win11. On pc_mus_001_win11 the Script Block Text of the 4 rows is the same text under four Script Block IDs, "
                  "and Parts held 1 of 1 on every row. Record IDs are the EventRecordIDs of "
                  "the parts. Computer is the machine name the record stores and held one "
                  "value on every row of af_case2_win10 and pc_mus_001_win11. A record "
@@ -252,7 +250,7 @@ __artifacts_v2__ = {
         "artifact_icon": "file-text",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 47 rows",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 3 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 4 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
         },
     },
