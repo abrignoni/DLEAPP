@@ -1,4 +1,5 @@
-"""Google Drive for desktop (DriveFS) items and mirrored items, for DLEAPP.
+"""Google Drive for desktop (DriveFS) items, mirrored items, accounts, account authorizations,
+synced folders and volumes, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -15,9 +16,6 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Drive",
         "notes": (
-            (
-            (
-            (
             'Reads the items table of the two metadata databases, metadata_sqlite_db and '
             'mirror_metadata_sqlite.db, in each account folder of a Google Drive for desktop '
             '(DriveFS) folder, which is Library/Application Support/Google/DriveFS on the tested '
@@ -70,9 +68,6 @@ __artifacts_v2__ = {
             'and the cached file contents in content_cache are not reported. dleapp_macos_bigsur, '
             'the four registered Windows disk images and windows11_arm_parallels hold no DriveFS '
             'folder.'
-        )
-        )
-        )
         ),
         "paths": ('*/DriveFS/*/metadata_sqlite_db*', '*/DriveFS/*/mirror_metadata_sqlite.db*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -96,9 +91,6 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Drive",
         "notes": (
-            (
-            (
-            (
             'Reads the mirror_item table of mirror_sqlite.db in each account folder of a Google '
             'Drive for desktop (DriveFS) folder. Amged Wageh describes that table as the list of '
             'mirrored items, with their local and cloud names, local and cloud modification '
@@ -131,9 +123,6 @@ __artifacts_v2__ = {
             'deletes and relation tables of mirror_sqlite.db, are not reported. '
             'dleapp_macos_bigsur, the four registered Windows disk images and '
             'windows11_arm_parallels hold no DriveFS folder.'
-        )
-        )
-        )
         ),
         "paths": ('*/DriveFS/*/mirror_sqlite.db*', '*/DriveFS/root_preference_sqlite.db*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -146,18 +135,254 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
+    "googleDriveAccounts": {
+        "name": "Google Drive Accounts",
+        "description": "Account IDs that Google Drive for desktop's experiments.db lists or that name an account "
+                       'folder with a metadata database, with the name, email address and photo URL of the '
+                       "account's driveway_account record where one is read.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "Google Drive",
+        "notes": (
+            'Reads experiments.db in each Google Drive for desktop (DriveFS) folder, which is '
+            'Library/Application Support/Google/DriveFS on the tested Mac, and the '
+            'driveway_account record in the properties table of the metadata_sqlite_db and '
+            'mirror_metadata_sqlite.db in each account folder. Amged Wageh documents that the '
+            'PhenotypeValues table of experiments.db lists under its account_ids key the IDs of '
+            'the accounts that have logged in, including accounts that have since logged out, '
+            "that a folder named after each account's ID is created when the account logs in, and "
+            "that the account's folder is deleted when it logs out (Reference: Amged Wageh, "
+            "'DriveFS Sleuth: Your Ultimate Google Drive File Stream Investigator!', "
+            'https://amgedwageh.medium.com/drivefs-sleuth-investigating-google-drive-file-streams-disk-artifacts-0b5ea637c980). '
+            'The account IDs are the field 1 strings of the account_ids value and the names of '
+            'the account folders that hold a metadata database. Each account ID of a DriveFS '
+            'folder gives one row, or one row per distinct name, email address and photo URL when '
+            'its databases give differing ones, and a folder with two differing copies of '
+            'experiments.db gives its rows once for each copy. Listed in account_ids is Yes or No '
+            "when the folder's experiments.db was read, and blank when it was not. Account "
+            'Database Found is Yes when a metadata database in a folder named after the ID was '
+            'read and No when not; an ID with Listed in account_ids Yes and Account Database '
+            "Found No fits the post's description of an account that logged out, and an "
+            'extraction that left the folder out gives the same row. Name and Photo URL are '
+            'fields 3 and 5 of field 1 of field 2 of the driveway_account record, as DriveFS '
+            'Sleuth reads them (Reference: Amged Wageh, DriveFS Sleuth, '
+            'https://github.com/AmgdGocha/DriveFS-Sleuth/blob/839e27193fa650750ec6eaccb785b32c55c6ac11/src/drivefs_sleuth/utils.py#L216-L222). '
+            'Email is field 8 of the same message; no source for that field was found, and on the '
+            'MacBook Pro it holds the address that the drive_fs logs pair with the account ID on '
+            'every line that pairs the two, 12 lines, while field 2 of that message holds the '
+            'account ID itself. A database with no driveway_account record gives Name, Email and '
+            'Photo URL blank, as does a record that does not parse, which is also logged. When '
+            'metadata_sqlite_db and mirror_metadata_sqlite.db hold the same values the account is '
+            "one row, and Source File lists both databases and the experiments.db that the row's "
+            'other columns come from. experiments.db last_sync (UTC) is the last_sync value of '
+            "the folder's experiments.db, stored as decimal text and read as Unix seconds in UTC, "
+            'as DriveFS Sleuth reads it (Reference: Amged Wageh, DriveFS Sleuth, '
+            'https://github.com/AmgdGocha/DriveFS-Sleuth/blob/839e27193fa650750ec6eaccb785b32c55c6ac11/src/drivefs_sleuth/utils.py#L81-L88 '
+            'and '
+            'https://github.com/AmgdGocha/DriveFS-Sleuth/blob/839e27193fa650750ec6eaccb785b32c55c6ac11/src/drivefs_sleuth/setup.py#L326); '
+            'the post describes it as the last syncing date between all the currently logged-in '
+            'accounts. It is stored once per DriveFS folder, so every row of one folder holds the '
+            'same value. On the public MacBook Pro logical extraction (macOS 15.4, not a '
+            'registered corpus key) it reads 24 December 2025 21:48:51 UTC, and the line of '
+            "drive_fs_6.txt timed 2025-12-24T21:48:51.472Z logs 'ShouldSync: More than four hours "
+            "since last sync.' from phenotype_impl.cc, followed by lines that create packages for "
+            'drive_fs_ph and apps.drive.cello.desktop, the two packages experiments.db registers, '
+            "and schedule a sync, while a line timed 2025-12-24T21:48:54.474Z logs 'ShouldSync: "
+            "Last sync was only 3 seconds ago'. Whether the value also marks when files last "
+            'synced was not established. On the MacBook Pro experiments.db lists one account ID, '
+            'the name of the one account folder, and the driveway_account records of both '
+            'metadata databases give the same name, email address and photo URL, so the artifact '
+            'gives 1 row. The other PhenotypeValues keys are not reported. dleapp_macos_bigsur, '
+            'the four registered Windows disk images and windows11_arm_parallels hold no DriveFS '
+            'folder.'
+        ),
+        "paths": ('*/DriveFS/experiments.db*', '*/DriveFS/*/metadata_sqlite_db*',
+                  '*/DriveFS/*/mirror_metadata_sqlite.db*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "user",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "googleDriveAuthorizations": {
+        "name": "Google Drive Account Authorizations",
+        "description": "Lines in Google Drive for desktop's drive_fs logs that record an account as authorized, "
+                       'with the logged time, email address and account ID.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "Google Drive",
+        "notes": (
+            'Reads the drive_fs logs, drive_fs.txt and drive_fs_N.txt, in the Logs folder of each '
+            'Google Drive for desktop (DriveFS) folder, which is Library/Application '
+            'Support/Google/DriveFS on the tested Mac. Amged Wageh names these as the most '
+            "important of the app's logs and uses them to resolve account IDs to email addresses "
+            "(Reference: Amged Wageh, 'DriveFS Sleuth: Your Ultimate Google Drive File Stream "
+            "Investigator!', "
+            'https://amgedwageh.medium.com/drivefs-sleuth-investigating-google-drive-file-streams-disk-artifacts-0b5ea637c980). '
+            'One row is reported per line that names StartAccountAuthComplete and reads '
+            "'Authorized as' followed by an address and a numeric account ID in parentheses. Time "
+            '(UTC) is the time at the start of the line, which the log writes with a trailing Z '
+            'and which is read as UTC; Email and Account ID are taken from the line as logged, '
+            "and Line is the line's number in its file. On the public MacBook Pro logical "
+            'extraction (macOS 15.4, not a registered corpus key) each of the 12 drive_fs logs '
+            'holds one such line, so the artifact gives 12 rows, from 9 December 2025 21:45:36 to '
+            '24 December 2025 22:05:34 UTC. Email and Account ID hold one value on every row '
+            "there, the address and the ID of the DriveFS folder's one account, and every line of "
+            "those logs that DriveFS Sleuth's pattern for an address followed by an account ID in "
+            'parentheses finds is one of the 12 (Reference: Amged Wageh, DriveFS Sleuth, '
+            'https://github.com/AmgdGocha/DriveFS-Sleuth/blob/839e27193fa650750ec6eaccb785b32c55c6ac11/src/drivefs_sleuth/utils.py#L34-L44). '
+            "Read as UTC, the line of drive_fs_6.txt timed 2025-12-24T21:48:51.472Z, 'ShouldSync: "
+            "More than four hours since last sync.', falls in the same second as the last_sync "
+            'value of experiments.db read as Unix seconds, which the Google Drive Accounts '
+            'artifact reports. A line naming StartAccountAuthComplete in another form is counted '
+            'in the run log and not reported. The rows cover only the logs in the extraction; on '
+            'the MacBook Pro the oldest of them begins on 9 December 2025, so nothing here shows '
+            'when the app first authorized the account. A byte-identical copy of a log under '
+            'System/Volumes/Data is not read again, as 12 copies on the MacBook Pro are, and a '
+            'line that two differing copies both hold is one row whose Source File lists both. '
+            'The other lines of the drive_fs logs, and the other logs in the folder, are not '
+            'reported. dleapp_macos_bigsur, the four registered Windows disk images and '
+            'windows11_arm_parallels hold no DriveFS folder.'
+        ),
+        "paths": ('*/DriveFS/Logs/drive_fs*.txt',),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "log-in",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "googleDriveSyncedFolders": {
+        "name": "Google Drive Synced Folders",
+        "description": "Sync roots (folders or storage devices) in the roots table of Google Drive for desktop's "
+                       'root_preference_sqlite.db, with their title, paths, volume, destination and one_shot '
+                       'flag as stored, and account ID.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "Google Drive",
+        "notes": (
+            'Reads the roots table of root_preference_sqlite.db in each Google Drive for desktop '
+            '(DriveFS) folder, which is Library/Application Support/Google/DriveFS on the tested '
+            'Mac. Amged Wageh describes the table as holding an entry for each storage device '
+            'configured to be synced and each mirrored folder, with an incremental root_id, the '
+            "item's name in title, its path in root_path and last_seen_absolute_path, and in "
+            "account_token the ID of the account it syncs to (Reference: Amged Wageh, 'DriveFS "
+            "Sleuth: Your Ultimate Google Drive File Stream Investigator!', "
+            'https://amgedwageh.medium.com/drivefs-sleuth-investigating-google-drive-file-streams-disk-artifacts-0b5ea637c980). '
+            'One row is reported per root, in root_id order; Title, Root Path, Last Seen Absolute '
+            'Path, Account ID and Root ID are title, root_path, last_seen_absolute_path, '
+            'account_token and root_id as stored. Destination (as stored) is destination, which '
+            'the post reads as 1 for a root synced to Drive and 2 for one synced to Photos, a '
+            'root synced to both having a row for each. One Shot (as stored) is one_shot, which '
+            "the post reads as 1 when the 'Remember my choice for this device.' option was not "
+            'selected and 0 for a permanent configuration, adding that the row of a device with '
+            'one_shot 1 is deleted when the device is unplugged. Volume is the name the media '
+            "table records for the root's media_id, blank when media has no row for it, and Media "
+            'ID is media_id as stored; the post says the media_id of a storage device is the same '
+            'GUID the Windows registry stores for it. Max Root ID (as stored) is the max_root_id '
+            "value of the database's max_ids table, which the post says tracks the number of "
+            'roots added, so that a max_root_id greater than the number of roots means some roots '
+            'were removed or their configuration was modified. A database whose roots table holds '
+            'no row gives no row, whatever max_ids holds. On the public MacBook Pro logical '
+            'extraction (macOS 15.4, not a registered corpus key) the table holds 1 root, the '
+            "folder Documents/Work in the user's home folder, with destination 1, one_shot 0, the "
+            'Macintosh HD - Data volume, the one account ID of the DriveFS folder and a '
+            'max_root_id of 1; mirror_sqlite.db names the same root_id for that folder. '
+            'sync_type, medium, state, is_my_drive, doc_id and the metadata column are not '
+            'reported, since no source for their values was found. dleapp_macos_bigsur, the four '
+            'registered Windows disk images and windows11_arm_parallels hold no DriveFS folder.'
+        ),
+        "paths": ('*/DriveFS/root_preference_sqlite.db*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "folder",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "googleDriveVolumes": {
+        "name": "Google Drive Volumes",
+        "description": "Volumes in the media table of Google Drive for desktop's root_preference_sqlite.db, with "
+                       'their name, last mount point, capacity and ignored flag as stored, and media ID.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "Google Drive",
+        "notes": (
+            'Reads the media table of root_preference_sqlite.db in each Google Drive for desktop '
+            '(DriveFS) folder, which is Library/Application Support/Google/DriveFS on the tested '
+            'Mac. Amged Wageh describes the table as tracking whether each connected storage '
+            'device should be synced, the app ignoring a device whose ignored is 1, and as '
+            "recording the device's name, its last mount point (a drive letter on Windows) and "
+            'its size in bytes in capacity, which is -1 for, for example, a mobile device whose '
+            'data the user did not allow the app to access; he adds that media_id is a GUID the '
+            'registry also stores for the device, so that it can be matched to the roots table '
+            "and used for USB forensics (Reference: Amged Wageh, 'DriveFS Sleuth: Your Ultimate "
+            "Google Drive File Stream Investigator!', "
+            'https://amgedwageh.medium.com/drivefs-sleuth-investigating-google-drive-file-streams-disk-artifacts-0b5ea637c980). '
+            "One row is reported per media row, in the table's rowid order; Name, Last Mount "
+            'Point, Capacity (as stored), Ignored (as stored) and Media ID are name, '
+            'last_mount_point, capacity, ignored and media_id as stored. File System Type (as '
+            'stored) and Device Type (as stored) are fs_type and device_type; no source for their '
+            'values was found. On the public MacBook Pro logical extraction (macOS 15.4, not a '
+            'registered corpus key) the table holds 13 volumes, and Ignored (as stored) holds one '
+            'value, 0, on every row. They are Preboot, VM, Update, Macintosh HD and home, last '
+            'mounted under /System/Volumes; Macintosh HD - Data, last mounted at /; two named '
+            'Install Google Drive with different capacities, one named qual and one named bkp, '
+            'last mounted under /Volumes; and three named bkp@snap- followed by a number, last '
+            'mounted under /Volumes/.timemachine. home and the three snapshots have a capacity of '
+            '0 and a media_id beginning nouuid--, and none has a capacity of -1. Only one of the '
+            '13, Macintosh HD - Data, is the volume of a root in the roots table; the other 12 '
+            'are the volume of no root. dleapp_macos_bigsur, the four registered Windows disk '
+            'images and windows11_arm_parallels hold no DriveFS folder.'
+        ),
+        "paths": ('*/DriveFS/root_preference_sqlite.db*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "hard-drive",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+        },
+    },
 }
 
 import os
+import re
 from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
-from scripts.macos_plists import unique_sources
+from scripts.macos_biome import fields as _fields, first as _first, text as _text
+from scripts.macos_plists import canonical_relative, unique_sources
 from scripts.macos_powerlog import merge_sources
 
 _UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 _ITEM_DATABASES = ('metadata_sqlite_db', 'mirror_metadata_sqlite.db')
+_EXPERIMENTS = 'experiments.db'
+_PREFERENCES = 'root_preference_sqlite.db'
+_LOG_NAME = re.compile(r'drive_fs(?:_\d+)?\.txt')
+_AUTHORIZED = re.compile(r'(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?)Z\S*\s+\[[^\]]*\]\s+\S+:'
+                         r'StartAccountAuthComplete Authorized as (\S+) \((\d+)\)\s*')
 _ITEM_COLUMNS = ('stable_id', 'id', 'local_title', 'mime_type', 'is_folder', 'is_owner', 'trashed',
                  'starred', 'modified_date', 'viewed_by_me_date', 'shared_with_me_date', 'file_size')
 _MIRROR_COLUMNS = ('local_stable_id', 'parent_local_stable_id', 'local_filename', 'cloud_filename',
@@ -337,3 +562,206 @@ def _top(node, parents):
         node = parents[node][0]
         seen.add(node)
     return node
+
+
+def _seconds(value):
+    """Unix seconds, stored as a number or as decimal text, as a UTC datetime; blank otherwise."""
+    if isinstance(value, (bytes, bytearray)):
+        value = bytes(value).decode('ascii', 'replace')
+    if isinstance(value, str) and value.strip().isdigit():
+        value = int(value.strip())
+    if isinstance(value, bool) or not isinstance(value, int) or value == 0:
+        return ''
+    try:
+        return _UNIX_EPOCH + timedelta(seconds=value)
+    except OverflowError:
+        return ''
+
+
+def _experiments(path, relative):
+    """(account IDs, last_sync) from the PhenotypeValues table of experiments.db. account_ids
+    holds each ID as a field 1 string; the IDs are None when the key is absent or unreadable."""
+    if not does_table_exist_in_db(path, 'PhenotypeValues'):
+        logfunc(f'Google Drive Accounts: no PhenotypeValues table in {relative}')
+        return None, ''
+    stored = {row['key']: row['value'] for row in get_sqlite_db_records(
+        path, "SELECT Key AS key, Value AS value FROM PhenotypeValues "
+              "WHERE Key IN ('account_ids', 'last_sync')")}
+    ids = None
+    listed = stored.get('account_ids')
+    if isinstance(listed, (bytes, bytearray)):
+        try:
+            ids = [_text(value) for value in _fields(bytes(listed)).get(1, [])]
+        except ValueError as error:
+            logfunc(f'Google Drive Accounts: account_ids in {relative} not read: {error}')
+    return ids, _seconds(stored.get('last_sync'))
+
+
+def _identity(path, relative):
+    """(name, email, photo URL) from the driveway_account record in the properties table of an
+    account's metadata database: its field 2, then field 1, holds them at fields 3, 8 and 5."""
+    if not does_table_exist_in_db(path, 'properties'):
+        return '', '', ''
+    stored = get_sqlite_db_records(path, "SELECT value FROM properties WHERE property = 'driveway_account'")
+    value = stored[0]['value'] if stored else None
+    if not isinstance(value, (bytes, bytearray)):
+        return '', '', ''
+    try:
+        message = bytes(value)
+        for number in (2, 1):
+            message = _first(_fields(message), number)
+            if not isinstance(message, (bytes, bytearray)):
+                raise ValueError(f'no message in field {number}')
+        found = _fields(bytes(message))
+    except ValueError as error:
+        logfunc(f'Google Drive Accounts: driveway_account in {relative} not read: {error}')
+        return '', '', ''
+    return tuple(_text(_first(found, number)) for number in (3, 8, 5))
+
+
+@artifact_processor
+def googleDriveAccounts(context):
+    data_headers = (('experiments.db last_sync (UTC)', 'datetime'), 'Account ID', 'Name', 'Email',
+                    'Photo URL', 'Listed in account_ids', 'Account Database Found', 'Source File')
+    folders, read = {}, []
+    experiments, _skipped = unique_sources(context, _databases(context, (_EXPERIMENTS,)), sidecars=('-wal',),
+                                           label='Google Drive Accounts (experiments.db)')
+    for path in experiments:
+        relative = context.get_relative_path(path)
+        ids, last_sync = _experiments(path, relative)
+        if ids is None and last_sync == '':
+            continue
+        read.append(path)
+        folder = canonical_relative(os.path.dirname(relative.replace('\\', '/')))
+        folders.setdefault(folder, []).append((ids, last_sync, relative))
+    found = {}
+    databases, _skipped = unique_sources(context, _databases(context, _ITEM_DATABASES), sidecars=('-wal',),
+                                         label='Google Drive Accounts (account databases)')
+    for path in databases:
+        relative = context.get_relative_path(path)
+        account_folder = os.path.dirname(relative.replace('\\', '/'))
+        key = (canonical_relative(os.path.dirname(account_folder)), os.path.basename(account_folder))
+        found.setdefault(key, []).append((_identity(path, relative), relative))
+        read.append(path)
+    data_list = []
+    for folder in sorted(set(folders) | {folder for folder, _account in found}):
+        listed_here = {value for ids, _last, _rel in folders.get(folder, []) for value in ids or []}
+        accounts = sorted(listed_here | {account for place, account in found if place == folder})
+        for ids, last_sync, source in folders.get(folder) or [(None, '', '')]:
+            for account in accounts:
+                listed = '' if ids is None else ('Yes' if account in ids else 'No')
+                held = found.get((folder, account))
+                if not held:
+                    data_list.append((last_sync, account, '', '', '', listed, 'No', source))
+                    continue
+                records = [((last_sync, account) + identity + (listed, 'Yes'), relative)
+                           for identity, relative in held]
+                for values, sources in merge_sources(records):
+                    data_list.append(values + ('\n'.join(sources + ([source] if source else [])),))
+    return data_headers, data_list, '\n'.join(read)
+
+
+def _log_time(stamp):
+    """A logged ISO time with its trailing Z removed, as a UTC datetime; blank if not a date."""
+    base, _dot, fraction = stamp.partition('.')
+    try:
+        moment = datetime.strptime(base, '%Y-%m-%dT%H:%M:%S')
+    except ValueError:
+        return ''
+    return moment.replace(microsecond=int((fraction + '000000')[:6]), tzinfo=timezone.utc)
+
+
+@artifact_processor
+def googleDriveAuthorizations(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Email', 'Account ID', 'Line', 'Source File')
+    logs = [str(path) for path in context.get_files_found()
+            if _LOG_NAME.fullmatch(os.path.basename(str(path))) and os.path.isfile(str(path))]
+    paths, _skipped = unique_sources(context, logs, label='Google Drive Account Authorizations')
+    records, read, unmatched = [], [], 0
+    for path in paths:
+        relative = context.get_relative_path(path)
+        before = len(records)
+        with open(path, encoding='utf-8', errors='replace') as handle:
+            for number, line in enumerate(handle, 1):
+                if 'StartAccountAuthComplete' not in line:
+                    continue
+                match = _AUTHORIZED.match(line)
+                if not match:
+                    unmatched += 1
+                    continue
+                records.append(((_log_time(match.group(1)), match.group(2), match.group(3), number),
+                                relative))
+        if len(records) > before:
+            read.append(path)
+    if unmatched:
+        logfunc(f'Google Drive Account Authorizations: {unmatched} StartAccountAuthComplete line(s) '
+                'not in the form read here, not reported')
+    records.sort(key=lambda record: (str(record[0][0]), len(record[1]), record[1], record[0][3]))
+    data_list = [values + ('\n'.join(sources),) for values, sources in merge_sources(records)]
+    return data_headers, data_list, '\n'.join(read)
+
+
+def _volume_names(path):
+    if not does_table_exist_in_db(path, 'media'):
+        return {}
+    return {row['media_id']: row['name'] for row in _select(path, 'media', ('media_id', 'name'))}
+
+
+@artifact_processor
+def googleDriveSyncedFolders(context):
+    data_headers = ('Title', 'Last Seen Absolute Path', 'Root Path', 'Volume', 'Media ID',
+                    'Destination (as stored)', 'One Shot (as stored)', 'Account ID', 'Root ID',
+                    'Max Root ID (as stored)', 'Source File')
+    paths, _skipped = unique_sources(context, _databases(context, (_PREFERENCES,)),
+                                     sidecars=('-wal',), label='Google Drive Synced Folders')
+    records, read = [], []
+    for path in paths:
+        relative = context.get_relative_path(path)
+        if not does_table_exist_in_db(path, 'roots'):
+            logfunc(f'Google Drive Synced Folders: no roots table in {relative}')
+            continue
+        rows = _select(path, 'roots', ('root_id', 'title', 'root_path', 'last_seen_absolute_path',
+                                       'media_id', 'account_token', 'destination', 'one_shot'),
+                       'ORDER BY root_id')
+        if not rows:
+            continue
+        read.append(path)
+        volumes = _volume_names(path)
+        highest = ''
+        if does_table_exist_in_db(path, 'max_ids'):
+            stored = get_sqlite_db_records(path, "SELECT value FROM max_ids WHERE id_type = 'max_root_id'")
+            highest = _blank(stored[0]['value']) if stored else ''
+        for row in rows:
+            records.append(((_blank(row['title']), _blank(row['last_seen_absolute_path']),
+                             _blank(row['root_path']), volumes.get(row['media_id'], ''),
+                             _blank(row['media_id']), _blank(row['destination']),
+                             _blank(row['one_shot']), _blank(row['account_token']),
+                             _blank(row['root_id']), highest), relative))
+    data_list = [values + ('\n'.join(sources),) for values, sources in merge_sources(records)]
+    return data_headers, data_list, '\n'.join(read)
+
+
+@artifact_processor
+def googleDriveVolumes(context):
+    data_headers = ('Name', 'Last Mount Point', 'Capacity (as stored)', 'Ignored (as stored)',
+                    'File System Type (as stored)', 'Device Type (as stored)', 'Media ID',
+                    'Source File')
+    paths, _skipped = unique_sources(context, _databases(context, (_PREFERENCES,)),
+                                     sidecars=('-wal',), label='Google Drive Volumes')
+    records, read = [], []
+    for path in paths:
+        relative = context.get_relative_path(path)
+        if not does_table_exist_in_db(path, 'media'):
+            logfunc(f'Google Drive Volumes: no media table in {relative}')
+            continue
+        rows = _select(path, 'media', ('name', 'last_mount_point', 'capacity', 'ignored', 'fs_type',
+                                       'device_type', 'media_id'), 'ORDER BY rowid')
+        if not rows:
+            continue
+        read.append(path)
+        for row in rows:
+            records.append((tuple(_blank(row[name]) for name in (
+                'name', 'last_mount_point', 'capacity', 'ignored', 'fs_type', 'device_type',
+                'media_id')), relative))
+    data_list = [values + ('\n'.join(sources),) for values, sources in merge_sources(records)]
+    return data_headers, data_list, '\n'.join(read)
