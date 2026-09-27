@@ -198,7 +198,7 @@ class PythonEvtxInterfaceTest(unittest.TestCase):
         for name in ('check_magic', 'header_checksum', 'calculate_header_checksum', 'data_checksum',
                      'calculate_data_checksum', 'records'):
             self.assertTrue(callable(getattr(chunk, name)))
-        self.assertTrue(callable(windows_evtx.evtx.Record(bytearray(0x100), 0, chunk).record_num))
+        self.assertTrue(callable(getattr(windows_evtx.evtx.Record(bytearray(0x100), 0, chunk), 'record_num')))
 
 
 if __name__ == '__main__':
