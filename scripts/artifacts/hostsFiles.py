@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "address to host names, with any comment on the line.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Reads Windows\\System32\\drivers\\etc\\hosts, one row per line that holds an "
@@ -24,8 +24,8 @@ __artifacts_v2__ = {
                  "when it begins with a UTF-16 byte order mark, and otherwise as UTF-8 with any "
                  "byte order mark removed and undecodable bytes replaced. af_case2_win10 held one "
                  "entry, on line 23 after the default comment block. lonewolf_win10, "
-                 "pc_mus_001_win11 and the Szechuan Sauce desktop image (not a registered corpus "
-                 "key) held byte-identical 824-byte files whose example and localhost lines are "
+                 "pc_mus_001_win11 and szechuan_win10 held byte-identical 824-byte files whose "
+                 "example and localhost lines are "
                  "all commented out, so they give no rows.",
         "paths": ('*/Windows/System32/drivers/etc/hosts',),
         "output_types": ["html", "tsv", "lava"],
@@ -35,6 +35,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (every address line in the file is commented out)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (every address line in the file is commented out)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (every address line in the file is commented out)",
         },
     },
     "macosHostsFile": {
