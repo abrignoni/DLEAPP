@@ -129,10 +129,10 @@ __artifacts_v2__ = {
             'same bytes as the file at the same path outside it is not read again, as the 6 '
             'copies of those backup files there are. On the MacBook Pro the 109,350 rows exceed '
             'the 50,000-row limit of the HTML report, so the table is left off the HTML page and '
-            'is in the TSV, timeline and LAVA outputs. The other attributes of a record, the '
-            "store's full-text index files and its content Cache folder, and each user's "
-            'CoreSpotlight store are not reported. The four registered Windows disk images and '
-            'windows11_arm_parallels hold no .Spotlight-V100 folder.'
+            'is in the TSV, timeline and LAVA outputs. The other attributes of a record and the '
+            "store's full-text index files and content Cache folder are not reported, and each "
+            "user's CoreSpotlight store is read by CoreSpotlight Items. The four registered "
+            'Windows disk images and windows11_arm_parallels hold no .Spotlight-V100 folder.'
         ),
         "paths": ('*/.Spotlight-V100/Store-V2/*/store.db', '*/.Spotlight-V100/Store-V2/*/.store.db',
                   '*/.Spotlight-V100/Store-V2/*/dbStr-*.map.*'),
