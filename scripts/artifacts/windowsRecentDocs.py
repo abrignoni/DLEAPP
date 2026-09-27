@@ -18,6 +18,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # Explorer records recently opened files and folders per user under
 # NTUSER.DAT\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs.
@@ -37,7 +38,7 @@ __artifacts_v2__ = {
                        "of the most recent item in each key.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from each NTUSER.DAT, named in Source File. File / Item is "
@@ -56,10 +57,23 @@ __artifacts_v2__ = {
                  "rest; the open time of earlier entries is not recorded. Presence "
                  "of an entry does not establish who opened the item, and an entry "
                  "can outlive the file it names. Reading the hives requires the "
-                 "python-registry package. Structure and the LastWrite rule: "
+                 "python-registry package. A dirty hive, one whose base block's two "
+                 "sequence numbers differ, is read after the entries in its .LOG1 "
+                 "and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, "
+                 "and neither is a replay that would give a key an earlier "
+                 "last-written time than the hive already holds, a check added here "
+                 "beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it "
+                 "is, with the reason. Structure and the LastWrite rule: "
                  "Jason Hale, 'The RecentDocs Key in Windows 10', Forensic 4:cast, "
                  "https://forensic4cast.com/2019/03/the-recentdocs-key-in-windows-10/",
-        "paths": (r"*/Users/*/NTUSER.DAT",),
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "file-text",
         "sample_data": {
@@ -97,7 +111,7 @@ def _mru_order(values):
 
 
 def _recent_docs_key(hive_path):
-    reg = Registry.Registry(hive_path)
+    reg = open_hive(hive_path)
     try:
         return reg.open(_RECENTDOCS_PATH)
     except Registry.RegistryKeyNotFoundException:

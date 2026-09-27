@@ -13,7 +13,7 @@ __artifacts_v2__ = {
                        "InstallDate as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads every subkey of Microsoft\\Windows\\CurrentVersion\\Uninstall in the SOFTWARE "
@@ -32,12 +32,21 @@ __artifacts_v2__ = {
                  "and set by Windows Installer, without a unit, so it is also reported as stored. "
                  "System Component shows Yes where the SystemComponent value is 1. Key Last Written is"
                  " when the subkey was last written, which is not established as the install time. "
+                 "A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, with "
+                 "the sequence numbers applied, and each dirty hive read as it is, with the reason. "
                  "Reference: Microsoft, 'Windows Installer Properties for the Uninstall Registry Key',"
                  " https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key.",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Users/*/NTUSER.DAT',
-        ),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "list",
         "sample_data": {
@@ -51,7 +60,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_key,
+from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 # (view label, key path under the hive root)
@@ -119,7 +128,7 @@ def installedPrograms(context):
         is_software = os.path.basename(path).upper() == 'SOFTWARE'
         try:
             rows, _kept, skipped = _program_rows(
-                Registry.Registry(path), _SOFTWARE_VIEWS if is_software else _NTUSER_VIEWS,
+                open_hive(path, context), _SOFTWARE_VIEWS if is_software else _NTUSER_VIEWS,
                 '' if is_software else user_from_path(relative), relative)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Installed Programs: could not read {relative}: {exc}')

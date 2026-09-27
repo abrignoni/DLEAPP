@@ -16,7 +16,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import key_written_utc
+from scripts.windows_registry import key_written_utc, open_hive
 
 _KEY = 'Software\\Sysinternals'
 
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
                        "EulaAccepted value and the key's last written time, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads Software\\Sysinternals in each user's NTUSER.DAT, in the NTUSER.DAT of each "
@@ -51,9 +51,20 @@ __artifacts_v2__ = {
                  "earliest of the 8 run times in the BGINFO.EXE Prefetch file, the later runs leaving "
                  "it unchanged. No service profile NTUSER.DAT or DEFAULT hive on the tested images "
                  "held the key, so reading those hives is unexercised. Values under a tool key other "
-                 "than EulaAccepted are not reported.",
-        "paths": ('*/Users/*/NTUSER.DAT', '*/Windows/ServiceProfiles/*/NTUSER.DAT',
-                  '*/Windows/System32/config/DEFAULT'),
+                 "than EulaAccepted are not reported."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 transaction logs "
+                 "that continue its sequence are applied, following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a replay that would give a key an earlier "
+                 "last-written time than the hive already holds, a check added here beyond the specification; the run log names each hive replayed, with "
+                 "the sequence numbers applied, and each dirty hive read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]',
+                  '*/Windows/ServiceProfiles/*/NTUSER.DAT',
+                  '*/Windows/ServiceProfiles/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/DEFAULT',
+                  '*/Windows/System32/config/[Dd][Ee][Ff][Aa][Uu][Ll][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "tool",
         "sample_data": {
@@ -97,7 +108,7 @@ def windowsSysinternalsEula(context):
             continue
         relative = context.get_relative_path(source)
         try:
-            root = Registry.Registry(source).open(_KEY)
+            root = open_hive(source, context).open(_KEY)
         except Registry.RegistryKeyNotFoundException:
             continue
         except Exception as exc:  # pylint: disable=broad-exception-caught

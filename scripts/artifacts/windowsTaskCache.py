@@ -20,7 +20,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import filetime_utc
+from scripts.windows_registry import filetime_utc, open_hive
 
 _TASKCACHE = 'Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache'
 _TASKS_FOLDER = '/windows/system32/tasks/'
@@ -35,15 +35,24 @@ __artifacts_v2__ = {
                        "definition file exists, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the TaskCache key of each SOFTWARE hive, Microsoft\\Windows "
                  "NT\\CurrentVersion\\Schedule\\TaskCache, one row per subkey of its Tasks key and one "
-                 "per key of its Tree that holds an Id naming no Tasks subkey. The hive's .LOG1 and "
-                 ".LOG2 transaction logs are not replayed. On af_case2_win10, lonewolf_win10, "
-                 "pc_mus_001_win11 and the public DFIR Madness Szechuan Sauce desktop image (not a "
-                 "registered corpus key), DynamicInfo was 36 bytes with a first 32-bit value of 3 on "
+                 "per key of its Tree that holds an Id naming no Tasks subkey. A dirty hive, one whose "
+                 "base block's two sequence numbers differ, is read after the entries in its .LOG1 and "
+                 ".LOG2 transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
+                 "the reason. On af_case2_win10, lonewolf_win10, "
+                 "pc_mus_001_win11 and szechuan_win10, the public DFIR Madness Szechuan Sauce desktop "
+                 "image, DynamicInfo was 36 bytes with a first 32-bit value of 3 on "
                  "all 755 tasks. winreg-kb documents that layout and leaves every field unknown, "
                  "naming the FILETIME at offset 4 last_registered_time and the one at 12 launch_time "
                  "(https://github.com/libyal/winreg-kb/blob/278fdb847dcd5a80195da588d0e0941638bc41e0/docs/sources/system-keys/Task-scheduler.md#L122-L131, "
@@ -53,7 +62,7 @@ __artifacts_v2__ = {
                  "action result "
                  "(https://github.com/EricZimmerman/RegistryPlugins/blob/c16219db698f7ee66fbd97de7ec5d17fc10bdf8e/RegistryPlugin.TaskCache/TaskCache.cs#L87-L105). "
                  "Last Start (UTC), Last Stop (UTC) and Registered (UTC) are the FILETIMEs at 0x0C, "
-                 "0x1C and 4, a zero shown blank. On the Szechuan image, whose Task Scheduler "
+                 "0x1C and 4, a zero shown blank. On szechuan_win10, whose Task Scheduler "
                  "Operational log covers 2020-09-18 21:42 to 2020-09-19 01:24 UTC, Last Start equalled "
                  "the time of the task's latest Event ID 100 record within two seconds on all 14 tasks "
                  "whose Last Start falls in that span, Last Stop equalled its latest Event ID 102 or "
@@ -61,7 +70,7 @@ __artifacts_v2__ = {
                  "task's Event ID 106 (Task registered) record on all 9 tasks with one, and an Event "
                  "ID 140 (Task registration updated) record on 9 of the 20 tasks with those, 6 of them "
                  "the latest. Last Action Result is the 32-bit value at 0x18 in hexadecimal, as "
-                 "stored; it was 0x00000000 on 707 of the 755 tasks. The 32-bit value at 0x14 is not "
+                 "stored; it was 0x00000000 on 706 of the 755 tasks. The 32-bit value at 0x14 is not "
                  "reported; it was zero on all 755. Action Type, Command, Arguments, Working "
                  "Directory, Class ID, Data and Action Context come from the task's Actions value, "
                  "whose layout was read from the values themselves and checked against the tasks' XML "
@@ -89,10 +98,12 @@ __artifacts_v2__ = {
                  "In Tasks Key is No on a row for a Tree key whose Id names no Tasks subkey; such a "
                  "row carries only the path, the Id, Tree SD Present and Definition File. There were "
                  "27, 22 and 31 of them on af_case2_win10, lonewolf_win10 and pc_mus_001_win11 and 27 "
-                 "on the Szechuan image, none with a definition file. Values not reported include "
+                 "on szechuan_win10, none with a definition file. Values not reported include "
                  "Hash, Triggers, SecurityDescriptor, Author, Description, Source, URI, Version, "
                  "Schema and Date.",
-        "paths": ('*/Windows/System32/config/SOFTWARE', '*/Windows/System32/Tasks/*'),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/Tasks/*'),
         "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
@@ -215,7 +226,7 @@ def windowsTaskCache(context):
             continue
         volume_prefix = relative.lower()[:-len('/windows/system32/config/software')]
         try:
-            taskcache = Registry.Registry(source).open(_TASKCACHE)
+            taskcache = open_hive(source, context).open(_TASKCACHE)
         except Registry.RegistryKeyNotFoundException:
             logfunc(f'TaskCache: no TaskCache key in {relative.lstrip("/")}')
             continue

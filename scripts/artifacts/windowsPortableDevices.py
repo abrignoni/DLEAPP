@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "FriendlyName and DeviceDesc values and key last-written time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the subkeys of Microsoft\\Windows Portable Devices\\Devices in the SOFTWARE hive"
@@ -24,17 +24,26 @@ __artifacts_v2__ = {
                  "Windows.old, so Source File names the file each row came from."
                  " Key Last "
                  "Written is when the subkey was last written, which is not established as when a "
-                 "device was connected.",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Windows/System32/config/SYSTEM',
-        ),
+                 "device was connected."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
+                 "applied, following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it is, with the reason.",
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "smartphone",
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 4 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (Devices key has no subkeys and there is no WPDBUSENUM key)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 6 rows",
         },
     },
 }
@@ -42,8 +51,8 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, current_control_set, found_hives,
-                                      key_written_utc, open_key, value_of)
+from scripts.windows_registry import (Registry, current_control_set, found_hives, key_written_utc,
+                                      open_hive, open_key, value_of)
 
 _DEVICES = r'Microsoft\Windows Portable Devices\Devices'
 
@@ -66,7 +75,7 @@ def portableDevices(context):
     for path in found_hives(context, 'SOFTWARE', 'SYSTEM'):
         relative = context.get_relative_path(path)
         try:
-            reg = Registry.Registry(path)
+            reg = open_hive(path, context)
             if os.path.basename(path).upper() == 'SOFTWARE':
                 where = 'SOFTWARE\\' + _DEVICES
                 root = open_key(reg, _DEVICES)

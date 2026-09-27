@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # Windows records which app was allowed, denied or prompted for a protected
 # capability (microphone, webcam, location, contacts, and so on) in the
@@ -40,7 +41,7 @@ __artifacts_v2__ = {
                        "app's use of the capability.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "The machine-wide store is read from the SOFTWARE hive and the "
@@ -60,13 +61,23 @@ __artifacts_v2__ = {
                  "only the consent setting. Presence of a consent entry does "
                  "not establish that the app used the capability, and a blank "
                  "time does not establish that it did not. Reading the hives "
-                 "requires the python-registry package. The parser reads "
-                 "offline hives and does not replay their transaction logs "
-                 "(.LOG1/.LOG2).",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Users/*/NTUSER.DAT',
-        ),
+                 "requires the python-registry package. A dirty hive, one whose "
+                 "base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue "
+                 "its sequence are applied, following Maxim Suhanov's 'Windows "
+                 "registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each "
+                 "hive replayed, with the sequence numbers applied, and each "
+                 "dirty hive read as it is, with the reason.",
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield",
         "sample_data": {
@@ -96,7 +107,7 @@ def _value(key, name):
 
 
 def _consent_store(hive_path):
-    reg = Registry.Registry(hive_path)
+    reg = open_hive(hive_path)
     is_software = os.path.basename(hive_path).upper() == "SOFTWARE"
     base = _SOFTWARE_PATH if is_software else _NTUSER_PATH
     try:

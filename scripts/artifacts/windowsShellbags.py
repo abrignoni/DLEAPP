@@ -22,6 +22,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # BagMRU root key paths tried in each hive; the ones absent raise and are skipped.
 _BAG_ROOTS = (
@@ -51,7 +52,7 @@ __artifacts_v2__ = {
                        "folder's registry last-write time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from UsrClass.dat and NTUSER.DAT, named in Source File. Each "
@@ -72,21 +73,33 @@ __artifacts_v2__ = {
                  "for drive and root nodes; DOS dates have two-second resolution and "
                  "carry no time zone, so it is shown as read. A ShellBags entry "
                  "records that the folder was browsed, not who was at the keyboard. "
-                 "Reading the hives needs the python-registry package; the .LOG1 and "
-                 ".LOG2 transaction logs are not replayed. Format: libyal libfwsi, "
+                 "Reading the hives needs the python-registry package. A dirty hive, one whose base "
+                 "block's two sequence numbers differ, is read after the entries in its .LOG1 and "
+                 ".LOG2 transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
+                 "the reason. Format: libyal libfwsi, "
                  "Windows Shell Item format, https://github.com/libyal/libfwsi/blob/"
-                 "main/documentation/Windows%20Shell%20Item%20format.asciidoc; and "
+                 "3887868add54619ec322ac100ab1f06979e042b8/documentation/Windows%20Shell%20Item%20format.asciidoc; "
+                 "and "
                  "Velocidex, Windows.Forensics.Shellbags, https://github.com/"
-                 "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
+                 "Velocidex/velociraptor/blob/173e6c0a2c369a8af011c35d9b837ac0c1749467/artifacts/definitions/Windows/"
                  "Forensics/Shellbags.yaml",
-        "paths": ("*/AppData/Local/Microsoft/Windows/[Uu]sr[Cc]lass.[Dd]at",
-                  "*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt]"),
+        "paths": ('*/AppData/Local/Microsoft/Windows/[Uu]sr[Cc]lass.[Dd]at',
+                  '*/AppData/Local/Microsoft/Windows/[Uu][Ss][Rr][Cc][Ll][Aa][Ss][Ss].[Dd][Aa][Tt].[Ll][Oo][Gg][12]',
+                  '*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt]',
+                  '*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "folder",
         "sample_data": {
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 41 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 46 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 20 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 29 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 38 rows",
         },
     },
 }
@@ -208,7 +221,7 @@ def shellbags(context):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             for timestamp, path, modified in _bag_rows(reg):
                 data_list.append((timestamp, path, modified, relative_source))
                 rows_here += 1

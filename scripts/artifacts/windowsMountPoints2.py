@@ -11,26 +11,36 @@ __artifacts_v2__ = {
                        "any stored label.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the subkeys of Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2"
                  " in each NTUSER.DAT. A name in braces is typed Volume GUID, a name beginning ## "
                  "Network share, and anything else Other. Share Path rewrites a ## name with the "
-                 "leading ## as \\\\ and each other # as \\; on the public DFIR Madness 'Stolen Szechuan "
-                 "Sauce' image, which is not a registered corpus key, the one such entry rewritten "
+                 "leading ## as \\\\ and each other # as \\; on szechuan_win10, the public DFIR Madness "
+                 "'Stolen Szechuan Sauce' image, the one such entry rewritten "
                  "this way equals the same user's mapped drive RemotePath and Map Network Drive MRU "
-                 "value. The CPC subkey is not reported; on the three registered Windows images it "
+                 "value. The CPC subkey is not reported; on the three tested images it "
                  "held only an empty Volume subkey. Label is _LabelFromReg, or "
                  "_LabelFromDesktopINI when that is absent or empty. Label is empty on every row "
-                 "of the three registered images, where the only such values are two empty "
+                 "of the three tested images, where the only such values are two empty "
                  "_LabelFromDesktopINI strings on af_case2_win10. Key "
                  "Last Written is when the subkey was last written, which is not established as when "
                  "the volume or share was attached or used. Volume GUIDs are not resolved to drive "
-                 "letters or devices here. On the three registered Windows images every reported entry"
+                 "letters or devices here. On the three tested images every reported entry"
                  " is a Volume GUID and comes from the one user hive holding the key, so Type and User"
-                 " each hold one value there and Share Path is empty.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 " each hold one value there and Share Path is empty."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a replay "
+                 "that would give a key an earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each hive replayed, with the "
+                 "sequence numbers applied, and each dirty hive read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -42,7 +52,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_key,
+from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 _MP2 = r'Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2'
@@ -78,7 +88,7 @@ def mountPoints2(context):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
         try:
-            root = open_key(Registry.Registry(path), _MP2)
+            root = open_key(open_hive(path, context), _MP2)
             for entry in (root.subkeys() if root else []):
                 if entry.name() == 'CPC':
                     continue

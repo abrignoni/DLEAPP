@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                        "and the SOFTWARE hive's group policy FirewallRules key, one row per rule.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the rules under "
@@ -22,8 +22,17 @@ __artifacts_v2__ = {
                  "hive's control set named by the Select key's Current value (ControlSet001 when "
                  "there is none), and under Policies\\Microsoft\\WindowsFirewall\\FirewallRules in "
                  "the SOFTWARE hive, one row per string value. A hive that cannot be opened, and a "
-                 "value that cannot be read or is not a string, is logged and skipped. The hives' "
-                 ".LOG1/.LOG2 transaction logs are not replayed. Microsoft documents the values of "
+                 "value that cannot be read or is not a string, is logged and skipped. A dirty hive, "
+                 "one whose base block's two sequence numbers differ, is read after the entries in its "
+                 ".LOG1 and .LOG2 transaction logs that continue its sequence are applied, following "
+                 "Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
+                 "the reason. Microsoft documents the values of "
                  "the SOFTWARE key: the value name is the rule ID and the data a rule string of "
                  "the letter v and a version, then Token=value fields, with '|' after the version "
                  "and after each field (MS-GPFAS section 2.2.2.19, last updated 2021-06-24, "
@@ -93,16 +102,19 @@ __artifacts_v2__ = {
                  "rule on the tested images was an Allow rule, so a Block rule has not been "
                  "exercised. Active was TRUE on 214 of 452 rules on af_case2_win10, 206 of 443 on "
                  "lonewolf_win10 and 255 of 484 on pc_mus_001_win11. No tested SOFTWARE hive held "
-                 "Policies\\Microsoft\\WindowsFirewall, so reading that key is unexercised. A rule "
-                 "change held only in a hive's transaction logs is not reflected here. On the "
-                 "Szechuan Sauce desktop image (not a registered corpus key), which gave 628 "
-                 "rules, 26 of them were recorded as deleted in that event log between 05:08:18 "
-                 "and 05:09:25 UTC on 2020-09-19, after the FirewallRules key's last written time "
-                 "of 03:40:45 UTC.",
-        "paths": (
-            '*/Windows/System32/config/SYSTEM',
-            '*/Windows/System32/config/SOFTWARE',
-        ),
+                 "Policies\\Microsoft\\WindowsFirewall, so reading that key is unexercised. On "
+                 "szechuan_win10, the public DFIR Madness Szechuan Sauce desktop image, the SYSTEM hive "
+                 "is dirty. Read as it is, its FirewallRules key held 628 rules and was last written at "
+                 "03:40:45 UTC on 2020-09-19, and 26 of those rules are ones the Windows Firewall event "
+                 "log records as deleted between 05:08:18 and 05:09:25 UTC. With the hive's logs "
+                 "replayed the key holds 633 rules and was last written at 05:09:25 UTC: none of the 281 "
+                 "rules whose latest record in that log is a deletion is among them, and the 31 rules "
+                 "not in the hive as read are each ones whose latest record is an addition, between "
+                 "05:08:19 and 05:09:25 UTC.",
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "firewall-check",
         "sample_data": {
@@ -117,7 +129,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import Registry, current_control_set, found_hives, open_key
+from scripts.windows_registry import Registry, current_control_set, found_hives, open_hive, open_key
 
 _SYSTEM_RULES = 'Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules'
 _POLICY_RULES = 'Policies\\Microsoft\\WindowsFirewall\\FirewallRules'
@@ -207,7 +219,7 @@ def windowsFirewallRules(context):
         hive_name = os.path.basename(hive).upper()
         relative = context.get_relative_path(hive)
         try:
-            reg = Registry.Registry(hive)
+            reg = open_hive(hive, context)
             keys = rule_keys(reg, hive_name)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows Firewall Rules: could not read {relative}: {exc}')

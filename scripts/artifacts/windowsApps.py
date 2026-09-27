@@ -22,6 +22,7 @@ from scripts.ilapfuncs import (
     logfunc,
     open_sqlite_db_readonly,
 )
+from scripts.windows_registry import open_hive
 
 
 __artifacts_v2__ = {
@@ -94,23 +95,35 @@ __artifacts_v2__ = {
                        "including scheduled, created, and updated times.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows Apps",
-        "notes": "Modernized from WLEAPP and validated with Clock "
+        "notes": "Modernized from WLEAPP and validated on "
+                 "windows11_arm_parallels with Clock "
                  "11.2605.10.0. Scheduled fields are device-local; created "
                  "and updated values are converted from Windows FILETIME. "
                  "Days of Week is reported as stored, undecoded. When the "
                  "source carries no IsRecurring value, Recurring is derived "
                  "from a nonzero Days of Week value. The registry parser "
                  "reads offline hives without loading them into the "
-                 "examiner system registry.",
-        "paths": (
-            "*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/"
-            "LocalState/Alarms/Alarms.json",
-            "*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/"
-            "Settings/settings.dat",
-        ),
+                 "examiner system registry."
+                 " A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a "
+                 "check added here beyond the specification; the run log "
+                 "names each hive replayed, with the sequence numbers "
+                 "applied, and each dirty hive read as it is, with the "
+                 "reason.",
+        "paths": ('*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/LocalState/Alarms/Alarms.json',
+                  '*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/Settings/settings.dat',
+                  '*/AppData/Local/Packages/Microsoft.WindowsAlarms_*/Settings/[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "clock",
         "sample_data": {
@@ -456,7 +469,7 @@ def _registry_alarms(file_found):
         raise RuntimeError(
             "python-registry is required to read Windows Clock settings.dat"
         )
-    hive = Registry.Registry(file_found)
+    hive = open_hive(file_found)
     key = hive.open(r"LocalState\Alarms")
     return [
         (value.value(), value.name())

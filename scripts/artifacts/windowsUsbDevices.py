@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import is_transaction_log, open_hive
 
 # Windows records each USB mass-storage device it has seen under
 # CurrentControlSet\Enum\USBSTOR in the SYSTEM hive: a model key
@@ -36,7 +37,7 @@ __artifacts_v2__ = {
                        "first installed, last connected and last removed.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the current control set's Enum\\USBSTOR key in the "
@@ -57,11 +58,22 @@ __artifacts_v2__ = {
                  "recorded none. USBSTOR covers USB mass storage; other device "
                  "classes under Enum are not read here. A record shows the device "
                  "was connected to the computer, not who connected it. Reading "
-                 "the hive requires python-registry. Property ids: Microsoft "
+                 "the hive requires python-registry. A dirty hive, one whose base block's two "
+                 "sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is "
+                 "a replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, "
+                 "with the reason. Property ids: Microsoft "
                  "DEVPKEY_Device_FirstInstallDate and its sibling install-date "
                  "keys, https://learn.microsoft.com/en-us/windows-hardware/"
                  "drivers/install/devpkey-device-firstinstalldate",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -138,10 +150,10 @@ def usbDevices(context):
         logfunc('USB Storage Devices: the python-registry package is not installed')
         return data_headers, data_list, ''
 
-    for source in [str(f) for f in context.get_files_found()]:
+    for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             usbstor = reg.open(_current_set(reg) + r"\Enum\USBSTOR")
         except Registry.RegistryKeyNotFoundException:
             continue

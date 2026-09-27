@@ -18,6 +18,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # Amcache.hve records metadata about executables the system has seen, under
 # Root\InventoryApplicationFile: the full path, a SHA-1 of the file (stored as
@@ -34,7 +35,7 @@ __artifacts_v2__ = {
                        "link date, and the time the entry was written.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one "
@@ -71,14 +72,25 @@ __artifacts_v2__ = {
                  "Key Last Write (UTC) is the entry's registry LastWrite time; it is not an execution "
                  "time. An entry records that the file was inventoried; this artifact does not treat "
                  "it as proof that the file ran or of who ran it. Reading the hive needs the "
-                 "python-registry package; its .LOG1/.LOG2 transaction logs are not replayed.",
-        "paths": ("*/Windows/appcompat/Programs/Amcache.hve",),
+                 "python-registry package. A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 transaction logs that "
+                 "continue its sequence are applied, following Maxim Suhanov's 'Windows registry file "
+                 "format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
+                 "the reason.",
+        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "hash",
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 146 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 153 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 290 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 292 rows",
         },
     },
 }
@@ -98,7 +110,7 @@ def _sha1(file_id):
 
 
 def _inventory_key(hive_path):
-    reg = Registry.Registry(hive_path)
+    reg = open_hive(hive_path)
     try:
         return reg.open(_INVENTORY_PATH)
     except Registry.RegistryKeyNotFoundException:

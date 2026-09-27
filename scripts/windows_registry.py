@@ -5,11 +5,19 @@ Author: @AlexisBrignoni, Claude.
 Offline hives are read with python-registry. Its key timestamps are the key's
 last-written FILETIME, returned as a naive datetime in UTC; these helpers hand
 back aware UTC datetimes so the report and LAVA store them as instants.
+
+open_hive replays a dirty hive's .LOG1 and .LOG2 transaction logs before
+python-registry reads it (scripts/registry_recovery.py).
 """
 
+import io
 import os
 import struct
 from datetime import datetime, timedelta, timezone
+
+from scripts.context import Context
+from scripts.ilapfuncs import logfunc
+from scripts.registry_recovery import recover
 
 try:
     from Registry import Registry
@@ -123,3 +131,52 @@ def found_hives(context, *names):
         if os.path.basename(found).upper() in wanted and os.path.isfile(found):
             hives.append(found)
     return hives
+
+
+_LOG_SUFFIXES = ('.LOG1', '.LOG2')
+
+
+def is_transaction_log(path):
+    """Whether a file is a hive transaction log (.LOG, .LOG1 or .LOG2), by its name."""
+    return os.path.basename(str(path)).upper().endswith(('.LOG', '.LOG1', '.LOG2'))
+
+
+def hive_logs(path):
+    """The .LOG1 and .LOG2 files staged beside a hive, matched on its name without case."""
+    folder, name = os.path.split(str(path))
+    wanted = {(name + suffix).upper() for suffix in _LOG_SUFFIXES}
+    try:
+        entries = sorted(os.listdir(folder))
+    except OSError:
+        return []
+    return [os.path.join(folder, entry) for entry in entries
+            if entry.upper() in wanted and os.path.isfile(os.path.join(folder, entry))]
+
+
+def open_hive(path, context=None):
+    """python-registry's view of a hive, its transaction logs replayed first when it is dirty.
+
+    The logs are read from beside the hive, so an artifact declares them in its paths. The run
+    log names each hive replayed, and each dirty hive read as it is and why.
+    """
+    with open(path, 'rb') as handle:
+        primary = handle.read()
+    logs = []
+    for log in hive_logs(path):
+        try:
+            with open(log, 'rb') as handle:
+                logs.append((os.path.basename(log), handle.read()))
+        except OSError:
+            continue
+    data, summary = recover(primary, logs)
+    label = (context or Context).get_relative_path(str(path))
+    if summary['state'] == 'recovered':
+        sources = ' and '.join(name for name, _first, _last in summary['applied'])
+        entries = f"{summary['entries']} transaction log {'entry' if summary['entries'] == 1 else 'entries'}"
+        logfunc(f"Registry: {label} was dirty; replayed {entries}, sequence "
+                f"{summary['applied'][0][1]} to {summary['applied'][-1][2]}, from {sources}.")
+    elif summary['state'] == 'dirty, not recovered':
+        reasons = '; '.join(f'{name}: {why}' for name, why in summary['reasons'].items())
+        logfunc(f"Registry: {label} is dirty and was read as it is "
+                f"({reasons or 'no transaction log beside it'}).")
+    return Registry.Registry(io.BytesIO(data))

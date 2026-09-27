@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "SOFTWARE and SYSTEM hives.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the SOFTWARE hive's Microsoft\\Windows NT\\CurrentVersion and Winlogon keys and "
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                  "was set. Product Name is reported as stored: pc_mus_001_win11 has CurrentBuild "
                  "22621, which Microsoft lists as Windows 11 version 22H2, and a ProductName beginning"
                  " Windows 10, so Build is the value that identifies the release. InstallDate is read "
-                 "as seconds since 1970 and InstallTime as a FILETIME; on the three registered Windows"
+                 "as seconds since 1970 and InstallTime as a FILETIME; on the three tested"
                  " images they agreed to within a second. What event they record is not established: "
                  "on pc_mus_001_win11 the user's FeatureUsage KeyCreationTime is 51 hours earlier than"
                  " InstallDate, and on lonewolf_win10 the OneDrive ClientFirstSignInTimestamp is 2.4 "
@@ -32,23 +32,33 @@ __artifacts_v2__ = {
                  "Microsoft documents as stored in the registry in plain text when automatic logon is "
                  "turned on; af_case2_win10 has AutoAdminLogon 1 and a DefaultPassword value. Time "
                  "Zone Bias and Active Time Bias are read as signed minutes. Microsoft defines a time "
-                 "zone bias by UTC = local time + bias, and the registered images fit it: Bias 300 "
+                 "zone bias by UTC = local time + bias, and the tested images fit it: Bias 300 "
                  "with Eastern Standard Time on pc_mus_001_win11 and lonewolf_win10, and 480 with "
                  "Pacific Standard Time on af_case2_win10. Last Shutdown is the ShutdownTime value "
                  "under Control\\Windows read as a FILETIME. Checked against the System event log, it "
                  "lies within 0.2 seconds of the latest Kernel-General event 13 on pc_mus_001_win11 "
                  "and lonewolf_win10, and 2.0 seconds after the latest EventLog event 6006 on "
-                 "af_case2_win10, whose log has no event 13 for that shutdown. Reference: Microsoft, "
+                 "af_case2_win10, whose log has no event 13 for that shutdown. A dirty hive, one whose "
+                 "base block's two sequence numbers differ, is read after the entries in its .LOG1 and "
+                 ".LOG2 transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it is, with the reason. "
+                 "Reference: Microsoft, "
                  "'Configure Windows to automate logon', "
                  "https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon."
                  " Reference: Microsoft, 'TIME_ZONE_INFORMATION (timezoneapi.h)', "
                  "https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information."
                  " Reference: Microsoft, 'Windows 11 - release information', "
                  "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information.",
-        "paths": (
-            '*/Windows/System32/config/SOFTWARE',
-            '*/Windows/System32/config/SYSTEM',
-        ),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
@@ -64,7 +74,7 @@ __artifacts_v2__ = {
                        "from the SYSTEM hive.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the Services\\Tcpip\\Parameters\\Interfaces subkeys of the SYSTEM hive's control "
@@ -78,9 +88,9 @@ __artifacts_v2__ = {
                  "Obtained and Lease "
                  "Terminates are LeaseObtainedTime and LeaseTerminatesTime read as seconds since 1970 "
                  "UTC. On pc_mus_001_win11 the decoded Lease Obtained is 0.5 seconds before the "
-                 "interface key was last written, and on all three registered Windows images "
+                 "interface key was last written, and on all three tested images "
                  "LeaseTerminatesTime minus LeaseObtainedTime equals the Lease value. On "
-                 "af_case2_win10 and lonewolf_win10 LeaseObtainedTime holds 4 and 812456, which decode"
+                 "af_case2_win10 and lonewolf_win10 LeaseObtainedTime holds 4 and 830452, which decode"
                  " to January 1970, decades before the interface key was last written; why is not "
                  "established, and those rows show 1970 lease times that are not when the lease was "
                  "obtained. For that reason this artifact is not written to the timeline. On "
@@ -88,8 +98,18 @@ __artifacts_v2__ = {
                  "value as each other on each row: empty on the interface with a static address, "
                  "and one address on the DHCP "
                  "interface, each read from its own registry value. af_case2_win10's DHCP interface "
-                 "has no DhcpDefaultGateway value, so Default Gateway is empty there.",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+                 "has no DhcpDefaultGateway value, so Default Gateway is empty there."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, with "
+                 "the sequence numbers applied, and each dirty hive read as it is, with the reason.",
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "globe",
         "sample_data": {
@@ -104,8 +124,8 @@ import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import (Registry, current_control_set, filetime_bytes_utc,
-                                      filetime_utc, found_hives, key_written_utc, open_key,
-                                      signed32, unix_utc, value_of)
+                                      filetime_utc, found_hives, key_written_utc, open_hive,
+                                      open_key, signed32, unix_utc, value_of)
 
 _CURRENT_VERSION = r'Microsoft\Windows NT\CurrentVersion'
 _LOGON_UI = r'Microsoft\Windows\CurrentVersion\Authentication\LogonUI'
@@ -206,7 +226,7 @@ def windowsSystemInfo(context):
             if not path:
                 continue
             try:
-                rows = reader(Registry.Registry(path))
+                rows = reader(open_hive(path, context))
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logfunc(f'Windows System Information: could not read '
                         f'{context.get_relative_path(path)}: {exc}')
@@ -237,7 +257,7 @@ def windowsNetworkInterfaces(context):
     for path in found_hives(context, 'SYSTEM'):
         relative = context.get_relative_path(path)
         try:
-            reg = Registry.Registry(path)
+            reg = open_hive(path, context)
             cs = current_control_set(reg)
             interfaces = open_key(reg, cs + r'\Services\Tcpip\Parameters\Interfaces')
             for iface in (interfaces.subkeys() if interfaces else []):

@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import is_transaction_log, open_hive
 
 # Windows stores one key per service and driver under
 # <current control set>\Services in the SYSTEM hive. Each key holds the values
@@ -53,7 +54,7 @@ __artifacts_v2__ = {
                        "runs under.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows are the direct subkeys of the current control set's "
@@ -87,17 +88,28 @@ __artifacts_v2__ = {
                  "AUTHORITY\\NetworkService), and is blank for drivers and any "
                  "service that stores none. A row shows how a service is "
                  "configured, not that it ran. Reading the hive needs the "
-                 "python-registry package. Start and Type value meanings and the "
+                 "python-registry package. A dirty hive, one whose base block's two sequence "
+                 "numbers differ, is read after the entries in its .LOG1 and .LOG2 transaction "
+                 "logs that continue its sequence are applied, following Maxim Suhanov's 'Windows "
+                 "registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is "
+                 "a replay that would give a key an earlier last-written time than the hive "
+                 "already holds, a check added here beyond the specification; the run log names "
+                 "each hive replayed, with the sequence numbers applied, and each dirty hive read "
+                 "as it is, with the reason. Start and Type value meanings and the "
                  "Services registry layout: Microsoft, CreateServiceW "
                  "(winsvc.h), https://learn.microsoft.com/en-us/windows/win32/"
                  "api/winsvc/nf-winsvc-createservicew",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "sliders",
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 762 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 661 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 655 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 656 rows",
         },
     },
 }
@@ -167,10 +179,10 @@ def windowsServices(context):
         logfunc('Windows Services: the python-registry package is not installed')
         return data_headers, data_list, ''
 
-    for source in [str(f) for f in context.get_files_found()]:
+    for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             services = reg.open(_current_set(reg) + r"\Services")
         except Registry.RegistryKeyNotFoundException:
             continue

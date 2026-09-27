@@ -17,7 +17,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import filetime_utc, user_from_path
+from scripts.windows_registry import filetime_utc, open_hive, user_from_path
 
 _RECENT_APPS = 'Software\\Microsoft\\Windows\\CurrentVersion\\Search\\RecentApps'
 
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                        "items recorded under each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads Software\\Microsoft\\Windows\\CurrentVersion\\Search\\RecentApps in each user's "
@@ -54,8 +54,18 @@ __artifacts_v2__ = {
                  "RecentApps held one launch on 2018-03-27 where UserAssist held three, the last on "
                  "2018-04-06. Recent Items is the number of subkeys of the application's RecentItems "
                  "key, which RecentApps Items reports; 5 of the 21 had any. User is the folder after "
-                 "Users in the hive's path and App Key the subkey's name.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "Users in the hive's path and App Key the subkey's name."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
+                 "applied, following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already holds, "
+                 "a check added here beyond the specification; the run log names each hive replayed, "
+                 "with the sequence numbers applied, and each dirty hive read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "apps",
         "sample_data": {
@@ -72,7 +82,7 @@ __artifacts_v2__ = {
                        "accessed time the key stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the RecentItems key under each application subkey of the RecentApps key that "
@@ -90,8 +100,19 @@ __artifacts_v2__ = {
                  "the other two the shortcut's modification time was 6.5 seconds before the item's "
                  "time, where the same file's item under the Microsoft Edge App ID matched it, and 31 "
                  "minutes after it. Values not reported: Type, which was 0 on all 14, and Points, a "
-                 "4-byte value whose meaning was not established.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "4-byte value whose meaning was not established."
+                 " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
+                 "applied, following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
+                 "the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "files",
         "sample_data": {
@@ -127,7 +148,7 @@ def recent_apps(context, label):
             continue
         relative = context.get_relative_path(source)
         try:
-            root = Registry.Registry(source).open(_RECENT_APPS)
+            root = open_hive(source, context).open(_RECENT_APPS)
         except Registry.RegistryKeyNotFoundException:
             continue
         except Exception as exc:  # pylint: disable=broad-exception-caught

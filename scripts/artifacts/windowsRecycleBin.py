@@ -16,6 +16,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # When a file is sent to the Recycle Bin, Windows writes a $I metadata file
 # ($Recycle.Bin\<SID>\$Ixxxxxx) that records the file's original path, its size
@@ -36,7 +37,7 @@ __artifacts_v2__ = {
                        "metadata file, with the user whose Recycle Bin held it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry (only to resolve the user name; the $I files are read without it)",
         "category": "Windows",
         "notes": "Rows from the $I metadata files under $Recycle.Bin, named in "
@@ -60,14 +61,26 @@ __artifacts_v2__ = {
                  "here. A $I file records that an item was sent to the Recycle "
                  "Bin; it does not record who sent it there, and the item may "
                  "since have been restored or its $R content purged while the $I "
-                 "remained. Format: libyal dtformats Windows Recycle.Bin file "
+                 "remained. A dirty hive, one whose base block's two sequence "
+                 "numbers differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive "
+                 "read as it is, with the reason. Format: libyal dtformats Windows "
+                 "Recycle.Bin file "
                  "formats, https://github.com/libyal/dtformats/blob/"
                  "4917c9bffc631503c9dbe77dddf14023a572bcef/documentation/"
                  "Windows%20Recycle.Bin%20file%20formats.asciidoc",
-        "paths": (
-            '*/$[Rr]ecycle.[Bb]in/*/$[Ii]*',
-            '*/Windows/System32/config/SOFTWARE',
-        ),
+        "paths": ('*/$[Rr]ecycle.[Bb]in/*/$[Ii]*',
+                  '*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "trash-2",
         "sample_data": {
@@ -115,7 +128,7 @@ def _profile_users(software_hive):
     of each profile's ProfileImagePath)."""
     users = {}
     try:
-        profiles = Registry.Registry(software_hive).open(_PROFILE_LIST)
+        profiles = open_hive(software_hive).open(_PROFILE_LIST)
     except Exception:  # pylint: disable=broad-exception-caught
         return users
     for profile in profiles.subkeys():

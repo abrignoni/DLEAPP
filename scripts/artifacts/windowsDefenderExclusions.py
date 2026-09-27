@@ -11,7 +11,7 @@ notes.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import Registry, found_hives, key_written_utc, open_key
+from scripts.windows_registry import Registry, found_hives, key_written_utc, open_hive, open_key
 
 # (Location label, key path under the SOFTWARE hive root)
 _EXCLUSION_KEYS = (
@@ -28,11 +28,22 @@ __artifacts_v2__ = {
                        "holding each value.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from the SOFTWARE hive, named in the report's located-at line, with "
-                 "python-registry. Two keys are read: Microsoft\\Windows "
+                 "python-registry. A dirty hive, one whose base block's two sequence "
+                 "numbers differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and "
+                 "neither is a replay that would give a key an earlier last-written time "
+                 "than the hive already holds, a check added here beyond the specification; "
+                 "the run log names each hive replayed, with the sequence numbers applied, "
+                 "and each dirty hive read as it is, with the reason. Two keys are read: "
+                 "Microsoft\\Windows "
                  "Defender\\Exclusions, labelled Defender configuration in Location, and "
                  "Policies\\Microsoft\\Windows Defender\\Exclusions, labelled Group "
                  "Policy. Each value directly under either key and each value in one of "
@@ -50,9 +61,9 @@ __artifacts_v2__ = {
                  "https://web.archive.org/web/20260915071729/https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-defender); "
                  "no Microsoft page describing the layout of the Defender configuration "
                  "key was found, so its subkeys and values are reported as stored. No "
-                 "registered image carries the Group Policy key, so that branch is "
+                 "tested image carries the Group Policy key, so that branch is "
                  "unexercised. The Defender configuration key was present on the three "
-                 "registered images, with Extensions, Paths, Processes and TemporaryPaths "
+                 "tested images, with Extensions, Paths, Processes and TemporaryPaths "
                  "subkeys and, on pc_mus_001_win11, an IpAddresses subkey; the one value "
                  "among them sat in Paths on af_case2_win10 and the others were empty, so "
                  "this artifact reports 1 row on af_case2_win10 and none on "
@@ -64,7 +75,8 @@ __artifacts_v2__ = {
                  "whether exclusions hidden that way are present in an acquired hive was "
                  "not tested. A row records a value stored under an Exclusions key; it "
                  "does not by itself establish who added it or whether Defender applied it.",
-        "paths": ("*/Windows/System32/config/SOFTWARE",),
+        "paths": ('*/Windows/System32/config/SOFTWARE',
+                  '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "slash",
         "sample_data": {
@@ -105,7 +117,7 @@ def defenderExclusions(context):
     for source in found_hives(context, 'SOFTWARE'):
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             rows = []
             present = []
             for location, key_path in _EXCLUSION_KEYS:

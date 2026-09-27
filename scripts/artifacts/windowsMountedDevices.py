@@ -15,6 +15,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import is_transaction_log, open_hive
 
 # The SYSTEM hive keeps a top-level MountedDevices key (the Mount Manager's
 # persistent name database): one value per mount point, named either
@@ -37,7 +38,7 @@ __artifacts_v2__ = {
                        "GUID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "One row per value in the SYSTEM hive's top-level "
@@ -73,13 +74,26 @@ __artifacts_v2__ = {
                  "mapped to a device, not when the mapping was made or by whom, "
                  "and the key can retain entries for devices that are not "
                  "presently mounted (Windows removes those with mountvol /r). "
-                 "Reading the hive requires python-registry. Format reference: "
+                 "Reading the hive requires python-registry. A dirty hive, one "
+                 "whose base block's two sequence numbers differ, is read after "
+                 "the entries in its .LOG1 and .LOG2 transaction logs that "
+                 "continue its sequence are applied, following Maxim Suhanov's "
+                 "'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each "
+                 "hive replayed, with the sequence numbers applied, and each "
+                 "dirty hive read as it is, with the reason. Format reference: "
                  "libyal "
                  "winreg-kb Mounted-devices at commit d149aff1, "
                  "https://github.com/libyal/winreg-kb/blob/"
                  "d149aff1b8ff97e1cc8d7416fc583b964bad4ccd/docs/sources/"
                  "system-keys/Mounted-devices.md",
-        "paths": ('*/Windows/System32/config/SYSTEM',),
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -87,8 +101,8 @@ __artifacts_v2__ = {
                                 "(2 GPT partitions, 1 USB volume)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 6 rows "
                               "(2 MBR disks, optical and floppy)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 6 rows "
-                              "(GPT partition, USB, optical)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 7 rows "
+                              "(GPT partition, MBR disk, USB, optical)",
         },
     },
 }
@@ -157,10 +171,10 @@ def mountedDevices(context):
         logfunc('Mounted Devices: the python-registry package is not installed')
         return data_headers, data_list, ''
 
-    for source in [str(f) for f in context.get_files_found()]:
+    for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             key = reg.open('MountedDevices')
         except Registry.RegistryKeyNotFoundException:
             continue

@@ -24,7 +24,7 @@ except ImportError:
 
 from scripts.windows_lnk import _idlist_path
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import user_from_path
+from scripts.windows_registry import open_hive, user_from_path
 
 _EXPLORER = r"Software\Microsoft\Windows\CurrentVersion\Explorer"
 
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
                        "key), most-recently-used first, per user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the RunMRU key in each NTUSER.DAT, named in Source "
@@ -49,8 +49,22 @@ __artifacts_v2__ = {
                  "command that was present in the Run dialog history; it does "
                  "not record who ran it. This key held no entries on the tested "
                  "images, so the reader is not exercised against populated data "
-                 "here. Reading the hive requires python-registry.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "here. Reading the hive requires python-registry."
+                 " A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each "
+                 "hive replayed, with the sequence numbers applied, and each "
+                 "dirty hive read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "terminal",
         "sample_data": {
@@ -65,7 +79,7 @@ __artifacts_v2__ = {
                        "TypedPaths key), per user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the TypedPaths key in each NTUSER.DAT, named in "
@@ -74,8 +88,22 @@ __artifacts_v2__ = {
                  "url1. Key Last Modified (UTC) is the TypedPaths key's "
                  "last-write time, shown on the url1 entry only because it dates "
                  "the key as a whole rather than each entry. User is taken from "
-                 "the NTUSER.DAT path. Reading the hive requires python-registry.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "the NTUSER.DAT path. Reading the hive requires python-registry."
+                 " A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each "
+                 "hive replayed, with the sequence numbers applied, and each "
+                 "dirty hive read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "folder",
         "sample_data": {
@@ -91,7 +119,7 @@ __artifacts_v2__ = {
                        "recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the Internet Explorer TypedURLs key in each "
@@ -104,8 +132,22 @@ __artifacts_v2__ = {
                  "Explorer was not the browser in use. User is taken from the "
                  "NTUSER.DAT path. A first-run or shipped URL can be present "
                  "without having been entered by a person. Reading the hive "
-                 "requires python-registry.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "requires python-registry."
+                 " A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each "
+                 "hive replayed, with the sequence numbers applied, and each "
+                 "dirty hive read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "globe",
         "sample_data": {
@@ -121,7 +163,7 @@ __artifacts_v2__ = {
                        "user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the WordWheelQuery key in each NTUSER.DAT, named in "
@@ -133,8 +175,22 @@ __artifacts_v2__ = {
                  "User is taken from the NTUSER.DAT path. This key held no search "
                  "terms on the tested images, so the reader is not exercised "
                  "against populated data here. Reading the hive requires "
-                 "python-registry.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "python-registry."
+                 " A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive "
+                 "read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "search",
         "sample_data": {
@@ -150,7 +206,7 @@ __artifacts_v2__ = {
                        "first, per user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the OpenSavePidlMRU key in each NTUSER.DAT, named in "
@@ -167,8 +223,22 @@ __artifacts_v2__ = {
                  "only because it dates the sub-key as a whole rather than each "
                  "entry. User is taken from the NTUSER.DAT path. An entry records "
                  "that a file was chosen in an open or save dialog; it does not "
-                 "record who chose it. Reading the hive requires python-registry.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "record who chose it. Reading the hive requires python-registry."
+                 " A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive "
+                 "read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "file-text",
         "sample_data": {
@@ -184,7 +254,7 @@ __artifacts_v2__ = {
                        "user.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Rows from the LastVisitedPidlMRU key in each NTUSER.DAT, named "
@@ -197,8 +267,22 @@ __artifacts_v2__ = {
                  "Last Modified (UTC) is the key's last-write time, shown on the "
                  "rank 1 entry only because it dates the key as a whole rather "
                  "than each entry. User is taken from the NTUSER.DAT path. "
-                 "Reading the hive requires python-registry.",
-        "paths": ('*/Users/*/NTUSER.DAT',),
+                 "Reading the hive requires python-registry."
+                 " A dirty hive, one whose base block's two sequence numbers "
+                 "differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format "
+                 "specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not "
+                 "applied, and neither is a replay that would give a key an "
+                 "earlier last-written time than the hive already holds, a check "
+                 "added here beyond the specification; the run log names each "
+                 "hive replayed, with the sequence numbers applied, and each "
+                 "dirty hive read as it is, with the reason.",
+        "paths": ('*/Users/*/NTUSER.DAT',
+                  '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "folder-open",
         "sample_data": {
@@ -274,7 +358,7 @@ def _each_hive(context, artifact):
                    if os.path.basename(str(f)).upper() == 'NTUSER.DAT']:
         relative_source = context.get_relative_path(source)
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'{artifact}: could not read {relative_source}: {exc}')
             continue

@@ -20,6 +20,7 @@ except ImportError:
     Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import open_hive
 
 # BAM/DAM live under each control set. A raw SYSTEM hive has no CurrentControlSet
 # runtime link, so the real control sets (ControlSet001, ControlSet002, ...) are
@@ -36,7 +37,7 @@ __artifacts_v2__ = {
                        "from the SYSTEM hive.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from the SYSTEM hive, named in the report's located-at line. Each row is one "
@@ -51,21 +52,31 @@ __artifacts_v2__ = {
                  "executable running for that user; an entry whose time is 0 or out "
                  "of range is shown blank. User SID is the account the entry is "
                  "stored under. Service is the source service, bam or dam; on the "
-                 "tested images every row is bam because the dam key was not "
-                 "present. An entry records that the executable ran for the user, "
+                 "tested images every row is bam: the dam service key had no subkeys, so it held no "
+                 "user entries. An entry records that the executable ran for the user, "
                  "not who was at the keyboard, and the \\Device\\HarddiskVolume<n> "
                  "prefix is not resolved to a drive letter here. Reading the hive "
-                 "needs the python-registry package; its .LOG1/.LOG2 transaction "
-                 "logs are not replayed. Field meanings: Velocidex, "
+                 "needs the python-registry package. A dirty hive, one whose base block's two "
+                 "sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, following Maxim Suhanov's "
+                 "'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
+                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a "
+                 "replay that would give a key an earlier last-written time than the hive already "
+                 "holds, a check added here beyond the specification; the run log names each hive "
+                 "replayed, with the sequence numbers applied, and each dirty hive read as it is, "
+                 "with the reason. Field meanings: Velocidex, "
                  "Windows.Forensics.Bam, https://github.com/Velocidex/velociraptor/"
-                 "blob/master/artifacts/definitions/Windows/Forensics/Bam.yaml",
-        "paths": ("*/Windows/System32/config/SYSTEM",),
+                 "blob/173e6c0a2c369a8af011c35d9b837ac0c1749467/artifacts/definitions/Windows/Forensics/Bam.yaml",
+        "paths": ('*/Windows/System32/config/SYSTEM',
+                  '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "activity",
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 53 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 33 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 28 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 31 rows",
         },
     },
 }
@@ -125,7 +136,7 @@ def backgroundActivityModerator(context):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            reg = Registry.Registry(source)
+            reg = open_hive(source, context)
             for executable, blob, sid, service in _iter_entries(reg):
                 data_list.append((_filetime_datetime(blob), executable, sid,
                                   service))
