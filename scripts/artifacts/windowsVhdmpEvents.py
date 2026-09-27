@@ -40,7 +40,7 @@ __artifacts_v2__ = {
                        "with the account SID each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-VHDMP-Operational.evtx, named in the "
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
         "artifact_icon": "hard-drive",
         "sample_data": {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 14 rows",
-                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 245 rows",
+                           "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 260 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no VHDMP Operational log on the image)",
                        },
     },

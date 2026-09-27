@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        "where the record stores them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Application.evtx, named in the report's located-at line; only "
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 39 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 8 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 18 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 22 rows",
         },
     },
 }

@@ -21,7 +21,7 @@ except ImportError:
 
 from scripts import windows_messages
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_evtx import utc_from_system_time
+from scripts.windows_evtx import log_records, utc_from_system_time
 
 # The System event log records the machine's power timeline from several
 # providers: the event log service starting and stopping (a proxy for boot and
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
                        "initiating a shutdown or restart.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is one "
@@ -107,24 +107,26 @@ __artifacts_v2__ = {
                  "low power state); and User32 1074 (a process initiated a shutdown or "
                  "restart). The Event column is the description for that "
                  "provider and Event ID. Event Time (UTC) is the record's "
-                 "TimeCreated SystemTime, stored in UTC. On the registered images the time "
-                 "of a 107 record was not the time the system resumed: each of the 54 was "
-                 "logged 0.4 to 221 seconds after the 42 before it, and the earliest "
+                 "TimeCreated SystemTime, stored in UTC. On af_case2_win10, lonewolf_win10 and "
+                 "pc_mus_001_win11 the time of a 107 record was not the time the system resumed: each of "
+                 "the 95 was logged 0.4 to "
+                 "221 seconds after the 42 before it, and the earliest "
                  "Power-Troubleshooter Wake Time after that 42 came 4 seconds to 9.7 days "
                  "after the 107 was logged. Sleep Time (UTC) and Wake Time (UTC) are the "
                  "SleepTime and WakeTime fields of the Power-Troubleshooter 1 event, which "
                  "its message shows as Sleep Time and Wake Time; they are blank on the "
                  "other rows. "
-                 "Sleep Time and Wake Time were the same, or 0.008 second apart, on 18 "
-                 "rows: the 17 whose Wake Source Type is 3 (2 on lonewolf_win10 and 15 on "
-                 "pc_mus_001_win11) and one lonewolf_win10 row whose Wake Source Type is 6. "
+                 "Sleep Time and Wake Time were the same, or 0.008 second apart, on 28 rows: the 26 "
+                 "whose Wake Source Type is 3 (9 on lonewolf_win10 and 17 on pc_mus_001_win11) and two "
+                 "lonewolf_win10 rows whose Wake Source Type is 6 and 0. "
                  "The last 42 before each of those Wake Times was 3.0 hours earlier, so "
-                 "equal times there do not mean the system slept for no time. Both fields "
-                 "are UTC: on the registered images, whose SYSTEM hives name the Pacific "
-                 "(af_case2_win10) and Eastern time zones, every Sleep Time was within 2 "
-                 "seconds of the time of a 42 record, and every Power-Troubleshooter event "
-                 "but that lonewolf_win10 row whose Wake Source Type is 6 was logged within "
-                 "2 seconds after its Wake Time (that row 87 minutes after). Detail holds the process, "
+                 "equal times there do not mean the system slept for no time. Both fields are UTC: on "
+                 "af_case2_win10, lonewolf_win10 and pc_mus_001_win11, whose SYSTEM hives name the "
+                 "Pacific (af_case2_win10) and Eastern time zones, every Sleep Time was within 14.4 "
+                 "seconds of the time of a 42 record, and every Power-Troubleshooter event but those two "
+                 "lonewolf_win10 rows was logged within 3.3 seconds after its Wake Time (the rows whose "
+                 "Wake Source Type is 6 and 0 were logged 87 minutes and 12.8 hours after). Detail holds "
+                 "the process, "
                  "action, reason and user a 1074 event stores in its parameters; for a 42 event its "
                  "Reason, which the 42 message shows as Sleep Reason; for a 109 event its Shutdown "
                  "Action Type, Shutdown Event Code and Shutdown Reason, the ShutdownActionType, "
@@ -154,21 +156,26 @@ __artifacts_v2__ = {
                  "registered image every boot record in the System log names one build (17763 on "
                  "af_case2_win10, 16299 on lonewolf_win10, 22621 on pc_mus_001_win11) and none of "
                  "these events comes before the first boot record, so every one of these fields was "
-                 "named. Sleep Reason was System Idle (7) on both af_case2_win10 rows; System Idle (7) "
-                 "on six and Button or Lid (0) on one lonewolf_win10 row; and System Idle (7) on 22, "
-                 "Hibernate from Sleep - Fixed Timeout (6) on 14 and Button or Lid (0) on nine "
-                 "pc_mus_001_win11 rows. Shutdown Reason was Kernel API (5) and Shutdown Event Code 0 "
+                 "named. Sleep Reason was System Idle (7) on both af_case2_win10 rows; System Idle (7) on "
+                 "18, Hibernate from Sleep - Fixed Timeout (6) on eight, Button or Lid (0) on six and "
+                 "Application API (4) on one lonewolf_win10 row; and System Idle (7) on 29, Hibernate "
+                 "from Sleep - Fixed Timeout (6) on 16, Button or Lid (0) on 13, and Application API (4) "
+                 "and Battery (2) on one pc_mus_001_win11 row each. Shutdown Reason was Kernel API (5) "
+                 "and Shutdown Event Code 0 "
                  "on every 109 row; Shutdown Action Type was Power Action Shutdown Reset (5) on 12, "
                  "Power Action Shutdown Off (6) on six and Power Action Shutdown (4) on three "
                  "af_case2_win10 rows; Power Action Shutdown Reset (5) on all three lonewolf_win10 "
                  "rows; and Power Action Reboot (5) on eight and Power Action Shutdown (4) on one "
                  "pc_mus_001_win11 row. Wake Source Type was Power Button (1) on both af_case2_win10 "
-                 "rows; Timer - (6) on five and S4 Doze to Hibernate (3) on two lonewolf_win10 rows; "
-                 "and Power Button (1) on 15, S4 Doze to Hibernate (3) on 15, Unknown (0) on 14 and "
+                 "rows; Unknown (0) on ten, S4 Doze to Hibernate (3) on nine, Power Button (1) on eight, "
+                 "Timer - (6) on five and Device - (5) on one lonewolf_win10 row; and Power Button (1) on "
+                 "24, Unknown (0) on 18, S4 Doze to Hibernate (3) on 17 and "
                  "'Unknown, but possibily due to timer - (8)' (spelled so in the map) on one "
-                 "pc_mus_001_win11 row. Wake Source Text, Wake Timer Owner and Wake Timer Context were "
-                 "filled only on the six rows whose Wake Source Type is 6 or 8, where the text names a "
-                 "scheduled task that requested waking the computer. The other fields of the 42, 107 "
+                 "pc_mus_001_win11 row. Wake Source Text was filled only on the seven rows whose Wake "
+                 "Source Type is 5, 6 or 8, and Wake Timer Owner and Wake Timer Context only on the six "
+                 "whose type is 6 or 8, where the text names a scheduled task that requested waking the "
+                 "computer; on the lonewolf_win10 row whose type is 5 the text reads ACPI Lid. The other "
+                 "fields of the 42, 107 "
                  "and Power-Troubleshooter 1 events are not reported, among them the target, effective "
                  "and wake-from states, the flags, the programmed wake times, the durations and the "
                  "hibernation counters: none of the three messages shows them, and the providers' DLLs "
@@ -225,9 +232,9 @@ __artifacts_v2__ = {
         "output_types": ["standard"],
         "artifact_icon": "power",
         "sample_data": {
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 197 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 243 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 121 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 41 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 119 rows",
         },
     },
 }
@@ -443,7 +450,7 @@ def systemPowerEvents(context):
         boots = []
         try:
             with evtx.Evtx(source) as log:
-                for record in log.records():
+                for record in log_records(log, 'Windows System Power Events', relative_source):
                     try:
                         found = _power_record(record.xml())
                     except ElementTree.ParseError:

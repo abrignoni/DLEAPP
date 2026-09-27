@@ -17,6 +17,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_evtx import log_records
 
 # The System event log records a Service Control Manager event 7045, "A service
 # was installed in the system", whenever a new service is registered. It carries
@@ -36,7 +37,7 @@ __artifacts_v2__ = {
                        "account the service runs under.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is a "
@@ -71,9 +72,9 @@ __artifacts_v2__ = {
         "output_types": ["standard"],
         "artifact_icon": "settings",
         "sample_data": {
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 44 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 51 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 28 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 38 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 57 rows",
         },
     },
 }
@@ -149,7 +150,7 @@ def serviceInstalls(context):
         rows_here = 0
         try:
             with evtx.Evtx(source) as log:
-                for record in log.records():
+                for record in log_records(log, 'Windows Service Installations', relative_source):
                     try:
                         row = _service_row(record.xml())
                     except ElementTree.ParseError:

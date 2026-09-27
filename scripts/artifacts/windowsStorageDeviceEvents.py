@@ -92,7 +92,7 @@ __artifacts_v2__ = {
                        "record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Kernel-PnP%4Configuration.evtx, named in the "
@@ -134,7 +134,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 345 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 205 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 250 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 260 rows",
         },
     },
 }

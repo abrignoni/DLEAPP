@@ -34,7 +34,7 @@ __artifacts_v2__ = {
                        "record stores them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Bits-Client%4Operational.evtx, named in the "
@@ -54,11 +54,11 @@ __artifacts_v2__ = {
                  "Count are jobOwner, User, processPath, processId, bytesTotal, "
                  "bytesTransferred and fileCount; Status Code is hr, which the manifest "
                  "formats as hexadecimal, shown as hex with the stored decimal. Every other "
-                 "value is reported as stored. Local File was filled on the 173 16403 rows "
+                 "value is reported as stored. Local File was filled on the 192 16403 rows "
                  "of pc_mus_001_win11 and is empty on af_case2_win10 and lonewolf_win10, "
                  "which carry no 16403 records. Bytes Total held 18446744073709551615, the "
                  "largest unsigned 64-bit number, on 79 of 116 rows on af_case2_win10, 20 "
-                 "of 871 on pc_mus_001_win11 and 43 of 156 on lonewolf_win10; the manifest "
+                 "of 967 on pc_mus_001_win11 and 88 of 421 on lonewolf_win10; the manifest "
                  "dump gives no description of that value. Event Time (UTC) is the "
                  "record's TimeCreated SystemTime, which python-evtx renders from the "
                  "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
                  "or whose XML does not parse, is counted in the run log and not reported; "
                  "every record in this log rendered on the registered images. On the job "
                  "created (3) rows, Job Owner was an NT AUTHORITY account on 10 of 18 on "
-                 "af_case2_win10, 13 of 174 on pc_mus_001_win11 and 10 of 28 on "
+                 "af_case2_win10, 13 of 192 on pc_mus_001_win11 and 14 of 86 on "
                  "lonewolf_win10; a row does not by itself establish that a person started "
                  "the transfer. Reading needs the python-evtx package (pip install "
                  "python-evtx).",
@@ -80,9 +80,9 @@ __artifacts_v2__ = {
         "output_types": ["standard"],
         "artifact_icon": "download",
         "sample_data": {
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 871 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 967 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 116 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 156 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 421 rows",
         },
     },
 }

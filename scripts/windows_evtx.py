@@ -2,11 +2,8 @@
 
 Author: @AlexisBrignoni, Claude.
 
-Shared by the event log artifacts for PowerShell, storage devices, Task
-Scheduler, BITS, the Remote Desktop client, WLAN, Windows Installer, Shell-Core
-Run key processing, WMI activity, virtual disks, network profiles and Microsoft
-Defender. Each record is rendered to XML by python-evtx and read with
-ElementTree.
+Shared by the event log artifacts. Each record is rendered to XML by
+python-evtx and read with ElementTree.
 
 `read_event_records(context, file_name, label, ...)` reads every matched copy
 of one log and returns the parsed records it kept, each with the staged path it
@@ -14,6 +11,21 @@ was read from as `source`, and the paths it read. A
 record python-evtx cannot render (the call raises) or whose XML does not parse
 is counted and skipped instead of ending the read of the rest of the file, and
 the count is written to the run log for each file.
+
+`log_records(log, label, relative_source)` yields the records of an open
+python-evtx log, and every artifact that reads a log reads it through this.
+python-evtx's Evtx.records() reads only as many chunks as the file header's
+chunk count (FileHeader.chunks, python-evtx v0.8.1,
+https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Evtx.py#L223-L242).
+libyal's description of the format says that the header of a log marked dirty
+(flag 0x0001) can count fewer chunks than the file holds, that Event Viewer
+seems to correct such a file, and that libevtx keeps scanning for chunks after
+the last one the header indicates ('Dirty file with invalid number of chunks',
+https://github.com/libyal/libevtx/blob/53ff3377d1360a9a3a428e7190c289757ccbf82b/documentation/Windows%20XML%20Event%20Log%20(EVTX).asciidoc?plain=1#L1817-L1842).
+So for a log marked dirty this also reads each chunk after the counted ones
+that carries the chunk signature and whose header and data checksums match,
+and skips a record there whose number was already read. A log not marked dirty
+is read exactly as python-evtx reads it.
 
 `utc_from_system_time(value)` parses TimeCreated SystemTime. python-evtx 0.8.x
 renders it as '2018-03-27 09:35:33.595600+00:00' and 0.7.x as
@@ -150,6 +162,68 @@ def _text(parent, name):
     return element.text.strip() if element is not None and element.text else ''
 
 
+def _intact(chunk):
+    """Whether a chunk carries the chunk signature and both of its checksums match."""
+    try:
+        return bool(chunk.check_magic()
+                    and chunk.calculate_header_checksum() == chunk.header_checksum()
+                    and chunk.calculate_data_checksum() == chunk.data_checksum())
+    except Exception:  # pylint: disable=broad-exception-caught
+        return False
+
+
+def log_records(log, label='', relative_source=''):
+    """Every record of an open python-evtx log, with the chunks a dirty header does not count.
+
+    The counted chunks are read as python-evtx reads them. For a log marked dirty,
+    each later chunk is read when it is intact (_intact), a record whose number was
+    already read is skipped, and a chunk whose records stop parsing part way through
+    keeps the records read before that point. The run log names the log and says how
+    many records came from chunks the header does not count.
+    """
+    header = log.get_file_header()
+    counted = header.chunk_count()
+    dirty = header.is_dirty()
+    seen = set()
+    added = read_chunks = failed_checksum = stopped = 0
+    for index, chunk in enumerate(header.chunks(include_inactive=dirty)):
+        if index < counted:
+            for record in chunk.records():
+                if dirty:
+                    seen.add(record.record_num())
+                yield record
+            continue
+        if not chunk.check_magic():
+            continue
+        if not _intact(chunk):
+            failed_checksum += 1
+            continue
+        read_chunks += 1
+        records = chunk.records()
+        while True:
+            try:
+                record = next(records)
+                number = record.record_num()
+            except StopIteration:
+                break
+            except Exception:  # pylint: disable=broad-exception-caught
+                stopped += 1
+                break
+            if number in seen:
+                continue
+            seen.add(number)
+            added += 1
+            yield record
+    if read_chunks or failed_checksum:
+        message = (f'{label}: {relative_source} is marked dirty; {added} record(s) were read '
+                   f'from {read_chunks} chunk(s) after the {counted} its header counts')
+        if failed_checksum:
+            message += f', and {failed_checksum} chunk(s) after them failed their checksums and were not read'
+        if stopped:
+            message += f'; {stopped} of those chunk(s) stopped parsing part way through'
+        logfunc(message)
+
+
 def read_event_records(context, file_name, label, event_ids=None, provider=None):
     """Read every copy of one event log in files_found.
 
@@ -172,7 +246,7 @@ def read_event_records(context, file_name, label, event_ids=None, provider=None)
         try:
             with evtx.Evtx(source) as log:
                 sources.append(source)
-                for record in log.records():
+                for record in log_records(log, label, relative_source):
                     read += 1
                     try:
                         xml_text = record.xml()

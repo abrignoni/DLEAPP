@@ -17,6 +17,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_evtx import log_records
 
 # The TerminalServices-LocalSessionManager Operational log records interactive
 # session activity for both local console and Remote Desktop sessions: a logon,
@@ -160,7 +161,7 @@ def rdpSessions(context):
         rows_here = 0
         try:
             with evtx.Evtx(source) as log:
-                for record in log.records():
+                for record in log_records(log, 'Windows Terminal Services Sessions', relative_source):
                     try:
                         row = _session_row(record.xml())
                     except ElementTree.ParseError:
