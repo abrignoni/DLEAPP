@@ -168,6 +168,117 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 12 rows",
         },
     },
+    "macosPowerLogLid": {
+        "name": "PowerLog - Lid",
+        "description": "Rows of PowerLog's PLPeripheralAgent_EventForward_ClamshellState table: "
+                       "time and the closed value as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLPeripheralAgent_EventForward_ClamshellState from the PowerLog databases the '
+            'PowerLog - Sleep and Wake artifact reads, with Time corrected, and rows held by more '
+            'than one database reported once, as its notes describe. Closed is reported as '
+            'stored; what each value records is not established here. The table was empty on '
+            'dleapp_macos_bigsur, whose PowerLog - Peripherals rows name VMware virtual devices. '
+            'On the public MacBook Pro logical extraction (macOS 15.4 build 24E248, not a '
+            'registered corpus key) Closed held 1 on 59 of the 64 rows and 0 on 5, and 61 of the '
+            '63 pairs of consecutive rows repeat the value, so a row does not always mark a '
+            "change. That Mac's power management log (Power Management Log (ASL)) has one "
+            "'Clamshell Sleep' record in the period these rows cover, with rows holding 1 at 15.0 "
+            'seconds before it and 1.6 seconds after it, and the earliest row holds 0 and comes '
+            "16.8 seconds after a wake 'due to EC.LidOpen' in that log."
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "book",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows",
+        },
+    },
+    "macosPowerLogPeripherals": {
+        "name": "PowerLog - Peripherals",
+        "description": "Rows of PowerLog's PLPeripheralAgent_EventForward_DeviceState table: "
+                       "time, device name, connected and built-in values, vendor and product IDs.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLPeripheralAgent_EventForward_DeviceState from the PowerLog databases the '
+            'PowerLog - Sleep and Wake artifact reads, with Time corrected, and rows held by more '
+            'than one database reported once, as its notes describe. Device Name, Now Connected, '
+            'Is Builtin, Device Type, Vendor ID, Product ID, Register Entry ID and Bus Version Or '
+            'Speed are reported as stored, and what Now Connected, Is Builtin, Device Type and '
+            'Bus Version Or Speed record is not established here; Vendor ID (hex) and Product ID '
+            '(hex) are the same numbers in hexadecimal. On both public images '
+            '(dleapp_macos_bigsur and the public MacBook Pro logical extraction (macOS 15.4 build '
+            '24E248, not a registered corpus key)) every row with Now Connected 0 has no Device '
+            'Name and holds 0 in Is Builtin, Vendor ID, Product ID and Bus Version Or Speed, and '
+            'every row with Now Connected 1 has a name. On the public MacBook Pro extraction '
+            'every named row holds 1 in Is Builtin, so Now Connected and Is Builtin are identical '
+            'on every row there; on dleapp_macos_bigsur Is Builtin was 1 only on the 16 rows '
+            'naming the two USB root hub simulations and 0 on the other 60 named rows, which name '
+            'the VMware virtual USB devices, the virtual Bluetooth adapter and AppleDisplay. A '
+            'row without a name shares its Register Entry ID with an earlier named row on all 56 '
+            'such rows of the public MacBook Pro extraction and on 3 of the 4 of '
+            'dleapp_macos_bigsur, where 3 Register Entry IDs are each held by rows naming '
+            'different devices, so an ID does not identify one device across an image. Device '
+            'Type was 3 on the rows naming AppleDisplay (dleapp_macos_bigsur) and '
+            'AppleBacklightDisplay (the public MacBook Pro extraction) and on 3 rows without a '
+            'name, and 1 on every other row. ThunderboltRevisionID is not reported; it held 0 on '
+            'every row of both public images. Time Offset (seconds) held 0.001 on every row of '
+            'dleapp_macos_bigsur.'
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "hard-drive",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 80 rows",
+        },
+    },
+    "macosPowerLogAudioDevices": {
+        "name": "PowerLog - Audio Devices",
+        "description": "Rows of PowerLog's PLAudioAgent_EventForward_AudioDevice table: time, "
+                       "device ID, input and running values, source and transport codes, volume.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-27",
+        "last_update_date": "2026-09-27",
+        "requirements": "none",
+        "category": "PowerLog (macOS)",
+        "notes": (
+            'Reads PLAudioAgent_EventForward_AudioDevice from the PowerLog databases the PowerLog '
+            '- Sleep and Wake artifact reads, with Time corrected, and rows held by more than one '
+            "database reported once, as its notes describe. Logged Time is the row's "
+            'timestampLogged corrected the same way. Device ID, Is Input, Is Running and Volume '
+            'are reported as stored, and what Device ID and Is Running record is not established '
+            'here. Source ID and Transport Type are stored as numbers and shown as their four '
+            'characters, or as the stored number when its four bytes are not all printable. '
+            "Apple's IOAudioTypes.h defines these four-character codes: 'bltn' as "
+            "kIOAudioDeviceTransportTypeBuiltIn, 'usb ' as kIOAudioDeviceTransportTypeUSB and "
+            "'blue' as kIOAudioDeviceTransportTypeBluetooth "
+            '(https://github.com/apple-oss-distributions/IOAudioFamily/blob/6fdf514055a9868fe20e4dc3845b78dfa5e27110/IOAudioTypes.h#L468-L480), '
+            "and 'ispk', 'hdpn' and 'imic' as the internal speaker, headphones and internal "
+            "microphone port subtypes, with 'spdf' the S/PDIF output and input subtype "
+            '(https://github.com/apple-oss-distributions/IOAudioFamily/blob/6fdf514055a9868fe20e4dc3845b78dfa5e27110/IOAudioTypes.h#L329-L339). '
+            "Transport Type was 'bltn' on every row of both public images. On dleapp_macos_bigsur "
+            "Source ID was 'hdpn' on 37 rows, all with Is Input 0, and 'spdf' on 24, all with Is "
+            'Input 1, and Is Running held 1 on one row; on the public MacBook Pro logical '
+            'extraction (macOS 15.4 build 24E248, not a registered corpus key) Source ID was '
+            "'ispk' on 7 rows, all with Is Input 0, and 'imic' on 6, all with Is Input 1, and Is "
+            'Running held 0 on every row. Time Offset (seconds) held 0.001 on every row of '
+            'dleapp_macos_bigsur.'
+        ),
+        "paths": ('*/var/db/powerlog/Library/BatteryLife/*',),
+        "output_types": ["standard"],
+        "artifact_icon": "headphones",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 61 rows",
+        },
+    },
 }
 
 import sqlite3
@@ -222,6 +333,21 @@ def _collect(context, table, columns, build, arrays=()):
     merged.sort(key=lambda item: (item[0][0] == '', item[0][0] or _EARLIEST))
     data_list = [values + ('\n'.join(sources),) for values, sources in merged]
     return data_list, '\n'.join(read)
+
+
+def _hex(value):
+    """A stored integer written in hexadecimal, at least four digits."""
+    return f'0x{value:04X}' if isinstance(value, int) and value >= 0 else _blank(value)
+
+
+def _four_characters(value):
+    """A stored four-character code as its four characters, or the stored value when it
+    is not an integer whose four bytes are printable ASCII."""
+    if isinstance(value, int) and 0 <= value < 1 << 32:
+        text = value.to_bytes(4, 'big').decode('latin-1')
+        if all(32 <= ord(character) < 127 for character in text):
+            return text
+    return _blank(value)
 
 
 def _listed(side, column, row_id):
@@ -295,5 +421,61 @@ def macosPowerLogTimeZone(context):
     data_list, source = _collect(context, 'PLLocaleAgent_EventForward_TimeZone',
                                  ('ID', 'timestamp', 'TimeZoneName', 'SecondsFromGMT',
                                   'TimeZoneIsInDST', 'CountryCode', 'LocaleId', 'Trigger'),
+                                 build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogLid(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Closed (as stored)', 'Time Offset (seconds)',
+                    'Source File')
+
+    def build(database, row, _side):
+        time, offset = database.corrected(row['timestamp'])
+        return (_blank(time), _blank(row['closed']), _seconds(offset))
+
+    data_list, source = _collect(context, 'PLPeripheralAgent_EventForward_ClamshellState',
+                                 ('ID', 'timestamp', 'closed'), build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogPeripherals(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Device Name', 'Now Connected (as stored)',
+                    'Is Builtin (as stored)', 'Device Type (as stored)', 'Vendor ID',
+                    'Vendor ID (hex)', 'Product ID', 'Product ID (hex)', 'Register Entry ID',
+                    'Bus Version Or Speed (as stored)', 'Time Offset (seconds)', 'Source File')
+    columns = ('ID', 'timestamp', 'DeviceName', 'NowConnected', 'IsBuiltin', 'DeviceType',
+               'VendorID', 'ProductID', 'RegisterEntryID', 'BusVersionOrSpeed')
+
+    def build(database, row, _side):
+        time, offset = database.corrected(row['timestamp'])
+        return (_blank(time), _blank(row['DeviceName']), _blank(row['NowConnected']),
+                _blank(row['IsBuiltin']), _blank(row['DeviceType']), _blank(row['VendorID']),
+                _hex(row['VendorID']), _blank(row['ProductID']), _hex(row['ProductID']),
+                _blank(row['RegisterEntryID']), _blank(row['BusVersionOrSpeed']),
+                _seconds(offset))
+
+    data_list, source = _collect(context, 'PLPeripheralAgent_EventForward_DeviceState', columns,
+                                 build)
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def macosPowerLogAudioDevices(context):
+    data_headers = (('Time (UTC)', 'datetime'), ('Logged Time (UTC)', 'datetime'),
+                    'Device ID (as stored)', 'Is Input (as stored)', 'Is Running (as stored)',
+                    'Source ID', 'Transport Type', 'Volume', 'Time Offset (seconds)', 'Source File')
+    columns = ('ID', 'timestamp', 'timestampLogged', 'DeviceID', 'IsInput', 'IsRunning',
+               'SourceID', 'TransType', 'Volume')
+
+    def build(database, row, _side):
+        time, offset = database.corrected(row['timestamp'])
+        logged, _ = database.corrected(row['timestampLogged'])
+        return (_blank(time), _blank(logged), _blank(row['DeviceID']), _blank(row['IsInput']),
+                _blank(row['IsRunning']), _four_characters(row['SourceID']),
+                _four_characters(row['TransType']), _blank(row['Volume']), _seconds(offset))
+
+    data_list, source = _collect(context, 'PLAudioAgent_EventForward_AudioDevice', columns,
                                  build)
     return data_headers, data_list, source
