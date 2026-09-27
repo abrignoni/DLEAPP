@@ -82,18 +82,18 @@ __artifacts_v2__ = {
                  "paired record's process ID on all 48 rows paired with a Security 4616 record, 14 of them "
                  "version 1 rows on lonewolf_win10. Time Zone Bias (as stored) is TimeZoneBias, which only "
                  "versions 3 and 4 carry, so it is blank on af_case2_win10, lonewolf_win10 and "
-                 "szechuan_win10; it held 300 on every pc_mus_001_win11 row, where the RTC time (CmosTime) "
-                 "was exactly that many minutes before New Time on all 86 rows and the fields for whether "
-                 "the RTC time is in UTC and whether the system time was based on it (RealTimeIsUniversal "
-                 "and SystemInCmosMode) were False on every row. CmosTime, RealTimeIsUniversal, "
-                 "SystemInCmosMode and TimeDeltaInMs are not reported. Computer is the machine name the "
-                 "record stores: it held one value on every row of pc_mus_001_win11 and two values on "
-                 "af_case2_win10, lonewolf_win10 and szechuan_win10. Every Security 4616 record on the four "
-                 "images, 48 in all, had a Kernel-General 1 record with the same previous and new times and "
-                 "Reason 1, and two Reason 1 rows on pc_mus_001_win11 had no 4616; no Reason 2 or 3 row had "
-                 "one. Those records are reported by Windows Security Time Changes. The System log on "
-                 "lonewolf_win10, pc_mus_001_win11 and szechuan_win10 was marked dirty and held records in "
-                 "chunks its header does not count; those chunks are read too, and they gave 37 of the 51 "
+                 "szechuan_win10; Time Zone Bias (as stored) held 300 on every row of pc_mus_001_win11, "
+                 "where the RTC time (CmosTime) was exactly that many minutes before New Time on all 86 rows "
+                 "and the fields for whether the RTC time is in UTC and whether the system time was based on "
+                 "it (RealTimeIsUniversal and SystemInCmosMode) were False on every row. CmosTime, "
+                 "RealTimeIsUniversal, SystemInCmosMode and TimeDeltaInMs are not reported. Computer is the "
+                 "machine name the record stores: it held one value on every row of pc_mus_001_win11 and two "
+                 "values on af_case2_win10, lonewolf_win10 and szechuan_win10. Every Security 4616 record on "
+                 "the four images, 48 in all, had a Kernel-General 1 record with the same previous and new "
+                 "times and Reason 1, and two Reason 1 rows on pc_mus_001_win11 had no 4616; no Reason 2 or "
+                 "3 row had one. Those records are reported by Windows Security Time Changes. The System log "
+                 "on lonewolf_win10, pc_mus_001_win11 and szechuan_win10 was marked dirty and held records "
+                 "in chunks its header does not count; those chunks are read too, and they gave 37 of the 51 "
                  "lonewolf_win10 rows, 18 of the 86 pc_mus_001_win11 rows and 3 of the 12 szechuan_win10 "
                  "rows. A record python-evtx cannot render, or whose XML does not parse, is counted in the "
                  "run log and not reported; every record in this log rendered on the four images. A row "
@@ -102,8 +102,8 @@ __artifacts_v2__ = {
                  "(pip install python-evtx); naming the reason needs the pefile package (pip install "
                  "pefile), and without it the reason is reported as stored.",
         "paths": ("*/Windows/System32/winevt/Logs/System.evtx",
-                  "*/Windows/System32/" + _REASON_DLL,
-                  "*/Windows/System32/en-US/" + _REASON_DLL + ".mui"),
+                  "*/Windows/System32/microsoft-windows-system-events.dll",
+                  "*/Windows/System32/en-US/microsoft-windows-system-events.dll.mui"),
         "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
@@ -144,9 +144,11 @@ __artifacts_v2__ = {
                  "correlate the event with others that hold it, such as 4624. The page calls these events "
                  "with LOCAL SERVICE normal time correction actions, and says an account other than LOCAL "
                  "SERVICE, or a process other than svchost.exe, means the change was not made by the Windows "
-                 "Time service. On the four images 47 of the 48 rows named LOCAL SERVICE (S-1-5-19) and "
-                 "svchost.exe; the other, on af_case2_win10, named an account whose name ends in $, with no "
-                 "domain, S-1-5-18 and rundll32.exe. Each of those 48 rows had a Kernel-General 1 record in "
+                 "Time service. On lonewolf_win10, pc_mus_001_win11 and szechuan_win10 every row held LOCAL "
+                 "SERVICE, NT AUTHORITY, S-1-5-19 and 0x00000000000003e5 in Account Name, Account Domain, "
+                 "Account SID and Logon ID and a Process Name ending in svchost.exe; af_case2_win10 had "
+                 "three such rows and one naming an account whose name ends in $, with no domain, S-1-5-18 "
+                 "and rundll32.exe. Each of the 48 rows on the four images had a Kernel-General 1 record in "
                  "the System log with the same previous and new times and Reason 1, 'An application or "
                  "system component changed the time', and its process ID equalled that record's on all of "
                  "them; the System log also records changes this log does not, and those are reported by "
