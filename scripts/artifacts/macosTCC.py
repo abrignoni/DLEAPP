@@ -22,9 +22,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "App Permissions (macOS)",
         "notes": "Every TCC.db found is parsed (the system store under "
-                 "/Library/Application Support/com.apple.TCC/ and each user's "
-                 "under ~/Library/Application Support/com.apple.TCC/), tagged by "
-                 "Source File. Service is shown without its kTCCService prefix. "
+                 "/Library/Application Support/com.apple.TCC/ and each user's under "
+                 "~/Library/Application Support/com.apple.TCC/), tagged by Source File. No other "
+                 "column names the store: Access and the rest are read from each row, so they do "
+                 "not separate the system store from a user's, and Source File names the store "
+                 "each row came from. Service is shown without its kTCCService prefix. "
                  "Client Type is decoded (0 Bundle ID, 1 Absolute path) and the "
                  "Client is a bundle identifier or an on-disk path accordingly. "
                  "Access is decoded from auth_value on modern schemas (0 Not "
