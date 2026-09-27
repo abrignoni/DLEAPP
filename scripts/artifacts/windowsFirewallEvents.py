@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                        "application as recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
         "notes": "Reads the Firewall channel log, Microsoft-Windows-Windows Firewall With Advanced "
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
                  "902 from 2018-03-27 09:36:12 to 2018-04-06 12:26:14 UTC on lonewolf_win10 and "
                  "1,073 from 2022-12-08 02:57:51 to 2023-01-06 16:38:25 UTC on pc_mus_001_win11. "
                  "No tested log held a 2032, 2033 or 2060 record, so those are unexercised. Also "
-                 "run on the Szechuan Sauce desktop image (not a registered corpus key), which "
+                 "run on szechuan_win10, the public DFIR Madness Szechuan Sauce desktop image, which "
                  "gave 894 rows.",
         "paths": (
             '*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Firewall With Advanced Security%4Firewall.evtx',
@@ -86,6 +86,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 892 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 895 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 894 rows",
         },
     },
     "windowsFirewallSettingChanges": {
@@ -95,7 +96,7 @@ __artifacts_v2__ = {
                        "application as recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
         "notes": "Reads the same log as the Windows Firewall Rule Changes artifact for the "
@@ -115,7 +116,8 @@ __artifacts_v2__ = {
                  "decoded to hex, and kept as rendered when it does not decode. Only 2002 records "
                  "were on the tested images: 2 on af_case2_win10, both with Setting Type Current "
                  "Profile (2) and Setting Value Private, and none on lonewolf_win10 or "
-                 "pc_mus_001_win11. The Szechuan Sauce desktop image (not a registered corpus key) "
+                 "pc_mus_001_win11. szechuan_win10, the public DFIR Madness Szechuan Sauce desktop "
+                 "image, "
                  "held 4, with Setting Values Private, Domain, Public and Domain. Read as "
                  "little-endian 32-bit numbers their stored values were 2, 1 and 4, the values "
                  "MS-FASP gives the private, domain and public profiles (section 2.2.2, last "
@@ -136,6 +138,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no 2002, 2003, 2082 or 2083 record in the log)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no 2002, 2003, 2082 or 2083 record in the log)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 4 rows",
         },
     },
     "windowsFirewallBlockedApps": {
@@ -145,7 +148,7 @@ __artifacts_v2__ = {
                        "path, port, process ID and reason.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
         "notes": "Reads the same log as the Windows Firewall Rule Changes artifact for the "
@@ -172,6 +175,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no 2011 record in the log)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no 2011 record in the log)",
         },
     },
 }

@@ -13,7 +13,7 @@ __artifacts_v2__ = {
                        "source address, and connections accepted from an address.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Reads "
@@ -22,8 +22,9 @@ __artifacts_v2__ = {
                  "or 1158, one row per record; a record python-evtx cannot render, or whose XML "
                  "does not parse, is counted in the run log and skipped. Event is the message the "
                  "provider's manifest in termsrv.dll gives the ID, read from its English .mui, "
-                 "without its fields; the messages were the same in the DLLs of the Szechuan Sauce "
-                 "desktop image (build 19041) and pc_mus_001_win11 (build 22621): 261 'Listener %1 "
+                 "without its fields; the messages were the same in the DLLs of szechuan_win10, the "
+                 "public DFIR Madness Szechuan Sauce desktop image (build 19041), and "
+                 "pc_mus_001_win11 (build 22621): 261 'Listener %1 "
                  "received a connection', 1149 'Remote Desktop Services: User authentication "
                  "succeeded:' and 1150 'Remote Desktop Services: User config data have been "
                  "merged:', each followed by User, Domain and Source Network Address, and 1158 "
@@ -33,7 +34,7 @@ __artifacts_v2__ = {
                  "Address is Param1, and Listener is the listenerName field of 261. Event Time "
                  "(UTC) is the record's TimeCreated, and Computer and Record ID are the record's "
                  "own. None of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 holds the log "
-                 "file. On the Szechuan Sauce desktop image (not a registered corpus key) it held "
+                 "file. On szechuan_win10 it held "
                  "39 records and 2 are reported: a 261 for the RDP-Tcp listener and, 28 seconds "
                  "later, a 1149 for Administrator in domain C137 from 10.42.85.10. The "
                  "TerminalServices-LocalSessionManager log on that image, which the Windows "
@@ -49,6 +50,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 2 rows",
         },
     },
 }

@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                        "with the task name and the account each record names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-TaskScheduler%4Operational.evtx, named in "
@@ -49,8 +49,9 @@ __artifacts_v2__ = {
                  "from the FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID and Computer the machine name it "
-                 "stores. None of the three registered images carries this log file, so "
-                 "the artifact reports nothing on them; it was exercised on the public "
+                 "stores. None of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 carries "
+                 "this log file, so the artifact reports nothing on them; it was exercised on "
+                 "szechuan_win10, the public "
                  "DFIR Madness Szechuan Sauce desktop image, where it reported 144 rows "
                  "(106: 11, 140: 127, 141: 6), Account held a SID on 60 of them, a domain and "
                  "account name on 82 and an account name with no domain on 2, and every record "
@@ -66,6 +67,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Task Scheduler Operational log on the image)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Task Scheduler Operational log on the image)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Task Scheduler Operational log on the image)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 144 rows",
         },
     },
     "taskSchedulerActions": {
@@ -75,7 +77,7 @@ __artifacts_v2__ = {
                        "action, task instance and return code each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-TaskScheduler%4Operational.evtx, named in "
@@ -96,8 +98,9 @@ __artifacts_v2__ = {
                  "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID and Computer the machine name it "
-                 "stores. None of the three registered images carries this log file, so "
-                 "the artifact reports nothing on them; it was exercised on the public "
+                 "stores. None of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 carries "
+                 "this log file, so the artifact reports nothing on them; it was exercised on "
+                 "szechuan_win10, the public "
                  "DFIR Madness Szechuan Sauce desktop image, where it reported 201 rows "
                  "(200: 109, 201: 92), Action was blank on 6 of the 109 200 rows and 5 of "
                  "the 92 201 rows as stored, and every record rendered. A record "
@@ -112,6 +115,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Task Scheduler Operational log on the image)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Task Scheduler Operational log on the image)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Task Scheduler Operational log on the image)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 201 rows",
         },
     },
 }

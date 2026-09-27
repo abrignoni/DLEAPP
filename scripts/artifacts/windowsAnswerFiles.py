@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "per setting with its configuration pass and component.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Reads the Windows Setup answer files Windows\\Panther\\unattend.xml, "
@@ -37,8 +37,7 @@ __artifacts_v2__ = {
                  "as an independent count of its elements with no child elements. Every pass in it "
                  "was marked processed, and its product key and all three password values held the "
                  "text *SENSITIVE*DATA*DELETED* instead of a value. lonewolf_win10, "
-                 "pc_mus_001_win11 and the Szechuan Sauce desktop image (not a registered corpus "
-                 "key) hold none of the files.",
+                 "pc_mus_001_win11 and szechuan_win10 hold none of the files.",
         "paths": (
             '*/Windows/[Pp]anther/[Uu]nattend.xml',
             '*/Windows/[Pp]anther/[Uu]nattend/[Uu]nattend.xml',
@@ -52,6 +51,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }
