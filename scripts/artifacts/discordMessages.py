@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. It parses cached responses to api/v<N>/channels/<id>/messages and to "
                  "channels/<id>/messages/search or guilds/<id>/messages/search. Where several cached "
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "One row per attachment declared by a message that Discord Messages recovers. Uploaded is "
                  "the timestamp in the attachment ID, read with the layout Discord documents "
                  "(https://github.com/discord/discord-api-docs/blob/ce076f016923cc841774dc51d95bde0eb25c4dcb/developers/reference.mdx#L156); "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. A message search is a cached response to channels/<id>/messages/search or "
                  "guilds/<id>/messages/search: Search Terms is its content parameter, Filters lists the "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (macOS)",
+        "category": "Discord (Desktop)",
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. Each row is one user in a cached response to "
                  "channels/<channel>/messages/<message>/reactions/<emoji>, which Discord documents as "
