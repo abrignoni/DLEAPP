@@ -64,12 +64,24 @@ SCHEMA = (
     'timestampEnd REAL)',
     'CREATE TABLE PLDisplayAgent_Aggregate_ScreenOn (ID INTEGER PRIMARY KEY AUTOINCREMENT, '
     'timestamp REAL, timeInterval REAL, ScreenOn INTEGER)',
+    'CREATE TABLE PLConfigAgent_EventNone_Config (ID INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, '
+    'Build TEXT, Device TEXT, DeviceBootTime REAL, DeviceDiskSize INTEGER, DeviceName TEXT, '
+    'InstalledSplat TEXT, LastBuild TEXT, LastUpgradeTimestamp REAL, MemorySize INTEGER, '
+    'RemainingDiskSpace INTEGER)',
+    'CREATE TABLE PLBatteryAgent_EventBackward_Battery (ID INTEGER PRIMARY KEY AUTOINCREMENT, '
+    'timestamp REAL, Level REAL, ExternalConnected INTEGER, IsCharging INTEGER, FullyCharged INTEGER, '
+    'CycleCount INTEGER)',
 )
+# The older layout of the configuration table: no InstalledSplat or RemainingDiskSpace column.
+OLD_CONFIG = ('CREATE TABLE PLConfigAgent_EventNone_Config (ID INTEGER PRIMARY KEY AUTOINCREMENT, '
+              'timestamp REAL, Build TEXT, Device TEXT, DeviceBootTime REAL, DeviceDiskSize INTEGER, '
+              'DeviceName TEXT, LastBuild TEXT, LastUpgradeTimestamp REAL, MemorySize INTEGER)')
 MIDNIGHT = 1767225600.0          # 2026-01-01 00:00:00 UTC
 
 
 def fill(con, offsets=(), states=(), arrays=(), idle=(), frontmost=(), zones=(), lids=(),
-         devices=(), audio=(), lifecycle=(), network=(), screen=(), schema=SCHEMA):
+         devices=(), audio=(), lifecycle=(), network=(), screen=(), configs=(), batteries=(),
+         schema=SCHEMA):
     for statement in schema:
         con.execute(statement)
     con.executemany('INSERT INTO PLStorageOperator_EventForward_TimeOffset '
@@ -104,6 +116,12 @@ def fill(con, offsets=(), states=(), arrays=(), idle=(), frontmost=(), zones=(),
                     'CellOut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', network)
     con.executemany('INSERT INTO PLDisplayAgent_Aggregate_ScreenOn (timestamp, timeInterval, ScreenOn) '
                     'VALUES (?, ?, ?)', screen)
+    for config in configs:
+        names = list(config)
+        con.execute(f'INSERT INTO PLConfigAgent_EventNone_Config ({", ".join(names)}) '
+                    f'VALUES ({", ".join("?" * len(names))})', [config[name] for name in names])
+    con.executemany('INSERT INTO PLBatteryAgent_EventBackward_Battery (timestamp, Level, ExternalConnected, '
+                    'IsCharging, FullyCharged, CycleCount) VALUES (?, ?, ?, ?, ?, ?)', batteries)
     con.commit()
 
 
@@ -460,6 +478,55 @@ class ArtifactTest(unittest.TestCase):
                          ['Time (UTC)', 'Time Interval (as stored)', 'Screen On (as stored)',
                           'Time Offset (seconds)', 'Source File'])
         self.assertEqual(rows, [(datetime(2026, 1, 1, 0, 59, 57, tzinfo=UTC), 3600.0, 1800, -3.0, live)])
+
+    def test_device_configuration(self):
+        new = {'Build': '25A1', 'LastBuild': '24Z9', 'InstalledSplat': 'Version 26.0 (Build 25A1)',
+               'Device': 'J999', 'MemorySize': 16, 'DeviceDiskSize': 512, 'RemainingDiskSpace': 300,
+               'DeviceName': 'Not reported'}
+        older = tuple(OLD_CONFIG if statement.startswith('CREATE TABLE PLConfigAgent_EventNone_Config')
+                      else statement for statement in SCHEMA)
+        write_archive(self.archive, schema=older, offsets=[(MIDNIGHT, 2.0)], configs=[
+            {'timestamp': MIDNIGHT + 500, 'DeviceBootTime': MIDNIGHT + 400, 'Build': '24Z9',
+             'LastBuild': '24Z8', 'LastUpgradeTimestamp': MIDNIGHT + 10, 'Device': 'J999',
+             'MemorySize': 16, 'DeviceDiskSize': 512}])
+        write_live(self.live, offsets=[(MIDNIGHT, 2.0), (MIDNIGHT + 1000, -3.0)], configs=[
+            # The boot time takes the row's offset (-3.0), not the one in force at the boot time
+            # itself (2.0); the last upgrade time is a plain Unix time and takes none.
+            dict(new, timestamp=MIDNIGHT + 1200, DeviceBootTime=MIDNIGHT + 100,
+                 LastUpgradeTimestamp=MIDNIGHT + 50),
+            # A row time that is not a clock reading: the boot time is corrected on its own.
+            dict(new, timestamp=-0.5, DeviceBootTime=MIDNIGHT + 1100, LastUpgradeTimestamp=1e300),
+            dict(new, timestamp=MIDNIGHT + 1300, DeviceBootTime=0, LastUpgradeTimestamp=None)])
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogDeviceConfig)
+        archive = FOLDER + '/Archives/powerlog_2026-01-01_0A1B2C3D.PLSQL.gz'
+        live = FOLDER + '/CurrentPowerlog.PLSQL'
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Device Boot Time (UTC)', 'Build', 'Last Build', 'Last Upgrade (UTC)',
+                          'Installed Version', 'Device (as stored)', 'Memory Size (as stored)',
+                          'Disk Size (as stored)', 'Remaining Disk Space (as stored)', 'Time Offset (seconds)',
+                          'Source File'])
+        splat = 'Version 26.0 (Build 25A1)'
+        self.assertEqual(rows, [
+            (datetime(2026, 1, 1, 0, 8, 22, tzinfo=UTC), datetime(2026, 1, 1, 0, 6, 42, tzinfo=UTC), '24Z9', '24Z8',
+             datetime(2026, 1, 1, 0, 0, 10, tzinfo=UTC), '', 'J999', 16, 512, '', 2.0, archive),
+            (datetime(2026, 1, 1, 0, 19, 57, tzinfo=UTC), datetime(2026, 1, 1, 0, 1, 37, tzinfo=UTC), '25A1', '24Z9',
+             datetime(2026, 1, 1, 0, 0, 50, tzinfo=UTC), splat, 'J999', 16, 512, 300, -3.0, live),
+            (datetime(2026, 1, 1, 0, 21, 37, tzinfo=UTC), '', '25A1', '24Z9', '', splat, 'J999', 16, 512, 300,
+             -3.0, live),
+            ('', datetime(2026, 1, 1, 0, 18, 17, tzinfo=UTC), '25A1', '24Z9', '', splat, 'J999', 16, 512, 300, '',
+             live)])
+
+    def test_battery(self):
+        write_live(self.live, offsets=[(MIDNIGHT, 2.0)], batteries=[
+            (MIDNIGHT + 120, 77.0, 0, 0, 0, 86), (MIDNIGHT + 60, 78.0, 1, 1, 0, 86)])
+        headers, rows, _ = self.run_artifact(artifact.macosPowerLogBattery)
+        live = FOLDER + '/CurrentPowerlog.PLSQL'
+        self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
+                         ['Time (UTC)', 'Level (as stored)', 'External Connected (as stored)',
+                          'Is Charging (as stored)', 'Fully Charged (as stored)', 'Time Offset (seconds)',
+                          'Source File'])
+        self.assertEqual(rows, [(datetime(2026, 1, 1, 0, 1, 2, tzinfo=UTC), 78.0, 1, 1, 0, 2.0, live),
+                                (datetime(2026, 1, 1, 0, 2, 2, tzinfo=UTC), 77.0, 0, 0, 0, 2.0, live)])
 
     def test_unreadable_files_are_logged_and_the_rest_read(self):
         write_live(self.live, offsets=[], idle=[(MIDNIGHT, 1)])
