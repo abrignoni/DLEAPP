@@ -161,28 +161,16 @@ def load_profile():
 
     destination_path = tk_filedialog.askopenfilename(parent=main_window,
                                                      title='Load a profile',
-                                                     filetypes=(('DLEAPP Profile', '*.rlprofile'),))
+                                                     filetypes=(('DLEAPP Profile', dleapp.PROFILE_OPEN_PATTERNS),))
 
     if destination_path and os.path.exists(destination_path):
-        profile_load_error = None
-        with open(destination_path, 'rt', encoding='utf-8') as profile_in:
-            try:
-                profile = json.load(profile_in)
-            except:
-                profile_load_error = 'File was not a valid profile file: invalid format'
+        ticked, profile_load_error = dleapp.read_profile(destination_path)
         if not profile_load_error:
-            if isinstance(profile, dict):
-                if profile.get('leapp') != 'dleapp' or profile.get('format_version') != 1:
-                    profile_load_error = 'File was not a valid profile file: incorrect LEAPP or version'
-                else:
-                    deselect_all()
-                    ticked = set(profile.get('plugins', []))
-                    for artifact_name, module_infos in mlist.items():
-                        if artifact_name in ticked:
-                            module_infos[-1].set(True)
-                    get_selected_modules()
-            else:
-                profile_load_error = 'File was not a valid profile file: invalid format'
+            deselect_all()
+            for artifact_name, module_infos in mlist.items():
+                if artifact_name in ticked:
+                    module_infos[-1].set(True)
+            get_selected_modules()
         if profile_load_error:
             tk_msgbox.showerror(title='Error', message=profile_load_error, parent=main_window)
         else:
@@ -195,13 +183,12 @@ def save_profile():
     '''Save selected modules in a profile file'''
     destination_path = tk_filedialog.asksaveasfilename(parent=main_window,
                                                        title='Save a profile',
-                                                       filetypes=(('DLEAPP Profile', '*.rlprofile'),),
-                                                       defaultextension='.rlprofile')
+                                                       filetypes=(('DLEAPP Profile', '*' + dleapp.PROFILE_EXTENSION),),
+                                                       defaultextension=dleapp.PROFILE_EXTENSION)
 
     if destination_path:
         selected_modules = get_selected_modules()
-        with open(destination_path, 'wt', encoding='utf-8') as profile_out:
-            json.dump({'leapp': 'dleapp', 'format_version': 1, 'plugins': selected_modules}, profile_out)
+        dleapp.write_profile(destination_path, selected_modules)
         tk_msgbox.showinfo(
             title='Save a profile', message=f'Profile saved: {destination_path}', parent=main_window)
 

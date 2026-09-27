@@ -117,6 +117,10 @@ extension. A compressed tar, `.tar.gz` included, is decompressed once into the r
 before any file is read, so the run needs free space there for the uncompressed tar. The
 copy is deleted when the run ends, and the run log says how long the step took.
 
+`-m <profile>` runs only the artifacts listed in a DLEAPP profile file, and `-c <folder>`
+creates one. Profiles are saved as `.dlprofile`. Profiles saved as `.rlprofile` by
+v2026.4.1 and earlier still load, in the CLI and in the GUI.
+
 ### GUI
 
 ```
