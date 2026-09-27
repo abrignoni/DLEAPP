@@ -160,13 +160,7 @@ CHECKED_FIELDS = {
 # reason. The term is part of the key, so an entry silences the one word it was
 # granted for and never the next claim added to the same text.
 # needs a comment justifying it. See the module docstring before adding one.
-ALLOWLIST = {
-    # The match is inside the hedge itself: the description closes with "the
-    # cache evicts over time, so this index is a partial record of what the
-    # client fetched rather than a complete one". Removing the word would remove
-    # the caution it belongs to.
-    ("discordCacheRecords.py", "discordCacheRecords", "description", "complete"),
-}
+ALLOWLIST = set()
 
 
 def unallowlisted(filename, artifact_key, field, terms):

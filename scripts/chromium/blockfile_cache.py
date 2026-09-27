@@ -171,12 +171,18 @@ def _entry(cache_dir, address):
     return item, next_address
 
 
-def iter_entries(files_found):
-    """Yield valid entries from each distinct Cache_Data folder represented."""
+def iter_entries(files_found, folder_names=("Cache_Data",)):
+    """Yield valid entries from each distinct cache folder represented.
+
+    A cache folder is the folder of a found file when its name is one of
+    ``folder_names``; only a folder whose ``index`` carries the blockfile magic
+    is read. Chromium and WebView2 keep the cache in Cache_Data, while some
+    Electron apps (Discord on Windows) keep it directly in a folder named Cache.
+    """
     folders = {}
     for file_found in map(str, files_found):
         parent = os.path.dirname(file_found)
-        if os.path.basename(parent) == "Cache_Data":
+        if os.path.basename(parent) in folder_names:
             folders.setdefault(os.path.realpath(parent), parent)
 
     for cache_dir in folders.values():
