@@ -32,6 +32,47 @@ leapp_name = "DLEAPP"
 PROMPT_FOR_SECRET = object()
 
 
+# A DLEAPP profile file is JSON naming the artifacts to run. Releases up to
+# v2026.4.1 saved it with RLEAPP's extension, so those files still load. What
+# makes a file a DLEAPP profile is its "leapp": "dleapp" value, not its name.
+PROFILE_EXTENSION = '.dlprofile'
+LEGACY_PROFILE_EXTENSIONS = ('.rlprofile',)
+# File dialog patterns for opening a profile: the current extension and the old one.
+PROFILE_OPEN_PATTERNS = tuple('*' + extension for extension in
+                              (PROFILE_EXTENSION,) + LEGACY_PROFILE_EXTENSIONS)
+
+
+def profile_file_name(name):
+    '''Return name with the DLEAPP profile extension, adding it only if missing.'''
+    if name.lower().endswith(PROFILE_EXTENSION):
+        return name
+    return name + PROFILE_EXTENSION
+
+
+def write_profile(filename, plugins):
+    '''Save the names of the artifacts to run as a DLEAPP profile file.'''
+    with open(filename, 'wt', encoding='utf-8') as profile_file:
+        json.dump({'leapp': 'dleapp', 'format_version': 1, 'plugins': list(plugins)}, profile_file)
+
+
+def read_profile(filename):
+    '''Read a DLEAPP profile file.
+
+    Returns (set of artifact names, None) for a DLEAPP profile, or
+    (None, error message) for anything else, whatever the file is called.
+    '''
+    with open(filename, 'rt', encoding='utf-8') as profile_file:
+        try:
+            profile = json.load(profile_file)
+        except ValueError:
+            return None, 'File was not a valid profile file: invalid format'
+    if not isinstance(profile, dict):
+        return None, 'File was not a valid profile file: invalid format'
+    if profile.get('leapp') != 'dleapp' or profile.get('format_version') != 1:
+        return None, 'File was not a valid profile file: incorrect LEAPP or version'
+    return set(profile.get('plugins', [])), None
+
+
 # How many of the slowest artifacts to list at the end of a run. Enough to show a
 # pattern, short enough that nobody has to scroll past it.
 SLOWEST_ARTIFACTS_TO_REPORT = 10
@@ -168,10 +209,8 @@ def create_profile(plugins, path):
                 profile_filename = ''
                 while not profile_filename:
                     profile_filename = input('Enter the name of the profile: ')
-                profile_filename += '.rlprofile'
-                filename = os.path.join(path, profile_filename)
-                with open(filename, "wt", encoding="utf-8") as profile_file:
-                    json.dump({"leapp": "dleapp", "format_version": 1, "plugins": modules}, profile_file)
+                filename = os.path.join(path, profile_file_name(profile_filename))
+                write_profile(filename, modules)
                 print('\nProfile saved:', filename)
                 print()
             else:
@@ -229,10 +268,10 @@ def main():
                              'terminal')
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
-    parser.add_argument('-m', '--load_profile', required=False, action="store", help="Path to DLEAPP Profile file (.rlprofile).")
+    parser.add_argument('-m', '--load_profile', required=False, action="store", help="Path to DLEAPP Profile file (.dlprofile, or .rlprofile from earlier releases).")
     parser.add_argument('-d', '--load_case_data', required=False, action="store", help="Path to LEAPP Case Data file (.lcasedata).")
     parser.add_argument('-c', '--create_profile_casedata', required=False, action="store",
-                        help=("Generate a DLEAPP Profile file (.rlprofile) or LEAPP Case Data file (.lcasedata) into the specified path. "
+                        help=("Generate a DLEAPP Profile file (.dlprofile) or LEAPP Case Data file (.lcasedata) into the specified path. "
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
@@ -329,7 +368,7 @@ def main():
             print('-' * 55)
             print('Welcome to DLEAPP Profile or Case Data file creation\n')
             instructions = 'You can type:\n'
-            instructions += '   - \'1\' to create a DLEAPP Profile file (.rlprofile)\n'
+            instructions += '   - \'1\' to create a DLEAPP Profile file (.dlprofile)\n'
             instructions += '   - \'2\' to create a LEAPP Case Data file (.lcasedata)\n'
             instructions += '   - \'q\' to quit\n'
             while not create_choice:
@@ -378,29 +417,12 @@ def main():
 
     if args.load_profile:
         profile_filename = args.load_profile
-        profile_load_error = None
-        with open(profile_filename, "rt", encoding="utf-8") as profile_file:
-            try:
-                profile = json.load(profile_file)
-            except:
-                profile_load_error = "File was not a valid case data file: invalid format"
-                print(profile_load_error)
-                return
-
-        if not profile_load_error:
-            if isinstance(profile, dict):
-                if profile.get("leapp") != "dleapp" or profile.get("format_version") != 1:
-                    profile_load_error = "File was not a valid profile file: incorrect LEAPP or version"
-                    print(profile_load_error)
-                    return
-                else:
-                    profile_plugins = set(profile.get("plugins", []))
-                    selected_plugins = [selected_plugin for selected_plugin in available_plugins
-                                        if selected_plugin.name in profile_plugins]
-            else:
-                profile_load_error = "File was not a valid profile file: invalid format"
-                print(profile_load_error)
-                return
+        profile_plugins, profile_load_error = read_profile(profile_filename)
+        if profile_load_error:
+            print(profile_load_error)
+            return
+        selected_plugins = [selected_plugin for selected_plugin in available_plugins
+                            if selected_plugin.name in profile_plugins]
 
     input_path = args.input_path
     wrap_text = args.wrap_text
