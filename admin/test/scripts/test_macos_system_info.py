@@ -66,6 +66,15 @@ class SystemInfoTest(unittest.TestCase):
                    {'lastUserName': 'root'}),
             _write(self.root, f'{PREBOOT}/Library/Preferences/com.apple.loginwindow.plist',
                    {'lastUserName': 'bob', 'GuestEnabled': True}),
+            _write(self.root, f'{DATA}/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/'
+                              'System/Library/CoreServices/SystemVersion.plist',
+                   {'ProductName': 'macOS', 'ProductVersion': '15.5', 'ProductBuildVersion': '24F74'}),
+            _write(self.root, 'Macintosh HD/System/Library/AssetsV2/com_apple_MobileAsset_PKITrustStore/'
+                              'purpose_auto/x.asset/.AssetData/System/Library/CoreServices/SystemVersion.plist',
+                   {'ProductBuildVersion': '11M6270'}),
+            _write(self.root, f'{DATA}/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/'
+                              'Developer/SDKs/MacOSX.sdk/System/Library/CoreServices/SystemVersion.plist',
+                   {'ProductName': 'macOS', 'ProductVersion': '26.0'}),
         ]
         headers, rows, source = self._run(files)
         self.assertEqual(headers, ('Property', 'Value', 'Plist Key', 'Source File'))
@@ -103,6 +112,33 @@ class SystemInfoTest(unittest.TestCase):
                         payload)]
         _headers, rows, _source = self._run(files)
         self.assertEqual([row[:2] for row in rows], [('Computer Name', 'Lab Mac')])
+
+    def test_two_captures_of_one_file_give_each_value_once(self):
+        first = _write(self.root, 'Library/Preferences/com.apple.loginwindow.plist',
+                       {'lastUserName': 'alice', 'GuestEnabled': False})
+        second = _write(self.root, 'System/Volumes/Data/Library/Preferences/com.apple.loginwindow.plist',
+                        {'GuestEnabled': False, 'lastUserName': 'bob', 'autoLoginUser': 'bob',
+                         'OptimizerPreviousBuild': 'differs'})
+        _headers, rows, source = self._run([second, first])
+        self.assertEqual(rows, [
+            ('Last User Name', 'alice', 'lastUserName', 'Library/Preferences/com.apple.loginwindow.plist'),
+            ('Guest Enabled', 'false', 'GuestEnabled', 'Library/Preferences/com.apple.loginwindow.plist'),
+            ('Last User Name', 'bob', 'lastUserName',
+             'System/Volumes/Data/Library/Preferences/com.apple.loginwindow.plist'),
+            ('Automatic Login User', 'bob', 'autoLoginUser',
+             'System/Volumes/Data/Library/Preferences/com.apple.loginwindow.plist')])
+        self.assertEqual(source.split('\n'), [first, second])
+
+    def test_a_copy_left_out_is_not_opened(self):
+        path = os.path.join(self.root, 'Users/alice/Library/Preferences/com.apple.loginwindow.plist')
+        os.makedirs(os.path.dirname(path))
+        with open(path, 'wb') as handle:
+            handle.write(b'not a plist')
+        logs = []
+        with mock.patch.object(macosSystemInfo, 'logfunc', logs.append):
+            _headers, rows, source = macosSystemInfo.macosSystemInfo.__wrapped__(FakeContext(self.root, [path]))
+        self.assertEqual((rows, source), ([], ''))
+        self.assertFalse([line for line in logs if 'could not read' in line])
 
     def test_an_unreadable_file_gives_no_rows(self):
         path = os.path.join(self.root, 'Library/Preferences/com.apple.loginwindow.plist')
