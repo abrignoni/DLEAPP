@@ -913,14 +913,15 @@ modules_filter_var = tk.StringVar()
 modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on input change
 pickModules()
 
-## Theme properties  (DLEAPP brand palette, taken from the earlier logo artwork)
-## The accent is that logo's blue (#3290EB) lightened to clear 3:1 against the
-## plum base; the logo gold is left to iLEAPP, which already owns that accent.
-theme_bgcolor = '#5F3A5C'      # plum / aubergine base
-theme_inputcolor = '#D5D9DE'   # grey input fields (black text)
-theme_inputfgcolor = '#70ADEB' # blue accent
-theme_fgcolor = '#F7F0E0'      # cream text on plum
-theme_button = '#70ADEB'       # blue accent buttons (black text)
+## Theme properties  (DLEAPP brand palette, taken from the logo artwork)
+## The base is the logo's deep purple (#8036BF) darkened so light text clears
+## 12:1; the accent is the logo's lilac tile (#CF7BFB), 4.6:1 against the base
+## and 7.9:1 behind black text.
+theme_bgcolor = '#4A1F70'      # deep purple base
+theme_inputcolor = '#F1E6FB'   # pale lilac input fields (black text)
+theme_inputfgcolor = '#CF7BFB' # lilac accent
+theme_fgcolor = '#F5ECFD'      # near-white lilac text on the base
+theme_button = '#CF7BFB'       # lilac accent buttons (black text)
 
 if is_platform_macos():
     mlist_window_height = 24
