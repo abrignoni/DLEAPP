@@ -121,9 +121,13 @@ __artifacts_v2__ = {
                  "example, or a piece stored compressed, which unlike a compressed value "
                  "kept in the record is not decompressed) is left blank although the "
                  "index holds a value, and the run log counts it and names the reason. "
-                 "None of "
-                 "the properties this artifact reports was stored apart on the tested "
-                 "images. The transaction logs beside Windows.edb "
+                 "None of the properties this artifact reports was stored apart on the "
+                 "tested images. In a Windows.edb cut short, such as a partial copy, the "
+                 "table is read up to the first of its pages "
+                 "that lies past the end of the file, and the run log names that page. "
+                 "Copies of szechuan_win10's file cut to 90, 75 and 50 percent of its "
+                 "length still gave all 1,641 rows, and one cut to 25 percent gave 571. "
+                 "The transaction logs beside Windows.edb "
                  "are not replayed.",
         "paths": ("*/[Ss]earch/[Dd]ata/[Aa]pplications/[Ww]indows/"
                   "[Ww]indows.[Ee][Dd][Bb]",),
