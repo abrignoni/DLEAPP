@@ -92,7 +92,13 @@ __artifacts_v2__ = {
                  "piece stored compressed, which is not decompressed) leaves the Correlated Path or "
                  "Correlated Name it would give blank although the index holds the item, and the run "
                  "log counts it and names the reason. None of these values was stored apart on the "
-                 "tested images. A "
+                 "tested images. In a Windows.edb cut short, such as a partial copy, the index is read "
+                 "up to the first of its pages that lies past the end of "
+                 "the file, and the run log names that page; only Correlated Path and Correlated Name "
+                 "depend on it. With lonewolf_win10's thumbnail caches beside copies of its "
+                 "Windows.edb cut to 90, 75, 50 and 25 percent of its length, all 52 rows were "
+                 "reported each time, and 40, 40, 40 and 38 of them carried a Correlated Path, "
+                 "against 40 with the whole file. A "
                  "cached thumbnail records that Explorer "
                  "generated a preview for the item; it does not record who viewed it, "
                  "and the item may since have been moved or deleted, so a thumbnail "
@@ -205,7 +211,7 @@ def _edb_map(path, relative_source=""):
     result = {}
     if impacket_ese is None:
         return result
-    database = impacket_ese.ESENT_DB(path)
+    database = ese_rows.ESEDatabase(path)
     try:
         database.mountDB()
         walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP,

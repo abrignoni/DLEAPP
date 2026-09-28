@@ -42,6 +42,7 @@ import struct
 import uuid
 from datetime import datetime, timedelta, timezone
 
+from scripts.ese_rows import ESEDatabase
 from scripts.vendor import impacket_ese
 
 JOB_MARKERS = tuple(bytes.fromhex(value) for value in (
@@ -210,7 +211,7 @@ class QmgrDatabase:
     """The live Jobs and Files records of one qmgr.db."""
 
     def __init__(self, path):
-        self._db = impacket_ese.ESENT_DB(path)
+        self._db = ESEDatabase(path)
 
     def _table(self, name):
         """(catalog data, root page) of a table, or (None, None).

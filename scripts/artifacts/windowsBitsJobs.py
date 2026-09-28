@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                         'log files, one row per distinct stored version.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-27",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": 'Reads the Background Intelligent Transfer Service queue in '
@@ -36,7 +36,14 @@ __artifacts_v2__ = {
                   " which ESE's own code treats as not there unless its version store still "
                   'holds an update to it '
                   '(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079),'
-                  ' is not a live row; it is counted in the run log instead. Recovered rows are'
+                  ' is not a live row; it is counted in the run log instead. If qmgr.db is cut '
+                  'short, such as a partial copy, and reading its Jobs or Files table reaches a '
+                  'page that lies past the end of the file, neither table is read and the run '
+                  'log names that page; the search below still covers the bytes the file holds. '
+                  'A folder holding only a copy of PC-MUS-001\'s qmgr.db, which gives 25 rows '
+                  'whole, cut to 90, 75, 50 and 25 percent of its length gave 25, 25, 8 and 0 '
+                  'rows: the 25 percent copy\'s tables could not be read, and the search found '
+                  'no record in the bytes it kept. Recovered rows are'
                   ' job records found by searching qmgr.db and every .db, .log and .jrs file in'
                   ' the folder for the job marker GUIDs BitsParser lists '
                   '(https://github.com/fireeye/BitsParser/blob/0a2b51eeec79c5e181d8fc526d5715552299c45f/BitsParser.py#L41-L47).'
@@ -143,7 +150,7 @@ __artifacts_v2__ = {
                         'distinct stored version.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-27",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": 'The files of the jobs in BITS Jobs, from the same folder and the same two '
@@ -151,7 +158,9 @@ __artifacts_v2__ = {
                   "searching qmgr.db and the folder's .db, .log and .jrs files for the file "
                   'marker GUID BitsParser lists '
                   '(https://github.com/fireeye/BitsParser/blob/0a2b51eeec79c5e181d8fc526d5715552299c45f/BitsParser.py#L40).'
-                  ' Rows, Record Status, Found In and Copies work as in BITS Jobs. The layout '
+                  ' Rows, Record Status, Found In and Copies work as in BITS Jobs. A qmgr.db '
+                  'cut short is read as in BITS Jobs; the same copies gave 39, 39, 11 and 0 of '
+                  'the 39 rows the whole file gives. The layout '
                   "is read from ANSSI's bits_parser (bits/structs.py at commit "
                   'bd3c79b0ccc9191ecc8209e9f0b836a2b16e0357, '
                   'https://github.com/ANSSI-FR/bits_parser/blob/bd3c79b0ccc9191ecc8209e9f0b836a2b16e0357/bits/structs.py#L131-L148):'
