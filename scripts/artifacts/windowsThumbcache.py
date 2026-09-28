@@ -19,8 +19,10 @@ import binascii
 
 try:
     from scripts.vendor import impacket_ese
+    from scripts import ese_rows
 except ImportError:
     impacket_ese = None
+    ese_rows = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc, check_in_embedded_media
 
@@ -171,27 +173,20 @@ def _as_cache_id(value):
     return None
 
 
-def _edb_map(path):
-    """Map System.ThumbnailCacheId to (path, name) from Windows.edb."""
+def _edb_map(path, relative_source=""):
+    """Map System.ThumbnailCacheId to (path, name) from Windows.edb.
+
+    A record ESE marks deleted is not read, and a record the ESE reader cannot
+    convert is skipped; both are counted in the run log."""
     result = {}
     if impacket_ese is None:
         return result
     database = impacket_ese.ESENT_DB(path)
     try:
         database.mountDB()
-        cursor = database.openTable("SystemIndex_PropertyStore")
-        if cursor is None:
-            return result
+        walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP)
         id_col = path_col = name_col = None
-        seen = 0
-        while seen < _ROW_CAP:
-            seen += 1
-            try:
-                row = database.getNextRow(cursor)
-            except Exception:  # pylint: disable=broad-exception-caught
-                continue
-            if row is None:
-                break
+        for row in walk:
             row = _norm_row(row)
             if id_col is None:
                 for key in row:
@@ -206,6 +201,8 @@ def _edb_map(path):
             cache_id = _as_cache_id(row.get(id_col))
             if cache_id is not None:
                 result[cache_id] = (_edb_text(row.get(path_col)), _edb_text(row.get(name_col)))
+        if walk.summary():
+            logfunc(f"Thumbnail Cache: {relative_source}, {walk.summary()}")
         return result
     finally:
         database.close()
@@ -292,7 +289,7 @@ def windowsThumbcache(context):
         low = source.lower()
         try:
             if low.endswith(_WINDOWS_EDB):
-                id_map.update(_edb_map(source))
+                id_map.update(_edb_map(source, context.get_relative_path(source)))
             elif low.endswith(_WINDOWS_DB):
                 id_map.update(_db_map(source))
         except Exception as exc:  # pylint: disable=broad-exception-caught

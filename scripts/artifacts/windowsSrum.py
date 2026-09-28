@@ -19,8 +19,10 @@ from datetime import datetime, timedelta, timezone
 
 try:
     from scripts.vendor import impacket_ese
+    from scripts import ese_rows
 except ImportError:
     impacket_ese = None
+    ese_rows = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 
@@ -280,18 +282,16 @@ def _decode_idblob(blob, id_type):
 def _build_idmap(database, label, relative_source):
     """Map SruDbIdMapTable's IdIndex to its resolved application id or user SID."""
     idmap = {}
-    cursor = database.openTable(_IDMAP)
-    if cursor is None:
-        logfunc(f"{label}: {relative_source} has no {_IDMAP}, so Application and "
-                "User are left blank")
-        return idmap
-    while True:
-        row = database.getNextRow(cursor)
-        if row is None:
-            break
+    walk = ese_rows.TableRows(database, _IDMAP)
+    for row in walk:
         row = _norm_row(row)
         idmap[row.get("IdIndex")] = _decode_idblob(row.get("IdBlob"),
                                                     row.get("IdType"))
+    if not walk.found:
+        logfunc(f"{label}: {relative_source} has no {_IDMAP}, so Application and "
+                "User are left blank")
+    elif walk.summary():
+        logfunc(f"{label}: {relative_source}, {walk.summary()}")
     return idmap
 
 
@@ -335,16 +335,14 @@ def _read_table(source, guid, row_builder, label, relative_source):
         database.mountDB()
         idmap = _build_idmap(database, label, relative_source)
         rows = []
-        cursor = database.openTable(guid)
-        if cursor is None:
+        walk = ese_rows.TableRows(database, guid)
+        for row in walk:
+            rows.append(row_builder(_norm_row(row), idmap))
+        if not walk.found:
             logfunc(f"{label}: {relative_source} has no {guid} table, so it holds "
                     "no rows for this SRUM provider")
-            return rows
-        while True:
-            row = database.getNextRow(cursor)
-            if row is None:
-                break
-            rows.append(row_builder(_norm_row(row), idmap))
+        elif walk.summary():
+            logfunc(f"{label}: {relative_source}, {walk.summary()}")
         return rows
     finally:
         database.close()
