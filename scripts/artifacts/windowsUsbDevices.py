@@ -80,6 +80,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no USBSTOR devices)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 2 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
         },
     },
 }

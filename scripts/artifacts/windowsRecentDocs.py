@@ -45,10 +45,12 @@ __artifacts_v2__ = {
                  "the name at the start of the numbered value, decoded from "
                  "UTF-16 and shown as stored; the shell item that follows the name "
                  "is not decoded, so a full path is not reconstructed. Key is the "
-                 "RecentDocs subkey the entry sits under: Overall is the root, "
-                 "which aggregates every recent item, and the extension keys and "
-                 "the Folder key repeat those same items split by type, so a file "
-                 "appears both under Overall and under its extension. MRU Rank is "
+                 "RecentDocs subkey the entry sits under: Overall is the root, and "
+                 "the extension keys and the Folder key hold items split by type; on "
+                 "the tested images every item under an extension key or the Folder "
+                 "key was also under Overall in the same hive, except one item each "
+                 "on lonewolf_win10 and pc_mus_001_win11 that sat under its extension "
+                 "key alone. MRU Rank is "
                  "the entry's position in that key's MRUListEx value, where 0 is "
                  "the most recently used; it is blank for a numbered entry that "
                  "MRUListEx no longer lists. Opened (UTC) is the key's LastWrite "
@@ -80,6 +82,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 37 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 27 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 70 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 35 rows",
         },
     },
 }

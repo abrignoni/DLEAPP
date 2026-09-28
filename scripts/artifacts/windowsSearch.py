@@ -54,7 +54,7 @@ __artifacts_v2__ = {
                        "created and accessed times the index recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SystemIndex_PropertyStore table in Windows.edb, the "
@@ -96,6 +96,8 @@ __artifacts_v2__ = {
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 587 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 822 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1,641 rows",
         },
     },
 }

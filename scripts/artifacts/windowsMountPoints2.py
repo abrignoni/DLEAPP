@@ -20,16 +20,18 @@ __artifacts_v2__ = {
                  "leading ## as \\\\ and each other # as \\; on szechuan_win10, the public DFIR Madness "
                  "'Stolen Szechuan Sauce' image, the one such entry rewritten "
                  "this way equals the same user's mapped drive RemotePath and Map Network Drive MRU "
-                 "value. The CPC subkey is not reported; on the three tested images it "
-                 "held only an empty Volume subkey. Label is _LabelFromReg, or "
+                 "value. The CPC subkey is not reported; on the four tested images it held only an empty "
+                 "Volume subkey. Label is _LabelFromReg, or "
                  "_LabelFromDesktopINI when that is absent or empty. Label is empty on every row "
-                 "of the three tested images, where the only such values are two empty "
-                 "_LabelFromDesktopINI strings on af_case2_win10. Key "
+                 "of the four tested images, where the only such values are two empty _LabelFromDesktopINI "
+                 "strings on af_case2_win10 and one on szechuan_win10. Key "
                  "Last Written is when the subkey was last written, which is not established as when "
                  "the volume or share was attached or used. Volume GUIDs are not resolved to drive "
-                 "letters or devices here. On the three tested images every reported entry"
-                 " is a Volume GUID and comes from the one user hive holding the key, so Type and User"
-                 " each hold one value there and Share Path is empty."
+                 "letters or devices here. On af_case2_win10, lonewolf_win10 and pc_mus_001_win11 every "
+                 "reported entry is a Volume GUID and comes from the one user hive holding the key, so Type "
+                 "and User each hold one value there and Share Path is empty; on szechuan_win10 the 6 rows "
+                 "are 5 Volume GUIDs and 1 Network share, the only row with a Share Path, and come from 3 of "
+                 "the 4 user hives holding the key, so User holds three values there."
                  " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
                  "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
                  "following Maxim Suhanov's 'Windows registry file format specification' "
@@ -47,6 +49,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 3 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 5 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 6 rows",
         },
     },
 }

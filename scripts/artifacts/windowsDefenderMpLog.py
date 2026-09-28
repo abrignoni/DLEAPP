@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        "those files, and the file with the longest scan.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from the MPLog-*.log files under ProgramData\\Microsoft\\Windows "
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
                  "real-time protection', section 'Analyze the Microsoft Protection Log', "
                  "https://github.com/MicrosoftDocs/microsoft-365-docs/blob/29be83014e65f769e66c26ef6534c534309710b2/microsoft-365/security/defender-endpoint/troubleshoot-performance-issues.md#L56-L74). "
                  "That page shows the line as 'Per-process counts:ProcessImageName: ...' "
-                 "with no time of its own. On pc_mus_001_win11 the same fields also stood "
+                 "with no time of its own. On pc_mus_001_win11 and szechuan_win10 the same fields also stood "
                  "on lines that began with a time and added a Pid field. CrowdStrike's "
                  "post shows that timed form, without Pid, describes its leading time as "
                  "generated in UTC, and in its case study reads Pid as the process ID "
@@ -83,7 +83,9 @@ __artifacts_v2__ = {
                  "and as UTF-8 otherwise; each MPLog on the "
                  "registered images began with a UTF-16 little-endian mark. On "
                  "pc_mus_001_win11 the one MPLog gave 596 rows: 585 lines began with a "
-                 "time ending in Z and carried Pid, and 11 were Per-process counts lines. "
+                 "time ending in Z and carried Pid, and 11 were Per-process counts lines; on szechuan_win10 "
+                 "the one MPLog gave 17 rows: 8 lines began with a time ending in Z and carried Pid, and 9 "
+                 "were Per-process counts lines. "
                  "The MPLog files on af_case2_win10 and lonewolf_win10 hold no line naming "
                  "ProcessImageName, so this artifact reports no rows there. A line naming "
                  "ProcessImageName that matches neither form is counted in the run log and "
@@ -99,6 +101,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (the MPLog holds no line naming ProcessImageName)",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 596 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (the MPLog holds no line naming ProcessImageName)",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 17 rows",
                        },
     },
 }

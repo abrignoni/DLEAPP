@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                        "timestamps, size, volume and the machine the link was made on.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in a user's Recent folder "
@@ -66,6 +66,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 20 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 14 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 38 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 19 rows",
         },
     },
 }

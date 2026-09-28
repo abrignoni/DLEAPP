@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                        "run, from PcaAppLaunchDic.txt (Windows 11).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "PcaAppLaunchDic.txt keeps one pipe-separated line per executable: "
@@ -48,6 +48,8 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 24 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (PCA is a Windows 11 feature; file absent)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
     "pcaGeneralDb": {
@@ -59,7 +61,7 @@ __artifacts_v2__ = {
                        "exit-code message.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "PcaGeneralDb0.txt (and the alternate PcaGeneralDb1.txt) keep one "
@@ -72,8 +74,10 @@ __artifacts_v2__ = {
                  "undocumented code reported as stored, not interpreted. Exit Code / "
                  "Message is the event text as stored. The vendor does not document "
                  "the Run Time timezone; on the tested Windows 11 image the Run Time "
-                 "values matched the UTC PcaAppLaunchDic times for the same "
-                 "executable to within the same hour with no fixed offset, so Run "
+                 "nearest the UTC PcaAppLaunchDic time for the same executable was "
+                 "within an hour of it for 9 of the 13 executables in both files, "
+                 "from 374 seconds before to 228 seconds after with no fixed offset, "
+                 "and 14 hours to 17 days before it for the other 4, so Run "
                  "Time is rendered as UTC. The log is a Windows 11 feature and is "
                  "absent on earlier Windows. Field layout: Sygnia, 'Diving into the "
                  "Windows 11 Forensics PCA Artifact', "
@@ -85,6 +89,8 @@ __artifacts_v2__ = {
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 123 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (PCA is a Windows 11 feature; files absent)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }

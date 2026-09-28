@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "stored value, stored count and the created and last used times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the autofill table of each Web Data database in a Chromium-based browser profile: "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
                  "and Edge profiles sit in one home folder. Tested: Chrome 108.0.5359.125 (21 rows from "
                  "profiles Default and Profile 2) and Microsoft Edge 108.0.1462.54 (0 rows) on "
                  "pc_mus_001_win11, and Chrome 65.0.3325.181 on lonewolf_win10. Not read: the autofill "
-                 "address, credit card and IBAN tables of Web Data. No member of af_case2_win10 or "
+                 "address, credit card and IBAN tables of Web Data. No member of af_case2_win10, szechuan_win10 or "
                  "dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
@@ -96,6 +96,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 21 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 401 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },

@@ -26,7 +26,7 @@ __artifacts_v2__ = {
                  "name in the user's Office Recent folder, and their stored times differ from those "
                  "shortcuts' modification times by 4.4 and 21.5 hours. Account Key is the User MRU "
                  "subkey name as stored and is blank for a list outside User MRU. No NTUSER.DAT "
-                 "under Users on pc_mus_001_win11 or af_case2_win10 has a "
+                 "under Users on pc_mus_001_win11, af_case2_win10 or szechuan_win10 has a "
                  "Software\\Microsoft\\Office key. On "
                  "lonewolf_win10 all nine items are under Office Version 16.0 in one user's hive, so "
                  "Office Version and User each hold one value there. A dirty hive, one whose base block's "
@@ -54,6 +54,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Office key in any NTUSER.DAT under "
                               "Users)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

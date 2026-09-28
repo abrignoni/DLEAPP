@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        "rendered as images without the asset keys.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
         "notes": "Reads Chromium Simple Cache entry files (*_0) whose bytes contain wire.com and "
@@ -37,6 +37,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Wire profile folder)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Wire profile folder)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Wire profile folder)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "hard-drive",

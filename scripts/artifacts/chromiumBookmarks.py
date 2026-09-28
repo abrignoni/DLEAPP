@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "path, the date added and the date last used.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the Bookmarks and AccountBookmarks JSON files of each Chromium-based browser "
@@ -42,8 +42,8 @@ __artifacts_v2__ = {
                  "EncryptedBookmarks2 and EncryptedAccountBookmarks2 files, whose constants in "
                  "bookmark_constants.cc name them as encrypted bookmark files "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/bookmarks/common/bookmark_constants.cc#L17-L20). "
-                 "No member of af_case2_win10 or "
-                 "dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
+                 "No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched any of the "
+                 "declared paths. The user data folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
                  "reported with that folder as its Profile. Only the Windows Google Chrome "
@@ -114,6 +114,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (its one Bookmarks file holds root folders only)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (its one Bookmarks file holds root folders only)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },

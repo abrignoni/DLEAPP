@@ -72,8 +72,8 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11. On af_case2_win10 Target File was blank on its one 50 "
                  "row, and Read Only and VHD Type are empty because it carries no 12 "
                  "records; on pc_mus_001_win11 Operation and Target File are empty because "
-                 "it carries no 50 or 51 records. lonewolf_win10 carries no VHDMP "
-                 "Operational log. Not reported: the manifest's pointer fields "
+                 "it carries no 50 or 51 records. lonewolf_win10 and szechuan_win10 carry "
+                 "no VHDMP Operational log. Not reported: the manifest's pointer fields "
                  "(VirtualDisk, HandleContext, FileObject), the VmId, Version, Flags, "
                  "AccessMask, WriteDepth and GetInfoOnly fields of 12, the DesiredAccess "
                  "field of 22 and 27, and the log's other events (14, 15, 16, 21, 26, 30, "
@@ -90,6 +90,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 14 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 260 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no VHDMP Operational log on the image)",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
                        },
     },
 }

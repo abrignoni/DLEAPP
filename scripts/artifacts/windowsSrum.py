@@ -45,7 +45,7 @@ __artifacts_v2__ = {
                        "application, user SID, network interface and snapshot time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Network Usage table "
@@ -61,10 +61,11 @@ __artifacts_v2__ = {
                  "of range, and the OLE reading places every row in the same period "
                  "as the FILETIME columns in these tables. "
                  "Application and User are resolved from SruDbIdMapTable: "
-                 "Application is the stored application id (a package moniker, a "
-                 "service name, or an executable path as stored) and User is the "
-                 "account SID; either is blank when the entry's id is 0 or absent "
-                 "from the map. SRUM aggregates usage into periodic snapshots, so a "
+                 "Application is the stored application id (such as a package "
+                 "moniker, a service name, or an executable path, as stored) and "
+                 "User is the account SID; either is blank when the entry's id is 0, "
+                 "is absent from the map or maps to an entry with no IdBlob. SRUM "
+                 "aggregates usage into periodic snapshots, so a "
                  "row is a recorded total for a snapshot and not a single user "
                  "action, and it does not record who was at the keyboard. A "
                  "SRUDB.dat that does not carry this provider table gives this "
@@ -81,6 +82,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2242 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 57 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 2471 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 217 rows",
         },
     },
     "srumApplicationResourceUsage": {
@@ -91,7 +93,7 @@ __artifacts_v2__ = {
                        "snapshot time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Application Resource Usage table "
@@ -107,8 +109,8 @@ __artifacts_v2__ = {
                  "reading places every row in the same period as the FILETIME "
                  "columns in these tables. Application and User "
                  "are resolved from SruDbIdMapTable: Application is the stored "
-                 "application id (a package moniker, a service name, or an "
-                 "executable path as stored) and User is the account SID; either is "
+                 "application id (such as a package moniker, a service name, or an "
+                 "executable path, as stored) and User is the account SID; either is "
                  "blank when the entry's id is 0 or absent from the map. SRUM "
                  "aggregates usage into periodic snapshots, so a row is a recorded "
                  "total for a snapshot and not a single user action, and it does not "
@@ -125,6 +127,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 14667 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 1458 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 15055 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 766 rows",
         },
     },
     "srumNetworkConnections": {
@@ -134,7 +137,7 @@ __artifacts_v2__ = {
                        "connection start time and the connected-time counter.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Network Connections table "
@@ -143,8 +146,10 @@ __artifacts_v2__ = {
                  "artifact's winfiletime handling of that column. Connected Time is "
                  "the connected-time counter as stored; its unit is not converted. "
                  "Interface LUID and L2 Profile ID are the network interface and "
-                 "profile identifiers as stored. The application and user ids are 0 "
-                 "on the tested images, so no application or user is surfaced here. "
+                 "profile identifiers as stored. The application and user ids are 1 "
+                 "and 2 on every row of the four tested images, and SruDbIdMapTable "
+                 "holds no IdBlob for either, so no application or user is surfaced "
+                 "here. "
                  "Read from SRUDB.dat, named in Source File, "
                  "with the ESE reader adapted from impacket in scripts/vendor. Each "
                  "row is one entry in this SRUM provider table. Timestamp (UTC) is "
@@ -169,6 +174,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 224 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 10 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 201 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 10 rows",
         },
     },
     "srumExecutionStats": {
@@ -178,7 +184,7 @@ __artifacts_v2__ = {
                        "the application, user SID, end time and duration.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-15",
+        "last_update_date": "2026-09-27",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Execution Stats table "
@@ -199,8 +205,9 @@ __artifacts_v2__ = {
                  "resolved from "
                  "SruDbIdMapTable: Application is the stored application id (a "
                  "package moniker, a service name, or an executable path as stored) "
-                 "and User is the account SID; either is blank when the entry's id "
-                 "is 0 or absent from the map. SRUM aggregates usage into periodic "
+                 "and User is the account SID; either is blank when the entry's id is 0, "
+                 "is absent from the map or maps to an entry with no IdBlob. SRUM "
+                 "aggregates usage into periodic "
                  "snapshots, so a row is a recorded total for a snapshot and not a "
                  "single user action, and it does not record who was at the "
                  "keyboard. A SRUDB.dat that does not carry this provider table "
@@ -217,6 +224,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 19708 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 2777 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 12332 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1,488 rows",
         },
     },
 }

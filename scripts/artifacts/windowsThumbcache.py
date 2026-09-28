@@ -46,7 +46,7 @@ __artifacts_v2__ = {
                        "the Windows Search index where the item was indexed.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none (Windows.edb correlation uses the vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the thumbcache_*.db files in a user's Explorer folder, "
@@ -67,13 +67,10 @@ __artifacts_v2__ = {
                  "Correlated Path and Correlated Name are the item's path and name "
                  "from the Windows Search index, joined on the index's "
                  "System_ThumbnailCacheId matching this entry's id; they are blank "
-                 "when the search index did not index the item. How many image "
-                 "entries carry a name depends on how much of the user's own content "
-                 "the search index covered: on a system with few indexed user files "
-                 "most image thumbnails are user interface icons the index does not "
-                 "cover and carry no name, while on a system whose user kept indexed "
-                 "photos and documents a majority of the image thumbnails resolve to "
-                 "a name. The search index is read from "
+                 "when the search index did not index the item. The share of image entries that "
+                 "carry a name varied by image: 0 of 128 on af_case2_win10, 22 of 34 on "
+                 "lonewolf_win10, 2 of 108 on pc_mus_001_win11 and 4 of 396 on szechuan_win10. The "
+                 "search index is read from "
                  "Windows.edb (Windows 10 and earlier, with the vendored ESE reader) "
                  "or Windows.db (Windows 11, SQLite, read only) when present beside "
                  "the thumbnail caches. A cached thumbnail records that Explorer "
@@ -93,6 +90,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 142 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 144 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 52 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 404 rows",
         },
     },
 }

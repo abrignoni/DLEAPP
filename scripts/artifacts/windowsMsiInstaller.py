@@ -67,16 +67,19 @@ __artifacts_v2__ = {
                  "strings in that documented order, as stored less any leading or trailing "
                  "whitespace; Message is the text of the "
                  "117xx events, which store the product name inside it. Update is filled "
-                 "only by 1036 and 1037 and was empty on every row of pc_mus_001_win11 and "
-                 "lonewolf_win10. User SID is the SID in the record's Security element and "
-                 "held one value on every row of pc_mus_001_win11. Event Time (UTC) is the "
+                 "only by 1036 and 1037 and was empty on every row of pc_mus_001_win11, "
+                 "lonewolf_win10 and szechuan_win10. User SID is the SID in the record's "
+                 "Security element and "
+                 "held one value on every row of pc_mus_001_win11 and szechuan_win10. Event "
+                 "Time (UTC) is the "
                  "record's TimeCreated SystemTime, which python-evtx renders from the "
                  "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/"
                  "cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name the "
-                 "record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Not reported: the other "
+                 "record stores: it held one value on every row of af_case2_win10, "
+                 "pc_mus_001_win11 and szechuan_win10 and two values on lonewolf_win10. Not "
+                 "reported: the other "
                  "MsiInstaller events (1022, 1029, 1031, 1038, 1040 and 1042 on the registered "
                  "images), the records' binary data, and records of other providers in this "
                  "log that reuse these Event IDs. A record python-evtx cannot render, or whose "
@@ -91,6 +94,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 39 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 8 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 22 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 10 rows",
         },
     },
 }

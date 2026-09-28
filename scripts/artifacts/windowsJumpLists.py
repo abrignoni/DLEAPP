@@ -44,7 +44,7 @@ __artifacts_v2__ = {
                        "and the machine the link was made on.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "olefile (for automatic destinations)",
         "category": "Windows",
         "notes": "Rows from the shell links inside a user's jump list files, read "
@@ -59,7 +59,8 @@ __artifacts_v2__ = {
                  "ordered here by its DestList stream. MRU Position is the entry's "
                  "place in the DestList's stored order, 1 first; on the tested images "
                  "the entries are stored in descending order of Entry Recorded (UTC), "
-                 "so position 1 is the entry with the most recent recorded time. Entry "
+                 "so position 1 has the most recent recorded time, which position 2 shares on one "
+                 "szechuan_win10 jump list. Entry "
                  "Recorded (UTC) is the Windows FILETIME stored in the DestList entry, "
                  "which the format documentation labels the entry's last modification "
                  "time; it is a jump-list timestamp, not a filesystem timestamp, and "
@@ -106,6 +107,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 71 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 28 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 66 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 54 rows",
         },
     },
 }

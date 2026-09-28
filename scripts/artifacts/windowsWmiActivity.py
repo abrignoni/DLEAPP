@@ -56,18 +56,18 @@ __artifacts_v2__ = {
                  "them processid, MachineName and providerName, and both spellings are "
                  "read; Possible Cause is PossibleCause. Every value is reported as stored, with "
                  "any leading or trailing whitespace removed. Client Machine held one value on "
-                 "every 5860 row of af_case2_win10, pc_mus_001_win11 and lonewolf_win10 (12, 29 "
-                 "and 3 rows), the same text as Computer on 12 of 12, 29 "
-                 "of 29 and 2 of 3 of those rows. On each registered image the 5861 "
-                 "rows named one Event Filter and Consumer pair (12 rows on "
-                 "af_case2_win10, 10 on pc_mus_001_win11 and 3 on lonewolf_win10). Event "
+                 "every 5860 row of af_case2_win10, pc_mus_001_win11, lonewolf_win10 and "
+                 "szechuan_win10 (12, 29, 3 and 5 rows), the same text as Computer on 12 of 12, "
+                 "29 of 29, 2 of 3 and 2 of 5 of those rows. On each registered image the 5861 "
+                 "rows named one Event Filter and Consumer pair (12 rows on af_case2_win10, 10 on "
+                 "pc_mus_001_win11, 3 on lonewolf_win10 and 6 on szechuan_win10). Event "
                  "Time (UTC) is the record's TimeCreated SystemTime, which python-evtx "
                  "renders from the FILETIME the record stores, counted in UTC (python-evtx "
                  "0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Not reported: the "
+                 "pc_mus_001_win11, two values on lonewolf_win10 and three on szechuan_win10. Not reported: the "
                  "queryid field of 5859. A record python-evtx cannot render, or whose XML "
                  "does not parse, is counted in the run log and not reported; every record "
                  "in this log rendered on the registered images. A row records what the "
@@ -81,6 +81,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 36 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 49 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 17 rows",
                        },
     },
     "wmiProviderActivity": {
@@ -115,14 +116,15 @@ __artifacts_v2__ = {
                  "codes as hexadecimal. Result Code held one value on every 5857 row of "
                  "each registered image. Component and Possible Cause held the same text as "
                  "each other on 278 of the 280 5858 rows on lonewolf_win10, 173 of 174 on "
-                 "af_case2_win10 and 305 of 338 on pc_mus_001_win11. Event "
+                 "af_case2_win10, 305 of 338 on pc_mus_001_win11 and 443 of 443 on "
+                 "szechuan_win10. Event "
                  "Time (UTC) is the record's TimeCreated SystemTime, which python-evtx "
                  "renders from the FILETIME the record stores, counted in UTC (python-evtx "
                  "0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Not reported: the Id "
+                 "pc_mus_001_win11, two values on lonewolf_win10 and three on szechuan_win10. Not reported: the Id "
                  "field of 5858. A record python-evtx cannot render, or whose XML does not "
                  "parse, is counted in the run log and not reported; every record in this "
                  "log rendered on the registered images. A 5858 row records an operation "
@@ -136,6 +138,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 287 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 665 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 592 rows",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 509 rows",
                        },
     },
 }

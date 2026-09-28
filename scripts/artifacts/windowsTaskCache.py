@@ -31,8 +31,8 @@ __artifacts_v2__ = {
         "name": "Scheduled Task Cache (TaskCache)",
         "description": "Scheduled tasks in the SOFTWARE hive's TaskCache: last start and stop "
                        "times, registration time, last action result and first action, with "
-                       "the Tree key's security descriptor and whether the task's XML "
-                       "definition file exists, as stored.",
+                       "whether the task's Tree key carries a security descriptor and whether "
+                       "the task's XML definition file exists, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
@@ -63,13 +63,14 @@ __artifacts_v2__ = {
                  "(https://github.com/EricZimmerman/RegistryPlugins/blob/c16219db698f7ee66fbd97de7ec5d17fc10bdf8e/RegistryPlugin.TaskCache/TaskCache.cs#L87-L105). "
                  "Last Start (UTC), Last Stop (UTC) and Registered (UTC) are the FILETIMEs at 0x0C, "
                  "0x1C and 4, a zero shown blank. On szechuan_win10, whose Task Scheduler "
-                 "Operational log covers 2020-09-18 21:42 to 2020-09-19 01:24 UTC, Last Start equalled "
-                 "the time of the task's latest Event ID 100 record within two seconds on all 14 tasks "
+                 "Operational log covers 2020-09-18 21:42 to 2020-09-19 05:13 UTC, Last Start equalled "
+                 "the time of the task's latest Event ID 100 record within two seconds on all 46 tasks "
                  "whose Last Start falls in that span, Last Stop equalled its latest Event ID 102 or "
-                 "201 (Task action finished) record on all 13 such tasks, and Registered equalled the "
-                 "task's Event ID 106 (Task registered) record on all 9 tasks with one, and an Event "
-                 "ID 140 (Task registration updated) record on 9 of the 20 tasks with those, 6 of them "
-                 "the latest. Last Action Result is the 32-bit value at 0x18 in hexadecimal, as "
+                 "201 (Task action finished) record on 42 of the 45 such tasks and its latest Event ID "
+                 "202 record on the other 3, and Registered equalled the task's Event ID 106 (Task "
+                 "registered) record on 11 of the 12 tasks with one, and an Event ID 140 (Task "
+                 "registration updated) record on 11 of the 23 tasks with those, 8 of them the latest. "
+                 "Last Action Result is the 32-bit value at 0x18 in hexadecimal, as "
                  "stored; it was 0x00000000 on 706 of the 755 tasks. The 32-bit value at 0x14 is not "
                  "reported; it was zero on all 755. Action Type, Command, Arguments, Working "
                  "Directory, Class ID, Data and Action Context come from the task's Actions value, "
@@ -111,6 +112,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 196 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 245 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 224 rows",
         },
     },
 }

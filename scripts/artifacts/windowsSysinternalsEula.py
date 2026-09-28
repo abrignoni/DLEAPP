@@ -72,6 +72,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no hive holds a Software\\Sysinternals key)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no hive holds a Software\\Sysinternals key)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

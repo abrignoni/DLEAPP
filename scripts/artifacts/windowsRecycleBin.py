@@ -87,6 +87,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1 row",
             "lonewolf_win10": "Windows 10 Education build 16299 | 5 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no $I files present)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

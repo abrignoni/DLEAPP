@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                        "name, and the other values the stream holds, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "File System (Windows)",
         "notes": "One row per Zone.Identifier stream, read from a raw image or E01 through the "
@@ -40,13 +40,13 @@ __artifacts_v2__ = {
                  "the file still holds what it held when the stream was written, is not "
                  "recorded in it. Tested on the NTFS fixture written by mkntfs and ntfs-3g that "
                  "the raw image seeker tests read (admin/test/data/raw_images/ntfs-streams.img.gz),"
-                 " which holds two such streams: 2 rows, both ZoneId 3. Run on three Windows-written "
-                 "volumes read as E01 images: 12 rows on pc_mus_001_win11, 8 on af_case2_win10 "
-                 "and 13 on lonewolf_win10, equal on each to the number of Zone.Identifier "
+                 " which holds two such streams: 2 rows, both ZoneId 3. Run on the Windows-written volumes of four E01 "
+                 "images: 12 rows on pc_mus_001_win11, 8 on af_case2_win10, 13 on lonewolf_win10 and 16 on "
+                 "szechuan_win10, equal on each of the first three to the number of Zone.Identifier "
                  "streams qnxprobe 1.37 lists, each of which is byte-identical to The Sleuth "
-                 "Kit's icat reading of the same stream. ZoneId held 3 on all 33 rows, so Zone "
-                 "held URLZONE_INTERNET on all 33. HostUrl has a value on 10, 1 and 12 of those "
-                 "rows, ReferrerUrl on 11, 1 and 12, and Other Values on 0, 4 and 1. A 26-byte "
+                 "Kit's icat reading of the same stream. ZoneId held 3 on all 49 rows, so Zone held URLZONE_INTERNET on "
+                 "all 49. HostUrl has a value on 10, 1, 12 and 0 of those rows, ReferrerUrl on 11, 1, 12 and 0, and Other "
+                 "Values on 0, 4, 1 and 8. A 26-byte "
                  "stream resident in a deleted record of a public Windows XP $MFT sample is "
                  "also decoded by the unit test.",
         "paths": ('*:Zone.Identifier',),
@@ -55,6 +55,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 12 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 8 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 13 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 16 rows",
         },
         "artifact_icon": "world-download",
     }

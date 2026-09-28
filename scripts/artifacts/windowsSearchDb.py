@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        "modified, created and accessed times the index recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the SystemIndex_<n>_PropertyStore table in Windows.db, the "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
                  "establish that a user opened the item, and the index can retain an "
                  "entry after the item is removed from disk. This is the SQLite Windows "
                  "11 counterpart of the Windows Search Index artifact, which reads the "
-                 "older ESE Windows.edb; the two do not appear together on one system. "
+                 "older ESE Windows.edb; none of the four tested images held both. "
                  "The property names are read from the index's own metadata table in "
                  "the file. Format: libyal esedb-kb / Windows Search notes on the "
                  "Windows.db schema, https://github.com/libyal/esedb-kb/blob/main/"
@@ -77,7 +77,10 @@ __artifacts_v2__ = {
         "output_types": ["standard"],
         "artifact_icon": "search",
         "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2272 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }

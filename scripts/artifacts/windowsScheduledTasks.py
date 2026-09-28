@@ -27,7 +27,7 @@ __artifacts_v2__ = {
                        "and registration metadata.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the Task Scheduler XML definitions under "
@@ -72,6 +72,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 214 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 170 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 174 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 197 rows",
         },
     },
 }

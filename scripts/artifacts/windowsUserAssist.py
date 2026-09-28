@@ -43,7 +43,10 @@ __artifacts_v2__ = {
         "category": "Windows",
         "notes": "Read from each NTUSER.DAT, named in Source File. Program is the "
                  "value name with its ROT13 encoding reversed and is shown as "
-                 "stored; it is a path or a KnownFolder-GUID path, and does not by "
+                 "stored; it is a path, a KnownFolder-GUID path or a name with no "
+                 "backslash (18 of the 45 rows on af_case2_win10, 29 of 71 on "
+                 "lonewolf_win10, 41 of 94 on pc_mus_001_win11 and 50 of 83 on "
+                 "szechuan_win10), and does not by "
                  "itself establish who ran it. Run Count, Focus Count and Focus "
                  "Time (ms) are read from the fixed 72-byte Windows 7+ Count "
                  "structure at offsets 4, 8 and 12. Last Executed (UTC) is the "
@@ -76,6 +79,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 94 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 45 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 71 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 83 rows",
         },
     },
 }

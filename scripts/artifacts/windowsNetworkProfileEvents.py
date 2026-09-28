@@ -43,17 +43,19 @@ __artifacts_v2__ = {
                  "Guid fields. Type (as stored), State (as stored) and Category (as "
                  "stored) are the Type, State and Category numbers, for which the "
                  "published manifest dump carries no names. Description held the same text "
-                 "as Network Name on every row of af_case2_win10, pc_mus_001_win11 and "
-                 "lonewolf_win10 (39, 178 and 22 rows); whether the two can differ was not "
-                 "established. Type held one "
-                 "value on every row of each registered image, and Category held one value "
+                 "as Network Name on every row of af_case2_win10, pc_mus_001_win11, "
+                 "lonewolf_win10 and szechuan_win10 (39, 178, 22 and 21 rows); whether the "
+                 "two can differ was not "
+                 "established. Type held one value on every row of af_case2_win10, "
+                 "lonewolf_win10 and pc_mus_001_win11 and two values on szechuan_win10 (0 "
+                 "on 16 rows and 1 on 5), and Category held one value "
                  "on every row of pc_mus_001_win11 and lonewolf_win10. Event Time (UTC) is "
                  "the record's TimeCreated SystemTime, which python-evtx renders from the "
                  "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Not reported: the "
+                 "pc_mus_001_win11 and two values on each of lonewolf_win10 and szechuan_win10. Not reported: the "
                  "log's other events (4001, 4002, 4003, 4004 and 20002 on the registered "
                  "images). A record python-evtx cannot render, or whose XML does not "
                  "parse, is counted in the run log and not reported; every record in this "
@@ -68,6 +70,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 39 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 178 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 22 rows",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 21 rows",
                        },
     },
 }

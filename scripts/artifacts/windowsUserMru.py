@@ -71,6 +71,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (RunMRU empty)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (RunMRU empty)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (RunMRU empty)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "typedPaths": {
@@ -110,6 +111,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1 row",
             "af_case2_win10": "Windows 10 1809 build 17763 | 2 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (TypedPaths empty)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "typedUrls": {
@@ -154,6 +156,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 2 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 2 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 5 rows",
         },
     },
     "wordWheelQuery": {
@@ -197,6 +200,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (WordWheelQuery empty)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (WordWheelQuery empty)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (WordWheelQuery empty)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "openSaveMru": {
@@ -245,6 +249,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 3 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 10 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 43 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 6 rows",
         },
     },
     "lastVisitedMru": {
@@ -289,6 +294,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 5 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 5 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 2 rows",
         },
     },
 }

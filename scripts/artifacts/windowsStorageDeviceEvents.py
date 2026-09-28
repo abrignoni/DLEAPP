@@ -31,7 +31,7 @@ __artifacts_v2__ = {
                        "as each record stores them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Partition%4Diagnostic.evtx, named in the "
@@ -52,13 +52,13 @@ __artifacts_v2__ = {
                  "(as stored) and Partition Style (as stored) are BusType and "
                  "PartitionStyle, numbers for which the published manifest dump carries no "
                  "names; the rows storing Bus Type 7 were exactly the rows whose Parent ID "
-                 "begins USB\\ (8 on pc_mus_001_win11 and 7 on lonewolf_win10). Capacity "
-                 "was 0 on 6, 4 and 1 rows on af_case2_win10, pc_mus_001_win11 and "
-                 "lonewolf_win10, and those rows still stored a Model, and a Serial Number "
+                 "begins USB\\ (8 on pc_mus_001_win11, 7 on lonewolf_win10 and 1 on szechuan_win10). Capacity "
+                 "was 0 on 6, 4 and 1 rows on af_case2_win10, pc_mus_001_win11 and lonewolf_win10 and on no "
+                 "row of szechuan_win10, and those rows still stored a Model, and a Serial Number "
                  "on pc_mus_001_win11 and lonewolf_win10; what a zero capacity marks is "
                  "not established here. Event Version is the record's event version, which "
                  "held one value on every row of each registered image: 0 on "
-                 "af_case2_win10 and lonewolf_win10 and 4 on pc_mus_001_win11. Revision, "
+                 "af_case2_win10 and lonewolf_win10 and 4 on pc_mus_001_win11 and szechuan_win10. Revision, "
                  "Serial Number, Partition Style and User Removal Policy each held one "
                  "value on all 33 rows of af_case2_win10; Partition Count held one value "
                  "on all 11 rows of lonewolf_win10. Event Time (UTC) is the record's "
@@ -66,8 +66,8 @@ __artifacts_v2__ = {
                  "record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
-                 "the record stores: it held one value on every row of pc_mus_001_win11 "
-                 "and two values on af_case2_win10 and lonewolf_win10. Not reported: the "
+                 "the record stores: it held one value on every row of pc_mus_001_win11, two values on "
+                 "af_case2_win10 and lonewolf_win10 and three on szechuan_win10. Not reported: the "
                  "event's other fields, including the partition table, MBR and volume boot "
                  "record bytes, which are not decoded. A record python-evtx cannot render, "
                  "or whose XML does not parse, is counted in the run log and not reported; "
@@ -82,6 +82,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 33 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 21 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 11 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 10 rows",
         },
     },
     "pnpDeviceConfiguration": {
@@ -118,8 +119,9 @@ __artifacts_v2__ = {
                  "record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
-                 "the record stores: it held one value on every row of pc_mus_001_win11 "
-                 "and two values on af_case2_win10 and lonewolf_win10. Rows cover every "
+                 "the record stores: it held one value on every row of pc_mus_001_win11, two "
+                 "values on af_case2_win10 and lonewolf_win10 and three on szechuan_win10. Rows "
+                 "cover every "
                  "device class the log names, not only storage. Not reported: the DriverInbox, "
                  "DriverSection, DriverRank, OutrankedDrivers and DeviceUpdated fields of 400, "
                  "the LowerFilters and UpperFilters fields of 410, and the log's other events "
@@ -135,6 +137,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 345 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 205 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 260 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 411 rows",
         },
     },
 }

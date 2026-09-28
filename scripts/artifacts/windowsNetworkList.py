@@ -49,8 +49,9 @@ __artifacts_v2__ = {
                  "DateLastConnected SYSTEMTIME values and reported as stored, since a SYSTEMTIME "
                  "carries no time zone. On the tested images DateLastConnected was local time: it "
                  "was a whole number of hours before the profile key's last-written time, a UTC "
-                 "FILETIME, to the millisecond (7 hours on af_case2_win10, 4 on lonewolf_win10 and "
-                 "5 on pc_mus_001_win11). Neither value is converted or labelled "
+                 "FILETIME, to within 2 milliseconds (7 hours on af_case2_win10, 4 on "
+                 "lonewolf_win10, 5 on pc_mus_001_win11 and 7 on szechuan_win10). Neither value is "
+                 "converted or labelled "
                  "UTC. Default Gateway MAC and DNS Suffix come from the network's "
                  "signature under Signatures (Managed or Unmanaged), joined to "
                  "the profile by the signature's ProfileGuid; Default Gateway MAC "
@@ -81,6 +82,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1 row",
             "af_case2_win10": "Windows 10 1809 build 17763 | 1 row",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 2 rows",
         },
     },
 }

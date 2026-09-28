@@ -84,11 +84,9 @@ __artifacts_v2__ = {
                  "expire. Login Count and Failed Login Count are the logon and "
                  "failed-logon counters stored in the account's F record; a "
                  "non-zero Login Count is the count the SAM hive stored, not "
-                 "proof of who was at the keyboard. The SAM logon count and "
-                 "last-logon time are not updated for every sign-in, so a zero "
-                 "Login Count or a blank Last Login is not evidence the account "
-                 "was never used; on one tested image an active account carried "
-                 "a zero Login Count and no last-logon time. Only local "
+                 "proof of who was at the keyboard. A zero Login Count or a blank Last Login is not evidence the "
+                 "account was never used: on pc_mus_001_win11 an enabled account with a zero Login Count and no "
+                 "last-logon time has Background Activity Moderator (BAM) entries under its SID. Only local "
                  "accounts are in the SAM hive; domain and Microsoft-account "
                  "sign-ins are not. The SAM F record carries "
                  "no account-creation timestamp, so none is reported. Reading "
@@ -120,6 +118,7 @@ __artifacts_v2__ = {
                                 "500/501/503/504 and user borch 1001",
             "lonewolf_win10": "Windows 10 Education build 16299 | 5 rows: built-in "
                               "500/501/503/504 and user jcloudy 1001",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 5 rows",
         },
     },
 }
