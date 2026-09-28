@@ -6,10 +6,11 @@ an ESE (Extensible Storage Engine) database and is read with the ESE reader
 adapted from impacket in scripts/vendor/impacket_ese.py.
 
 The indexed-item properties live in the SystemIndex_PropertyStore table, whose
-columns are named for the System.* property they hold (for example
-4445-System_ItemPathDisplay). The column names used here are read from the
-index's own schema in the file. Some string properties in this store are ESE
-7-bit compressed; the vendored reader decodes them.
+columns are named <number>-<property> (for example 4445-System_ItemPathDisplay).
+The number is not fixed: the tested indexes give System_ItemPathDisplay 4428, 4445
+and 4447. Each column is therefore found in the index's own schema by the property
+name after the first '-'. Some string properties in this store are ESE 7-bit
+compressed; the vendored reader decodes them.
 """
 
 import struct
@@ -35,18 +36,22 @@ _ROW_CAP = 5_000_000
 # than a byte count; reported blank.
 _SIZE_SENTINEL = b"\x2a" * 8
 
-# SystemIndex_PropertyStore column names, as stored in the index schema.
+# SystemIndex_PropertyStore properties read here. The table names each column
+# <number>-<property>, and the number is assigned per index, so a column is found
+# by the property name after the first '-' (see _property_columns).
 _C_WORKID = "WorkID"
-_C_NAME = "4441-System_ItemNameDisplay"
-_C_PATH = "4445-System_ItemPathDisplay"
-_C_URL = "33-System_ItemUrl"
-_C_TYPE = "5-System_ItemTypeText"
-_C_KIND = "4455-System_KindText"
-_C_SIZE = "13F-System_Size"
-_C_GATHER = "4629F-System_Search_GatherTime"
-_C_MODIFIED = "15F-System_DateModified"
-_C_CREATED = "16F-System_DateCreated"
-_C_ACCESSED = "17F-System_DateAccessed"
+_P_NAME = "System_ItemNameDisplay"
+_P_PATH = "System_ItemPathDisplay"
+_P_URL = "System_ItemUrl"
+_P_TYPE = "System_ItemTypeText"
+_P_KIND = "System_KindText"
+_P_SIZE = "System_Size"
+_P_GATHER = "System_Search_GatherTime"
+_P_MODIFIED = "System_DateModified"
+_P_CREATED = "System_DateCreated"
+_P_ACCESSED = "System_DateAccessed"
+_PROPERTIES = (_P_NAME, _P_PATH, _P_URL, _P_TYPE, _P_KIND, _P_SIZE, _P_GATHER,
+               _P_MODIFIED, _P_CREATED, _P_ACCESSED)
 
 __artifacts_v2__ = {
     "windowsSearch": {
@@ -75,18 +80,28 @@ __artifacts_v2__ = {
                  "System_Size decoded from its stored 8-byte value; folders and "
                  "other non-file items store a placeholder of eight 0x2A bytes in "
                  "this property rather than a byte count, and that placeholder is "
-                 "reported blank (on the tested image it was present on 473 of 587 "
-                 "rows, all of them folders or items with no stored type, and on no "
-                 "item that carried a real size). Type and Kind are "
-                 "System_ItemTypeText and System_KindText as stored, blank where the "
-                 "index holds none. "
-                 "Column names are read from the index's own schema in the file. "
+                 "reported blank (present on 473 of the 587 rows on af_case2_win10, "
+                 "439 of 822 on lonewolf_win10 and 1,491 of 1,641 on szechuan_win10, "
+                 "every one of them an item whose Type is File folder or that stores "
+                 "no type). Type and Kind are System_ItemTypeText and System_KindText "
+                 "as stored, blank where the index holds none. Item Name, Item Path "
+                 "and Gather Time were filled on every row of the three tested "
+                 "indexes, and Kind on 518 of 587, 632 of 822 and 1,505 of 1,641. "
+                 "Each property is read from the column the index's own schema names "
+                 "for it: the table names each column <number>-<property> and the "
+                 "number is assigned per index (System_ItemPathDisplay is 4445 on "
+                 "af_case2_win10, 4428 on lonewolf_win10 and 4447 on szechuan_win10), "
+                 "so the column is found by the property name after the first '-'; a "
+                 "property no column carries, or that more than one column carries, is "
+                 "left blank and named in the run log. "
                  "Some string properties in this store are ESE 7-bit compressed; the "
                  "reader adapted from impacket in scripts/vendor decodes them. Read "
                  "from Windows.edb, named in Source File. An indexed entry records "
                  "that Windows Search gathered the item at Gather Time; it does not "
                  "by itself establish that a user opened the item, and the index can "
-                 "retain an entry after the item is removed from disk. Windows.edb "
+                 "retain an entry after the item is removed from disk: on "
+                 "lonewolf_win10 the Item Path of 5 indexed items leads in the MFT only "
+                 "to a record no longer in use. Windows.edb "
                  "is the Windows 10 and earlier Windows Search store; Windows 11 "
                  "22H2 and later replaced it with Windows.db (a SQLite database), "
                  "which this artifact does not read. A record ESE marks deleted (its "
@@ -177,6 +192,34 @@ def _edb_sources(context):
             if str(f).lower().endswith(_WINDOWS_EDB)]
 
 
+def _property_columns(database, label="Windows Search", relative_source=""):
+    """{property: column name} for the properties read here, from the table's own schema.
+
+    A property no column carries, or that more than one column carries, is left out
+    and named in the run log, so its column is blank rather than read from a guess."""
+    tables = database._ESENT_DB__tables  # pylint: disable=protected-access
+    key = next((k for k in tables if (k.decode("latin-1") if isinstance(k, (bytes, bytearray)) else k)
+                == _PROPERTY_STORE), None)
+    if key is None:
+        return {}
+    found = {}
+    for column in tables[key]["Columns"]:
+        name = column.decode("latin-1") if isinstance(column, (bytes, bytearray)) else column
+        if "-" in name:
+            found.setdefault(name.split("-", 1)[1], []).append(name)
+    resolved = {}
+    for prop in _PROPERTIES:
+        columns = found.get(prop, [])
+        if len(columns) == 1:
+            resolved[prop] = columns[0]
+        elif not columns:
+            logfunc(f"{label}: {relative_source} has no column for {prop}, so it is blank")
+        else:
+            logfunc(f"{label}: {relative_source} has {len(columns)} columns for {prop} "
+                    f"({', '.join(sorted(columns))}), so it is blank")
+    return resolved
+
+
 def _read_property_store(source, label="Windows Search", relative_source=""):
     """Open Windows.edb and build a row per SystemIndex_PropertyStore entry.
 
@@ -187,20 +230,25 @@ def _read_property_store(source, label="Windows Search", relative_source=""):
     try:
         database.mountDB()
         rows = []
+        columns = _property_columns(database, label, relative_source)
+
+        def value(row, prop):
+            return row.get(columns[prop]) if prop in columns else None
+
         walk = ese_rows.TableRows(database, _PROPERTY_STORE, cap=_ROW_CAP)
         for row in walk:
             row = _norm_row(row)
             rows.append((
-                _filetime(row.get(_C_GATHER)),
-                _filetime(row.get(_C_MODIFIED)),
-                _filetime(row.get(_C_CREATED)),
-                _filetime(row.get(_C_ACCESSED)),
-                _text(row.get(_C_NAME)),
-                _text(row.get(_C_PATH)),
-                _text(row.get(_C_URL)),
-                _text(row.get(_C_TYPE)),
-                _text(row.get(_C_KIND)),
-                _size(row.get(_C_SIZE)),
+                _filetime(value(row, _P_GATHER)),
+                _filetime(value(row, _P_MODIFIED)),
+                _filetime(value(row, _P_CREATED)),
+                _filetime(value(row, _P_ACCESSED)),
+                _text(value(row, _P_NAME)),
+                _text(value(row, _P_PATH)),
+                _text(value(row, _P_URL)),
+                _text(value(row, _P_TYPE)),
+                _text(value(row, _P_KIND)),
+                _size(value(row, _P_SIZE)),
                 _cell(row.get(_C_WORKID)),
             ))
         if walk.summary():
