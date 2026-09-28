@@ -293,14 +293,13 @@ def linuxWtmp(context):
 
 @artifact_processor
 def linuxLastlog(context):
-    data_headers = (('Last Login (UTC)', 'datetime'), 'Account', 'UID', 'Line', 'Host', 'Source File')
+    data_headers = (('Last Login (UTC)', 'datetime'), 'Account', 'UID', 'Line', 'Host')
     data_list = []
     read = []
     problems = Counter()
     files = [str(p) for p in context.get_files_found() if not os.path.isdir(p)]
     passwd = {os.path.normpath(p): p for p in files if os.path.basename(p) == 'passwd'}
     for path in sorted(p for p in files if os.path.basename(p) == 'lastlog'):
-        relative = context.get_relative_path(path)
         try:
             data = _read(path)
         except OSError:
@@ -326,8 +325,7 @@ def linuxLastlog(context):
             seconds, line, host = layout.unpack_from(data, uid * layout.size)
             if not seconds and not any(line) and not any(host):
                 continue
-            data_list.append((_time(seconds), ', '.join(names.get(uid, [])), uid, _text(line), _text(host),
-                              relative))
+            data_list.append((_time(seconds), ', '.join(names.get(uid, [])), uid, _text(line), _text(host)))
         if len(data_list) > before:
             read.append(path)
             if accounts in passwd:
