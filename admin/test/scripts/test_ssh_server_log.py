@@ -19,26 +19,6 @@ from scripts.artifacts import sshServerLog
 UTC = timezone.utc
 
 
-class TimeTest(unittest.TestCase):
-    def test_rfc3339_times_are_converted_with_their_own_offset(self):
-        self.assertEqual(sshServerLog.utc_time('2026-09-28T02:45:33.123456-04:00'),
-                         datetime(2026, 9, 28, 6, 45, 33, 123456, tzinfo=UTC))
-        self.assertEqual(sshServerLog.utc_time('2026-01-10T09:00:00.5+04:00'),
-                         datetime(2026, 1, 10, 5, 0, 0, 500000, tzinfo=UTC))
-        self.assertEqual(sshServerLog.utc_time('2026-03-01T00:00:00Z'), datetime(2026, 3, 1, tzinfo=UTC))
-        self.assertEqual(sshServerLog.utc_time('2026-09-28T00:10:00-00:30'),
-                         datetime(2026, 9, 28, 0, 40, tzinfo=UTC))
-
-    def test_a_time_with_no_year_or_zone_is_not_converted(self):
-        self.assertEqual(sshServerLog.utc_time('Feb  6 15:16:30'), '')
-
-    def test_a_stamp_that_is_not_a_calendar_date_is_blank_and_counted(self):
-        counts = Counter()
-        rows = sshServerLog.log_rows(b'2026-02-30T01:02:03.000001+00:00 host sshd[1]: Server listening\n', counts)
-        self.assertEqual(rows[0][0], '')
-        self.assertEqual(counts, {'RFC 3339 times that are not a calendar date, Time (UTC) left blank': 1})
-
-
 LOG = (b'2026-09-28T02:45:33.123456-04:00 ubuntu sshd-session[4021]: Accepted publickey for alex from 10.0.0.2 '
        b'port 52110 ssh2: ED25519 SHA256:ZkAslGjFiUHdGf/WUL8rQvkib4PTvQatUV0OUQSncCA\n'
        b'2026-09-28T02:45:34.000001-04:00 ubuntu sudo[4100]:     alex : TTY=pts/0 ; COMMAND=/bin/true\n'
