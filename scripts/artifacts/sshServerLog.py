@@ -112,30 +112,23 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 2225 rows",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 2160 rows",
         },
     },
 }
 
-import gzip
 import os
 import re
 from collections import Counter
-from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.linux_syslog import program_lines, read_file
 
 # The program names sshd logs under: sshd, the per-connection sshd-session from OpenSSH 9.8 and the
 # pre-authentication sshd-auth from 10.0.
 _PROGRAMS = ('sshd', 'sshd-session', 'sshd-auth')
-# rsyslog's two file formats: an RFC 3339 time (RSYSLOG_FileFormat) or a month, day and time
-# (RSYSLOG_TraditionalFileFormat), then the host name, the tag (program and optional [pid]) and
-# a colon, then the message.
-_RFC3339 = re.compile(r'(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.(\d{1,6}))?(Z|[+-]\d\d:\d\d)')
-_TRADITIONAL = r'[A-Z][a-z]{2} [ \d]\d \d\d:\d\d:\d\d'
-_LINE = re.compile(r'(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)|' + _TRADITIONAL + r')'
-                   r' (\S+) ([^\s\[:]+)(?:\[(\d+)\])?: ?(.*)', re.DOTALL)
 # rsyslog writes a run of identical messages from one process once, as this.
 _REPEATED = re.compile(r'message repeated (\d+) times: \[ ?(.*)\]', re.DOTALL)
 # The monitor process appends the stage to a message it relays from the unprivileged process.
@@ -148,31 +141,6 @@ _AUTH = re.compile(r'(Accepted|Failed|Postponed|Partial) (\S+) for (invalid user
 _INVALID = re.compile(r'Invalid user (.*) from (\S+?)(?: port (\d+))?', re.DOTALL)
 # Methods whose extra text begins with the key type and fingerprint (auth.c format_method_key()).
 _KEY_METHODS = ('publickey', 'hostbased')
-
-
-def _read(path):
-    opener = gzip.open if path.endswith('.gz') else open
-    with opener(path, 'rb') as handle:
-        return handle.read()
-
-
-def utc_time(stamp):
-    """The UTC time of an RFC 3339 stamp, or '' for one with no year and no zone."""
-    match = _RFC3339.fullmatch(stamp)
-    if not match:
-        return ''
-    year, month, day, hour, minute, second, fraction, offset = match.groups()
-    if offset == 'Z':
-        zone = timezone.utc
-    else:
-        delta = timedelta(hours=int(offset[1:3]), minutes=int(offset[4:6]))
-        zone = timezone(-delta if offset[0] == '-' else delta)
-    try:
-        local = datetime(int(year), int(month), int(day), int(hour), int(minute), int(second),
-                         int((fraction or '0').ljust(6, '0')), tzinfo=zone)
-    except ValueError:
-        return ''
-    return local.astimezone(timezone.utc)
 
 
 def login_fields(message):
@@ -202,24 +170,8 @@ def login_fields(message):
 
 def log_rows(data, counts):
     """(time, time as recorded, host, program, process ID, message, line) for each sshd line."""
-    rows = []
-    for number, line in enumerate(data.decode('utf-8', errors='replace').split('\n'), 1):
-        line = line.rstrip('\r')
-        if not line:
-            continue
-        match = _LINE.fullmatch(line)
-        if not match:
-            counts['lines in neither syslog file format, not reported'] += 1
-            continue
-        stamp, host, program, pid, message = match.groups()
-        if program not in _PROGRAMS:
-            counts['lines from other programs, not reported'] += 1
-            continue
-        when = utc_time(stamp)
-        if when == '' and _RFC3339.fullmatch(stamp):
-            counts['RFC 3339 times that are not a calendar date, Time (UTC) left blank'] += 1
-        rows.append((when, stamp, host, program, pid or '', message, number))
-    return rows
+    return [(when, stamp, host, program, pid, message, number)
+            for number, when, stamp, host, program, pid, message in program_lines(data, _PROGRAMS, counts)]
 
 
 @artifact_processor
@@ -232,7 +184,7 @@ def sshServerLog(context):
     problems = Counter()
     for path in sorted(str(p) for p in context.get_files_found() if not os.path.isdir(p)):
         try:
-            data = _read(path)
+            data = read_file(path)
         except (OSError, EOFError):
             problems['files that could not be read'] += 1
             continue
