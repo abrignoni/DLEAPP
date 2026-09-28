@@ -311,7 +311,7 @@ def _decode_idblob(blob, id_type):
 def _build_idmap(database, label, relative_source):
     """Map SruDbIdMapTable's IdIndex to its resolved application id or user SID."""
     idmap = {}
-    walk = ese_rows.TableRows(database, _IDMAP)
+    walk = ese_rows.TableRows(database, _IDMAP, long_value_columns={"IdBlob"})
     for row in walk:
         row = _norm_row(row)
         idmap[row.get("IdIndex")] = _decode_idblob(row.get("IdBlob"),
@@ -364,7 +364,7 @@ def _read_table(source, guid, row_builder, label, relative_source):
         database.mountDB()
         idmap = _build_idmap(database, label, relative_source)
         rows = []
-        walk = ese_rows.TableRows(database, guid)
+        walk = ese_rows.TableRows(database, guid, long_value_columns=())
         for row in walk:
             rows.append(row_builder(_norm_row(row), idmap))
         if not walk.found:

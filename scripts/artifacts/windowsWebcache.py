@@ -179,7 +179,7 @@ def _cell(value):
 def _containers(database, label="", relative_source=""):
     """Return [(container_id, name, directory)] from the Containers table."""
     out = []
-    walk = ese_rows.TableRows(database, _CONTAINERS)
+    walk = ese_rows.TableRows(database, _CONTAINERS, long_value_columns={"Name", "Directory"})
     for row in walk:
         row = _norm_row(row)
         out.append((row.get("ContainerId"),
@@ -201,7 +201,7 @@ def _read_container(database, table_names, container_id, name, directory,
     table = "Container_%s" % container_id
     if table not in table_names:
         return 0
-    walk = ese_rows.TableRows(database, table, cap=_ROW_CAP)
+    walk = ese_rows.TableRows(database, table, cap=_ROW_CAP, long_value_columns={"Url", "Filename"})
     for row in walk:
         rows.append(row_builder(_norm_row(row), name, directory))
     if walk.summary():

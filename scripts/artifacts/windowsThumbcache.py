@@ -180,6 +180,12 @@ def _as_cache_id(value):
     return None
 
 
+def _reads_property(name):
+    """The Windows.edb columns _edb_map reads, whose values stored apart from their record
+    are read from the long value tree."""
+    return name.endswith(("System_ThumbnailCacheId", "System_ItemPathDisplay", "System_ItemNameDisplay"))
+
+
 def _edb_map(path, relative_source=""):
     """Map System.ThumbnailCacheId to (path, name) from Windows.edb.
 
@@ -191,7 +197,8 @@ def _edb_map(path, relative_source=""):
     database = impacket_ese.ESENT_DB(path)
     try:
         database.mountDB()
-        walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP)
+        walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP,
+                                  long_value_columns=_reads_property)
         id_col = path_col = name_col = None
         for row in walk:
             row = _norm_row(row)

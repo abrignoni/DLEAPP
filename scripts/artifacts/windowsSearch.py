@@ -235,7 +235,8 @@ def _read_property_store(source, label="Windows Search", relative_source=""):
         def value(row, prop):
             return row.get(columns[prop]) if prop in columns else None
 
-        walk = ese_rows.TableRows(database, _PROPERTY_STORE, cap=_ROW_CAP)
+        walk = ese_rows.TableRows(database, _PROPERTY_STORE, cap=_ROW_CAP,
+                                  long_value_columns=set(columns.values()))
         for row in walk:
             row = _norm_row(row)
             rows.append((
