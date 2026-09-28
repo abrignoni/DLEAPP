@@ -44,13 +44,15 @@ __artifacts_v2__ = {
                  "no time. On pc_mus_001_win11 a .bash_history in a Windows user profile "
                  "folder held 383 lines and no stamp: 368 rows, Time (UTC) blank on all of them, and 15 empty lines. "
                  "On the public MacBook Pro logical extraction root's .bash_history, in private/var/root and "
-                 "System/Volumes/Data/private/var/root, held one line each and no stamp.",
+                 "System/Volumes/Data/private/var/root, held one line each and no stamp. On honeynet_fc7_debian5 "
+                 "root's .bash_history held 57 lines and no stamp: 57 rows, Time (UTC) blank on all of them.",
         "paths": ('*/.bash_history',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "terminal",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 57 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 368 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",

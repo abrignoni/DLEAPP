@@ -53,7 +53,10 @@ __artifacts_v2__ = {
                  "/usr/sbin/nologin on 41, /bin/false on 5, /bin/bash on 2 and /bin/sync "
                  "on 1. Other Groups was filled on 3 accounts, and for each of them "
                  "Primary Group and Other Groups name the same groups the id command "
-                 "reported for that account on the running system the same day.",
+                 "reported for that account on the running system the same day. On honeynet_fc7_debian5 "
+                 "the file held 23 accounts: Password Field held the same value, x, on all 23, Shell was "
+                 "/bin/sh on 17, /bin/bash on 2, /bin/false on 2, /bin/sync on 1 and /usr/sbin/nologin on "
+                 "1, and Other Groups was filled on 1 account.",
         "paths": ('*/etc/passwd', '*/etc/group'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
@@ -61,6 +64,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (passwd and group only under private/etc, "
                                    "LZVN-compressed, which the image reader does not stage)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 23 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
