@@ -58,7 +58,7 @@ __artifacts_v2__ = {
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of pc_mus_001_win11 "
-                 "and two values on lonewolf_win10. af_case2_win10 carries no "
+                 "and two values on lonewolf_win10. af_case2_win10 and szechuan_win10 carry no "
                  "WLAN-AutoConfig Operational log. Not reported: the OnexEnabled and "
                  "NonBroadcast fields of 8001, the ReasonCode field of 8003, the OnexEnabled and "
                  "IhvConnectivitySetting fields of 11000, the MgmtFrameProtection field of "
@@ -75,6 +75,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 46 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 13 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no WLAN-AutoConfig Operational log on the image)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }

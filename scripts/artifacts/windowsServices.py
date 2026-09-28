@@ -85,8 +85,10 @@ __artifacts_v2__ = {
                  "value, the "
                  "account the service is configured to run under (for example "
                  "LocalSystem, NT AUTHORITY\\LocalService or NT "
-                 "AUTHORITY\\NetworkService), and is blank for drivers and any "
-                 "service that stores none. A row shows how a service is "
+                 "AUTHORITY\\NetworkService), and is blank for any service that stores none and on "
+                 "the kernel and file system driver rows except 1 of the 356 on lonewolf_win10, 2 "
+                 "of the 410 on pc_mus_001_win11 and 2 of the 373 on szechuan_win10, which hold a "
+                 "name beginning \\Driver\\. A row shows how a service is "
                  "configured, not that it ran. Reading the hive needs the "
                  "python-registry package. A dirty hive, one whose base block's two sequence "
                  "numbers differ, is read after the entries in its .LOG1 and .LOG2 transaction "
@@ -110,6 +112,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 762 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 661 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 656 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 700 rows",
         },
     },
 }

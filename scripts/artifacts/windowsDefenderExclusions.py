@@ -62,12 +62,13 @@ __artifacts_v2__ = {
                  "no Microsoft page describing the layout of the Defender configuration "
                  "key was found, so its subkeys and values are reported as stored. No "
                  "tested image carries the Group Policy key, so that branch is "
-                 "unexercised. The Defender configuration key was present on the three "
-                 "tested images, with Extensions, Paths, Processes and TemporaryPaths "
-                 "subkeys and, on pc_mus_001_win11, an IpAddresses subkey; the one value "
-                 "among them sat in Paths on af_case2_win10 and the others were empty, so "
-                 "this artifact reports 1 row on af_case2_win10 and none on "
-                 "pc_mus_001_win11 or lonewolf_win10. Microsoft documents a setting, "
+                 "unexercised. The Defender configuration key was present on the four tested "
+                 "images, with Extensions, Paths, Processes and TemporaryPaths subkeys and, "
+                 "on pc_mus_001_win11 and szechuan_win10, an IpAddresses subkey; the one "
+                 "value among them sat in Paths on af_case2_win10 and the others were empty, "
+                 "so this artifact reports 1 row on af_case2_win10 and none on "
+                 "pc_mus_001_win11, lonewolf_win10 or szechuan_win10. Microsoft documents a "
+                 "setting, "
                  "HideExclusionsFromLocalAdmins, under which exclusions are not visible in "
                  "Get-MpPreference or Registry Editor ('Configure custom exclusions for "
                  "Microsoft Defender Antivirus', snapshot "
@@ -83,6 +84,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 1 row",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the exclusion subkeys hold no values)",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (the exclusion subkeys hold no values)",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
                        },
     },
 }

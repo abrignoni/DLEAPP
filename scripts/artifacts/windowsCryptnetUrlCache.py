@@ -28,7 +28,7 @@ __artifacts_v2__ = {
                        "and first bytes of the Content file of the same name.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Reads every file in the MetaData folder of "
@@ -49,32 +49,34 @@ __artifacts_v2__ = {
                  "Last Downloaded (UTC) is the FILETIME at offset 0x10, which the analysis describes "
                  "as the last time the file was downloaded, and Last-Modified (UTC) the FILETIME at "
                  "0x58, which it describes as the Last-Modified header of the response; a zero time is "
-                 "shown blank, and Last-Modified was zero on 19 of the 145 tested files. File Size is "
+                 "shown blank, and Last-Modified was zero on 29 of the 187 tested files. File Size is "
                  "the 32-bit value at 0x70, the downloaded file's size by the analysis. URL and E-Tag "
                  "are the UTF-16LE strings after the 116-byte header, whose sizes sit at 0x0C and "
                  "0x64, shown without their terminating NUL; the analysis describes the second as the "
                  "response's E-Tag header, and it is shown as stored, quotation marks included. On the "
                  "tested images every MetaData file's length was exactly 116 bytes plus the two string "
                  "sizes, every URL ended in a NUL, and File Size equalled the size of the Content file "
-                 "of the same name on all 145. Last Downloaded matched that Content file's "
-                 "modification time within two seconds on 46 of the 145, so what the time records "
+                 "of the same name on all 187. Last Downloaded matched that Content file's "
+                 "modification time within two seconds on 68 of the 187, so what the time records "
                  "beyond the analysis's description was not established. Cache File is the name the "
                  "two files share. The analysis gives that name as the MD5 of the URL in UTF-16LE: on "
-                 "the tested images that held for all 45 names without an underscore, and for none of "
-                 "the 100 names with one, not even for the part before the underscore; how those are "
-                 "derived was not established. Content Size, Content SHA-256 and Content Header (hex) "
+                 "the tested images that held for all 62 names without an underscore, and for none of "
+                 "the 125 names with one, not even for the part before the underscore; on all 125 the "
+                 "part after the underscore was that MD5, and how the part before it is derived was not "
+                 "established. Content Size, Content SHA-256 and Content Header (hex) "
                  "are the size, SHA-256 and first eight bytes of the Content file of the same name in "
                  "the same cache folder, blank when there is none; every tested MetaData file had one. "
-                 "Of the 145 Content files 120 began with 3082, 15 with MSCF (4D534346) and 3 with "
-                 "3003, 7 were empty, and none began with MZ (4D5A), the header Velociraptor's "
+                 "Of the 187 Content files 147 began with 3082, 20 with MSCF (4D534346) and 3 with "
+                 "3003, 17 were empty, and none began with MZ (4D5A), the header Velociraptor's "
                  "artifact checks for before it reads an executable's version information "
                  "(https://github.com/Velocidex/velociraptor/blob/2871c23d0bf6714fc0fe21c9db02a6a1e9364fb4/artifacts/definitions/Windows/Forensics/CertUtil.yaml#L109-L114). "
                  "Profile Folder is the part of the path before AppData, and with Cache File it "
                  "identifies the MetaData file. On af_case2_win10 there were 11 rows, 6 in "
                  "Users/IEUser and 5 in the System32 systemprofile; on lonewolf_win10 92, 5 of them "
-                 "under Windows/ServiceProfiles; and on pc_mus_001_win11 42, 2 of them under "
-                 "Windows/ServiceProfiles. The 145 URLs all used http and named 37 hosts, most often "
-                 "ocsp.digicert.com (48) and ctldl.windowsupdate.com (22). Values not reported include "
+                 "under Windows/ServiceProfiles; on pc_mus_001_win11 42, 2 of them under "
+                 "Windows/ServiceProfiles; and on szechuan_win10 42, 1 of them under "
+                 "Windows/ServiceProfiles. The 187 URLs all used http and named 37 hosts, most often "
+                 "ocsp.digicert.com (73) and ctldl.windowsupdate.com (37). Values not reported include "
                  "the bytes the analysis leaves unknown, at 0x00 to 0x0B, 0x18 to 0x57, 0x60 to 0x63 "
                  "and 0x68 to 0x6F; the first 32-bit value was 112 in every tested file.",
         "paths": ('*/AppData/LocalLow/Microsoft/CryptnetUrlCache/*',),
@@ -85,6 +87,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 92 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 42 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 42 rows",
         },
     },
 }

@@ -37,14 +37,14 @@ __artifacts_v2__ = {
                        "WebCacheV01.dat, with the access time and access count.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the WebCacheV01.dat History containers: the container "
                  "named History plus the periodic MSHist01 containers, whose name is "
                  "MSHist01 followed by two YYYYMMDD dates marking the history period "
-                 "the container groups; entry access times are UTC and can fall just "
-                 "outside that named boundary. Read from "
+                 "the container groups; entry access times are UTC and can fall outside "
+                 "that named boundary. Read from "
                  "WebCacheV01.dat, named in Source File, with the ESE reader adapted "
                  "from impacket in scripts/vendor. Each row is one entry in a History "
                  "Container_<id> table. URL is the entry's Url column as stored; a "
@@ -70,6 +70,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 45 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 42 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 179 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 132 rows",
         },
     },
     "webcacheContent": {
@@ -79,7 +80,7 @@ __artifacts_v2__ = {
                        "with the source URL, cached file name, size and times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the WebCacheV01.dat Content containers (container Name "
@@ -110,6 +111,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 197 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 50 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 40 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1,853 rows",
         },
     },
 }

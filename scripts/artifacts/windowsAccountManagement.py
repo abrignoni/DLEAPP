@@ -53,7 +53,7 @@ __artifacts_v2__ = {
                        "the affected account, the member, and the account that requested it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Security.evtx, named in the report's located-at line. Reported are the "
@@ -75,14 +75,14 @@ __artifacts_v2__ = {
                  "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4720). "
                  "Computer is the machine that recorded the event. Computer held one value on "
                  "every row of lonewolf_win10 and pc_mus_001_win11, and two values on "
-                 "af_case2_win10. On af_case2_win10 and "
-                 "lonewolf_win10 the account creation (4720), enabling (4722), disabling (4725), "
+                 "af_case2_win10 and three on szechuan_win10. On af_case2_win10, lonewolf_win10 and "
+                 "szechuan_win10 the account creation (4720), enabling (4722), disabling (4725), "
                  "change (4738), deletion (4726) and password-reset (4724) events and the global "
-                 "and local group membership changes (4728, 4729, 4732, 4733) were all present, "
-                 "and on pc_mus_001_win11 only the change (4738) and a local group addition "
-                 "(4732); the password-change (4723), lockout (4740), unlock (4767) and "
-                 "universal-group (4756, 4757) events are read and titled but were not present "
-                 "on any of the three registered images. "
+                 "and local group membership changes (4728, 4729, 4732, 4733) were all present, and "
+                 "on pc_mus_001_win11 only the change (4738) and a local group addition (4732); the "
+                 "password-change (4723), lockout (4740), unlock (4767) and universal-group (4756, "
+                 "4757) events are read and titled but were not present on any of the four "
+                 "registered images. "
                  "Reading needs the python-evtx package (pip install "
                  "python-evtx). Event IDs: Microsoft, 'Audit User Account Management', "
                  "https://learn.microsoft.com/windows/security/threat-protection/auditing/audit-user-account-management "
@@ -96,6 +96,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 84 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 53 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 50 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 55 rows",
         },
     },
 }

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "holds one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads each Chromium-based browser profile's Top Sites database: the top_sites table of "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
                  "one home folder, and User held one value on every row of pc_mus_001_win11, whose Chrome "
                  "and Edge profiles sit in one home folder. Tested: Chrome 108.0.5359.125 and Microsoft "
                  "Edge 108.0.1462.54 on pc_mus_001_win11 (top_sites, 9 rows), and Chrome 65.0.3325.181 on "
-                 "lonewolf_win10 (thumbnails, 16 rows). No member of af_case2_win10 or dleapp_macos_bigsur "
+                 "lonewolf_win10 (thumbnails, 16 rows). No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
                  "and a store directly inside an Opera user data folder is reported with that "
@@ -95,6 +95,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 9 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 16 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },
@@ -106,7 +107,7 @@ __artifacts_v2__ = {
                        "access time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the omni_box_shortcuts table of each Chromium-based browser profile's Shortcuts "
@@ -151,8 +152,9 @@ __artifacts_v2__ = {
                  "Chrome profile in one home folder, and User held one value on every row of "
                  "pc_mus_001_win11, whose Chrome and Edge profiles sit in one home folder. Tested: Chrome "
                  "108.0.5359.125 and Microsoft Edge 108.0.1462.54 on pc_mus_001_win11 (database version "
-                 "2), and Chrome 65.0.3325.181 on lonewolf_win10 (version 1). No member of af_case2_win10 "
-                 "or dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
+                 "2), and Chrome 65.0.3325.181 on lonewolf_win10 (version 1). No member of af_case2_win10, "
+                 "szechuan_win10 or dleapp_macos_bigsur matched any of the declared paths. The user data "
+                 "folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
                  "reported with that folder as its Profile. Only the Windows Google Chrome and "
@@ -202,6 +204,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 56 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 103 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },

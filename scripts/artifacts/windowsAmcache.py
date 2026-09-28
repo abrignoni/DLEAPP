@@ -43,8 +43,9 @@ __artifacts_v2__ = {
                  "10 build 14393 and describes as updated only when the Microsoft Compatibility "
                  "Appraiser task runs (Psmths, 'windows-forensic-artifacts', "
                  "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L68-L69). "
-                 "File Path is LowerCaseLongPath as stored; every value on lonewolf_win10 and "
-                 "pc_mus_001_win11 was lowercase. SHA-1 is the FileId value without its leading four "
+                 "File Path is LowerCaseLongPath as stored; every value on af_case2_win10, "
+                 "lonewolf_win10, pc_mus_001_win11 and szechuan_win10 was lowercase. SHA-1 is the "
+                 "FileId value without its leading four "
                  "zeroes "
                  "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L76) "
                  "and is shown as stored when FileId does not have that shape. It covers the file's "
@@ -91,6 +92,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 146 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 153 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 292 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 98 rows",
         },
     },
 }

@@ -24,8 +24,8 @@ __artifacts_v2__ = {
                  "was set. Product Name is reported as stored: pc_mus_001_win11 has CurrentBuild "
                  "22621, which Microsoft lists as Windows 11 version 22H2, and a ProductName beginning"
                  " Windows 10, so Build is the value that identifies the release. InstallDate is read "
-                 "as seconds since 1970 and InstallTime as a FILETIME; on the three tested"
-                 " images they agreed to within a second. What event they record is not established: "
+                 "as seconds since 1970 and InstallTime as a FILETIME; on the four tested images they "
+                 "agreed to within a second. What event they record is not established: "
                  "on pc_mus_001_win11 the user's FeatureUsage KeyCreationTime is 51 hours earlier than"
                  " InstallDate, and on lonewolf_win10 the OneDrive ClientFirstSignInTimestamp is 2.4 "
                  "hours earlier. Default Password is the Winlogon DefaultPassword value, which "
@@ -33,11 +33,13 @@ __artifacts_v2__ = {
                  "turned on; af_case2_win10 has AutoAdminLogon 1 and a DefaultPassword value. Time "
                  "Zone Bias and Active Time Bias are read as signed minutes. Microsoft defines a time "
                  "zone bias by UTC = local time + bias, and the tested images fit it: Bias 300 "
-                 "with Eastern Standard Time on pc_mus_001_win11 and lonewolf_win10, and 480 with "
-                 "Pacific Standard Time on af_case2_win10. Last Shutdown is the ShutdownTime value "
+                 "with Eastern Standard Time on pc_mus_001_win11 and lonewolf_win10, and 480 with Pacific "
+                 "Standard Time on af_case2_win10 and szechuan_win10. Last Shutdown is the ShutdownTime "
+                 "value "
                  "under Control\\Windows read as a FILETIME. Checked against the System event log, it "
-                 "lies within 0.2 seconds of the latest Kernel-General event 13 on pc_mus_001_win11 "
-                 "and lonewolf_win10, and 2.0 seconds after the latest EventLog event 6006 on "
+                 "lies within 0.2 seconds of the latest Kernel-General event 13 on pc_mus_001_win11, "
+                 "lonewolf_win10 and szechuan_win10, and 2.0 seconds after the latest EventLog event 6006 "
+                 "on "
                  "af_case2_win10, whose log has no event 13 for that shutdown. A dirty hive, one whose "
                  "base block's two sequence numbers differ, is read after the entries in its .LOG1 and "
                  ".LOG2 transaction logs that continue its sequence are applied, following Maxim "
@@ -65,6 +67,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 17 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 21 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 16 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 18 rows",
         },
     },
     "windowsNetworkInterfaces": {
@@ -88,7 +91,7 @@ __artifacts_v2__ = {
                  "Obtained and Lease "
                  "Terminates are LeaseObtainedTime and LeaseTerminatesTime read as seconds since 1970 "
                  "UTC. On pc_mus_001_win11 the decoded Lease Obtained is 0.5 seconds before the "
-                 "interface key was last written, and on all three tested images "
+                 "interface key was last written, and on all four tested images "
                  "LeaseTerminatesTime minus LeaseObtainedTime equals the Lease value. On "
                  "af_case2_win10 and lonewolf_win10 LeaseObtainedTime holds 4 and 830452, which decode"
                  " to January 1970, decades before the interface key was last written; why is not "
@@ -116,6 +119,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 1 row",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
         },
     },
 }

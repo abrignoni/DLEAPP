@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                        "name hash the client records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from "
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores and held one value on every row of pc_mus_001_win11. "
-                 "af_case2_win10 and lonewolf_win10 carry no RDPClient Operational log. "
+                 "af_case2_win10, lonewolf_win10 and szechuan_win10 carry no RDPClient Operational log. "
                  "Not reported: the log's other events (226, 1028, 1105, 1401 and 1402 on "
                  "pc_mus_001_win11). A record python-evtx cannot render, or whose XML does "
                  "not parse, is counted in the run log and not reported; every record in "
@@ -81,6 +81,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 108 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no RDPClient Operational log on the image)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no RDPClient Operational log on the image)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }

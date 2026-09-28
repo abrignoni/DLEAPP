@@ -19,8 +19,10 @@ __artifacts_v2__ = {
                  "Architecture, Resource ID and Publisher ID are split from PackageFullName in the "
                  "order Microsoft documents for a package full name. User SID is the User table's "
                  "binary SID written as S-R-A-..., and User Profile is the last folder of that SID's "
-                 "ProfileImagePath under ProfileList in the SOFTWARE hive; every SID on the three "
-                 "tested images resolved. Install Time is PackageUser.InstallTime read as "
+                 "ProfileImagePath under ProfileList in the SOFTWARE hive; every SID on af_case2_win10, "
+                 "lonewolf_win10 and pc_mus_001_win11 resolved, and 5 of the 6 on szechuan_win10: the "
+                 "sixth, which one row holds, is not listed under ProfileList, so User Profile is empty "
+                 "on that row. Install Time is PackageUser.InstallTime read as "
                  "a FILETIME in UTC. That reading was checked against the NTFS modification time of "
                  "each package's AppxManifest.xml under Program Files\\WindowsApps, taking each "
                  "package's earliest InstallTime. On pc_mus_001_win11 the InstallTime of 83 of "
@@ -28,7 +30,10 @@ __artifacts_v2__ = {
                  "on lonewolf_win10 the InstallTime of 62 of 77; over all comparable packages "
                  "the median is 8 seconds after it on pc_mus_001_win11 and 5 seconds after it on "
                  "lonewolf_win10. On af_case2_win10 the InstallTime of all 79 falls between "
-                 "4443.7 and 4443.9 hours after it. What event InstallTime records beyond its "
+                 "4443.7 and 4443.9 hours after it, and on szechuan_win10 the InstallTime of 1 of 90 "
+                 "comparable packages falls within 60 seconds of it, of 58 between 1.7 and 1.8 hours "
+                 "after it and of 31 between 6859 and 6877 hours after it. What event InstallTime "
+                 "records beyond its "
                  "name is not established. On "
                  "pc_mus_001_win11 three rows for S-1-5-18 store an InstallTime of 0, so Install Time "
                  "is empty there. Display Name and Publisher Display Name are reported as stored, "
@@ -58,6 +63,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 220 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 153 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 142 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 581 rows",
         },
     },
 }

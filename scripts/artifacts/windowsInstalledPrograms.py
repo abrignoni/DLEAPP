@@ -22,8 +22,9 @@ __artifacts_v2__ = {
                  "is the folder name under Users. A row is what was written under an Uninstall key; "
                  "that the program was still present at acquisition is not established. A subkey with "
                  "no DisplayName is skipped and the number skipped per hive is written to the run log:"
-                 " 26, 40 and 26 in the SOFTWARE hives of pc_mus_001_win11, af_case2_win10 and "
-                 "lonewolf_win10. For a Windows Installer product, Microsoft documents InstallDate as "
+                 " 26, 40, 26 and 26 in the SOFTWARE hives of pc_mus_001_win11, af_case2_win10, "
+                 "lonewolf_win10 and szechuan_win10. For a Windows Installer product, Microsoft documents "
+                 "InstallDate as "
                  "the last time the product received service, replaced each time a patch is "
                  "applied or removed or the /v command-line option is used to repair the "
                  "product, and as the install time only when it received "
@@ -53,6 +54,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 22 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 19 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 25 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 11 rows",
         },
     },
 }

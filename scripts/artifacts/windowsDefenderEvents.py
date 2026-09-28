@@ -75,7 +75,7 @@ __artifacts_v2__ = {
                        "them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
                  "https://learn.microsoft.com/en-us/windows/win32/wes/eventmanifestschema-providertype-complextype), "
                  "and the Defender provider's registration in the SOFTWARE hive names "
                  "MpEvMsg.dll as that file: the copy under Program Files/Windows Defender on "
-                 "af_case2_win10 and lonewolf_win10, and the copy under "
+                 "af_case2_win10, lonewolf_win10 and szechuan_win10, and the copy under "
                  "ProgramData/Microsoft/Windows Defender/Platform/4.18.2211.5-0 on "
                  "pc_mus_001_win11. A field that holds only such a reference is reported as the "
                  "text of that message followed by the reference, for example Real-Time "
@@ -146,17 +146,18 @@ __artifacts_v2__ = {
                  "stored, and the report's located-at line also names each MpEvMsg.dll.mui that "
                  "gave text. The copy for the record's own version comes first because a "
                  "message's wording can change between versions: of the 106 message ids from 800 "
-                 "to 905 in the six English copies on the registered images, the range every "
+                 "to 905 in the seven English copies on the registered images, the range every "
                  "reference stored on those images and in the defender_evtx_attack_samples log "
-                 "falls in, 9 read differently in at least two of them, for example 827, which "
-                 "is Windows Defender Antivirus in the "
-                 "copies on af_case2_win10 and lonewolf_win10 and Microsoft Defender Antivirus "
-                 "in those on pc_mus_001_win11. The defender_evtx_attack_samples log comes "
+                 "falls in, 9 read differently in at least two of them, for example 827, which is "
+                 "Windows Defender Antivirus in the copies on af_case2_win10 and lonewolf_win10 "
+                 "and Microsoft Defender Antivirus in those on pc_mus_001_win11 and "
+                 "szechuan_win10. The defender_evtx_attack_samples log comes "
                  "without an MpEvMsg.dll.mui, so its references are reported as stored, and no "
                  "detection record on the registered images or in the two public samples has had "
                  "a reference given text; the scan artifact's rows on af_case2_win10 and "
                  "lonewolf_win10 exercise the same code. The English MpEvMsg.dll.mui copies on "
-                 "af_case2_win10, lonewolf_win10 and pc_mus_001_win11 all give %%818 as "
+                 "af_case2_win10, lonewolf_win10, pc_mus_001_win11 and szechuan_win10 all give "
+                 "%%818 as "
                  "Real-Time Protection, %%845 as Local machine, %%822 as Concrete, %%823 as "
                  "Generic, %%862 as FastPath, %%887 as Not Applicable, %%809 as Quarantine and "
                  "%%811 as Allow. No field of any record written by platform 4.18.2210.6 or "
@@ -167,7 +168,7 @@ __artifacts_v2__ = {
                  "record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
-                 "the record stores. None of the three registered Windows disk images "
+                 "the record stores. None of the four registered Windows disk images "
                  "carries a record with any of these Event IDs. The "
                  "defender_evtx_attack_samples log, a public research sample, carries 11 "
                  "(six 1116 and five 1117), and every value reported on those rows matched "
@@ -203,6 +204,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no detection or quarantine events in the Defender Operational log)",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no detection or quarantine events in the Defender Operational log)",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no detection or quarantine events in the Defender Operational log)",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 11 rows",
                            "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
                        },
@@ -215,7 +217,7 @@ __artifacts_v2__ = {
                        "old and new configuration values 5007 records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
@@ -256,16 +258,17 @@ __artifacts_v2__ = {
                  "reference, so no Old Value or New Value has been given text on real data; the "
                  "scan artifact's rows on af_case2_win10 and lonewolf_win10 exercise the same "
                  "code. 5007 was 18 of the "
-                 "21 rows on af_case2_win10, 48 of 51 on pc_mus_001_win11 and 10 of 10 on "
-                 "lonewolf_win10; Old Value was filled on 15 of the 18 5007 rows on "
-                 "af_case2_win10 and 47 of 48 on pc_mus_001_win11, and New Value on 16 of "
-                 "18 and 47 of 48. On lonewolf_win10 every row is 5007, so Event ID and "
+                 "21 rows on af_case2_win10, 48 of 51 on pc_mus_001_win11, 10 of 10 on "
+                 "lonewolf_win10 and 33 of 34 on szechuan_win10; Old Value was filled on 15 of "
+                 "the 18 5007 rows on af_case2_win10, 47 of 48 on pc_mus_001_win11 and 30 of 33 "
+                 "on szechuan_win10, and New Value on 16 of 18, 47 of 48 and 33 of 33. On "
+                 "lonewolf_win10 every row is 5007, so Event ID and "
                  "Event held one value and Detail is empty. Event Time (UTC) is the "
                  "record's TimeCreated SystemTime, which python-evtx renders from the "
                  "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
-                 "the record stores: it held two values on af_case2_win10 and one value on "
+                 "the record stores: it held two values on each of af_case2_win10 and szechuan_win10 and one value on "
                  "every row of pc_mus_001_win11 and lonewolf_win10. Not reported: the "
                  "product name, the Feature ID of 5004, and the log's events that none of the "
                  "three Defender event artifacts reads (1150, 1151, 2000, 2001, 2002, 2010, 2011 "
@@ -290,6 +293,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 21 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 51 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 10 rows",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 34 rows",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
                            "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
                        },
@@ -341,7 +345,7 @@ __artifacts_v2__ = {
                  "https://learn.microsoft.com/en-us/windows/win32/wes/eventmanifestschema-providertype-complextype), "
                  "and the Defender provider's registration in the SOFTWARE hive names "
                  "MpEvMsg.dll as that file: the copy under Program Files/Windows Defender on "
-                 "af_case2_win10 and lonewolf_win10, and the copy under "
+                 "af_case2_win10, lonewolf_win10 and szechuan_win10, and the copy under "
                  "ProgramData/Microsoft/Windows Defender/Platform/4.18.2211.5-0 on "
                  "pc_mus_001_win11. A Scan Type, Scan Parameters or Scan Resources field that "
                  "holds only such a reference is reported as the text of that message followed "
@@ -361,12 +365,12 @@ __artifacts_v2__ = {
                  "stored, and the report's located-at line also names each MpEvMsg.dll.mui that "
                  "gave text. The copy for the record's own version comes first because a "
                  "message's wording can change between versions: of the 106 message ids from 800 "
-                 "to 905 in the six English copies on the registered images, the range every "
+                 "to 905 in the seven English copies on the registered images, the range every "
                  "reference stored on those images and in the defender_evtx_attack_samples log "
-                 "falls in, 9 read differently in at least two of them, for example 827, which "
-                 "is Windows Defender Antivirus in the "
-                 "copies on af_case2_win10 and lonewolf_win10 and Microsoft Defender Antivirus "
-                 "in those on pc_mus_001_win11. On lonewolf_win10 the scan records name platform "
+                 "falls in, 9 read differently in at least two of them, for example 827, which is "
+                 "Windows Defender Antivirus in the copies on af_case2_win10 and lonewolf_win10 "
+                 "and Microsoft Defender Antivirus in those on pc_mus_001_win11 and "
+                 "szechuan_win10. On lonewolf_win10 the scan records name platform "
                  "4.12.17007.18022, whose folder under Platform holds the English file; the "
                  "folder for 4.18.1902.2, the version the scan records on af_case2_win10 name, "
                  "holds "
@@ -374,7 +378,7 @@ __artifacts_v2__ = {
                  "Program Files copy. On both images that is the text the English copy of the "
                  "registered parameter file gives, since the Platform and Program Files copies "
                  "on lonewolf_win10 are byte-identical. Every row on the two images reads "
-                 "Antimalware (%%802) and Quick Scan (%%806), and all six English copies give "
+                 "Antimalware (%%802) and Quick Scan (%%806), and all seven English copies give "
                  "those two references the same text; the records of platforms 4.18.2210.6 and "
                  "4.18.2211.5 on pc_mus_001_win11 store the text Antimalware and Quick Scan in "
                  "those fields. Event Time (UTC) is the record's "
@@ -382,8 +386,9 @@ __artifacts_v2__ = {
                  "record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
-                 "the record stores: it held one value on every row of each registered "
-                 "image. Not reported: the product name and the index fields beside the scan "
+                 "the record stores: it held one value on every row of af_case2_win10, "
+                 "lonewolf_win10 and pc_mus_001_win11, and szechuan_win10 reported no scan rows. "
+                 "Not reported: the product name and the index fields beside the scan "
                  "type and parameters. A record python-evtx cannot render, or whose "
                  "XML does not parse, is counted in the run log and not reported. "
                  "python-evtx 0.8.1 rendered every record of this log on the registered "
@@ -404,6 +409,7 @@ __artifacts_v2__ = {
                            "af_case2_win10": "Windows 10 1809 build 17763 | 2 rows",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 12 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 7 rows",
+                           "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
                            "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
                        },

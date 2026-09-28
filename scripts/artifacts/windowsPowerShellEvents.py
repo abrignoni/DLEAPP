@@ -102,10 +102,11 @@ __artifacts_v2__ = {
                  "PowerShell/blob/2f818615bed15141c062dd185f659ed110d9c6ba/src/"
                  "System.Management.Automation/logging/LogContext.cs#L42-L46). Engine "
                  "Version and Runspace ID were filled on every 400 and 403 row on the "
-                 "registered images, on 2 of the 118 600 rows on af_case2_win10 and on none "
-                 "of the 600 rows on the other two, and every Engine Version stored began "
-                 "with 5. Host Name held one value on every row of pc_mus_001_win11 and "
-                 "lonewolf_win10. These records store no account: the user SID in the record "
+                 "registered images, on 2 of the 118 600 rows on af_case2_win10 and on none of "
+                 "the 600 rows on the other three, and every Engine Version stored began "
+                 "with 5. Host Name held one value on every row of pc_mus_001_win11, "
+                 "lonewolf_win10 and szechuan_win10. These records store no account: the user "
+                 "SID in the record "
                  "was empty and the context block had no user field on every row on the "
                  "registered images. Event Time (UTC) is the record's TimeCreated SystemTime, "
                  "which python-evtx renders from the FILETIME the record stores, counted in "
@@ -113,8 +114,9 @@ __artifacts_v2__ = {
                  "https://github.com/williballenthin/python-evtx/blob/"
                  "cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name the "
-                 "record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. A record python-evtx "
+                 "record stores: it held one value on every row of af_case2_win10, "
+                 "pc_mus_001_win11 and szechuan_win10 and two values on lonewolf_win10. A "
+                 "record python-evtx "
                  "cannot render, or whose XML does not parse, is counted in the run log and "
                  "not reported; every record in this log rendered on the registered images. "
                  "Not reported: the context block's SequenceNumber, PipelineId, CommandName, "
@@ -131,6 +133,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 157 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 154 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 48 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 15 rows",
         },
     },
     "powershellPipelineExecution": {
@@ -141,7 +144,7 @@ __artifacts_v2__ = {
                        "they store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Windows PowerShell.evtx (PowerShell provider, Event ID 800) and "
@@ -171,7 +174,8 @@ __artifacts_v2__ = {
                  "blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py"
                  "#L105-L113). Record ID is the record's EventRecordID and Computer the "
                  "machine name it stores. Measured: af_case2_win10 carries one 800 and one "
-                 "4103 record, and pc_mus_001_win11 and lonewolf_win10 carry neither. A record "
+                 "4103 record, and pc_mus_001_win11, lonewolf_win10 and szechuan_win10 carry "
+                 "neither. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run "
                  "log and not reported; every record in both logs rendered on the registered "
                  "images. The absence of these events does not establish that no command "
@@ -184,6 +188,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 2 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no 800 or 4103 records)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no 800 or 4103 records)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "powershellScriptBlocks": {
@@ -220,7 +225,7 @@ __artifacts_v2__ = {
                  "One row per ScriptBlockId: Script Block Text is the ScriptBlockText of "
                  "its parts joined in MessageNumber order, and Parts is how many parts "
                  "were found of the MessageTotal the parts store. Checked against a "
-                 "separate join of the raw records, the text matched for the 47, 4 and 1 script blocks on af_case2_win10, pc_mus_001_win11 and lonewolf_win10, "
+                 "separate join of the raw records, the text matched for the 47, 4, 1 and 3 script blocks on af_case2_win10, pc_mus_001_win11, lonewolf_win10 and szechuan_win10, "
                  "and every block had every part; af_case2_win10 had 9 blocks split into 2 "
                  "to 12 parts. First Part Time (UTC) and Last Part Time (UTC) are the "
                  "earliest and latest TimeCreated SystemTime of the parts, which "
@@ -232,14 +237,13 @@ __artifacts_v2__ = {
                  "level with Microsoft's name for it "
                  "(https://github.com/MicrosoftDocs/win32/blob/e103fa4e8810bd8d42c4777e17081e24dbe62dbd/desktop-src/WES/eventmanifestschema-leveltype-complextype.md#L70-L76): "
                  "it held 3 (Warning) on every row on the registered images. Path is the "
-                 "script file the record names and is blank when it names none (10 of 47 "
-                 "rows on af_case2_win10). User SID is the SID in the record's Security "
+                 "script file the record names and is blank when it names none (10 of 47 rows on af_case2_win10 and 3 of 3 on szechuan_win10). User SID is the SID in the record's "
+                 "Security "
                  "element and Process ID the process ID in its Execution element, both "
-                 "from the first part; User SID held one value on every row of "
-                 "af_case2_win10 and pc_mus_001_win11. On pc_mus_001_win11 the Script Block Text of the 4 rows is the same text under four Script Block IDs, "
+                 "from the first part; User SID held one value on every row of af_case2_win10, pc_mus_001_win11 and szechuan_win10. On pc_mus_001_win11 the Script Block Text of "
+                 "the 4 rows is the same text under four Script Block IDs, "
                  "and Parts held 1 of 1 on every row. Record IDs are the EventRecordIDs of "
-                 "the parts. Computer is the machine name the record stores and held one "
-                 "value on every row of af_case2_win10 and pc_mus_001_win11. A record "
+                 "the parts. Computer is the machine name the record stores and held one value on every row of af_case2_win10, pc_mus_001_win11 and szechuan_win10. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in "
                  "the run log and not reported; every record in this log rendered on the "
                  "registered images. A script block records text PowerShell compiled; it "
@@ -252,6 +256,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 47 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 4 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 3 rows",
         },
     },
     "powershellConsoleEvents": {
@@ -261,7 +266,7 @@ __artifacts_v2__ = {
                        "and account SID each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-PowerShell%4Operational.evtx, named in the "
@@ -277,17 +282,17 @@ __artifacts_v2__ = {
                  "whose event IDs and 53504 fields param1 and param2 the tested records "
                  "carry). Process ID is the process ID in the record's Execution element, "
                  "and for 53504 its param1, which equalled the Execution process ID on all "
-                 "50 53504 rows on the registered images. AppDomain is the 53504 param2 "
+                 "52 53504 rows on the registered images. AppDomain is the 53504 param2 "
                  "and is blank on 40961 and 40962 rows; it held DefaultAppDomain on every "
                  "53504 row on the registered images. User SID is the SID in the record's "
-                 "Security element and held one value on every row of af_case2_win10. "
+                 "Security element and held one value on every row of af_case2_win10 and szechuan_win10. "
                  "Event Time (UTC) is the record's TimeCreated SystemTime, which "
                  "python-evtx renders from the FILETIME the record stores, counted in UTC "
                  "(python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
-                 "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. A record python-evtx "
+                 "the record stores: it held one value on every row of af_case2_win10, pc_mus_001_win11 "
+                 "and szechuan_win10 and two values on lonewolf_win10. A record python-evtx "
                  "cannot render, or whose XML does not parse, is counted in the run log "
                  "and not reported; every record in this log rendered on the registered "
                  "images. On the registered images the other records in this log were 4104 "
@@ -301,6 +306,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 61 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 56 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 19 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 6 rows",
         },
     },
 }

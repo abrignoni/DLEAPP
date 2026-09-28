@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "each visit's urls row, the transition and the visit source.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the visits table of each History database in a Chromium-based browser profile and "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
                  "System Profile and Guest Profile History databases held no visits, URLs, downloads or "
                  "search terms) and Microsoft Edge 108.0.1462.54 (profile Default) on pc_mus_001_win11, "
                  "and Chrome 65.0.3325.181 (profile Default) on lonewolf_win10. No member of "
-                 "af_case2_win10 or dleapp_macos_bigsur matched any of the declared paths. The user data "
+                 "af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched any of the declared paths. The user data "
                  "folders read are those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and "
                  "Opera on Windows, macOS and Linux, and a store directly inside an Opera user "
                  "data folder is reported with that folder as its Profile. Only the Windows "
@@ -127,6 +127,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1099 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 2293 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },
@@ -137,7 +138,7 @@ __artifacts_v2__ = {
                        "time, visit count and typed count as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the urls table of each History database in a Chromium-based browser profile; one "
@@ -183,7 +184,7 @@ __artifacts_v2__ = {
                  "108.0.5359.125 (profiles Default and Profile 2; the System Profile and Guest Profile "
                  "History databases held no visits, URLs, downloads or search terms) and Microsoft Edge "
                  "108.0.1462.54 (profile Default) on pc_mus_001_win11, and Chrome 65.0.3325.181 (profile "
-                 "Default) on lonewolf_win10. No member of af_case2_win10 or dleapp_macos_bigsur matched "
+                 "Default) on lonewolf_win10. No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched "
                  "any of the declared paths. The user data folders read are those of Google Chrome, "
                  "Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and "
                  "Linux, and a store directly inside an Opera user data folder is reported with "
@@ -234,6 +235,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 646 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 737 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },
@@ -245,7 +247,7 @@ __artifacts_v2__ = {
                        "reason.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the downloads table of each History database in a Chromium-based browser profile, "
@@ -312,7 +314,7 @@ __artifacts_v2__ = {
                  "Chrome 108.0.5359.125 (profiles Default and Profile 2; the System Profile and Guest "
                  "Profile History databases held no visits, URLs, downloads or search terms) and Microsoft "
                  "Edge 108.0.1462.54 (profile Default) on pc_mus_001_win11, and Chrome 65.0.3325.181 "
-                 "(profile Default) on lonewolf_win10. No member of af_case2_win10 or dleapp_macos_bigsur "
+                 "(profile Default) on lonewolf_win10. No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
                  "and a store directly inside an Opera user data folder is reported with that "
@@ -363,6 +365,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 19 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 17 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },
@@ -373,7 +376,7 @@ __artifacts_v2__ = {
                        "search engine where the same profile's Web Data holds the stored keyword id.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the keyword_search_terms table of each History database in a Chromium-based "
@@ -418,7 +421,7 @@ __artifacts_v2__ = {
                  "Chrome 108.0.5359.125 (profiles Default and Profile 2; the System Profile and Guest "
                  "Profile History databases held no visits, URLs, downloads or search terms) and Microsoft "
                  "Edge 108.0.1462.54 (profile Default) on pc_mus_001_win11, and Chrome 65.0.3325.181 "
-                 "(profile Default) on lonewolf_win10. No member of af_case2_win10 or dleapp_macos_bigsur "
+                 "(profile Default) on lonewolf_win10. No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
                  "and a store directly inside an Opera user data folder is reported with that "
@@ -490,6 +493,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 62 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 190 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
         },
     },

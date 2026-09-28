@@ -49,7 +49,7 @@ __artifacts_v2__ = {
                  "machine or a user key is not recorded; on the registered images it named "
                  "the CurrentVersion Run and RunOnce keys and, on lonewolf_win10, the "
                  "Policies Explorer Run key. User SID is the SID in the record's Security "
-                 "element, which held one value on every row of each registered image, and "
+                 "element, which held one value on every row of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 and four values on szechuan_win10, and "
                  "Logging Process ID is the process ID in its Execution element. Event "
                  "Time (UTC) is the record's TimeCreated SystemTime, which python-evtx "
                  "renders from the FILETIME the record stores, counted in UTC (python-evtx "
@@ -57,13 +57,13 @@ __artifacts_v2__ = {
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Command is the text the "
+                 "pc_mus_001_win11 and two values on each of lonewolf_win10 and szechuan_win10. Command is the text the "
                  "record stores less leading and trailing whitespace (10 Command values on "
                  "af_case2_win10 began with a space and named no program); on the registered "
                  "images some commands began with a "
                  "file name and carried a closing quote with no opening quote and no "
-                 "folder (3 of 24 distinct commands on af_case2_win10, 9 of 12 on "
-                 "pc_mus_001_win11 and 5 of 11 on lonewolf_win10), so the stored text does "
+                 "folder (3 of 24 distinct commands on af_case2_win10, 9 of 12 on pc_mus_001_win11, 5 of 11 on lonewolf_win10 and 6 of 11 on "
+                 "szechuan_win10), so the stored text does "
                  "not always give a program's folder. Not reported: the log's other "
                  "events. A record python-evtx cannot render, or whose XML does not parse, "
                  "is counted in the run log and not reported; every record in this log "
@@ -77,6 +77,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 232 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 228 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 66 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 170 rows",
         },
     },
 }

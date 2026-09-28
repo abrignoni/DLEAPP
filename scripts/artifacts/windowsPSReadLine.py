@@ -27,7 +27,7 @@ __artifacts_v2__ = {
                        "PowerShell host and the profile folder the file belongs to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\"
@@ -39,8 +39,8 @@ __artifacts_v2__ = {
                  "Host is that name, taken from the file name, and Profile Folder is the "
                  "part of the file's path before AppData; together they identify the file. "
                  "Host held ConsoleHost on every row of the tested images, and Profile Folder "
-                 "held one value on every row of each tested image, because each held one "
-                 "history file. PSReadLine "
+                 "held one value on every row of each tested image, because each image with "
+                 "rows held one history file. PSReadLine "
                  "writes each command as one line and ends every line but the last of a "
                  "command spanning several lines with a backtick "
                  "(https://github.com/PowerShell/PSReadLine/blob/6b5e9ff4bdfe15f67b3647e0d1ecdb6cf2e3bda6/PSReadLine/History.cs#L342-L343), "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
                  "only commands accepted at the prompt or passed to AddToHistory are added. "
                  "On af_case2_win10 the one history file held 11 commands, all distinct, "
                  "and on pc_mus_001_win11 it held 24 commands, 14 of them distinct; "
-                 "lonewolf_win10 holds no PSReadLine history file. "
+                 "lonewolf_win10 and szechuan_win10 hold no PSReadLine history file. "
                  "Not read: the location PSReadLine uses on macOS and Linux, "
                  ".local/share/powershell/PSReadLine or the same folder under XDG_DATA_HOME "
                  "(https://github.com/PowerShell/PSReadLine/blob/6b5e9ff4bdfe15f67b3647e0d1ecdb6cf2e3bda6/PSReadLine/Cmdlets.cs#L170-L204), "
@@ -89,6 +89,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 11 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 24 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no PSReadLine history file)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }

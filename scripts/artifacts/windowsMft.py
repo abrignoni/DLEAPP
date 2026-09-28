@@ -17,7 +17,7 @@ __artifacts_v2__ = {
                        "owner SID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "File System (Windows)",
         "notes": "One row per base record of each $MFT that holds at least one $FILE_NAME, "
@@ -72,18 +72,21 @@ __artifacts_v2__ = {
                  "resolves through their deleted parent directory, /holes, the 965th. On that fixture, SI Created is identical to SI Accessed on "
                  "all 996 rows. On that fixture, FN Created, FN Modified, FN Record Changed and "
                  "FN Accessed are identical to one another on all 996 rows. "
-                 "Run on three Windows-written volumes read as E01 images: 510,672 rows on "
-                 "pc_mus_001_win11 (510,638 and 34 from its two NTFS volumes), 122,289 on "
-                 "af_case2_win10 and 142,987 on lonewolf_win10 (142,956 and 31). A separate walk "
-                 "of each staged $MFT, applying the update sequence fixups and folding extension "
+                 "Run on the Windows-written volumes of four E01 images: 510,672 rows on pc_mus_001_win11 (510,638 and 34 from its two NTFS "
+                 "volumes), 122,289 on af_case2_win10, 142,987 on lonewolf_win10 (142,956 and 31) and 102,293 on szechuan_win10 (102,262 and 31). "
+                 "A separate walk "
+                 "of each staged $MFT of af_case2_win10, lonewolf_win10 and pc_mus_001_win11, applying the update sequence fixups and folding "
+                 "extension "
                  "records, found the same named base records on every volume, and resolving "
                  "paths by the rule above left the same records blank. In Use is No on 234,658, "
-                 "15 and 3,074 rows. Path is blank on 197,743, 3 and 2,522 rows, every one of "
-                 "them a record not in use. Other Links has a value on 29,216, 26,611 and "
-                 "30,945 rows. Owner SID was compared with dissect.ntfs 3.16's owner for the "
-                 "same Security Id on 5,000 randomly chosen rows of each large volume and every "
+                 "15, 3,074 and 7 rows. Path is blank on 197,743, 3, 2,522 and 0 rows, every one of "
+                 "them a record not in use. Other Links has a value on 29,216, 26,611, 30,945 and 24,099 rows. Owner SID was compared with "
+                 "dissect.ntfs 3.16's owner for the "
+                 "same Security Id on 5,000 randomly chosen rows of each large volume of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 and "
+                 "every "
                  "row of the two small ones, 15,065 rows, and was equal on all of them. It is "
-                 "blank on 3, 2 and 6 rows, each with a Security Id of 0, which the $Secure:$SDS "
+                 "blank on 3, 2, 6 and 3 rows; on 13 of them the record's $STANDARD_INFORMATION carries no Security Id, and the other, on "
+                 "lonewolf_win10, has a Security Id of 0, which the $Secure:$SDS "
                  "beside it does not hold.",
         "paths": ('*/$MFT', '*/$Secure:$SDS'),
         "output_types": "standard",
@@ -91,6 +94,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 510672 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 122289 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 142987 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 102,293 rows",
         },
         "artifact_icon": "files",
     }

@@ -54,7 +54,7 @@ __artifacts_v2__ = {
                        "report's identifier.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from the Report.wer files in the report folders under Microsoft\\Windows\\WER in "
@@ -62,22 +62,27 @@ __artifacts_v2__ = {
                  "Windows.System.WindowsErrorReporting artifact reads (Zach Stanford, "
                  "https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/Windows.System.WindowsErrorReporting.yaml#L24-L25); "
                  "Report Folder is the folder holding the file and identifies it, and every report on "
-                 "the tested images sat under ProgramData's ReportArchive. No Microsoft documentation "
+                 "the tested images sat under ProgramData's ReportArchive except the one on "
+                 "szechuan_win10, which sat under its ReportQueue. No Microsoft documentation "
                  "of the file's fields was found. The file holds one Key=Value pair per line, which "
                  "that artifact also reads "
                  "(https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/Windows.System.WindowsErrorReporting.yaml#L32-L34), "
                  "and each column is the field of that name, as stored: Event Type is EventType, "
                  "Friendly Event Name is FriendlyEventName, App Name is AppName, App Path is AppPath, "
-                 "Report Description is ReportDescription, which 5 of the 15 reports on lonewolf_win10 "
-                 "and 2 of the 31 on pc_mus_001_win11 carry, Report ID is ReportIdentifier and "
+                 "Report Description is ReportDescription, which 5 of the 15 reports on lonewolf_win10, "
+                 "2 of the 31 on pc_mus_001_win11 and the one on szechuan_win10 carry, Report ID is "
+                 "ReportIdentifier and "
                  "Integrator Report ID is IntegratorReportIdentifier. Problem Signature lists each "
                  "Sig[n] field's name and value in index order, as the file names them. Event Time "
                  "(UTC) and UploadTime (UTC) are EventTime and UploadTime read as FILETIMEs counted in "
-                 "UTC. Both machines were set to Eastern time, and on the 7 reports on each image "
+                 "UTC. The lonewolf_win10 and pc_mus_001_win11 machines were set to Eastern time and the "
+                 "szechuan_win10 machine to Pacific time, and on the 11, 7 and 1 reports on those images "
                  "whose ReportIdentifier a Windows Error Reporting event (1001) also names, the first "
-                 "such event was logged 0.0 to 0.1 seconds (lonewolf_win10) and 0.7 to 2.0 seconds "
-                 "(pc_mus_001_win11) after EventTime, where a local-time reading would put it hours "
-                 "away; UploadTime fell within 1.1 seconds of one of those events on all 14. What "
+                 "such event in record order was logged 0.0 to 0.1 seconds (lonewolf_win10), 0.7 to 2.0 "
+                 "seconds (pc_mus_001_win11) and 0.2 seconds (szechuan_win10) after EventTime, where a "
+                 "local-time reading would put it hours away, though a later szechuan_win10 record "
+                 "naming the same report carries a time 2,807.8 seconds before EventTime; UploadTime fell "
+                 "within 1.13 seconds of one of those events on all 19. What "
                  "UploadTime records was not established, and this artifact does not treat it as proof "
                  "of an upload. Target SHA-1 (first 30 MiB) is the second !-separated part of "
                  "TargetAppId without its leading 0000, when TargetAppId begins W:, the part "
@@ -110,6 +115,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Report.wer file)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 15 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 31 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
         },
     },
     "werLoadedModules": {
@@ -118,7 +124,7 @@ __artifacts_v2__ = {
                        "in the reported program, one row per module.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "One row per LoadedModule[n] field of each Report.wer (see Windows Error Reporting "
@@ -126,8 +132,9 @@ __artifacts_v2__ = {
                  "Module Path is the value as stored. That the module was loaded in the reported "
                  "program is what the field's name says, and no other record on the tested images was "
                  "compared with it. A report that lists no modules adds no rows: 4 of the 15 reports "
-                 "on lonewolf_win10 gave 732 rows, and 22 of the 31 on pc_mus_001_win11 gave 2,272, "
-                 "the most from one report being 233 and 229. Event Time (UTC) is EventTime read as a "
+                 "on lonewolf_win10 gave 732 rows, 22 of the 31 on pc_mus_001_win11 gave 2,272 and the "
+                 "one on szechuan_win10 gave 71, the most from one report being 233, 229 and 71. Event "
+                 "Time (UTC) is EventTime read as a "
                  "FILETIME counted in UTC, as measured in the notes of Windows Error Reporting "
                  "Reports.",
         "paths": ('*/Microsoft/Windows/WER/*/*/Report.wer',),
@@ -137,6 +144,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Report.wer file)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 732 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2272 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 71 rows",
         },
     },
     "werReportEvents": {
@@ -153,8 +161,8 @@ __artifacts_v2__ = {
                  "the Windows Error Reporting provider with Event ID 1001 are read. On "
                  "pc_mus_001_win11 (build 22621) the records name their fields: Bucket, BucketType, "
                  "EventName, Response, CabId, P1 to P10, AttachedFiles, StorePath, AnalysisSymbol, "
-                 "Rechecking, ReportId, ReportStatus, HashedBucket and CabGuid. On lonewolf_win10 "
-                 "(build 16299) they store unnamed strings, read here in the order of the parameters "
+                 "Rechecking, ReportId, ReportStatus, HashedBucket and CabGuid. On lonewolf_win10 (build 16299) and szechuan_win10 (build 19041) "
+                 "they store unnamed strings, read here in the order of the parameters "
                  "of message 1001 in the wer.dll.mui of builds 16299 (lonewolf_win10), 17763 "
                  "(af_case2_win10) and 22621 (pc_mus_001_win11), which is the same order: Fault bucket "
                  "%1, type %2, Event Name %3, Response %4, Cab Id %5, P1 to P10 %6 to %15, Attached "
@@ -163,14 +171,16 @@ __artifacts_v2__ = {
                  "Guid %23 from build 17763 (af_case2_win10) on. Event Name is EventName, Problem "
                  "Signature lists P1 to P10 where they hold a value, Attached Files is AttachedFiles, "
                  "Store Path is StorePath, Report ID is ReportId, Report Status is ReportStatus as "
-                 "stored and Hashed Bucket is HashedBucket. On the 90 records whose report is on the image (31 on lonewolf_win10, 59 on "
-                 "pc_mus_001_win11), P1 to P10 equalled that "
+                 "stored and Hashed Bucket is HashedBucket. On the 104 records whose report is on the image (31 on lonewolf_win10, 59 on "
+                 "pc_mus_001_win11, 14 on szechuan_win10), P1 to P10 equalled that "
                  "Report.wer's Sig[0] to Sig[9] values, which its Problem Signature names. One report "
-                 "can be logged more than once: 33 records named 17 report IDs on lonewolf_win10, and 68 named 40 on pc_mus_001_win11. Report ID "
-                 "matched a Report.wer's ReportIdentifier for 11 of those IDs on lonewolf_win10 and 7 on pc_mus_001_win11, and its "
-                 "IntegratorReportIdentifier for 4 (lonewolf_win10) and 24 (pc_mus_001_win11). User SID is the SID in the record's "
-                 "Security element, and it is blank on every lonewolf_win10 row, because those records "
-                 "carry none. Event Time (UTC) is the record's TimeCreated SystemTime, which "
+                 "can be logged more than once: 33 records named 17 report IDs on lonewolf_win10, 68 named 40 on pc_mus_001_win11 and 14 named 1 "
+                 "on szechuan_win10. Report ID "
+                 "matched a Report.wer's ReportIdentifier for 11 of those IDs on lonewolf_win10, 7 on pc_mus_001_win11 and 1 on szechuan_win10, "
+                 "and its IntegratorReportIdentifier for 4 (lonewolf_win10), 24 (pc_mus_001_win11) and 0 (szechuan_win10). User SID is the SID in "
+                 "the record's "
+                 "Security element, and it is blank on every lonewolf_win10 and szechuan_win10 row, because those records carry none. Event Time "
+                 "(UTC) is the record's TimeCreated SystemTime, which "
                  "python-evtx renders from the FILETIME the record stores, counted in UTC "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
                  "and Record ID is the record's EventRecordID. Not reported: Bucket, BucketType, "
@@ -182,6 +192,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Windows Error Reporting 1001 record)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 33 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 68 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 14 rows",
         },
     },
     "appCrashHangEvents": {
@@ -241,6 +252,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Application Error 1000 or Application Hang 1002 record)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 24 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

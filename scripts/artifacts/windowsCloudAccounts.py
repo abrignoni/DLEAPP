@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                  " 0.1 seconds after LastSignInTime and another 2.7 seconds after "
                  "ClientFirstSignInTimestamp, and on lonewolf_win10 one was written 50 seconds after "
                  "ClientFirstSignInTimestamp. Key Last Written is when the account subkey was last "
-                 "written. On af_case2_win10 the one account subkey reported holds a UserFolder value "
+                 "written. On af_case2_win10 the one account subkey reported, and on szechuan_win10 each of the four reported, holds a UserFolder value "
                  "and no UserEmail, cid, UserCID, LastSignInTime or ClientFirstSignInTimestamp value, "
                  "so User Email, CID, Last Sign In and Client First Sign In are empty there. On "
                  "lonewolf_win10 the account subkey has no UserEmail or LastSignInTime value, so User "
@@ -48,6 +48,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1 row",
             "af_case2_win10": "Windows 10 1809 build 17763 | 1 row",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 4 rows",
         },
     },
     "microsoftAccounts": {
@@ -66,7 +67,7 @@ __artifacts_v2__ = {
                  " same user's OneDrive account entry. Last Used Credential Type is the "
                  "lastusedcredtype value as stored; its meaning is not established. Key Last Written "
                  "is when the subkey was last written, which is not established as a sign-in time. "
-                 "af_case2_win10 has no such key."
+                 "af_case2_win10 and szechuan_win10 have no such key."
                  " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
                  "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
                  "applied, following Maxim Suhanov's 'Windows registry file format specification' "
@@ -84,6 +85,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1 row",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no IdentityCRL UserExtendedProperties key)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

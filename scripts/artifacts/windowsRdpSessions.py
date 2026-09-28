@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        "session id, and source address.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from the Microsoft-Windows-TerminalServices-"
@@ -60,12 +60,15 @@ __artifacts_v2__ = {
                  "event's message labels Source Network Address, which logoff (23) records do "
                  "not carry; Psmths describes it as the source IP address of an RDP session "
                  "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/network/terminal-services-local-21.md#L38-L39), "
-                 "and on the registered images, whose Security logs hold no RemoteInteractive "
-                 "(type 10) logon, it was LOCAL on every row that carries it. Computer is the "
+                 "and on af_case2_win10, lonewolf_win10 and pc_mus_001_win11, whose Security logs "
+                 "hold no RemoteInteractive (type 10) logon, it was LOCAL on every row that "
+                 "carries it; on szechuan_win10, whose Security log holds one, it was LOCAL on 24 "
+                 "of the 27 rows that carry it and an IPv4 address on the other 3. Computer is "
+                 "the "
                  "machine that recorded the event. Computer held one value on every row of "
-                 "af_case2_win10 and pc_mus_001_win11, and two values on lonewolf_win10; User "
-                 "held one value on every row of pc_mus_001_win11, and two values on each of the "
-                 "other two images. This log covers console sessions as well "
+                 "af_case2_win10 and pc_mus_001_win11, and two values on each of lonewolf_win10 and szechuan_win10; User "
+                 "held one value on every row of pc_mus_001_win11, two values on each of af_case2_win10 and "
+                 "lonewolf_win10, and five values on szechuan_win10. This log covers console sessions as well "
                  "as Remote Desktop, so an entry is not by itself proof of a "
                  "remote connection. On the registered images every disconnect (24) was recorded "
                  "less than a second after a logoff (23) for the same session. Reading needs "
@@ -85,6 +88,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 34 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 55 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 12 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 37 rows",
         },
     },
 }

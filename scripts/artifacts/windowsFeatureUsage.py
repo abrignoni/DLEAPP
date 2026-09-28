@@ -27,8 +27,9 @@ __artifacts_v2__ = {
                  "right-clicks on the application on the taskbar; AppBadgeUpdated, updates to a "
                  "running application's badge icon; TrayButtonClicked, clicks on built-in taskbar "
                  "buttons such as the clock and Start. Those meanings are the write-up's and were not "
-                 "tested here. Of the three tested images only pc_mus_001_win11 (build "
-                 "22621) has the key, in the user's NTUSER.DAT and not the Default profile's; "
+                 "tested here. Of the four tested images only pc_mus_001_win11 (build 22621) and "
+                 "szechuan_win10 (build 19041) have the key, in one user's NTUSER.DAT on pc_mus_001_win11 "
+                 "and four users' on szechuan_win10, and not the Default profile's; "
                  "af_case2_win10 (version 1809) and lonewolf_win10 (version 1709) have none. "
                  "FeatureUsage Key Creation Time is one value per NTUSER.DAT, the same on every row "
                  "from that hive, and on pc_mus_001_win11 one hive holds the key, so it and User each "
@@ -53,6 +54,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 30 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no FeatureUsage key)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no FeatureUsage key)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 10 rows",
         },
     },
 }

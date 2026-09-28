@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                        "the source volume.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "One row per prefetch file. Executable is the name stored in the "
@@ -66,6 +66,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 527 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 184 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 160 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 196 rows",
         },
     },
     "prefetchFilesLoaded": {
@@ -74,7 +75,7 @@ __artifacts_v2__ = {
                        "the .pf prefetch files: one row per referenced file.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-16",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "One row per file referenced by a prefetch file, so an executable "
@@ -108,6 +109,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 55454 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 14460 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 19582 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 18,921 rows",
         },
     },
 }

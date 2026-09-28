@@ -62,8 +62,8 @@ __artifacts_v2__ = {
                  "redirected (Reference: Microsoft, 'Registry Keys Affected by "
                  "WOW64', "
                  "https://learn.microsoft.com/en-us/windows/win32/winprog64/shared-registry-keys),"
-                 " and no NTUSER.DAT under Users on pc_mus_001_win11, af_case2_win10 or "
-                 "lonewolf_win10 has a Software\\Wow6432Node Run or RunOnce key. "
+                 " and no NTUSER.DAT under Users on pc_mus_001_win11, af_case2_win10, "
+                 "lonewolf_win10 or szechuan_win10 has a Software\\Wow6432Node Run or RunOnce key. "
                  "The hive is named in Source File. Name is the value name as "
                  "stored and Command is the value data as stored, neither "
                  "interpreted. Key records which key an entry came from, Run or "
@@ -71,8 +71,8 @@ __artifacts_v2__ = {
                  "on an image whose entries all sit in one key the Key column is "
                  "constant. The WOW6432Node Run key holds 1 value on "
                  "pc_mus_001_win11, its Run and RunOnce keys hold 1 value each on "
-                 "lonewolf_win10, and both are present and empty on "
-                 "af_case2_win10. Scope is Machine for the SOFTWARE hive and User "
+                 "lonewolf_win10, and both are present and empty on af_case2_win10 and "
+                 "szechuan_win10. Scope is Machine for the SOFTWARE hive and User "
                  "for an NTUSER.DAT, and is constant on an image whose entries all"
                  " come from one of the two. User is the folder name under Users in the "
                  "NTUSER.DAT's path within the extraction and is blank on every machine-wide "
@@ -109,6 +109,7 @@ __artifacts_v2__ = {
                      "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 9 rows",
                      "af_case2_win10": "Windows 10 1809 build 17763 | 5 rows",
                      "lonewolf_win10": "Windows 10 Education build 16299 | 10 rows",
+                     "szechuan_win10": "Windows 10 2004 build 19041 | 11 rows",
                  },
     },
 }

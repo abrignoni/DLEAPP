@@ -30,7 +30,7 @@ __artifacts_v2__ = {
                        "profile's History database lists the page URL.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads each Chromium-based browser profile's Favicons database, one row per "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
                  "Chrome 108.0.5359.125 and Microsoft Edge 108.0.1462.54 on pc_mus_001_win11, whose "
                  "rows come from the Chrome Default and Profile 2 profiles and the Edge Default "
                  "profile; its Chrome Guest Profile and System Profile databases held no mapping. No "
-                 "member of af_case2_win10 or dleapp_macos_bigsur matched the declared paths. When a "
+                 "member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched the declared paths. When a "
                  "logical extraction holds a profile under Users/ and under "
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, with any "
                  "-journal or -wal beside it, is read once and counted in the run log, and copies that "
@@ -154,6 +154,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 700 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 641 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
 }

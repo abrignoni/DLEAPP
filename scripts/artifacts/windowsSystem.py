@@ -30,7 +30,7 @@ __artifacts_v2__ = {
                        "fields, and preserved payload content.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows System",
         "notes": "Modernized from WLEAPP. Timestamps are interpreted as Unix "
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
                  "The Activity table's columns differ between Windows builds: "
                  "the Read column (IsRead) is absent from the table on the "
                  "tested build 16299 image and is reported blank there, and is "
-                 "present on the tested build 17763 and 22621 images. The schema "
+                 "present on the tested build 17763, 19041 and 22621 images. The schema "
                  "is probed and any absent column is reported blank rather than "
                  "failing the read.",
         "paths": (
@@ -51,6 +51,7 @@ __artifacts_v2__ = {
                               "(Activity table empty on this image)",
             "af_case2_win10": "Windows 10 1809 (build 17763) | 76 rows",
             "pc_mus_001_win11": "Windows 11 22H2 (build 22621) | 344 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 122 rows",
             "windows11_arm_parallels": "Windows build 26200 | 5 rows",
         },
     },
@@ -61,7 +62,7 @@ __artifacts_v2__ = {
                        "text, and the preserved payload.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-27",
         "requirements": "beautifulsoup4",
         "category": "Windows System",
         "notes": "Modernized from WLEAPP. Arrival and expiry values use the "
@@ -69,10 +70,10 @@ __artifacts_v2__ = {
                  "reported as stored because its encoding is not documented. The "
                  "Notification table's columns differ between Windows builds: "
                  "Payload Type (PayloadType) is absent on the tested build 16299 "
-                 "image and present on the tested build 17763 and 22621 images; "
+                 "image and present on the tested build 17763, 19041 and 22621 images; "
                  "Boot ID (BootId) and Expires on Reboot (ExpiresOnReboot) are "
                  "absent on the tested build 16299 and 17763 images and present "
-                 "on the tested build 22621 image. The schema is probed and any "
+                 "on the tested build 19041 and 22621 images. The schema is probed and any "
                  "absent column is reported blank rather than failing the read; "
                  "the build where each column first appears was not established.",
         "paths": (
@@ -84,6 +85,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 1709 (build 16299) | 34 rows",
             "af_case2_win10": "Windows 10 1809 (build 17763) | 8 rows",
             "pc_mus_001_win11": "Windows 11 22H2 (build 22621) | 19 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 42 rows",
             "windows11_arm_parallels": "Windows build 26200 | 3 rows",
         },
     },

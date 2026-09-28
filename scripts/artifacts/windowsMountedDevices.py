@@ -103,6 +103,7 @@ __artifacts_v2__ = {
                               "(2 MBR disks, optical and floppy)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 7 rows "
                               "(GPT partition, MBR disk, USB, optical)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 5 rows",
         },
     },
 }

@@ -41,8 +41,9 @@ __artifacts_v2__ = {
                  "1803, with 1709 unconfirmed (Reference: Phill Moore, 'When did RecentApps go?', "
                  "https://thinkdfir.com/2020/10/23/when-did-recentapps-go/). Of the tested images only "
                  "lonewolf_win10, whose SOFTWARE hive records ReleaseId 1709, carried the key, in one "
-                 "user's hive, with 21 applications; no NTUSER.DAT on af_case2_win10 (ReleaseId 1809) "
-                 "or pc_mus_001_win11 (DisplayVersion 22H2) had it. App ID, App Path and Launch Count "
+                 "user's hive, with 21 applications; no NTUSER.DAT on af_case2_win10 (ReleaseId 1809), "
+                 "pc_mus_001_win11 (DisplayVersion 22H2) or szechuan_win10 (ReleaseId 2004) had it. App "
+                 "ID, App Path and Launch Count "
                  "are the subkey's AppId, AppPath and LaunchCount values as stored, and Last Accessed "
                  "(UTC) is its LastAccessedTime, a FILETIME, a zero shown blank; Velociraptor's "
                  "artifact reads LastAccessedTime as the last execution "
@@ -73,6 +74,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 21 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no NTUSER.DAT holds the RecentApps key)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "windowsRecentAppItems": {
@@ -94,7 +96,7 @@ __artifacts_v2__ = {
                  "under 5 applications, whose App IDs are Chrome, "
                  "Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge, a path ending in NOTEPAD.EXE, "
                  "Microsoft.Office.POWERPNT.EXE.15 and Microsoft.Office.WINWORD.EXE.15. For each item "
-                 "a shortcut named for its Display Name, apostrophes written as underscores, sat in "
+                 "a shortcut named for its Display Name sat in "
                  "the same user's AppData/Roaming/Microsoft/Windows/Recent folder, and Last Accessed "
                  "fell less than a second before that shortcut's modification time on 12 of the 14. On "
                  "the other two the shortcut's modification time was 6.5 seconds before the item's "
@@ -120,6 +122,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 14 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no NTUSER.DAT holds the RecentApps key)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

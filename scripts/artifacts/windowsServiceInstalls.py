@@ -63,7 +63,7 @@ __artifacts_v2__ = {
                  "blank when the event stored none. A 7045 event records an installation; "
                  "whether the service still exists is not established by this artifact. Computer "
                  "is the machine that recorded the event. Computer held one value on every row "
-                 "of pc_mus_001_win11, and two values on af_case2_win10 and on lonewolf_win10. "
+                 "of pc_mus_001_win11, two values on af_case2_win10 and on lonewolf_win10, and three values on szechuan_win10. "
                  "Reading needs the python-evtx package (pip install "
                  "python-evtx). Event 7045 and its forensic use: Psmths, "
                  "'windows-forensic-artifacts', "
@@ -75,6 +75,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 51 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 28 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 57 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 20 rows",
         },
     },
 }

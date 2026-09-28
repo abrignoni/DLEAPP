@@ -55,25 +55,26 @@ __artifacts_v2__ = {
                  "bytesTransferred and fileCount; Status Code is hr, which the manifest "
                  "formats as hexadecimal, shown as hex with the stored decimal. Every other "
                  "value is reported as stored. Local File was filled on the 192 16403 rows "
-                 "of pc_mus_001_win11 and is empty on af_case2_win10 and lonewolf_win10, "
-                 "which carry no 16403 records. Bytes Total held 18446744073709551615, the "
+                 "of pc_mus_001_win11 and is empty on af_case2_win10, lonewolf_win10 and "
+                 "szechuan_win10, which carry no 16403 records. Bytes Total held "
+                 "18446744073709551615, the "
                  "largest unsigned 64-bit number, on 79 of 116 rows on af_case2_win10, 20 "
-                 "of 967 on pc_mus_001_win11 and 88 of 421 on lonewolf_win10; the manifest "
+                 "of 967 on pc_mus_001_win11, 88 of 421 on lonewolf_win10 and 14 of 71 on szechuan_win10; the manifest "
                  "dump gives no description of that value. Event Time (UTC) is the "
                  "record's TimeCreated SystemTime, which python-evtx renders from the "
                  "FILETIME the record stores, counted in UTC (python-evtx 0.8.1, "
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID. Computer is the machine name "
                  "the record stores: it held one value on every row of af_case2_win10 and "
-                 "pc_mus_001_win11 and two values on lonewolf_win10. Not reported: the transfer "
+                 "pc_mus_001_win11 and two values on each of lonewolf_win10 and szechuan_win10. Not reported: the transfer "
                  "ID, peer, proxy, bandwidth, fileTime, fileLength, AdditionalInfoHr and "
                  "ClientProcessStartKey fields, and the log's other events. A record python-evtx "
                  "cannot render, "
                  "or whose XML does not parse, is counted in the run log and not reported; "
                  "every record in this log rendered on the registered images. On the job "
                  "created (3) rows, Job Owner was an NT AUTHORITY account on 10 of 18 on "
-                 "af_case2_win10, 13 of 192 on pc_mus_001_win11 and 14 of 86 on "
-                 "lonewolf_win10; a row does not by itself establish that a person started "
+                 "af_case2_win10, 13 of 192 on pc_mus_001_win11, 14 of 86 on lonewolf_win10 and 3 of 14 on szechuan_win10; "
+                 "a row does not by itself establish that a person started "
                  "the transfer. Reading needs the python-evtx package (pip install "
                  "python-evtx).",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Bits-Client%4Operational.evtx",),
@@ -83,6 +84,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 967 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 116 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 421 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 71 rows",
         },
     },
 }

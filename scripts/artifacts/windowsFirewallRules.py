@@ -68,8 +68,8 @@ __artifacts_v2__ = {
                  "from it "
                  "(https://github.com/MicrosoftDocs/sdk-api/blob/a4fd3f7efe2e3378a96c6fe5a6a9455eba9fa021/sdk-api-src/content/shlwapi/nf-shlwapi-shloadindirectstring.md#L94-L143). "
                  "It is reported as stored and not resolved. On the tested images most Rule Names "
-                 "were indirect strings: 435 of 452 on af_case2_win10, 422 of 443 on "
-                 "lonewolf_win10 and 437 of 484 on pc_mus_001_win11. A rule string records no "
+                 "were indirect strings: 435 of 452 on af_case2_win10, 422 of 443 on lonewolf_win10, 437 "
+                 "of 484 on pc_mus_001_win11 and 569 of 633 on szechuan_win10. A rule string records no "
                  "time, and no time is reported: Microsoft describes a key's last write time as "
                  "the last time the key or any of its values was modified "
                  "(https://github.com/MicrosoftDocs/sdk-api/blob/a4fd3f7efe2e3378a96c6fe5a6a9455eba9fa021/sdk-api-src/content/winreg/nf-winreg-regqueryinfokeyw.md#L140-L141), "
@@ -82,7 +82,8 @@ __artifacts_v2__ = {
                  "seconds later. What that sequence corresponds to is not established here. That "
                  "log records rule changes with the rule's ID. For the rules in the FirewallRules "
                  "key that it recorded being added or modified (83 on af_case2_win10, 59 on "
-                 "lonewolf_win10 and 58 on pc_mus_001_win11), the latest such record agreed with "
+                 "lonewolf_win10, 58 on pc_mus_001_win11 and 129 on szechuan_win10), the latest such "
+                 "record agreed with "
                  "the rule's Direction, Action and Active on every rule, and with its Rule Name on "
                  "all but 3 rules on af_case2_win10, where the key stores an indirect string and "
                  "the record the text (for example '@FirewallAPI.dll,-30253' and 'Windows Remote "
@@ -98,10 +99,10 @@ __artifacts_v2__ = {
                  "whose app isolation rules are not read here, and neither are the rules under "
                  "RestrictedServices\\Static\\System and RestrictedServices\\Configurable\\System. On "
                  "the tested images those three keys held 310, 195 and 5 values on af_case2_win10, "
-                 "277, 186 and 5 on lonewolf_win10, and 422, 182 and 3 on pc_mus_001_win11. Every "
+                 "277, 186 and 5 on lonewolf_win10, 422, 182 and 3 on pc_mus_001_win11, and 989, 199 and 3 on szechuan_win10. Every "
                  "rule on the tested images was an Allow rule, so a Block rule has not been "
-                 "exercised. Active was TRUE on 214 of 452 rules on af_case2_win10, 206 of 443 on "
-                 "lonewolf_win10 and 255 of 484 on pc_mus_001_win11. No tested SOFTWARE hive held "
+                 "exercised. Active was TRUE on 214 of 452 rules on af_case2_win10, 206 of 443 on lonewolf_win10, 255 of 484 on "
+                 "pc_mus_001_win11 and 390 of 633 on szechuan_win10. No tested SOFTWARE hive held "
                  "Policies\\Microsoft\\WindowsFirewall, so reading that key is unexercised. On "
                  "szechuan_win10, the public DFIR Madness Szechuan Sauce desktop image, the SYSTEM hive "
                  "is dirty. Read as it is, its FirewallRules key held 628 rules and was last written at "
@@ -122,6 +123,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 443 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 484 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 633 rows",
         },
     },
 }
