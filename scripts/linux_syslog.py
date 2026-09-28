@@ -45,9 +45,9 @@ def utc_time(stamp):
     return local.astimezone(timezone.utc)
 
 
-def program_lines(data, programs, counts):
-    """(line number, UTC time, time as recorded, host, program, process ID, message) for each line
-    of these programs; lines of other programs and lines in neither format are counted."""
+def syslog_lines(data, counts):
+    """(line number, time as recorded, host, program, process ID, message) for each line in either
+    format; lines in neither format are counted."""
     rows = []
     for number, line in enumerate(data.decode('utf-8', errors='replace').split('\n'), 1):
         line = line.rstrip('\r')
@@ -58,11 +58,25 @@ def program_lines(data, programs, counts):
             counts[NOT_SYSLOG] += 1
             continue
         stamp, host, program, pid, message = match.groups()
+        rows.append((number, stamp, host, program, pid or '', message))
+    return rows
+
+
+def reported_time(stamp, counts):
+    """utc_time(stamp) for a line that will be reported, counting an RFC 3339 time that is not a date."""
+    when = utc_time(stamp)
+    if when == '' and RFC3339.fullmatch(stamp):
+        counts[BAD_DATE] += 1
+    return when
+
+
+def program_lines(data, programs, counts):
+    """(line number, UTC time, time as recorded, host, program, process ID, message) for each line
+    of these programs; lines of other programs and lines in neither format are counted."""
+    rows = []
+    for number, stamp, host, program, pid, message in syslog_lines(data, counts):
         if program not in programs:
             counts[OTHER_PROGRAMS] += 1
             continue
-        when = utc_time(stamp)
-        if when == '' and RFC3339.fullmatch(stamp):
-            counts[BAD_DATE] += 1
-        rows.append((number, when, stamp, host, program, pid or '', message))
+        rows.append((number, reported_time(stamp, counts), stamp, host, program, pid, message))
     return rows
