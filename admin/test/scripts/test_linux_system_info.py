@@ -313,7 +313,7 @@ class OtherSeekersTest(unittest.TestCase):
             data_folder = os.path.join(root, 'data')
             copy = staged(data_folder, 'etc/machine-id', b'ffffffffffffffffffffffffffffffff\n')
             host = staged(data_folder, 'etc/hostname', b'box-4\n')
-            seeker = SimpleNamespace(directory=evidence, file_infos={
+            seeker = SimpleNamespace(directory=evidence, data_folder=data_folder, file_infos={
                 copy: SimpleNamespace(source_path='etc/machine-id', modification_date=2000.0),
                 host: SimpleNamespace(source_path='etc/hostname', modification_date=3000.0)})
             _headers, rows, _source = linuxSystemInfo.linuxSystemInfo.__wrapped__(
@@ -324,6 +324,31 @@ class OtherSeekersTest(unittest.TestCase):
                                 (datetime.fromtimestamp(link_time, timezone.utc), 'Machine ID link', outside, '',
                                  os.path.join('etc', 'machine-id'))])
 
+
+    def test_a_folder_link_the_seeker_did_not_stage_is_reported(self):
+        # The folder seeker stages nothing for a link that resolves outside the input folder; it returns the path
+        # and records the link's own times.
+        with tempfile.TemporaryDirectory() as root:
+            evidence = os.path.join(root, 'evidence')
+            os.makedirs(os.path.join(evidence, 'var', 'lib', 'dbus'))
+            link = os.path.join(evidence, 'var', 'lib', 'dbus', 'machine-id')
+            try:
+                os.symlink('/nonexistent-dleapp/machine-id', link)
+            except (OSError, NotImplementedError):
+                self.skipTest('this platform cannot make a symbolic link here')
+            data_folder = os.path.join(root, 'data')
+            returned = os.path.join(data_folder, 'var', 'lib', 'dbus', 'machine-id')
+            stat = os.lstat(link)
+            seeker = SimpleNamespace(directory=evidence, data_folder=data_folder, file_infos={
+                returned: SimpleNamespace(source_path='var/lib/dbus/machine-id', modification_date=stat.st_mtime)})
+            with mock.patch.object(linuxSystemInfo, 'logfunc') as log:
+                _headers, rows, _source = linuxSystemInfo.linuxSystemInfo.__wrapped__(
+                    FakeContext([returned], data_folder, seeker))
+            link_time = os.lstat(link).st_mtime
+        self.assertEqual(rows, [(datetime.fromtimestamp(link_time, timezone.utc), 'Machine ID link',
+                                 '/nonexistent-dleapp/machine-id', '',
+                                 os.path.join('var', 'lib', 'dbus', 'machine-id'))])
+        log.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
