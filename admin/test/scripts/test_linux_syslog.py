@@ -57,6 +57,25 @@ class ProgramLinesTest(unittest.TestCase):
         self.assertEqual(rows[0][-1], '    alex : TTY=pts/0 ; COMMAND=/bin/true')
 
 
+class SyslogLinesTest(unittest.TestCase):
+    def test_every_program_is_returned_and_unreadable_lines_counted(self):
+        counts = Counter()
+        rows = linux_syslog.syslog_lines(LOG, counts)
+        self.assertEqual([(r[0], r[3], r[4]) for r in rows],
+                         [(1, 'sshd-session', '4021'), (2, 'sudo', ''), (3, 'sshd', '2085'), (6, 'sshd', ''), (7, 'sshd', '')])
+        self.assertEqual(rows[1][5], '    alex : TTY=pts/0 ; COMMAND=/bin/true')
+        self.assertEqual(counts, {linux_syslog.NOT_SYSLOG: 1})
+
+    def test_a_bad_date_is_counted_only_where_a_line_is_reported(self):
+        counts = Counter()
+        self.assertEqual(linux_syslog.reported_time('2026-02-30T01:02:03Z', counts), '')
+        self.assertEqual(linux_syslog.reported_time('Feb  6 15:16:30', counts), '')
+        self.assertEqual(counts, {linux_syslog.BAD_DATE: 1})
+        counts = Counter()
+        linux_syslog.program_lines(b'2026-02-30T01:02:03Z host cron: bad date\n', ('sshd',), counts)
+        self.assertEqual(counts, {linux_syslog.OTHER_PROGRAMS: 1})
+
+
 class ReadFileTest(unittest.TestCase):
     def test_gzip_rotations_are_decompressed(self):
         with tempfile.TemporaryDirectory() as root:
