@@ -19,8 +19,10 @@ import binascii
 
 try:
     from scripts.vendor import impacket_ese
+    from scripts import ese_rows
 except ImportError:
     impacket_ese = None
+    ese_rows = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc, check_in_embedded_media
 
@@ -46,7 +48,7 @@ __artifacts_v2__ = {
                        "the Windows Search index where the item was indexed.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (Windows.edb correlation uses the vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the thumbcache_*.db files in a user's Explorer folder, "
@@ -72,8 +74,15 @@ __artifacts_v2__ = {
                  "lonewolf_win10, 2 of 108 on pc_mus_001_win11 and 4 of 396 on szechuan_win10. The "
                  "search index is read from "
                  "Windows.edb (Windows 10 and earlier, with the vendored ESE reader) "
-                 "or Windows.db (Windows 11, SQLite, read only) when present beside "
-                 "the thumbnail caches. A cached thumbnail records that Explorer "
+                 "or Windows.db (Windows 11, SQLite, read only) when present beside the thumbnail "
+                 "caches. In Windows.edb, a record ESE marks deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there unless its "
+                 "version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are counted in the "
+                 "run log, and none of the Windows.edb files on the tested images held either. A "
+                 "cached thumbnail records that Explorer "
                  "generated a preview for the item; it does not record who viewed it, "
                  "and the item may since have been moved or deleted, so a thumbnail "
                  "can outlive its file. One item is cached at several sizes, so it can "
@@ -171,27 +180,20 @@ def _as_cache_id(value):
     return None
 
 
-def _edb_map(path):
-    """Map System.ThumbnailCacheId to (path, name) from Windows.edb."""
+def _edb_map(path, relative_source=""):
+    """Map System.ThumbnailCacheId to (path, name) from Windows.edb.
+
+    A record ESE marks deleted is not read, and a record the ESE reader cannot
+    convert is skipped; both are counted in the run log."""
     result = {}
     if impacket_ese is None:
         return result
     database = impacket_ese.ESENT_DB(path)
     try:
         database.mountDB()
-        cursor = database.openTable("SystemIndex_PropertyStore")
-        if cursor is None:
-            return result
+        walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP)
         id_col = path_col = name_col = None
-        seen = 0
-        while seen < _ROW_CAP:
-            seen += 1
-            try:
-                row = database.getNextRow(cursor)
-            except Exception:  # pylint: disable=broad-exception-caught
-                continue
-            if row is None:
-                break
+        for row in walk:
             row = _norm_row(row)
             if id_col is None:
                 for key in row:
@@ -206,6 +208,8 @@ def _edb_map(path):
             cache_id = _as_cache_id(row.get(id_col))
             if cache_id is not None:
                 result[cache_id] = (_edb_text(row.get(path_col)), _edb_text(row.get(name_col)))
+        if walk.summary():
+            logfunc(f"Thumbnail Cache: {relative_source}, {walk.summary()}")
         return result
     finally:
         database.close()
@@ -292,7 +296,7 @@ def windowsThumbcache(context):
         low = source.lower()
         try:
             if low.endswith(_WINDOWS_EDB):
-                id_map.update(_edb_map(source))
+                id_map.update(_edb_map(source, context.get_relative_path(source)))
             elif low.endswith(_WINDOWS_DB):
                 id_map.update(_db_map(source))
         except Exception as exc:  # pylint: disable=broad-exception-caught

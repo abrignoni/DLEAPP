@@ -18,8 +18,10 @@ from datetime import datetime, timedelta, timezone
 
 try:
     from scripts.vendor import impacket_ese
+    from scripts import ese_rows
 except ImportError:
     impacket_ese = None
+    ese_rows = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 
@@ -54,7 +56,7 @@ __artifacts_v2__ = {
                        "created and accessed times the index recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SystemIndex_PropertyStore table in Windows.edb, the "
@@ -87,8 +89,16 @@ __artifacts_v2__ = {
                  "retain an entry after the item is removed from disk. Windows.edb "
                  "is the Windows 10 and earlier Windows Search store; Windows 11 "
                  "22H2 and later replaced it with Windows.db (a SQLite database), "
-                 "which this artifact does not read. The transaction logs beside "
-                 "Windows.edb are not replayed.",
+                 "which this artifact does not read. A record ESE marks deleted (its "
+                 "fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there "
+                 "unless its version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are "
+                 "counted in the run log, and none of the Windows.edb files on the "
+                 "tested images held either. The transaction logs beside Windows.edb "
+                 "are not replayed.",
         "paths": ("*/[Ss]earch/[Dd]ata/[Aa]pplications/[Ww]indows/"
                   "[Ww]indows.[Ee][Dd][Bb]",),
         "output_types": ["standard"],
@@ -167,27 +177,18 @@ def _edb_sources(context):
             if str(f).lower().endswith(_WINDOWS_EDB)]
 
 
-def _read_property_store(source):
+def _read_property_store(source, label="Windows Search", relative_source=""):
     """Open Windows.edb and build a row per SystemIndex_PropertyStore entry.
 
-    getNextRow can raise on an occasional record but advances the cursor first,
-    so the reader skips the bad record and continues under a row cap."""
+    A record ESE marks deleted is not read, and a record the ESE reader cannot
+    convert is skipped so the rest of the table is still read, under a row cap;
+    both are counted in the run log."""
     database = impacket_ese.ESENT_DB(source)
     try:
         database.mountDB()
         rows = []
-        cursor = database.openTable(_PROPERTY_STORE)
-        if cursor is None:
-            return rows
-        seen = 0
-        while seen < _ROW_CAP:
-            seen += 1
-            try:
-                row = database.getNextRow(cursor)
-            except Exception:  # pylint: disable=broad-exception-caught
-                continue
-            if row is None:
-                break
+        walk = ese_rows.TableRows(database, _PROPERTY_STORE, cap=_ROW_CAP)
+        for row in walk:
             row = _norm_row(row)
             rows.append((
                 _filetime(row.get(_C_GATHER)),
@@ -202,6 +203,8 @@ def _read_property_store(source):
                 _size(row.get(_C_SIZE)),
                 _cell(row.get(_C_WORKID)),
             ))
+        if walk.summary():
+            logfunc(f"{label}: {relative_source}, {walk.summary()}")
         return rows
     finally:
         database.close()
@@ -224,7 +227,7 @@ def windowsSearch(context):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            rows = _read_property_store(source)
+            rows = _read_property_store(source, "Windows Search", relative_source)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f"Windows Search: could not read {relative_source}: {exc}")
             continue
