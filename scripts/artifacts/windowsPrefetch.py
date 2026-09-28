@@ -21,6 +21,11 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 _MAM_SIGNATURE = b"MAM\x04"       # Xpress Huffman, no checksum
 _SCCA_SIGNATURE = b"SCCA"
 _SUPPORTED_VERSION = 30           # Windows 10 and 11
+# Version 30 comes in two variants of the file information that follows the 84-byte
+# file header, told apart by the file metrics array offset stored first in it: 304 in
+# variant 1, which keeps the run count at file offset 208, and 296 in variant 2, which
+# keeps it at 200 (libscca, "File information - version 30 - variant 1/2").
+_RUN_COUNT_OFFSET = {304: 208, 296: 200}
 _MAX_BITS = 15
 _CHUNK = 65536
 
@@ -29,24 +34,41 @@ __artifacts_v2__ = {
         "name": "Prefetch",
         "description": "Programs Windows prepared to run, from the .pf prefetch "
                        "files: the executable, run count, up to eight run times, and "
-                       "the source volume.",
+                       "the first volume the file records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
         "notes": "One row per prefetch file. Executable is the name stored in the "
-                 "file's header. Run Count is the total number of times the program "
-                 "was prepared to run. Last Run (UTC) is the most recent of the "
-                 "recorded run times and Run Times (UTC) lists all of them, newest "
-                 "first (Windows keeps up to eight). Files Loaded is the number of "
+                 "file's header. Run Count is the run count the file stores, read "
+                 "where each version 30 variant keeps it: the file information that "
+                 "follows the 84-byte file header "
+                 "(https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc?plain=1#L218-L220) "
+                 "first stores the file metrics array offset, 304 in variant 1, which "
+                 "keeps the run count at file offset 208 "
+                 "(https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc?plain=1#L366-L391), "
+                 "and 296 in variant 2, which keeps it at 200 "
+                 "(https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc?plain=1#L402-L427); "
+                 "a file with any other value there gets a blank Run Count and a note "
+                 "in the run log. Every prefetch file read on af_case2_win10 and "
+                 "lonewolf_win10 is variant 1 and every one on pc_mus_001_win11 and "
+                 "szechuan_win10 is variant 2, and on every row whose Run Count is 8 "
+                 "or less it equals the number of run times stored (134, 102, 398 and "
+                 "177 rows). Last Run (UTC) is the first of the recorded run times and "
+                 "Run Times (UTC) lists all of them in the order stored (Windows keeps "
+                 "up to eight); that order was not newest first on 5 of the 184 "
+                 "af_case2_win10 rows, 6 of the 160 lonewolf_win10 rows, 20 of the 527 "
+                 "pc_mus_001_win11 rows and 8 of the 196 szechuan_win10 rows, and on "
+                 "2, 2, 7 and 4 of those the first time was not the latest. Files "
+                 "Loaded is the number of "
                  "files the run referenced. Volume Device Path, Volume Serial and "
                  "Volume Created (UTC) describe the first volume the file records; a "
                  "prefetch file can reference more than one volume, and only the "
                  "first is shown on this row. Prefetch File is the .pf file name. A "
                  "prefetch file records that Windows prepared an executable to run, "
-                 "with up to eight of the most recent run times (newest first) and a "
-                 "total run count. It is evidence that the program ran, not who ran "
+                 "with up to eight of the most recent run times and a total run count. "
+                 "It is evidence that the program ran, not who ran "
                  "it. The .pf file is MAM Xpress-Huffman compressed; it is "
                  "decompressed in memory with an original implementation of the "
                  "MS-XCA LZ77+Huffman algorithm and the SCCA version 30 structure "
@@ -56,9 +78,9 @@ __artifacts_v2__ = {
                  "UTC; a 0 or out-of-range value is blank. Format: original MS-XCA "
                  "implementation, https://learn.microsoft.com/en-us/openspecs/"
                  "windows_protocols/ms-xca/a8b7cb0a-92a6-4187-a23b-5e14273b96f8; "
-                 "SCCA fields from libyal libscca, https://github.com/libyal/libscca/"
-                 "blob/main/documentation/Windows%20Prefetch%20File%20(PF)%20format."
-                 "asciidoc; and Velocidex, Windows.Forensics.Prefetch.",
+                 "SCCA fields from libyal libscca, "
+                 "https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc; "
+                 "and Velocidex, Windows.Forensics.Prefetch.",
         "paths": ("*/Windows/Prefetch/*.pf",),
         "output_types": ["standard"],
         "artifact_icon": "activity",
@@ -98,9 +120,9 @@ __artifacts_v2__ = {
                  "or whose SCCA version is not 30 is skipped with a note in the run "
                  "log. Format: original MS-XCA implementation, https://"
                  "learn.microsoft.com/en-us/openspecs/windows_protocols/ms-xca/"
-                 "a8b7cb0a-92a6-4187-a23b-5e14273b96f8; SCCA fields from libyal "
-                 "libscca, https://github.com/libyal/libscca/blob/main/documentation/"
-                 "Windows%20Prefetch%20File%20(PF)%20format.asciidoc; and Velocidex, "
+                 "a8b7cb0a-92a6-4187-a23b-5e14273b96f8; SCCA fields from libyal libscca, "
+                 "https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc; "
+                 "and Velocidex, "
                  "Windows.Forensics.Prefetch.",
         "paths": ("*/Windows/Prefetch/*.pf",),
         "output_types": ["standard"],
@@ -245,7 +267,9 @@ def _parse_scca_v30(data):
         stamp = _filetime(struct.unpack_from("<Q", data, 128 + 8 * i)[0])
         if stamp:
             run_times.append(stamp)
-    run_count = struct.unpack_from("<I", data, 208)[0]
+    metrics_offset = struct.unpack_from("<I", data, 84)[0]
+    run_count_at = _RUN_COUNT_OFFSET.get(metrics_offset)
+    run_count = struct.unpack_from("<I", data, run_count_at)[0] if run_count_at else ""
     filenames_offset, filenames_size = struct.unpack_from("<II", data, 100)
     volumes_offset, volumes_count, _volumes_size = struct.unpack_from("<III", data, 108)
 
@@ -269,6 +293,7 @@ def _parse_scca_v30(data):
         "prefetch_hash": "%08X" % prefetch_hash,
         "run_times": run_times,
         "run_count": run_count,
+        "metrics_offset": metrics_offset,
         "files": files,
         "volumes": volumes,
     }
@@ -308,6 +333,9 @@ def prefetch(context):
     data_list = []
     sources = []
     for relative_source, basename, info in _parsed_prefetch(context, "Prefetch"):
+        if info["run_count"] == "":
+            logfunc(f"Prefetch: {relative_source} has file metrics offset {info['metrics_offset']}, "
+                    "which is neither version 30 variant, so Run Count is blank")
         run_times = info["run_times"]
         last_run = run_times[0] if run_times else ""
         all_runs = "; ".join(str(t) for t in run_times)
