@@ -40,11 +40,12 @@ __artifacts_v2__ = {
                  "(https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/os-release.xml#L80-L82). "
                  "A file recorded as a symbolic link in a tar or a zip, or present as one in an input folder, gives "
                  "a row whose Property ends in link and whose Value is the link's target as recorded, and the file "
-                 "it points to is not read (the zip and folder cases are exercised by the unit tests' constructed "
-                 "inputs, not by a registered image); DLEAPP's raw image reader lists no symbolic links "
-                 "(scripts/raw_image.py), so on a raw image a file that is a link gives no row. /etc/hostname holds "
-                 "the static host name, which systemd sets at boot unless the kernel command line gives another with "
-                 "systemd.hostname= (hostname(5), man/hostname.xml, "
+                 "it points to is not read: ubuntu2604_arm64_sysinfo extracted to a folder gave the same 25 rows as "
+                 "the tar, including a link whose target is missing on the examiner's machine (the zip case is "
+                 "exercised by the unit tests' constructed inputs, not by a registered image); DLEAPP's raw image "
+                 "reader lists no symbolic links (scripts/raw_image.py), so on a raw image a file that is a link "
+                 "gives no row. /etc/hostname holds the static host name, which systemd sets at boot unless the "
+                 "kernel command line gives another with systemd.hostname= (hostname(5), man/hostname.xml, "
                  "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/hostname.xml#L32-L37, "
                  "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/hostname.xml#L68-L76); "
                  "Host name is its first line that is not blank or a comment "
@@ -113,18 +114,18 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 25 rows",
             "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 19 rows",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
         "artifact_icon": "monitor",
     }
 }
 
-import os
 import re
 import struct
 from collections import Counter
-from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.linux_links import recorded_link, recorded_time, seeker_of
 
 # (path the file ends with, the property its rows carry, how it is read), in the order rows are reported.
 FILES = (
@@ -242,54 +243,6 @@ def tzif_rule(data):
     return footer[1:end].decode('ascii', errors='replace')
 
 
-def _seeker(context):
-    try:
-        return context.get_seeker()
-    except ValueError:
-        return None
-
-
-def recorded_link(seeker, path):
-    """The target of a symbolic link, as the tar or zip holding it recorded it or the input folder holds it, for
-    a staged path; None when the file is not a link or where it came from cannot say."""
-    info = getattr(seeker, 'file_infos', {}).get(path)
-    source = getattr(info, 'source_path', None)
-    if not source:
-        return None
-    archive = getattr(seeker, 'tar_file', None)
-    if archive is not None:
-        member = archive.getmember(source)
-        return member.linkname if member.issym() else None
-    archive = getattr(seeker, 'zip_file', None)
-    if archive is not None:
-        member = archive.getinfo(source)
-        if (member.external_attr >> 16) & 0o170000 != 0o120000:
-            return None
-        with open(path, 'rb') as handle:
-            return handle.read().decode('utf-8', errors='replace')
-    folder = getattr(seeker, 'directory', None)
-    if folder:
-        full = os.path.join(folder, source)
-        if os.path.islink(full):
-            return os.readlink(full)
-    return None
-
-
-def recorded_time(seeker, path, link):
-    """The modified time the seeker recorded for a staged path (a link's own in an input folder), or ''."""
-    info = getattr(seeker, 'file_infos', {}).get(path)
-    value = getattr(info, 'modification_date', None)
-    folder = getattr(seeker, 'directory', None)
-    if link is not None and folder:
-        value = os.lstat(os.path.join(folder, info.source_path)).st_mtime
-    if isinstance(value, (int, float)) and value > 0:
-        try:
-            return datetime.fromtimestamp(value, timezone.utc)
-        except (OverflowError, OSError, ValueError):
-            return ''
-    return ''
-
-
 def file_rows(kind, prop, data, link, counts):
     """(property, value, key) for one file: its link, or what its content holds."""
     if link is not None:
@@ -329,7 +282,7 @@ def file_kind(relative):
 @artifact_processor
 def linuxSystemInfo(context):
     data_headers = (('Modified (UTC)', 'datetime'), 'Property', 'Value', 'Key', 'Source File')
-    seeker = _seeker(context)
+    seeker = seeker_of(context)
     found = []
     counts = Counter()
     for path in map(str, context.get_files_found()):
