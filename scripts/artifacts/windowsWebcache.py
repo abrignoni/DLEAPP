@@ -65,7 +65,17 @@ __artifacts_v2__ = {
                  "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
                  "and a record the ESE reader cannot convert is skipped; both are "
                  "counted in the run log, and no History container read on the tested "
-                 "images held either. A "
+                 "images held either. A value this artifact reports that ESE stores "
+                 "apart from its record (the record flags it fSeparated, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/tagfld.hxx#L46-L53) "
+                 "is read from the table's long value tree "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/lv.hxx#L36-L62); "
+                 "one that cannot be assembled from that tree (a piece missing, for "
+                 "example, or a piece stored compressed, which is not decompressed) is "
+                 "left blank, and the run log counts it and names the reason. The "
+                 "History containers on the tested "
+                 "images stored 7 URLs apart, all on lonewolf_win10 and 519 to 922 "
+                 "characters long, and every one was assembled. A "
                  "WebCacheV01.dat with no Containers table gives this artifact no "
                  "container index, so it yields no rows for that file and the file is "
                  "named in the run log. The .jfm and .log transaction logs beside "
@@ -115,7 +125,19 @@ __artifacts_v2__ = {
                  "counted in the run log. The Content containers read held 3, 7, 8 and "
                  "0 records ESE marks deleted on af_case2_win10, lonewolf_win10, "
                  "pc_mus_001_win11 and szechuan_win10, one per container, and none the "
-                 "reader could not convert. A "
+                 "reader could not convert. A value this artifact reports that ESE "
+                 "stores apart from its record (the record flags it fSeparated, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/tagfld.hxx#L46-L53) "
+                 "is read from the table's long value tree "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/lv.hxx#L36-L62); "
+                 "one that cannot be assembled from that tree (a piece missing, for "
+                 "example, or a piece stored compressed, which is not decompressed) is "
+                 "left blank, and the run log counts it and names the reason. The "
+                 "Content containers on the tested "
+                 "images stored 14 URLs apart on pc_mus_001_win11, each 703 characters "
+                 "long, and 102 on szechuan_win10, 511 to 2,342 characters long, and "
+                 "every one was assembled; no other value this artifact reports was "
+                 "stored apart. A "
                  "WebCacheV01.dat with no Containers table gives this artifact no "
                  "container index, so it yields no rows for that file and the file is "
                  "named in the run log. The .jfm and .log transaction logs beside "
@@ -179,7 +201,7 @@ def _cell(value):
 def _containers(database, label="", relative_source=""):
     """Return [(container_id, name, directory)] from the Containers table."""
     out = []
-    walk = ese_rows.TableRows(database, _CONTAINERS)
+    walk = ese_rows.TableRows(database, _CONTAINERS, long_value_columns={"Name", "Directory"})
     for row in walk:
         row = _norm_row(row)
         out.append((row.get("ContainerId"),
@@ -201,7 +223,7 @@ def _read_container(database, table_names, container_id, name, directory,
     table = "Container_%s" % container_id
     if table not in table_names:
         return 0
-    walk = ese_rows.TableRows(database, table, cap=_ROW_CAP)
+    walk = ese_rows.TableRows(database, table, cap=_ROW_CAP, long_value_columns={"Url", "Filename"})
     for row in walk:
         rows.append(row_builder(_norm_row(row), name, directory))
     if walk.summary():

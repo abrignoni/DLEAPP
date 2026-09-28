@@ -112,7 +112,18 @@ __artifacts_v2__ = {
                  "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
                  "and a record the ESE reader cannot convert is skipped; both are "
                  "counted in the run log, and none of the Windows.edb files on the "
-                 "tested images held either. The transaction logs beside Windows.edb "
+                 "tested images held either. A property value this artifact reports that "
+                 "ESE stores apart from its record (the record flags it fSeparated, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/tagfld.hxx#L46-L53) "
+                 "is read from the table's long value tree "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/lv.hxx#L36-L62); "
+                 "one that cannot be assembled from that tree (a piece missing, for "
+                 "example, or a piece stored compressed, which unlike a compressed value "
+                 "kept in the record is not decompressed) is left blank although the "
+                 "index holds a value, and the run log counts it and names the reason. "
+                 "None of "
+                 "the properties this artifact reports was stored apart on the tested "
+                 "images. The transaction logs beside Windows.edb "
                  "are not replayed.",
         "paths": ("*/[Ss]earch/[Dd]ata/[Aa]pplications/[Ww]indows/"
                   "[Ww]indows.[Ee][Dd][Bb]",),
@@ -235,7 +246,8 @@ def _read_property_store(source, label="Windows Search", relative_source=""):
         def value(row, prop):
             return row.get(columns[prop]) if prop in columns else None
 
-        walk = ese_rows.TableRows(database, _PROPERTY_STORE, cap=_ROW_CAP)
+        walk = ese_rows.TableRows(database, _PROPERTY_STORE, cap=_ROW_CAP,
+                                  long_value_columns=set(columns.values()))
         for row in walk:
             row = _norm_row(row)
             rows.append((

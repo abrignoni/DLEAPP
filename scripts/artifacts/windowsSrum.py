@@ -77,7 +77,17 @@ __artifacts_v2__ = {
                  "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
                  "and a record the ESE reader cannot convert is skipped; both are "
                  "counted in the run log, and no SRUM table read on the tested images "
-                 "held either. A SRUDB.dat that does not carry this provider table "
+                 "held either. A SruDbIdMapTable IdBlob that ESE stores apart from its "
+                 "record (the record flags it fSeparated, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/tagfld.hxx#L46-L53) "
+                 "is read from that table's long value tree "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/lv.hxx#L36-L62); "
+                 "one that cannot be assembled from that tree (a piece missing, for "
+                 "example, or a piece stored compressed, which is not decompressed) "
+                 "leaves Application or User blank, and the run log counts it and names "
+                 "the reason. No SRUDB.dat on "
+                 "the tested images held any value stored apart. A SRUDB.dat that does "
+                 "not carry this provider table "
                  "gives this artifact no rows for that file, and the file is named in "
                  "the run log. The .jfm "
                  "and .log transaction logs beside SRUDB.dat are not replayed. GUID "
@@ -131,7 +141,17 @@ __artifacts_v2__ = {
                  "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
                  "and a record the ESE reader cannot convert is skipped; both are "
                  "counted in the run log, and no SRUM table read on the tested images "
-                 "held either. A SRUDB.dat that does not carry this provider table "
+                 "held either. A SruDbIdMapTable IdBlob that ESE stores apart from its "
+                 "record (the record flags it fSeparated, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/tagfld.hxx#L46-L53) "
+                 "is read from that table's long value tree "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/lv.hxx#L36-L62); "
+                 "one that cannot be assembled from that tree (a piece missing, for "
+                 "example, or a piece stored compressed, which is not decompressed) "
+                 "leaves Application or User blank, and the run log counts it and names "
+                 "the reason. No SRUDB.dat on "
+                 "the tested images held any value stored apart. A SRUDB.dat that does "
+                 "not carry this provider table "
                  "gives this artifact no rows for that file, and the file is named in "
                  "the run log. The .jfm and .log transaction "
                  "logs beside SRUDB.dat are not replayed. GUID names: Velocidex, "
@@ -241,6 +261,16 @@ __artifacts_v2__ = {
                  "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
                  "and a record the ESE reader cannot convert is skipped; both are counted "
                  "in the run log, and no SRUM table read on the tested images held either. "
+                 "A SruDbIdMapTable IdBlob that ESE stores apart from its record (the record "
+                 "flags it fSeparated, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/tagfld.hxx#L46-L53) "
+                 "is read from that table's long value tree "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/lv.hxx#L36-L62); "
+                 "one that cannot be assembled from that tree (a piece missing, for example, "
+                 "or a piece stored compressed, which is not decompressed) leaves "
+                 "Application or User blank, and the run log counts it and names the reason. "
+                 "No SRUDB.dat on the tested images "
+                 "held any value stored apart. "
                  "A SRUDB.dat that does not carry this provider table gives this artifact "
                  "no rows for that file, and the file is named in the run log. The .jfm "
                  "and .log transaction logs beside "
@@ -311,7 +341,7 @@ def _decode_idblob(blob, id_type):
 def _build_idmap(database, label, relative_source):
     """Map SruDbIdMapTable's IdIndex to its resolved application id or user SID."""
     idmap = {}
-    walk = ese_rows.TableRows(database, _IDMAP)
+    walk = ese_rows.TableRows(database, _IDMAP, long_value_columns={"IdBlob"})
     for row in walk:
         row = _norm_row(row)
         idmap[row.get("IdIndex")] = _decode_idblob(row.get("IdBlob"),
@@ -364,7 +394,7 @@ def _read_table(source, guid, row_builder, label, relative_source):
         database.mountDB()
         idmap = _build_idmap(database, label, relative_source)
         rows = []
-        walk = ese_rows.TableRows(database, guid)
+        walk = ese_rows.TableRows(database, guid, long_value_columns=())
         for row in walk:
             rows.append(row_builder(_norm_row(row), idmap))
         if not walk.found:

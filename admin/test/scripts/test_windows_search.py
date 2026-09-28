@@ -93,6 +93,14 @@ class PropertyColumnTest(unittest.TestCase):
                          ('report.docx', 'C:\\Users\\u\\report.docx', 'Microsoft Word Document', 'document', 7))
         self.assertEqual(gather.year, 2020)
 
+    def test_the_resolved_columns_are_read_from_the_long_value_tree(self):
+        database = FakeDatabase(columns())
+        with mock.patch.object(windowsSearch.impacket_ese, 'ESENT_DB', return_value=database), \
+                mock.patch.object(windowsSearch.ese_rows, 'TableRows', return_value=FakeWalk()) as walk, \
+                mock.patch.object(windowsSearch, 'logfunc'):
+            windowsSearch._read_property_store('Windows.edb')  # pylint: disable=protected-access
+        self.assertEqual(walk.call_args.kwargs['long_value_columns'], set(NUMBERED.values()))
+
 
 if __name__ == '__main__':
     unittest.main()

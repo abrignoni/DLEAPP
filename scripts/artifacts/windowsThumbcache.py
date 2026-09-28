@@ -81,7 +81,18 @@ __artifacts_v2__ = {
                  "version store still holds an update to it "
                  "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
                  "and a record the ESE reader cannot convert is skipped; both are counted in the "
-                 "run log, and none of the Windows.edb files on the tested images held either. A "
+                 "run log, and none of the Windows.edb files on the tested images held either. In "
+                 "Windows.edb, a System_ThumbnailCacheId, System_ItemPathDisplay or "
+                 "System_ItemNameDisplay value that ESE stores apart from its record (the record "
+                 "flags it fSeparated, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/tagfld.hxx#L46-L53) "
+                 "is read from the table's long value tree "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/lv.hxx#L36-L62); "
+                 "one that cannot be assembled from that tree (a piece missing, for example, or a "
+                 "piece stored compressed, which is not decompressed) leaves the Correlated Path or "
+                 "Correlated Name it would give blank although the index holds the item, and the run "
+                 "log counts it and names the reason. None of these values was stored apart on the "
+                 "tested images. A "
                  "cached thumbnail records that Explorer "
                  "generated a preview for the item; it does not record who viewed it, "
                  "and the item may since have been moved or deleted, so a thumbnail "
@@ -180,6 +191,12 @@ def _as_cache_id(value):
     return None
 
 
+def _reads_property(name):
+    """The Windows.edb columns _edb_map reads, whose values stored apart from their record
+    are read from the long value tree."""
+    return name.endswith(("System_ThumbnailCacheId", "System_ItemPathDisplay", "System_ItemNameDisplay"))
+
+
 def _edb_map(path, relative_source=""):
     """Map System.ThumbnailCacheId to (path, name) from Windows.edb.
 
@@ -191,7 +208,8 @@ def _edb_map(path, relative_source=""):
     database = impacket_ese.ESENT_DB(path)
     try:
         database.mountDB()
-        walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP)
+        walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP,
+                                  long_value_columns=_reads_property)
         id_col = path_col = name_col = None
         for row in walk:
             row = _norm_row(row)
