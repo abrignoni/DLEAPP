@@ -48,7 +48,7 @@ __artifacts_v2__ = {
                        "the Windows Search index where the item was indexed.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (Windows.edb correlation uses the vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the thumbcache_*.db files in a user's Explorer folder, "
@@ -74,8 +74,15 @@ __artifacts_v2__ = {
                  "lonewolf_win10, 2 of 108 on pc_mus_001_win11 and 4 of 396 on szechuan_win10. The "
                  "search index is read from "
                  "Windows.edb (Windows 10 and earlier, with the vendored ESE reader) "
-                 "or Windows.db (Windows 11, SQLite, read only) when present beside "
-                 "the thumbnail caches. A cached thumbnail records that Explorer "
+                 "or Windows.db (Windows 11, SQLite, read only) when present beside the thumbnail "
+                 "caches. In Windows.edb, a record ESE marks deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there unless its "
+                 "version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are counted in the "
+                 "run log, and none of the Windows.edb files on the tested images held either. A "
+                 "cached thumbnail records that Explorer "
                  "generated a preview for the item; it does not record who viewed it, "
                  "and the item may since have been moved or deleted, so a thumbnail "
                  "can outlive its file. One item is cached at several sizes, so it can "

@@ -39,7 +39,7 @@ __artifacts_v2__ = {
                        "WebCacheV01.dat, with the access time and access count.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the WebCacheV01.dat History containers: the container "
@@ -57,8 +57,15 @@ __artifacts_v2__ = {
                  "FILETIMEs; a value of 0 or an out-of-range value is shown blank. "
                  "Access Count is the entry's AccessCount as stored. Container is the "
                  "container Name. An entry records that the URL or file was accessed "
-                 "through these components, not who was at the keyboard. Any record the "
-                 "ESE reader cannot parse is skipped and counted in the run log. A "
+                 "through these components, not who was at the keyboard. A record ESE "
+                 "marks deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there "
+                 "unless its version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are "
+                 "counted in the run log, and no History container read on the tested "
+                 "images held either. A "
                  "WebCacheV01.dat with no Containers table gives this artifact no "
                  "container index, so it yields no rows for that file and the file is "
                  "named in the run log. The .jfm and .log transaction logs beside "
@@ -82,7 +89,7 @@ __artifacts_v2__ = {
                        "with the source URL, cached file name, size and times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the WebCacheV01.dat Content containers (container Name "
@@ -98,8 +105,17 @@ __artifacts_v2__ = {
                  "Count is AccessCount as stored. Cache Directory is the container's "
                  "Directory, which names the application whose cache the entry "
                  "belongs to. An entry records that the resource was fetched and "
-                 "cached, not that a person deliberately requested it. Any record the "
-                 "ESE reader cannot parse is skipped and counted in the run log. A "
+                 "cached, not that a person deliberately requested it. A record ESE "
+                 "marks deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there "
+                 "unless its version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are "
+                 "counted in the run log. The Content containers read held 3, 7, 8 and "
+                 "0 records ESE marks deleted on af_case2_win10, lonewolf_win10, "
+                 "pc_mus_001_win11 and szechuan_win10, one per container, and none the "
+                 "reader could not convert. A "
                  "WebCacheV01.dat with no Containers table gives this artifact no "
                  "container index, so it yields no rows for that file and the file is "
                  "named in the run log. The .jfm and .log transaction logs beside "

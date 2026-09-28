@@ -47,7 +47,7 @@ __artifacts_v2__ = {
                        "application, user SID, network interface and snapshot time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Network Usage table "
@@ -69,10 +69,17 @@ __artifacts_v2__ = {
                  "is absent from the map or maps to an entry with no IdBlob. SRUM "
                  "aggregates usage into periodic snapshots, so a "
                  "row is a recorded total for a snapshot and not a single user "
-                 "action, and it does not record who was at the keyboard. A "
-                 "SRUDB.dat that does not carry this provider table gives this "
-                 "artifact no rows for that file, and the file is named in the "
-                 "run log. The .jfm "
+                 "action, and it does not record who was at the keyboard. A record "
+                 "ESE marks deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there "
+                 "unless its version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are "
+                 "counted in the run log, and no SRUM table read on the tested images "
+                 "held either. A SRUDB.dat that does not carry this provider table "
+                 "gives this artifact no rows for that file, and the file is named in "
+                 "the run log. The .jfm "
                  "and .log transaction logs beside SRUDB.dat are not replayed. GUID "
                  "names: Velocidex, Windows.Forensics.SRUM, https://github.com/"
                  "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
@@ -95,7 +102,7 @@ __artifacts_v2__ = {
                        "snapshot time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Application Resource Usage table "
@@ -116,9 +123,17 @@ __artifacts_v2__ = {
                  "blank when the entry's id is 0 or absent from the map. SRUM "
                  "aggregates usage into periodic snapshots, so a row is a recorded "
                  "total for a snapshot and not a single user action, and it does not "
-                 "record who was at the keyboard. A SRUDB.dat that does not carry "
-                 "this provider table gives this artifact no rows for that file, and "
-                 "the file is named in the run log. The .jfm and .log transaction "
+                 "record who was at the keyboard. A record ESE marks deleted (its "
+                 "fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there "
+                 "unless its version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are "
+                 "counted in the run log, and no SRUM table read on the tested images "
+                 "held either. A SRUDB.dat that does not carry this provider table "
+                 "gives this artifact no rows for that file, and the file is named in "
+                 "the run log. The .jfm and .log transaction "
                  "logs beside SRUDB.dat are not replayed. GUID names: Velocidex, "
                  "Windows.Forensics.SRUM, https://github.com/Velocidex/velociraptor/"
                  "blob/master/artifacts/definitions/Windows/Forensics/SRUM.yaml",
@@ -139,7 +154,7 @@ __artifacts_v2__ = {
                        "connection start time and the connected-time counter.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Network Connections table "
@@ -161,10 +176,17 @@ __artifacts_v2__ = {
                  "same period as the Connect Start Time FILETIME. SRUM aggregates "
                  "usage into periodic snapshots, so "
                  "a row is a recorded total for a snapshot and not a single user "
-                 "action, and it does not record who was at the keyboard. A "
-                 "SRUDB.dat that does not carry this provider table gives this "
-                 "artifact no rows for that file, and the file is named in the "
-                 "run log. The .jfm "
+                 "action, and it does not record who was at the keyboard. A record "
+                 "ESE marks deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there "
+                 "unless its version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are "
+                 "counted in the run log, and no SRUM table read on the tested images "
+                 "held either. A SRUDB.dat that does not carry this provider table "
+                 "gives this artifact no rows for that file, and the file is named in "
+                 "the run log. The .jfm "
                  "and .log transaction logs beside SRUDB.dat are not replayed. GUID "
                  "names: Velocidex, Windows.Forensics.SRUM, https://github.com/"
                  "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
@@ -186,7 +208,7 @@ __artifacts_v2__ = {
                        "the application, user SID, end time and duration.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Execution Stats table "
@@ -212,9 +234,16 @@ __artifacts_v2__ = {
                  "aggregates usage into periodic "
                  "snapshots, so a row is a recorded total for a snapshot and not a "
                  "single user action, and it does not record who was at the "
-                 "keyboard. A SRUDB.dat that does not carry this provider table "
-                 "gives this artifact no rows for that file, and the file is named "
-                 "in the run log. The .jfm and .log transaction logs beside "
+                 "keyboard. A record ESE marks deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, since ESE's own code treats such a record as not there "
+                 "unless its version store still holds an update to it "
+                 "(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079), "
+                 "and a record the ESE reader cannot convert is skipped; both are counted "
+                 "in the run log, and no SRUM table read on the tested images held either. "
+                 "A SRUDB.dat that does not carry this provider table gives this artifact "
+                 "no rows for that file, and the file is named in the run log. The .jfm "
+                 "and .log transaction logs beside "
                  "SRUDB.dat are not replayed. GUID names: Velocidex, "
                  "Windows.Forensics.SRUM, "
                  "https://github.com/Velocidex/velociraptor/blob/master/artifacts/"
