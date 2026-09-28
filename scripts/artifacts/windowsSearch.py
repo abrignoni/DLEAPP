@@ -237,7 +237,7 @@ def _read_property_store(source, label="Windows Search", relative_source=""):
     A record ESE marks deleted is not read, and a record the ESE reader cannot
     convert is skipped so the rest of the table is still read, under a row cap;
     both are counted in the run log."""
-    database = impacket_ese.ESENT_DB(source)
+    database = ese_rows.ESEDatabase(source)
     try:
         database.mountDB()
         rows = []

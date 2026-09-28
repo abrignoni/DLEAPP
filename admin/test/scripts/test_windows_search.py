@@ -83,7 +83,7 @@ class PropertyColumnTest(unittest.TestCase):
                   # an 8-byte FILETIME, stored as ASCII hex like the reader returns a binary column
                   NUMBERED['System_Search_GatherTime'].encode(): b'00e0a8b7f63fd601'}
         database = FakeDatabase(columns())
-        with mock.patch.object(windowsSearch.impacket_ese, 'ESENT_DB', return_value=database), \
+        with mock.patch.object(windowsSearch.ese_rows, 'ESEDatabase', return_value=database), \
                 mock.patch.object(windowsSearch.ese_rows, 'TableRows', return_value=FakeWalk([stored])), \
                 mock.patch.object(windowsSearch, 'logfunc'):
             rows = windowsSearch._read_property_store('Windows.edb')  # pylint: disable=protected-access
@@ -95,7 +95,7 @@ class PropertyColumnTest(unittest.TestCase):
 
     def test_the_resolved_columns_are_read_from_the_long_value_tree(self):
         database = FakeDatabase(columns())
-        with mock.patch.object(windowsSearch.impacket_ese, 'ESENT_DB', return_value=database), \
+        with mock.patch.object(windowsSearch.ese_rows, 'ESEDatabase', return_value=database), \
                 mock.patch.object(windowsSearch.ese_rows, 'TableRows', return_value=FakeWalk()) as walk, \
                 mock.patch.object(windowsSearch, 'logfunc'):
             windowsSearch._read_property_store('Windows.edb')  # pylint: disable=protected-access

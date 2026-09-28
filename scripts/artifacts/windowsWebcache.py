@@ -247,7 +247,7 @@ def _run(context, headers, select, row_builder, label):
         relative_source = context.get_relative_path(source)
         rows_here = 0
         try:
-            database = impacket_ese.ESENT_DB(source)
+            database = ese_rows.ESEDatabase(source)
             try:
                 database.mountDB()
                 table_names = _table_names(database)

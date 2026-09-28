@@ -389,7 +389,7 @@ def _cell(value):
 
 def _read_table(source, guid, row_builder, label, relative_source):
     """Open SRUDB.dat, build the id map, and build a row per entry of one table."""
-    database = impacket_ese.ESENT_DB(source)
+    database = ese_rows.ESEDatabase(source)
     try:
         database.mountDB()
         idmap = _build_idmap(database, label, relative_source)

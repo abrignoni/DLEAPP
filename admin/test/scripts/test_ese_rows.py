@@ -1,5 +1,6 @@
 """Pin how scripts/ese_rows walks an ESE table: flag-deleted nodes are not rows, and a value
 stored apart from its record is read from the long value tree."""
+import io
 import pathlib
 import struct
 import sys
@@ -12,7 +13,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 # pylint: disable=wrong-import-position
-from scripts import ese_rows
+from scripts import bits_qmgr, ese_rows
 from scripts.artifacts import windowsSearch, windowsSrum, windowsThumbcache, windowsWebcache
 from scripts.vendor import impacket_ese
 # pylint: enable=wrong-import-position
@@ -426,6 +427,77 @@ class SeparatedValueTest(unittest.TestCase):
         build.assert_not_called()
 
 
+class Stream(io.BytesIO):
+    """A file that hands back at most `chunk` bytes a read, and fails a test that keeps reading
+    at its end rather than hanging it."""
+
+    def __init__(self, data, chunk=None):
+        super().__init__(data)
+        self.chunk = chunk
+        self.empty_reads = 0
+
+    def read(self, size=-1):
+        if self.chunk and size > self.chunk:
+            size = self.chunk
+        data = super().read(size)
+        if not data:
+            self.empty_reads += 1
+            if self.empty_reads > 3:
+                raise RuntimeError('read at the end of the file again and again')
+        return data
+
+
+def page_reader(data, chunk=None):
+    """An ESEDatabase over `data` with 16-byte pages, without mounting it."""
+    database = ese_rows.ESEDatabase.__new__(ese_rows.ESEDatabase)
+    for name, value in (('DB', Stream(data, chunk)), ('pageSize', 16), ('DBHeader', {'Version': 0x620})):
+        setattr(database, '_ESENT_DB__' + name, value)
+    return database
+
+
+class PageReadTest(unittest.TestCase):
+    """Page n sits at byte (n + 1) * page size, so 48 bytes hold pages -1, 0 and 1."""
+
+    def test_a_page_past_the_end_of_the_file_raises(self):
+        with self.assertRaises(ese_rows.PageOutOfRange) as caught:
+            page_reader(bytes(48)).getPage(2)
+        self.assertEqual(str(caught.exception), 'page 2 lies past the end of the file')
+
+    def test_a_page_the_file_ends_inside_raises(self):
+        with self.assertRaises(ese_rows.PageOutOfRange):
+            page_reader(bytes(40)).getPage(1)
+
+    def test_a_page_read_in_pieces_is_joined(self):
+        data = bytes(range(48))
+        database = page_reader(data, chunk=5)
+        self.assertEqual((database.getPage(-1), database.getPage(0)), (data[:16], data[16:32]))
+
+    def test_a_data_page_is_built_by_the_vendored_page_class(self):
+        data = bytes(range(48))
+        with mock.patch.object(ese_rows.impacket_ese, 'ESENT_PAGE', side_effect=lambda header, raw: (header, raw)):
+            self.assertEqual(page_reader(data).getPage(1), ({'Version': 0x620}, data[32:48]))
+
+
+class CutShortTest(unittest.TestCase):
+    """A table in a file cut short is read up to its first page past the end."""
+
+    def test_a_table_whose_first_page_lies_past_the_end_yields_nothing_and_says_so(self):
+        database = two_pages()
+        database.openTable = mock.Mock(side_effect=ese_rows.PageOutOfRange('page 9 lies past the end of the file'))
+        walk = ese_rows.TableRows(database, 'Container_3')
+        self.assertEqual((list(walk), walk.found), ([], True))
+        self.assertEqual(walk.summary(), 'Container_3: page 9 lies past the end of the file, so the rest of the '
+                                         'table was not read')
+
+    def test_the_records_before_a_page_past_the_end_are_kept(self):
+        database = FakeDatabase({1: FakePage([tag(b'a'), tag(b'b', DELETED), tag(b'c')], next_page=7)})
+        database.getPage = mock.Mock(side_effect=ese_rows.PageOutOfRange('page 7 lies past the end of the file'))
+        walk = ese_rows.TableRows(database, 'T')
+        self.assertEqual([r['value'] for r in walk], ['a', 'c'])
+        self.assertEqual(walk.summary(), 'T: 1 record(s) ESE marks deleted (fNDDeleted) were not read; page 7 lies '
+                                         'past the end of the file, so the rest of the table was not read')
+
+
 class CallerTest(unittest.TestCase):
     """Each ESE artifact reads its tables through TableRows and logs what it skipped."""
 
@@ -447,6 +519,12 @@ class CallerTest(unittest.TestCase):
                 mock.patch.object(windowsSrum, '_IDMAP', 'missing'):
             windowsSrum._build_idmap(two_pages(), 'SRUM', 'p/SRUDB.dat')  # pylint: disable=protected-access
         self.assertIn('has no missing', log.call_args.args[0])
+
+    def test_every_ese_database_is_opened_with_the_bounded_reader(self):
+        for module in (windowsWebcache, windowsSrum, windowsSearch, windowsThumbcache, bits_qmgr):
+            source = inspect_source(module)
+            self.assertIn('ESEDatabase(', source, module.__name__)
+            self.assertNotIn('ESENT_DB(', source, module.__name__)
 
     def test_search_and_thumbcache_read_through_the_walk(self):
         for module in (windowsSearch, windowsThumbcache):
@@ -475,13 +553,13 @@ class LongValueColumnsTest(unittest.TestCase):
             [{'Url', 'Filename'}])
 
     def test_srum_reads_only_the_id_blob(self):
-        with mock.patch.object(windowsSrum.impacket_ese, 'ESENT_DB', return_value=two_pages()):
+        with mock.patch.object(ese_rows, 'ESEDatabase', return_value=two_pages()):
             passed = self.columns_passed(lambda: windowsSrum._read_table(  # pylint: disable=protected-access
                 'SRUDB.dat', 'T', lambda row, idmap: row, 'SRUM', 'p'))
         self.assertEqual(passed, [{'IdBlob'}, ()])
 
     def test_thumbcache_reads_the_three_properties_it_maps(self):
-        with mock.patch.object(windowsThumbcache.impacket_ese, 'ESENT_DB', return_value=two_pages()):
+        with mock.patch.object(ese_rows, 'ESEDatabase', return_value=two_pages()):
             passed = self.columns_passed(lambda: windowsThumbcache._edb_map('Windows.edb'))  # pylint: disable=protected-access
         wanted = passed[0]
         self.assertEqual([wanted(n) for n in ('4428-System_ItemPathDisplay', '4424-System_ItemNameDisplay',

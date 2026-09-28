@@ -12,6 +12,11 @@ flagged nodes and counts them, and skips and counts a record the reader cannot c
 so one bad record does not end the table. The vendored reader itself is left unchanged
 (scripts/vendor/README.md).
 
+The vendored reader's getPage reads until it has a whole page, so a page past the end of a
+file cut short (a partial copy) makes it wait forever. ESEDatabase is the vendored reader
+with a getPage that raises PageOutOfRange there instead, and TableRows stops a table at
+such a page and says so, keeping the records read before it.
+
 A tagged column value too long for its record is stored apart in the table's long value
 tree, and the record keeps only its long value ID, flagged fLongValue (0x01) and fSeparated
 (0x04) in the item's header byte:
@@ -43,6 +48,30 @@ _LONG_VALUE = 0x01    # TAGFLD_HEADER fLongValue
 _SEPARATED = 0x04     # TAGFLD_HEADER fSeparated
 _MULTI_VALUES = 0x08  # TAGFLD_HEADER fMultiValues
 _LV_ENCRYPTED = 0x01  # LVROOT2 fFlags fLVEncrypted
+
+
+class PageOutOfRange(ValueError):
+    """A page the database names lies past the end of its file."""
+
+
+class ESEDatabase(impacket_ese.ESENT_DB):
+    """The vendored ESE reader, opened and mounted the same way, whose getPage stops at the
+    end of the file."""
+
+    def getPage(self, pageNum):  # pylint: disable=invalid-name
+        """The vendored getPage, raising PageOutOfRange where it would wait forever."""
+        page_size = self._ESENT_DB__pageSize  # pylint: disable=no-member
+        stream = self._ESENT_DB__DB  # pylint: disable=no-member
+        stream.seek((pageNum + 1) * page_size, 0)
+        data = b''
+        while len(data) < page_size:
+            chunk = stream.read(page_size - len(data))
+            if not chunk:
+                raise PageOutOfRange(f'page {pageNum} lies past the end of the file')
+            data += chunk
+        if pageNum <= 0:
+            return data
+        return impacket_ese.ESENT_PAGE(self._ESENT_DB__DBHeader, data)  # pylint: disable=no-member
 
 
 def _flags_always_present(database):
@@ -220,10 +249,15 @@ class TableRows:
         self.long_value_errors = []
         self._tree = None
         self._chunk = None
+        self.cut_short = None
 
     def __iter__(self):
         database = self.database
-        cursor = database.openTable(self.table_name)
+        try:
+            cursor = database.openTable(self.table_name)
+        except PageOutOfRange as exc:
+            self.found, self.cut_short = True, str(exc)
+            return
         self.found = cursor is not None
         if cursor is None:
             return
@@ -239,7 +273,11 @@ class TableRows:
             if cursor['CurrentTag'] >= page.tagCount or not page.record['PageFlags'] & impacket_ese.FLAGS_LEAF:
                 if page.record['NextPageNumber'] == 0:
                     return
-                cursor['CurrentPageData'] = database.getPage(page.record['NextPageNumber'])
+                try:
+                    cursor['CurrentPageData'] = database.getPage(page.record['NextPageNumber'])
+                except PageOutOfRange as exc:
+                    self.cut_short = str(exc)
+                    return
                 cursor['CurrentTag'] = cursor['CurrentPageData'].firstDataTag - 1
                 continue
             visited += 1
@@ -308,6 +346,8 @@ class TableRows:
         if self.long_values_blank:
             parts.append(f'{self.long_values_blank} value(s) stored apart from their record could not be '
                          f'assembled and are blank ({"; ".join(self.long_value_errors)})')
+        if self.cut_short:
+            parts.append(f'{self.cut_short}, so the rest of the table was not read')
         if self.capped:
             parts.append(f'the walk stopped after {self.cap:,} records')
         return f'{self.table_name}: ' + '; '.join(parts) if parts else ''

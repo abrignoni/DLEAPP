@@ -205,7 +205,7 @@ def _edb_map(path, relative_source=""):
     result = {}
     if impacket_ese is None:
         return result
-    database = impacket_ese.ESENT_DB(path)
+    database = ese_rows.ESEDatabase(path)
     try:
         database.mountDB()
         walk = ese_rows.TableRows(database, "SystemIndex_PropertyStore", cap=_ROW_CAP,
