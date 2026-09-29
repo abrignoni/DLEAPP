@@ -253,6 +253,14 @@ class JournalTest(unittest.TestCase):
         self.assertEqual(len({r.boot for r in rows}), 2)
         self.assertEqual(counts, Counter())
 
+    def test_two_entries_of_one_file_with_the_same_time_and_message_are_both_read(self):
+        t = self.T0
+        line = 'usb 2-1: new SuperSpeed USB device number 2 using xhci_hcd'
+        counts = Counter()
+        usb.journal_connections([('a.journal', journal([(t + 1, 1, line, b'kernel', BOOT_1),
+                                                        (t + 1, 1, line, b'kernel', BOOT_1)]))], counts)
+        self.assertEqual(counts['entries also in another journal file, reported once'], 0)
+
     def test_an_entry_in_two_files_is_read_once(self):
         t = self.T0
         entries = [(t + 1, 1, 'usb 2-1: new SuperSpeed USB device number 2 using xhci_hcd', b'kernel', BOOT_1)]

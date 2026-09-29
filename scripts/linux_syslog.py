@@ -125,7 +125,9 @@ def journal_entries(journals, accept, counts, pid_field='SYSLOG_PID'):
                 counts[JOURNAL_OTHER] += 1
                 continue
             message = _text(fields.get('MESSAGE'))
-            key = (entry.boot_id, entry.monotonic, entry.realtime, program, message)
+            # The same entry in two files keeps its sequence number; two entries of one file never share one, even
+            # when their time and message are the same.
+            key = (entry.seqnum, entry.boot_id, entry.monotonic, entry.realtime, program, message)
             if key in seen:
                 counts[JOURNAL_REPEATED] += 1
                 continue
