@@ -24,11 +24,14 @@ __artifacts_v2__ = {
                  "browser from the user data folder, the profile from the folder inside it, and the user "
                  "from the home folder that holds it. A profile keeps one such database, so those columns "
                  "name the file a row came from, and the report's located-at line lists each file read. "
-                 "Browser and User held one value on every row of both tested images, and Profile held one "
+                 "Browser and User held one value on every row of pc_mus_001_win11 and lonewolf_win10, and Profile "
+                 "held one "
                  "value on every row of lonewolf_win10; on pc_mus_001_win11 the rows came from the Google "
                  "Chrome Default and Profile 2 databases, while its Microsoft Edge, Guest Profile and "
                  "System Profile databases held no rows. Only the Windows Google Chrome and Microsoft Edge "
-                 "folders were exercised by a registered image; the other browsers' folders are matched by "
+                 "folders and the Linux Chromium snap and Flatpak folders were exercised by a registered image, "
+                 "the last two by ubuntu2604_arm64_chromium, whose databases held no rows; the other browsers' "
+                 "folders are matched by "
                  "the same paths and were not exercised. Databases under an application's EBWebView "
                  "folder, as for two Windows apps on pc_mus_001_win11, are outside these paths and not "
                  "read. The table holds an id, user_text, url, number_of_hits and number_of_misses "
@@ -77,6 +80,21 @@ __artifacts_v2__ = {
                  "rows. So an absent pair is not evidence that the text was never entered. Not read: the "
                  "resource_prefetch_predictor tables in the same database, which hold Chromium's page "
                  "loading predictions."
+                 " Chromium installed as a snap keeps its user data folder in snap/chromium/common/chromium in the "
+                 "home folder, because Chromium keeps it in a chromium folder inside CHROME_CONFIG_HOME, else "
+                 "XDG_CONFIG_HOME, else .config "
+                 "(Reference: Chromium, 'chrome_paths_linux.cc', "
+                 "https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101) "
+                 "and the snap's snap.yaml sets CHROME_CONFIG_HOME to the snap's common folder (measured on "
+                 "revision 3535); installed as a Flatpak from Flathub it keeps it in "
+                 ".var/app/org.chromium.Chromium/config/chromium, because Flatpak sets XDG_CONFIG_HOME to the "
+                 "config folder in the app's folder (Reference: flatpak 1.16.6, 'flatpak-context.c', "
+                 "https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175). "
+                 "Both are read as Chromium, measured on ubuntu2604_arm64_chromium, whose snap (Chromium "
+                 "153.0.8010.47) and Flatpak (Chromium 154.0.8037.57) each kept a Default profile there. Other "
+                 "browsers' Flatpaks are not read. A profile in a .config folder that is not directly in a home "
+                 "folder, such as a snap's snap/<name>/<revision>/.config, is matched by the .config paths and "
+                 "read with User blank."
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
@@ -88,6 +106,8 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Network Action Predictor*',
             '*/Library/Application Support/Chromium/*/Network Action Predictor*',
             '*/.config/chromium/*/Network Action Predictor*',
+            '*/snap/chromium/common/chromium/*/Network Action Predictor*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Network Action Predictor*',
             '*/webbrowser/chrome/*/Network Action Predictor*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Network Action Predictor*',
             '*/Library/Application Support/Microsoft Edge/*/Network Action Predictor*',
@@ -113,6 +133,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 10,747 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 439 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

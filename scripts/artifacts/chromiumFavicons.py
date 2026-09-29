@@ -103,6 +103,21 @@ __artifacts_v2__ = {
                  "-journal or -wal beside it, is read once and counted in the run log, and copies that "
                  "differ are both read. Values not reported include the meta table and the "
                  "favicon_bitmaps rows of icons no page URL maps to."
+                 " Chromium installed as a snap keeps its user data folder in snap/chromium/common/chromium in the "
+                 "home folder, because Chromium keeps it in a chromium folder inside CHROME_CONFIG_HOME, else "
+                 "XDG_CONFIG_HOME, else .config "
+                 "(Reference: Chromium, 'chrome_paths_linux.cc', "
+                 "https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101) "
+                 "and the snap's snap.yaml sets CHROME_CONFIG_HOME to the snap's common folder (measured on "
+                 "revision 3535); installed as a Flatpak from Flathub it keeps it in "
+                 ".var/app/org.chromium.Chromium/config/chromium, because Flatpak sets XDG_CONFIG_HOME to the "
+                 "config folder in the app's folder (Reference: flatpak 1.16.6, 'flatpak-context.c', "
+                 "https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175). "
+                 "Both are read as Chromium, measured on ubuntu2604_arm64_chromium, whose snap (Chromium "
+                 "153.0.8010.47) and Flatpak (Chromium 154.0.8037.57) each kept a Default profile there. Other "
+                 "browsers' Flatpaks are not read. A profile in a .config folder that is not directly in a home "
+                 "folder, such as a snap's snap/<name>/<revision>/.config, is matched by the .config paths and "
+                 "read with User blank."
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
@@ -114,6 +129,8 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Favicons*',
             '*/Library/Application Support/Chromium/*/Favicons*',
             '*/.config/chromium/*/Favicons*',
+            '*/snap/chromium/common/chromium/*/Favicons*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Favicons*',
             '*/webbrowser/chrome/*/Favicons*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Favicons*',
             '*/Library/Application Support/Microsoft Edge/*/Favicons*',
@@ -136,6 +153,8 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/History*',
             '*/Library/Application Support/Chromium/*/History*',
             '*/.config/chromium/*/History*',
+            '*/snap/chromium/common/chromium/*/History*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/History*',
             '*/webbrowser/chrome/*/History*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/History*',
             '*/Library/Application Support/Microsoft Edge/*/History*',
@@ -161,6 +180,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 700 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 641 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

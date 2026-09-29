@@ -49,8 +49,9 @@ __artifacts_v2__ = {
                  "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
                  "and a store directly inside an Opera user data folder is reported with that "
                  "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge "
-                 "folders were exercised by a "
-                 "registered image; a constructed tree exercised the Brave macOS, Vivaldi Linux and Opera "
+                 "folders and the Linux Chromium snap and Flatpak folders were exercised by a registered image, "
+                 "the last two by ubuntu2604_arm64_chromium; a constructed tree exercised the Brave macOS, Vivaldi "
+                 "Linux and Opera "
                  "Windows folders, the last with its profile kept directly in the user data "
                  "folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
@@ -66,6 +67,22 @@ __artifacts_v2__ = {
                  "applications' folders. Chromium source is cited at commit "
                  "33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
                  "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " Chromium installed as a snap keeps its user data folder in snap/chromium/common/chromium in the "
+                 "home folder, because Chromium keeps it in a chromium folder inside CHROME_CONFIG_HOME, else "
+                 "XDG_CONFIG_HOME, else .config "
+                 "(Reference: Chromium, 'chrome_paths_linux.cc', "
+                 "https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101) "
+                 "and the snap's snap.yaml sets CHROME_CONFIG_HOME to the snap's common folder (measured on "
+                 "revision 3535); installed as a Flatpak from Flathub it keeps it in "
+                 ".var/app/org.chromium.Chromium/config/chromium, because Flatpak sets XDG_CONFIG_HOME to the "
+                 "config folder in the app's folder (Reference: flatpak 1.16.6, 'flatpak-context.c', "
+                 "https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175). "
+                 "Both are read as Chromium, measured on ubuntu2604_arm64_chromium, whose snap (Chromium "
+                 "153.0.8010.47) and Flatpak (Chromium 154.0.8037.57) each kept a Default profile there. Other "
+                 "browsers' Flatpaks are not read. A profile in a .config folder that is not directly in a home "
+                 "folder, such as a snap's snap/<name>/<revision>/.config, is matched by the .config paths and "
+                 "read with User blank. On ubuntu2604_arm64_chromium Browser, "
+                 "Profile and User each held one value, Chromium, Default and parallels, on every row."
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
@@ -77,6 +94,8 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Top Sites*',
             '*/Library/Application Support/Chromium/*/Top Sites*',
             '*/.config/chromium/*/Top Sites*',
+            '*/snap/chromium/common/chromium/*/Top Sites*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Top Sites*',
             '*/webbrowser/chrome/*/Top Sites*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Top Sites*',
             '*/Library/Application Support/Microsoft Edge/*/Top Sites*',
@@ -102,6 +121,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 4 rows",
         },
     },
     "chromiumShortcuts": {
@@ -163,8 +183,9 @@ __artifacts_v2__ = {
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
                  "reported with that folder as its Profile. Only the Windows Google Chrome and "
-                 "Microsoft Edge folders were "
-                 "exercised by a registered image; a constructed tree exercised the Brave macOS, Vivaldi "
+                 "Microsoft Edge folders and the Linux Chromium snap and Flatpak folders were exercised by a "
+                 "registered image, the last two by ubuntu2604_arm64_chromium; a constructed tree exercised the "
+                 "Brave macOS, Vivaldi "
                  "Linux and Opera Windows folders, the last with its profile kept directly in the user "
                  "data folder, and the remaining folders were exercised by neither. "
                  "When a logical extraction holds a profile under Users/ and under "
@@ -180,6 +201,21 @@ __artifacts_v2__ = {
                  "layout but sit in other applications' folders. Chromium source is cited at commit "
                  "33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
                  "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " Chromium installed as a snap keeps its user data folder in snap/chromium/common/chromium in the "
+                 "home folder, because Chromium keeps it in a chromium folder inside CHROME_CONFIG_HOME, else "
+                 "XDG_CONFIG_HOME, else .config "
+                 "(Reference: Chromium, 'chrome_paths_linux.cc', "
+                 "https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101) "
+                 "and the snap's snap.yaml sets CHROME_CONFIG_HOME to the snap's common folder (measured on "
+                 "revision 3535); installed as a Flatpak from Flathub it keeps it in "
+                 ".var/app/org.chromium.Chromium/config/chromium, because Flatpak sets XDG_CONFIG_HOME to the "
+                 "config folder in the app's folder (Reference: flatpak 1.16.6, 'flatpak-context.c', "
+                 "https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175). "
+                 "Both are read as Chromium, measured on ubuntu2604_arm64_chromium, whose snap (Chromium "
+                 "153.0.8010.47) and Flatpak (Chromium 154.0.8037.57) each kept a Default profile there. Other "
+                 "browsers' Flatpaks are not read. A profile in a .config folder that is not directly in a home "
+                 "folder, such as a snap's snap/<name>/<revision>/.config, is matched by the .config paths and "
+                 "read with User blank."
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
@@ -191,6 +227,8 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Shortcuts*',
             '*/Library/Application Support/Chromium/*/Shortcuts*',
             '*/.config/chromium/*/Shortcuts*',
+            '*/snap/chromium/common/chromium/*/Shortcuts*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Shortcuts*',
             '*/webbrowser/chrome/*/Shortcuts*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Shortcuts*',
             '*/Library/Application Support/Microsoft Edge/*/Shortcuts*',
@@ -216,6 +254,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }
