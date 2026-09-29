@@ -1,4 +1,5 @@
-"""Account and group changes the shadow tools logged to a Linux syslog file (auth.log or secure), for DLEAPP.
+"""Account and group changes the shadow tools logged to a Linux syslog file (auth.log or secure) and to the systemd
+journal, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -29,8 +30,9 @@ __artifacts_v2__ = {
                  "and both tested Linux images, one Debian and one Ubuntu, hold the tools' lines there. Fedora "
                  "writes the authpriv facility to secure (rsyslog.conf, "
                  "https://src.fedoraproject.org/rpms/rsyslog/blob/6acade802d1e5b33cb723af1761371f9a3a656bb/f/rsyslog.conf#_52); "
-                 "no tested image carries a secure file. Messages kept only in the systemd journal, or written to "
-                 "another file, are not read. A line is read in either of rsyslog's two file formats, an RFC 3339 "
+                 "no tested image carries a secure file. Account Changes (journal) reports the messages kept only "
+                 "in the systemd journal, and messages written to another file are not read. A line is read in "
+                 "either of rsyslog's two file formats, an RFC 3339 "
                  "time with a UTC offset (rsyslog 8.2512.0, tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
                  "or a month, day and time with no year and no zone (tools/smtradfile.c, "
@@ -101,12 +103,120 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 3 rows",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 49 rows",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 49 rows",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 49 rows",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 49 rows",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "linuxAccountChangesJournal": {
+        "name": "Account Changes (journal)",
+        "description": "Messages the shadow account tools logged to the systemd journal, with the account, group "
+                       "and calling user a known message names, and the boot's ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "Accounts (Linux)",
+        "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
+                 "SYSLOG_IDENTIFIER is one of the program names Account Changes reads, read with the same reader "
+                 "as systemd Journal (scripts/systemd_journal.py) and in the way Cron Log (journal) reads its "
+                 "entries: journald keeps the name in a syslog line's tag as SYSLOG_IDENTIFIER, the process ID in "
+                 "its brackets as SYSLOG_PID and the text after the tag as MESSAGE (Reference: systemd, "
+                 "'journald-syslog.c', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L204-L262, "
+                 "with the fields written at "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L433-L464), "
+                 "the first value of a field an entry holds more than once is read, an entry that more than one "
+                 "file holds is read once, and rows are in order of Time (UTC), then boot ID, time since boot and "
+                 "sequence number. Program is SYSLOG_IDENTIFIER, Process ID SYSLOG_PID and Message MESSAGE, and "
+                 "Account, Group and Run By are read from Message as Account Changes reads them, with the meanings "
+                 "and references given there. journald removes whitespace at the end of a message a program sends "
+                 "to the syslog socket and keeps the message as received in SYSLOG_RAW when it removed any "
+                 "(https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L372-L397 "
+                 "and "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L470-L484): "
+                 "on each tested image 5 userdel entries had a line feed at the end of the message removed this "
+                 "way, and their Message equals the matching auth.log line's. Time (UTC) is the entry's realtime, "
+                 "the time journald received it (Reference: systemd, 'systemd.journal-fields', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L642-L651); "
+                 "Hostname is the entry's _HOSTNAME field, Boot ID the boot the entry names and Source File the "
+                 "journal file the entry was read from. Entries of other programs, entries read a second time, and "
+                 "journal files that could not be read or whose header sets an incompatible flag the reader does "
+                 "not know are counted in the run log and not reported. ubuntu2604_arm64_journal and "
+                 "ubuntu2604_arm64_usb hold the same 49 rows, from 3 boots, and ubuntu2604_arm64_usbstorage 61, "
+                 "from 4 boots; every row names an account, a group or a calling user, and Hostname held one value "
+                 "on every row of each tested image. Four captures of auth.log from the VM these three journals "
+                 "come from were compared with this artifact, matching rows on Program, Process ID, Message, "
+                 "Account, Group and Run By with times less than 1 s apart: every one of the 49 Account Changes "
+                 "rows of ubuntu2604_arm64_authlog and of ubuntu2604_arm64_triage was matched by a row of "
+                 "ubuntu2604_arm64_journal, those of ubuntu2604_arm64_shutdown by rows of "
+                 "ubuntu2604_arm64_usbstorage and those of ubuntu2604_arm64_cron by rows of ubuntu2604_arm64_usb. "
+                 "The 12 other rows of ubuntu2604_arm64_usbstorage are later than the last Account Changes row of "
+                 "ubuntu2604_arm64_shutdown. On every matched row Time (UTC) here was "
+                 "earlier than the auth.log line's, by 0.000004 to 0.37 s. No tested image held an entry in two "
+                 "files, and the unit tests exercise it. No member of the other 28 tested images matches the "
+                 "declared paths.",
+        "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
+                  '*/run/log/journal/*.journal~'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "user-plus",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 49 rows",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 49 rows",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 61 rows",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -116,7 +226,7 @@ import re
 from collections import Counter
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.linux_syslog import program_lines, read_file
+from scripts.linux_syslog import journal_entries, journal_sources, program_lines, read_file, read_journals
 
 # The shadow programs that add, remove or change accounts and groups, as their lines are tagged.
 _PROGRAMS = ('useradd', 'userdel', 'usermod', 'groupadd', 'groupdel', 'groupmod', 'passwd', 'chpasswd',
@@ -316,3 +426,23 @@ def linuxAccountChanges(context):
     if problems:
         logfunc('Account Changes: ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
     return data_headers, data_list, '\n'.join(read)
+
+
+def journal_change_rows(journals, counts):
+    """(time, host, program, process ID, message, account, group, run by, boot ID, source) for each entry of these
+    journal files from the programs Account Changes reads, oldest first."""
+    return [(when, host, program, pid, message, *named(message, program), boot, relative)
+            for when, host, program, pid, message, boot, relative in journal_entries(
+                journals, lambda program: program in _PROGRAMS, counts)]
+
+
+@artifact_processor
+def linuxAccountChangesJournal(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'Process ID', 'Message', 'Account', 'Group',
+                    'Run By', 'Boot ID', 'Source File')
+    counts = Counter()
+    journals, staged = read_journals(context, counts)
+    data_list = journal_change_rows(journals, counts)
+    if counts:
+        logfunc('Account Changes (journal): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
+    return data_headers, data_list, journal_sources(data_list, staged)

@@ -1,17 +1,22 @@
-"""Pin how the Account Changes artifact reads the shadow account tools' lines in auth.log and secure."""
+"""Pin how the Account Changes artifacts read the shadow account tools' lines in auth.log and secure and their entries
+in the systemd journal (journal files written with journal_writer.py)."""
 import os
 import pathlib
 import re
 import sys
 import tempfile
 import unittest
+from collections import Counter
 from datetime import datetime, timezone
 from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / 'admin' / 'test' / 'scripts'))
 
 # pylint: disable=wrong-import-position
+import journal_writer as jw
+from scripts import linux_syslog, systemd_journal
 from scripts.artifacts import linuxAccountChanges
 # pylint: enable=wrong-import-position
 
@@ -162,6 +167,67 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(log.call_args.args[0], 'Account Changes: 1 files that could not be read, '
                                                 '2 lines from other programs, not reported, '
                                                 '1 lines in neither syslog file format, not reported')
+
+
+BOOT = bytes.fromhex('0f1e2d3c4b5a69788796a5b4c3d2e1f0')
+T0 = 1790000000
+
+
+def journal_bytes(entries):
+    """A journal file of (realtime seconds, SYSLOG_IDENTIFIER, MESSAGE, SYSLOG_PID) entries."""
+    writer = jw.JournalWriter(boot_id=BOOT)
+    for n, (realtime, ident, message, pid) in enumerate(entries, 1):
+        writer.add_entry([('_TRANSPORT', b'syslog'), ('_HOSTNAME', b'vm'), ('SYSLOG_IDENTIFIER', ident.encode()),
+                          ('SYSLOG_PID', pid.encode()), ('MESSAGE', message.encode())], int(realtime * 1000000), n * 1000000)
+    return writer.bytes()
+
+
+class JournalTest(unittest.TestCase):
+    def test_entries_of_the_shadow_programs_and_counts(self):
+        entries = [(T0 + 2, 'useradd', "new user: name=acct, UID=1001, GID=1001, home=/home/acct, shell=/bin/sh, from=/dev/pts/0",
+                    '51'),
+                   (T0 + 1, 'groupadd', "group added to /etc/group: name=grp, GID=1001", '50'),
+                   (T0 + 3, 'sshd', "new user: name=acct, UID=1001", '9'),
+                   (T0 + 4, 'Useradd', "new user: name=acct, UID=1001", '9')]
+        counts = Counter()
+        rows = linuxAccountChanges.journal_change_rows([('j', systemd_journal.JournalFile(journal_bytes(entries)))], counts)
+        expected = [(entries[1][2], 'groupadd', '50'), (entries[0][2], 'useradd', '51')]
+        self.assertEqual([(r[4], r[2], r[3]) for r in rows], expected)
+        self.assertEqual([r[5:8] for r in rows], [linuxAccountChanges.named(m, p) for m, p, _pid in expected])
+        self.assertEqual([(r[0], r[1], r[8], r[9]) for r in rows],
+                         [(datetime.fromtimestamp(T0 + s, UTC), 'vm', BOOT.hex(), 'j') for s in (1, 2)])
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 2})
+
+    def test_artifact(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log', 'journal', 'm')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('system.journal', journal_bytes([(T0, 'userdel', 'delete user \'acct\'', '7')])),
+                               ('user-1000.journal', journal_bytes([(T0, 'su', 'x', '1')])),
+                               ('broken.journal', b'not a journal')):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            files.append(folder)
+            with mock.patch.object(linuxAccountChanges, 'logfunc') as log:
+                headers, rows, source = linuxAccountChanges.linuxAccountChangesJournal.__wrapped__(FakeContext(files, root))
+        self.assertEqual(headers, (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'Process ID', 'Message', 'Account',
+                                   'Group', 'Run By', 'Boot ID', 'Source File'))
+        self.assertEqual([(r[2], r[3], r[4], r[-2], r[-1]) for r in rows],
+                         [('userdel', '7', "delete user 'acct'", BOOT.hex(), os.path.join('var', 'log', 'journal', 'm', 'system.journal'))])
+        self.assertEqual(source, os.path.join(folder, 'system.journal'))
+        self.assertEqual(log.call_args.args[0], 'Account Changes (journal): 1 entries of other programs, '
+                                                '1 journal files not read (JournalError)')
+
+    def test_nothing_logged_when_every_entry_is_a_row(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'system.journal')
+            with open(path, 'wb') as handle:
+                handle.write(journal_bytes([(T0, 'userdel', "delete user 'acct'", '7')]))
+            with mock.patch.object(linuxAccountChanges, 'logfunc') as log:
+                _headers, rows, source = linuxAccountChanges.linuxAccountChangesJournal.__wrapped__(FakeContext([path], root))
+        self.assertEqual((len(rows), source, log.called), (1, path, False))
 
 
 if __name__ == '__main__':
