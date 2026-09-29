@@ -262,6 +262,11 @@ class HelperTest(unittest.TestCase):
             browser_profiles.locate(f'{_PROFILE}/Sessions/Tabs_1')[1:],
             ('Default', 'someone', _PROFILE, 'Sessions/Tabs_1'))
 
+    def test_locate_reads_the_webos_webbrowser_folder_with_no_user(self):
+        self.assertEqual(
+            browser_profiles.locate('p9_lba1_cmn/webbrowser/chrome/Default/History'),
+            ('webOS webbrowser', 'Default', '', 'p9_lba1_cmn/webbrowser/chrome/Default', 'History'))
+
     def test_page_transition(self):
         self.assertEqual(browser_profiles.page_transition(0x30000001),
                          ('TYPED (1)', 'CHAIN_START, CHAIN_END'))

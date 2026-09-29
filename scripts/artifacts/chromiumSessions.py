@@ -132,7 +132,11 @@ __artifacts_v2__ = {
                  "table were chrome:// pages, 2 on each image. Not reported: the other commands, among "
                  "them window bounds, tab order, pinned state, tab groups and user agent overrides, and "
                  "ids outside Chromium's list, such as the 132 in the files of pc_mus_001_win11's "
-                 "Microsoft Edge profile.",
+                 "Microsoft Edge profile."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Sessions*/Session_*',
             '*/AppData/Local/Google/Chrome/User Data/*/Current Session',
@@ -150,8 +154,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Chromium/*/Current Session',
             '*/Library/Application Support/Chromium/*/Last Session',
             '*/.config/chromium/*/Sessions*/Session_*',
+            '*/webbrowser/chrome/*/Sessions*/Session_*',
             '*/.config/chromium/*/Current Session',
+            '*/webbrowser/chrome/*/Current Session',
             '*/.config/chromium/*/Last Session',
+            '*/webbrowser/chrome/*/Last Session',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Sessions*/Session_*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Current Session',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Last Session',
@@ -290,7 +297,11 @@ __artifacts_v2__ = {
                  "images the addresses in these rows that were not in the same profile's History urls "
                  "table were chrome:// and edge:// pages, and one https address on pc_mus_001_win11. Not "
                  "reported: pinned state, tab group and split data, extension app ids, user agent "
-                 "overrides and extra data.",
+                 "overrides and extra data."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Sessions*/Tabs_*',
             '*/AppData/Local/Google/Chrome/User Data/*/Current Tabs',
@@ -308,8 +319,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Chromium/*/Current Tabs',
             '*/Library/Application Support/Chromium/*/Last Tabs',
             '*/.config/chromium/*/Sessions*/Tabs_*',
+            '*/webbrowser/chrome/*/Sessions*/Tabs_*',
             '*/.config/chromium/*/Current Tabs',
+            '*/webbrowser/chrome/*/Current Tabs',
             '*/.config/chromium/*/Last Tabs',
+            '*/webbrowser/chrome/*/Last Tabs',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Sessions*/Tabs_*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Current Tabs',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Last Tabs',

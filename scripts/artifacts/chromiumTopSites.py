@@ -65,7 +65,11 @@ __artifacts_v2__ = {
                  "Electron app profiles such as EBWebView folders, which share the layout but sit in other "
                  "applications' folders. Chromium source is cited at commit "
                  "33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
-                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
+                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Top Sites*',
             '*/Library/Application Support/Google/Chrome/*/Top Sites*',
@@ -73,6 +77,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Top Sites*',
             '*/Library/Application Support/Chromium/*/Top Sites*',
             '*/.config/chromium/*/Top Sites*',
+            '*/webbrowser/chrome/*/Top Sites*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Top Sites*',
             '*/Library/Application Support/Microsoft Edge/*/Top Sites*',
             '*/.config/microsoft-edge/*/Top Sites*',
@@ -174,7 +179,11 @@ __artifacts_v2__ = {
                  "folder, and WebView2 or Electron app profiles such as EBWebView folders, which share the "
                  "layout but sit in other applications' folders. Chromium source is cited at commit "
                  "33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
-                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
+                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Shortcuts*',
             '*/Library/Application Support/Google/Chrome/*/Shortcuts*',
@@ -182,6 +191,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Shortcuts*',
             '*/Library/Application Support/Chromium/*/Shortcuts*',
             '*/.config/chromium/*/Shortcuts*',
+            '*/webbrowser/chrome/*/Shortcuts*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Shortcuts*',
             '*/Library/Application Support/Microsoft Edge/*/Shortcuts*',
             '*/.config/microsoft-edge/*/Shortcuts*',
