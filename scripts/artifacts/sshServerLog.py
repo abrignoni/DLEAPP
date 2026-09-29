@@ -1,4 +1,4 @@
-"""Messages the OpenSSH server wrote to a Linux syslog file (auth.log or secure), for DLEAPP.
+"""Messages the OpenSSH server wrote to a Linux syslog file (auth.log or secure) and to the systemd journal, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -24,8 +24,9 @@ __artifacts_v2__ = {
                  "https://src.fedoraproject.org/rpms/rsyslog/blob/6acade802d1e5b33cb723af1761371f9a3a656bb/f/rsyslog.conf#_52)"
                  " and its openssh package sets sshd's facility to authpriv (the 50-redhat.conf its patch adds, "
                  "https://src.fedoraproject.org/rpms/openssh/blob/e700631185906986adc4a888f1b62d4dce311118/f/0011-openssh-8.7p1-redhat.patch#_114);"
-                 " no tested image carries a secure file. Messages kept only in the systemd journal, or written to"
-                 " another file, are not read. OpenSSH 9.8 split sshd into a listener and a per-connection "
+                 " no tested image carries a secure file. SSH Server Log (journal) reports the sshd messages kept "
+                 "only in the systemd journal, and messages written to another file are not read. OpenSSH 9.8 "
+                 "split sshd into a listener and a per-connection "
                  "sshd-session, after which some messages carry the name sshd-session (release notes, "
                  "https://www.openssh.org/txt/release-9.8, lines 120 to 131), and 10.0 moved authentication into "
                  "sshd-auth, from which some messages may come (https://www.openssh.org/txt/release-10.0, lines 33"
@@ -109,12 +110,123 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 74 rows",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 2225 rows",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 2315 rows",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 2311 rows",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 2160 rows",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "sshServerLogJournal": {
+        "name": "SSH Server Log (journal)",
+        "description": "Entries logged to the systemd journal under the names sshd, sshd-session and sshd-auth, "
+                       "with the result, method, user, remote address and any key of each SSH protocol 2 login "
+                       "attempt they record split out, and the boot's ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "SSH",
+        "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
+                 "SYSLOG_IDENTIFIER is sshd, sshd-session or sshd-auth, the names SSH Server Log reads, read with "
+                 "the same reader as systemd Journal (scripts/systemd_journal.py) and in the way Cron Log "
+                 "(journal) reads its entries: journald keeps the name in a syslog line's tag as "
+                 "SYSLOG_IDENTIFIER, the process ID in its brackets as SYSLOG_PID and the text after the tag as "
+                 "MESSAGE (Reference: systemd, 'journald-syslog.c', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L204-L262, "
+                 "with the fields written at "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L433-L464), "
+                 "the first value of a field an entry holds more than once is read, an entry that more than one "
+                 "file holds is read once, and rows are in order of Time (UTC), then boot ID, time since boot and "
+                 "sequence number. Program is SYSLOG_IDENTIFIER, Process ID SYSLOG_PID and Message MESSAGE, and "
+                 "Login Result, Method, User, Invalid User, Remote Address, Remote Port, Key Type and Key "
+                 "Fingerprint are read from Message as SSH Server Log reads them, with the meanings and references "
+                 "given there. Time (UTC) is the entry's realtime, the time journald received it (Reference: "
+                 "systemd, 'systemd.journal-fields', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L642-L651); "
+                 "Hostname is the entry's _HOSTNAME field, Boot ID the boot the entry names and Source File the "
+                 "journal file the entry was read from. The journal does not validate SYSLOG_IDENTIFIER or "
+                 "SYSLOG_PID "
+                 "(https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L127-L131), "
+                 "so any process can send an entry under these names: each of the three tested journals holds one "
+                 "row that is the known entry described for systemd Journal, which a python3 process sent with "
+                 "SYSLOG_IDENTIFIER=sshd over the journal's own transport, and it is the only row whose Process ID "
+                 "is blank, the entry carrying no SYSLOG_PID. Entries of other programs, entries read a second "
+                 "time, and journal files that could not be read or whose header sets an incompatible flag the "
+                 "reader does not know are counted in the run log and not reported. ubuntu2604_arm64_journal holds "
+                 "2,450 rows, ubuntu2604_arm64_usb 2,705 and ubuntu2604_arm64_usbstorage 4,708, from 8 boots on "
+                 "each, with 473, 524 and 924 Accepted rows; Key Fingerprint held one value on the rows where it "
+                 "is filled, and Hostname held one value on every row of each tested image. Four captures of "
+                 "auth.log from the VM these three journals come from were compared with this artifact, matching "
+                 "rows on Program, Process ID and Message with times less than 1 s apart: every one of the 2,225 "
+                 "SSH Server Log rows of ubuntu2604_arm64_authlog and the 2,160 of ubuntu2604_arm64_triage was "
+                 "matched by a row of ubuntu2604_arm64_journal, the 2,311 of ubuntu2604_arm64_shutdown by rows of "
+                 "ubuntu2604_arm64_usbstorage and the 2,315 of ubuntu2604_arm64_cron by rows of "
+                 "ubuntu2604_arm64_usb. Between each capture's first and last sshd line the journal holds 5 rows "
+                 "with no auth.log line, each sshd's message that it received a signal and was terminating, logged "
+                 "within 0.03 s of systemd's Stopping rsyslog.service entry; the other journal rows with no match "
+                 "are later than the capture's last sshd line. On every matched row the two times were within "
+                 "0.007 s of each other. No tested image held an entry in two files, and the unit tests exercise "
+                 "it. No member of the other 28 tested images matches the declared paths.",
+        "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
+                  '*/run/log/journal/*.journal~'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "log-in",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 2450 rows",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 2705 rows",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 4708 rows",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -124,7 +236,7 @@ import re
 from collections import Counter
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.linux_syslog import program_lines, read_file
+from scripts.linux_syslog import journal_entries, journal_sources, program_lines, read_file, read_journals
 
 # The program names sshd logs under: sshd, the per-connection sshd-session from OpenSSH 9.8 and the
 # pre-authentication sshd-auth from 10.0.
@@ -198,3 +310,24 @@ def sshServerLog(context):
     if problems:
         logfunc('SSH Server Log: ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
     return data_headers, data_list, '\n'.join(read)
+
+
+def journal_log_rows(journals, counts):
+    """(time, host, program, process ID, message, login fields..., boot ID, source) for each sshd entry in these journal
+    files, oldest first; journals: (relative path, JournalFile)."""
+    return [(when, host, program, pid, message, *login_fields(message), boot, relative)
+            for when, host, program, pid, message, boot, relative in journal_entries(
+                journals, lambda program: program in _PROGRAMS, counts)]
+
+
+@artifact_processor
+def sshServerLogJournal(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'Process ID', 'Message', 'Login Result',
+                    'Method', 'User', 'Invalid User', 'Remote Address', 'Remote Port', 'Key Type', 'Key Fingerprint',
+                    'Boot ID', 'Source File')
+    counts = Counter()
+    journals, staged = read_journals(context, counts)
+    data_list = journal_log_rows(journals, counts)
+    if counts:
+        logfunc('SSH Server Log (journal): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
+    return data_headers, data_list, journal_sources(data_list, staged)
