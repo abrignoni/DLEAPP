@@ -18,7 +18,8 @@ __artifacts_v2__ = {
                  "session being created, logged out or removed, in file order; Line is its line number in the file "
                  "and Source File the file, and the files that held a row are named in the report's located-at "
                  "line. Other lines, and lines in neither syslog file format described below, are counted in the "
-                 "run log and not reported. Messages kept only in the systemd journal, or written to another file, "
+                 "run log and not reported. Login Sessions (logind, journal) reports the session lines kept only "
+                 "in the systemd journal, and messages written to another file "
                  "are not read. A line is read in either of rsyslog's two file formats, an RFC 3339 time with a "
                  "UTC offset (rsyslog 8.2512.0, tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
@@ -87,13 +88,34 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (its auth.log holds no systemd-logind line)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 1344 rows",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 1395 rows",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 1395 rows",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 1305 rows",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
     "linuxLogindPower": {
@@ -236,6 +258,89 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 24 rows",
         },
     },
+    "linuxLogindSessionsJournal": {
+        "name": "Login Sessions (logind, journal)",
+        "description": "Login sessions systemd-logind logged in the systemd journal as created, logged out or "
+                       "removed, with the session ID, user, class and type the entry gives and the boot's ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "Logins (Linux)",
+        "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
+                 "SYSLOG_IDENTIFIER is systemd-logind and whose MESSAGE is a session line in a form Login Sessions "
+                 "(logind) describes, read with the same reader as systemd Journal (scripts/systemd_journal.py) "
+                 "and in the way Cron Log (journal) reads its entries: the first value of a field an entry holds "
+                 "more than once is read, an entry that more than one file holds is read once, and rows are in "
+                 "order of Time (UTC), then boot ID, time since boot and sequence number. Session Event, Session, "
+                 "User, Class and Type have the meanings and references given for Login Sessions (logind) and are "
+                 "read from MESSAGE. On the tested images every systemd-logind entry carries _TRANSPORT=journal "
+                 "and none carries "
+                 "SYSLOG_PID, so Process ID is the entry's _PID field, which the journal adds as the process ID of "
+                 "the process the entry came from (Reference: systemd, 'systemd.journal-fields', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L205-L212). "
+                 "Time (UTC) is the entry's realtime, the time journald received it "
+                 "(https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L642-L651); "
+                 "Hostname is the entry's _HOSTNAME field, Boot ID the boot the entry names and Source File the "
+                 "journal file the entry was read from. Entries of other programs, systemd-logind entries in other "
+                 "forms, among them the lines Power Events (logind) reports from auth.log, entries read a second "
+                 "time, and journal files that could not be read or whose header sets an incompatible flag the "
+                 "reader does not know are counted in the run log and not reported. ubuntu2604_arm64_journal holds "
+                 "1,489 rows (505 new, 482 logged out and 502 removed), ubuntu2604_arm64_usb 1,642 and "
+                 "ubuntu2604_arm64_usbstorage 2,842, from 8 boots on each; every new row has a Class and a Type, "
+                 "and Hostname held one value on every row of each tested image. Four captures of auth.log from "
+                 "the VM these three journals come from were compared with this artifact, matching rows on Process "
+                 "ID, Session Event, Session, "
+                 "User, Class and Type with times less than 1 s apart: every one of the 1,344 Login Sessions "
+                 "(logind) rows of ubuntu2604_arm64_authlog and the 1,305 of ubuntu2604_arm64_triage was matched "
+                 "by a row of ubuntu2604_arm64_journal, the 1,395 of ubuntu2604_arm64_shutdown by rows of "
+                 "ubuntu2604_arm64_usbstorage and the 1,395 of ubuntu2604_arm64_cron by rows of "
+                 "ubuntu2604_arm64_usb, so on each of those rows _PID equals the process ID in the auth.log line's "
+                 "tag. Between each capture's first and last session line the journal holds 19 rows with no "
+                 "auth.log line, all logged after systemd's Stopped rsyslog.service entry and "
+                 "before its next Starting rsyslog.service entry, while rsyslog.service was stopped; the other "
+                 "journal rows with no match are later than the capture's last session line. On every matched row "
+                 "Time (UTC) here was earlier than the auth.log line's, by 0.000005 to 0.0019 s. No tested image "
+                 "held an entry in two files, and the unit tests exercise it. No member of the other 28 tested "
+                 "images matches the declared paths.",
+        "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
+                  '*/run/log/journal/*.journal~'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "log-in",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 1489 rows",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 1642 rows",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 2842 rows",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
 }
 
 import os
@@ -243,7 +348,7 @@ import re
 from collections import Counter
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.linux_syslog import program_lines, read_file
+from scripts.linux_syslog import journal_entries, journal_sources, program_lines, read_file, read_journals
 
 _PROGRAM = 'systemd-logind'
 # systemd v258 and later name the session's class and type.
@@ -369,3 +474,31 @@ def linuxLogindPower(context):
     if problems:
         logfunc('Power Events (logind): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
     return data_headers, data_list, '\n'.join(read)
+
+
+
+def journal_session_rows(journals, counts):
+    """(time, host, process ID, event, session, user, class, type, boot ID, source) for each systemd-logind session
+    entry in these journal files, oldest first; the process ID is the entry's _PID field."""
+    rows = []
+    for when, host, _program, pid, message, boot, relative in journal_entries(
+            journals, lambda program: program == _PROGRAM, counts, pid_field='_PID'):
+        fields = session_fields(message)
+        if fields is None:
+            counts['systemd-logind entries in other forms, not reported'] += 1
+            continue
+        rows.append((when, host, pid, *fields, boot, relative))
+    return rows
+
+
+@artifact_processor
+def linuxLogindSessionsJournal(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Process ID', 'Session Event', 'Session', 'User', 'Class',
+                    'Type', 'Boot ID', 'Source File')
+    counts = Counter()
+    journals, staged = read_journals(context, counts)
+    data_list = journal_session_rows(journals, counts)
+    if counts:
+        logfunc('Login Sessions (logind, journal): '
+                + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
+    return data_headers, data_list, journal_sources(data_list, staged)

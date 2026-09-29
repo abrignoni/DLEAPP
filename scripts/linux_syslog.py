@@ -105,11 +105,11 @@ def _text(value):
     return value.decode('utf-8', errors='backslashreplace') if value is not None else ''
 
 
-def journal_entries(journals, accept, counts):
+def journal_entries(journals, accept, counts, pid_field='SYSLOG_PID'):
     """(time, host, program, process ID, message, boot ID, source) for each entry of these journal files whose
-    SYSLOG_IDENTIFIER accept(program) takes, oldest first; journals: (relative path, JournalFile). The first value of
-    a field an entry holds more than once is read, an entry that two files hold is read once, and entries of other
-    programs are counted."""
+    SYSLOG_IDENTIFIER accept(program) takes, oldest first; journals: (relative path, JournalFile). The process ID is
+    the pid_field field. The first value of a field an entry holds more than once is read, an entry that two files hold
+    is read once, and entries of other programs are counted."""
     seen = set()
     rows = []
     for relative, journal in journals:
@@ -132,7 +132,7 @@ def journal_entries(journals, accept, counts):
             seen.add(key)
             rows.append(((entry.realtime, entry.boot_id, entry.monotonic, entry.seqnum),
                          (journal_time(entry.realtime), _text(fields.get('_HOSTNAME')), program,
-                          _text(fields.get('SYSLOG_PID')), message, entry.boot_id, relative)))
+                          _text(fields.get(pid_field)), message, entry.boot_id, relative)))
     rows.sort(key=lambda item: item[0])
     return [row for _key, row in rows]
 
