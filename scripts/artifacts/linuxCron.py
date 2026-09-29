@@ -20,7 +20,8 @@ __artifacts_v2__ = {
                  "file and Source File the file, and the files that held a row are named in the report's located-at "
                  "line. Lines of other programs, non-empty lines in neither syslog file format described below and "
                  "cron or crontab lines in another form are counted in the run log and not reported. Messages kept "
-                 "only in the systemd journal, or written to another file, are not read. A line is read in either of "
+                 "only in the systemd journal are read by Cron Log (journal), and messages written to another file "
+                 "are not read. A line is read in either of "
                  "rsyslog's two file formats, an RFC 3339 time with a UTC offset (rsyslog 8.2512.0, tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
                  "or a month, day and time with no year and no zone (tools/smtradfile.c, "
@@ -133,6 +134,90 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "linuxCronJournal": {
+        "name": "Cron Log (journal)",
+        "description": "Entries cron and crontab logged in the systemd journal: commands of jobs cron started, "
+                       "crontab listings, installs, edits and removals, and cron's own messages, with the boot's "
+                       "ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "Scheduled Jobs (Linux)",
+        "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
+                 "SYSLOG_IDENTIFIER names cron or crontab and whose MESSAGE has the form Cron Log describes, read "
+                 "with the same reader as systemd Journal (scripts/systemd_journal.py). journald keeps a line a "
+                 "program sends to the syslog socket as an entry with _TRANSPORT=syslog, the tag's name before its "
+                 "colon as SYSLOG_IDENTIFIER, the process ID in the tag's brackets as SYSLOG_PID and the text "
+                 "after the tag as MESSAGE (Reference: systemd, 'journald-syslog.c', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L204-L262, "
+                 "with the fields written at "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L433-L464). "
+                 "Program, Process ID, User, Event and Detail have the meanings and references given for Cron Log: "
+                 "Program is SYSLOG_IDENTIFIER, compared by its last path part with case ignored, Process ID is "
+                 "SYSLOG_PID, and User, Event and Detail are read from MESSAGE as Cron Log reads a syslog line's "
+                 "message. When an entry holds a field more than once the first value is read. Time (UTC) is the "
+                 "entry's realtime, the time journald received it (Reference: systemd, 'systemd.journal-fields', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L642-L651); "
+                 "Hostname is the entry's _HOSTNAME field and Boot ID the boot the entry names. Rows are in order "
+                 "of Time (UTC), then boot ID, time since boot and sequence number. An entry that more than one "
+                 "file holds is read once, and Source File is the journal file it was read from; no tested image "
+                 "held an entry in two files, and the unit tests exercise it. Entries of other programs, cron and "
+                 "crontab entries in another form, entries read a second time, and journal files that could not be "
+                 "read or whose header sets an incompatible flag the reader does not know are counted in the run "
+                 "log and not reported. On each of the three tested images holding journal files the entries in "
+                 "another form were pam_unix(cron:session) lines, 406, 418 and 450 of them, whose SYSLOG_FACILITY "
+                 "is 10 while that of every reported entry is 9, and SYSLOG_PID equals the journal's own _PID "
+                 "field on every reported row. ubuntu2604_arm64_journal, captured from the VM described for Cron "
+                 "Log, holds 249 rows from 8 boots: 203 CMD, 20 INFO, 9 LIST, 5 info, 3 REPLACE, 3 BEGIN EDIT, 3 "
+                 "END EDIT, 2 DELETE and 1 RELOAD. Three captures of that VM's syslog files were compared with "
+                 "this artifact, matching rows on Program, Process ID, User, Event and Detail with times less than "
+                 "1 s apart: every one of the 234 Cron Log rows of ubuntu2604_arm64_cron was matched by a row of "
+                 "ubuntu2604_arm64_journal, every one of the 255 of ubuntu2604_arm64_usb and the 154 of "
+                 "ubuntu2604_arm64_usbstorage by a row from the same image's journal, and within the period the "
+                 "syslog files cover no row here was left unmatched. The journal of ubuntu2604_arm64_usbstorage "
+                 "holds 121 more rows, all older than the first cron line of the two syslog files that image "
+                 "keeps. On every matched row Time (UTC) here was earlier than the syslog line's, by 0.000006 to "
+                 "0.28 s. Hostname held one value on every row of each tested image. No member of the other 28 "
+                 "tested images matches the declared paths.",
+        "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
+                  '*/run/log/journal/*.journal~'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 249 rows",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 255 rows",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 275 rows",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
     "linuxCrontabEntries": {
@@ -343,7 +428,9 @@ __artifacts_v2__ = {
 import os
 import re
 from collections import Counter
+from datetime import datetime, timedelta, timezone
 
+from scripts import systemd_journal
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.linux_links import recorded_link, recorded_time, seeker_of
 from scripts.linux_syslog import OTHER_PROGRAMS, read_file, reported_time, syslog_lines
@@ -396,6 +483,87 @@ def linuxCronLog(context):
             read.append(path)
     if problems:
         logfunc('Cron Log: ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
+    return data_headers, data_list, '\n'.join(read)
+
+
+# The same messages in the systemd journal: journald keeps the tag of a syslog line as SYSLOG_IDENTIFIER, its process
+# ID as SYSLOG_PID and the text after them as MESSAGE.
+JOURNAL_OTHER = 'entries of other programs'
+JOURNAL_OTHER_FORM = 'cron and crontab entries in other forms, not reported'
+JOURNAL_REPEATED = 'entries also in another journal file, reported once'
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def journal_time(microseconds):
+    """A journal time as a datetime, or '' for 0 or a value past 9999."""
+    if not microseconds or microseconds >= 253402300800000000:
+        return ''
+    return _EPOCH + timedelta(microseconds=microseconds)
+
+
+def journal_cron_rows(journals, counts):
+    """(time, host, program, process ID, user, event, detail, boot ID, source) for each cron and crontab entry in
+    these journal files, oldest first; journals: (relative path, JournalFile). An entry two files hold is read once."""
+    seen = set()
+    rows = []
+    for relative, journal in journals:
+        if journal.unknown_incompatible:
+            counts['journal files not read: their incompatible flags are unknown to the reader'] += 1
+            continue
+        for entry in journal.entries():
+            fields = {}
+            for name, value in entry.fields:
+                fields.setdefault(name, value)
+            ident = fields.get('SYSLOG_IDENTIFIER')
+            program = ident.decode('utf-8', errors='backslashreplace') if ident is not None else ''
+            if program.rsplit('/', 1)[-1].lower() not in _PROGRAMS:
+                counts[JOURNAL_OTHER] += 1
+                continue
+            raw = fields.get('MESSAGE')
+            message = raw.decode('utf-8', errors='backslashreplace') if raw is not None else ''
+            key = (entry.boot_id, entry.monotonic, entry.realtime, program, message)
+            if key in seen:
+                counts[JOURNAL_REPEATED] += 1
+                continue
+            seen.add(key)
+            parsed = cron_fields(message)
+            if parsed is None:
+                counts[JOURNAL_OTHER_FORM] += 1
+                continue
+            pid = fields.get('SYSLOG_PID')
+            host = fields.get('_HOSTNAME')
+            rows.append(((entry.realtime, entry.boot_id, entry.monotonic, entry.seqnum),
+                         (journal_time(entry.realtime),
+                          host.decode('utf-8', errors='backslashreplace') if host is not None else '', program,
+                          pid.decode('utf-8', errors='backslashreplace') if pid is not None else '', *parsed,
+                          entry.boot_id, relative)))
+    rows.sort(key=lambda item: item[0])
+    return [row for _key, row in rows]
+
+
+@artifact_processor
+def linuxCronJournal(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'Process ID', 'User', 'Event', 'Detail',
+                    'Boot ID', 'Source File')
+    counts = Counter()
+    journals = []
+    staged = {}
+    for path in sorted(set(map(str, context.get_files_found()))):
+        if not os.path.isfile(path):
+            continue
+        relative = context.get_relative_path(path)
+        staged[relative] = path
+        try:
+            journals.append((relative, systemd_journal.read_journal(path)))
+        except (OSError, systemd_journal.JournalError) as exc:
+            counts[f'journal files not read ({type(exc).__name__})'] += 1
+    data_list = journal_cron_rows(journals, counts)
+    read = []
+    for row in data_list:
+        if staged[row[-1]] not in read:
+            read.append(staged[row[-1]])
+    if counts:
+        logfunc('Cron Log (journal): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
     return data_headers, data_list, '\n'.join(read)
 
 
