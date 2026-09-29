@@ -260,5 +260,60 @@ class SuJournalTest(unittest.TestCase):
         self.assertEqual((len(rows), source, log.called), (1, path, False))
 
 
+class PkexecJournalTest(unittest.TestCase):
+    CMD = 'parallels: Executing command [USER=root] [TTY=unknown] [CWD=/home/parallels] [COMMAND=/usr/bin/true a b]'
+
+    def test_command_entries_and_counts(self):
+        entries = [(T0 + 2, 'pkexec', 'bob: Error executing command as another user: Not authorized [USER=root] '
+                    '[TTY=/dev/pts/0] [CWD=/tmp] [COMMAND=/bin/sh]', '41'),
+                   (T0 + 1, 'pkexec', self.CMD, '40'),
+                   (T0 + 3, 'pkexec', 'pam_unix(polkit-1:session): session opened for user root(uid=0) by '
+                    'parallels(uid=1000)', None),
+                   (T0 + 4, 'pkexec', self.CMD, None),
+                   (T0 + 5, 'PKEXEC', self.CMD, '1'), (T0 + 6, '/usr/bin/pkexec', self.CMD, '1'),
+                   (T0 + 7, 'sudo', self.CMD, '1'), (T0 + 8, None, self.CMD, '1')]
+        counts = Counter()
+        rows = linuxPkexec.journal_command_rows([('j', systemd_journal.JournalFile(journal_bytes(entries)))], counts)
+        at = lambda s: datetime.fromtimestamp(T0 + s, UTC)
+        cmd = ('parallels', 'Executing command', 'root', 'unknown', '/home/parallels', '/usr/bin/true a b')
+        self.assertEqual(rows, [(at(1), 'vm', '40', *cmd, BOOT.hex(), 'j'),
+                                (at(2), 'vm', '41', 'bob', 'Error executing command as another user: Not authorized',
+                                 'root', '/dev/pts/0', '/tmp', '/bin/sh', BOOT.hex(), 'j'),
+                                (at(4), 'vm', '', *cmd, BOOT.hex(), 'j')])
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 4, 'pkexec entries in other forms, not reported': 1})
+
+    def test_artifact(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log', 'journal', 'm')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('system.journal', journal_bytes([(T0, 'pkexec', self.CMD, '9')])),
+                               ('user-1000.journal', journal_bytes([(T0, 'su', 'x', '8')])),
+                               ('broken.journal', b'not a journal')):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            files.append(folder)
+            with mock.patch.object(linuxPkexec, 'logfunc') as log:
+                headers, rows, source = linuxPkexec.linuxPkexecJournal.__wrapped__(FakeContext(files, root))
+        self.assertEqual(headers, (('Time (UTC)', 'datetime'), 'Hostname', 'Process ID', 'User', 'Message', 'Run As',
+                                   'TTY', 'Working Directory', 'Command', 'Boot ID', 'Source File'))
+        self.assertEqual([r[1:] for r in rows], [('vm', '9', 'parallels', 'Executing command', 'root', 'unknown',
+                                                  '/home/parallels', '/usr/bin/true a b', BOOT.hex(),
+                                                  os.path.join('var', 'log', 'journal', 'm', 'system.journal'))])
+        self.assertEqual(source, os.path.join(folder, 'system.journal'))
+        self.assertEqual(log.call_args.args[0], 'pkexec Commands (journal): 1 entries of other programs, '
+                                                '1 journal files not read (JournalError)')
+
+    def test_nothing_logged_when_every_entry_is_a_row(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'system.journal')
+            with open(path, 'wb') as handle:
+                handle.write(journal_bytes([(T0, 'pkexec', self.CMD, '9')]))
+            with mock.patch.object(linuxPkexec, 'logfunc') as log:
+                _headers, rows, source = linuxPkexec.linuxPkexecJournal.__wrapped__(FakeContext([path], root))
+        self.assertEqual((len(rows), source, log.called), (1, path, False))
+
+
 if __name__ == '__main__':
     unittest.main()

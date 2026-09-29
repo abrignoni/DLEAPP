@@ -1,4 +1,4 @@
-"""Commands pkexec logged in a Linux syslog file (auth.log or secure), for DLEAPP.
+"""Commands pkexec logged in a Linux syslog file (auth.log or secure) or in the systemd journal, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -19,8 +19,9 @@ __artifacts_v2__ = {
                  "asked to run, in file order; Line is its line number in the file and Source File the file, and "
                  "the files that held a row are named in the report's located-at line. Other lines, among them the "
                  "PAM lines pkexec's modules write (PAM Sessions reports the session ones), and lines in neither "
-                 "syslog file format described below, are counted in the run log and not reported. Messages kept "
-                 "only in the systemd journal, or written to another file, are not read. A line is read in either "
+                 "syslog file format described below, are counted in the run log and not reported. pkexec Commands "
+                 "(journal) reports the commands kept only in the systemd journal, and messages written to another "
+                 "file are not read. A line is read in either "
                  "of rsyslog's two file formats, an RFC 3339 time with a UTC offset (rsyslog 8.2512.0, "
                  "tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
@@ -82,14 +83,116 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (its auth.log holds no pkexec line)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 2 rows",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 2 rows",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 2 rows",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 2 rows",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "linuxPkexecJournal": {
+        "name": "pkexec Commands (journal)",
+        "description": "Commands pkexec logged in the systemd journal, with the user who ran pkexec, its message, "
+                       "the user the command was to run as, the terminal, the working directory, the command and "
+                       "the boot's ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "Command Line (pkexec)",
+        "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
+                 "SYSLOG_IDENTIFIER is pkexec and whose MESSAGE is a command in the form pkexec Commands "
+                 "describes, read with the same reader as systemd Journal (scripts/systemd_journal.py) and in the "
+                 "way Cron Log (journal) reads its entries: journald keeps the name in a syslog line's tag as "
+                 "SYSLOG_IDENTIFIER, the process ID in its brackets as SYSLOG_PID and the text after the tag as "
+                 "MESSAGE (Reference: systemd, 'journald-syslog.c', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L204-L262, "
+                 "with the fields written at "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L433-L464), "
+                 "the first value of a field an entry holds more than once is read, an entry that more than one "
+                 "file holds is read once, and rows are in order of Time (UTC), then boot ID, time since boot and "
+                 "sequence number. User, Message, Run As, TTY, Working Directory and Command have the meanings and "
+                 "references given for pkexec Commands and are read from MESSAGE; Process ID is SYSLOG_PID, and it "
+                 "equals the journal's own _PID field on every row of the tested images. Time (UTC) is the entry's "
+                 "realtime, the time journald received it (Reference: systemd, 'systemd.journal-fields', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L642-L651); "
+                 "Hostname is the entry's _HOSTNAME field, Boot ID the boot the entry names and Source File the "
+                 "journal file the entry was read from. Entries of other programs, the name being compared "
+                 "exactly, pkexec entries in other forms, entries read a second time, and journal files that could "
+                 "not be read or whose header sets an incompatible flag the reader does not know are counted in "
+                 "the run log and not reported. On each of the three tested images holding journal files the 2 "
+                 "pkexec entries in other forms were pam_unix session opened lines for root, which carry no "
+                 "SYSLOG_PID. ubuntu2604_arm64_journal, ubuntu2604_arm64_usb and ubuntu2604_arm64_usbstorage, "
+                 "captures of the same VM, hold the same 2 rows, from 2 boots, both Executing command lines, and "
+                 "Hostname, User, Message, Run As, TTY, Working Directory and Command each held one value on every "
+                 "row: Message Executing command, Run As root and TTY unknown. Four captures of that VM's auth.log "
+                 "were compared with this artifact, matching rows on Process ID, User, Message, Run As, TTY, "
+                 "Working Directory and Command with times less than 1 s apart: both pkexec Commands rows of "
+                 "ubuntu2604_arm64_authlog and of ubuntu2604_arm64_triage were matched by rows of "
+                 "ubuntu2604_arm64_journal, those of ubuntu2604_arm64_shutdown by rows of "
+                 "ubuntu2604_arm64_usbstorage and those of ubuntu2604_arm64_cron by rows of ubuntu2604_arm64_usb, "
+                 "and no row here was left unmatched. On every matched row Time (UTC) here was earlier than the "
+                 "auth.log line's, by 0.000100 to 0.00011 s. No tested image held an entry in two files, and the "
+                 "unit tests exercise it. No member of the other 28 tested images matches the declared paths.",
+        "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
+                  '*/run/log/journal/*.journal~'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "terminal",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 2 rows",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 2 rows",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 2 rows",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -99,7 +202,7 @@ import re
 from collections import Counter
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.linux_syslog import program_lines, read_file
+from scripts.linux_syslog import journal_entries, journal_sources, program_lines, read_file, read_journals
 
 _PROGRAM = 'pkexec'
 # "<user who ran pkexec>: <message> [USER=<run as>] [TTY=<terminal>] [CWD=<directory>] [COMMAND=<command>]"
@@ -146,3 +249,30 @@ def linuxPkexec(context):
     if problems:
         logfunc('pkexec Commands: ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
     return data_headers, data_list, '\n'.join(read)
+
+
+def journal_command_rows(journals, counts):
+    """(time, host, process ID, user, message, run as, tty, cwd, command, boot ID, source) for each pkexec command
+    entry in these journal files, oldest first; journals: (relative path, JournalFile). An entry two files hold is
+    read once."""
+    rows = []
+    for when, host, _program, pid, message, boot, relative in journal_entries(
+            journals, lambda program: program == _PROGRAM, counts):
+        fields = command_fields(message)
+        if fields is None:
+            counts['pkexec entries in other forms, not reported'] += 1
+            continue
+        rows.append((when, host, pid, *fields, boot, relative))
+    return rows
+
+
+@artifact_processor
+def linuxPkexecJournal(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Process ID', 'User', 'Message', 'Run As', 'TTY',
+                    'Working Directory', 'Command', 'Boot ID', 'Source File')
+    counts = Counter()
+    journals, staged = read_journals(context, counts)
+    data_list = journal_command_rows(journals, counts)
+    if counts:
+        logfunc('pkexec Commands (journal): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
+    return data_headers, data_list, journal_sources(data_list, staged)
