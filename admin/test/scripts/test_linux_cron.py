@@ -218,6 +218,16 @@ class JournalRowsTest(unittest.TestCase):
         rows = linuxCron.journal_cron_rows([('a', systemd_journal.JournalFile(writer.bytes()))], counts)
         self.assertEqual(([r[6] for r in rows], counts), (['twice', 'twice'], Counter()))
 
+    def test_a_sequence_number_two_files_share_is_one_entry_only_with_the_same_boot_and_message(self):
+        entry = syslog_entry('CRON', '(a) CMD (x)')
+        other = syslog_entry('CRON', '(a) CMD (y)')
+        first = journal([(T0, 1, entry, BOOT_1, 5)])
+        second = journal([(T0, 1, entry, BOOT_2, 5)])
+        third = journal([(T0, 1, other, BOOT_1, 5)])
+        counts = Counter()
+        rows = linuxCron.journal_cron_rows([('a', first), ('b', second), ('c', third)], counts)
+        self.assertEqual((len(rows), counts), (3, Counter()))
+
     def test_equal_time_boot_and_monotonic_keep_sequence_order(self):
         writer = jw.JournalWriter(boot_id=BOOT_1)
         for seqnum, detail in ((9, 'nine'), (3, 'three')):

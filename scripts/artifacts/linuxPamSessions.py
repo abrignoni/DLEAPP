@@ -1,4 +1,5 @@
-"""Sessions pam_unix logged opening and closing in a Linux syslog file (auth.log or secure), for DLEAPP.
+"""Sessions pam_unix logged opening and closing in a Linux syslog file (auth.log or secure) and in the systemd journal,
+for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -18,8 +19,9 @@ __artifacts_v2__ = {
                  "session being opened or closed, whatever program wrote it, in file order; Line is its line "
                  "number in the file and Source File the file, and the files that held a row are named in the "
                  "report's located-at line. Other lines, and lines in neither syslog file format described below, "
-                 "are counted in the run log and not reported. Messages kept only in the systemd journal, or "
-                 "written to another file, are not read. A line is read in either of rsyslog's two file formats, "
+                 "are counted in the run log and not reported. PAM Sessions (journal) reports the session lines "
+                 "kept only in the systemd journal, and messages written to another file are not read. A line is "
+                 "read in either of rsyslog's two file formats, "
                  "an RFC 3339 time with a UTC offset (rsyslog 8.2512.0, tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
                  "or a month, day and time with no year and no zone (tools/smtradfile.c, "
@@ -91,12 +93,117 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 18 rows",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 1404 rows",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 1494 rows",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 1454 rows",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 1370 rows",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "linuxPamSessionsJournal": {
+        "name": "PAM Sessions (journal)",
+        "description": "Sessions pam_unix logged opening and closing in the systemd journal, whatever program sent "
+                       "the entry, with the service, user and IDs the entry gives and the boot's ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "Logins (Linux)",
+        "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
+                 "MESSAGE is a pam_unix session line in a form PAM Sessions describes, whatever its "
+                 "SYSLOG_IDENTIFIER, read with the same reader as systemd Journal (scripts/systemd_journal.py) and "
+                 "in the way Cron Log (journal) reads its entries: journald keeps the name in a syslog line's tag "
+                 "as SYSLOG_IDENTIFIER, the process ID in its brackets as SYSLOG_PID and the text after the tag as "
+                 "MESSAGE (Reference: systemd, 'journald-syslog.c', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L204-L262, "
+                 "with the fields written at "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L433-L464), "
+                 "the first value of a field an entry holds more than once is read, an entry that more than one "
+                 "file holds is read once, and rows are in order of Time (UTC), then boot ID, time since boot and "
+                 "sequence number. Program is SYSLOG_IDENTIFIER and Process ID SYSLOG_PID, blank for an entry that "
+                 "carries none, as those of the programs PAM Sessions names as writing no process ID do; Service, "
+                 "Session Event, User, UID, Login Name and Process UID have the meanings and references given for "
+                 "PAM Sessions and are read from MESSAGE. Time (UTC) is the entry's realtime, the time journald "
+                 "received it (Reference: systemd, 'systemd.journal-fields', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L642-L651); "
+                 "Hostname is the entry's _HOSTNAME field, Boot ID the boot the entry names and Source File the "
+                 "journal file the entry was read from. Entries that are not pam_unix session lines, pam_unix "
+                 "session entries in no known form, entries read a second time, and journal files that could not "
+                 "be read or whose header sets an incompatible flag the reader does not know are counted in the "
+                 "run log and not reported. ubuntu2604_arm64_journal holds 1,579 rows (798 opened and 781 closed), "
+                 "ubuntu2604_arm64_usb 1,693 and ubuntu2604_arm64_usbstorage 2,527, from 8 boots and 10 programs "
+                 "on each; Process ID is blank on 192, 192 and 194 of them, and Hostname held one value on every "
+                 "row of each tested image. Four captures of auth.log from the VM these three journals come from "
+                 "were compared with this artifact, matching rows on Program, Process ID, Service, Session Event, "
+                 "User, UID, Login Name and Process UID with times less than 1 s apart: every one of the 1,404 PAM "
+                 "Sessions rows of ubuntu2604_arm64_authlog and the 1,370 of ubuntu2604_arm64_triage was matched "
+                 "by a row of ubuntu2604_arm64_journal, the 1,454 of ubuntu2604_arm64_shutdown by rows of "
+                 "ubuntu2604_arm64_usbstorage and the 1,494 of ubuntu2604_arm64_cron by rows of "
+                 "ubuntu2604_arm64_usb. Between each capture's first and last session line the journal holds 3 "
+                 "rows with no auth.log line, all logged after systemd's Stopped rsyslog.service entry and before "
+                 "its next Starting rsyslog.service entry; the other journal rows with no match are later than the "
+                 "capture's last session line. On every matched row Time (UTC) here was earlier than the auth.log "
+                 "line's, by 0.000003 to 0.0079 s. No tested image held an entry in two files, and the unit tests "
+                 "exercise it. No member of the other 28 tested images matches the declared paths.",
+        "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
+                  '*/run/log/journal/*.journal~'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "log-in",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 1579 rows",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 1693 rows",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 2527 rows",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -106,7 +213,7 @@ import re
 from collections import Counter
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.linux_syslog import read_file, reported_time, syslog_lines
+from scripts.linux_syslog import journal_entries, journal_sources, read_file, read_journals, reported_time, syslog_lines
 
 # libpam prefixes a module's message with "<module>(<service>:<function>): ".
 _SESSION = re.compile(r'pam_unix\(([^()]*):session\): session (opened|closed) for user (.*)', re.DOTALL)
@@ -169,3 +276,29 @@ def linuxPamSessions(context):
     if problems:
         logfunc('PAM Sessions: ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
     return data_headers, data_list, '\n'.join(read)
+
+
+def journal_session_rows(journals, counts):
+    """(time, host, program, process ID, service, event, user, UID, login name, process UID, boot ID, source) for each
+    pam_unix session entry in these journal files, whatever program sent it, oldest first."""
+    rows = []
+    for when, host, program, pid, message, boot, relative in journal_entries(journals, lambda program: True, counts):
+        fields = session_fields(message)
+        if fields is None:
+            counts['pam_unix session entries in no known form, not reported' if _SESSION.fullmatch(message) else
+                   'entries that are not pam_unix session lines, not reported'] += 1
+            continue
+        rows.append((when, host, program, pid, *fields, boot, relative))
+    return rows
+
+
+@artifact_processor
+def linuxPamSessionsJournal(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'Process ID', 'Service', 'Session Event', 'User',
+                    'UID', 'Login Name', 'Process UID', 'Boot ID', 'Source File')
+    counts = Counter()
+    journals, staged = read_journals(context, counts)
+    data_list = journal_session_rows(journals, counts)
+    if counts:
+        logfunc('PAM Sessions (journal): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
+    return data_headers, data_list, journal_sources(data_list, staged)
