@@ -85,7 +85,11 @@ __artifacts_v2__ = {
                  "partitions under a profile's Storage folder, and WebView2 or Electron app profiles such "
                  "as EBWebView folders, which share the layout but sit in other applications' folders. "
                  "Chromium source is cited at commit 33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the "
-                 "Chrome 65 release, at abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
+                 "Chrome 65 release, at abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Login Data*',
             '*/Library/Application Support/Google/Chrome/*/Login Data*',
@@ -93,6 +97,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Login Data*',
             '*/Library/Application Support/Chromium/*/Login Data*',
             '*/.config/chromium/*/Login Data*',
+            '*/webbrowser/chrome/*/Login Data*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Login Data*',
             '*/Library/Application Support/Microsoft Edge/*/Login Data*',
             '*/.config/microsoft-edge/*/Login Data*',

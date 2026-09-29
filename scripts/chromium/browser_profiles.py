@@ -21,6 +21,11 @@ data folder itself as the profile, an empty profile id appended to the folder:
   https://github.com/brave/brave-core/blob/c3c208b50d4198b432b0fd3956e8e19bd5fb5fbb/chromium_src/chrome/browser/importer/importer_list.cc#L49-L50
 So a store directly inside a user data folder is read too, and its profile is
 named after that folder.
+
+webOS webbrowser is the folder webbrowser/chrome that an LG webOS TV keeps on
+the volume it mounts at /mnt/lg/cmn_data, field mapped from a private sample;
+which app writes it is not established, and it sits in no home folder, so its
+user is blank.
 """
 
 import datetime
@@ -51,6 +56,7 @@ BROWSER_ROOTS = (
     ('Opera', ('AppData', 'Roaming', 'Opera Software', 'Opera Stable')),
     ('Opera', ('Library', 'Application Support', 'com.operasoftware.Opera')),
     ('Opera', ('.config', 'opera')),
+    ('webOS webbrowser', ('webbrowser', 'chrome')),
 )
 
 # The folders whose parent is a user's home folder.

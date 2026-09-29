@@ -102,7 +102,11 @@ __artifacts_v2__ = {
                  "System/Volumes/Data/Users/, a store whose second copy is byte-identical, with any "
                  "-journal or -wal beside it, is read once and counted in the run log, and copies that "
                  "differ are both read. Values not reported include the meta table and the "
-                 "favicon_bitmaps rows of icons no page URL maps to.",
+                 "favicon_bitmaps rows of icons no page URL maps to."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Favicons*',
             '*/Library/Application Support/Google/Chrome/*/Favicons*',
@@ -110,6 +114,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Favicons*',
             '*/Library/Application Support/Chromium/*/Favicons*',
             '*/.config/chromium/*/Favicons*',
+            '*/webbrowser/chrome/*/Favicons*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Favicons*',
             '*/Library/Application Support/Microsoft Edge/*/Favicons*',
             '*/.config/microsoft-edge/*/Favicons*',
@@ -131,6 +136,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/History*',
             '*/Library/Application Support/Chromium/*/History*',
             '*/.config/chromium/*/History*',
+            '*/webbrowser/chrome/*/History*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/History*',
             '*/Library/Application Support/Microsoft Edge/*/History*',
             '*/.config/microsoft-edge/*/History*',

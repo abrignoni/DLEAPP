@@ -97,7 +97,11 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/history_backend.cc#L1577). "
                  "Chromium source is cited at "
                  "commit 33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
-                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
+                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -105,6 +109,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/History*',
             '*/Library/Application Support/Chromium/*/History*',
             '*/.config/chromium/*/History*',
+            '*/webbrowser/chrome/*/History*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/History*',
             '*/Library/Application Support/Microsoft Edge/*/History*',
             '*/.config/microsoft-edge/*/History*',
@@ -205,7 +210,11 @@ __artifacts_v2__ = {
                  "Electron app profiles such as EBWebView folders, which share the layout but sit in other "
                  "applications' folders. Chromium source is cited at commit "
                  "33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
-                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
+                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -213,6 +222,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/History*',
             '*/Library/Application Support/Chromium/*/History*',
             '*/.config/chromium/*/History*',
+            '*/webbrowser/chrome/*/History*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/History*',
             '*/Library/Application Support/Microsoft Edge/*/History*',
             '*/.config/microsoft-edge/*/History*',
@@ -335,7 +345,11 @@ __artifacts_v2__ = {
                  "Electron app profiles such as EBWebView folders, which share the layout but sit in other "
                  "applications' folders. Chromium source is cited at commit "
                  "33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
-                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
+                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -343,6 +357,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/History*',
             '*/Library/Application Support/Chromium/*/History*',
             '*/.config/chromium/*/History*',
+            '*/webbrowser/chrome/*/History*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/History*',
             '*/Library/Application Support/Microsoft Edge/*/History*',
             '*/.config/microsoft-edge/*/History*',
@@ -442,7 +457,11 @@ __artifacts_v2__ = {
                  "Electron app profiles such as EBWebView folders, which share the layout but sit in other "
                  "applications' folders. Chromium source is cited at commit "
                  "33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the Chrome 65 release, at "
-                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag.",
+                 "abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -450,6 +469,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/History*',
             '*/Library/Application Support/Chromium/*/History*',
             '*/.config/chromium/*/History*',
+            '*/webbrowser/chrome/*/History*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/History*',
             '*/Library/Application Support/Microsoft Edge/*/History*',
             '*/.config/microsoft-edge/*/History*',
@@ -471,6 +491,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Web Data*',
             '*/Library/Application Support/Chromium/*/Web Data*',
             '*/.config/chromium/*/Web Data*',
+            '*/webbrowser/chrome/*/Web Data*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Web Data*',
             '*/Library/Application Support/Microsoft Edge/*/Web Data*',
             '*/.config/microsoft-edge/*/Web Data*',

@@ -76,7 +76,11 @@ __artifacts_v2__ = {
                  "The Chrome 65 source has no such limit, and lonewolf_win10's Chrome profile held 10,747 "
                  "rows. So an absent pair is not evidence that the text was never entered. Not read: the "
                  "resource_prefetch_predictor tables in the same database, which hold Chromium's page "
-                 "loading predictions.",
+                 "loading predictions."
+                 " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
+                 " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
+                 " mapped from a private sample); which app writes it is not established, and User is blank for it,"
+                 " since it sits in no home folder.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Network Action Predictor*',
             '*/Library/Application Support/Google/Chrome/*/Network Action Predictor*',
@@ -84,6 +88,7 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Network Action Predictor*',
             '*/Library/Application Support/Chromium/*/Network Action Predictor*',
             '*/.config/chromium/*/Network Action Predictor*',
+            '*/webbrowser/chrome/*/Network Action Predictor*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Network Action Predictor*',
             '*/Library/Application Support/Microsoft Edge/*/Network Action Predictor*',
             '*/.config/microsoft-edge/*/Network Action Predictor*',
