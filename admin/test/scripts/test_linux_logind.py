@@ -1,6 +1,6 @@
 """Pin how the Login Sessions (logind) and Power Events (logind) artifacts read systemd-logind's lines in auth.log
-and secure, and how Login Sessions (logind, journal) reads its entries in the systemd journal (files written with
-journal_writer.py)."""
+and secure, and how Login Sessions (logind, journal) and Power Events (logind, journal) read its entries in the
+systemd journal (files written with journal_writer.py)."""
 import os
 import pathlib
 import sys
@@ -277,6 +277,58 @@ class SessionsJournalTest(unittest.TestCase):
                 handle.write(journal_bytes([(T0, 'systemd-logind', 'Removed session 4.', '700', None)]))
             with mock.patch.object(linuxLogind, 'logfunc') as log:
                 _headers, rows, source = linuxLogind.linuxLogindSessionsJournal.__wrapped__(FakeContext([path], root))
+        self.assertEqual((len(rows), source, log.called), (1, path, False))
+
+
+
+class PowerJournalTest(unittest.TestCase):
+    def test_power_entries_and_counts(self):
+        entries = [(T0 + 2, 'systemd-logind', 'System is rebooting.', '700', None),
+                   (T0 + 1, 'systemd-logind', 'The system will reboot now!', '700', '9'),
+                   (T0 + 3, 'systemd-logind', 'New seat seat0.', '701', None),
+                   (T0 + 4, 'systemd-logind', 'System is powering down (maintenance).', '701', None),
+                   (T0 + 5, 'systemd-logind', 'Removed session 4.', '701', None),
+                   (T0 + 6, 'sshd', 'System is rebooting.', '800', None),
+                   (T0 + 7, 'Systemd-Logind', 'System is rebooting.', '700', None)]
+        counts = Counter()
+        rows = linuxLogind.journal_power_rows([('j', systemd_journal.JournalFile(journal_bytes(entries)))], counts)
+        at = lambda s: datetime.fromtimestamp(T0 + s, UTC)
+        self.assertEqual(rows, [
+            (at(1), 'vm', '700', 'warning', 'now', '', 'The system will reboot now!', BOOT.hex(), 'j'),
+            (at(2), 'vm', '700', 'shutdown', '', '', 'System is rebooting.', BOOT.hex(), 'j'),
+            (at(3), 'vm', '701', 'seat started', '', '', 'New seat seat0.', BOOT.hex(), 'j'),
+            (at(4), 'vm', '701', 'shutdown', '', 'maintenance', 'System is powering down (maintenance).', BOOT.hex(), 'j')])
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 2, 'systemd-logind entries in other forms, not reported': 1})
+
+    def test_artifact(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log', 'journal', 'm')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('system.journal', journal_bytes([(T0, 'systemd-logind', 'New seat seat0.', '700', None)])),
+                               ('user-1000.journal', journal_bytes([(T0, 'su', 'x', '1', None)])),
+                               ('broken.journal', b'not a journal')):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            files.append(folder)
+            with mock.patch.object(linuxLogind, 'logfunc') as log:
+                headers, rows, source = linuxLogind.linuxLogindPowerJournal.__wrapped__(FakeContext(files, root))
+        self.assertEqual(headers, (('Time (UTC)', 'datetime'), 'Hostname', 'Process ID', 'Event', 'Scheduled For',
+                                   'Wall Message', 'Message', 'Boot ID', 'Source File'))
+        self.assertEqual([r[1:] for r in rows], [('vm', '700', 'seat started', '', '', 'New seat seat0.', BOOT.hex(),
+                                                  os.path.join('var', 'log', 'journal', 'm', 'system.journal'))])
+        self.assertEqual(source, os.path.join(folder, 'system.journal'))
+        self.assertEqual(log.call_args.args[0], 'Power Events (logind, journal): 1 entries of other programs, '
+                                                '1 journal files not read (JournalError)')
+
+    def test_nothing_logged_when_every_entry_is_a_row(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'system.journal')
+            with open(path, 'wb') as handle:
+                handle.write(journal_bytes([(T0, 'systemd-logind', 'New seat seat0.', '700', None)]))
+            with mock.patch.object(linuxLogind, 'logfunc') as log:
+                _headers, rows, source = linuxLogind.linuxLogindPowerJournal.__wrapped__(FakeContext([path], root))
         self.assertEqual((len(rows), source, log.called), (1, path, False))
 
 
