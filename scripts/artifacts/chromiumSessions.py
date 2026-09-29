@@ -34,14 +34,16 @@ __artifacts_v2__ = {
                  "each held one value on every row of lonewolf_win10, which carries one Chrome profile in "
                  "one home folder, and User held one value on every row of pc_mus_001_win11, whose Chrome "
                  "and Edge profiles sit in one home folder. Only the Windows Google Chrome and Microsoft "
-                 "Edge folders were exercised by a registered image, and a private sample exercised the "
+                 "Edge folders and the Linux Chromium snap and Flatpak folders (ubuntu2604_arm64_chromium) were "
+                 "exercised by a registered image, and a private sample exercised the "
                  "macOS Google Chrome and Opera folders; the other browsers' folders are matched by the "
                  "same paths and were not exercised. A session file directly inside a user data folder's "
                  "Sessions folder is read with that folder as its profile; no registered image carries "
                  "one, and that branch was exercised on a constructed tree only. The file is the SNSS "
                  "signature, a version, then records of a 16-bit size and a command id followed by the "
                  "command's data, read with scripts/snss_parser.py. The files were version 1 on "
-                 "lonewolf_win10 and version 3 on pc_mus_001_win11. Chromium's storage code says version 1 "
+                 "lonewolf_win10 and version 3 on pc_mus_001_win11 and ubuntu2604_arm64_chromium. Chromium's "
+                 "storage code says version 1 "
                  "was used before commit 223e5cd on 2021-05-25 and names version 5 "
                  "kFileVersionEncryptedWithOSCrypt "
                  "(https://github.com/chromium/chromium/blob/a93bac421698a16f0417155675ec66d50e9becd2/components/sessions/core/command_storage_backend.cc#L46-L54), "
@@ -83,11 +85,11 @@ __artifacts_v2__ = {
                  "and "
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/ui/base/page_transition_types.h#L119-L155), "
                  "as in Chromium Web Visits; Referrer URL is the entry's referrer as stored. Every "
-                 "navigation record in the tested images' session and tab restore files, 1,282 of them, "
+                 "navigation record in the tested images' session and tab restore files, 1,286 of them, "
                  "decoded to the same tab id, index, URL, title, time, referrer, original request URL and "
                  "transition with CCL Group's separate reader, ccl_chromium_snss2 in ccl_chromium_reader "
-                 "0.3.18. The same tab and index can be written more than once in a file, as in both "
-                 "tested images, and Chromium's reader keeps the last record written for a tab and index "
+                 "0.3.18. The same tab and index can be written more than once in a file, as in pc_mus_001_win11 "
+                 "and lonewolf_win10, and Chromium's reader keeps the last record written for a tab and index "
                  "(https://github.com/chromium/chromium/blob/a93bac421698a16f0417155675ec66d50e9becd2/components/sessions/core/session_service_commands.cc#L692-L709); "
                  "Latest Record is Yes on that record and No on earlier ones. A record that repeats an "
                  "earlier record of the same file in every reported column is reported once: "
@@ -127,12 +129,36 @@ __artifacts_v2__ = {
                  "stored) keeps every value. Tab Last Active (as stored) was filled on 39 of "
                  "lonewolf_win10's 39 rows and 99 of pc_mus_001_win11's 101 rows, every value below that "
                  "point (the largest 830,543,246,219), so Tab Last Active (UTC) was blank on every row of "
-                 "both images, while a private sample written by Chrome 153 stored dates. On the tested "
-                 "images the addresses in these rows that were not in the same profile's History urls "
-                 "table were chrome:// pages, 2 on each image. Not reported: the other commands, among "
+                 "both images, while a private sample written by Chrome 153 stored dates. On "
+                 "ubuntu2604_arm64_chromium, written by Chromium 153 and 154, Tab Last Active (UTC) was filled on "
+                 "every row, each value 0.25 to 1.37 seconds after the known step that opened its page, both read "
+                 "from the VM's clock. On pc_mus_001_win11 and "
+                 "lonewolf_win10 the addresses in these rows that were not in the same profile's History urls "
+                 "table were chrome:// pages, 2 on each image; on ubuntu2604_arm64_chromium every address was in "
+                 "it. Not reported: the other commands, among "
                  "them window bounds, tab order, pinned state, tab groups and user agent overrides, and "
                  "ids outside Chromium's list, such as the 132 in the files of pc_mus_001_win11's "
                  "Microsoft Edge profile."
+                 " Chromium installed as a snap keeps its user data folder in snap/chromium/common/chromium in the "
+                 "home folder, because Chromium keeps it in a chromium folder inside CHROME_CONFIG_HOME, else "
+                 "XDG_CONFIG_HOME, else .config "
+                 "(Reference: Chromium, 'chrome_paths_linux.cc', "
+                 "https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101) "
+                 "and the snap's snap.yaml sets CHROME_CONFIG_HOME to the snap's common folder (measured on "
+                 "revision 3535); installed as a Flatpak from Flathub it keeps it in "
+                 ".var/app/org.chromium.Chromium/config/chromium, because Flatpak sets XDG_CONFIG_HOME to the "
+                 "config folder in the app's folder (Reference: flatpak 1.16.6, 'flatpak-context.c', "
+                 "https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175). "
+                 "Both are read as Chromium, measured on ubuntu2604_arm64_chromium, whose snap (Chromium "
+                 "153.0.8010.47) and Flatpak (Chromium 154.0.8037.57) each kept a Default profile there. Other "
+                 "browsers' Flatpaks are not read. A profile in a .config folder that is not directly in a home "
+                 "folder, such as a snap's snap/<name>/<revision>/.config, is matched by the .config paths and "
+                 "read with User blank. On ubuntu2604_arm64_chromium Browser, "
+                 "Profile and User each held one value, Chromium, Default and parallels, on every row."
+                 " On ubuntu2604_arm64_chromium Title, Transition Qualifiers and Referrer URL were blank on every "
+                 "row, and Transition held one value, AUTO_TOPLEVEL (6), and Navigation Index, Current Entry and "
+                 "Latest Record one value each, 0, Yes and Yes, on every row: each row is the only navigation of "
+                 "its own tab."
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
@@ -154,10 +180,16 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Chromium/*/Current Session',
             '*/Library/Application Support/Chromium/*/Last Session',
             '*/.config/chromium/*/Sessions*/Session_*',
+            '*/snap/chromium/common/chromium/*/Sessions*/Session_*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Sessions*/Session_*',
             '*/webbrowser/chrome/*/Sessions*/Session_*',
             '*/.config/chromium/*/Current Session',
+            '*/snap/chromium/common/chromium/*/Current Session',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Current Session',
             '*/webbrowser/chrome/*/Current Session',
             '*/.config/chromium/*/Last Session',
+            '*/snap/chromium/common/chromium/*/Last Session',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Last Session',
             '*/webbrowser/chrome/*/Last Session',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Sessions*/Session_*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Current Session',
@@ -213,6 +245,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 39 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 101 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 4 rows",
         },
     },
     "chromiumClosedTabs": {
@@ -233,7 +266,9 @@ __artifacts_v2__ = {
                  "Source File names the file each row came from. Browser, Profile and User each held one "
                  "value on every row of lonewolf_win10, which carries one Chrome profile in one home "
                  "folder, and User held one value on every row of pc_mus_001_win11, whose Chrome and Edge "
-                 "profiles sit in one home folder. The folders exercised are as in Chromium Session Tabs. "
+                 "profiles sit in one home folder. The folders exercised are as in Chromium Session Tabs, apart "
+                 "from the Linux Chromium snap and Flatpak folders, where ubuntu2604_arm64_chromium holds no tab "
+                 "restore file. "
                  "The file's framing and versions are as in Chromium Session Tabs: version 1 on "
                  "lonewolf_win10, version 3 on pc_mus_001_win11, and a version 5 file named in the run log "
                  "and not read (none on the tested images). Chromium's source describes the order: when "
@@ -298,6 +333,21 @@ __artifacts_v2__ = {
                  "table were chrome:// and edge:// pages, and one https address on pc_mus_001_win11. Not "
                  "reported: pinned state, tab group and split data, extension app ids, user agent "
                  "overrides and extra data."
+                 " Chromium installed as a snap keeps its user data folder in snap/chromium/common/chromium in the "
+                 "home folder, because Chromium keeps it in a chromium folder inside CHROME_CONFIG_HOME, else "
+                 "XDG_CONFIG_HOME, else .config "
+                 "(Reference: Chromium, 'chrome_paths_linux.cc', "
+                 "https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101) "
+                 "and the snap's snap.yaml sets CHROME_CONFIG_HOME to the snap's common folder (measured on "
+                 "revision 3535); installed as a Flatpak from Flathub it keeps it in "
+                 ".var/app/org.chromium.Chromium/config/chromium, because Flatpak sets XDG_CONFIG_HOME to the "
+                 "config folder in the app's folder (Reference: flatpak 1.16.6, 'flatpak-context.c', "
+                 "https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175). "
+                 "Both are read as Chromium, measured on ubuntu2604_arm64_chromium, whose snap (Chromium "
+                 "153.0.8010.47) and Flatpak (Chromium 154.0.8037.57) each kept a Default profile there. Other "
+                 "browsers' Flatpaks are not read. A profile in a .config folder that is not directly in a home "
+                 "folder, such as a snap's snap/<name>/<revision>/.config, is matched by the .config paths and "
+                 "read with User blank."
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
@@ -319,10 +369,16 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Chromium/*/Current Tabs',
             '*/Library/Application Support/Chromium/*/Last Tabs',
             '*/.config/chromium/*/Sessions*/Tabs_*',
+            '*/snap/chromium/common/chromium/*/Sessions*/Tabs_*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Sessions*/Tabs_*',
             '*/webbrowser/chrome/*/Sessions*/Tabs_*',
             '*/.config/chromium/*/Current Tabs',
+            '*/snap/chromium/common/chromium/*/Current Tabs',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Current Tabs',
             '*/webbrowser/chrome/*/Current Tabs',
             '*/.config/chromium/*/Last Tabs',
+            '*/snap/chromium/common/chromium/*/Last Tabs',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Last Tabs',
             '*/webbrowser/chrome/*/Last Tabs',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Sessions*/Tabs_*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Current Tabs',
@@ -378,6 +434,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 267 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 711 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (no member matches the declared paths)",
         },
     },
 }

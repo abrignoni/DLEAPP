@@ -54,7 +54,8 @@ __artifacts_v2__ = {
                  "on every row of "
                  "pc_mus_001_win11 and was 0, 2 or 3 on lonewolf_win10. Blocklisted held one value, No, on "
                  "every row of pc_mus_001_win11 and was Yes on 1 of the 6 rows of lonewolf_win10, the one "
-                 "row with no Username. Store held one value, Login Data, on every row of both images: the "
+                 "row with no Username. Store held one value, Login Data, on every row of pc_mus_001_win11 and "
+                 "lonewolf_win10: the "
                  "four Login Data For Account databases of pc_mus_001_win11 held no rows. Browser held one "
                  "value, Google Chrome, on every row of pc_mus_001_win11, whose Microsoft Edge Login Data "
                  "held no rows. A database left with a rollback journal that SQLite treats as hot cannot "
@@ -70,7 +71,8 @@ __artifacts_v2__ = {
                  "Vivaldi and Opera on Windows, macOS and Linux, and a store directly inside an "
                  "Opera user data folder is reported with that folder as its Profile. Only the "
                  "Windows Google Chrome and "
-                 "Microsoft Edge folders were exercised by a registered image; a constructed tree "
+                 "Microsoft Edge folders and the Linux Chromium snap and Flatpak folders were exercised by a "
+                 "registered image, the last two by ubuntu2604_arm64_chromium; a constructed tree "
                  "exercised the Brave macOS, Vivaldi Linux and Opera Windows folders, the last with its "
                  "profile kept directly in the user data folder, and the remaining folders were "
                  "exercised by neither. "
@@ -86,6 +88,21 @@ __artifacts_v2__ = {
                  "as EBWebView folders, which share the layout but sit in other applications' folders. "
                  "Chromium source is cited at commit 33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and, for the "
                  "Chrome 65 release, at abb5172872b726072a64dfabaf45894c6ecf7369, the 65.0.3325.181 tag."
+                 " Chromium installed as a snap keeps its user data folder in snap/chromium/common/chromium in the "
+                 "home folder, because Chromium keeps it in a chromium folder inside CHROME_CONFIG_HOME, else "
+                 "XDG_CONFIG_HOME, else .config "
+                 "(Reference: Chromium, 'chrome_paths_linux.cc', "
+                 "https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101) "
+                 "and the snap's snap.yaml sets CHROME_CONFIG_HOME to the snap's common folder (measured on "
+                 "revision 3535); installed as a Flatpak from Flathub it keeps it in "
+                 ".var/app/org.chromium.Chromium/config/chromium, because Flatpak sets XDG_CONFIG_HOME to the "
+                 "config folder in the app's folder (Reference: flatpak 1.16.6, 'flatpak-context.c', "
+                 "https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175). "
+                 "Both are read as Chromium, measured on ubuntu2604_arm64_chromium, whose snap (Chromium "
+                 "153.0.8010.47) and Flatpak (Chromium 154.0.8037.57) each kept a Default profile there. Other "
+                 "browsers' Flatpaks are not read. A profile in a .config folder that is not directly in a home "
+                 "folder, such as a snap's snap/<name>/<revision>/.config, is matched by the .config paths and "
+                 "read with User blank."
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
@@ -97,6 +114,8 @@ __artifacts_v2__ = {
             '*/AppData/Local/Chromium/User Data/*/Login Data*',
             '*/Library/Application Support/Chromium/*/Login Data*',
             '*/.config/chromium/*/Login Data*',
+            '*/snap/chromium/common/chromium/*/Login Data*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Login Data*',
             '*/webbrowser/chrome/*/Login Data*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Login Data*',
             '*/Library/Application Support/Microsoft Edge/*/Login Data*',
@@ -122,6 +141,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

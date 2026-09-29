@@ -14,6 +14,17 @@ Where each browser keeps its user data folder:
   https://github.com/brave/brave-core/blob/c3c208b50d4198b432b0fd3956e8e19bd5fb5fbb/common/importer/chrome_importer_utils_mac.mm#L33-L68
   https://github.com/brave/brave-core/blob/c3c208b50d4198b432b0fd3956e8e19bd5fb5fbb/common/importer/chrome_importer_utils_linux.cc#L45-L130
 
+Chromium installed as a snap or as a Flatpak: Chromium puts its user data
+folder in $CHROME_CONFIG_HOME, else $XDG_CONFIG_HOME, else ~/.config
+(chrome_paths_linux.cc, lines 62 to 101, at the 153.0.8010.47 tag,
+  https://github.com/chromium/chromium/blob/73934a44f61e6b3878d1943064c141a5a820f5f7/chrome/common/chrome_paths_linux.cc#L62-L101
+). The chromium snap sets CHROME_CONFIG_HOME to $SNAP_USER_COMMON (its snap.yaml,
+measured on revision 3535), so the folder is ~/snap/chromium/common/chromium;
+Flatpak sets XDG_CONFIG_HOME to the config folder in the app's own folder (flatpak-context.c,
+lines 3168 to 3175, at the 1.16.6 tag,
+  https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175
+), so Flathub's Chromium keeps it in ~/.var/app/org.chromium.Chromium/config/chromium.
+
 Each profile is a folder inside the user data folder (Default, Profile 2, ...).
 When a browser's Local State lists no profile, Brave's importer reads the user
 data folder itself as the profile, an empty profile id appended to the folder:
@@ -44,6 +55,8 @@ BROWSER_ROOTS = (
     ('Chromium', ('AppData', 'Local', 'Chromium', 'User Data')),
     ('Chromium', ('Library', 'Application Support', 'Chromium')),
     ('Chromium', ('.config', 'chromium')),
+    ('Chromium', ('snap', 'chromium', 'common', 'chromium')),
+    ('Chromium', ('.var', 'app', 'org.chromium.Chromium', 'config', 'chromium')),
     ('Microsoft Edge', ('AppData', 'Local', 'Microsoft', 'Edge', 'User Data')),
     ('Microsoft Edge', ('Library', 'Application Support', 'Microsoft Edge')),
     ('Microsoft Edge', ('.config', 'microsoft-edge')),
