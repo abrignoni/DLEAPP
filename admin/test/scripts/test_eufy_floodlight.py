@@ -23,11 +23,16 @@ UTC = timezone.utc
 T0 = 1759000000000                              # 2025-09-27 19:06:40 UTC, in milliseconds
 
 
-def record(kind, ms, payload_extra=40):
-    """One XZYH record: magic, type, a byte, a 4-byte length, 6 bytes, then the payload."""
+def record(kind, ms, payload_extra=40, aac=True):
+    """One XZYH record: magic, type, a byte, a 4-byte length, 6 bytes, then the payload.
+
+    An audio record's data (after its 16-byte sub-header) is a stand-in ADTS frame when
+    aac is set, so extract_aac collects it; a made-up header, enough for the sync check."""
     at = {0x14: 30, 0x15: 24}[kind] - 16
     payload = bytearray(at + 8 + payload_extra)
     struct.pack_into('<Q', payload, at, ms)
+    if kind == 0x15 and aac and len(payload) >= 16 + 7:
+        payload[16:16 + 7] = b'\xff\xf1\x60\x40\x00\x00\x00'
     return b'XZYH' + bytes([kind, 5]) + struct.pack('<I', len(payload)) + bytes(6) + bytes(payload)
 
 
@@ -67,6 +72,26 @@ class RecordingTest(unittest.TestCase):
     def test_a_file_with_the_magic_but_broken_records_keeps_its_size(self):
         row = eufyFloodlight.recording_row('20250927130640.dat', recording(T0)[:-5])
         self.assertEqual(row[6:8], ('records not read', len(recording(T0)) - 5))
+
+
+class AacTest(unittest.TestCase):
+    def test_the_adts_frames_of_the_audio_records_are_concatenated_in_order(self):
+        data = recording(T0)
+        aac = eufyFloodlight.extract_aac(data)
+        # three audio records, each contributing its whole 40-byte data region as one ADTS frame
+        self.assertEqual(len(aac), 3 * 40)
+        self.assertTrue(aac.startswith(b'\xff\xf1'))
+
+    def test_audio_that_is_not_adts_gives_no_aac(self):
+        self.assertEqual(eufyFloodlight.extract_aac(record(0x14, T0)), b'')                 # video only
+        not_adts = b''.join(record(0x15, T0 + i, aac=False) for i in range(2))
+        self.assertEqual(eufyFloodlight.extract_aac(not_adts), b'')
+
+    def test_extraction_stops_at_a_cut_record_and_keeps_what_came_before(self):
+        data = recording(T0)                        # V,A, V,A, V,A; the last record is audio
+        aac = eufyFloodlight.extract_aac(data[:-5])
+        self.assertEqual(len(aac), 2 * 40)          # the cut third audio record contributes nothing
+        self.assertTrue(aac.startswith(b'\xff\xf1'))
 
 
 LOG = '\n'.join((
@@ -163,11 +188,17 @@ class ArtifactTest(unittest.TestCase):
             with open(other, 'wb') as handle:
                 handle.write(recording(T0))
             files += [other, cam]
-            with mock.patch.object(eufyFloodlight, 'logfunc') as log:
+            with mock.patch.object(eufyFloodlight, 'logfunc') as log, \
+                    mock.patch.object(eufyFloodlight, 'check_in_embedded_media',
+                                      return_value='MEDIAREF') as checkin:
                 headers, rows, source = eufyFloodlight.eufyFloodlightRecordings.__wrapped__(FakeContext(files, root))
         self.assertEqual(len(headers), len(rows[0]))
         self.assertEqual([r[-1] for r in rows], [os.path.join('vol', 'Camera00', '20250927130640.dat'),
                                                  os.path.join('vol', 'Camera00', '20250927130700.dat')])
+        # the AAC audio of each recording is checked in and its reference sits in the Audio column
+        self.assertEqual(headers[6], ('Audio', 'media'))
+        self.assertEqual([r[6] for r in rows], ['MEDIAREF', 'MEDIAREF'])
+        self.assertEqual(checkin.call_count, 2)
         self.assertEqual(len(source.split('\n')), 2)
         self.assertEqual(log.call_args.args[0],
                          'Eufy Floodlight Recordings: 1 files without the XZYH magic, not reported')

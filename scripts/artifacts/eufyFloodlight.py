@@ -23,7 +23,11 @@ __artifacts_v2__ = {
                  "be a whole number of records: each record is XZYH, a type byte, a byte, a 4-byte "
                  "little-endian length and 6 more bytes, then that many bytes of payload. Video Frames counts "
                  "the type 0x14 records, whose payloads held H.264 slices in the private sample, and Audio "
-                 "Frames the type 0x15 records, whose payloads held AAC ADTS frames. A file that ends inside a record or holds "
+                 "Frames the type 0x15 records, whose payloads held one AAC ADTS frame each (AAC-LC, 16 kHz, mono "
+                 "in the private sample). Audio plays those frames, concatenated in record order, as an audio "
+                 "clip; a recording whose type 0x15 records are not ADTS frames (one early recording in the "
+                 "sample stored 8-bit companded audio instead) is listed with no Audio, and the AAC audio is not "
+                 "encrypted (field mapped from a private sample). A file that ends inside a record or holds "
                  "another type is counted in the run log and reported with Frame Time Note 'records not read' "
                  "and no frame times or counts. This layout, and the millisecond Unix time each record carries "
                  "(at byte 30 of a video record and byte 24 of an audio record), were field mapped from a "
@@ -37,9 +41,17 @@ __artifacts_v2__ = {
                  "with a later date. Name Time is "
                  "the time in the file's name (YYYYMMDDhhmmss) as stored, with no zone recorded, and is not "
                  "converted; it is the time of the log line recording the file's creation (field mapped from "
-                 "a private sample). The video is not decoded or shown: no sequence or picture "
-                 "parameter set was found in the recordings of the private sample, so the frames cannot be "
-                 "played as stored. The log can name recordings the folder no longer holds, and the "
+                 "a private sample). The video is not decoded or shown. Each keyframe payload carries, after "
+                 "its 22-byte sub-header, a 128-byte block and then video data whose first 128 bytes are "
+                 "AES-encrypted; the 128-byte block is the video's AES key wrapped with the camera's own RSA "
+                 "public key (stored in base_param.dat), and the matching private key was not on the storage in "
+                 "the private sample (published research has the app hold it per viewing session and the "
+                 "vendor's service hold it for downloads: bropat/eufy-security-client; The Dveloper, 'Reverse "
+                 "Engineering eufy Security Camera Videos', https://thedveloper.com/blog/eufy-zxvideo-"
+                 "extraction). So the sequence and picture parameter sets and the start of each keyframe cannot "
+                 "be decrypted from the storage alone, and the plaintext inter frames reference those keyframes "
+                 "and cannot be parsed without the parameter sets, so the frames cannot be played as stored. The "
+                 "log can name recordings the folder no longer holds, and the "
                  "snapshots it names under /mnt/data/video were not on the volume in the private sample; Eufy "
                  "Floodlight Log Events lists those log lines.",
         "sample_data": {},
@@ -92,12 +104,13 @@ import struct
 from collections import Counter
 from datetime import datetime, timezone
 
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
 
 MAGIC = b'XZYH'
 HEADER = 16
 VIDEO, AUDIO = 0x14, 0x15
 TIME_AT = {VIDEO: 30, AUDIO: 24}
+AUDIO_SUBHEADER = 16          # bytes before an audio record's AAC frame, field mapped from a private sample
 CLOCK_SET_FROM = datetime(2000, 1, 1, tzinfo=timezone.utc)
 NAME_RE = re.compile(r'^(\d{14})\.dat$')
 
@@ -127,6 +140,30 @@ def read_recording(data):
     return video, audio, times
 
 
+def extract_aac(data):
+    """The AAC (ADTS) frames the audio records carry, concatenated in record order.
+
+    Each type 0x15 record holds one ADTS frame after a 16-byte sub-header. A record whose
+    audio is not an ADTS frame is skipped, so a recording whose audio is not AAC gives b''.
+    The walk stops at the first byte that is not a whole XZYH record."""
+    out = bytearray()
+    pos, size = 0, len(data)
+    while pos < size:
+        if size - pos < HEADER or data[pos:pos + 4] != MAGIC:
+            break
+        kind = data[pos + 4]
+        length = struct.unpack_from('<I', data, pos + 6)[0]
+        end = pos + HEADER + length
+        if kind not in TIME_AT or end > size or length < TIME_AT[kind] + 8 - HEADER:
+            break
+        if kind == AUDIO:
+            frame = data[pos + HEADER + AUDIO_SUBHEADER:end]
+            if len(frame) >= 7 and frame[0] == 0xFF and (frame[1] & 0xF0) == 0xF0:
+                out += frame
+        pos = end
+    return bytes(out)
+
+
 def recording_row(name, data):
     """The report row for one recording file, or None when it does not start with the magic."""
     if not data.startswith(MAGIC):
@@ -152,7 +189,8 @@ def recording_row(name, data):
 @artifact_processor
 def eufyFloodlightRecordings(context):
     data_headers = (('First Frame (UTC)', 'datetime'), ('Last Frame (UTC)', 'datetime'), 'Duration (s)',
-                    'Name Time', 'Video Frames', 'Audio Frames', 'Frame Time Note', 'Size (bytes)', 'File')
+                    'Name Time', 'Video Frames', 'Audio Frames', ('Audio', 'media'), 'Frame Time Note',
+                    'Size (bytes)', 'File')
     data_list, read = [], []
     counts = Counter()
     for path in sorted(str(p) for p in context.get_files_found() if not os.path.isdir(p)):
@@ -164,13 +202,22 @@ def eufyFloodlightRecordings(context):
         except OSError:
             counts['files that could not be read'] += 1
             continue
-        row = recording_row(os.path.basename(path), data)
+        name = os.path.basename(path)
+        row = recording_row(name, data)
         if row is None:
             counts['files without the XZYH magic, not reported'] += 1
             continue
         if row[6] == 'records not read':
             counts['files whose records do not read'] += 1
-        data_list.append(row[:-1] + (context.get_relative_path(path),))
+        aac = extract_aac(data)
+        media = ''
+        if aac:
+            media = check_in_embedded_media(path, aac, f'{name}.aac',
+                                            force_type='audio/aac', force_extension='aac') or ''
+        else:
+            counts['recordings with no AAC audio to render'] += 1
+        # first, last, duration, name time, video, audio, Audio (media), note, size, file
+        data_list.append(row[:6] + (media,) + row[6:8] + (context.get_relative_path(path),))
         read.append(path)
     if counts:
         logfunc('Eufy Floodlight Recordings: ' + ', '.join(f'{n} {k}' for k, n in sorted(counts.items())))
