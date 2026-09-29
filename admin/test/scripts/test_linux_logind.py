@@ -1,5 +1,6 @@
 """Pin how the Login Sessions (logind) and Power Events (logind) artifacts read systemd-logind's lines in auth.log
-and secure."""
+and secure, and how Login Sessions (logind, journal) reads its entries in the systemd journal (files written with
+journal_writer.py)."""
 import os
 import pathlib
 import sys
@@ -11,8 +12,11 @@ from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / 'admin' / 'test' / 'scripts'))
 
 # pylint: disable=wrong-import-position
+import journal_writer as jw
+from scripts import linux_syslog, systemd_journal
 from scripts.artifacts import linuxLogind
 # pylint: enable=wrong-import-position
 
@@ -207,6 +211,73 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(log.call_args.args[0], 'Power Events (logind): 1 files that could not be read, '
                                                 '1 lines in neither syslog file format, not reported, '
                                                 '2 systemd-logind lines in other forms, not reported')
+
+
+BOOT = bytes.fromhex('0f1e2d3c4b5a69788796a5b4c3d2e1f0')
+T0 = 1790000000
+
+
+def journal_bytes(entries):
+    """A journal file of (realtime seconds, SYSLOG_IDENTIFIER, MESSAGE, _PID, SYSLOG_PID or None) entries, sent the way
+    systemd-logind sends them, over the journal's own transport."""
+    writer = jw.JournalWriter(boot_id=BOOT)
+    for n, (realtime, ident, message, pid, syslog_pid) in enumerate(entries, 1):
+        fields = [('_TRANSPORT', b'journal'), ('_HOSTNAME', b'vm'), ('SYSLOG_IDENTIFIER', ident.encode()),
+                  ('MESSAGE', message.encode()), ('_PID', pid.encode())]
+        if syslog_pid is not None:
+            fields.append(('SYSLOG_PID', syslog_pid.encode()))
+        writer.add_entry(fields, int(realtime * 1000000), n * 1000000)
+    return writer.bytes()
+
+
+class SessionsJournalTest(unittest.TestCase):
+    def test_session_entries_and_counts(self):
+        entries = [(T0 + 2, 'systemd-logind', "New session '4' of user 'alex' with class 'user' and type 'tty'.", '700', None),
+                   (T0 + 1, 'systemd-logind', 'New session c1 of user gdm.', '700', None),
+                   (T0 + 3, 'systemd-logind', 'Session 4 logged out. Waiting for processes to exit.', '700', '9'),
+                   (T0 + 4, 'systemd-logind', 'Removed session 4.', '700', None),
+                   (T0 + 5, 'systemd-logind', 'System is rebooting.', '700', None),
+                   (T0 + 6, 'Systemd-Logind', 'Removed session 5.', '700', None),
+                   (T0 + 7, 'sshd', 'Removed session 5.', '800', None)]
+        counts = Counter()
+        rows = linuxLogind.journal_session_rows([('j', systemd_journal.JournalFile(journal_bytes(entries)))], counts)
+        at = lambda s: datetime.fromtimestamp(T0 + s, UTC)
+        self.assertEqual(rows, [(at(1), 'vm', '700', 'new', 'c1', 'gdm', '', '', BOOT.hex(), 'j'),
+                                (at(2), 'vm', '700', 'new', '4', 'alex', 'user', 'tty', BOOT.hex(), 'j'),
+                                (at(3), 'vm', '700', 'logged out', '4', '', '', '', BOOT.hex(), 'j'),
+                                (at(4), 'vm', '700', 'removed', '4', '', '', '', BOOT.hex(), 'j')])
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 2, 'systemd-logind entries in other forms, not reported': 1})
+
+    def test_artifact(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log', 'journal', 'm')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('system.journal', journal_bytes([(T0, 'systemd-logind', 'Removed session 4.', '700', None)])),
+                               ('user-1000.journal', journal_bytes([(T0, 'su', 'x', '1', None)])),
+                               ('broken.journal', b'not a journal')):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            files.append(folder)
+            with mock.patch.object(linuxLogind, 'logfunc') as log:
+                headers, rows, source = linuxLogind.linuxLogindSessionsJournal.__wrapped__(FakeContext(files, root))
+        self.assertEqual(headers, (('Time (UTC)', 'datetime'), 'Hostname', 'Process ID', 'Session Event', 'Session',
+                                   'User', 'Class', 'Type', 'Boot ID', 'Source File'))
+        self.assertEqual([r[1:] for r in rows], [('vm', '700', 'removed', '4', '', '', '', BOOT.hex(),
+                                                  os.path.join('var', 'log', 'journal', 'm', 'system.journal'))])
+        self.assertEqual(source, os.path.join(folder, 'system.journal'))
+        self.assertEqual(log.call_args.args[0], 'Login Sessions (logind, journal): 1 entries of other programs, '
+                                                '1 journal files not read (JournalError)')
+
+    def test_nothing_logged_when_every_entry_is_a_row(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'system.journal')
+            with open(path, 'wb') as handle:
+                handle.write(journal_bytes([(T0, 'systemd-logind', 'Removed session 4.', '700', None)]))
+            with mock.patch.object(linuxLogind, 'logfunc') as log:
+                _headers, rows, source = linuxLogind.linuxLogindSessionsJournal.__wrapped__(FakeContext([path], root))
+        self.assertEqual((len(rows), source, log.called), (1, path, False))
 
 
 if __name__ == '__main__':
