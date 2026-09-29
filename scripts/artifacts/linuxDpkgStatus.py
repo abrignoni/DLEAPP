@@ -152,10 +152,108 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
+    "dpkgStatusBackups": {
+        "name": "Package Status Changes (dpkg backups)",
+        "description": "Packages whose version or status differs between neighbouring copies of dpkg's status "
+                       "file, or that only one of the two holds, across the current file and the copies dpkg keeps "
+                       "in /var/backups, with when each copy was last written.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "Installed Software (Linux)",
+        "notes": "Compares the copies of dpkg's status file in each root the declared paths match: the current "
+                 "var/lib/dpkg/status and the copies in var/backups, dpkg.status.0 and the older dpkg.status.1.gz, "
+                 "dpkg.status.2.gz and so on (Reference: dpkg 1.23.7, 'src/dpkg-db-backup.sh', "
+                 "https://github.com/guillemj/dpkg/blob/ef4d59f5925661818484ac666014ee3e665aadcf/src/dpkg-db-backup.sh#L18-L20 "
+                 "and "
+                 "https://github.com/guillemj/dpkg/blob/ef4d59f5925661818484ac666014ee3e665aadcf/src/dpkg-db-backup.sh#L47-L71). "
+                 "dpkg's dpkg-db-backup service, which its timer starts daily ('debian/dpkg.dpkg-db-backup.timer', "
+                 "https://github.com/guillemj/dpkg/blob/ef4d59f5925661818484ac666014ee3e665aadcf/debian/dpkg.dpkg-db-backup.timer#L6), "
+                 "runs cmp on the status file and the three other files it keeps (arch, diversions and "
+                 "statoverride) against their last copies, and when any one differs it copies all four into "
+                 "var/backups with cp -p, which keeps each file's modification time, and rotates the copies with "
+                 "savelog, keeping 7, dpkg.status.0 to dpkg.status.6.gz; savelog compresses each copy but "
+                 "dpkg.status.0 with gzip -9 (debianutils 5.23.2, 'savelog', "
+                 "https://salsa.debian.org/debian/debianutils/-/blob/b999bb0969471d302f1db85e58f17dcb64f274c2/savelog#L84-L86, "
+                 "https://salsa.debian.org/debian/debianutils/-/blob/b999bb0969471d302f1db85e58f17dcb64f274c2/savelog#L260-L276 "
+                 "and "
+                 "https://salsa.debian.org/debian/debianutils/-/blob/b999bb0969471d302f1db85e58f17dcb64f274c2/savelog#L278-L291). "
+                 "The timer and savelog installed on the lab VM are the same files, and its dpkg-db-backup differs "
+                 "only in the paths the build writes into it. The changes made between two runs therefore fall "
+                 "into one copy, a copy made because another of the four files changed equals its neighbour and "
+                 "gives no row, and a run after no change makes no copy: on ubuntu2604_arm64_dpkgbackups a run of "
+                 "the backup after no package change made no new status copy. One row per package whose version or "
+                 "status differs between two neighbouring copies, by package and architecture, or that one of the "
+                 "two lacks, the newest pair first; a root with one copy gives no row, and copies in different "
+                 "roots are never compared. Change is Changed, In newer copy only (a package installed between the "
+                 "two, for instance) or In older copy only (a package purged, which dpkg drops from the file, for "
+                 "instance). The versions and statuses are as stored, and Newer Copy and Older Copy are the "
+                 "copies' paths in the evidence. Newer Copy Written (UTC) and Older Copy Written (UTC) are when "
+                 "each copy's status file was last written: for the current file and dpkg.status.0 the "
+                 "modification time the extraction recorded, and for a .gz copy the time its gzip header records "
+                 "(RFC 1952, https://www.rfc-editor.org/rfc/rfc1952#section-2.3.1), which on the lab VM equalled "
+                 "the file's modification time on all 17 .gz files in /var/backups. A change reported between two "
+                 "copies was written after the older copy's time and not later than the newer copy's; the copies "
+                 "say nothing more about when. The artifact reads each copy as the Package Status (dpkg) artifact "
+                 "reads a status file, and dpkg-query, run on the lab VM with each of the 10 copies in "
+                 "ubuntu2604_arm64_dpkgbackups as its database, listed the same packages, architectures, versions "
+                 "and statuses. A copy that cannot be read or decompressed is counted in the run log and passed "
+                 "over, and the copies on either side of it are compared with each other, which was tested with "
+                 "constructed input only. On ubuntu2604_arm64_dpkgbackups, the known database, built with dpkg "
+                 "--root and backed up by a copy of dpkg-db-backup pointed at it, gave 6 rows, one for each change "
+                 "its steps made between copies: dleapp-bk-e installed after the last backup; dleapp-bk-d "
+                 "installed; dleapp-bk-b removed with its conffile kept and dleapp-bk-c purged; and dleapp-bk-a "
+                 "upgraded from 1.0 to 2.0 and dleapp-bk-c installed. Each copy's time fell within the dpkg step "
+                 "before its backup, not at the backup. The VM's own copies gave 198 rows, and for each of them "
+                 "dpkg.log or dpkg.log.1 holds a line naming the package and architecture, with the newer version "
+                 "or, for a package the newer copy lacks, its removal, logged after the older copy's time and not "
+                 "later than the newer copy's. Of the other twenty-five tested images, ubuntu2604_arm64_packages "
+                 "and honeynet_fc7_debian5 hold a status file and no copy in var/backups, and the others hold "
+                 "neither.",
+        "paths": ("*/var/lib/dpkg/status", "*/var/backups/dpkg.status.*"),
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (a status file and no copy in var/backups)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared "
+                                          "paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64, dpkg 1.23.7ubuntu1 | 204 rows",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (a status file and no copy in "
+                                         "var/backups)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared "
+                                           "paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
 }
 
+import gzip
 import os
+import re
+import zlib
 from collections import Counter
+from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.linux_links import recorded_time, seeker_of
@@ -309,4 +407,91 @@ def dpkgPackageStatus(context):
                 read.append(states)
     if counts:
         logfunc('Package Status (dpkg): ' + ', '.join(f'{count} {what}' for what, count in sorted(counts.items())))
+    return data_headers, data_list, '\n'.join(read)
+
+
+BACKUP = re.compile(r'(?:^|.*/)var/backups/dpkg\.status\.(\d+)(\.gz)?\Z')
+
+
+def gzip_time(data):
+    """The modification time a gzip member's header records (RFC 1952 MTIME), or '' when it records none."""
+    if len(data) < 10 or data[:3] != b'\x1f\x8b\x08':
+        return ''
+    seconds = int.from_bytes(data[4:8], 'little')
+    return datetime.fromtimestamp(seconds, timezone.utc) if seconds else ''
+
+
+def package_states(data, counts):
+    """{(package, architecture): (version, status)} for the stanzas of a status file that have a Package field."""
+    records, problems = stanzas(data)
+    counts.update(problems)
+    states = {}
+    for fields in records:
+        if not fields.get('package'):
+            counts['stanzas with no Package field, not compared'] += 1
+            continue
+        states[(fields['package'], fields.get('architecture', ''))] = (fields.get('version', ''),
+                                                                       fields.get('status', ''))
+    return states
+
+
+def changes(newer, older):
+    """(change, package, architecture, older version, newer version, older status, newer status) for each package
+    whose version or status differs between two copies, or that one of them lacks, by package and architecture."""
+    rows = []
+    for key in sorted(set(newer) | set(older)):
+        new, old = newer.get(key), older.get(key)
+        if new == old:
+            continue
+        change = 'In newer copy only' if old is None else 'In older copy only' if new is None else 'Changed'
+        old, new = old or ('', ''), new or ('', '')
+        rows.append((change, key[0], key[1], old[0], new[0], old[1], new[1]))
+    return rows
+
+
+@artifact_processor
+def dpkgStatusBackups(context):
+    data_headers = (('Newer Copy Written (UTC)', 'datetime'), ('Older Copy Written (UTC)', 'datetime'), 'Change',
+                    'Package', 'Architecture', 'Older Version', 'Newer Version', 'Older Status', 'Newer Status',
+                    'Newer Copy', 'Older Copy')
+    seeker = seeker_of(context)
+    staged = {}
+    for path in (str(p) for p in context.get_files_found()):
+        if not os.path.isdir(path):
+            staged.setdefault(_source(context, seeker, path), path)
+    roots = {}
+    for source in staged:
+        match = BACKUP.match(source)
+        if match:
+            root = source[:match.start(1) - len('var/backups/dpkg.status.')]
+            roots.setdefault(root, {})[int(match.group(1))] = (source, bool(match.group(2)))
+        elif source == STATUS or source.endswith('/' + STATUS):
+            roots.setdefault(source[:-len(STATUS)], {})[-1] = (source, False)
+    counts = Counter()
+    data_list, read = [], []
+    for root in sorted(roots):
+        copies = []
+        for number in sorted(roots[root]):
+            source, packed = roots[root][number]
+            path = staged[source]
+            try:
+                data = _read(path)
+                written = gzip_time(data) if packed else recorded_time(seeker, path, None)
+                if packed:
+                    data = gzip.decompress(data)
+            except (OSError, EOFError, zlib.error, gzip.BadGzipFile):
+                counts['copies that could not be read, not compared'] += 1
+                continue
+            copies.append((source, path, written, package_states(data, counts)))
+        for (new_source, new_path, new_time, new_states), (old_source, old_path, old_time, old_states) in zip(
+                copies, copies[1:]):
+            rows = changes(new_states, old_states)
+            data_list.extend((new_time, old_time, *row, new_source, old_source) for row in rows)
+            if rows:
+                for path in (new_path, old_path):
+                    if path not in read:
+                        read.append(path)
+    if counts:
+        logfunc('Package Status Changes (dpkg backups): '
+                + ', '.join(f'{count} {what}' for what, count in sorted(counts.items())))
     return data_headers, data_list, '\n'.join(read)
