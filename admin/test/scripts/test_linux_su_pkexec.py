@@ -1,4 +1,5 @@
-"""Pin how the User Switches (su) and pkexec Commands artifacts read su's and pkexec's lines in auth.log and secure."""
+"""Pin how the User Switches (su) and pkexec Commands artifacts read su's and pkexec's lines in auth.log and secure,
+and how User Switches (su, journal) reads su's entries in the systemd journal (files written with journal_writer.py)."""
 import os
 import pathlib
 import sys
@@ -10,8 +11,11 @@ from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / 'admin' / 'test' / 'scripts'))
 
 # pylint: disable=wrong-import-position
+import journal_writer as jw
+from scripts import linux_syslog, systemd_journal
 from scripts.artifacts import linuxPkexec, linuxSu
 # pylint: enable=wrong-import-position
 
@@ -188,6 +192,72 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(log.call_args.args[0], 'pkexec Commands: 1 files that could not be read, '
                                                 '1 lines in neither syslog file format, not reported, '
                                                 '2 pkexec lines in other forms, not reported')
+
+
+BOOT = bytes.fromhex('0f1e2d3c4b5a69788796a5b4c3d2e1f0')
+T0 = 1790000000
+
+
+def journal_bytes(entries):
+    """A journal file of (realtime seconds, SYSLOG_IDENTIFIER or None, MESSAGE, SYSLOG_PID or None) entries."""
+    writer = jw.JournalWriter(boot_id=BOOT)
+    for n, (realtime, ident, message, pid) in enumerate(entries, 1):
+        fields = [('_TRANSPORT', b'syslog'), ('_HOSTNAME', b'vm'), ('MESSAGE', message.encode())]
+        if ident is not None:
+            fields.append(('SYSLOG_IDENTIFIER', ident.encode()))
+        if pid is not None:
+            fields.append(('SYSLOG_PID', pid.encode()))
+        writer.add_entry(fields, int(realtime * 1000000), n * 1000000)
+    return writer.bytes()
+
+
+class SuJournalTest(unittest.TestCase):
+    def test_switch_entries_and_counts(self):
+        entries = [(T0 + 2, 'su', 'FAILED SU (to root) alice on pts/1', '31'),
+                   (T0 + 1, 'su', '(to parallels) root on none', '30'),
+                   (T0 + 3, 'su', 'pam_unix(su:session): session opened for user parallels(uid=1000) by (uid=0)', '30'),
+                   (T0 + 4, 'su', '(to root) bob on tty2', None),
+                   (T0 + 5, 'SU', '(to root) bob on tty2', '1'), (T0 + 6, '/bin/su', '(to root) bob on tty2', '1'),
+                   (T0 + 7, 'runuser', '(to root) bob on tty2', '1'), (T0 + 8, None, '(to root) bob on tty2', '1')]
+        counts = Counter()
+        rows = linuxSu.journal_switch_rows([('j', systemd_journal.JournalFile(journal_bytes(entries)))], counts)
+        at = lambda s: datetime.fromtimestamp(T0 + s, UTC)
+        self.assertEqual(rows, [(at(1), 'vm', '30', 'succeeded', 'root', 'parallels', 'none', BOOT.hex(), 'j'),
+                                (at(2), 'vm', '31', 'failed', 'alice', 'root', 'pts/1', BOOT.hex(), 'j'),
+                                (at(4), 'vm', '', 'succeeded', 'bob', 'root', 'tty2', BOOT.hex(), 'j')])
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 4, 'su entries in other forms, not reported': 1})
+
+    def test_artifact(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log', 'journal', 'm')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('system.journal', journal_bytes([(T0, 'su', '(to root) bob on tty2', '9')])),
+                               ('user-1000.journal', journal_bytes([(T0, 'sudo', 'x', '8')])),
+                               ('broken.journal', b'not a journal')):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            files.append(folder)
+            with mock.patch.object(linuxSu, 'logfunc') as log:
+                headers, rows, source = linuxSu.linuxSuJournal.__wrapped__(FakeContext(files, root))
+        self.assertEqual(headers, (('Time (UTC)', 'datetime'), 'Hostname', 'Process ID', 'Result', 'From User',
+                                   'To User', 'Terminal', 'Boot ID', 'Source File'))
+        self.assertEqual([r[1:] for r in rows], [('vm', '9', 'succeeded', 'bob', 'root', 'tty2', BOOT.hex(),
+                                                  os.path.join('var', 'log', 'journal', 'm', 'system.journal'))])
+        self.assertEqual(source, os.path.join(folder, 'system.journal'))
+        self.assertEqual(log.call_args.args[0], 'User Switches (su, journal): 1 entries of other programs, '
+                                                '1 journal files not read (JournalError)')
+
+
+    def test_nothing_logged_when_every_entry_is_a_row(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'system.journal')
+            with open(path, 'wb') as handle:
+                handle.write(journal_bytes([(T0, 'su', '(to root) bob on tty2', '9')]))
+            with mock.patch.object(linuxSu, 'logfunc') as log:
+                _headers, rows, source = linuxSu.linuxSuJournal.__wrapped__(FakeContext([path], root))
+        self.assertEqual((len(rows), source, log.called), (1, path, False))
 
 
 if __name__ == '__main__':

@@ -428,12 +428,11 @@ __artifacts_v2__ = {
 import os
 import re
 from collections import Counter
-from datetime import datetime, timedelta, timezone
 
-from scripts import systemd_journal
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.linux_links import recorded_link, recorded_time, seeker_of
-from scripts.linux_syslog import OTHER_PROGRAMS, read_file, reported_time, syslog_lines
+from scripts.linux_syslog import (OTHER_PROGRAMS, journal_entries, journal_sources, read_file, read_journals,
+                                  reported_time, syslog_lines)
 
 # The program name's last path part, case ignored: cron (the daemon), CRON (a job's process), crontab.
 _PROGRAMS = ('cron', 'crontab')
@@ -488,57 +487,21 @@ def linuxCronLog(context):
 
 # The same messages in the systemd journal: journald keeps the tag of a syslog line as SYSLOG_IDENTIFIER, its process
 # ID as SYSLOG_PID and the text after them as MESSAGE.
-JOURNAL_OTHER = 'entries of other programs'
 JOURNAL_OTHER_FORM = 'cron and crontab entries in other forms, not reported'
-JOURNAL_REPEATED = 'entries also in another journal file, reported once'
-_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
-
-
-def journal_time(microseconds):
-    """A journal time as a datetime, or '' for 0 or a value past 9999."""
-    if not microseconds or microseconds >= 253402300800000000:
-        return ''
-    return _EPOCH + timedelta(microseconds=microseconds)
 
 
 def journal_cron_rows(journals, counts):
     """(time, host, program, process ID, user, event, detail, boot ID, source) for each cron and crontab entry in
     these journal files, oldest first; journals: (relative path, JournalFile). An entry two files hold is read once."""
-    seen = set()
     rows = []
-    for relative, journal in journals:
-        if journal.unknown_incompatible:
-            counts['journal files not read: their incompatible flags are unknown to the reader'] += 1
+    for when, host, program, pid, message, boot, relative in journal_entries(
+            journals, lambda program: program.rsplit('/', 1)[-1].lower() in _PROGRAMS, counts):
+        parsed = cron_fields(message)
+        if parsed is None:
+            counts[JOURNAL_OTHER_FORM] += 1
             continue
-        for entry in journal.entries():
-            fields = {}
-            for name, value in entry.fields:
-                fields.setdefault(name, value)
-            ident = fields.get('SYSLOG_IDENTIFIER')
-            program = ident.decode('utf-8', errors='backslashreplace') if ident is not None else ''
-            if program.rsplit('/', 1)[-1].lower() not in _PROGRAMS:
-                counts[JOURNAL_OTHER] += 1
-                continue
-            raw = fields.get('MESSAGE')
-            message = raw.decode('utf-8', errors='backslashreplace') if raw is not None else ''
-            key = (entry.boot_id, entry.monotonic, entry.realtime, program, message)
-            if key in seen:
-                counts[JOURNAL_REPEATED] += 1
-                continue
-            seen.add(key)
-            parsed = cron_fields(message)
-            if parsed is None:
-                counts[JOURNAL_OTHER_FORM] += 1
-                continue
-            pid = fields.get('SYSLOG_PID')
-            host = fields.get('_HOSTNAME')
-            rows.append(((entry.realtime, entry.boot_id, entry.monotonic, entry.seqnum),
-                         (journal_time(entry.realtime),
-                          host.decode('utf-8', errors='backslashreplace') if host is not None else '', program,
-                          pid.decode('utf-8', errors='backslashreplace') if pid is not None else '', *parsed,
-                          entry.boot_id, relative)))
-    rows.sort(key=lambda item: item[0])
-    return [row for _key, row in rows]
+        rows.append((when, host, program, pid, *parsed, boot, relative))
+    return rows
 
 
 @artifact_processor
@@ -546,25 +509,11 @@ def linuxCronJournal(context):
     data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'Process ID', 'User', 'Event', 'Detail',
                     'Boot ID', 'Source File')
     counts = Counter()
-    journals = []
-    staged = {}
-    for path in sorted(set(map(str, context.get_files_found()))):
-        if not os.path.isfile(path):
-            continue
-        relative = context.get_relative_path(path)
-        staged[relative] = path
-        try:
-            journals.append((relative, systemd_journal.read_journal(path)))
-        except (OSError, systemd_journal.JournalError) as exc:
-            counts[f'journal files not read ({type(exc).__name__})'] += 1
+    journals, staged = read_journals(context, counts)
     data_list = journal_cron_rows(journals, counts)
-    read = []
-    for row in data_list:
-        if staged[row[-1]] not in read:
-            read.append(staged[row[-1]])
     if counts:
         logfunc('Cron Log (journal): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, data_list, journal_sources(data_list, staged)
 
 
 # Crontab files. The parsing follows Ubuntu's cron 3.0pl1-200ubuntu1: load_env() in env.c for environment settings,
