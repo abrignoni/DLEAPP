@@ -15,7 +15,7 @@ sys.path.insert(0, str(REPO_ROOT / 'admin' / 'test' / 'scripts'))
 
 # pylint: disable=wrong-import-position
 import journal_writer as jw
-from scripts import systemd_journal
+from scripts import linux_syslog, systemd_journal
 from scripts.artifacts import linuxCron
 # pylint: enable=wrong-import-position
 
@@ -180,7 +180,7 @@ class JournalRowsTest(unittest.TestCase):
             (at(3), 'vm', 'CRON', '90', 'alex', 'CMD', '/usr/bin/true a', BOOT_1.hex(), 'var/log/journal/m/system.journal'),
             (at(4), '', 'crontab', '5', 'alex', 'LIST', 'alex', BOOT_1.hex(), 'var/log/journal/m/system.journal'),
             (at(5), 'vm', '/USR/SBIN/CRON', '', 'root', 'CMD', 'x', BOOT_1.hex(), 'var/log/journal/m/system.journal')])
-        self.assertEqual(counts, {linuxCron.JOURNAL_OTHER: 4, linuxCron.JOURNAL_OTHER_FORM: 1})
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 4, linuxCron.JOURNAL_OTHER_FORM: 1})
 
     def test_the_first_value_of_a_repeated_field_is_read(self):
         entry = [('_TRANSPORT', 'syslog'), ('SYSLOG_IDENTIFIER', 'CRON'), ('SYSLOG_IDENTIFIER', 'systemd'),
@@ -205,7 +205,7 @@ class JournalRowsTest(unittest.TestCase):
             ('same boot, earlier', BOOT_1.hex(), 'b.journal'),
             ('shared', BOOT_1.hex(), 'a.journal'),
             ('late', BOOT_1.hex(), 'a.journal')])
-        self.assertEqual(counts, {linuxCron.JOURNAL_REPEATED: 1})
+        self.assertEqual(counts, {linux_syslog.JOURNAL_REPEATED: 1})
 
     def test_equal_time_boot_and_monotonic_keep_sequence_order(self):
         writer = jw.JournalWriter(boot_id=BOOT_1)
@@ -216,10 +216,10 @@ class JournalRowsTest(unittest.TestCase):
         self.assertEqual([r[6] for r in rows], ['three', 'nine'])
 
     def test_times_that_cannot_be_shown_are_blank(self):
-        self.assertEqual(linuxCron.journal_time(0), '')
-        self.assertEqual(linuxCron.journal_time(253402300800000000), '')
-        self.assertEqual(linuxCron.journal_time(253402300799999999), datetime(9999, 12, 31, 23, 59, 59, 999999, UTC))
-        self.assertEqual(linuxCron.journal_time(1), datetime(1970, 1, 1, 0, 0, 0, 1, UTC))
+        self.assertEqual(linux_syslog.journal_time(0), '')
+        self.assertEqual(linux_syslog.journal_time(253402300800000000), '')
+        self.assertEqual(linux_syslog.journal_time(253402300799999999), datetime(9999, 12, 31, 23, 59, 59, 999999, UTC))
+        self.assertEqual(linux_syslog.journal_time(1), datetime(1970, 1, 1, 0, 0, 0, 1, UTC))
 
     def test_a_file_with_an_unknown_incompatible_flag_is_not_read(self):
         data = bytearray(journal_bytes([(T0, 1, syslog_entry('CRON', '(a) CMD (x)'), None)]))
