@@ -1,4 +1,5 @@
-"""Pin how the SSH Server Log artifact reads sshd's lines in auth.log and secure."""
+"""Pin how the SSH Server Log artifacts read sshd's lines in auth.log and secure and its entries in the systemd
+journal (journal files written with journal_writer.py)."""
 import gzip
 import os
 import pathlib
@@ -11,8 +12,11 @@ from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / 'admin' / 'test' / 'scripts'))
 
 # pylint: disable=wrong-import-position
+import journal_writer as jw
+from scripts import linux_syslog, systemd_journal
 from scripts.artifacts import sshServerLog
 # pylint: enable=wrong-import-position
 
@@ -144,6 +148,72 @@ class ArtifactTest(unittest.TestCase):
             self.assertEqual(log.call_args.args[0], 'SSH Server Log: 1 files that could not be read, '
                                                     '1 lines from other programs, not reported, '
                                                     '3 lines in neither syslog file format, not reported')
+
+
+BOOT = bytes.fromhex('0f1e2d3c4b5a69788796a5b4c3d2e1f0')
+T0 = 1790000000
+
+
+def journal_bytes(entries):
+    """A journal file of (realtime seconds, SYSLOG_IDENTIFIER, MESSAGE, SYSLOG_PID) entries."""
+    writer = jw.JournalWriter(boot_id=BOOT)
+    for n, (realtime, ident, message, pid) in enumerate(entries, 1):
+        writer.add_entry([('_TRANSPORT', b'syslog'), ('_HOSTNAME', b'vm'), ('SYSLOG_IDENTIFIER', ident.encode()),
+                          ('SYSLOG_PID', pid.encode()), ('MESSAGE', message.encode())], int(realtime * 1000000), n * 1000000)
+    return writer.bytes()
+
+
+class JournalTest(unittest.TestCase):
+    def test_sshd_entries_and_counts(self):
+        entries = [(T0 + 2, 'sshd-session', 'Accepted publickey for alex from 10.0.0.2 port 52110 ssh2: ED25519 '
+                    'SHA256:ZkAslGjFiUHdGf/WUL8rQvkib4PTvQatUV0OUQSncCA', '4021'),
+                   (T0 + 1, 'sshd', 'Server listening on 0.0.0.0 port 22.', '900'),
+                   (T0 + 3, 'sshd-auth', 'Invalid user bob from 192.0.2.9 port 4242', '4030'),
+                   (T0 + 4, 'sudo', 'alex : TTY=pts/0 ; COMMAND=/bin/true', '4100'),
+                   (T0 + 5, 'SSHD', 'Failed password for root from 192.0.2.9 port 1 ssh2', '1')]
+        counts = Counter()
+        rows = sshServerLog.journal_log_rows([('j', systemd_journal.JournalFile(journal_bytes(entries)))], counts)
+        at = lambda s: datetime.fromtimestamp(T0 + s, UTC)
+        self.assertEqual([(r[0], r[1], r[2], r[3], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[13], r[14]) for r in rows], [
+            (at(1), 'vm', 'sshd', '900', '', '', '', '', '', '', '', BOOT.hex(), 'j'),
+            (at(2), 'vm', 'sshd-session', '4021', 'Accepted', 'publickey', 'alex', '', '10.0.0.2', '52110', 'ED25519',
+             BOOT.hex(), 'j'),
+            (at(3), 'vm', 'sshd-auth', '4030', '', '', 'bob', 'Yes', '192.0.2.9', '4242', '', BOOT.hex(), 'j')])
+        self.assertEqual(rows[1][12], 'SHA256:ZkAslGjFiUHdGf/WUL8rQvkib4PTvQatUV0OUQSncCA')
+        self.assertEqual(rows[0][4], 'Server listening on 0.0.0.0 port 22.')
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 2})
+
+    def test_artifact(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log', 'journal', 'm')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('system.journal', journal_bytes([(T0, 'sshd', 'Server listening on :: port 22.', '9')])),
+                               ('user-1000.journal', journal_bytes([(T0, 'su', 'x', '1')])),
+                               ('broken.journal', b'not a journal')):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            files.append(folder)
+            with mock.patch.object(sshServerLog, 'logfunc') as log:
+                headers, rows, source = sshServerLog.sshServerLogJournal.__wrapped__(FakeContext(files, root))
+        self.assertEqual(len(headers), 15)
+        self.assertEqual(headers[-2:], ('Boot ID', 'Source File'))
+        self.assertEqual([(r[2], r[3], r[4], r[-2], r[-1]) for r in rows],
+                         [('sshd', '9', 'Server listening on :: port 22.', BOOT.hex(),
+                           os.path.join('var', 'log', 'journal', 'm', 'system.journal'))])
+        self.assertEqual(source, os.path.join(folder, 'system.journal'))
+        self.assertEqual(log.call_args.args[0], 'SSH Server Log (journal): 1 entries of other programs, '
+                                                '1 journal files not read (JournalError)')
+
+    def test_nothing_logged_when_every_entry_is_a_row(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'system.journal')
+            with open(path, 'wb') as handle:
+                handle.write(journal_bytes([(T0, 'sshd', 'Server listening on :: port 22.', '9')]))
+            with mock.patch.object(sshServerLog, 'logfunc') as log:
+                _headers, rows, source = sshServerLog.sshServerLogJournal.__wrapped__(FakeContext([path], root))
+        self.assertEqual((len(rows), source, log.called), (1, path, False))
 
 
 if __name__ == '__main__':
