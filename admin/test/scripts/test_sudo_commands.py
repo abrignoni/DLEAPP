@@ -1,4 +1,5 @@
-"""Pin how the sudo Commands artifact reads sudo's lines in auth.log and secure."""
+"""Pin how the sudo Commands artifacts read sudo's lines in auth.log and secure and its entries in the systemd journal
+(journal files written with journal_writer.py)."""
 import os
 import pathlib
 import sys
@@ -10,9 +11,11 @@ from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / 'admin' / 'test' / 'scripts'))
 
 # pylint: disable=wrong-import-position
-from scripts import linux_syslog
+import journal_writer as jw
+from scripts import linux_syslog, systemd_journal
 from scripts.artifacts import sudoCommands
 # pylint: enable=wrong-import-position
 
@@ -181,6 +184,79 @@ class ArtifactTest(unittest.TestCase):
                                                 '2 lines from other programs, not reported, '
                                                 '1 lines in neither syslog file format, not reported, '
                                                 '2 sudo messages with no COMMAND= field, not reported')
+
+
+BOOT_1 = bytes.fromhex('0f1e2d3c4b5a69788796a5b4c3d2e1f0')
+BOOT_2 = bytes.fromhex('00112233445566778899aabbccddeeff')
+T0 = 1790000000
+
+
+def journal_bytes(entries, boot=BOOT_1):
+    """A journal file of (realtime seconds, SYSLOG_IDENTIFIER, MESSAGE) entries."""
+    writer = jw.JournalWriter(boot_id=boot)
+    for n, (realtime, ident, message) in enumerate(entries, 1):
+        writer.add_entry([('_TRANSPORT', b'syslog'), ('_HOSTNAME', b'vm'), ('SYSLOG_IDENTIFIER', ident.encode()),
+                          ('MESSAGE', message.encode())], int(realtime * 1000000), n * 1000000)
+    return writer.bytes()
+
+
+class JournalTest(unittest.TestCase):
+    def test_commands_parts_and_counts(self):
+        parts = original_sudo_parts('alex', 'a password is required ; PWD=/ ; USER=root ; COMMAND=/usr/bin/printf '
+                                    + 'y' * 1200)
+        first = [(T0 + 2, 'sudo', parts[0]), (T0 + 1, 'sudo', 'alex :  PWD=/ ; USER=root ; COMMAND=/usr/bin/id'),
+                 (T0 + 0.5, 'sudo', 'pam_unix(sudo:session): session opened for user root(uid=0) by alex(uid=1000)'),
+                 (T0 + 3, 'sshd', 'Accepted publickey for alex'), (T0 + 4, 'sudo', 'alex : unable to resolve host box'),
+                 (T0 + 5, 'sudo-rs', 'alex :  PWD=/tmp ; USER=root ; COMMAND=/usr/bin/true')]
+        second = [(T0 + 2 + n / 1000, 'sudo', part) for n, part in enumerate(parts[1:], 1)]
+        second.append((T0 + 6, 'sudo', '    bob : (command continued) stray'))
+        counts = Counter()
+        rows = sudoCommands.journal_command_rows(
+            [('a.journal', systemd_journal.JournalFile(journal_bytes(first))),
+             ('b.journal', systemd_journal.JournalFile(journal_bytes(second, BOOT_2)))], counts)
+        at = lambda s: datetime.fromtimestamp(T0 + s, UTC)
+        self.assertEqual([(r[0], r[1], r[2], r[3], r[4], r[6], r[7], r[9][:20], r[11], r[12]) for r in rows], [
+            (at(1), 'vm', 'sudo', 'alex', '', '/', 'root', '/usr/bin/id', BOOT_1.hex(), 'a.journal'),
+            (at(2), 'vm', 'sudo', 'alex', 'a password is required', '/', 'root', '/usr/bin/printf yyyy', BOOT_1.hex(),
+             'a.journal'),
+            (at(5), 'vm', 'sudo-rs', 'alex', '', '/tmp', 'root', '/usr/bin/true', BOOT_1.hex(), 'a.journal')])
+        self.assertEqual(rows[1][9], '/usr/bin/printf ' + 'y' * 1200)
+        self.assertEqual(len(rows[0]), 13)
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 1, 'PAM lines, not reported': 1,
+                                  'sudo messages with no COMMAND= field, not reported': 1,
+                                  'continuation lines with no line to continue, not reported': 1})
+
+    def test_artifact(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log', 'journal', 'm')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('system.journal', journal_bytes([(T0, 'sudo', 'alex :  PWD=/ ; USER=root ; COMMAND=/usr/bin/id')])),
+                               ('user-1000.journal', journal_bytes([(T0, 'su', 'x')])),
+                               ('broken.journal', b'not a journal')):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            files.append(folder)
+            with mock.patch.object(sudoCommands, 'logfunc') as log:
+                headers, rows, source = sudoCommands.sudoCommandsJournal.__wrapped__(FakeContext(files, root))
+        self.assertEqual(headers, (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'User', 'Reason', 'TTY',
+                                   'Working Directory', 'Run As User', 'Run As Group', 'Command', 'Other Fields',
+                                   'Boot ID', 'Source File'))
+        self.assertEqual([r[1:] for r in rows], [('vm', 'sudo', 'alex', '', '', '/', 'root', '', '/usr/bin/id', '',
+                                                  BOOT_1.hex(), os.path.join('var', 'log', 'journal', 'm', 'system.journal'))])
+        self.assertEqual(source, os.path.join(folder, 'system.journal'))
+        self.assertEqual(log.call_args.args[0], 'sudo Commands (journal): 1 entries of other programs, '
+                                                '1 journal files not read (JournalError)')
+
+    def test_nothing_logged_when_every_entry_is_a_row(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'system.journal')
+            with open(path, 'wb') as handle:
+                handle.write(journal_bytes([(T0, 'sudo', 'alex :  PWD=/ ; USER=root ; COMMAND=/usr/bin/id')]))
+            with mock.patch.object(sudoCommands, 'logfunc') as log:
+                _headers, rows, source = sudoCommands.sudoCommandsJournal.__wrapped__(FakeContext([path], root))
+        self.assertEqual((len(rows), source, log.called), (1, path, False))
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-"""Commands sudo logged to a Linux syslog file (auth.log or secure), for DLEAPP.
+"""Commands sudo logged to a Linux syslog file (auth.log or secure) and to the systemd journal, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -118,12 +118,131 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (its auth.log holds no sudo line)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 72 rows",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 72 rows",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 72 rows",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 69 rows",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "sudoCommandsJournal": {
+        "name": "sudo Commands (journal)",
+        "description": "Commands sudo logged to the systemd journal, with the user who ran sudo and, where the "
+                       "entry records them, the reason for a refusal, the terminal, the working directory, the "
+                       "user and group the command was to run as, the command line and the boot's ID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "none",
+        "category": "Command Line (sudo)",
+        "notes": "One row per command sudo logged in the systemd journal files under var/log/journal and "
+                 "run/log/journal, read with the same reader as systemd Journal (scripts/systemd_journal.py) and "
+                 "in the way Cron Log (journal) reads its entries: journald keeps the name in a syslog line's tag "
+                 "as SYSLOG_IDENTIFIER and the text after the tag as MESSAGE (Reference: systemd, "
+                 "'journald-syslog.c', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L204-L262, "
+                 "with the fields written at "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L433-L464), "
+                 "the first value of a field an entry holds more than once is read, an entry that more than one "
+                 "file holds is read once, and rows are in order of Time (UTC), then boot ID, time since boot and "
+                 "sequence number. Entries whose SYSLOG_IDENTIFIER is sudo or sudo-rs are read, and their messages "
+                 "as sudo Commands reads the lines of auth.log: Program, User, Reason, TTY, Working Directory, Run "
+                 "As User, Run As Group, Command and Other Fields have the meanings and references given there, "
+                 "and a command sudo wrote over several entries is joined as sudo Commands joins lines, taking the "
+                 "entries in that order. journald removes whitespace at the end of a message a program sends to "
+                 "the syslog socket and keeps the message as received in SYSLOG_RAW when it removed any "
+                 "(https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L372-L397 "
+                 "and "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/journal/journald-syslog.c#L470-L484), "
+                 "so the space sudo-rs writes after a command, which sudo Commands keeps, is not in Command here: "
+                 "10 rows on each tested image held such a command, and each of their entries' SYSLOG_RAW ends "
+                 "with the space. Time (UTC) is the entry's realtime, the time journald received it (Reference: "
+                 "systemd, 'systemd.journal-fields', "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/man/systemd.journal-fields.xml#L642-L651), "
+                 "and for a command written over several entries it is the first entry's, as are Hostname, the "
+                 "entry's _HOSTNAME field, Boot ID, the boot the entry names, and Source File, the journal file "
+                 "the entry was read from. Entries of other programs, sudo's PAM lines, sudo messages with no "
+                 "COMMAND= field, continuation entries with no entry to continue, entries read a second time, and "
+                 "journal files that could not be read or whose header sets an incompatible flag the reader does "
+                 "not know are counted in the run log and not reported. No sudo entry on the tested images carried "
+                 "SYSLOG_PID, and the journal's own _PID field is not used, so, as in auth.log, the artifact "
+                 "cannot tell apart the parts of two commands logged at the same moment. ubuntu2604_arm64_journal "
+                 "and ubuntu2604_arm64_usb hold 72 rows and "
+                 "ubuntu2604_arm64_usbstorage 73, from 5 boots on each; Program held one value, sudo, on every "
+                 "row, and 3 rows carry the Reason 'a password is required', the refusals by the original sudo "
+                 "that sudo Commands describes, the third joined from 4 entries. Hostname held one value on every "
+                 "row of each tested image, and Run As Group and Other Fields were blank on every row. Four "
+                 "captures of that VM's "
+                 "auth.log were compared with this artifact, matching rows on Program, User, Reason, TTY, Working "
+                 "Directory, Run As User, Run As Group, Command, with the space sudo-rs adds removed, and Other "
+                 "Fields, with times less than 1 s apart: every one of the 72 sudo Commands rows of "
+                 "ubuntu2604_arm64_authlog and the 69 of ubuntu2604_arm64_triage was matched by a row of "
+                 "ubuntu2604_arm64_journal, the 72 of ubuntu2604_arm64_shutdown by rows of "
+                 "ubuntu2604_arm64_usbstorage and the 72 of ubuntu2604_arm64_cron by rows of ubuntu2604_arm64_usb. "
+                 "The rows left over, the 3 refusals against ubuntu2604_arm64_triage and 1 row of "
+                 "ubuntu2604_arm64_usbstorage, are later than the last sudo line of the capture they were compared "
+                 "with. On every matched row Time (UTC) here was earlier than the auth.log line's, by 0.000004 to "
+                 "0.00064 s. No tested image held an entry in two files, and the unit tests exercise it. No member "
+                 "of the other 28 tested images matches the declared paths.",
+        "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
+                  '*/run/log/journal/*.journal~'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "terminal",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
+            "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 72 rows",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 72 rows",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 73 rows",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -133,7 +252,7 @@ import re
 from collections import Counter
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.linux_syslog import program_lines, read_file
+from scripts.linux_syslog import journal_entries, journal_sources, program_lines, read_file, read_journals
 
 # The original sudo opens syslog as "sudo"; sudo-rs does not open it, so its lines carry the name
 # it was run as.
@@ -252,3 +371,33 @@ def sudoCommands(context):
     if problems:
         logfunc('sudo Commands: ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
     return data_headers, data_list, '\n'.join(read)
+
+
+def journal_command_rows(journals, counts):
+    """(time, host, program, user, reason, TTY, working directory, run-as user, run-as group, command, other fields,
+    boot ID, source) for each command sudo logged in these journal files, oldest first, the parts of a command written
+    over several entries joined as sudo_entries joins lines; journals: (relative path, JournalFile)."""
+    entries = journal_entries(journals, lambda program: program in _PROGRAMS, counts)
+    lines = [(number, when, '', host, program, pid, message)
+             for number, (when, host, program, pid, message, _boot, _relative) in enumerate(entries)]
+    rows = []
+    for entry in sudo_entries(lines, counts):
+        fields = command_fields(entry['body'])
+        if fields is None:
+            counts['sudo messages with no COMMAND= field, not reported'] += 1
+            continue
+        first = entries[entry['first']]
+        rows.append((entry['when'], entry['host'], entry['program'], entry['user'], *fields, first[5], first[6]))
+    return rows
+
+
+@artifact_processor
+def sudoCommandsJournal(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Hostname', 'Program', 'User', 'Reason', 'TTY', 'Working Directory',
+                    'Run As User', 'Run As Group', 'Command', 'Other Fields', 'Boot ID', 'Source File')
+    counts = Counter()
+    journals, staged = read_journals(context, counts)
+    data_list = journal_command_rows(journals, counts)
+    if counts:
+        logfunc('sudo Commands (journal): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
+    return data_headers, data_list, journal_sources(data_list, staged)
