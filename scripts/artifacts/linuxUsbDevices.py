@@ -729,7 +729,9 @@ def journal_connections(journals, counts, assembler_class=None, wanted=None):
             if raw is None or not wanted(raw):
                 continue
             message = raw.decode('utf-8', errors='backslashreplace')
-            key = (entry.boot_id, entry.monotonic, entry.realtime, message)
+            # The same entry in two files keeps its sequence number; two entries of one file never share one, even
+            # when their time and message are the same.
+            key = (entry.seqnum, entry.boot_id, entry.monotonic, entry.realtime, message)
             if key in seen:
                 counts['entries also in another journal file, reported once'] += 1
                 continue

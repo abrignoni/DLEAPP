@@ -133,11 +133,12 @@ T0 = 1790000000
 
 
 def journal_bytes(entries, boot=BOOT_1):
-    """A journal file of (realtime seconds, monotonic seconds, [(field, value)], boot or None) entries."""
+    """A journal file of (realtime seconds, monotonic seconds, [(field, value)], boot or None[, sequence number])
+    entries."""
     writer = jw.JournalWriter(boot_id=boot)
-    for realtime, monotonic, fields, entry_boot in entries:
+    for realtime, monotonic, fields, entry_boot, *seqnum in entries:
         writer.add_entry([(name, value.encode()) for name, value in fields], int(realtime * 1000000),
-                         int(monotonic * 1000000), boot_id=entry_boot)
+                         int(monotonic * 1000000), seqnum=seqnum[0] if seqnum else None, boot_id=entry_boot)
     return writer.bytes()
 
 
@@ -191,7 +192,8 @@ class JournalRowsTest(unittest.TestCase):
 
     def test_order_across_files_and_boots_and_an_entry_in_two_files(self):
         t = T0
-        shared = (t + 5, 5, syslog_entry('CRON', '(alex) CMD (shared)'), BOOT_1)
+        # the same entry in two files keeps its sequence number
+        shared = (t + 5, 5, syslog_entry('CRON', '(alex) CMD (shared)'), BOOT_1, 50)
         first = journal([(t + 9, 9, syslog_entry('CRON', '(alex) CMD (late)'), BOOT_1), shared])
         # the same time, time since boot and message in another boot is another entry
         second = journal([shared, (t + 5, 6, syslog_entry('CRON', '(alex) CMD (other boot)'), BOOT_2),
@@ -206,6 +208,15 @@ class JournalRowsTest(unittest.TestCase):
             ('shared', BOOT_1.hex(), 'a.journal'),
             ('late', BOOT_1.hex(), 'a.journal')])
         self.assertEqual(counts, {linux_syslog.JOURNAL_REPEATED: 1})
+
+    def test_two_entries_of_one_file_with_the_same_time_and_message_are_both_read(self):
+        writer = jw.JournalWriter(boot_id=BOOT_1)
+        for seqnum in (7, 8):
+            writer.add_entry([(n, v.encode()) for n, v in syslog_entry('CRON', '(a) CMD (twice)')], T0 * 1000000, 1000000,
+                             seqnum=seqnum)
+        counts = Counter()
+        rows = linuxCron.journal_cron_rows([('a', systemd_journal.JournalFile(writer.bytes()))], counts)
+        self.assertEqual(([r[6] for r in rows], counts), (['twice', 'twice'], Counter()))
 
     def test_equal_time_boot_and_monotonic_keep_sequence_order(self):
         writer = jw.JournalWriter(boot_id=BOOT_1)
