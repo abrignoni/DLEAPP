@@ -1,4 +1,5 @@
-"""Login sessions and power events systemd-logind logged in a Linux syslog file (auth.log or secure), for DLEAPP.
+"""Login sessions and power events systemd-logind logged in a Linux syslog file (auth.log, secure or
+messages), for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -6,20 +7,22 @@ Author: @AlexisBrignoni, Claude.
 __artifacts_v2__ = {
     "linuxLogindSessions": {
         "name": "Login Sessions (logind)",
-        "description": "Login sessions systemd-logind logged as created, logged out or removed in auth.log or secure and "
+        "description": "Login sessions systemd-logind logged as created, logged out or removed in auth.log, secure "
+                       "or messages and "
                        "their rotations, with the session ID, user, class and type the line gives.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Logins (Linux)",
-        "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated "
+        "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and /var/log/messages and "
+                 "their numbered or dated "
                  "rotations, gzip ones included, and reports each line in which systemd-logind recorded a login "
                  "session being created, logged out or removed, in file order; Line is its line number in the file "
                  "and Source File the file, and the files that held a row are named in the report's located-at "
                  "line. Other lines, and lines in neither syslog file format described below, are counted in the "
                  "run log and not reported. Login Sessions (logind, journal) reports the session lines kept only "
-                 "in the systemd journal, and messages written to another file "
+                 "in the systemd journal, and lines written to another file "
                  "are not read. A line is read in either of rsyslog's two file formats, an RFC 3339 time with a "
                  "UTC offset (rsyslog 8.2512.0, tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
@@ -31,7 +34,9 @@ __artifacts_v2__ = {
                  "held the same value on every row of each tested image; Process ID is the process ID in the "
                  "line's tag, logind's own. systemd-logind logs to the auth facility (systemd 259.5, "
                  "src/login/logind.c, "
-                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/login/logind.c#L1350). "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/login/logind.c#L1350; "
+                 "systemd 252, "
+                 "https://github.com/systemd/systemd/blob/e8dc52766e1fdb4f8c09c3ab654d1270e1090c8d/src/login/logind.c#L1163). "
                  "From v258 it writes \"New session '<ID>' of user '<user>' with class '<class>' and type "
                  "'<type>'.\" (src/login/logind-session.c, "
                  "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/login/logind-session.c#L837-L848); "
@@ -67,6 +72,14 @@ __artifacts_v2__ = {
                  "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/login/logind-dbus.c#L850-L876). "
                  "User is the user name, and Class and Type are logind's names for the session's class and type "
                  "(https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/login/logind-session.c#L1616-L1640). "
+                 "The rsyslog.conf of rocky98_arm64_known (Rocky Linux 9.8, systemd 252) sends authpriv to secure "
+                 "and every other facility at info or above, apart from mail and cron, to messages, and there "
+                 "messages holds 47 of these lines, all from one logind Process ID: 17 new, 15 logged out and 15 "
+                 "removed, in the forms v252 writes, so Class and Type are blank on every row, and Time (UTC) is "
+                 "blank because the lines store no year and no zone. In order, and on Process ID, Session Event, "
+                 "Session and User, they are the 47 Login Sessions (logind, journal) rows of that image. Its "
+                 "/etc/localtime names America/New_York, and each line's Time as Recorded, taken as a date in "
+                 "2026, is 4 hours and 0.01 to 0.99 s behind the matching journal row's Time (UTC). "
                  "On ubuntu2604_arm64_triage, whose dpkg.log records only systemd 259.5 builds, 1,305 of the 4,277 "
                  "lines of auth.log and its three rotations are these lines: 450 new, 423 logged out and 432 "
                  "removed. The 450 new rows are 418 of class user and type tty, 5 of class user and type wayland, "
@@ -81,7 +94,8 @@ __artifacts_v2__ = {
                  "more, 13 each of new (class user, type tty), logged out and removed. On honeynet_fc7_debian5 "
                  "auth.log holds no systemd-logind line.",
         "paths": ('*/var/log/auth.log', '*/var/log/auth.log.[0-9]*',
-                  '*/var/log/secure', '*/var/log/secure[.-][0-9]*'),
+                  '*/var/log/secure', '*/var/log/secure[.-][0-9]*',
+                  '*/var/log/messages', '*/var/log/messages[.-][0-9]*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "log-in",
         "sample_data": {
@@ -91,6 +105,7 @@ __artifacts_v2__ = {
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 47 rows",
             "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
@@ -121,21 +136,23 @@ __artifacts_v2__ = {
     "linuxLogindPower": {
         "name": "Power Events (logind)",
         "description": "Lines in which systemd-logind logged a shutdown, a warning of a shutdown or sleep, a dry run, "
-                       "the blocking of logins, a cancelled shutdown or the start of a seat, from auth.log or secure and "
+                       "the blocking of logins, a cancelled shutdown or the start of a seat, from auth.log, secure "
+                       "or messages and "
                        "their rotations.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "System (Linux)",
-        "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated "
+        "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and /var/log/messages and "
+                 "their numbered or dated "
                  "rotations, gzip ones included, and reports each line in which systemd-logind recorded a "
                  "shutdown, a warning of a shutdown or sleep, a dry run, the blocking of logins, a cancelled "
                  "shutdown or the start of a seat, in file order; Line is its line number in the file and Source "
                  "File the file, and the files that held a row are named in the report's located-at line. Other "
                  "lines, and lines in neither syslog file format described below, are counted in the run log and "
                  "not reported. Power Events (logind, journal) reports the power lines kept only in the systemd "
-                 "journal, and messages written to another file are not "
+                 "journal, and lines written to another file are not "
                  "read. A line is read in either of rsyslog's two file formats, an RFC 3339 time with a UTC offset "
                  "(rsyslog 8.2512.0, tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
@@ -147,7 +164,9 @@ __artifacts_v2__ = {
                  "held the same value on every row of each tested image; Process ID is the process ID in the "
                  "line's tag, logind's own; and Message is the line's message as stored. systemd-logind logs to "
                  "the auth facility (systemd 259.5, src/login/logind.c, "
-                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/login/logind.c#L1350). "
+                 "https://github.com/systemd/systemd/blob/b3d8fc43e9cb531d958c17ef2cd93b374bc14e8a/src/login/logind.c#L1350; "
+                 "systemd 252, "
+                 "https://github.com/systemd/systemd/blob/e8dc52766e1fdb4f8c09c3ab654d1270e1090c8d/src/login/logind.c#L1163). "
                  "Event is shutdown for \"System is powering down.\", \"System is rebooting.\", \"System is halting.\", "
                  "\"System is rebooting with kexec.\", \"System userspace is rebooting.\", \"System is performing "
                  "factory reset.\" and \"System is shutting down.\", which in 259.5 are the messages of logind's "
@@ -223,7 +242,13 @@ __artifacts_v2__ = {
                  "v251 only sends the warning and the cancellation to terminals "
                  "(https://github.com/systemd/systemd/blob/b622e95f2f59fcb58e23ddafed745eee26a0f52f/src/login/logind-utmp.c#L61-L88; "
                  "https://github.com/systemd/systemd/blob/b622e95f2f59fcb58e23ddafed745eee26a0f52f/src/login/logind-dbus.c#L2360-L2361), "
-                 "so on a release before v252 neither reaches the log. On ubuntu2604_arm64_triage, whose dpkg.log "
+                 "so on a release before v252 neither reaches the log. The rsyslog.conf of rocky98_arm64_known "
+                 "(Rocky Linux 9.8, systemd 252) sends authpriv to secure and every other facility at info or "
+                 "above, apart from mail and cron, to messages, and there messages holds 1 of these lines, seat "
+                 "started for seat0, with the Process ID and message of the one Power Events (logind, journal) row "
+                 "of that image; its Time (UTC) is blank because the line stores no year and no zone, and "
+                 "Scheduled For is blank, as on every row that is not a warning. On "
+                 "ubuntu2604_arm64_triage, whose dpkg.log "
                  "records only systemd 259.5 builds, auth.log and its three rotations hold 24 of these lines: 8 "
                  "seat started, 7 shutdown (4 \"System is powering down.\" and 3 \"System is rebooting.\"), 5 warning "
                  "and 4 logins blocked, with Wall Message blank on every row, and Time (UTC) was filled on every "
@@ -242,7 +267,8 @@ __artifacts_v2__ = {
                  "the 7 that had ended has one shutdown row, 0 to 92 seconds before its last entry. On "
                  "honeynet_fc7_debian5 auth.log holds no systemd-logind line.",
         "paths": ('*/var/log/auth.log', '*/var/log/auth.log.[0-9]*',
-                  '*/var/log/secure', '*/var/log/secure[.-][0-9]*'),
+                  '*/var/log/secure', '*/var/log/secure[.-][0-9]*',
+                  '*/var/log/messages', '*/var/log/messages[.-][0-9]*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "power",
         "sample_data": {
@@ -252,6 +278,7 @@ __artifacts_v2__ = {
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 1 rows",
             "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
@@ -308,8 +335,13 @@ __artifacts_v2__ = {
                  "time, and journal files that could not be read or whose header sets an incompatible flag the "
                  "reader does not know are counted in the run log and not reported. ubuntu2604_arm64_journal holds "
                  "1,489 rows (505 new, 482 logged out and 502 removed), ubuntu2604_arm64_usb 1,642 and "
-                 "ubuntu2604_arm64_usbstorage 2,842, from 8 boots on each; every new row has a Class and a Type, "
-                 "and Hostname held one value on every row of each tested image. Four captures of auth.log from "
+                 "ubuntu2604_arm64_usbstorage 2,842, from 8 boots on each, and every new row of those three has a "
+                 "Class and a Type; rocky98_arm64_known, whose journal is under run/log/journal, holds 47 rows (17 "
+                 "new, 15 logged out and 15 removed) from 1 boot, and its systemd 252 writes no class or type, so "
+                 "Class and Type are blank on its new rows, and Process ID and Boot ID held one value on every row "
+                 "there, its rows all coming from one logind in one boot. Hostname held one value on every row of "
+                 "each tested "
+                 "image. Four captures of auth.log from "
                  "the VM these three journals come from were compared with this artifact, matching rows on Process "
                  "ID, Session Event, Session, "
                  "User, Class and Type with times less than 1 s apart: every one of the 1,344 Login Sessions "
@@ -321,7 +353,9 @@ __artifacts_v2__ = {
                  "auth.log line, all logged after systemd's Stopped rsyslog.service entry and "
                  "before its next Starting rsyslog.service entry, while rsyslog.service was stopped; the other "
                  "journal rows with no match are later than the capture's last session line. On every matched row "
-                 "Time (UTC) here was earlier than the auth.log line's, by 0.000005 to 0.0019 s. No tested image "
+                 "Time (UTC) here was earlier than the auth.log line's, by 0.000005 to 0.0019 s. On "
+                 "rocky98_arm64_known the 47 rows are, in order and on Process ID, Session Event, Session and "
+                 "User, the 47 Login Sessions (logind) rows of its messages. No tested image "
                  "held an entry in two files, and the unit tests exercise it. No member of the other 28 tested "
                  "images matches the declared paths.",
         "paths": ('*/var/log/journal/*.journal', '*/var/log/journal/*.journal~', '*/run/log/journal/*.journal',
@@ -335,6 +369,7 @@ __artifacts_v2__ = {
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 47 rows",
             "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
@@ -392,7 +427,11 @@ __artifacts_v2__ = {
                  "time, and journal files that could not be read or whose header sets an incompatible flag the "
                  "reader does not know are counted in the run log and not reported. ubuntu2604_arm64_journal, "
                  "ubuntu2604_arm64_usb and ubuntu2604_arm64_usbstorage hold the same 33 rows from 8 boots: 9 "
-                 "shutdown, 8 seat started, 7 logins blocked, 6 warning, 2 dry run and 1 shutdown cancelled. Wall "
+                 "shutdown, 8 seat started, 7 logins blocked, 6 warning, 2 dry run and 1 shutdown cancelled. "
+                 "rocky98_arm64_known, whose journal is under run/log/journal, holds 1 row from 1 boot, seat "
+                 "started, with Scheduled For and Wall Message blank and with the Process ID and message of the "
+                 "one Power Events (logind) row of its messages. "
+                 "Wall "
                  "Message is filled on 1 row, and Hostname held one value on every row of each tested image. Four "
                  "captures of auth.log from the VM these three journals come from were compared with this "
                  "artifact, matching rows on Process ID, Event, Scheduled For, Wall Message and Message with times "
@@ -416,6 +455,7 @@ __artifacts_v2__ = {
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 1 rows",
             "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
