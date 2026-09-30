@@ -1,4 +1,4 @@
-"""Login records Linux keeps in /var/log/wtmp and /var/log/lastlog, for DLEAPP.
+"""Login records Linux keeps in /var/log/wtmp, /var/log/btmp and /var/log/lastlog, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -31,7 +31,8 @@ __artifacts_v2__ = {
                  "making 400-byte records. The file's size picks the layout; when both "
                  "sizes or neither divide it, the layout under which more records read as "
                  "a valid, non-empty record is used, and a file for which neither layout "
-                 "reads better is counted in the run log and not read. "
+                 "reads better is counted in the run log and not read; an empty file is counted in the run log as "
+                 "empty. "
                  "ubuntu2604_arm64_logins has 400-byte records. honeynet_fc7_debian5 (Debian "
                  "5.0.7 on i386, glibc 2.7) has 384-byte records, and its 257 rows equal a "
                  "separate decode of that layout. Time (UTC) is ut_tv, seconds and "
@@ -87,6 +88,79 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 12 rows",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "linuxBtmp": {
+        "name": "Failed Login Records (btmp)",
+        "description": "Failed login attempts recorded in /var/log/btmp and its rotations, with the time, type, "
+                       "user name, terminal line, host, IP address and process ID the program that wrote each "
+                       "record stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-30",
+        "last_update_date": "2026-09-30",
+        "requirements": "none",
+        "category": "Logins (Linux)",
+        "notes": "Reads /var/log/btmp and its numbered rotations, one row per reported record in file order, with "
+                 "the same reader, record layouts and columns as Login Records (wtmp), whose notes give glibc's "
+                 "struct utmp, how the layout is chosen and each column's source; an empty file is counted in the "
+                 "run log as empty. util-linux describes btmp as the file that contains all the bad login attempts "
+                 "(util-linux 2.41.3, 'last.1.adoc', "
+                 "https://github.com/util-linux/util-linux/blob/5305e6c70b274f679329b79c0e1ef5a07e9dc1a6/login-utils/last.1.adoc#L44). "
+                 "Each program that records a failed login fills the record its own way, so a column means what "
+                 "the program that wrote the record put in it. util-linux su (2.41.3) writes a LOGIN_PROCESS "
+                 "record when authentication fails, with User the account su was asked to switch to, not the "
+                 "account that ran su, Line the terminal su ran on or empty without one, PID su's own process ID "
+                 "and Time (UTC) the moment it wrote the record "
+                 "(https://github.com/util-linux/util-linux/blob/5305e6c70b274f679329b79c0e1ef5a07e9dc1a6/login-utils/su-common.c#L300-L327, "
+                 "called at "
+                 "https://github.com/util-linux/util-linux/blob/5305e6c70b274f679329b79c0e1ef5a07e9dc1a6/login-utils/su-common.c#L444). "
+                 "GDM 50.1 writes a USER_PROCESS record for a failed login, with User the session's user name, "
+                 "Line the terminal, else the seat, else headless, Host the display's host name or local, and Time "
+                 "(UTC) the moment it wrote the record "
+                 "(https://gitlab.gnome.org/GNOME/gdm/-/blob/31ab23d8f0cbfb350a4ed4d8cfaab4716e38f963/daemon/gdm-session-record.c#L62-168 "
+                 "and "
+                 "https://gitlab.gnome.org/GNOME/gdm/-/blob/31ab23d8f0cbfb350a4ed4d8cfaab4716e38f963/daemon/gdm-session-record.c#L222-288). "
+                 "User is reported as stored and can be a name that is no account on the system. On "
+                 "ubuntu2604_arm64_btmp, a copy of the lab VM's files, btmp was empty and btmp.1 held 3 records: a "
+                 "LOGIN_PROCESS record with the process ID of a FAILED SU line in the same VM's auth.log "
+                 "(ubuntu2604_arm64_authlog), 0.00015 s before that line, and two USER_PROCESS records on seat0 "
+                 "with Host local, each written 2.3 s after a gdm-password authentication failure in that auth.log "
+                 "for which pam_unix logged 'user unknown', so neither named an account on the VM then. On "
+                 "honeynet_fc7_debian5 (Debian 5.0.7, i386) btmp held one 384-byte USER_PROCESS record for root "
+                 "with Line, Host and IP Address blank and PID 0, in the same second as a login 'FAILED LOGIN (1)' "
+                 "line for root on tty1 in that image's auth.log. On the VM btmp and btmp.1 are readable only by "
+                 "root and the utmp group (mode 0660), and none of the other 22 tested Ubuntu 26.04 captures holds "
+                 "either file. A row records a failed attempt as the program that wrote it recorded it; it does "
+                 "not by itself establish who made the attempt, and a failed attempt a program did not record here "
+                 "is not in this file.",
+        "paths": ('*/var/log/btmp', '*/var/log/btmp.[0-9]*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "user-x",
+        "sample_data": {
+            "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 1 rows",
+            "ubuntu2604_arm64_appstate": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_btmp": "Ubuntu 26.04 LTS aarch64 | 3 rows",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_crontab": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_dpkgbackups": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_journal": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_lesshst": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_packages": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_pyhistory": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_recent": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_shutdown": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sqlitehist": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sysinfo": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_thumbnails": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_trash": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_units": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usb": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_usbstorage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_wgethsts": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
     "linuxLastlog": {
@@ -282,10 +356,8 @@ def passwd_names(data):
     return names
 
 
-@artifact_processor
-def linuxWtmp(context):
-    data_headers = (('Time (UTC)', 'datetime'), 'Type', 'User', 'Line', 'Host', 'IP Address', 'PID', 'ID',
-                    'Source File')
+def _utmp_files(context, label):
+    """The rows of every utmp-format file found, each with its source file, and the files read."""
     data_list = []
     read = []
     problems = Counter()
@@ -296,6 +368,9 @@ def linuxWtmp(context):
         except (OSError, EOFError):
             problems['files that could not be read'] += 1
             continue
+        if not data:
+            problems['empty files, holding no records'] += 1
+            continue
         result = utmp_records(data)
         if result is None:
             problems['files no single utmp record layout fits, not read'] += 1
@@ -305,8 +380,24 @@ def linuxWtmp(context):
         data_list.extend(row + (relative,) for row in rows)
         read.append(path)
     if problems:
-        logfunc('Login Records (wtmp): ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
-    return data_headers, data_list, '\n'.join(read)
+        logfunc(f'{label}: ' + ', '.join(f'{count} {kind}' for kind, count in sorted(problems.items())))
+    return data_list, '\n'.join(read)
+
+
+@artifact_processor
+def linuxWtmp(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Type', 'User', 'Line', 'Host', 'IP Address', 'PID', 'ID',
+                    'Source File')
+    data_list, source = _utmp_files(context, 'Login Records (wtmp)')
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def linuxBtmp(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Type', 'User', 'Line', 'Host', 'IP Address', 'PID', 'ID',
+                    'Source File')
+    data_list, source = _utmp_files(context, 'Failed Login Records (btmp)')
+    return data_headers, data_list, source
 
 
 @artifact_processor
