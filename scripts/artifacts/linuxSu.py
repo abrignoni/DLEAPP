@@ -6,14 +6,16 @@ Author: @AlexisBrignoni, Claude.
 __artifacts_v2__ = {
     "linuxSu": {
         "name": "User Switches (su)",
-        "description": "User switches that util-linux su logged in auth.log or secure and their rotations, with whether "
+        "description": "User switches that util-linux su logged in auth.log, secure or messages and their "
+                       "rotations, with whether "
                        "they succeeded, the users on both sides and the terminal.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Logins (Linux)",
-        "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated "
+        "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and /var/log/messages and "
+                 "their numbered or dated "
                  "rotations, gzip ones included, and reports each line in which util-linux's su recorded a switch "
                  "of user, in file order; Line is its line number in the file and Source File the file, and the "
                  "files that held a row are named in the report's located-at line. Other lines, among them the PAM "
@@ -34,7 +36,13 @@ __artifacts_v2__ = {
                  "(https://github.com/util-linux/util-linux/blob/1f5129b79ad232c79ecbac31998e96c20ff4c90c/login-utils/su-common.c#L291; "
                  "2.37 opens the log without it, "
                  "https://github.com/util-linux/util-linux/blob/50736e4998fde0fff9b7876476137a21b85bd5a6/login-utils/su-common.c#L286), "
-                 "so it is blank on lines from older releases. util-linux's su writes \"(to <user>) <user> on "
+                 "so it is blank on lines from older releases, unless rsyslog took the line from the journal with "
+                 "imjournal set to UsePid \"system\", which puts the process ID the journal recorded for the sender "
+                 "in the tag (rsyslog 8.2510.0, plugins/imjournal/imjournal.c, "
+                 "https://github.com/rsyslog/rsyslog/blob/4c8fa9960ca5d417c938b7394acba17e0f8e4196/plugins/imjournal/imjournal.c#L500-L537 "
+                 "and "
+                 "https://github.com/rsyslog/rsyslog/blob/4c8fa9960ca5d417c938b7394acba17e0f8e4196/plugins/imjournal/imjournal.c#L874-L876), "
+                 "as the rsyslog.conf of rocky98_arm64_known sets. util-linux's su writes \"(to <user>) <user> on "
                  "<terminal>\" to the auth facility under the name su, with \"FAILED SU \" in front when a PAM step "
                  "failed (util-linux 2.41.3, login-utils/su-common.c, "
                  "https://github.com/util-linux/util-linux/blob/5305e6c70b274f679329b79c0e1ef5a07e9dc1a6/login-utils/su-common.c#L287-L298), "
@@ -55,7 +63,13 @@ __artifacts_v2__ = {
                  "https://github.com/shadow-maint/shadow/blob/b23a5823bc2433ac3dc8cbc20fd1d3798ee801b8/src/su.c#L204-L209 "
                  "and "
                  "https://github.com/shadow-maint/shadow/blob/b23a5823bc2433ac3dc8cbc20fd1d3798ee801b8/src/su.c#L1088-L1092), "
-                 "are counted, not reported; no tested image holds such a line. On ubuntu2604_arm64_triage, whose "
+                 "are counted, not reported; no tested image holds such a line. The "
+                 "rsyslog.conf of rocky98_arm64_known (Rocky Linux 9.8, util-linux 2.37.4) sends authpriv to "
+                 "secure and every other facility at info or above, apart from mail and cron, to messages, and "
+                 "there messages holds 1 row, the known su run as root to dleappk1, succeeded, From User root, To "
+                 "User dleappk1 and Terminal pts/1, with the process ID of the pam_unix su-l session lines in "
+                 "secure; its Time (UTC) is blank because the line stores no year and no zone. On "
+                 "ubuntu2604_arm64_triage, whose "
                  "dpkg.log records only util-linux 2.41.3 builds, auth.log and its three rotations hold 18 of "
                  "these lines, 17 succeeded and 1 failed; From User held root, To User one user and Terminal none "
                  "on every row. Each succeeded row has a pam_unix session opened line from the same su process in "
@@ -65,7 +79,8 @@ __artifacts_v2__ = {
                  "ubuntu2604_arm64_shutdown, later captures of the same logs, hold the same 18 rows. On "
                  "honeynet_fc7_debian5 auth.log holds no su line.",
         "paths": ('*/var/log/auth.log', '*/var/log/auth.log.[0-9]*',
-                  '*/var/log/secure', '*/var/log/secure[.-][0-9]*'),
+                  '*/var/log/secure', '*/var/log/secure[.-][0-9]*',
+                  '*/var/log/messages', '*/var/log/messages[.-][0-9]*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "users",
         "sample_data": {
@@ -75,6 +90,7 @@ __artifacts_v2__ = {
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 1 rows",
             "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",

@@ -1,5 +1,6 @@
 """Pin how the User Switches (su) and pkexec Commands artifacts read su's and pkexec's lines in auth.log and secure,
 and how User Switches (su, journal) reads su's entries in the systemd journal (files written with journal_writer.py)."""
+import fnmatch
 import os
 import pathlib
 import sys
@@ -209,6 +210,17 @@ def journal_bytes(entries):
             fields.append(('SYSLOG_PID', pid.encode()))
         writer.add_entry(fields, int(realtime * 1000000), n * 1000000)
     return writer.bytes()
+
+
+class SuPathsTest(unittest.TestCase):
+    def test_su_reads_messages_where_rhel_sends_the_auth_facility(self):
+        patterns = linuxSu.__artifacts_v2__['linuxSu']['paths']
+        def matched(member):
+            return any(fnmatch.fnmatch(member, pattern) for pattern in patterns)
+        for member in ('root/var/log/auth.log', 'root/var/log/auth.log.1', 'root/var/log/secure', 'root/var/log/secure-20260930',
+                       'root/var/log/messages', 'root/var/log/messages-20260930', 'root/var/log/messages.1'):
+            self.assertTrue(matched(member), member)
+        self.assertFalse(matched('root/var/log/messages.bak'))
 
 
 class SuJournalTest(unittest.TestCase):
