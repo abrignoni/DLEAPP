@@ -275,8 +275,9 @@ __artifacts_v2__ = {
     },
     "linuxCrontabEntries": {
         "name": "Crontab Entries",
-        "description": "Lines of the files in /var/spool/cron/crontabs, /etc/crontab and /etc/cron.d, the places "
-                       "Debian's and Ubuntu's cron reads crontabs from: environment settings, jobs split into "
+        "description": "Lines of the files in /var/spool/cron/crontabs, /var/spool/cron, /etc/crontab and "
+                       "/etc/cron.d, the places Debian's and Ubuntu's cron and cronie read crontabs from: "
+                       "environment settings, jobs split into "
                        "their time fields, user and command, and comments.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
@@ -294,9 +295,17 @@ __artifacts_v2__ = {
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/database.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n210, "
                  "lines 210 to 230). Debian's cron 3.0pl1-210 carries the same database.c "
                  "(https://sources.debian.org/src/cron/3.0pl1-210/database.c/), and 3.0pl1-105, whose sources are "
-                 "cited below, reads the same three places (its pathnames.h, lines 31, 42, 69 and 72). Files in "
-                 "folders below these, which cron does not read, and symbolic links, which are not followed, are "
-                 "counted in the run log. cron skips a file whose name begins with a dot, and in /etc/cron.d one "
+                 "cited below, reads the same three places (its pathnames.h, lines 31, 42, 69 and 72). cronie, the "
+                 "cron of RHEL and its rebuilds, reads a user's crontab from /var/spool/cron itself, named for the "
+                 "user, and also /etc/crontab and /etc/cron.d (cronie 1.5.7, configure.ac, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/configure.ac#L250-L252; "
+                 "src/database.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/database.c#L548-L568), "
+                 "and the artifact reports a file directly in /var/spool/cron as a User crontab, whichever cron "
+                 "the image runs. Files in other folders under /var/spool/cron, such as at's atjobs folder on "
+                 "honeynet_fc7_debian5, or below /etc/cron.d, which cron does not read, and symbolic links, which "
+                 "are not followed, are counted in the run log. Ubuntu's cron skips a file whose name begins with "
+                 "a dot, and in /etc/cron.d one "
                  "whose name has a character other than letters, digits, _ and - "
                  "(https://git.launchpad.net/ubuntu/+source/cron/tree/database.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n183, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/database.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n189 "
@@ -304,12 +313,18 @@ __artifacts_v2__ = {
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/database.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n223; "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/database.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n497, "
                  "lines 497 to 524, whose pattern at lines 509 and 523 is the one used when cron is not started "
-                 "with -l); the artifact reports such a file's lines and counts the file in the run log. Ubuntu's "
+                 "with -l); cronie skips, in /var/spool/cron and /etc/cron.d, a name that begins with . or # or "
+                 "ends with ~, .rpmsave, .rpmorig or .rpmnew (src/database.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/database.c#L618-L650). "
+                 "The run log applies cronie's rule to files directly in /var/spool/cron and Ubuntu's to "
+                 "/etc/cron.d, and the artifact reports such a file's lines and counts the file in the run log. "
+                 "Ubuntu's "
                  "service starts cron as /usr/sbin/cron -f -P $EXTRA_OPTS (debian/cron.service, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/debian/cron.service?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n8), "
-                 "and EXTRA_OPTS was empty on the tested VM. Line is the line's number in the file, Line as "
+                 "and EXTRA_OPTS was empty on the Ubuntu VM. Line is the line's number in the file, Line as "
                  "Written the line without its newline, and Source File the file; text is shown as UTF-8, with any "
-                 "byte that is not valid UTF-8 written as a \\x escape. Kind is decided as cron's parser decides "
+                 "byte that is not valid UTF-8 written as a \\x escape. Kind is decided as the parser of Ubuntu's "
+                 "and Debian's cron decides "
                  "between a comment, a setting and a job (env.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/env.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n144, "
                  "lines 144 to 266; entry.c, "
@@ -395,7 +410,15 @@ __artifacts_v2__ = {
                  "recorded. crontab -l leaves those lines out unless the CRONTAB_NOHEADER environment variable "
                  "begins with N or n "
                  "(https://git.launchpad.net/ubuntu/+source/cron/tree/crontab.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n333, "
-                 "lines 333 to 338). Compared with cron's own code: a harness on the lab VM built from the "
+                 "lines 333 to 338). cronie also installs a crontab by renaming a new file over the old one "
+                 "(src/crontab.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/crontab.c#L908) "
+                 "and writes none of these lines "
+                 "(https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/crontab.c#L67 "
+                 "and "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/crontab.c#L840-L843), "
+                 "so Installed On (Header) and Installed From (Header) are empty for its crontabs. Compared with "
+                 "the code of Ubuntu's and Debian's cron: a harness on the lab VM built from the "
                  "package's sources runs load_env and load_entry over a file in the loop load_user uses and prints "
                  "each setting and command. On 400 generated crontabs with valid time fields, 200 read as users' "
                  "crontabs and 200 as system ones, the harness built with gcc's defaults on the arm64 VM and the "
@@ -409,7 +432,14 @@ __artifacts_v2__ = {
                  "a line at 10,004 and 2 with a command of 999 characters, and read commands of 998. Debian's cron "
                  "read environment lines with another parser before 3.0pl1-110 (debian/changelog, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/debian/changelog?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n1872, "
-                 "lines 1872 to 1875). On ubuntu2604_arm64_crontab, captured from the lab VM running cron "
+                 "lines 1872 to 1875). cronie's parser was not compared with these rules. rocky98_arm64_known, "
+                 "whose cron is cronie 1.5.7, holds one crontab, /var/spool/cron/parallels, which the known step "
+                 "listed in the README beside that capture installed with crontab: 2 rows, a Comment and a Job "
+                 "with * in each time field, User parallels and Command /usr/bin/true DLEAPP-RHEL-CRON-U1, with "
+                 "File Modified 18:50:25 UTC, the second of that install, and Installed On (Header) and Installed "
+                 "From (Header) empty. Minute, Hour, Day of Month, Month and Day of Week are the same on both of "
+                 "its rows, * on the Job and empty on the Comment, and Variable and Value are empty on both, the "
+                 "file holding no setting. On ubuntu2604_arm64_crontab, captured from the lab VM running cron "
                  "3.0pl1-200ubuntu1, there are 41 rows from five files: 27 Comment, 4 Environment and 10 Job. The "
                  "user crontab's 13 rows are crontab's three lines and the ten lines of a known file installed "
                  "with crontab, whose commented-out job is a Comment row and whose @reboot job is the only row "
@@ -434,7 +464,7 @@ __artifacts_v2__ = {
                  "honeynet_fc7_debian5 one to one, because /etc/cron.d can hold any number of files, which Crontab "
                  "does not tell apart (three on ubuntu2604_arm64_crontab). No member of the other twenty-seven "
                  "tested images matches the declared paths.",
-        "paths": ("*/var/spool/cron/crontabs/*", "*/etc/crontab", "*/etc/cron.d/*"),
+        "paths": ("*/var/spool/cron/*", "*/etc/crontab", "*/etc/cron.d/*"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "calendar",
         "sample_data": {
@@ -444,6 +474,7 @@ __artifacts_v2__ = {
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 2 rows",
             "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared "
                                           "paths)",
             "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared "
@@ -585,9 +616,12 @@ UNDEFINED = 'lines ending at an opening quote, whose reading by cron depends on 
 NO_NEWLINE = 'files whose last line has no newline, which cron ignores whole'
 NUL = 'lines holding a NUL byte, which cron reads as more than one line (Kind Other)'
 TOO_LONG = 'files with a line that is not blank or a comment at line 10,004 or later, which cron ignores whole'
-SKIPPED_NAME = ('files whose names cron skips (a name starting with a dot, or in /etc/cron.d a name with a character '
-                'other than A to Z, a to z, 0 to 9, _ and -), whose lines are reported')
+SKIPPED_NAME = ('files whose names cron skips (a name starting with a dot, in /etc/cron.d a name with a character '
+                'other than A to Z, a to z, 0 to 9, _ and -, and directly in /var/spool/cron a name starting with # or '
+                'ending with ~, .rpmsave, .rpmorig or .rpmnew), whose lines are reported')
+OTHER_FOLDERS = 'files in other folders under /var/spool/cron or /etc/cron.d, which cron does not read'
 _CLASSICAL = re.compile(r'[a-zA-Z0-9_-]+')
+_CRONIE_SKIP = ('~', '.rpmsave', '.rpmorig', '.rpmnew')
 LONG_COMMAND = 'commands of 999 or more characters, for which cron ignores the whole file'
 _NAMEI, _NAME, _EQ1, _EQ2, _VALUEI, _VALUE, _FINI, _ERROR = range(8)
 
@@ -731,10 +765,11 @@ def crontab_rows(data, system, counts):
 
 
 def crontab_kind(relative):
-    """User, System or cron.d for a path cron reads crontabs from, else None."""
+    """User, System or cron.d for a path cron reads crontabs from, else None. Debian's cron reads users'
+    crontabs from /var/spool/cron/crontabs and cronie from /var/spool/cron itself."""
     parent, name = os.path.split(relative.replace('\\', '/'))
     parent = '/' + parent.strip('/')
-    if parent.endswith('/var/spool/cron/crontabs'):
+    if parent.endswith('/var/spool/cron/crontabs') or parent.endswith('/var/spool/cron'):
         return 'User'
     if parent.endswith('/etc') and name == 'crontab':
         return 'System'
@@ -756,7 +791,7 @@ def linuxCrontabEntries(context):
         relative = context.get_relative_path(path)
         kind = crontab_kind(relative)
         if kind is None:
-            counts['files in folders below the crontab folders, which cron does not read'] += 1
+            counts[OTHER_FOLDERS] += 1
             continue
         link = recorded_link(seeker, path) if seeker else None
         if link is not None:
@@ -769,7 +804,9 @@ def linuxCrontabEntries(context):
             counts['files that could not be read'] += 1
             continue
         name = os.path.basename(relative)
-        if kind != 'System' and (name.startswith('.') or (kind == 'cron.d' and not _CLASSICAL.fullmatch(name))):
+        cronie_spool = kind == 'User' and not os.path.dirname(relative.replace('\\', '/')).endswith('/crontabs')
+        if kind != 'System' and (name.startswith('.') or (kind == 'cron.d' and not _CLASSICAL.fullmatch(name))
+                                 or (cronie_spool and (name.startswith('#') or name.endswith(_CRONIE_SKIP)))):
             counts[SKIPPED_NAME] += 1
         rows = crontab_rows(data, kind != 'User', counts)
         if not rows:

@@ -5,6 +5,7 @@ wrote when it installed a known file. For every line below that cron accepts, th
 what cron's own load_env() and load_entry(), built from that package's sources, read from it; cron rejects the
 system line '* * * * *  root', whose user name runs to the end of the line.
 """
+import fnmatch
 import os
 import pathlib
 import sys
@@ -132,6 +133,12 @@ class HeaderAndKindTest(unittest.TestCase):
         self.assertEqual(lc.installed_header([b'# DO NOT EDIT', second, third]), ('', ''))
         self.assertEqual(lc.installed_header([first, second, b'# (another comment)']), ('', ''))
 
+    def test_paths_reach_cronie_spool_once(self):
+        patterns = lc.__artifacts_v2__['linuxCrontabEntries']['paths']
+        for member in ('root/var/spool/cron/crontabs/alice', 'root/var/spool/cron/parallels', 'root/etc/crontab',
+                       'root/etc/cron.d/0hourly'):
+            self.assertEqual(sum(fnmatch.fnmatch(member, pattern) for pattern in patterns), 1, member)
+
     def test_crontab_kind(self):
         self.assertEqual(lc.crontab_kind('var/spool/cron/crontabs/alice'), 'User')
         self.assertEqual(lc.crontab_kind('lba0/etc/crontab'), 'System')
@@ -140,6 +147,8 @@ class HeaderAndKindTest(unittest.TestCase):
         self.assertIsNone(lc.crontab_kind('var/spool/cron/crontabs/sub/x'))
         self.assertIsNone(lc.crontab_kind('opt/etc/crontab/x'))
         self.assertIsNone(lc.crontab_kind('home/alice/crontab'))
+        self.assertEqual(lc.crontab_kind('var/spool/cron/parallels'), 'User')
+        self.assertIsNone(lc.crontab_kind('var/spool/cron/atjobs/.SEQ'))
 
 
 class FakeContext:
@@ -201,8 +210,22 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(known[7][16:], ('/home/parallels/crontab_known.txt', 'var/spool/cron/crontabs/parallels'))
         self.assertEqual(found[7][11:], ('', '', 'A', '1', 'A=1', '', 'var/spool/cron/crontabs/.x'))
         self.assertEqual(source.split('\n'), [dotted, crond, system, hidden, dotted_user, user])
-        log.assert_called_once_with('Crontab Entries: 1 files in folders below the crontab folders, which cron does '
-                                    'not read, 3 ' + lc.SKIPPED_NAME)
+        log.assert_called_once_with('Crontab Entries: 1 ' + lc.OTHER_FOLDERS + ', 3 ' + lc.SKIPPED_NAME)
+
+    def test_cronie_spool(self):
+        with tempfile.TemporaryDirectory() as root:
+            alice = self.write(root, 'var/spool/cron/alice', b'# mine\n* * * * * /usr/bin/true a\n')
+            skipped = [self.write(root, f'var/spool/cron/{name}', b'A=1\n') for name in ('#x', 'x~', 'y.rpmnew', 'z.rpmsave', 'w.rpmorig')]
+            kept = self.write(root, 'var/spool/cron/crontabs/b~', b'A=1\n')
+            seq = self.write(root, 'var/spool/cron/atjobs/.SEQ', b'0\n')
+            with mock.patch.object(lc, 'logfunc') as log:
+                _headers, found, source = lc.linuxCrontabEntries.__wrapped__(
+                    FakeContext([alice, *skipped, kept, seq, os.path.join(root, 'var', 'spool', 'cron', 'atjobs')], root))
+        jobs = [r for r in found if r[4] == 'Job']
+        self.assertEqual([(r[2], r[11], r[12], r[1], r[16]) for r in jobs], [('User', 'alice', '/usr/bin/true a', '', '')])
+        self.assertEqual(len(found), 8)
+        self.assertEqual(len(source.split('\n')), 7)
+        log.assert_called_once_with('Crontab Entries: 1 ' + lc.OTHER_FOLDERS + ', 5 ' + lc.SKIPPED_NAME)
 
     def test_without_a_seeker_and_an_unreadable_file(self):
         with tempfile.TemporaryDirectory() as root:
