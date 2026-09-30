@@ -190,7 +190,12 @@ __artifacts_v2__ = {
                  "next 6005 may indicate the system was offline, powered off, or that the logs "
                  "were manipulated. On the registered images four 6005 events, one on each image, had no 6006 since the previous 6005 in event time order, "
                  "and a 6008 and a Kernel-Power 41 came between them only on pc_mus_001_win11; in EventRecordID order only the pc_mus_001_win11 one had no "
-                 "6006 since the previous 6005. Reading needs the python-evtx package "
+                 "6006 since the previous 6005. A record python-evtx cannot render is skipped and counted in the "
+                 "run log, and the records after it are still read: on windows11_arm_4688_known python-evtx 0.8.1 "
+                 "could not render 72 of the 15,344 System records, all Microsoft-Windows-TPM event 27 (identified "
+                 "with evtx 0.13.1), because they hold a value of type 132, which its type table does not list "
+                 "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L444-L473). "
+                 "Reading needs the python-evtx package "
                  "(pip install python-evtx). Event meanings: Kandi Brian, 'Windows Event Log "
                  "Forensics', https://kandibrian.com/articles/windows-event-log-forensics.html "
                  "(6005, 6006 and 6008); for the others, the provider manifests as registered on "
@@ -449,12 +454,18 @@ def systemPowerEvents(context):
                    if str(f).lower().endswith('system.evtx')]:
         relative_source = context.get_relative_path(source)
         found_here = []
+        unrendered = 0
         boots = []
         try:
             with evtx.Evtx(source) as log:
                 for record in log_records(log, 'Windows System Power Events', relative_source):
                     try:
-                        found = _power_record(record.xml())
+                        xml_text = record.xml()
+                    except Exception:  # pylint: disable=broad-exception-caught
+                        unrendered += 1
+                        continue
+                    try:
+                        found = _power_record(xml_text)
                     except ElementTree.ParseError:
                         continue
                     if found is None:
@@ -465,6 +476,9 @@ def systemPowerEvents(context):
                         boots.append((found['record_id'], build))
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows System Power Events: could not read {relative_source}: {exc}')
+        if unrendered:
+            logfunc(f'Windows System Power Events: {unrendered} record(s) in {relative_source} could not be '
+                    'rendered by python-evtx and were skipped')
         for found in found_here:
             named = {field: names.text(source, found, boots, field)
                      for field in _NAMED.get(found['kind'], (None, None, ()))[2]}

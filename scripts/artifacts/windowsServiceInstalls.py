@@ -64,6 +64,12 @@ __artifacts_v2__ = {
                  "whether the service still exists is not established by this artifact. Computer "
                  "is the machine that recorded the event. Computer held one value on every row "
                  "of pc_mus_001_win11, two values on af_case2_win10 and on lonewolf_win10, and three values on szechuan_win10. "
+                 "A record python-evtx cannot render is skipped and counted in the run log, and the records after "
+                 "it are still read: on windows11_arm_4688_known python-evtx 0.8.1 could not render 72 of the "
+                 "15,344 System records, all Microsoft-Windows-TPM event 27 (identified with evtx 0.13.1), because "
+                 "they hold a value of type 132, which its type table does not list "
+                 "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L444-L473). "
+                 ""
                  "Reading needs the python-evtx package (pip install "
                  "python-evtx). Event 7045 and its forensic use: Psmths, "
                  "'windows-forensic-artifacts', "
@@ -149,11 +155,17 @@ def serviceInstalls(context):
                    if str(f).lower().endswith('system.evtx')]:
         relative_source = context.get_relative_path(source)
         rows_here = 0
+        unrendered = 0
         try:
             with evtx.Evtx(source) as log:
                 for record in log_records(log, 'Windows Service Installations', relative_source):
                     try:
-                        row = _service_row(record.xml())
+                        xml_text = record.xml()
+                    except Exception:  # pylint: disable=broad-exception-caught
+                        unrendered += 1
+                        continue
+                    try:
+                        row = _service_row(xml_text)
                     except ElementTree.ParseError:
                         continue
                     if row is not None:
@@ -161,6 +173,9 @@ def serviceInstalls(context):
                         rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows Service Installations: could not read {relative_source}: {exc}')
+        if unrendered:
+            logfunc(f'Windows Service Installations: {unrendered} record(s) in {relative_source} could not be '
+                    'rendered by python-evtx and were skipped')
         if rows_here:
             sources.append(source)
 

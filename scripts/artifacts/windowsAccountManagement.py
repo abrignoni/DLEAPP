@@ -83,6 +83,8 @@ __artifacts_v2__ = {
                  "password-change (4723), lockout (4740), unlock (4767) and universal-group (4756, "
                  "4757) events are read and titled but were not present on any of the four "
                  "registered images. "
+                 "A record python-evtx cannot render is skipped and counted in the run log, and the records after "
+                 "it are still read; no record of this log failed to render on the tested images. "
                  "Reading needs the python-evtx package (pip install "
                  "python-evtx). Event IDs: Microsoft, 'Audit User Account Management', "
                  "https://learn.microsoft.com/windows/security/threat-protection/auditing/audit-user-account-management "
@@ -177,11 +179,17 @@ def accountManagement(context):
                    if str(f).lower().endswith('security.evtx')]:
         relative_source = context.get_relative_path(source)
         rows_here = 0
+        unrendered = 0
         try:
             with evtx.Evtx(source) as log:
                 for record in log_records(log, 'Windows Account Management', relative_source):
                     try:
-                        row = _account_row(record.xml())
+                        xml_text = record.xml()
+                    except Exception:  # pylint: disable=broad-exception-caught
+                        unrendered += 1
+                        continue
+                    try:
+                        row = _account_row(xml_text)
                     except ElementTree.ParseError:
                         continue
                     if row is not None:
@@ -189,6 +197,9 @@ def accountManagement(context):
                         rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows Account Management: could not read {relative_source}: {exc}')
+        if unrendered:
+            logfunc(f'Windows Account Management: {unrendered} record(s) in {relative_source} could not be '
+                    'rendered by python-evtx and were skipped')
         if rows_here:
             sources.append(source)
 
