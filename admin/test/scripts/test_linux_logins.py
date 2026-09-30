@@ -182,6 +182,36 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual([os.path.basename(path) for path in source.split('\n')], ['wtmp', 'wtmp.1.gz'])
         self.assertIn('1 files no single utmp record layout fits, not read', log_lines.call_args.args[0])
 
+    def test_btmp_reads_the_records_su_and_gdm_write_and_counts_an_empty_file(self):
+        su = utmp64(kind=6, pid=1246, line=b'', ident=b'', user=b'target', host=b'', address=bytes(16))
+        gdm = utmp64(kind=7, pid=2520, line=b'seat0', ident=b'', user=b'typed name', host=b'local', address=bytes(16))
+        with tempfile.TemporaryDirectory() as root:
+            folder = os.path.join(root, 'var', 'log')
+            os.makedirs(folder)
+            files = []
+            for name, data in (('btmp', b''), ('btmp.1', su + gdm)):
+                files.append(os.path.join(folder, name))
+                with open(files[-1], 'wb') as handle:
+                    handle.write(data)
+            with mock.patch.object(linuxLogins, 'logfunc') as log_lines:
+                headers, rows, source = linuxLogins.linuxBtmp.__wrapped__(FakeContext(files))
+        self.assertEqual(headers, linuxLogins.linuxWtmp.__wrapped__(FakeContext([]))[0])
+        self.assertEqual([row[1:8] for row in rows],
+                         [('LOGIN_PROCESS', 'target', '', '', '', 1246, ''),
+                          ('USER_PROCESS', 'typed name', 'seat0', 'local', '', 2520, '')])
+        self.assertEqual({os.path.basename(row[-1]) for row in rows}, {'btmp.1'})
+        self.assertEqual(os.path.basename(source), 'btmp.1')
+        self.assertEqual(log_lines.call_args.args[0], 'Failed Login Records (btmp): 1 empty files, holding no records')
+
+    def test_an_empty_wtmp_is_counted_as_empty_not_as_a_layout_failure(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = os.path.join(root, 'wtmp')
+            open(path, 'wb').close()
+            with mock.patch.object(linuxLogins, 'logfunc') as log_lines:
+                _headers, rows, source = linuxLogins.linuxWtmp.__wrapped__(FakeContext([path]))
+        self.assertEqual((rows, source), ([], ''))
+        self.assertEqual(log_lines.call_args.args[0], 'Login Records (wtmp): 1 empty files, holding no records')
+
     def run_lastlog(self, with_passwd, uid=1000, extra=b''):
         with tempfile.TemporaryDirectory() as root:
             os.makedirs(os.path.join(root, 'var', 'log'))
