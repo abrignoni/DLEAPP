@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "authentication to the account, with each key's SHA256 fingerprint, type, comment and options.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "SSH",
         "notes": "Reads each authorized_keys and authorized_keys2 file in a .ssh folder, "
@@ -39,7 +39,16 @@ __artifacts_v2__ = {
                  "fingerprint equals what ssh-keygen prints for that file and the "
                  "fingerprint sshd logged for all 416 logins with a public key in auth.log "
                  "and its three rotations. The key carried no options, so Options is blank "
-                 "on that image.",
+                 "on that image."
+                 " On ubuntu2604_arm64_sshkeys, known data written with ssh-keygen 10.2p1, authorized_keys and "
+                 "authorized_keys2 give 5 rows: Options keeps a quoted option field holding escaped quotes as "
+                 "stored, the key made with no comment has Comment blank and the certificate's fingerprint is "
+                 "blank. A line whose key is not base64 and one whose options open a quote they never close are"
+                 " counted in the run log and not reported, as sshd skips them "
+                 "(https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/auth2-pubkeyfile.c#L284-L299"
+                 " and "
+                 "https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/authfile.c#L469-L484)."
+                 " Every other fingerprint equals what ssh-keygen -lf prints for those files.",
         "paths": ('*/.ssh/authorized_keys', '*/.ssh/authorized_keys2'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
@@ -52,6 +61,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sshkeys": "Ubuntu 26.04 LTS aarch64 | 5 rows",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 1 row",
         },
     },
@@ -61,10 +71,10 @@ __artifacts_v2__ = {
                        "they are hashed, and each key's type and SHA256 fingerprint.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "SSH",
-        "notes": "Reads each known_hosts and known_hosts2 file in a .ssh folder and each "
+        "notes": "Reads each known_hosts, known_hosts2 and known_hosts.old file in a .ssh folder and each "
                  "ssh_known_hosts and ssh_known_hosts2 file in an etc/ssh folder, one row "
                  "per key line in file order; ssh_config(5) of OpenSSH 10.2p1 names these "
                  "as the default user and global host key files "
@@ -90,9 +100,22 @@ __artifacts_v2__ = {
                  "entry whose host is an IPv4 address in plain text, and its fingerprint "
                  "equals what ssh-keygen prints for that file. Marker and Comment were "
                  "blank on the entries of both images, and Hashed was blank on the "
-                 "plain-text entry of pc_mus_001_win11.",
-        "paths": ('*/.ssh/known_hosts', '*/.ssh/known_hosts2', '*/etc/ssh/ssh_known_hosts',
-                  '*/etc/ssh/ssh_known_hosts2'),
+                 "plain-text entry of pc_mus_001_win11."
+                 " ssh-keygen -H and -R keep the file they replace as known_hosts.old, and when it has hashed host "
+                 "names that were in plain text "
+                 "ssh-keygen warns that the .old file contains unhashed entries "
+                 "(https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/ssh-keygen.c#L1324-L1349)."
+                 " ssh-keygen -H writes each comma-separated host name as its own hashed line and leaves a line"
+                 " alone when its host names are already hashed, hold a wildcard or follow a marker "
+                 "(https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/ssh-keygen.c#L1144-L1170)."
+                 " On ubuntu2604_arm64_sshkeys, known data written with ssh-keygen 10.2p1, known_hosts holds 6 "
+                 "entries: the two names of one line hashed onto 2 lines, a hashed [host]:port line, a @revoked"
+                 " line and a @cert-authority line whose host names ssh-keygen -H left in plain text, and one "
+                 "plain line added afterwards; its known_hosts.old holds the 4 lines as they were before "
+                 "hashing, every host name in plain text; etc/ssh/ssh_known_hosts holds 1. Each fingerprint "
+                 "ssh-keygen -lf prints for those files, which list no marker line, equals the one reported.",
+        "paths": ('*/.ssh/known_hosts', '*/.ssh/known_hosts2', '*/.ssh/known_hosts.old',
+                  '*/etc/ssh/ssh_known_hosts', '*/etc/ssh/ssh_known_hosts2'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "server",
         "sample_data": {
@@ -104,6 +127,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_logins": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_sshkeys": "Ubuntu 26.04 LTS aarch64 | 11 rows",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 1 row",
         },
     },
