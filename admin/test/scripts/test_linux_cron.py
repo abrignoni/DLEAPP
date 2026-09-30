@@ -1,5 +1,6 @@
-"""Pin how the Cron Log artifacts read the lines Debian's cron and crontab write to syslog and the systemd
-journal. The journal files are written with journal_writer.py."""
+"""Pin how the Cron Log artifacts read the lines cron (Debian's cron or cronie) and crontab write to syslog and the
+systemd journal. The journal files are written with journal_writer.py."""
+import fnmatch
 import os
 import pathlib
 import sys
@@ -63,6 +64,8 @@ class RowsTest(unittest.TestCase):
             b'Mar 10 06:20:17 box /usr/sbin/cron[2255]: (CRON) STARTUP (fork ok)\n'
             b"2026-09-28T13:30:01.000001-04:00 host anacron[5]: Job `cron.daily' started\n"
             b'2026-09-28T13:30:01.000001-04:00 host crond[6]: (root) CMD (x)\n'
+            b'Sep 30 14:51:01 rocky CROND[5053]: (parallels) CMDEND (/usr/bin/true a)\n'
+            b"Sep 30 14:51:01 rocky crond[868]: (CRON) CAN'T OPEN (/etc/crontab): Permission denied\n"
             b'not syslog\n', counts)
         self.assertEqual(rows, [
             (datetime(2026, 9, 28, 17, 9, 1, 695784, tzinfo=UTC), '2026-09-28T13:09:01.695784-04:00', 'host', 'CRON',
@@ -72,9 +75,12 @@ class RowsTest(unittest.TestCase):
             (datetime(2026, 9, 28, 17, 15, 20, 577665, tzinfo=UTC), '2026-09-28T13:15:20.577665-04:00', 'host', 'crontab',
              '338133', 'parallels', 'DELETE', 'parallels', 4),
             ('', 'Mar 10 06:25:01', 'box', '/USR/SBIN/CRON', '2436', 'root', 'CMD', 'test -x /usr/sbin/anacron', 5),
-            ('', 'Mar 10 06:20:17', 'box', '/usr/sbin/cron', '2255', 'CRON', 'STARTUP', 'fork ok', 6)])
-        self.assertEqual(counts, {'cron and crontab lines in other forms, not reported': 1,
-                                  'lines from other programs, not reported': 2,
+            ('', 'Mar 10 06:20:17', 'box', '/usr/sbin/cron', '2255', 'CRON', 'STARTUP', 'fork ok', 6),
+            (datetime(2026, 9, 28, 17, 30, 1, 1, tzinfo=UTC), '2026-09-28T13:30:01.000001-04:00', 'host', 'crond', '6',
+             'root', 'CMD', 'x', 8),
+            ('', 'Sep 30 14:51:01', 'rocky', 'CROND', '5053', 'parallels', 'CMDEND', '/usr/bin/true a', 9)])
+        self.assertEqual(counts, {'cron and crontab lines in other forms, not reported': 2,
+                                  'lines from other programs, not reported': 1,
                                   'lines in neither syslog file format, not reported': 1})
 
 
@@ -157,6 +163,17 @@ def syslog_entry(ident, message, pid='77', host='vm'):
     return fields + [('MESSAGE', message)]
 
 
+class PathsTest(unittest.TestCase):
+    def test_cron_log_reads_rhel_var_log_cron(self):
+        patterns = linuxCron.__artifacts_v2__['linuxCronLog']['paths']
+        def matched(member):
+            return any(fnmatch.fnmatch(member, pattern) for pattern in patterns)
+        for member in ('root/var/log/syslog', 'root/var/log/syslog.1', 'root/var/log/cron.log', 'root/var/log/cron.log.2.gz',
+                       'root/var/log/cron', 'root/var/log/cron-20260930', 'root/var/log/cron.1'):
+            self.assertTrue(matched(member), member)
+        self.assertFalse(matched('root/var/log/cron.bak'))
+
+
 class JournalRowsTest(unittest.TestCase):
     def test_programs_forms_and_counts(self):
         t = T0
@@ -180,8 +197,9 @@ class JournalRowsTest(unittest.TestCase):
              'var/log/journal/m/system.journal'),
             (at(3), 'vm', 'CRON', '90', 'alex', 'CMD', '/usr/bin/true a', BOOT_1.hex(), 'var/log/journal/m/system.journal'),
             (at(4), '', 'crontab', '5', 'alex', 'LIST', 'alex', BOOT_1.hex(), 'var/log/journal/m/system.journal'),
-            (at(5), 'vm', '/USR/SBIN/CRON', '', 'root', 'CMD', 'x', BOOT_1.hex(), 'var/log/journal/m/system.journal')])
-        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 4, linuxCron.JOURNAL_OTHER_FORM: 1})
+            (at(5), 'vm', '/USR/SBIN/CRON', '', 'root', 'CMD', 'x', BOOT_1.hex(), 'var/log/journal/m/system.journal'),
+            (at(7), 'vm', 'crond', '77', 'root', 'CMD', 'x', BOOT_1.hex(), 'var/log/journal/m/system.journal')])
+        self.assertEqual(counts, {linux_syslog.JOURNAL_OTHER: 3, linuxCron.JOURNAL_OTHER_FORM: 1})
 
     def test_the_first_value_of_a_repeated_field_is_read(self):
         entry = [('_TRANSPORT', 'syslog'), ('SYSLOG_IDENTIFIER', 'CRON'), ('SYSLOG_IDENTIFIER', 'systemd'),

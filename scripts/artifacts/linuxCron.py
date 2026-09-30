@@ -1,5 +1,5 @@
-"""Lines the Debian cron daemon and its crontab command wrote to syslog, and the entries of the crontab files that
-cron reads, for DLEAPP.
+"""Lines the cron daemon (Debian's cron or cronie) and its crontab command wrote to syslog, and the entries of the
+crontab files that cron reads, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
@@ -7,20 +7,22 @@ Author: @AlexisBrignoni, Claude.
 __artifacts_v2__ = {
     "linuxCronLog": {
         "name": "Cron Log",
-        "description": "Lines cron and crontab logged in syslog and cron.log: commands of jobs cron started, crontab "
+        "description": "Lines cron and crontab logged in syslog, cron.log or cron: commands of jobs cron started, "
+                       "crontab "
                        "listings, installs, edits and removals, and cron's own messages.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Scheduled Jobs (Linux)",
-        "notes": "Reads /var/log/syslog and its rotations, and /var/log/cron.log and its rotations, gzip ones "
-                 "included, and reports each line whose tag names cron or crontab and whose message has the form "
+        "notes": "Reads /var/log/syslog and its rotations, /var/log/cron.log and its rotations, and /var/log/cron "
+                 "and its numbered or dated rotations, gzip ones included, and reports each line whose tag names "
+                 "cron, crond or crontab and whose message has the form "
                  "cron writes (below), in line order, file by file in name order; Line is its line number in the "
                  "file and Source File the file, and the files that held a row are named in the report's located-at "
                  "line. Lines of other programs, non-empty lines in neither syslog file format described below and "
                  "cron or crontab lines in another form are counted in the run log and not reported. Messages kept "
-                 "only in the systemd journal are read by Cron Log (journal), and messages written to another file "
+                 "only in the systemd journal are read by Cron Log (journal), and lines written to another file "
                  "are not read. A line is read in either of "
                  "rsyslog's two file formats, an RFC 3339 time with a UTC offset (rsyslog 8.2512.0, tools/smfile.c, "
                  "https://github.com/rsyslog/rsyslog/blob/cba4c502c21e5c722cea449d1bc1ffcdfb6a2196/tools/smfile.c#L5) "
@@ -41,11 +43,13 @@ __artifacts_v2__ = {
                  "Debian's cron logs these names from 3.0pl1-125 (debian/changelog, "
                  "https://salsa.debian.org/debian/cron/-/blob/f11daeee8ec966c044f22f0cf7d9e7a6b1bd59b3/debian/changelog#L882), "
                  "and Debian 5's cron 3.0pl1-105 logged its full paths, /usr/sbin/cron and /USR/SBIN/CRON, on "
-                 "honeynet_fc7_debian5. cron writes each line as (<user>) <event> (<detail>) to the cron facility at "
+                 "honeynet_fc7_debian5. Ubuntu's cron writes each line as (<user>) <event> (<detail>) to the cron "
+                 "facility at "
                  "the info level (misc.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/misc.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n565, "
                  "lines 565 to 570): User is the text in the first parentheses, Event the event and Detail the text "
-                 "in the last parentheses. A CMD line is written by the process that runs a job, just before it "
+                 "in the last parentheses. With Ubuntu's cron, a CMD line is written by the process that runs a "
+                 "job, just before it "
                  "starts the job's shell, whose process ID it carries (do_command.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/do_command.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n243, "
                  "lines 243 to 256): User is the user the job runs as, the LOGNAME cron sets for it "
@@ -57,7 +61,9 @@ __artifacts_v2__ = {
                  "In Detail a control character is written as ^ and a character, the delete character as ^? and a "
                  "byte above it as a backslash and three octal digits (misc.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/misc.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n651, "
-                 "lines 651 to 673), so a command's non-ASCII text shows as octal escapes. cron writes no line when "
+                 "lines 651 to 673; cronie 1.5.7, src/misc.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/misc.c#L590-L617), "
+                 "so a command's non-ASCII text shows as octal escapes. Ubuntu's cron writes no line when "
                  "a job ends unless it was started with an -L level that adds END lines, and writes a job's process "
                  "ID inside CMD and END lines only with another level (cron.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/cron.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n469 "
@@ -69,7 +75,8 @@ __artifacts_v2__ = {
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/do_command.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n368, "
                  "lines 368 to 374, and "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/do_command.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n685, "
-                 "lines 685 to 696); the tested VM started it as /usr/sbin/cron -f -P, and neither tested image "
+                 "lines 685 to 696); the Ubuntu VM started it as /usr/sbin/cron -f -P, and neither the Ubuntu nor "
+                 "the Debian image "
                  "holds an END line. LIST, REPLACE, DELETE, BEGIN EDIT and END EDIT are written by the crontab "
                  "command when a crontab is listed, installed, removed and edited (crontab.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/crontab.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n316, "
@@ -78,12 +85,13 @@ __artifacts_v2__ = {
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/crontab.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n573 "
                  "and "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/crontab.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n801); "
-                 "User is the user who ran crontab and Detail the user whose crontab it was. An edit writes BEGIN "
+                 "User is the user who ran crontab and Detail the user whose crontab it was. With Ubuntu's crontab "
+                 "an edit writes BEGIN "
                  "EDIT and END EDIT, and REPLACE between them only when crontab installed a change, which it decides "
                  "by the edited file's modification time in whole seconds "
                  "(https://git.launchpad.net/ubuntu/+source/cron/tree/crontab.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n503, "
                  "lines 503 to 504), so an edit saved within the second in which crontab wrote the file is not "
-                 "installed. RELOAD is written by the daemon when a crontab it had read before has changed "
+                 "installed. RELOAD is written by Ubuntu's daemon when a crontab it had read before has changed "
                  "(database.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/database.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n439, "
                  "lines 439 to 463), so a new crontab writes none; User is the crontab's name, a user's own for "
@@ -93,7 +101,8 @@ __artifacts_v2__ = {
                  "lines 162 to 166, and "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/database.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n192, "
                  "lines 192 to 195), and Detail the crontab file. cron's own messages carry CRON as User: on the "
-                 "tested images, INFO lines the daemon wrote when it started, giving the pidfile's descriptor "
+                 "Ubuntu and Debian images, INFO lines the daemon wrote when it started, giving the pidfile's "
+                 "descriptor "
                  "(misc.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/misc.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n316, "
                  "lines 316 to 317) and whether it ran the @reboot jobs or skipped them because its reboot check "
@@ -102,7 +111,43 @@ __artifacts_v2__ = {
                  "lines 290 to 305), STARTUP lines on Debian 5, and info lines when cron discarded a job's output "
                  "because it found no mail program to send it with (do_command.c, "
                  "https://git.launchpad.net/ubuntu/+source/cron/tree/do_command.c?id=4906de2a24e12e0c297bcd8164aab6d6bf76ed91#n520, "
-                 "lines 520 to 525). On ubuntu2604_arm64_cron, captured from a VM running cron 3.0pl1-200ubuntu1, "
+                 "lines 520 to 525). cronie, the cron of RHEL and its rebuilds, logs as crond for the daemon and "
+                 "as crontab for the crontab command, the names each was started under (cronie 1.5.7, src/cron.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/cron.c#L209-L214, "
+                 "and src/crontab.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/crontab.c#L152-L157), "
+                 "and as CROND for the process that runs a job when it was built to upshift that name "
+                 "(src/do_command.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/do_command.c#L115-L125), "
+                 "as that of rocky98_arm64_known was. It writes the same (<user>) <event> (<detail>) form to the "
+                 "cron facility (src/misc.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/misc.c#L69-L71 "
+                 "and "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/misc.c#L527-L529), "
+                 "and adds a colon and the system's error text after it when it logs an error, a form counted in "
+                 "the run log and not reported. Its process that runs a job writes CMD just before the job's shell "
+                 "runs, and the process that started that one writes CMDEND with the same command once the job has "
+                 "ended (src/do_command.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/do_command.c#L215-L221 "
+                 "and "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/do_command.c#L619-L622); "
+                 "it writes neither for an entry that root's or the system's crontab begins with - (src/entry.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/entry.c#L121-L130). "
+                 "The rsyslog.conf of rocky98_arm64_known (Rocky Linux 9.8, cronie 1.5.7) sends the cron facility "
+                 "to /var/log/cron and keeps it out of messages, and there /var/log/cron holds 17 rows, with Time "
+                 "(UTC) blank because the lines store no year and no zone: STARTUP with Detail 1.5.7, the version "
+                 "cronie logs there, and 3 INFO by crond as the daemon started (src/cron.c, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/cron.c#L297, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/cron.c#L301, "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/cron.c#L311-L312 "
+                 "and "
+                 "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/cron.c#L146); "
+                 "LIST, REPLACE and LIST by crontab at 14:50:25, when the known step listed in the README beside "
+                 "that capture installed a crontab for parallels at 18:50:25 UTC, the image's /etc/localtime "
+                 "naming America/New_York; and, for that crontab's entry, one CMD and one CMDEND by CROND at 01 "
+                 "seconds past each minute from 14:51 to 14:55, each with Detail /usr/bin/true DLEAPP-RHEL-CRON-U1 "
+                 "and the CMDEND with a Process ID 2 lower than the CMD before it. On ubuntu2604_arm64_cron, "
+                 "captured from a VM running cron 3.0pl1-200ubuntu1, "
                  "syslog and its three rotations hold 234 rows: 188 CMD, 20 INFO, 9 LIST, 5 info, 3 REPLACE, 3 BEGIN "
                  "EDIT, 3 END EDIT, 2 DELETE and 1 RELOAD. The known crontab steps listed in the README beside that "
                  "capture account for 16 CMD, 6 LIST, 3 REPLACE, 3 BEGIN EDIT, 3 END EDIT, 2 DELETE, the RELOAD and "
@@ -117,7 +162,8 @@ __artifacts_v2__ = {
                  "those of the CMD rows. On honeynet_fc7_debian5, whose rsyslog 3.18.6 wrote the traditional format, "
                  "syslog holds 29 rows, 5 CMD by /USR/SBIN/CRON and 16 INFO and 8 STARTUP by /usr/sbin/cron, with "
                  "Time (UTC) blank.",
-        "paths": ('*/var/log/syslog', '*/var/log/syslog.*', '*/var/log/cron.log', '*/var/log/cron.log.*'),
+        "paths": ('*/var/log/syslog', '*/var/log/syslog.*', '*/var/log/cron.log', '*/var/log/cron.log.*',
+                  '*/var/log/cron', '*/var/log/cron[.-][0-9]*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "calendar",
         "sample_data": {
@@ -126,6 +172,7 @@ __artifacts_v2__ = {
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 29 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 17 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 234 rows",
@@ -147,7 +194,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Scheduled Jobs (Linux)",
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
-                 "SYSLOG_IDENTIFIER names cron or crontab and whose MESSAGE has the form Cron Log describes, read "
+                 "SYSLOG_IDENTIFIER names cron, crond or crontab and whose MESSAGE has the form Cron Log "
+                 "describes, read "
                  "with the same reader as systemd Journal (scripts/systemd_journal.py). journald keeps a line a "
                  "program sends to the syslog socket as an entry with _TRANSPORT=syslog, the tag's name before its "
                  "colon as SYSLOG_IDENTIFIER, the process ID in the tag's brackets as SYSLOG_PID and the text "
@@ -167,12 +215,16 @@ __artifacts_v2__ = {
                  "held an entry in two files, and the unit tests exercise it. Entries of other programs, cron and "
                  "crontab entries in another form, entries read a second time, and journal files that could not be "
                  "read or whose header sets an incompatible flag the reader does not know are counted in the run "
-                 "log and not reported. On each of the three tested images holding journal files the entries in "
+                 "log and not reported. On each of the three Ubuntu images holding journal files the entries in "
                  "another form were pam_unix(cron:session) lines, 406, 418 and 450 of them, whose SYSLOG_FACILITY "
-                 "is 10 while that of every reported entry is 9, and SYSLOG_PID equals the journal's own _PID "
+                 "is 10 while that of every reported entry is 9; rocky98_arm64_known held none in another form. "
+                 "SYSLOG_PID equals the journal's own _PID "
                  "field on every reported row. ubuntu2604_arm64_journal, captured from the VM described for Cron "
                  "Log, holds 249 rows from 8 boots: 203 CMD, 20 INFO, 9 LIST, 5 info, 3 REPLACE, 3 BEGIN EDIT, 3 "
-                 "END EDIT, 2 DELETE and 1 RELOAD. Three captures of that VM's syslog files were compared with "
+                 "END EDIT, 2 DELETE and 1 RELOAD. rocky98_arm64_known, whose journal is under run/log/journal, "
+                 "holds 17 rows from 1 boot, and Boot ID held one value on every row there; they are, in order and "
+                 "on Program, Process ID, User, Event and Detail, the 17 Cron Log rows of its /var/log/cron. Three "
+                 "captures of that VM's syslog files were compared with "
                  "this artifact, matching rows on Program, Process ID, User, Event and Detail with times less than "
                  "1 s apart: every one of the 234 Cron Log rows of ubuntu2604_arm64_cron was matched by a row of "
                  "ubuntu2604_arm64_journal, every one of the 255 of ubuntu2604_arm64_usb and the 154 of "
@@ -193,6 +245,7 @@ __artifacts_v2__ = {
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 17 rows",
             "python_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "sqlite_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
@@ -435,7 +488,7 @@ from scripts.linux_syslog import (OTHER_PROGRAMS, journal_entries, journal_sourc
                                   reported_time, syslog_lines)
 
 # The program name's last path part, case ignored: cron (the daemon), CRON (a job's process), crontab.
-_PROGRAMS = ('cron', 'crontab')
+_PROGRAMS = ('cron', 'crond', 'crontab')
 # cron's log_it(): "(<user>) <event> (<detail>)". Two events hold parentheses of their own.
 _FORM = re.compile(r'\(([^()]*)\) (INSECURE MODE \((?:mode 0600 expected|group/other writable)\)|[^()]+?) \((.*)\)')
 
