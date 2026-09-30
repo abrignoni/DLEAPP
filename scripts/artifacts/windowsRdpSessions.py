@@ -71,7 +71,9 @@ __artifacts_v2__ = {
                  "lonewolf_win10, and five values on szechuan_win10. This log covers console sessions as well "
                  "as Remote Desktop, so an entry is not by itself proof of a "
                  "remote connection. On the registered images every disconnect (24) was recorded "
-                 "less than a second after a logoff (23) for the same session. Reading needs "
+                 "less than a second after a logoff (23) for the same session. A record python-evtx cannot render "
+                 "is skipped and counted in the run log, and the records after it are still read; no record of "
+                 "this log failed to render on the tested images. Reading needs "
                  "the python-evtx package (pip install python-evtx). Event meanings: the "
                  "provider manifest's message for each (manifest as registered on Windows 11 "
                  "build 22621.819, published in nasbench's EVTX-ETW-Resources repository: "
@@ -163,11 +165,17 @@ def rdpSessions(context):
                    if str(f).lower().endswith('localsessionmanager%4operational.evtx')]:
         relative_source = context.get_relative_path(source)
         rows_here = 0
+        unrendered = 0
         try:
             with evtx.Evtx(source) as log:
                 for record in log_records(log, 'Windows Terminal Services Sessions', relative_source):
                     try:
-                        row = _session_row(record.xml())
+                        xml_text = record.xml()
+                    except Exception:  # pylint: disable=broad-exception-caught
+                        unrendered += 1
+                        continue
+                    try:
+                        row = _session_row(xml_text)
                     except ElementTree.ParseError:
                         continue
                     if row is not None:
@@ -175,6 +183,9 @@ def rdpSessions(context):
                         rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows Terminal Services Sessions: could not read {relative_source}: {exc}')
+        if unrendered:
+            logfunc(f'Windows Terminal Services Sessions: {unrendered} record(s) in {relative_source} could not be '
+                    'rendered by python-evtx and were skipped')
         if rows_here:
             sources.append(source)
 

@@ -84,7 +84,9 @@ __artifacts_v2__ = {
                  "successful logon (4624) records a "
                  "logon session created on this computer (Microsoft, 'Event 4624', cited below); "
                  "it does not by "
-                 "itself establish the person at the keyboard. Reading needs the "
+                 "itself establish the person at the keyboard. A record python-evtx cannot render is skipped and "
+                 "counted in the run log, and the records after it are still read; no record of this log failed to "
+                 "render on the tested images. Reading needs the "
                  "python-evtx package (pip install python-evtx). Event IDs and the Logon Type "
                  "table: Microsoft, 'Event 4624', "
                  "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4624; "
@@ -187,11 +189,17 @@ def securityLogons(context):
                    if str(f).lower().endswith('security.evtx')]:
         relative_source = context.get_relative_path(source)
         rows_here = 0
+        unrendered = 0
         try:
             with evtx.Evtx(source) as log:
                 for record in log_records(log, 'Windows Security Logons', relative_source):
                     try:
-                        row = _event_rows(record.xml())
+                        xml_text = record.xml()
+                    except Exception:  # pylint: disable=broad-exception-caught
+                        unrendered += 1
+                        continue
+                    try:
+                        row = _event_rows(xml_text)
                     except ElementTree.ParseError:
                         continue
                     if row is not None:
@@ -199,6 +207,9 @@ def securityLogons(context):
                         rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Windows Security Logons: could not read {relative_source}: {exc}')
+        if unrendered:
+            logfunc(f'Windows Security Logons: {unrendered} record(s) in {relative_source} could not be '
+                    'rendered by python-evtx and were skipped')
         if rows_here:
             sources.append(source)
 
