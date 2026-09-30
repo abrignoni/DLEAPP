@@ -135,6 +135,15 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual({row[-1] for row in rows}, {system})
         self.assertEqual(source, [system])
 
+    def test_declared_paths_include_the_copy_ssh_keygen_keeps(self):
+        import fnmatch  # pylint: disable=import-outside-toplevel
+        patterns = sshKeys.__artifacts_v2__['sshKnownHosts']['paths']
+        for member in ('home/a/.ssh/known_hosts', 'home/a/.ssh/known_hosts2', 'home/a/.ssh/known_hosts.old',
+                       'root/.ssh/known_hosts.old', 'etc/ssh/ssh_known_hosts', 'etc/ssh/ssh_known_hosts2'):
+            self.assertEqual(sum(fnmatch.fnmatch('x/' + member, p) for p in patterns), 1, member)
+        for member in ('home/a/.ssh/known_hosts.old.1', 'home/a/.ssh/known_hosts.bak', 'home/a/.ssh/known_hosts.XXXXXXXXXX'):
+            self.assertFalse(any(fnmatch.fnmatch('x/' + member, p) for p in patterns), member)
+
 
 if __name__ == '__main__':
     unittest.main()
