@@ -91,6 +91,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 55 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 12 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 37 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
         },
     },
 }

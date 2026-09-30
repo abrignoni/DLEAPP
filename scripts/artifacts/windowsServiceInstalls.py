@@ -63,7 +63,8 @@ __artifacts_v2__ = {
                  "blank when the event stored none. A 7045 event records an installation; "
                  "whether the service still exists is not established by this artifact. Computer "
                  "is the machine that recorded the event. Computer held one value on every row "
-                 "of pc_mus_001_win11, two values on af_case2_win10 and on lonewolf_win10, and three values on szechuan_win10. "
+                 "of pc_mus_001_win11, two values on af_case2_win10, on lonewolf_win10 and on "
+                 "windows11_arm_4688_known, and three values on szechuan_win10. "
                  "A record python-evtx cannot render is skipped and counted in the run log, and the records after "
                  "it are still read: on windows11_arm_4688_known python-evtx 0.8.1 could not render 72 of the "
                  "15,344 System records, all Microsoft-Windows-TPM event 27 (identified with evtx 0.13.1), because "
@@ -82,6 +83,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 28 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 57 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 20 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 87 rows",
         },
     },
 }

@@ -83,6 +83,7 @@ __artifacts_v2__ = {
                  "password-change (4723), lockout (4740), unlock (4767) and universal-group (4756, "
                  "4757) events are read and titled but were not present on any of the four "
                  "registered images. "
+                 "The Security log of windows11_arm_4688_known holds none of these events. "
                  "A record python-evtx cannot render is skipped and counted in the run log, and the records after "
                  "it are still read; no record of this log failed to render on the tested images. "
                  "Reading needs the python-evtx package (pip install "
@@ -99,6 +100,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 53 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 50 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 55 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }
