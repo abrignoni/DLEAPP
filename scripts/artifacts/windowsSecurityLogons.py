@@ -80,7 +80,8 @@ __artifacts_v2__ = {
                  "4647, which carry neither field, and Workstation is blank for 4648, which "
                  "carries no WorkstationName. Logon Process is LogonProcessName. Computer is the "
                  "machine that recorded the event. Computer held one value on every row of "
-                 "pc_mus_001_win11, two values on af_case2_win10 and on lonewolf_win10, and three on szechuan_win10. A "
+                 "pc_mus_001_win11 and of windows11_arm_4688_known, two values on af_case2_win10 and on "
+                 "lonewolf_win10, and three on szechuan_win10. A "
                  "successful logon (4624) records a "
                  "logon session created on this computer (Microsoft, 'Event 4624', cited below); "
                  "it does not by "
@@ -105,6 +106,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 1103 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 914 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 365 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 1441 rows",
         },
     },
 }
