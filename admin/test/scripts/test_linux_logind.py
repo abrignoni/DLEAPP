@@ -1,6 +1,7 @@
-"""Pin how the Login Sessions (logind) and Power Events (logind) artifacts read systemd-logind's lines in auth.log
-and secure, and how Login Sessions (logind, journal) and Power Events (logind, journal) read its entries in the
+"""Pin how the Login Sessions (logind) and Power Events (logind) artifacts read systemd-logind's lines in auth.log,
+secure and messages, and how Login Sessions (logind, journal) and Power Events (logind, journal) read its entries in the
 systemd journal (files written with journal_writer.py)."""
+import fnmatch
 import os
 import pathlib
 import sys
@@ -228,6 +229,19 @@ def journal_bytes(entries):
             fields.append(('SYSLOG_PID', syslog_pid.encode()))
         writer.add_entry(fields, int(realtime * 1000000), n * 1000000)
     return writer.bytes()
+
+
+class PathsTest(unittest.TestCase):
+    def test_syslog_artifacts_read_messages_where_rhel_sends_the_auth_facility(self):
+        for key in ('linuxLogindSessions', 'linuxLogindPower'):
+            patterns = linuxLogind.__artifacts_v2__[key]['paths']
+            def matched(member, patterns=patterns):
+                return any(fnmatch.fnmatch(member, pattern) for pattern in patterns)
+            for member in ('root/var/log/auth.log', 'root/var/log/auth.log.1', 'root/var/log/secure',
+                           'root/var/log/secure-20260930', 'root/var/log/messages', 'root/var/log/messages-20260930',
+                           'root/var/log/messages.1'):
+                self.assertTrue(matched(member), (key, member))
+            self.assertFalse(matched('root/var/log/messages.bak'), key)
 
 
 class SessionsJournalTest(unittest.TestCase):
