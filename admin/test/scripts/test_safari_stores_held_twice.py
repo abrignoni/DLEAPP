@@ -71,7 +71,7 @@ TWO = ('Two', 'https://two.example/', 'UUID-2')
 
 def _tab(title, url, uuid, index, source):
     return (title, url, datetime.datetime(2023, 3, 9, 1, 2, 3), _utc(2023, 3, 8, 20, 26, 40),
-            'WINDOW-1', uuid, index, 'No', 5, source)
+            'WINDOW-1', uuid, index, 'No', 5, '', source)
 
 
 # artifact, file name, run-log label, the plist with one entry and with two, and the rows each

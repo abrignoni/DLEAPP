@@ -277,35 +277,50 @@ __artifacts_v2__ = {
                  "WindowUUID, or the entry's own WindowUUID on a one-tab entry. Private Window shows "
                  "Yes or No for the window's IsPrivateWindow and is blank when that key is absent, as "
                  "it is on a one-tab entry. Session State Size (bytes) is the length of the tab's "
-                 "SessionState value, which is not decoded. PersistentStateType is not read; the two "
-                 "entry shapes are told apart by their keys. Measured on dleapp_safari_bigsur (macOS "
-                 "11.2.1): 2 entries, each a window with 1 tab, 2 rows; Last Visit Time and Session "
-                 "State Size (bytes) had no value on either row, because neither tab had a "
-                 "LastVisitTime or a SessionState key. Measured on the public MacBook Pro logical "
-                 "extraction (macOS 15.4, not a registered corpus key): 11 entries, 7 of them windows "
-                 "holding 13 tabs and 4 of them one-tab entries, 17 rows. PersistentStateType was 1 on "
-                 "the 7 windows and on both macOS 11.2.1 entries, and 0 on the 4 one-tab entries. "
-                 "Private Window was No on the 13 window rows and blank on the 4 one-tab rows. "
-                 "LastVisitTime was a date value on all 17 rows; Last Visit Time was later than Closed "
-                 "on 5 rows and earlier on 12, and within one second of a History.db visit of the same "
-                 "URL on 2. Session State Size (bytes) had no value on any of the 17 rows, because no "
-                 "tab had a SessionState key. What Closed and Last Visit Time each mark is not "
-                 "established. A Private Window of Yes, a number LastVisitTime, a SessionState and an "
-                 "entry that is neither a window nor a tab were exercised with constructed plists "
-                 "only. A logical extraction can hold one user's RecentlyClosedTabs.plist under Users/ "
-                 "and again under System/Volumes/Data/Users/. A copy under System/Volumes/Data/ whose "
-                 "bytes equal the other copy's is not read again and the run log counts it; copies "
-                 "that differ are both read, and each row shows the Source File it came from. On the "
-                 "MacBook Pro extraction the two copies were byte-identical and the 17 tabs are "
-                 "reported once, from the copy under Users/. Copies that differ were exercised with "
-                 "constructed plists only.",
+                 "SessionState value, which is not decoded. Snapshot is the image whose file name a "
+                 "TabSnapshots folder's Metadata.db records for a uuid equal to Tab UUID. The folder "
+                 "is looked for beside the plist's Library folder and in Safari's container under it "
+                 "(Library/Containers/com.apple.Safari/Data), and the image is shown only when the "
+                 "file begins with the PNG signature; Safari Tab Snapshots lists every snapshot. "
+                 "PersistentStateType is not read; the two entry shapes are told apart by their keys. "
+                 "Measured on dleapp_safari_bigsur (macOS 11.2.1): 2 entries, each a window with 1 "
+                 "tab, 2 rows; Last Visit Time and Session State Size (bytes) had no value on either "
+                 "row, because neither tab had a LastVisitTime or a SessionState key. Snapshot had no "
+                 "value on either row, because dleapp_safari_bigsur holds no TabSnapshots folder; on "
+                 "dleapp_macos_bigsur, the full image, Snapshot also had no value on either of the 2 "
+                 "rows, its one snapshot being a Safari Last Session tab's. Measured on the public "
+                 "MacBook Pro logical extraction (macOS 15.4, not a registered corpus key): 11 "
+                 "entries, 7 of them windows holding 13 tabs and 4 of them one-tab entries, 17 rows. "
+                 "PersistentStateType was 1 on the 7 windows and on both macOS 11.2.1 entries, and 0 "
+                 "on the 4 one-tab entries. Private Window was No on the 13 window rows and blank on "
+                 "the 4 one-tab rows. LastVisitTime was a date value on all 17 rows; Last Visit Time "
+                 "was later than Closed on 5 rows and earlier on 12, and within one second of a "
+                 "History.db visit of the same URL on 2. Session State Size (bytes) had no value on "
+                 "any of the 17 rows, because no tab had a SessionState key. Snapshot is shown on 12 "
+                 "of the 17 rows, 9 of the 13 window rows and 3 of the 4 one-tab rows; on each of the "
+                 "12 the url Metadata.db records equalled the row's URL, 6 of the 12 Tab UUID values "
+                 "are also a Safari Tabs row, and the snapshot's Created was earlier than Closed on 4 "
+                 "and later on 8. What Closed and Last Visit Time each mark is not established. A "
+                 "Private Window of Yes, a number LastVisitTime, a SessionState and an entry that is "
+                 "neither a window nor a tab were exercised with constructed plists only. A "
+                 "TabSnapshots folder beside the plist's own Library folder, a snapshot file that is "
+                 "not a PNG and a Metadata.db row whose file is not in the folder were exercised with "
+                 "constructed files only. A logical extraction can hold one user's "
+                 "RecentlyClosedTabs.plist under Users/ and again under System/Volumes/Data/Users/. A "
+                 "copy under System/Volumes/Data/ whose bytes equal the other copy's is not read again "
+                 "and the run log counts it; copies that differ are both read, and each row shows the "
+                 "Source File it came from. On the MacBook Pro extraction the two copies were "
+                 "byte-identical and the 17 tabs are reported once, from the copy under Users/. Copies "
+                 "that differ were exercised with constructed plists only.",
         "paths": (
             "*/Library/Safari/RecentlyClosedTabs.plist",
+            "*/Library/Caches/com.apple.Safari/TabSnapshots/*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "x-circle",
         "sample_data": {
             "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
         },
     },
     "safariCloudTabs": {
@@ -547,30 +562,41 @@ __artifacts_v2__ = {
                  "as Mac Absolute Time (seconds since 2001-01-01) and a date value is shown as stored, "
                  "in UTC. Private Window shows Yes or No for the window's IsPrivateWindow and is blank "
                  "when that key is absent. Session State Size (bytes) is the length of the tab's "
-                 "SessionState value, which is not decoded. What event writes the file, and what "
-                 "DateClosed marks in it, are not established. Measured on dleapp_safari_bigsur (macOS "
-                 "11.2.1): 1 window with 2 tabs, 2 rows. Each tab's LastVisitTime was a number that, "
-                 "read as Mac Absolute Time, equals the visit_time of a History.db visit of the same "
-                 "URL (2 of 2). Each tab had its own DateClosed, so Window Closed shows the tab's "
-                 "value on both rows; the window's own DateClosed was less than 0.01 seconds earlier. "
-                 "Private Window was No on both rows. Session State Size (bytes) was 1,516,728 and "
-                 "244,757; each SessionState began with the bytes 00 00 00 02 followed by bplist, and "
-                 "each tab's SessionStateIsEncrypted was false. The public MacBook Pro logical "
-                 "extraction (macOS 15.4, not a registered corpus key) holds no LastSession.plist "
-                 "under either path. A date LastVisitTime, a window without IsPrivateWindow, a Private "
-                 "Window of Yes and a tab without its own DateClosed were exercised with constructed "
-                 "plists only. A logical extraction can hold one user's LastSession.plist under Users/ "
-                 "and again under System/Volumes/Data/Users/. A copy under System/Volumes/Data/ whose "
-                 "bytes equal the other copy's is not read again and the run log counts it; copies "
-                 "that differ are both read, and each row shows the Source File it came from. Both "
-                 "cases were exercised with constructed plists only.",
+                 "SessionState value, which is not decoded. Snapshot is the image whose file name a "
+                 "TabSnapshots folder's Metadata.db records for a uuid equal to Tab UUID. The folder "
+                 "is looked for beside the plist's Library folder and in Safari's container under it "
+                 "(Library/Containers/com.apple.Safari/Data), and the image is shown only when the "
+                 "file begins with the PNG signature; Safari Tab Snapshots lists every snapshot. What "
+                 "event writes the file, and what DateClosed marks in it, are not established. "
+                 "Measured on dleapp_safari_bigsur (macOS 11.2.1): 1 window with 2 tabs, 2 rows. Each "
+                 "tab's LastVisitTime was a number that, read as Mac Absolute Time, equals the "
+                 "visit_time of a History.db visit of the same URL (2 of 2). Each tab had its own "
+                 "DateClosed, so Window Closed shows the tab's value on both rows; the window's own "
+                 "DateClosed was less than 0.01 seconds earlier. Private Window was No on both rows. "
+                 "Session State Size (bytes) was 1,516,728 and 244,757; each SessionState began with "
+                 "the bytes 00 00 00 02 followed by bplist, and each tab's SessionStateIsEncrypted was "
+                 "false. Snapshot had no value on either row, because dleapp_safari_bigsur holds no "
+                 "TabSnapshots folder. On dleapp_macos_bigsur, the full image the subset was taken "
+                 "from, the same 2 rows are reported and Snapshot is shown on 1 of them, whose URL "
+                 "equals the url Metadata.db records. The public MacBook Pro logical extraction (macOS "
+                 "15.4, not a registered corpus key) holds no LastSession.plist under either path. A "
+                 "date LastVisitTime, a window without IsPrivateWindow, a Private Window of Yes and a "
+                 "tab without its own DateClosed were exercised with constructed plists only. A "
+                 "TabSnapshots folder beside the plist's own Library folder was exercised with "
+                 "constructed files only. A logical extraction can hold one user's LastSession.plist "
+                 "under Users/ and again under System/Volumes/Data/Users/. A copy under "
+                 "System/Volumes/Data/ whose bytes equal the other copy's is not read again and the "
+                 "run log counts it; copies that differ are both read, and each row shows the Source "
+                 "File it came from. Both cases were exercised with constructed plists only.",
         "paths": (
             "*/Library/Safari/LastSession.plist",
+            "*/Library/Caches/com.apple.Safari/TabSnapshots/*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "layout",
         "sample_data": {
             "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
         },
     },
 }
@@ -959,12 +985,13 @@ def safariRecentlyClosedTabs(context):
     data_headers = (
         "Tab Title", "URL", ("Closed", "datetime"), ("Last Visit Time", "datetime"),
         "Window UUID", "Tab UUID", "Tab Index", "Private Window",
-        "Session State Size (bytes)", "Source File",
+        "Session State Size (bytes)", ("Snapshot", "media"), "Source File",
     )
     data_list = []
     read_sources = []
     unread = 0
-    for source, relative_source, _store in _plist_sources(context, "RecentlyClosedTabs.plist",
+    snapshot = _tab_snapshots(context)
+    for source, relative_source, store in _plist_sources(context, "RecentlyClosedTabs.plist",
                                                   "Safari Recently Closed Tabs"):
         plist = _load_plist(source)
         if plist is None:
@@ -976,7 +1003,7 @@ def safariRecentlyClosedTabs(context):
                 unread += 1
                 continue
             for row in rows:
-                data_list.append(row + (relative_source,))
+                data_list.append(row + (snapshot(store, row[5]), relative_source))
 
     logfunc(f"Safari Recently Closed Tabs: {len(data_list)} tab(s) across "
             f"{len(read_sources)} file(s); {unread} entr(ies) held neither "
@@ -990,11 +1017,12 @@ def safariLastSession(context):
         "Tab Title", "URL", ("Window Closed", "datetime"),
         ("Last Visit Time", "datetime"), "Window UUID", "Tab UUID",
         "Tab Index", "Private Window", "Session State Size (bytes)",
-        "Source File",
+        ("Snapshot", "media"), "Source File",
     )
     data_list = []
     read_sources = []
-    for source, relative_source, _store in _plist_sources(context, "LastSession.plist",
+    snapshot = _tab_snapshots(context)
+    for source, relative_source, store in _plist_sources(context, "LastSession.plist",
                                                   "Safari Last Session"):
         plist = _load_plist(source)
         if plist is None:
@@ -1002,7 +1030,7 @@ def safariLastSession(context):
         read_sources.append(relative_source)
         for window in plist.get("SessionWindows", []) or []:
             for row in _tab_rows(window):
-                data_list.append(row + (relative_source,))
+                data_list.append(row + (snapshot(store, row[5]), relative_source))
 
     logfunc(f"Safari Last Session: {len(data_list)} tab(s) across "
             f"{len(read_sources)} file(s).")
@@ -1269,6 +1297,33 @@ def _snapshot_media(files, library, filename):
     except OSError:
         return ""
     return (check_in_media(path, filename) or "") if is_png else ""
+
+
+# A Safari plist sits in <folder>/Library/Safari/. The TabSnapshots folder of
+# the same user was found under Safari's container,
+# <folder>/Library/Containers/com.apple.Safari/Data/Library/Caches/..., when
+# the plist was in the user's own Library, so both places are looked in.
+_SAFARI_CONTAINER = "/Library/Containers/com.apple.Safari/Data"
+
+
+def _tab_snapshots(context):
+    """A function (plist store key, tab UUID) -> the media reference of the
+    snapshot Metadata.db records for that UUID beside the plist's own Library
+    folder or in its Safari container, '' when there is none."""
+    files = _snapshot_files(context)
+    filenames = {}
+    for library, uuid, _created, filename, _url, _source in _snapshot_records(context)[0]:
+        filenames.setdefault((library, uuid), filename)
+
+    def snapshot(store, tab_uuid):
+        library = store.rsplit("/Library/Safari/", 1)[0]
+        for folder in (library, library + _SAFARI_CONTAINER):
+            filename = filenames.get((folder, tab_uuid))
+            if filename:
+                return _snapshot_media(files, folder, filename)
+        return ""
+
+    return snapshot
 
 
 def _folder_path(folders, parent):
