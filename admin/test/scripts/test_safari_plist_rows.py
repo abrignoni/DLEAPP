@@ -45,7 +45,7 @@ def _tab(uuid, **more):
 
 def _row(uuid, closed, visited, window, private, size, source):
     return (f'Title {uuid}', f'https://{uuid.lower()}.example/', closed, visited, window, uuid, 0,
-            private, size, source)
+            private, size, '', source)
 
 
 class SafariPlistRowsTest(unittest.TestCase):
