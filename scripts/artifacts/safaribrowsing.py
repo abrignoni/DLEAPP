@@ -411,6 +411,126 @@ __artifacts_v2__ = {
             "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 1 row",
         },
     },
+    "safariTabs": {
+        "name": "Safari Tabs (SafariTabs.db)",
+        "description": "Tabs stored in Safari's SafariTabs.db, each with its folders, stored times, "
+                       "window and tab identifiers and the page snapshot Safari cached for it.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-01",
+        "last_update_date": "2026-10-01",
+        "requirements": "none",
+        "category": "Safari (macOS)",
+        "notes": "One row per bookmarks row whose type is 0. On the tested database the rows of type 1 "
+                 "were folders: tab groups, a profile and Safari's own lists. Last Viewed is "
+                 "DateLastViewed from the row's extra_attributes plist and Date Closed is DateClosed "
+                 "from its local_attributes plist, each a stored date shown in UTC; what either marks "
+                 "is not established. Title and URL are the title and url columns. Folder joins, with "
+                 "a slash, the titles of the rows above the tab, outermost first. Active Tab shows Yes "
+                 "when a windows_tab_groups row names the tab as its active_tab_id. Window UUID, Tab "
+                 "Index and Opened From Link are WindowUUID, TabIndex and OpenedFromLink from "
+                 "local_attributes, and Session State Size (bytes) is the length of SessionState "
+                 "there, which is not decoded. Deleted shows Yes or No for the deleted column. Tab "
+                 "UUID is external_uuid and Device Identifier is DeviceIdentifier from "
+                 "extra_attributes. Snapshot is the image whose file name the TabSnapshots folder's "
+                 "Metadata.db records for a uuid equal to Tab UUID, under the same Library folder, "
+                 "shown only when the file begins with the PNG signature; Safari Tab Snapshots lists "
+                 "every snapshot. The windows table, the bookmarks last_modified and date_closed "
+                 "columns, which had no value on any row of the tested database, and the other "
+                 "attribute keys are not reported. Measured on the public MacBook Pro logical "
+                 "extraction (macOS 15.4, not a registered corpus key): the database holds 23 "
+                 "bookmarks rows and 11 rows are reported, 9 under two tab groups, 1 under a tab "
+                 "group's TopScopedBookmarkList folder and 1 under Local. Active Tab was Yes on 1 row. "
+                 "Deleted held one value, No, on all 11 rows. Date Closed, Window UUID, Session State "
+                 "Size (bytes) and Snapshot were filled on the 9 rows under the tab groups and blank "
+                 "on the other 2. Device Identifier was filled on 9 rows, 8 of those under the tab "
+                 "groups and the row under Local, and held one value, equal to DeviceUUID in the "
+                 "SafariTabsSyncMetadata.plist beside the database. Opened From Link was No on 10 rows "
+                 "and blank on the row under TopScopedBookmarkList, which had no local_attributes. The "
+                 "row under Local had no url. Date Closed was later than Last Viewed on 5 of the 9 "
+                 "rows and earlier on 4. Window UUID held 3 values. LastVisitTime in local_attributes "
+                 "equalled DateLastViewed on the 10 rows that held both, so it is not shown. The url "
+                 "Metadata.db records for each of the 9 snapshots equalled the tab's URL. Last Viewed "
+                 "was within one second of a History.db visit of the same URL on 1 of the 11 rows. "
+                 "dleapp_macos_bigsur and dleapp_safari_bigsur (macOS 11.2.1) hold no SafariTabs.db. "
+                 "The SafariTabs.db of safari_tags_known_data_macos27 (macOS 27.0.1) holds 3 bookmarks "
+                 "rows, all of type 1, so no row is reported from it. A Deleted of Yes, an Opened From "
+                 "Link of Yes, a snapshot file that is not a PNG, a database without external_uuid, "
+                 "the attribute columns or windows_tab_groups (those columns are blank), a database "
+                 "without the bookmarks columns (named in the run log and not read), an attribute "
+                 "value that is not a plist dictionary (counted in the run log), and an attribute "
+                 "plist holding a date before year 1, which is read with that key given as stored "
+                 "seconds since 2001-01-01, were exercised with constructed files only. A logical "
+                 "extraction can hold one SafariTabs.db under Users/ and again under "
+                 "System/Volumes/Data/Users/. The two are read as one store: a tab both copies hold "
+                 "with the same values is reported once, with the Source File of the copy under "
+                 "Users/, and a tab only one copy holds, or that differs between them, is reported "
+                 "from the copy that holds it. On the MacBook Pro extraction the two copies differed "
+                 "in bytes, each had an empty -wal beside it, and both held the same 11 rows, which "
+                 "are reported once. The differing-rows case was exercised with constructed databases "
+                 "only.",
+        "paths": (
+            "*/Library/Safari/SafariTabs.db*",
+            "*/Library/Caches/com.apple.Safari/TabSnapshots/*",
+        ),
+        "output_types": ["standard"],
+        "artifact_icon": "layout",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no SafariTabs.db)",
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no SafariTabs.db)",
+            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434 | 0 rows (SafariTabs.db holds no row of type 0)",
+        },
+    },
+    "safariTabSnapshots": {
+        "name": "Safari Tab Snapshots",
+        "description": "Page snapshots Safari cached for its tabs, from the TabSnapshots folder's "
+                       "Metadata.db, each with its creation time, URL and image.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-01",
+        "last_update_date": "2026-10-01",
+        "requirements": "none",
+        "category": "Safari (macOS)",
+        "notes": "One row per snapshot_metadata row of a Metadata.db inside a com.apple.Safari "
+                 "TabSnapshots folder. Created is date_created read as Mac Absolute Time (seconds "
+                 "since 2001-01-01) and shown in UTC; what it marks is not established. URL is url, "
+                 "Tab UUID is uuid and File Name is filename. Snapshot is the file of that name in the "
+                 "same folder, shown only when it begins with the PNG signature. Listed In "
+                 "SafariTabs.db shows Yes or No for whether a bookmarks row of the SafariTabs.db under "
+                 "the same Library folder has the uuid as its external_uuid, and is blank when the "
+                 "extraction holds no SafariTabs.db there. A file in the folder that no row names is "
+                 "not reported. Measured on the public MacBook Pro logical extraction (macOS 15.4, not "
+                 "a registered corpus key): 15 rows. Each File Name was the Tab UUID followed by .png, "
+                 "and all 15 files were present and are shown. Listed In SafariTabs.db was Yes on 9 "
+                 "rows and No on 6. The Tab UUID of each of the 6 rows not listed, and of 6 of the 9 "
+                 "listed, is the Tab UUID of a Safari Recently Closed Tabs row. Created fell between "
+                 "2025-11-20 and 2025-12-12, and was within 60 seconds of a History.db visit of the "
+                 "same URL on 4 of the 15 rows. Read without its -wal the database held 14 rows, so "
+                 "the -wal held 1. Measured on dleapp_macos_bigsur (macOS 11.2.1): 1 row, its image "
+                 "shown. Listed In SafariTabs.db had no value on the 1 row, because that image holds "
+                 "no SafariTabs.db, and its Tab UUID is the Tab UUID of a Safari Last Session row with "
+                 "the same URL. dleapp_safari_bigsur and safari_tags_known_data_macos27 hold no "
+                 "TabSnapshots folder. A file that is not a PNG, a row whose file is not in the "
+                 "folder, a Metadata.db without the snapshot_metadata columns (named in the run log "
+                 "and not read) and a Metadata.db outside a TabSnapshots folder (not read) were "
+                 "exercised with constructed files only. A logical extraction can hold one "
+                 "TabSnapshots folder under Users/ and again under System/Volumes/Data/Users/. The two "
+                 "Metadata.db copies are read as one store: a row both hold with the same values is "
+                 "reported once, with the Source File of the copy under Users/, and a row only one "
+                 "copy holds, or that differs between them, is reported from the copy that holds it. "
+                 "On the MacBook Pro extraction Metadata.db, its -wal and the 15 images were "
+                 "byte-identical under the two paths and the 15 rows are reported once. The "
+                 "differing-rows case was exercised with constructed databases only.",
+        "paths": (
+            "*/Library/Caches/com.apple.Safari/TabSnapshots/*",
+            "*/Library/Safari/SafariTabs.db*",
+        ),
+        "output_types": ["standard"],
+        "artifact_icon": "image",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 1 row",
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no TabSnapshots folder)",
+            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434 | 0 rows (no TabSnapshots folder)",
+        },
+    },
     "safariLastSession": {
         "name": "Safari Last Session (Open Tabs)",
         "description": "Tabs of the windows listed in Safari's LastSession.plist, with each tab's title, "
@@ -460,9 +580,12 @@ import os
 import plistlib
 import re
 import sqlite3
+import struct
 from datetime import datetime, timedelta, timezone
 
-from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
+from scripts.ilapfuncs import (
+    artifact_processor, check_in_media, logfunc, open_sqlite_db_readonly,
+)
 
 # Seconds between the Unix epoch (1970-01-01) and the Mac/Cocoa epoch
 # (2001-01-01). History.db visit_time and LastSession/RecentlyClosedTabs
@@ -1026,5 +1149,250 @@ def safariCloudTabDevices(context):
 
     logfunc(f"Safari iCloud Tab Devices: {len(data_list)} device(s) across "
             f"{len(read_sources)} CloudTabs.db file(s); {repeated} device(s) "
+            f"held by a second copy of a store were not reported again.")
+    return data_headers, data_list, "\n".join(read_sources)
+
+
+# SafariTabs.db sits in a Library/Safari folder (the declared path matches it
+# nowhere else), and the snapshots Safari caches for its tabs sit in a
+# TabSnapshots folder under the same Library folder.
+_TABS_DATABASE = "/Library/Safari/SafariTabs.db"
+_SNAPSHOTS_FOLDER = "/Library/Caches/com.apple.Safari/TabSnapshots/"
+_PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+
+
+def _loads_plist(blob):
+    """plistlib.loads(blob), or None when it is not a plist. plistlib rejects a
+    whole binary plist that holds one date outside datetime's range; such a
+    plist is read again with each of those dates marked as a real number, so
+    its key gives the stored seconds since 2001-01-01 and the rest is kept."""
+    try:
+        return plistlib.loads(blob)
+    except Exception:  # pylint: disable=broad-exception-caught
+        pass
+    if not blob.startswith(b"bplist00") or len(blob) < 40:
+        return None
+    offset_size, _ref_size, count, _top, table = struct.unpack(">6xBBQQQ", blob[-32:])
+    if not offset_size or table + count * offset_size > len(blob) - 32:
+        return None
+    data = bytearray(blob)
+    changed = False
+    for index in range(count):
+        entry = table + index * offset_size
+        offset = int.from_bytes(blob[entry:entry + offset_size], "big")
+        if offset + 9 > len(blob) or blob[offset] != 0x33:
+            continue
+        try:
+            _MAC_EPOCH + timedelta(seconds=struct.unpack(">d", blob[offset + 1:offset + 9])[0])
+        except (OverflowError, ValueError):
+            data[offset] = 0x23
+            changed = True
+    if not changed:
+        return None
+    try:
+        return plistlib.loads(bytes(data))
+    except Exception:  # pylint: disable=broad-exception-caught
+        return None
+
+
+def _attributes(blob, failures):
+    """A bookmarks attribute blob as a dict; {} for no blob, and for one that
+    is not a plist dictionary, which `failures` counts."""
+    if not blob:
+        return {}
+    value = _loads_plist(blob)
+    if not isinstance(value, dict):
+        failures.append(1)
+        return {}
+    return value
+
+
+def _snapshot_files(context):
+    """(library folder, name inside its TabSnapshots folder) -> staged path;
+    the copy at the root is kept over a copy under System/Volumes/Data/."""
+    found = {}
+    for path in sorted({str(f) for f in context.get_files_found()}):
+        normal = context.get_relative_path(path).replace("\\", "/")
+        store = _DATA_VOLUME.sub(r"\1", normal, count=1)
+        library, folder, name = store.rpartition(_SNAPSHOTS_FOLDER)
+        if not folder:
+            continue
+        if (library, name) not in found or store == normal:
+            found[(library, name)] = path
+    return found
+
+
+def _snapshot_records(context):
+    """(rows, sources read, repeats): each row is (library folder, uuid,
+    date_created, filename, url, evidence path of its Metadata.db), a row two
+    copies of one Metadata.db hold with the same values given once."""
+    rows = []
+    read_sources = []
+    seen = set()
+    repeated = 0
+    for source, relative_source, store in _stores(context, "Metadata.db"):
+        library, folder, name = store.rpartition(_SNAPSHOTS_FOLDER)
+        if not folder or name != "Metadata.db":
+            continue
+        database = open_sqlite_db_readonly(source)
+        if database is None:
+            continue
+        read_sources.append(relative_source)
+        columns = _columns(database, "snapshot_metadata")
+        if not {"uuid", "date_created", "filename", "url"} <= columns:
+            logfunc(f"Safari Tab Snapshots: {relative_source} lacks the "
+                    f"snapshot_metadata columns and was not read.")
+            database.close()
+            continue
+        for row in database.execute(
+                "SELECT uuid, date_created, filename, url FROM snapshot_metadata "
+                "ORDER BY date_created DESC, uuid"):
+            record = (store, tuple(row))
+            if record in seen:
+                repeated += 1
+                continue
+            seen.add(record)
+            rows.append((library,) + tuple(row) + (relative_source,))
+        database.close()
+    return rows, read_sources, repeated
+
+
+def _snapshot_media(files, library, filename):
+    """The media reference of a snapshot file, '' when the file is not in the
+    extraction or does not begin with the PNG signature."""
+    path = files.get((library, filename))
+    if not path:
+        return ""
+    try:
+        with open(path, "rb") as handle:
+            is_png = handle.read(len(_PNG_MAGIC)) == _PNG_MAGIC
+    except OSError:
+        return ""
+    return (check_in_media(path, filename) or "") if is_png else ""
+
+
+def _folder_path(folders, parent):
+    """The titles of a row's folders, outermost first, joined with a slash."""
+    titles = []
+    visited = set()
+    while parent in folders and parent not in visited:
+        visited.add(parent)
+        title, parent = folders[parent]
+        if title:
+            titles.append(title)
+    return "/".join(reversed(titles))
+
+
+def _tabs_query(database):
+    columns = _columns(database, "bookmarks")
+    active = ("EXISTS (SELECT 1 FROM windows_tab_groups w WHERE w.active_tab_id = b.id)"
+              if "active_tab_id" in _columns(database, "windows_tab_groups") else "NULL")
+    return f"""
+        SELECT
+            b.id, b.title, b.url, b.parent, {_stored(columns, "external_uuid", "b")},
+            {_stored(columns, "deleted", "b")},
+            {_stored(columns, "extra_attributes", "b")},
+            {_stored(columns, "local_attributes", "b")}, {active}
+        FROM bookmarks b
+        WHERE b.type = 0
+        ORDER BY b.parent, b.order_index, b.id
+    """
+
+
+@artifact_processor
+def safariTabs(context):
+    data_headers = (
+        ("Last Viewed", "datetime"), ("Date Closed", "datetime"), "Title", "URL",
+        "Folder", "Active Tab", "Window UUID", "Tab Index", "Opened From Link",
+        "Session State Size (bytes)", "Deleted", "Tab UUID", "Device Identifier",
+        ("Snapshot", "media"), "Source File",
+    )
+    data_list = []
+    read_sources = []
+    seen = set()
+    repeated = 0
+    failures = []
+    files = _snapshot_files(context)
+    snapshots = {}
+    for library, uuid, _created, filename, _url, _source in _snapshot_records(context)[0]:
+        snapshots.setdefault((library, uuid), filename)
+    for source, relative_source, store in _stores(context, "SafariTabs.db"):
+        library = store[:-len(_TABS_DATABASE)]
+        database = open_sqlite_db_readonly(source)
+        if database is None:
+            continue
+        read_sources.append(relative_source)
+        if not {"id", "type", "parent", "title", "url", "order_index"} <= _columns(database, "bookmarks"):
+            logfunc(f"Safari Tabs: {relative_source} lacks the bookmarks columns "
+                    f"and was not read.")
+            database.close()
+            continue
+        folders = {row[0]: (row[1], row[2]) for row in database.execute(
+            "SELECT id, title, parent FROM bookmarks")}
+        for row in database.execute(_tabs_query(database)):
+            (_tab_id, title, url, parent, tab_uuid, deleted, extra_blob,
+             local_blob, active) = row
+            record = (store, tuple(row))
+            if record in seen:
+                repeated += 1
+                continue
+            seen.add(record)
+            extra = _attributes(extra_blob, failures)
+            local = _attributes(local_blob, failures)
+            session_state = local.get("SessionState")
+            filename = snapshots.get((library, tab_uuid))
+            data_list.append((
+                _plist_time(extra.get("DateLastViewed")),
+                _plist_time(local.get("DateClosed")),
+                title or "", url or "", _folder_path(folders, parent),
+                "Yes" if active else "", local.get("WindowUUID", ""),
+                local.get("TabIndex", ""), _yes_no(local.get("OpenedFromLink")),
+                len(session_state) if isinstance(session_state, (bytes, bytearray)) else "",
+                _yes_no(deleted), tab_uuid or "",
+                extra.get("DeviceIdentifier", ""),
+                _snapshot_media(files, library, filename) if filename else "",
+                relative_source,
+            ))
+        database.close()
+
+    logfunc(f"Safari Tabs: {len(data_list)} tab(s) across {len(read_sources)} "
+            f"SafariTabs.db file(s); {repeated} tab(s) held by a second copy of "
+            f"a store were not reported again; {len(failures)} attribute "
+            f"value(s) were not a plist dictionary and were not read.")
+    return data_headers, data_list, "\n".join(read_sources)
+
+
+@artifact_processor
+def safariTabSnapshots(context):
+    data_headers = (
+        ("Created", "datetime"), "URL", ("Snapshot", "media"), "Tab UUID",
+        "Listed In SafariTabs.db", "File Name", "Source File",
+    )
+    files = _snapshot_files(context)
+    rows, read_sources, repeated = _snapshot_records(context)
+    listed = {}
+    for source, _relative_source, store in _stores(context, "SafariTabs.db"):
+        library = store[:-len(_TABS_DATABASE)]
+        database = open_sqlite_db_readonly(source)
+        if database is None:
+            continue
+        if "external_uuid" in _columns(database, "bookmarks"):
+            listed.setdefault(library, set()).update(
+                row[0] for row in database.execute("SELECT external_uuid FROM bookmarks"))
+        database.close()
+    data_list = []
+    for library, uuid, created, filename, url, relative_source in rows:
+        if library in listed:
+            is_listed = "Yes" if uuid in listed[library] else "No"
+        else:
+            is_listed = ""
+        data_list.append((
+            _mac_abs_s_to_utc(created), url or "",
+            _snapshot_media(files, library, filename) if filename else "",
+            uuid or "", is_listed, filename or "", relative_source,
+        ))
+
+    logfunc(f"Safari Tab Snapshots: {len(data_list)} snapshot(s) across "
+            f"{len(read_sources)} Metadata.db file(s); {repeated} snapshot(s) "
             f"held by a second copy of a store were not reported again.")
     return data_headers, data_list, "\n".join(read_sources)
