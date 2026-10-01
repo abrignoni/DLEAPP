@@ -87,5 +87,26 @@ class StreamRecordsTest(unittest.TestCase):
         self.assertTrue(all(r.time.tzinfo is datetime.timezone.utc for r in records))
 
 
+    def test_views_inside_a_wrapper_folder_collapse_per_record(self):
+        # The extraction's tree sits inside a top folder, so every path starts with export/.
+        context = SimpleNamespace(
+            get_files_found=self.context.get_files_found,
+            get_relative_path=lambda p: 'export/' + self.context.get_relative_path(p))
+        with mock.patch.object(macos_biome, 'read_segb_file', side_effect=lambda p: self.entries[p]), \
+                mock.patch.object(macos_biome, 'logfunc') as log:
+            records, sources = macos_biome.stream_records(context, 'test')
+        got = sorted((r.source, r.offset, r.data, r.origin, r.user) for r in records)
+        self.assertEqual(got, sorted([
+            ('export/' + self.rel['users'], 32, b'A', 'Local', 'someone'),
+            ('export/' + self.rel['users'], 64, b'B', 'Local', 'someone'),
+            ('export/' + self.rel['data'], 128, b'C', 'Local', 'someone'),
+            ('export/' + self.rel['remote'], 32, b'A', 'Remote (11111111-2222-3333-4444-555555555555)', 'someone'),
+        ]))
+        self.assertEqual(sorted(sources), sorted([self.paths['users'], self.paths['data'], self.paths['remote']]))
+        self.assertIn('test: 1 written and 0 other records in export/' + self.rel['data']
+                      + ', 2 already read from the other view of this file',
+                      [call.args[0] for call in log.call_args_list])
+
+
 if __name__ == '__main__':
     unittest.main()
