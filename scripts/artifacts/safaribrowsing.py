@@ -12,12 +12,24 @@ __artifacts_v2__ = {
         "notes": "Every History.db found is parsed, so a Mac with more than one user account reports "
                  "each account, tagged by Source File. A Safari profile's History.db under "
                  "Library/Safari/Profiles/<UUID>/ is read as its own store, and its Source File names "
-                 "that folder. On safari_tags_known_data_macos27 (macOS 27.0.1, Safari 27.0.1) the "
-                 "profile's folder was in Safari's container, at "
-                 "Library/Containers/com.apple.Safari/Data/Library/Safari/Profiles/<UUID>/; its "
-                 "History.db holds 11 visits, 7 of them showing a tag, and Item Visit Count (lifetime) "
-                 "held one value, 1, on all 11 rows. The folder name is a UUID, and this artifact does "
-                 "not report the profile's display name. visit_time is read as Mac Absolute Time "
+                 "that folder. Profile is the title of the row in the bookmarks table of SafariTabs.db, "
+                 "in the same Safari folder, whose server_id or external_uuid equals that folder's "
+                 "name. Profile is blank for a History.db outside Profiles/, when no row names the "
+                 "folder, and when that Safari folder has no SafariTabs.db. Source File is kept beside "
+                 "Profile because Profile does not distinguish two accounts, two copies of one store, "
+                 "or the History.db outside Profiles/. On "
+                 "safari_tags_known_data_macos27 (macOS 27.0.1, Safari 27.0.1) two profiles made for "
+                 "the test kept their folders in Safari's container, under "
+                 "Library/Containers/com.apple.Safari/Data/Library/Safari/Profiles/. The name of each "
+                 "History.db folder equalled the server_id of the row titled with that profile's name, "
+                 "and Profile reads TagTest on 11 visits and TagTest2 on 3. 10 of the 14 visits show a "
+                 "tag, and Item Visit Count (lifetime) held one value, 1, on all 14 rows. That sample's "
+                 "SafariTabs.db was built for the sample: it holds the bookmarks CREATE statement and "
+                 "the three profile rows of the SafariTabs.db on the Mac the sample was made on, with "
+                 "their sync and attribute columns left empty, and nothing else. The row for the default profile had an empty title and the text "
+                 "DefaultProfile in both columns, while Safari's settings listed that profile as "
+                 "Personal (Default). Profile was blank on every row of dleapp_safari_bigsur, which "
+                 "has no profile folder. visit_time is read as Mac Absolute Time "
                  "(seconds since 2001-01-01): read that way, the 27 visits on dleapp_safari_bigsur "
                  "fall between 2020-12-12 and 2021-02-17, and the 2 LastVisitTime numbers in that "
                  "image's LastSession.plist each equal the visit_time of a visit of the same URL. Tags "
@@ -43,13 +55,14 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/History.db*",
             "*/Library/Safari/Profiles/*/History.db*",
+            "*/Library/Safari/SafariTabs.db*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
             "dleapp_safari_bigsur": "macOS Big Sur (Josh Hickman public test "
                 "image, thisisdfir), History.db | 22 history items, 27 visits",
-            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434, Safari 27.0.1 | 11 rows",
+            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434, Safari 27.0.1 | 14 rows",
         },
     },
     "safariHistoryTags": {
@@ -109,8 +122,8 @@ __artifacts_v2__ = {
                  "Deleting one of the two items linked to another tag removed "
                  "that link and Item Count went from 2 to 1. Tag Modified did "
                  "not change on either tag. Quitting Safari and opening it "
-                 "again changed nothing in the two tables. The sample is the "
-                 "database copied while Safari was quit: 7 tags and 7 links, reported as 8 "
+                 "again changed nothing in the two tables. The sample holds that "
+                 "database as copied while Safari was quit: 7 tags and 7 links, reported as 8 "
                  "rows, 1 of them a tag with no link, Item Count 0 and Linked "
                  "Items 0. Item Count equalled Linked Items on all 7 tags, and "
                  "Type held 1 and Level held 200 on all 7. Tag Modified is "
@@ -120,8 +133,19 @@ __artifacts_v2__ = {
                  "removed every row of both tables, the tag with no link "
                  "included. History that expires by age and a Clear History "
                  "range that leaves some of a tag's items were not tested. "
+                 "The sample also holds the History.db of a second test "
+                 "profile, with 3 tags and 3 links reported as 3 rows. One of "
+                 "its tags has the Tag and Identifier of a tag in the first "
+                 "profile's database; each database is read on its own. "
                  "A Safari profile's History.db under "
                  "Library/Safari/Profiles/<UUID>/ is read as its own store. "
+                 "Profile is the title SafariTabs.db stores for that folder, "
+                 "resolved as the Safari History notes describe, and is blank "
+                 "when no row names the folder. On the sample Profile reads "
+                 "TagTest on 8 rows and TagTest2 on 3. Source File is kept "
+                 "beside Profile because Profile does not distinguish two "
+                 "accounts, two copies of one store, or the History.db "
+                 "outside Profiles/. "
                  "A logical extraction can hold one user's History.db under "
                  "Users/ and again under System/Volumes/Data/Users/. The two "
                  "are read as one store: a row both copies hold with the same "
@@ -137,6 +161,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/Library/Safari/History.db*",
             "*/Library/Safari/Profiles/*/History.db*",
+            "*/Library/Safari/SafariTabs.db*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "tag",
@@ -145,7 +170,7 @@ __artifacts_v2__ = {
                 "tag tables are empty)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (both "
                 "tag tables are empty)",
-            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434, Safari 27.0.1 | 8 rows",
+            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434, Safari 27.0.1 | 11 rows",
         },
     },
     "safariBookmarks": {
@@ -207,14 +232,29 @@ __artifacts_v2__ = {
                  "bytes equal the other copy's is not read again and the run log counts it; copies "
                  "that differ are both read, and each row shows the Source File it came from. On the "
                  "MacBook Pro extraction the two copies were byte-identical. Copies that differ were "
-                 "exercised with constructed plists only.",
+                 "exercised with constructed plists only. A Safari profile's TopSites.plist under "
+                 "Library/Safari/Profiles/<UUID>/ is also read. Profile is the title of the row in the "
+                 "bookmarks table of SafariTabs.db, in the same Safari folder, whose server_id or "
+                 "external_uuid equals that folder's name, and is blank for a TopSites.plist outside "
+                 "Profiles/ or when no row names the folder. On safari_tags_known_data_macos27 (macOS "
+                 "27.0.1, Safari 27.0.1) each of two test profiles had a TopSites.plist in a folder "
+                 "named with the external_uuid of its row, a different folder from the one holding "
+                 "its History.db. Both files held no entry and the same bytes, both are read, and no "
+                 "row is reported from them, so a row with a Profile value was exercised with a "
+                 "constructed plist only. That sample's SafariTabs.db was built for the sample from "
+                 "the three profile rows of the Mac's database. Profile was blank on all 12 rows of "
+                 "dleapp_safari_bigsur.",
         "paths": (
             "*/Library/Safari/TopSites.plist",
+            "*/Library/Safari/Profiles/*/TopSites.plist",
+            "*/Library/Safari/SafariTabs.db*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "star",
         "sample_data": {
             "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 12 rows",
+            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434, Safari 27.0.1 | 0 rows "
+                "(two TopSites.plist files, no entries)",
         },
     },
     "safariRecentlyClosedTabs": {
@@ -419,6 +459,7 @@ import hashlib
 import os
 import plistlib
 import re
+import sqlite3
 from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
@@ -488,7 +529,7 @@ def _stores(context, basename):
 
 
 def _plist_sources(context, basename, label):
-    """(staged path, evidence path) per plist named `basename`. A copy under
+    """(staged path, evidence path, store key) per plist named `basename`. A copy under
     System/Volumes/Data/ whose bytes equal the copy at the root is left out
     and counted in the run log under `label`; copies that differ are both
     returned."""
@@ -505,11 +546,48 @@ def _plist_sources(context, basename, label):
             skipped += 1
             continue
         seen.add((store, digest))
-        kept.append((source, relative_source))
+        kept.append((source, relative_source, store))
     if skipped:
         logfunc(f"{label}: {skipped} byte-identical copy(ies) under "
                 f"System/Volumes/Data not read again")
     return kept
+
+
+# <Safari folder>/Profiles/<folder name>/<file>: a file a Safari profile keeps.
+_PROFILE_FILE = re.compile(r"^(.*/Library/Safari)/Profiles/([^/]+)/[^/]+$")
+
+
+def _profile_names(context):
+    """{(Safari folder, profile folder name): title} from the bookmarks table of
+    each SafariTabs.db: a row's server_id and its external_uuid each name a
+    folder under that Safari folder's Profiles/."""
+    names = {}
+    for source, _relative_source, store in _stores(context, "SafariTabs.db"):
+        database = open_sqlite_db_readonly(source)
+        if database is None:
+            continue
+        safari_folder = store.rsplit("/", 1)[0]
+        try:
+            rows = database.execute(
+                "SELECT title, server_id, external_uuid FROM bookmarks").fetchall()
+        except sqlite3.Error as ex:
+            logfunc(f"Safari: profile names not read from '{store}': {ex}")
+            rows = []
+        database.close()
+        for title, server_id, external_uuid in rows:
+            for folder_name in (server_id, external_uuid):
+                if folder_name:
+                    names.setdefault((safari_folder, folder_name), title or "")
+    return names
+
+
+def _profile_name(names, store):
+    """The title SafariTabs.db stores for the profile folder a file is in, or
+    an empty string for a file outside Profiles/ or a folder no row names."""
+    match = _PROFILE_FILE.match(store)
+    if match is None:
+        return ""
+    return names.get((match.group(1), match.group(2)), "")
 
 
 def _has_tag_tables(database):
@@ -567,17 +645,19 @@ def safariHistory(context):
         ("Visit Time", "datetime"), "URL", "Domain", "Visit Title",
         "Item Visit Count (lifetime)", "Load Successful", "HTTP Non-GET",
         "Synthesized", "Origin (raw)", "Tags", "Tag Identifiers",
-        "Source File",
+        "Profile", "Source File",
     )
     data_list = []
     read_sources = []
     seen = set()
     repeated = 0
+    names = _profile_names(context)
     for source, relative_source, store in _stores(context, "History.db"):
         database = open_sqlite_db_readonly(source)
         if database is None:
             continue
         read_sources.append(relative_source)
+        profile = _profile_name(names, store)
         item_tags = _item_tags(database)
         for row in database.execute(_HISTORY_QUERY):
             (visit_time, url, domain, title, visit_count, load_successful,
@@ -595,7 +675,7 @@ def safariHistory(context):
                 "Yes" if http_non_get else "",
                 "Yes" if synthesized else "",
                 origin if origin is not None else "", tags, tag_identifiers,
-                relative_source,
+                profile, relative_source,
             ))
         database.close()
 
@@ -610,17 +690,19 @@ def safariHistoryTags(context):
     data_headers = (
         ("Tag Modified", "datetime"), ("Item Tagged", "datetime"), "Tag",
         "Identifier", "URL", "Item Count", "Linked Items", "Type", "Level",
-        "Source File",
+        "Profile", "Source File",
     )
     data_list = []
     read_sources = []
     seen = set()
     repeated = 0
+    names = _profile_names(context)
     for source, relative_source, store in _stores(context, "History.db"):
         database = open_sqlite_db_readonly(source)
         if database is None:
             continue
         read_sources.append(relative_source)
+        profile = _profile_name(names, store)
         if not _has_tag_tables(database):
             database.close()
             continue
@@ -635,7 +717,7 @@ def safariHistoryTags(context):
             data_list.append((
                 _mac_abs_s_to_utc(modified), _mac_abs_s_to_utc(tagged),
                 title, identifier, url or "", item_count, linked, tag_type,
-                level, relative_source,
+                level, profile, relative_source,
             ))
         database.close()
 
@@ -672,7 +754,7 @@ def safariBookmarks(context):
     data_headers = ("Folder Path", "Title", "URL", "Bookmark UUID", "Source File")
     data_list = []
     read_sources = []
-    for source, relative_source in _plist_sources(context, "Bookmarks.plist",
+    for source, relative_source, _store in _plist_sources(context, "Bookmarks.plist",
                                                   "Safari Bookmarks"):
         plist = _load_plist(source)
         if plist is None:
@@ -690,15 +772,17 @@ def safariBookmarks(context):
 
 @artifact_processor
 def safariTopSites(context):
-    data_headers = ("Title", "URL", "Built-in Default", "Source File")
+    data_headers = ("Title", "URL", "Built-in Default", "Profile", "Source File")
     data_list = []
     read_sources = []
-    for source, relative_source in _plist_sources(context, "TopSites.plist",
-                                                  "Safari Top Sites"):
+    names = _profile_names(context)
+    for source, relative_source, store in _plist_sources(context, "TopSites.plist",
+                                                         "Safari Top Sites"):
         plist = _load_plist(source)
         if plist is None:
             continue
         read_sources.append(relative_source)
+        profile = _profile_name(names, store)
         for site in plist.get("TopSites", []) or []:
             if "TopSiteIsBuiltIn" in site:
                 built_in = "Yes" if site["TopSiteIsBuiltIn"] else "No"
@@ -706,7 +790,7 @@ def safariTopSites(context):
                 built_in = ""
             data_list.append((
                 site.get("TopSiteTitle", ""), site.get("TopSiteURLString", ""),
-                built_in, relative_source,
+                built_in, profile, relative_source,
             ))
 
     logfunc(f"Safari Top Sites: {len(data_list)} entr(ies) across "
@@ -757,7 +841,7 @@ def safariRecentlyClosedTabs(context):
     data_list = []
     read_sources = []
     unread = 0
-    for source, relative_source in _plist_sources(context, "RecentlyClosedTabs.plist",
+    for source, relative_source, _store in _plist_sources(context, "RecentlyClosedTabs.plist",
                                                   "Safari Recently Closed Tabs"):
         plist = _load_plist(source)
         if plist is None:
@@ -787,7 +871,7 @@ def safariLastSession(context):
     )
     data_list = []
     read_sources = []
-    for source, relative_source in _plist_sources(context, "LastSession.plist",
+    for source, relative_source, _store in _plist_sources(context, "LastSession.plist",
                                                   "Safari Last Session"):
         plist = _load_plist(source)
         if plist is None:

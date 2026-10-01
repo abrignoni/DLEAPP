@@ -6,7 +6,8 @@ row per link plus one row for a tag no link names. A logical extraction of a Mac
 one user's History.db under Users/ and again under System/Volumes/Data/Users/: a record both
 copies hold is reported once, and a record only one copy holds is still reported. A Safari
 profile keeps its own History.db in a Profiles/<UUID>/ folder, which the declared paths match
-and which is read as a store of its own.
+and which is read as a store of its own. The Profile column is the title SafariTabs.db in
+the same Safari folder stores for that folder.
 
 Every value here is written for the test. The two tag tables use the CREATE TABLE text
 Safari wrote on the tested images; the expected rows are written out, never read back from
@@ -15,6 +16,7 @@ the module.
 import datetime
 import fnmatch
 import pathlib
+import plistlib
 import sqlite3
 import sys
 import tempfile
@@ -35,6 +37,15 @@ OTHER_USER = 'Users/another/Library/Safari/History.db'
 PROFILE = ('Users/someone/Library/Containers/com.apple.Safari/Data/Library/Safari/Profiles/'
            'C68764FA-9571-420D-A681-C0FF8270B269/History.db')
 PROFILE_DATA_VIEW = 'System/Volumes/Data/' + PROFILE
+SAFARI_FOLDER = 'Users/someone/Library/Containers/com.apple.Safari/Data/Library/Safari'
+# The folder that held the same profile's TopSites.plist.
+PROFILE_TOP_SITES = SAFARI_FOLDER + '/Profiles/D6CB1EA5-F2AD-4158-AE1D-3D1BD5B30D3A/TopSites.plist'
+# Another account's profile folder with the same name and no SafariTabs.db beside it.
+OTHER_PROFILE = PROFILE.replace('Users/someone/', 'Users/another/')
+# bookmarks as far as the name lookup reads it: (title, server_id, external_uuid).
+PROFILE_ROWS = (('', 'DefaultProfile', 'DefaultProfile'),
+                ('Work', 'C68764FA-9571-420D-A681-C0FF8270B269',
+                 'D6CB1EA5-F2AD-4158-AE1D-3D1BD5B30D3A'))
 
 BASE_TABLES = (
     'CREATE TABLE history_items (id INTEGER PRIMARY KEY, url TEXT NOT NULL UNIQUE, '
@@ -106,7 +117,7 @@ class SafariHistoryTagsTest(unittest.TestCase):
     def test_a_visit_shows_the_tags_of_its_item_in_link_order(self):
         self._store(USER)
         headers, rows, source, _log = self._run(safaribrowsing.safariHistory)
-        self.assertEqual(headers[-3:], ('Tags', 'Tag Identifiers', 'Source File'))
+        self.assertEqual(headers[-4:], ('Tags', 'Tag Identifiers', 'Profile', 'Source File'))
         self.assertEqual(
             [(row[0], row[1], row[9], row[10]) for row in rows],
             [(_utc(2023, 3, 8, 20, 31, 40), 'https://three.example/', '', ''),
@@ -121,15 +132,15 @@ class SafariHistoryTagsTest(unittest.TestCase):
         self.assertEqual(
             headers,
             (('Tag Modified', 'datetime'), ('Item Tagged', 'datetime'), 'Tag', 'Identifier', 'URL',
-             'Item Count', 'Linked Items', 'Type', 'Level', 'Source File'))
+             'Item Count', 'Linked Items', 'Type', 'Level', 'Profile', 'Source File'))
         self.assertEqual(rows, [
             (_utc(2023, 3, 8, 20, 30, 5, 500000), _utc(2023, 3, 8, 20, 30, 5, 500000), 'Alpha',
-             'Q1001', 'https://two.example/', 3, 2, 1, 200, USER),
+             'Q1001', 'https://two.example/', 3, 2, 1, 200, '', USER),
             (_utc(2023, 3, 8, 20, 30, 5, 500000), _utc(2023, 3, 8, 20, 26, 50), 'Alpha', 'Q1001',
-             'https://one.example/', 3, 2, 1, 200, USER),
+             'https://one.example/', 3, 2, 1, 200, '', USER),
             (_utc(2023, 3, 8, 20, 28, 30), _utc(2023, 3, 8, 20, 28, 30), 'Beta', 'Q1002',
-             'https://one.example/', 1, 1, 1, 200, USER),
-            (_utc(2022, 11, 13, 2, 40), None, 'Gamma', 'Q1003', '', 2, 0, 1, 200, USER)])
+             'https://one.example/', 1, 1, 1, 200, '', USER),
+            (_utc(2022, 11, 13, 2, 40), None, 'Gamma', 'Q1003', '', 2, 0, 1, 200, '', USER)])
         self.assertEqual(source, USER)
 
     def test_a_store_without_the_tag_tables_still_reports_its_visits(self):
@@ -201,7 +212,8 @@ class SafariHistoryTagsTest(unittest.TestCase):
                 return any(fnmatch.fnmatchcase(name, pattern) for pattern in paths)
 
             for name in (USER, DATA_VIEW, PROFILE, PROFILE + '-wal', PROFILE + '-shm',
-                         PROFILE_DATA_VIEW):
+                         PROFILE_DATA_VIEW, SAFARI_FOLDER + '/SafariTabs.db',
+                         SAFARI_FOLDER + '/SafariTabs.db-wal'):
                 self.assertTrue(matched(name), (artifact, name))
             for name in ('Users/someone/Library/Containers/com.example.other/Data/Library/'
                          'NotSafari/Profiles/AAAA/History.db',
@@ -221,6 +233,67 @@ class SafariHistoryTagsTest(unittest.TestCase):
         self.assertEqual(sorted(row[-1] for row in rows), [PROFILE] * 4 + [USER] * 4)
         self.assertEqual(log, ['Safari History Tags: 8 row(s) across 3 History.db file(s); 4 row(s) '
                                'held by a second copy of a store were not reported again.'])
+
+    def _tabs(self, relative, rows=PROFILE_ROWS, table='bookmarks'):
+        path = self.root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        database = sqlite3.connect(path)
+        database.execute(f'CREATE TABLE {table} (id INTEGER PRIMARY KEY, title TEXT, '
+                         'server_id TEXT, external_uuid TEXT UNIQUE)')
+        database.executemany(
+            f'INSERT INTO {table} (title, server_id, external_uuid) VALUES (?,?,?)', rows)
+        database.commit()
+        database.close()
+        self.files.append(str(path))
+
+    def test_a_profile_is_named_from_the_tabs_database_of_its_own_safari_folder(self):
+        self._store(USER)
+        self._store(PROFILE)
+        self._store(OTHER_PROFILE)
+        self._tabs(SAFARI_FOLDER + '/SafariTabs.db')
+        for processor in (safaribrowsing.safariHistory, safaribrowsing.safariHistoryTags):
+            headers, rows, source, _log = self._run(processor)
+            self.assertEqual(headers[-2:], ('Profile', 'Source File'))
+            self.assertEqual(sorted({(row[-2], row[-1]) for row in rows}),
+                             [('', OTHER_PROFILE), ('', USER), ('Work', PROFILE)])
+            # SafariTabs.db is read for the names and is not a source of rows.
+            self.assertEqual(sorted(source.split('\n')), sorted([USER, PROFILE, OTHER_PROFILE]))
+
+    def test_a_copy_under_the_data_volume_view_is_named_by_either_copy_of_the_tabs_database(self):
+        self._store(PROFILE_DATA_VIEW)
+        self._tabs(SAFARI_FOLDER + '/SafariTabs.db')
+        _headers, rows, _source, _log = self._run(safaribrowsing.safariHistory)
+        self.assertEqual({row[-2] for row in rows}, {'Work'})
+
+    def test_a_profile_folder_no_row_names_and_a_tabs_database_without_the_table_show_no_name(self):
+        self._store(PROFILE)
+        _headers, rows, _source, log = self._run(safaribrowsing.safariHistory)
+        self.assertEqual({row[-2] for row in rows}, {''})
+        self.assertEqual(len(log), 1)
+        self._tabs(SAFARI_FOLDER + '/SafariTabs.db', rows=PROFILE_ROWS[:1])
+        _headers, rows, _source, _log = self._run(safaribrowsing.safariHistory)
+        self.assertEqual({row[-2] for row in rows}, {''})
+        self.files.pop()
+        (self.root / SAFARI_FOLDER / 'SafariTabs.db').unlink()
+        self._tabs(SAFARI_FOLDER + '/SafariTabs.db', table='other')
+        _headers, rows, _source, log = self._run(safaribrowsing.safariHistory)
+        self.assertEqual({row[-2] for row in rows}, {''})
+        self.assertEqual(len(log), 2)
+        self.assertIn('profile names not read', log[0])
+
+    def test_a_profile_top_sites_file_is_matched_and_named_by_its_own_folder(self):
+        paths = safaribrowsing.__artifacts_v2__['safariTopSites']['paths']
+        self.assertTrue(any(fnmatch.fnmatchcase(PROFILE_TOP_SITES, pattern) for pattern in paths))
+        path = self.root / PROFILE_TOP_SITES
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(plistlib.dumps({'TopSites': [
+            {'TopSiteTitle': 'One', 'TopSiteURLString': 'https://one.example/'}]}))
+        self.files.append(str(path))
+        self._tabs(SAFARI_FOLDER + '/SafariTabs.db')
+        headers, rows, source, _log = self._run(safaribrowsing.safariTopSites)
+        self.assertEqual(headers, ('Title', 'URL', 'Built-in Default', 'Profile', 'Source File'))
+        self.assertEqual(rows, [('One', 'https://one.example/', '', 'Work', PROFILE_TOP_SITES)])
+        self.assertEqual(source, PROFILE_TOP_SITES)
 
 
 if __name__ == '__main__':
