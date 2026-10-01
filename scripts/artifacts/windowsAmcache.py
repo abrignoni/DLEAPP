@@ -8,8 +8,9 @@ The InventoryApplicationFile field meanings, including FileId being a SHA-1 of
 the file (of its first 30 MiB when it is larger) prefixed with four zeroes, are
 sourced from public Amcache research and measured on the test images (see the
 artifact notes). The InventoryApplication values are compared with the Uninstall
-keys they name, and the InventoryApplicationShortcut paths with the link files
-on the same images.
+keys they name, the InventoryApplicationShortcut paths with the link files, the
+InventoryDriverBinary values with the driver files and the InventoryDevicePnp
+values with the SYSTEM hive's Enum keys, on the same images.
 """
 
 from datetime import timezone
@@ -30,6 +31,8 @@ from scripts.windows_registry import open_hive
 _INVENTORY_PATH = "Root\\InventoryApplicationFile"
 _APPLICATION_PATH = "Root\\InventoryApplication"
 _SHORTCUT_PATH = "Root\\InventoryApplicationShortcut"
+_DRIVER_PATH = "Root\\InventoryDriverBinary"
+_DEVICE_PATH = "Root\\InventoryDevicePnp"
 
 __artifacts_v2__ = {
     "amcacheApplicationFiles": {
@@ -236,6 +239,157 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 35 rows",
         },
     },
+    "amcacheDrivers": {
+        "name": "Amcache Drivers",
+        "description": "Driver files Windows inventoried, from Amcache.hve InventoryDriverBinary: the driver's path, "
+                       "the SHA-1 Amcache records for it, service, company, product and version, the in-box, signed "
+                       "and kernel-mode values as stored, and the driver package name.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-01",
+        "last_update_date": "2026-10-01",
+        "requirements": "python-registry",
+        "category": "Windows",
+        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+                 "Root\\InventoryDriverBinary, a key Psmths's Amcache reference names among the hive's keys without "
+                 "describing it (Psmths, 'windows-forensic-artifacts', "
+                 "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L41-L44). "
+                 "Driver Path is the subkey's name. The other columns are values of the entry as stored, blank where "
+                 "the entry lacks one: Driver Last Write (as stored) is DriverLastWriteTime, SHA-1 is DriverId "
+                 "without its leading four zeroes (shown as stored when it does not have that shape), Driver Name is "
+                 "DriverName, Company is DriverCompany, Driver Version is DriverVersion, In Box (as stored) is "
+                 "DriverInBox, Signed (as stored) is DriverSigned, Kernel Mode (as stored) is DriverIsKernelMode, "
+                 "INF is Inf, Driver Package is DriverPackageStrongName, PE Timestamp (as stored) is "
+                 "DriverTimeStamp, and Service and Product carry their value's name. Microsoft's published field "
+                 "descriptions are for its InventoryDriverBinaryAdd diagnostic event, and none for the registry "
+                 "values was found; that event's fields carry the names of 11 of the 13 values reported here, all "
+                 "but DriverId and DriverLastWriteTime (Microsoft, 'Required diagnostic events and fields for "
+                 "Windows 10, versions 22H2 and 21H2', as updated 26 June 2026, "
+                 "https://learn.microsoft.com/en-us/windows/privacy/required-windows-diagnostic-data-events-and-fields-2004#microsoftwindowsinventorycoreinventorydriverbinaryadd). "
+                 "It describes DriverInBox as whether the driver is included with the operating system, DriverSigned "
+                 "as whether the driver is signed, DriverIsKernelMode as whether it is a kernel mode driver, Service "
+                 "as the name of the service installed for the device and DriverTimeStamp as the low 32 bits of the "
+                 "driver file's time stamp. The figures below are from af_case2_win10, lonewolf_win10 and "
+                 "szechuan_win10, Windows 10 builds 17763, 16299 and 19041, whose keys hold 358, 351 and 371 "
+                 "entries; each driver file was copied out of the same image and compared. Driver Path is in lower "
+                 "case with forward slashes and begins c:/ on all 1,080 entries, a file exists at that path on the "
+                 "image for every one, and 354, 348 and 358 of the paths are under c:/windows/system32/drivers. "
+                 "SHA-1 equalled the SHA-1 of the file on all 1,080; 6 of the files, 3 each on af_case2_win10 and "
+                 "szechuan_win10, are stored on the volume in a WofCompressedData stream and were hashed after "
+                 "decompressing it. Driver Last Write (as stored) is text in the form MM/DD/YYYY HH:MM:SS and "
+                 "equalled the file's last-modified time in UTC, to the second, on all 1,080, on machines set to "
+                 "time zones 4 to 8 hours behind UTC; it is the file's time, not a time the driver was loaded. PE "
+                 "Timestamp (as stored) is a decimal number that equalled the TimeDateStamp of the file's PE header "
+                 "on all 1,080; the PE format documentation describes that stamp as indicating when the file was "
+                 "created "
+                 "(https://github.com/MicrosoftDocs/win32/blob/e103fa4e8810bd8d42c4777e17081e24dbe62dbd/desktop-src/Debug/pe-format.md#L111). "
+                 "Driver Name is the file name in Driver Path on all 1,080, and Driver Version, Product and Company "
+                 "equalled the file version, ProductName and CompanyName of the file's version resource on all "
+                 "1,080. Kernel Mode (as stored) was 1 on 346, 340 and 356 entries, each a file whose PE header "
+                 "names the native subsystem, which that documentation gives to device drivers and native Windows "
+                 "processes "
+                 "(https://github.com/MicrosoftDocs/win32/blob/e103fa4e8810bd8d42c4777e17081e24dbe62dbd/desktop-src/Debug/pe-format.md#L263), "
+                 "and 0 on 12, 11 and 15, none of which does. In Box (as stored) was 0 on 11, 15 and 12 entries and "
+                 "1 on the others. Signed (as stored) held one value, 1, on every entry of the three images; "
+                 "signatures were not checked here. Service was filled on 358, 340 and 371 entries, and the SYSTEM "
+                 "hive of the same image holds a Services key of that name for 346, 340 and 356. INF and Driver "
+                 "Package were filled together, on 30, 59 and 48 entries. Key Last Write (UTC) is the entry's "
+                 "registry last-written time, not a time the driver was installed or loaded: the entries of "
+                 "af_case2_win10 and lonewolf_win10 were each written within 1 second and those of szechuan_win10 "
+                 "within 8 seconds. Not reported: the entry values DriverCheckSum, DriverType, ImageSize, "
+                 "ProductVersion and WdfVersion. pc_mus_001_win11 (Windows 11 build 22621) holds the key with no "
+                 "subkeys, so no Windows 11 entry was tested. An entry records that Windows inventoried the driver "
+                 "file; this artifact does not treat it as proof that the driver was loaded. Reading the hive needs "
+                 "the python-registry package. A dirty hive is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, following Maxim Suhanov's 'Windows "
+                 "registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
+                 "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
+                 "names each hive replayed.",
+        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+        "output_types": ["standard"],
+        "artifact_icon": "cpu",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the key holds no subkeys)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 358 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 351 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 371 rows",
+        },
+    },
+    "amcacheDevices": {
+        "name": "Amcache Devices",
+        "description": "Plug and Play devices Windows inventoried, from Amcache.hve InventoryDevicePnp: the device "
+                       "instance, model, manufacturer, class, service and driver, hardware IDs, and the install "
+                       "dates where the entry holds them.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-01",
+        "last_update_date": "2026-10-01",
+        "requirements": "python-registry",
+        "category": "Windows",
+        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+                 "Root\\InventoryDevicePnp. No description of this key's values that could be relied on was found: "
+                 "Microsoft's page for the InventoryDevicePnpAdd diagnostic event lists fields of these names, but "
+                 "its descriptions do not line up with the names (it describes Enumerator as the date of the driver "
+                 "loaded for the device), so they are not used here (Microsoft, 'Required diagnostic events and "
+                 "fields for Windows 10, versions 22H2 and 21H2', as updated 26 June 2026, "
+                 "https://learn.microsoft.com/en-us/windows/privacy/required-windows-diagnostic-data-events-and-fields-2004#microsoftwindowsinventorycoreinventorydevicepnpadd). "
+                 "The statements here are measurements on af_case2_win10, lonewolf_win10 and szechuan_win10 (Windows "
+                 "10 builds 17763, 16299 and 19041), whose keys hold 92, 131 and 201 entries, against the Enum key "
+                 "of the current control set in each image's SYSTEM hive. Device is the subkey's name. The other "
+                 "columns are values of the entry as stored, blank where the entry lacks one: Install Date (as "
+                 "stored) is InstallDate, First Install Date (as stored) is FirstInstallDate, Bus Reported "
+                 "Description is BusReportedDescription, Driver Name is DriverName, Driver SHA-1 is DriverId without "
+                 "its leading four zeroes, Parent ID is ParentId, Container ID is ContainerId, Hardware IDs is HWID, "
+                 "INF is Inf, and Model, Description, Manufacturer, Class, Enumerator and Service carry their "
+                 "value's name. Device is in lower case with forward slashes and has three parts on all but 1 entry "
+                 "of each image, whose Enumerator is ComputerHardwareId; on the others Enumerator is the first part. "
+                 "Taken as three key names, one under the other, the parts name a key under Enum, compared without "
+                 "case, for 91 of 91, 130 of 130 and 199 of 200 of those entries. Against those 420 Enum keys, "
+                 "compared without case, Model equalled the DeviceDesc text and Manufacturer the Mfg text (the part "
+                 "after the semicolon where the value begins with @) on all 420, Hardware IDs equalled the "
+                 "HardwareID strings joined with commas on all 420, Service equalled Service on 418, and Description "
+                 "equalled FriendlyName, or DeviceDesc where the key has no FriendlyName, on 418. Install Date (as "
+                 "stored) and First Install Date (as stored) were blank on every entry of af_case2_win10 and "
+                 "lonewolf_win10, whose entries hold no such values, and filled, as text in the form MM-DD-YYYY, on "
+                 "200 of the 201 entries of szechuan_win10. Install Date (as stored) and First Install Date (as "
+                 "stored) were identical on all 200, so no entry in which the two differ was tested. On all 199 of "
+                 "those with an Enum key, each equalled the date, in UTC, of the time that key holds under "
+                 "Properties\\{83da6326-97a6-4088-9453-a1923f573b29}\\0064 and \\0065; on 192 of them the date in the "
+                 "machine's own time zone is a different day. 0064 and 0065 are 100 and 101 in hexadecimal, the "
+                 "identifiers devpkey.h gives DEVPKEY_Device_InstallDate and DEVPKEY_Device_FirstInstallDate under "
+                 "that GUID (mingw-w64, 'devpkey.h', "
+                 "https://github.com/mingw-w64/mingw-w64/blob/49be363ce161977c8594534df488e298e775b8b2/mingw-w64-headers/include/devpkey.h#L105-L106), "
+                 "which Microsoft documents as the time the device instance was last installed, changing with each "
+                 "update of its driver, and the time it was first installed "
+                 "(https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/devpkey-device-installdate.md#L30-L32, "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/devpkey-device-firstinstalldate.md#L30). "
+                 "Driver Name and Driver SHA-1 were filled together, on 74, 92 and 102 entries, and each Driver "
+                 "SHA-1 is the SHA-1 of an Amcache Drivers row on the same image. Bus Reported Description was "
+                 "filled on 49, 47 and 64 entries. Key Last Write (UTC) is the entry's registry last-written time: "
+                 "92 of 92, 127 of 131 and 195 of 201 entries were written within a minute of the image's first, and "
+                 "the last of the others 5.2 and 2.1 hours after it; what caused the later writes was not "
+                 "established. Not reported: the entry's other values, among them ClassGuid, COMPID, MatchingID, "
+                 "STACKID, Provider, DriverVerDate, DriverVerVersion, DriverPackageStrongName, DeviceState, "
+                 "InstallState, ProblemCode and the four filter lists. pc_mus_001_win11 (Windows 11 build 22621) "
+                 "holds the key with no subkeys, so no Windows 11 entry was tested. An entry records that Windows "
+                 "inventoried the device; this artifact does not treat it as proof of when the device was connected "
+                 "or of who connected it. Reading the hive needs the python-registry package. A dirty hive is read "
+                 "after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
+                 "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
+                 "names each hive replayed.",
+        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+        "output_types": ["standard"],
+        "artifact_icon": "hard-drive",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the key holds no subkeys)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 92 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 131 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 201 rows",
+        },
+    },
 }
 
 
@@ -331,6 +485,26 @@ def shortcut_row(entry):
     return (_written(entry), _stored(entry, 'ShortcutPath'))
 
 
+def driver_row(entry):
+    return (_written(entry), _stored(entry, 'DriverLastWriteTime'), entry.name(),
+            _sha1(_value(entry, 'DriverId')), _stored(entry, 'DriverName'),
+            _stored(entry, 'Service'), _stored(entry, 'DriverCompany'), _stored(entry, 'Product'),
+            _stored(entry, 'DriverVersion'), _stored(entry, 'DriverInBox'),
+            _stored(entry, 'DriverSigned'), _stored(entry, 'DriverIsKernelMode'),
+            _stored(entry, 'Inf'), _stored(entry, 'DriverPackageStrongName'),
+            _stored(entry, 'DriverTimeStamp'))
+
+
+def device_row(entry):
+    return (_written(entry), _stored(entry, 'InstallDate'), _stored(entry, 'FirstInstallDate'),
+            entry.name(), _stored(entry, 'Model'), _stored(entry, 'Description'),
+            _stored(entry, 'Manufacturer'), _stored(entry, 'Class'), _stored(entry, 'Enumerator'),
+            _stored(entry, 'BusReportedDescription'), _stored(entry, 'Service'),
+            _stored(entry, 'DriverName'), _sha1(_value(entry, 'DriverId')),
+            _stored(entry, 'ParentId'), _stored(entry, 'ContainerId'), _stored(entry, 'HWID'),
+            _stored(entry, 'Inf'))
+
+
 def _inventory_rows(context, key_path, row_of):
     """One row per subkey of key_path in each Amcache.hve found, and the hives read."""
     data_list = []
@@ -375,4 +549,32 @@ def amcacheShortcuts(context):
         logfunc('Amcache: the python-registry package is not installed')
         return data_headers, [], ''
     data_list, sources = _inventory_rows(context, _SHORTCUT_PATH, shortcut_row)
+    return data_headers, data_list, sources
+
+
+@artifact_processor
+def amcacheDrivers(context):
+    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Driver Last Write (as stored)',
+                    'Driver Path', 'SHA-1', 'Driver Name', 'Service', 'Company', 'Product',
+                    'Driver Version', 'In Box (as stored)', 'Signed (as stored)',
+                    'Kernel Mode (as stored)', 'INF', 'Driver Package',
+                    'PE Timestamp (as stored)')
+    if Registry is None:
+        logfunc('Amcache: the python-registry package is not installed')
+        return data_headers, [], ''
+    data_list, sources = _inventory_rows(context, _DRIVER_PATH, driver_row)
+    return data_headers, data_list, sources
+
+
+@artifact_processor
+def amcacheDevices(context):
+    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Install Date (as stored)',
+                    'First Install Date (as stored)', 'Device', 'Model', 'Description',
+                    'Manufacturer', 'Class', 'Enumerator', 'Bus Reported Description', 'Service',
+                    'Driver Name', 'Driver SHA-1', 'Parent ID', 'Container ID', 'Hardware IDs',
+                    'INF')
+    if Registry is None:
+        logfunc('Amcache: the python-registry package is not installed')
+        return data_headers, [], ''
+    data_list, sources = _inventory_rows(context, _DEVICE_PATH, device_row)
     return data_headers, data_list, sources
