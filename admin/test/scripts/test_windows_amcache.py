@@ -1,4 +1,5 @@
-"""Pin the InventoryApplication and InventoryApplicationShortcut readers in scripts/artifacts/windowsAmcache.py.
+"""Pin the InventoryApplication, InventoryApplicationShortcut, InventoryDriverBinary and InventoryDevicePnp readers
+in scripts/artifacts/windowsAmcache.py.
 
 The hive is stood in for by small objects that answer the python-registry calls the readers make; the expected rows
 are written out.
@@ -28,10 +29,14 @@ class _Value:
 
 
 class _Key:
-    def __init__(self, values=None, subkeys=(), written=WRITTEN):
+    def __init__(self, values=None, subkeys=(), written=WRITTEN, name=''):
         self._values = values or {}
         self._subkeys = list(subkeys)
         self._written = written
+        self._name = name
+
+    def name(self):
+        return self._name
 
     def value(self, name):
         if name not in self._values:
@@ -121,6 +126,57 @@ class ShortcutRowTest(unittest.TestCase):
         self.assertEqual(amcache.shortcut_row(_Key({})), (WRITTEN_UTC, ''))
 
 
+SHA1 = '35db8fd43dac86f8dec9e808579e412228aabbcc'
+DRIVER = {'DriverName': 'example.sys', 'Inf': 'oem7.inf', 'DriverVersion': '1.2.3.4', 'Product': 'Example Product',
+          'ProductVersion': '1.2', 'WdfVersion': '1.15', 'DriverCompany': 'Example Corp',
+          'DriverPackageStrongName': 'example.inf_amd64_0123456789abcdef', 'Service': 'example', 'DriverInBox': '0',
+          'DriverSigned': '1', 'DriverIsKernelMode': '1', 'DriverId': '0000' + SHA1,
+          'DriverLastWriteTime': '09/15/2018 07:28:17', 'DriverType': '8650778', 'DriverTimeStamp': '1063335750',
+          'DriverCheckSum': '264074', 'ImageSize': '274432'}
+DRIVER_PATH = 'c:/windows/system32/drivers/example.sys'
+DRIVER_ROW = (WRITTEN_UTC, '09/15/2018 07:28:17', DRIVER_PATH, SHA1, 'example.sys', 'example', 'Example Corp',
+              'Example Product', '1.2.3.4', '0', '1', '1', 'oem7.inf', 'example.inf_amd64_0123456789abcdef',
+              '1063335750')
+DEVICE = {'Model': 'USB Mass Storage Device', 'Manufacturer': 'Compatible USB storage device',
+          'DriverName': 'usbstor.sys', 'ParentId': 'usb\\root_hub30\\4&1&0&0', 'MatchingID': 'usb\\class_08',
+          'Class': 'usb', 'ClassGuid': '{36fc9e60-c465-11cf-8056-444553540000}',
+          'Description': 'Example Flash Drive', 'Enumerator': 'usb', 'Service': 'usbstor', 'InstallState': '0',
+          'DeviceState': '96', 'Inf': 'usbstor.inf', 'DriverVerDate': '06-21-2006', 'InstallDate': '09-18-2020',
+          'FirstInstallDate': '09-17-2020', 'DriverPackageStrongName': 'usbstor.inf_amd64_0123456789abcdef',
+          'DriverVerVersion': '10.0.19041.1', 'ContainerId': '{11111111-2222-3333-4444-555555555555}',
+          'ProblemCode': '0', 'Provider': 'Microsoft', 'DriverId': '0000' + SHA1,
+          'BusReportedDescription': 'Example Bus Name', 'HWID': 'usb\\vid_0000&pid_0001&rev_0100,usb\\vid_0000&pid_0001',
+          'COMPID': 'usb\\class_08', 'STACKID': 'x'}
+DEVICE_NAME = 'usb/vid_0000&pid_0001/0123456789'
+DEVICE_ROW = (WRITTEN_UTC, '09-18-2020', '09-17-2020', DEVICE_NAME, 'USB Mass Storage Device', 'Example Flash Drive',
+              'Compatible USB storage device', 'usb', 'usb', 'Example Bus Name', 'usbstor', 'usbstor.sys', SHA1,
+              'usb\\root_hub30\\4&1&0&0', '{11111111-2222-3333-4444-555555555555}',
+              'usb\\vid_0000&pid_0001&rev_0100,usb\\vid_0000&pid_0001', 'usbstor.inf')
+
+
+@unittest.skipIf(Registry is None, 'python-registry is not installed')
+class DriverRowTest(unittest.TestCase):
+    def test_each_column_carries_its_own_value(self):
+        self.assertEqual(amcache.driver_row(_Key(DRIVER, name=DRIVER_PATH)), DRIVER_ROW)
+
+    def test_an_identifier_of_another_shape_is_shown_as_stored_and_absent_values_are_blank(self):
+        row = amcache.driver_row(_Key({'DriverId': 'abc', 'DriverSigned': '0'}, name='c:/x.sys'))
+        self.assertEqual(row, (WRITTEN_UTC, '', 'c:/x.sys', 'abc', '', '', '', '', '', '', '0', '', '', '', ''))
+        self.assertEqual(amcache.driver_row(_Key({}, name='c:/y.sys'))[3], '')
+
+
+@unittest.skipIf(Registry is None, 'python-registry is not installed')
+class DeviceRowTest(unittest.TestCase):
+    def test_each_column_carries_its_own_value(self):
+        self.assertEqual(amcache.device_row(_Key(DEVICE, name=DEVICE_NAME)), DEVICE_ROW)
+
+    def test_an_entry_without_install_dates_or_a_driver(self):
+        entry = _Key({'Model': 'Volume', 'Enumerator': 'storage', 'Class': 'volume'}, name='storage/volume/1')
+        self.assertEqual(amcache.device_row(entry),
+                         (WRITTEN_UTC, '', '', 'storage/volume/1', 'Volume', '', '', 'volume', 'storage', '', '', '',
+                          '', '', '', '', ''))
+
+
 @unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     HIVE = '/report/data/vol/Windows/appcompat/Programs/Amcache.hve'
@@ -188,14 +244,35 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual([r[1] for r in rows], ['C:\\a.lnk', 'C:\\b.lnk'])
         self.assertEqual(source, self.HIVE + '\n' + self.OTHER)
 
+    def test_drivers_and_devices_come_from_their_own_keys(self):
+        hive = _Hive({'Root\\InventoryDriverBinary': _Key(subkeys=[_Key(DRIVER, name=DRIVER_PATH)]),
+                      'Root\\InventoryDevicePnp': _Key(subkeys=[_Key(DEVICE, name=DEVICE_NAME)]),
+                      'Root\\InventoryApplication': _Key(subkeys=[_Key(MSI)])})
+        (headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheDrivers, {self.HIVE: hive})
+        self.assertEqual(rows, [DRIVER_ROW])
+        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), 'Driver Last Write (as stored)', 'Driver Path',
+                                   'SHA-1', 'Driver Name', 'Service', 'Company', 'Product', 'Driver Version',
+                                   'In Box (as stored)', 'Signed (as stored)', 'Kernel Mode (as stored)', 'INF',
+                                   'Driver Package', 'PE Timestamp (as stored)'))
+        self.assertEqual((source, logged), (self.HIVE, []))
+        (headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheDevices, {self.HIVE: hive})
+        self.assertEqual(rows, [DEVICE_ROW])
+        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), 'Install Date (as stored)',
+                                   'First Install Date (as stored)', 'Device', 'Model', 'Description', 'Manufacturer',
+                                   'Class', 'Enumerator', 'Bus Reported Description', 'Service', 'Driver Name',
+                                   'Driver SHA-1', 'Parent ID', 'Container ID', 'Hardware IDs', 'INF'))
+        self.assertEqual((source, logged), (self.HIVE, []))
+
     def test_without_python_registry_nothing_is_read(self):
+        functions = (amcache.amcacheApplications, amcache.amcacheShortcuts, amcache.amcacheDrivers,
+                     amcache.amcacheDevices)
         with mock.patch.object(amcache, 'Registry', None), mock.patch.object(amcache, 'logfunc') as log, \
                 mock.patch.object(amcache, 'open_hive') as opened:
-            for function in (amcache.amcacheApplications, amcache.amcacheShortcuts):
+            for function in functions:
                 _headers, rows, source = function.__wrapped__(_Context([self.HIVE]))
                 self.assertEqual((rows, source), ([], ''))
         opened.assert_not_called()
-        self.assertEqual(log.call_count, 2)
+        self.assertEqual(log.call_count, len(functions))
 
 
 if __name__ == '__main__':
