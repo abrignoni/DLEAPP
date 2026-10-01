@@ -33,6 +33,14 @@ loader, same seekers, same glob semantics.
   read the local helper rather than assuming it matches the source you copied from.
 - `admin/docs/why-no-login-keychain-recovery.md` records a deliberate scope decision. Read
   it before proposing keychain-based recovery.
+- **Builds are made by `packaging/build.py`**, one PyInstaller spec for every platform and
+  one executable, `dleapp`, that opens the window without arguments. Every artifact module
+  is a hidden import, so what the artifacts import is followed without a list. What it
+  cannot follow is a name built at run time (`importlib.import_module(some_variable)`) or a
+  data file kept outside `scripts/`, `leapp_functions/` or `assets/`: expect a working dev
+  run and a broken build, and run `python packaging/build.py smoke` or `test_builds.yml`.
+  The Unified Log parser ships only when fetched into `bin/`, and never without its licence
+  and notices. See `.claude/rules/dleapp-build-and-release.md`.
 
 ## Rules
 

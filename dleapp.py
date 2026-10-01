@@ -17,7 +17,7 @@ from scripts.search_files import *
 from scripts.raw_image import FileSeekerRaw, cli_image_keys
 from scripts.ilapfuncs import *
 from leapp_functions.app.output import validate_output_folder_available
-from scripts.version_info import dleapp_version
+from scripts.version_info import dleapp_version, leapp_name
 from time import process_time, gmtime, strftime, perf_counter
 from scripts.lavafuncs import *
 from scripts.context import Context
@@ -293,6 +293,7 @@ def main():
                         help="Rows above which an artifact's table is left off its HTML page, which then points at "
                              "the LAVA database and the TSV export instead (default %(default)s). 0 writes every table.")
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
+    parser.add_argument('--version', action='version', version=f'{leapp_name} {dleapp_version}')
     parser.add_argument('--signal-key', dest='signal_key', required=False, nargs='?',
                         const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
                         help=("Credential for a current Signal Desktop profile, needed because "
