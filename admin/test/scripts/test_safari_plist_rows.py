@@ -132,9 +132,9 @@ class SafariPlistRowsTest(unittest.TestCase):
             {'TopSiteTitle': 'Not shipped', 'TopSiteURLString': 'https://two.example/', 'TopSiteIsBuiltIn': False},
             {'TopSiteURLString': 'https://three.example/'}]})
         rows, _source, _log = self._run(safaribrowsing.safariTopSites)
-        self.assertEqual(rows, [('Shipped', 'https://one.example/', 'Yes', name),
-                                ('Not shipped', 'https://two.example/', 'No', name),
-                                ('', 'https://three.example/', '', name)])
+        self.assertEqual(rows, [('Shipped', 'https://one.example/', 'Yes', '', name),
+                                ('Not shipped', 'https://two.example/', 'No', '', name),
+                                ('', 'https://three.example/', '', '', name)])
 
     def test_a_bookmark_shows_the_folders_above_it_and_other_nodes_are_left_out(self):
         name = f'{FOLDER}/Bookmarks.plist'
