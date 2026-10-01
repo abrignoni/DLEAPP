@@ -37,9 +37,9 @@ _DEVICE_PATH = "Root\\InventoryDevicePnp"
 __artifacts_v2__ = {
     "amcacheApplicationFiles": {
         "name": "Amcache Application Files",
-        "description": "Executables the system inventoried, from Amcache.hve InventoryApplicationFile: the "
-                       "file path, the SHA-1 Amcache records for it, publisher, product and version, size, "
-                       "link date, and the time the entry was written.",
+        "description": "Files the system inventoried, from Amcache.hve InventoryApplicationFile: the file path, the "
+                       "SHA-1 Amcache records for it, publisher, product and version, size and link date where the "
+                       "entry holds them, the entry's key name, and the time the entry was written.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
         "last_update_date": "2026-10-01",
@@ -78,7 +78,17 @@ __artifacts_v2__ = {
                  "under InventoryApplication, the key the Amcache Applications artifact reports "
                  "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L75). "
                  "Key Last Write (UTC) is the entry's registry LastWrite time; it is not an execution "
-                 "time. An entry records that the file was inventoried; this artifact does not treat "
+                 "time. Entry Key is the subkey's name as stored: on every entry of the five tested images it is a "
+                 "prefix, a vertical bar and 8 to 16 hexadecimal digits whose meaning was not established, and on "
+                 "all 2,278 entries that hold a Name value the prefix is the first 16 characters of Name in lower "
+                 "case. On windows11_arm_known_20261001, a capture made on 1 October 2026 of the hive of a Windows "
+                 "11 build 26200 ARM64 virtual machine, 590 of the 2,179 entries hold only the FileId and ProgramId "
+                 "values, so on those rows File Path, Name, Publisher, Product Name, Version, Size (bytes) and Link "
+                 "Date are blank and Entry Key is all the row carries of the file's name; SHA-1 is blank on 120 of "
+                 "the 590, whose FileId is empty. Those 590 entries were last written from August to October 2026, "
+                 "and no entry of the four other images has that shape. The files of that machine were not captured, "
+                 "so nothing on that image was compared with a file. An entry records that the file was inventoried; "
+                 "this artifact does not treat "
                  "it as proof that the file ran or of who ran it. Reading the hive needs the "
                  "python-registry package. A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 transaction logs that "
@@ -100,6 +110,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 153 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 292 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 98 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 2179 rows",
         },
     },
     "amcacheApplications": {
@@ -120,11 +131,13 @@ __artifacts_v2__ = {
                  "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L46-L49). "
                  "Every column after the first is a value of the entry as stored, blank where the entry lacks it: "
                  "Install Date (as stored) is InstallDate, Root Folder is RootDirPath, Store App Type is "
-                 "StoreAppType, MSI Product Code is MsiProductCode, Hidden ARP (as stored) is HiddenArp, OS Version "
+                 "StoreAppType, MSI Product Code is MsiProductCode, User SID is UserSid, Hidden ARP (as stored) is "
+                 "HiddenArp, OS Version "
                  "At Install is OSVersionAtInstallTime, Program ID is ProgramId, and the other columns carry their "
                  "value's name. Microsoft's published field descriptions are for its InventoryApplicationAdd "
                  "diagnostic event, and none for the registry values was found; that event's fields carry the names "
-                 "of 11 of the 14 values reported here, all but UninstallString, RegistryKeyPath and ProgramId "
+                 "of 11 of the 15 values reported here, all but UninstallString, RegistryKeyPath, UserSid and "
+                 "ProgramId "
                  "(Microsoft, 'Required diagnostic events and fields for Windows 10, versions 22H2 and 21H2', as "
                  "updated 26 June 2026, "
                  "https://learn.microsoft.com/en-us/windows/privacy/required-windows-diagnostic-data-events-and-fields-2004#microsoftwindowsinventorycoreinventoryapplicationadd). "
@@ -138,7 +151,8 @@ __artifacts_v2__ = {
                  "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L62-L66). "
                  "Registry Key Path and Install Date (as stored) are filled on the 50 entries whose Source is not "
                  "AppxPackage and blank on the 220 whose Source is; Package Full Name is filled on those 220 and "
-                 "blank on the 50. Each of the 50 Registry Key Paths names an Uninstall key the same image holds: 48 "
+                 "blank on the 50. User SID is blank on all 270, which hold no UserSid value. Each of the 50 "
+                 "Registry Key Paths names an Uninstall key the same image holds: 48 "
                  "in the SOFTWARE hive and 2, written as HKEY_USERS and a user's SID, in one user's NTUSER.DAT, "
                  "found there by the key's name without matching the SID to the hive. Name, Version and Publisher "
                  "equalled that key's DisplayName, DisplayVersion and Publisher on all 50. Uninstall String equalled "
@@ -174,8 +188,38 @@ __artifacts_v2__ = {
                  "BundleManifestPath, InboxModernApp and ProgramInstanceId, and the key's own LastScanTime value, "
                  "which Psmths describes as the last time the Appraiser ran "
                  "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L47) "
-                 "and which only szechuan_win10 holds, equal there to the key's last-written time. pc_mus_001_win11 "
-                 "(Windows 11 build 22621) holds the key with no subkeys, so no Windows 11 entry was tested. An "
+                 "and which, of those three images, only szechuan_win10 holds, equal there to the key's last-written "
+                 "time. pc_mus_001_win11 "
+                 "(Windows 11 build 22621) holds the key with no subkeys. On windows11_arm_known_20261001, a capture "
+                 "made on 1 October 2026 of the hive, the SOFTWARE hive and one user's NTUSER.DAT of a Windows 11 "
+                 "build 26200 ARM64 virtual machine, the key holds 286 entries, all written within 3 seconds on 30 "
+                 "July 2026, 63 days before the capture. Source was AppxPackage on 136, Msi on 123, AddRemoveProgram "
+                 "on 23 and AddRemoveProgramPerUser on 4. No entry holds an OSVersionAtInstallTime or a Type value, "
+                 "so OS Version At Install is blank on every row of that image. The 123 Msi entries hold a "
+                 "MsiInstallDate value, equal to InstallDate on all 123 and not reported. Each entry also holds an "
+                 "unnamed default value, 0 on all 286, which is not reported. User SID was filled on 15 entries and "
+                 "held one value, the SID of the account the capture was made from: the 4 AddRemoveProgramPerUser "
+                 "entries, whose Registry Key Path names that SID, and 11 Msi entries, whose Registry Key Path is "
+                 "under HKEY_LOCAL_MACHINE. Registry Key Path and Install Date (as stored) are filled on the 150 "
+                 "entries whose Source is not AppxPackage, and Package Full Name on the other 136. 149 of the 150 "
+                 "Registry Key Paths name an Uninstall key the captured hives hold, 145 in SOFTWARE and 4 in the "
+                 "user's hive; the other, an Msi entry, names a key the SOFTWARE hive does not hold. Name and "
+                 "Publisher equalled the key's on all 149, and Version and Uninstall String on 146; the other 3 name "
+                 "keys last written in September 2026, after the entries. On those 149, Hidden ARP (as stored) was 1 "
+                 "on 115, each naming a key whose SystemComponent value is 1, and 0 on the other 34, none of which "
+                 "does. Install Date (as stored) was the key's InstallDate followed by 00:00:00 on 127 and, on 17 "
+                 "whose keys store no InstallDate, the key's last-written time in UTC, on a machine set 4 hours "
+                 "behind UTC. The other 5 are the 3 whose keys were written after the entries and 2 AddRemoveProgram "
+                 "entries whose keys store no InstallDate and which hold a time 5.4 and 5.7 hours before the key's "
+                 "last-written time on the same day; that difference was not explained. Root Folder equalled the "
+                 "key's InstallLocation on 16, was filled on 132 whose keys store none and differed from it on 1. "
+                 "Store App Type was Win10StoreApp on 94 and CentennialStoreApp on 42 of the AppxPackage entries. "
+                 "MSI Product Code was filled on all 123 Msi entries and on no other. Program ID equalled the "
+                 "subkey's name on all 286, and 1,102 of the 2,179 Amcache Application Files rows of that image "
+                 "carry a Program ID found here. 2 Uninstall keys with a DisplayName, both last written after the "
+                 "newest entry, are named by no entry. The key's LastScanTime value there, read as a FILETIME, is "
+                 "2.2 seconds after the newest entry was written and 4.1 hours before the key's own last-written "
+                 "time. An "
                  "entry records that Windows inventoried the application; this artifact does not treat it as proof "
                  "that the application was run. Reading the hive needs the python-registry package. A dirty hive is "
                  "read after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
@@ -192,12 +236,14 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 95 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 90 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 85 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 286 rows",
         },
     },
     "amcacheShortcuts": {
         "name": "Amcache Shortcuts",
         "description": "Shortcut (.lnk) paths Windows inventoried, from Amcache.hve InventoryApplicationShortcut, "
-                       "with the time each entry was written.",
+                       "with the time each entry was written and, where the entry holds them, the shortcut's target "
+                       "path, AUMID and program ID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
@@ -209,8 +255,9 @@ __artifacts_v2__ = {
                  "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L41-L44). "
                  "No source describing its values was found, so the statements here are measurements on "
                  "af_case2_win10, lonewolf_win10 and szechuan_win10 (Windows 10 builds 17763, 16299 and 19041), "
-                 "whose keys hold 53, 97 and 35 entries. Shortcut Path is ShortcutPath, the only value an entry "
-                 "holds, as stored. Every path is on drive C, ends in .lnk and appears once, and a link file exists "
+                 "whose keys hold 53, 97 and 35 entries. Shortcut Path is ShortcutPath as stored, the only value an "
+                 "entry holds on those three images, where Target Path, AUMID and Program ID are therefore blank on "
+                 "every row. Every path is on drive C, ends in .lnk and appears once, and a link file exists "
                  "at each of the 185 paths on the same image. 52, 73 and 35 of the paths are under a Start Menu "
                  "folder, 1, 9 and 0 on a user's Desktop, and 15, on lonewolf_win10, under a Microsoft Office folder "
                  "in Program Files (x86). The key does not list every link: 53, 40 and 88 link files under Start "
@@ -218,9 +265,29 @@ __artifacts_v2__ = {
                  "registry last-written time: on each image all entries were written within 2 seconds of each other, "
                  "and the link files' own times were not compared with it. The subkey's name is not reported; it is "
                  "the first 16 characters of the link's file name in lower case, a vertical bar and 15 or 16 "
-                 "hexadecimal digits whose meaning was not established. No tested image holds an entry whose link "
+                 "hexadecimal digits whose meaning was not established. None of those three images holds an entry "
+                 "whose link "
                  "file is gone, so an entry for a deleted link was not exercised. pc_mus_001_win11 (Windows 11 build "
-                 "22621) has no InventoryApplicationShortcut key. An entry records that Windows inventoried the "
+                 "22621) has no InventoryApplicationShortcut key. On windows11_arm_known_20261001, a capture made on "
+                 "1 October 2026 of the hive of a Windows 11 build 26200 ARM64 virtual machine, the key holds 124 "
+                 "entries, all written within 2 seconds on 30 July 2026, 63 days before the capture, and each entry "
+                 "also holds ShortcutTargetPath, ShortcutAumid and ShortcutProgramId values: Target Path is "
+                 "ShortcutTargetPath, AUMID is ShortcutAumid and Program ID is ShortcutProgramId, each as stored. No "
+                 "source describing those values was found. Each entry also holds an unnamed default value, 0 on all "
+                 "124, which is not reported. Target Path and AUMID were filled on the same 120 entries and Program "
+                 "ID on 22 of those. Each Target Path begins with a drive letter, and 91 of the 120, compared "
+                 "without case, are the File Path of an Amcache Application Files row of the same image; the link "
+                 "files were not captured, so Target Path was not compared with the target a link itself stores. "
+                 "Each of the 22 Program IDs is the Program ID of an Amcache Application Files row and none is that "
+                 "of an Amcache Applications row. AUMID begins with a GUID in braces on 85 entries and with a drive "
+                 "letter on 3, and is other text on 32; what the GUIDs stand for was not established. Every Shortcut "
+                 "Path there is on drive C, ends in .lnk and appears once: 117 are under a Start Menu folder, 5 on a "
+                 "user's Desktop and 2 in a user's AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch\\User "
+                 "Pinned\\TaskBar folder. The link files under the Start Menu and Desktop folders were listed at the "
+                 "capture: one was listed at each of the 122 paths in those folders, and 28 listed link files, 27 "
+                 "under Start Menu folders and 1 on a Desktop, have no entry; the 2 TaskBar paths are outside those "
+                 "folders and were not checked against a file. The subkey names there have 14 to 16 hexadecimal "
+                 "digits after the bar. An entry records that Windows inventoried the "
                  "link; this artifact does not treat it as proof that the link or its target was used. Reading the "
                  "hive needs the python-registry package. A dirty hive is read after the entries in its .LOG1 and "
                  ".LOG2 transaction logs that continue its sequence are applied, following Maxim Suhanov's 'Windows "
@@ -237,6 +304,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 53 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 97 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 35 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 124 rows",
         },
     },
     "amcacheDrivers": {
@@ -297,7 +365,16 @@ __artifacts_v2__ = {
                  "af_case2_win10 and lonewolf_win10 were each written within 1 second and those of szechuan_win10 "
                  "within 8 seconds. Not reported: the entry values DriverCheckSum, DriverType, ImageSize, "
                  "ProductVersion and WdfVersion. pc_mus_001_win11 (Windows 11 build 22621) holds the key with no "
-                 "subkeys, so no Windows 11 entry was tested. An entry records that Windows inventoried the driver "
+                 "subkeys. On windows11_arm_known_20261001, a capture made on 1 October 2026 of the hive and the "
+                 "SYSTEM hive of a Windows 11 build 26200 ARM64 virtual machine, the key holds 317 entries, all "
+                 "written within 1 second on 30 July 2026, 63 days before the capture; the driver files were not "
+                 "captured, so no value was compared with a file there. Driver Path is in lower case with forward "
+                 "slashes and begins c:/ on all 317, and 278 of the paths are under c:/windows/system32/drivers. "
+                 "Signed (as stored) was 1 on all 317, In Box (as stored) was 0 on 10 and Kernel Mode (as stored) "
+                 "was 1 on 299 and 0 on 18. Service was filled on all 317, and the SYSTEM hive holds a Services key "
+                 "of that name for 299. INF and Driver Package were filled together, on 48 entries. Each entry there "
+                 "also holds an unnamed default value, 0 on all 317, which is not reported. An entry records that "
+                 "Windows inventoried the driver "
                  "file; this artifact does not treat it as proof that the driver was loaded. Reading the hive needs "
                  "the python-registry package. A dirty hive is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim Suhanov's 'Windows "
@@ -314,6 +391,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 358 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 351 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 371 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 317 rows",
         },
     },
     "amcacheDevices": {
@@ -352,7 +430,7 @@ __artifacts_v2__ = {
                  "stored) and First Install Date (as stored) were blank on every entry of af_case2_win10 and "
                  "lonewolf_win10, whose entries hold no such values, and filled, as text in the form MM-DD-YYYY, on "
                  "200 of the 201 entries of szechuan_win10. Install Date (as stored) and First Install Date (as "
-                 "stored) were identical on all 200, so no entry in which the two differ was tested. On all 199 of "
+                 "stored) were identical on all 200. On all 199 of "
                  "those with an Enum key, each equalled the date, in UTC, of the time that key holds under "
                  "Properties\\{83da6326-97a6-4088-9453-a1923f573b29}\\0064 and \\0065; on 192 of them the date in the "
                  "machine's own time zone is a different day. 0064 and 0065 are 100 and 101 in hexadecimal, the "
@@ -371,7 +449,20 @@ __artifacts_v2__ = {
                  "established. Not reported: the entry's other values, among them ClassGuid, COMPID, MatchingID, "
                  "STACKID, Provider, DriverVerDate, DriverVerVersion, DriverPackageStrongName, DeviceState, "
                  "InstallState, ProblemCode and the four filter lists. pc_mus_001_win11 (Windows 11 build 22621) "
-                 "holds the key with no subkeys, so no Windows 11 entry was tested. An entry records that Windows "
+                 "holds the key with no subkeys. On windows11_arm_known_20261001, a capture made on 1 October 2026 "
+                 "of the hive and the SYSTEM hive of a Windows 11 build 26200 ARM64 virtual machine, the key holds "
+                 "81 entries, all written within 1 second on 30 July 2026, 63 days before the capture: 80 with "
+                 "three-part names and 1 whose Enumerator is ComputerHardwareId. The parts name an Enum key for 77 "
+                 "of the 80; the other 3, a storage volume and two audio endpoints, have none in the captured hive. "
+                 "Against those 77 keys Model and Manufacturer matched on all 77, Hardware IDs and Service on 76 and "
+                 "Description on 75. Install Date (as stored) and First Install Date (as stored) were filled on all "
+                 "80 and differ from each other on 10. First Install Date (as stored) equalled the UTC date of the "
+                 "Enum key's 0065 time on all 77. Install Date (as stored) equalled the UTC date of the 0064 time on "
+                 "66; on the other 11 the Enum key holds a time later than the entry's last-written time. Driver "
+                 "Name and Driver SHA-1 were filled together, on 68 entries, and each Driver SHA-1 is the SHA-1 of "
+                 "an Amcache Drivers row of that image. Bus Reported Description was filled on 23 entries. Each "
+                 "entry there also holds an unnamed default value, 0 on all 81, which is not reported. An entry "
+                 "records that Windows "
                  "inventoried the device; this artifact does not treat it as proof of when the device was connected "
                  "or of who connected it. Reading the hive needs the python-registry package. A dirty hive is read "
                  "after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
@@ -388,6 +479,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 92 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 131 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 201 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 81 rows",
         },
     },
 }
@@ -414,11 +506,29 @@ def _inventory_key(hive_path):
         return None
 
 
+def file_row(entry):
+    written = entry.timestamp()
+    if written is not None and written.tzinfo is None:
+        written = written.replace(tzinfo=timezone.utc)
+    size = _value(entry, 'Size')
+    return (written,
+            _value(entry, 'LowerCaseLongPath') or '',
+            _sha1(_value(entry, 'FileId')),
+            _value(entry, 'Name') or '',
+            _value(entry, 'Publisher') or '',
+            _value(entry, 'ProductName') or '',
+            _value(entry, 'Version') or '',
+            '' if size is None else size,
+            _value(entry, 'LinkDate') or '',
+            _value(entry, 'ProgramId') or '',
+            entry.name())
+
+
 @artifact_processor
 def amcacheApplicationFiles(context):
     data_headers = (('Key Last Write (UTC)', 'datetime'), 'File Path', 'SHA-1',
                     'Name', 'Publisher', 'Product Name', 'Version', 'Size (bytes)',
-                    'Link Date', 'Program ID')
+                    'Link Date', 'Program ID', 'Entry Key')
     data_list = []
     sources = []
     if Registry is None:
@@ -434,21 +544,7 @@ def amcacheApplicationFiles(context):
             if inventory is None:
                 continue
             for entry in inventory.subkeys():
-                written = entry.timestamp()
-                if written is not None and written.tzinfo is None:
-                    written = written.replace(tzinfo=timezone.utc)
-                size = _value(entry, 'Size')
-                data_list.append((
-                    written,
-                    _value(entry, 'LowerCaseLongPath') or '',
-                    _sha1(_value(entry, 'FileId')),
-                    _value(entry, 'Name') or '',
-                    _value(entry, 'Publisher') or '',
-                    _value(entry, 'ProductName') or '',
-                    _value(entry, 'Version') or '',
-                    '' if size is None else size,
-                    _value(entry, 'LinkDate') or '',
-                    _value(entry, 'ProgramId') or ''))
+                data_list.append(file_row(entry))
                 rows_here += 1
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f'Amcache: could not read {relative_source}: {exc}')
@@ -477,12 +573,13 @@ def application_row(entry):
             _stored(entry, 'StoreAppType'), _stored(entry, 'RootDirPath'),
             _stored(entry, 'UninstallString'), _stored(entry, 'RegistryKeyPath'),
             _stored(entry, 'PackageFullName'), _stored(entry, 'MsiProductCode'),
-            _stored(entry, 'HiddenArp'), _stored(entry, 'OSVersionAtInstallTime'),
-            _stored(entry, 'ProgramId'))
+            _stored(entry, 'UserSid'), _stored(entry, 'HiddenArp'),
+            _stored(entry, 'OSVersionAtInstallTime'), _stored(entry, 'ProgramId'))
 
 
 def shortcut_row(entry):
-    return (_written(entry), _stored(entry, 'ShortcutPath'))
+    return (_written(entry), _stored(entry, 'ShortcutPath'), _stored(entry, 'ShortcutTargetPath'),
+            _stored(entry, 'ShortcutAumid'), _stored(entry, 'ShortcutProgramId'))
 
 
 def driver_row(entry):
@@ -533,8 +630,8 @@ def amcacheApplications(context):
     data_headers = (('Key Last Write (UTC)', 'datetime'), 'Install Date (as stored)', 'Name',
                     'Version', 'Publisher', 'Source', 'Store App Type', 'Root Folder',
                     'Uninstall String', 'Registry Key Path', 'Package Full Name',
-                    'MSI Product Code', 'Hidden ARP (as stored)', 'OS Version At Install',
-                    'Program ID')
+                    'MSI Product Code', 'User SID', 'Hidden ARP (as stored)',
+                    'OS Version At Install', 'Program ID')
     if Registry is None:
         logfunc('Amcache: the python-registry package is not installed')
         return data_headers, [], ''
@@ -544,7 +641,8 @@ def amcacheApplications(context):
 
 @artifact_processor
 def amcacheShortcuts(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Shortcut Path')
+    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Shortcut Path', 'Target Path', 'AUMID',
+                    'Program ID')
     if Registry is None:
         logfunc('Amcache: the python-registry package is not installed')
         return data_headers, [], ''

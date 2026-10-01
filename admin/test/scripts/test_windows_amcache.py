@@ -1,5 +1,5 @@
-"""Pin the InventoryApplication, InventoryApplicationShortcut, InventoryDriverBinary and InventoryDevicePnp readers
-in scripts/artifacts/windowsAmcache.py.
+"""Pin the InventoryApplicationFile, InventoryApplication, InventoryApplicationShortcut, InventoryDriverBinary and
+InventoryDevicePnp readers in scripts/artifacts/windowsAmcache.py.
 
 The hive is stood in for by small objects that answer the python-registry calls the readers make; the expected rows
 are written out.
@@ -84,7 +84,7 @@ MSI = {'ProgramId': '0000aa', 'ProgramInstanceId': '0000bb', 'Name': 'Example To
 MSI_ROW = (WRITTEN_UTC, '02/20/2023 00:00:00', 'Example Tool', '1.2.3', 'Example Corp', 'Msi', '',
            'c:\\program files\\example\\', 'MsiExec.exe /X{22222222-2222-2222-2222-222222222222}',
            'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\'
-           '{22222222-2222-2222-2222-222222222222}', '', '{22222222-2222-2222-2222-222222222222}', 0,
+           '{22222222-2222-2222-2222-222222222222}', '', '{22222222-2222-2222-2222-222222222222}', '', 0,
            '10.0.0.17763', '0000aa')
 
 
@@ -103,11 +103,19 @@ class ApplicationRowTest(unittest.TestCase):
         self.assertEqual(amcache.application_row(entry),
                          (WRITTEN_UTC, '', 'Example.App', '2.0.0.0', 'CN=Example', 'AppxPackage', 'Win10StoreApp',
                           'C:\\Program Files\\WindowsApps\\Example.App_2.0.0.0_x64__abc', '', '',
-                          'Example.App_2.0.0.0_x64__abc', '', 1, '10.0.0.19041', '0000cc'))
+                          'Example.App_2.0.0.0_x64__abc', '', '', 1, '10.0.0.19041', '0000cc'))
+
+    def test_a_per_user_entry_carries_its_user_sid_and_no_os_version(self):
+        entry = _Key({'ProgramId': '0000dd', 'Name': 'Example Per User', 'Source': 'AddRemoveProgramPerUser',
+                      'UserSid': 'S-1-5-21-1-2-3-1001', 'HiddenArp': 0, 'InstallDate': '07/30/2026 16:51:05',
+                      'MsiInstallDate': '07/30/2026 00:00:00'})
+        self.assertEqual(amcache.application_row(entry),
+                         (WRITTEN_UTC, '07/30/2026 16:51:05', 'Example Per User', '', '',
+                          'AddRemoveProgramPerUser', '', '', '', '', '', '', 'S-1-5-21-1-2-3-1001', 0, '', '0000dd'))
 
     def test_absent_values_are_blank_and_a_stored_zero_is_kept(self):
         row = amcache.application_row(_Key({'HiddenArp': 0}, written=None))
-        self.assertEqual(row, (None, '', '', '', '', '', '', '', '', '', '', '', 0, '', ''))
+        self.assertEqual(row, (None, '', '', '', '', '', '', '', '', '', '', '', '', 0, '', ''))
 
     def test_a_time_that_already_carries_a_zone_is_left_alone(self):
         zone = datetime.timezone(datetime.timedelta(hours=-5))
@@ -120,10 +128,45 @@ class ApplicationRowTest(unittest.TestCase):
 class ShortcutRowTest(unittest.TestCase):
     def test_path_and_time(self):
         path = 'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Example\\Example Tool.lnk'
-        self.assertEqual(amcache.shortcut_row(_Key({'ShortcutPath': path})), (WRITTEN_UTC, path))
+        self.assertEqual(amcache.shortcut_row(_Key({'ShortcutPath': path})), (WRITTEN_UTC, path, '', '', ''))
+
+    def test_target_aumid_and_program_id_each_land_in_their_own_column(self):
+        path = 'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Example\\Example Tool.lnk'
+        entry = _Key({'ShortcutPath': path, 'ShortcutTargetPath': 'C:\\Program Files\\Example\\tool.exe',
+                      'ShortcutAumid': '{6D809377-6AF0-444B-8957-A3773F02200E}\\Example\\tool.exe',
+                      'ShortcutProgramId': '0000' + 'ab' * 20})
+        self.assertEqual(amcache.shortcut_row(entry),
+                         (WRITTEN_UTC, path, 'C:\\Program Files\\Example\\tool.exe',
+                          '{6D809377-6AF0-444B-8957-A3773F02200E}\\Example\\tool.exe', '0000' + 'ab' * 20))
 
     def test_an_entry_without_the_value(self):
-        self.assertEqual(amcache.shortcut_row(_Key({})), (WRITTEN_UTC, ''))
+        self.assertEqual(amcache.shortcut_row(_Key({})), (WRITTEN_UTC, '', '', '', ''))
+
+
+FILE_SHA1 = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
+FILE = {'LowerCaseLongPath': 'c:\\program files\\example\\example tool setup.exe', 'FileId': '0000' + FILE_SHA1,
+        'Name': 'Example Tool Setup.exe', 'Publisher': 'example corp', 'ProductName': 'example tool',
+        'Version': '1.2.3.4', 'Size': 1024, 'LinkDate': '02/20/2023 10:11:12', 'ProgramId': '0006aa',
+        'BinaryType': 'pe64_amd64', 'Language': 1033, 'Usn': 4096}
+FILE_NAME = 'example tool set|0123456789abcdef'
+FILE_ROW = (WRITTEN_UTC, 'c:\\program files\\example\\example tool setup.exe', FILE_SHA1,
+            'Example Tool Setup.exe', 'example corp', 'example tool', '1.2.3.4', 1024, '02/20/2023 10:11:12', '0006aa',
+            FILE_NAME)
+
+
+@unittest.skipIf(Registry is None, 'python-registry is not installed')
+class FileRowTest(unittest.TestCase):
+    def test_each_column_carries_its_own_value(self):
+        self.assertEqual(amcache.file_row(_Key(FILE, name=FILE_NAME)), FILE_ROW)
+
+    def test_an_entry_holding_only_an_identifier_and_a_program_id(self):
+        entry = _Key({'FileId': '0000' + FILE_SHA1, 'ProgramId': '0006bb'}, name='setup.exe|00112233445566')
+        self.assertEqual(amcache.file_row(entry),
+                         (WRITTEN_UTC, '', FILE_SHA1, '', '', '', '', '', '', '0006bb', 'setup.exe|00112233445566'))
+
+    def test_a_blank_identifier_and_a_stored_size_of_zero(self):
+        row = amcache.file_row(_Key({'FileId': '', 'Size': 0, 'ProgramId': '0006cc'}, written=None, name='a|1'))
+        self.assertEqual(row, (None, '', '', '', '', '', '', 0, '', '0006cc', 'a|1'))
 
 
 SHA1 = '35db8fd43dac86f8dec9e808579e412228aabbcc'
@@ -181,6 +224,7 @@ class DeviceRowTest(unittest.TestCase):
 class ArtifactTest(unittest.TestCase):
     HIVE = '/report/data/vol/Windows/appcompat/Programs/Amcache.hve'
     OTHER = '/report/data/old/Windows/appcompat/Programs/AMCACHE.HVE'
+    BARE = '/report/data/none/Amcache.hve'
 
     def run_artifact(self, function, hives, files=None):
         def opener(path):
@@ -203,7 +247,8 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(len(headers), len(MSI_ROW))
         self.assertEqual(headers[0], ('Key Last Write (UTC)', 'datetime'))
         self.assertEqual(headers[1:4], ('Install Date (as stored)', 'Name', 'Version'))
-        self.assertEqual(headers[12:], ('Hidden ARP (as stored)', 'OS Version At Install', 'Program ID'))
+        self.assertEqual(headers[11:], ('MSI Product Code', 'User SID', 'Hidden ARP (as stored)',
+                                        'OS Version At Install', 'Program ID'))
         self.assertEqual(source, self.HIVE)
         self.assertEqual(logged, [])
 
@@ -212,9 +257,49 @@ class ArtifactTest(unittest.TestCase):
                       'Root\\InventoryApplicationShortcut': _Key(subkeys=[_Key({'ShortcutPath': 'C:\\a.lnk'}),
                                                                          _Key({'ShortcutPath': 'c:\\b.lnk'})])})
         (headers, rows, source), _opened, _logged = self.run_artifact(amcache.amcacheShortcuts, {self.HIVE: hive})
-        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), 'Shortcut Path'))
-        self.assertEqual(rows, [(WRITTEN_UTC, 'C:\\a.lnk'), (WRITTEN_UTC, 'c:\\b.lnk')])
+        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), 'Shortcut Path', 'Target Path', 'AUMID',
+                                   'Program ID'))
+        self.assertEqual(rows, [(WRITTEN_UTC, 'C:\\a.lnk', '', '', ''),
+                                (WRITTEN_UTC, 'c:\\b.lnk', '', '', '')])
         self.assertEqual(source, self.HIVE)
+
+    def test_files_come_from_the_file_key_with_the_entry_key_last(self):
+        hive = _Hive({'Root\\InventoryApplicationFile': _Key(subkeys=[_Key(FILE, name=FILE_NAME)]),
+                      'Root\\InventoryApplication': _Key(subkeys=[_Key(MSI)])})
+        (headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheApplicationFiles,
+                                                                     {self.HIVE: hive})
+        self.assertEqual(rows, [FILE_ROW])
+        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), 'File Path', 'SHA-1', 'Name', 'Publisher',
+                                   'Product Name', 'Version', 'Size (bytes)', 'Link Date', 'Program ID', 'Entry Key'))
+        self.assertEqual((source, logged), (self.HIVE, []))
+
+    def test_a_file_key_without_entries_or_a_hive_without_the_key_is_not_named(self):
+        empty = _Hive({'Root\\InventoryApplicationFile': _Key(subkeys=[])})
+        full = _Hive({'Root\\InventoryApplicationFile': _Key(subkeys=[_Key(FILE, name=FILE_NAME),
+                                                                      _Key({'ProgramId': '0006bb'}, name='b|2')])})
+        (_headers, rows, source), opened, logged = self.run_artifact(
+            amcache.amcacheApplicationFiles, {self.HIVE: empty, self.OTHER: full, self.BARE: _Hive({})},
+            [self.HIVE, self.HIVE + '.LOG1', self.OTHER, self.BARE])
+        self.assertEqual([r[-1] for r in rows], [FILE_NAME, 'b|2'])
+        self.assertEqual(source, self.OTHER)
+        self.assertEqual(opened, [self.HIVE, self.OTHER, self.BARE])
+        self.assertEqual(logged, [])
+
+    def test_file_rows_of_two_hives_are_both_named_and_a_hive_without_the_key_between_them_is_passed_over(self):
+        one = _Hive({'Root\\InventoryApplicationFile': _Key(subkeys=[_Key(FILE, name=FILE_NAME)])})
+        two = _Hive({'Root\\InventoryApplicationFile': _Key(subkeys=[_Key({'ProgramId': '0006bb'}, name='b|2')])})
+        (_headers, rows, source), _opened, logged = self.run_artifact(
+            amcache.amcacheApplicationFiles, {self.HIVE: one, self.BARE: _Hive({}), self.OTHER: two})
+        self.assertEqual([r[-1] for r in rows], [FILE_NAME, 'b|2'])
+        self.assertEqual(source, self.HIVE + '\n' + self.OTHER)
+        self.assertEqual(logged, [])
+
+    def test_an_unreadable_hive_does_not_stop_the_file_rows_of_the_next(self):
+        good = _Hive({'Root\\InventoryApplicationFile': _Key(subkeys=[_Key(FILE, name=FILE_NAME)])})
+        (_headers, rows, source), _opened, logged = self.run_artifact(
+            amcache.amcacheApplicationFiles, {self.HIVE: ValueError('bad header'), self.OTHER: good})
+        self.assertEqual((rows, source), ([FILE_ROW], self.OTHER))
+        self.assertEqual(logged, ['Amcache: could not read vol/Windows/appcompat/Programs/Amcache.hve: bad header'])
 
     def test_a_hive_without_the_key_gives_no_rows_and_is_still_named(self):
         (_headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheShortcuts, {self.HIVE: _Hive({})})
@@ -264,8 +349,8 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual((source, logged), (self.HIVE, []))
 
     def test_without_python_registry_nothing_is_read(self):
-        functions = (amcache.amcacheApplications, amcache.amcacheShortcuts, amcache.amcacheDrivers,
-                     amcache.amcacheDevices)
+        functions = (amcache.amcacheApplicationFiles, amcache.amcacheApplications, amcache.amcacheShortcuts,
+                     amcache.amcacheDrivers, amcache.amcacheDevices)
         with mock.patch.object(amcache, 'Registry', None), mock.patch.object(amcache, 'logfunc') as log, \
                 mock.patch.object(amcache, 'open_hive') as opened:
             for function in functions:
