@@ -9,31 +9,30 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
-        "notes": "Every History.db found is parsed, so a Mac with more than "
-                 "one user account reports each account, tagged by Source "
-                 "File. visit_time is Mac Absolute Time in seconds since "
-                 "2001-01-01, confirmed against the validation image. "
-                 "Tags and Tag Identifiers list the title and identifier of "
-                 "each history_tags row that a history_items_to_tags row "
-                 "links to the visit's history item, ordered by the link's "
-                 "timestamp and separated by a semicolon and a space. The "
-                 "link is to the history item, so each visit of that item shows the same tags. Tags "
-                 "and Tag Identifiers are blank when the item has no link or "
-                 "the database lacks either table; they were blank on every "
-                 "row of dleapp_safari_bigsur, whose two tag tables are "
-                 "empty. Safari History Tags reports the tags themselves. "
-                 "A logical extraction can hold one user's History.db under "
-                 "Users/ and again under System/Volumes/Data/Users/. The two "
-                 "are read as one store: a visit both copies hold with the "
-                 "same values and tags is reported once, with the Source File "
-                 "of the copy under Users/, and a visit only one copy holds, "
-                 "or that differs between them, is reported from the copy "
-                 "that holds it. On the public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key) History.db was "
-                 "byte-identical under the two paths, its -wal differed, and "
-                 "each copy held the same 139 visits, which are reported "
-                 "once; 11 of them show a tag. The differing-copies case was "
-                 "exercised with constructed databases only.",
+        "notes": "Every History.db found is parsed, so a Mac with more than one user account reports "
+                 "each account, tagged by Source File. visit_time is read as Mac Absolute Time "
+                 "(seconds since 2001-01-01): read that way, the 27 visits on dleapp_safari_bigsur "
+                 "fall between 2020-12-12 and 2021-02-17, and the 2 LastVisitTime numbers in that "
+                 "image's LastSession.plist each equal the visit_time of a visit of the same URL. Tags "
+                 "and Tag Identifiers list the title and identifier of each history_tags row that a "
+                 "history_items_to_tags row links to the visit's history item, ordered by the link's "
+                 "timestamp and separated by a semicolon and a space. The link is to the history item, "
+                 "so each visit of that item shows the same tags. Tags and Tag Identifiers are blank "
+                 "when the item has no link or the database lacks either table; they were blank on "
+                 "every row of dleapp_safari_bigsur, whose two tag tables are empty. Safari History "
+                 "Tags reports the tags themselves. A logical extraction can hold one user's "
+                 "History.db under Users/ and again under System/Volumes/Data/Users/. The two are read "
+                 "as one store: a visit both copies hold with the same values and tags is reported "
+                 "once, with the Source File of the copy under Users/, and a visit only one copy "
+                 "holds, or that differs between them, is reported from the copy that holds it. On the "
+                 "public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) "
+                 "History.db was byte-identical under the two paths, its -wal differed, and each copy "
+                 "held the same 139 visits, which are reported once; 11 of them show a tag. The "
+                 "differing-copies case was exercised with constructed databases only. On "
+                 "dleapp_safari_bigsur Load Successful held one value, Yes, on all 27 rows, HTTP "
+                 "Non-GET and Synthesized had no value on any of the 27 rows, and Origin (raw) held "
+                 "one value, 0, on all 27. On the MacBook Pro extraction Synthesized had no value on "
+                 "any of the 139 rows. What the origin values mean is not established.",
         "paths": (
             "*/Library/Safari/History.db*",
         ),
@@ -245,29 +244,36 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Safari (macOS)",
         "notes": "One row per cloud_tabs row, joined to cloud_tab_devices on device_uuid. Tab Title, "
-                 "URL and Tab UUID are the title, url and tab_uuid columns. Device Name, Device UUID "
-                 "and Device Last Modified come from the device row, and would be blank for a tab "
-                 "whose device_uuid no device row has, which no tested database held. Device Last "
-                 "Modified is last_modified read as Mac Absolute Time (seconds since 2001-01-01) and "
-                 "shown in UTC. Ephemeral Device, Pinned and Showing Reader show Yes for a stored true "
-                 "value and are blank otherwise. Reader Scroll Page is "
-                 "reader_scroll_position_page_index as stored. A cloud_tab_devices row that no tab "
-                 "names is not reported, and cloud_tab_close_requests is not read. system_fields and "
+                 "URL and Tab UUID are the title, url and tab_uuid columns. Last Viewed is "
+                 "last_viewed_time read as Mac Absolute Time (seconds since 2001-01-01) and shown in "
+                 "UTC; it is blank when the stored value is 0, the column's declared default, or when "
+                 "the table has no such column. What last_viewed_time marks is not established. Device "
+                 "Name, Device Type, Device UUID and Device Last Modified come from the device row: "
+                 "Device Type is device_type_identifier, blank when the table has no such column, and "
+                 "Device Last Modified is last_modified read as Mac Absolute Time and shown in UTC. "
+                 "Ephemeral Device, Pinned and Showing Reader show Yes for a stored true value and are "
+                 "blank otherwise. Reader Scroll Page is reader_scroll_position_page_index as stored. "
+                 "A cloud_tab_devices row that no tab names gives no row here; Safari iCloud Tab "
+                 "Devices lists every device. cloud_tab_close_requests is not read. system_fields and "
                  "position are not decoded; on both tested databases every system_fields value began "
                  "with bplist00 and every position value with the bytes 78 DA. A row is not by itself "
                  "evidence that a tab was open on another device: on dleapp_safari_bigsur (macOS "
                  "11.2.1, 2 tabs, 1 device, 2 rows) the 2 rows carry the same 2 URLs as the 2 tabs in "
                  "that image's LastSession.plist, and Device Last Modified is less than 0.04 seconds "
-                 "before the DateClosed of those tabs. On that database Ephemeral Device, Pinned and "
-                 "Showing Reader had no value on either row, each stored value being 0, and Reader "
+                 "before the DateClosed of those tabs. On that database Last Viewed and Device Type "
+                 "had no value on either row, because it has neither column; Ephemeral Device, Pinned "
+                 "and Showing Reader had no value on either row, each stored value being 0; and Reader "
                  "Scroll Page held 0 on both. On the public MacBook Pro logical extraction (macOS "
                  "15.4, not a registered corpus key) the database holds 1 tab and 2 devices: 1 row is "
-                 "reported, Ephemeral Device, Pinned and Showing Reader had no value on it, and the "
-                 "device no tab names is not reported. There cloud_tabs also has a last_viewed_time "
-                 "column and cloud_tab_devices a device_type_identifier column, neither of which is "
-                 "reported. cloud_tab_close_requests held no row on either database. No tested "
-                 "database held a true value for Ephemeral Device, Pinned or Showing Reader. The "
-                 "database was at Library/Safari/CloudTabs.db on the macOS 11.2.1 image and at "
+                 "reported, with Last Viewed and Device Type filled and Device Type naming an iPhone "
+                 "model, and Ephemeral Device, Pinned and Showing Reader had no value on it. "
+                 "cloud_tab_close_requests held no row on either database. No tested database held a "
+                 "true value for Ephemeral Device, Pinned or Showing Reader. A true value in each of "
+                 "the three, a stored last_viewed_time of 0, a tab whose device_uuid no device row has "
+                 "(its device columns are blank) and a database that lacks cloud_tabs or "
+                 "cloud_tab_devices (named in the run log and not read) were exercised with "
+                 "constructed databases only. The database was at Library/Safari/CloudTabs.db on the "
+                 "macOS 11.2.1 image and at "
                  "Library/Containers/com.apple.Safari/Data/Library/Safari/CloudTabs.db on the macOS "
                  "15.4 extraction; the declared path matches both. A logical extraction can hold one "
                  "CloudTabs.db under Users/ and again under System/Volumes/Data/Users/. The two are "
@@ -284,6 +290,51 @@ __artifacts_v2__ = {
         "artifact_icon": "cloud",
         "sample_data": {
             "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
+        },
+    },
+    "safariCloudTabDevices": {
+        "name": "Safari iCloud Tab Devices",
+        "description": "Rows of the cloud_tab_devices table in Safari's CloudTabs.db, with the number "
+                       "of cloud_tabs rows that name each device.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-01",
+        "last_update_date": "2026-10-01",
+        "requirements": "none",
+        "category": "Safari (macOS)",
+        "notes": "One row per cloud_tab_devices row. Last Modified is last_modified read as Mac "
+                 "Absolute Time (seconds since 2001-01-01) and shown in UTC; what it marks is not "
+                 "established. Device Name is device_name, Device UUID is device_uuid and Device Type "
+                 "is device_type_identifier, blank when the table has no such column. Tabs is the "
+                 "number of cloud_tabs rows in the same database whose device_uuid is the device's, "
+                 "counted by this artifact. Ephemeral Device and Duplicate Device Name show Yes or No "
+                 "for a stored is_ephemeral_device and has_duplicate_device_name of true or false, and "
+                 "are blank when no value is stored. system_fields is not decoded. A row is not by "
+                 "itself evidence of a device other than the Mac the database came from: on "
+                 "dleapp_safari_bigsur (macOS 11.2.1, 1 device, 1 row) the device's 2 tabs carry the "
+                 "same 2 URLs as the 2 tabs in that image's LastSession.plist. On that database Device "
+                 "Type had no value on the 1 row, because cloud_tab_devices has no "
+                 "device_type_identifier column there, and Ephemeral Device and Duplicate Device Name "
+                 "were No. On the public MacBook Pro logical extraction (macOS 15.4, not a registered "
+                 "corpus key) the database holds 2 devices, 2 rows: one with Tabs of 1, whose Device "
+                 "Type names an iPhone model, and one with Tabs of 0, whose Device Type names a "
+                 "MacBook Pro model. Ephemeral Device held one value, No, and Duplicate Device Name "
+                 "held one value, No, on both rows. A Yes in either column, a blank in either and a "
+                 "database that lacks cloud_tabs or cloud_tab_devices (named in the run log and not "
+                 "read) were exercised with constructed databases only. A logical extraction can hold "
+                 "one CloudTabs.db under Users/ and again under System/Volumes/Data/Users/. The two "
+                 "are read as one store: a device both copies hold with the same values and tab count "
+                 "is reported once, with the Source File of the copy under Users/, and a device only "
+                 "one copy holds, or that differs between them, is reported from the copy that holds "
+                 "it. On the MacBook Pro extraction CloudTabs.db was byte-identical under the two "
+                 "paths and its 2 devices are reported once. The differing-copies case was exercised "
+                 "with constructed databases only.",
+        "paths": (
+            "*/Library/Safari/CloudTabs.db*",
+        ),
+        "output_types": ["standard"],
+        "artifact_icon": "smartphone",
+        "sample_data": {
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 1 row",
         },
     },
     "safariLastSession": {
@@ -717,24 +768,64 @@ def safariLastSession(context):
     return data_headers, data_list, "\n".join(read_sources)
 
 
-_CLOUDTABS_QUERY = """
-    SELECT
-        ct.tab_uuid, ct.title, ct.url, ct.is_pinned, ct.is_showing_reader,
-        ct.reader_scroll_position_page_index, ctd.device_name,
-        ctd.device_uuid, ctd.last_modified, ctd.is_ephemeral_device
-    FROM cloud_tabs ct
-    LEFT JOIN cloud_tab_devices ctd ON ctd.device_uuid = ct.device_uuid
-    ORDER BY ctd.last_modified DESC, ct.rowid, ctd.rowid
-"""
+def _columns(database, table):
+    """The column names of `table`, empty when the database has no such table."""
+    return {row[1] for row in database.execute(f'PRAGMA table_info("{table}")')}
+
+
+def _cloud_columns(database):
+    """(cloud_tabs columns, cloud_tab_devices columns), or None when the
+    database lacks either table."""
+    tabs = _columns(database, "cloud_tabs")
+    devices = _columns(database, "cloud_tab_devices")
+    return (tabs, devices) if tabs and devices else None
+
+
+def _stored(columns, name, prefix):
+    """`prefix.name` when the table has the column, NULL when it does not."""
+    return f"{prefix}.{name}" if name in columns else "NULL"
+
+
+def _cloud_tabs_query(tabs, devices):
+    return f"""
+        SELECT
+            ct.tab_uuid, ct.title, ct.url, ct.is_pinned, ct.is_showing_reader,
+            ct.reader_scroll_position_page_index, ctd.device_name,
+            ctd.device_uuid, ctd.last_modified, ctd.is_ephemeral_device,
+            {_stored(tabs, "last_viewed_time", "ct")},
+            {_stored(devices, "device_type_identifier", "ctd")}
+        FROM cloud_tabs ct
+        LEFT JOIN cloud_tab_devices ctd ON ctd.device_uuid = ct.device_uuid
+        ORDER BY ctd.last_modified DESC, ct.rowid, ctd.rowid
+    """
+
+
+def _cloud_devices_query(devices):
+    return f"""
+        SELECT
+            d.last_modified, d.device_name,
+            {_stored(devices, "device_type_identifier", "d")}, d.device_uuid,
+            (SELECT COUNT(*) FROM cloud_tabs t WHERE t.device_uuid = d.device_uuid),
+            d.is_ephemeral_device, d.has_duplicate_device_name
+        FROM cloud_tab_devices d
+        ORDER BY d.last_modified DESC, d.device_uuid
+    """
+
+
+def _yes_no(value):
+    """Yes or No for a stored true or false, blank for no value."""
+    if value is None:
+        return ""
+    return "Yes" if value else "No"
 
 
 @artifact_processor
 def safariCloudTabs(context):
     data_headers = (
-        "Tab Title", "URL", "Device Name", "Device UUID",
-        ("Device Last Modified", "datetime"), "Ephemeral Device",
-        "Pinned", "Showing Reader", "Reader Scroll Page", "Tab UUID",
-        "Source File",
+        "Tab Title", "URL", ("Last Viewed", "datetime"), "Device Name",
+        "Device Type", "Device UUID", ("Device Last Modified", "datetime"),
+        "Ephemeral Device", "Pinned", "Showing Reader", "Reader Scroll Page",
+        "Tab UUID", "Source File",
     )
     data_list = []
     read_sources = []
@@ -745,16 +836,24 @@ def safariCloudTabs(context):
         if database is None:
             continue
         read_sources.append(relative_source)
-        for row in database.execute(_CLOUDTABS_QUERY):
+        columns = _cloud_columns(database)
+        if columns is None:
+            logfunc(f"Safari iCloud Tabs: {relative_source} lacks cloud_tabs or "
+                    f"cloud_tab_devices and was not read.")
+            database.close()
+            continue
+        for row in database.execute(_cloud_tabs_query(*columns)):
             (tab_uuid, title, url, is_pinned, is_reader, reader_page,
-             device_name, device_uuid, last_modified, is_ephemeral) = row
+             device_name, device_uuid, last_modified, is_ephemeral,
+             last_viewed, device_type) = row
             record = (store, tuple(row))
             if record in seen:
                 repeated += 1
                 continue
             seen.add(record)
             data_list.append((
-                title or "", url or "", device_name or "", device_uuid or "",
+                title or "", url or "", _mac_abs_s_to_utc(last_viewed),
+                device_name or "", device_type or "", device_uuid or "",
                 _mac_abs_s_to_utc(last_modified),
                 "Yes" if is_ephemeral else "",
                 "Yes" if is_pinned else "", "Yes" if is_reader else "",
@@ -766,4 +865,48 @@ def safariCloudTabs(context):
     logfunc(f"Safari iCloud Tabs: {len(data_list)} tab(s) across "
             f"{len(read_sources)} CloudTabs.db file(s); {repeated} tab(s) held "
             f"by a second copy of a store were not reported again.")
+    return data_headers, data_list, "\n".join(read_sources)
+
+
+@artifact_processor
+def safariCloudTabDevices(context):
+    data_headers = (
+        ("Last Modified", "datetime"), "Device Name", "Device Type",
+        "Device UUID", "Tabs", "Ephemeral Device", "Duplicate Device Name",
+        "Source File",
+    )
+    data_list = []
+    read_sources = []
+    seen = set()
+    repeated = 0
+    for source, relative_source, store in _stores(context, "CloudTabs.db"):
+        database = open_sqlite_db_readonly(source)
+        if database is None:
+            continue
+        read_sources.append(relative_source)
+        columns = _cloud_columns(database)
+        if columns is None:
+            logfunc(f"Safari iCloud Tab Devices: {relative_source} lacks "
+                    f"cloud_tabs or cloud_tab_devices and was not read.")
+            database.close()
+            continue
+        for row in database.execute(_cloud_devices_query(columns[1])):
+            (last_modified, device_name, device_type, device_uuid, tabs,
+             is_ephemeral, has_duplicate_name) = row
+            record = (store, tuple(row))
+            if record in seen:
+                repeated += 1
+                continue
+            seen.add(record)
+            data_list.append((
+                _mac_abs_s_to_utc(last_modified), device_name or "",
+                device_type or "", device_uuid or "", tabs,
+                _yes_no(is_ephemeral), _yes_no(has_duplicate_name),
+                relative_source,
+            ))
+        database.close()
+
+    logfunc(f"Safari iCloud Tab Devices: {len(data_list)} device(s) across "
+            f"{len(read_sources)} CloudTabs.db file(s); {repeated} device(s) "
+            f"held by a second copy of a store were not reported again.")
     return data_headers, data_list, "\n".join(read_sources)

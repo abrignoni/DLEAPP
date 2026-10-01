@@ -111,8 +111,8 @@ THIRD_TAB = ('TAB-3', 'Three', 'https://three.example/')
 
 def _cloud_row(tab, source, title=None):
     uuid, stored_title, url = tab
-    return (title or stored_title, url, 'A phone', 'DEVICE-1', _utc(2023, 3, 8, 20, 26, 40), '', '', '',
-            '', uuid, source)
+    return (title or stored_title, url, None, 'A phone', '', 'DEVICE-1', _utc(2023, 3, 8, 20, 26, 40), '',
+            '', '', '', uuid, source)
 
 
 class SafariStoresHeldTwiceTest(unittest.TestCase):
