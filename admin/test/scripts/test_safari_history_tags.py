@@ -4,13 +4,16 @@ history_tags holds one row per tag and history_items_to_tags links a tag to a hi
 Safari History shows an item's tags on each of its visits, and Safari History Tags lists one
 row per link plus one row for a tag no link names. A logical extraction of a Mac can hold
 one user's History.db under Users/ and again under System/Volumes/Data/Users/: a record both
-copies hold is reported once, and a record only one copy holds is still reported.
+copies hold is reported once, and a record only one copy holds is still reported. A Safari
+profile keeps its own History.db in a Profiles/<UUID>/ folder, which the declared paths match
+and which is read as a store of its own.
 
 Every value here is written for the test. The two tag tables use the CREATE TABLE text
 Safari wrote on the tested images; the expected rows are written out, never read back from
 the module.
 """
 import datetime
+import fnmatch
 import pathlib
 import sqlite3
 import sys
@@ -28,6 +31,10 @@ from scripts.artifacts import safaribrowsing  # pylint: disable=wrong-import-pos
 USER = 'Users/someone/Library/Safari/History.db'
 DATA_VIEW = 'System/Volumes/Data/Users/someone/Library/Safari/History.db'
 OTHER_USER = 'Users/another/Library/Safari/History.db'
+# Where Safari 27.0.1 on macOS 27.0.1 created a profile's database.
+PROFILE = ('Users/someone/Library/Containers/com.apple.Safari/Data/Library/Safari/Profiles/'
+           'C68764FA-9571-420D-A681-C0FF8270B269/History.db')
+PROFILE_DATA_VIEW = 'System/Volumes/Data/' + PROFILE
 
 BASE_TABLES = (
     'CREATE TABLE history_items (id INTEGER PRIMARY KEY, url TEXT NOT NULL UNIQUE, '
@@ -185,6 +192,35 @@ class SafariHistoryTagsTest(unittest.TestCase):
         self.assertEqual(source, f'{OTHER_USER}\n{USER}')
         _headers, rows, _source, _log = self._run(safaribrowsing.safariHistoryTags)
         self.assertEqual(sorted(row[-1] for row in rows), [OTHER_USER] * 4 + [USER] * 4)
+
+    def test_the_declared_paths_match_a_profile_database_and_its_sidecars(self):
+        for artifact in ('safariHistory', 'safariHistoryTags'):
+            paths = safaribrowsing.__artifacts_v2__[artifact]['paths']
+
+            def matched(name, paths=paths):
+                return any(fnmatch.fnmatchcase(name, pattern) for pattern in paths)
+
+            for name in (USER, DATA_VIEW, PROFILE, PROFILE + '-wal', PROFILE + '-shm',
+                         PROFILE_DATA_VIEW):
+                self.assertTrue(matched(name), (artifact, name))
+            for name in ('Users/someone/Library/Containers/com.example.other/Data/Library/'
+                         'NotSafari/Profiles/AAAA/History.db',
+                         'Users/someone/Library/Safari/Profiles/AAAA/Other.db'):
+                self.assertFalse(matched(name), (artifact, name))
+
+    def test_a_profile_database_is_read_as_its_own_store(self):
+        self._store(USER)
+        self._store(PROFILE)
+        self._store(PROFILE_DATA_VIEW)
+        _headers, rows, source, log = self._run(safaribrowsing.safariHistory)
+        self.assertEqual(sorted(row[-1] for row in rows), [PROFILE] * 4 + [USER] * 4)
+        self.assertEqual(sorted(source.split('\n')), sorted([USER, PROFILE, PROFILE_DATA_VIEW]))
+        self.assertEqual(log, ['Safari History: 8 visit(s) across 3 History.db file(s); 4 visit(s) '
+                               'held by a second copy of a store were not reported again.'])
+        _headers, rows, _source, log = self._run(safaribrowsing.safariHistoryTags)
+        self.assertEqual(sorted(row[-1] for row in rows), [PROFILE] * 4 + [USER] * 4)
+        self.assertEqual(log, ['Safari History Tags: 8 row(s) across 3 History.db file(s); 4 row(s) '
+                               'held by a second copy of a store were not reported again.'])
 
 
 if __name__ == '__main__':
