@@ -117,137 +117,220 @@ __artifacts_v2__ = {
     },
     "safariBookmarks": {
         "name": "Safari Bookmarks",
-        "description": "Each leaf bookmark in Bookmarks.plist (Bookmarks "
-                       "Bar, Bookmarks Menu and Reading List) with its "
-                       "folder path, title and URL.",
+        "description": "Bookmarks in Safari's Bookmarks.plist, one row per WebBookmarkTypeLeaf node, with "
+                       "the folders above it, its title, URL and UUID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
-        "notes": "Every Bookmarks.plist found is parsed, tagged by Source "
-                 "File. Leaf title is read from URIDictionary.title, not the "
-                 "top-level Title key (that key only exists on folder nodes), "
-                 "confirmed against real bookmarks-bar entries.",
+        "notes": "One row per node whose WebBookmarkType is WebBookmarkTypeLeaf. Folder Path joins, "
+                 "with a slash, the Title of each node above the leaf, leaving out an empty Title; "
+                 "Title is URIDictionary.title, URL is URLString and Bookmark UUID is WebBookmarkUUID. "
+                 "A node of any other type is not reported: each tested file held one "
+                 "WebBookmarkTypeProxy node, titled History. Measured on dleapp_safari_bigsur (macOS "
+                 "11.2.1, 7 rows) and on the public MacBook Pro logical extraction (macOS 15.4, not a "
+                 "registered corpus key; 4 rows): none of the 11 leaves had a Title key of its own and "
+                 "all 11 had URIDictionary.title; Folder Path held one value, BookmarksBar, on every "
+                 "row of both files, and the BookmarksMenu and com.apple.ReadingList lists held no "
+                 "entry on either. A leaf under com.apple.ReadingList and a folder inside a folder "
+                 "were exercised with constructed plists only. A logical extraction can hold one "
+                 "user's Bookmarks.plist under Users/ and again under System/Volumes/Data/Users/. A "
+                 "copy under System/Volumes/Data/ whose bytes equal the other copy's is not read again "
+                 "and the run log counts it; copies that differ are both read, and each row shows the "
+                 "Source File it came from. On the MacBook Pro extraction the two copies were "
+                 "byte-identical and the 4 bookmarks are reported once, from the copy under Users/. "
+                 "Copies that differ were exercised with constructed plists only.",
         "paths": (
             "*/Library/Safari/Bookmarks.plist",
         ),
         "output_types": ["standard"],
         "artifact_icon": "bookmark",
         "sample_data": {
-            "dleapp_safari_bigsur": "macOS Big Sur (Josh Hickman public test "
-                "image, thisisdfir), Bookmarks.plist | 7 bookmarks-bar "
-                "entries (Bookmarks Menu and Reading List empty on this "
-                "image)",
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 7 rows",
         },
     },
     "safariTopSites": {
         "name": "Safari Top Sites",
-        "description": "Each entry in TopSites.plist's TopSites list, "
-                       "flagging which are Apple's shipped built-in "
-                       "defaults versus frecency-derived from real "
-                       "browsing.",
+        "description": "Entries of the TopSites list in Safari's TopSites.plist, with each entry's title, "
+                       "URL and TopSiteIsBuiltIn value.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
-        "notes": "Every TopSites.plist found is parsed, tagged by Source "
-                 "File. On the validation image all entries were built-in "
-                 "defaults (TopSiteIsBuiltIn true); that column is included "
-                 "so an analyst can distinguish earned top sites from "
-                 "defaults on other data.",
+        "notes": "One row per entry of the plist's TopSites list. Title is TopSiteTitle and URL is "
+                 "TopSiteURLString. Built-in Default shows Yes or No for a stored TopSiteIsBuiltIn of "
+                 "true or false and is blank when the entry has no such key. What TopSiteIsBuiltIn "
+                 "marks is not established. On dleapp_safari_bigsur (macOS 11.2.1) the list held 12 "
+                 "entries: Built-in Default held one value, Yes, on all 12 rows, and Title was blank "
+                 "on 1 row, whose entry had no TopSiteTitle key. An entry with a false "
+                 "TopSiteIsBuiltIn, and one without the key, were exercised with a constructed plist "
+                 "only. On the public MacBook Pro logical extraction (macOS 15.4, not a registered "
+                 "corpus key) the TopSites list held no entry, so no row is reported from it. The "
+                 "plist's BannedURLStrings and DemoSites lists are not reported; both were empty on "
+                 "both files. A logical extraction can hold one user's TopSites.plist under Users/ and "
+                 "again under System/Volumes/Data/Users/. A copy under System/Volumes/Data/ whose "
+                 "bytes equal the other copy's is not read again and the run log counts it; copies "
+                 "that differ are both read, and each row shows the Source File it came from. On the "
+                 "MacBook Pro extraction the two copies were byte-identical. Copies that differ were "
+                 "exercised with constructed plists only.",
         "paths": (
             "*/Library/Safari/TopSites.plist",
         ),
         "output_types": ["standard"],
         "artifact_icon": "star",
         "sample_data": {
-            "dleapp_safari_bigsur": "macOS Big Sur (Josh Hickman public test "
-                "image, thisisdfir), TopSites.plist | 12 entries, all "
-                "TopSiteIsBuiltIn true on this image",
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 12 rows",
         },
     },
     "safariRecentlyClosedTabs": {
         "name": "Safari Recently Closed Tabs",
-        "description": "Each tab in RecentlyClosedTabs.plist's "
-                       "ClosedTabOrWindowPersistentStates: window and "
-                       "tab UUIDs, close time, title and URL.",
+        "description": "Tabs listed in Safari's RecentlyClosedTabs.plist, one row per tab of each "
+                       "ClosedTabOrWindowPersistentStates entry.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
-        "notes": "Every RecentlyClosedTabs.plist found is parsed, tagged by "
-                 "Source File. Each tab also carries a large SessionState "
-                 "NSKeyedArchiver-style binary blob (per-tab back/forward "
-                 "navigation history); it is not decoded, only its size is "
-                 "reported.",
+        "notes": "Each entry of ClosedTabOrWindowPersistentStates holds a PersistentState. An entry "
+                 "whose PersistentState holds TabStates is read as a window and gives one row per tab. "
+                 "An entry that holds no TabStates and holds TabUUID or TabURL is read as one tab. An "
+                 "entry that holds neither is not reported and the run log counts it. Tab Title is "
+                 "TabTitle, URL is TabURL, Tab UUID is TabUUID and Tab Index is TabIndex. Closed is "
+                 "the tab's DateClosed, or the window's DateClosed when the tab has none. Last Visit "
+                 "Time is LastVisitTime: a date value is shown as stored, in UTC, and a number is read "
+                 "as Mac Absolute Time (seconds since 2001-01-01). Window UUID is the window's "
+                 "WindowUUID, or the entry's own WindowUUID on a one-tab entry. Private Window shows "
+                 "Yes or No for the window's IsPrivateWindow and is blank when that key is absent, as "
+                 "it is on a one-tab entry. Session State Size (bytes) is the length of the tab's "
+                 "SessionState value, which is not decoded. PersistentStateType is not read; the two "
+                 "entry shapes are told apart by their keys. Measured on dleapp_safari_bigsur (macOS "
+                 "11.2.1): 2 entries, each a window with 1 tab, 2 rows; Last Visit Time and Session "
+                 "State Size (bytes) had no value on either row, because neither tab had a "
+                 "LastVisitTime or a SessionState key. Measured on the public MacBook Pro logical "
+                 "extraction (macOS 15.4, not a registered corpus key): 11 entries, 7 of them windows "
+                 "holding 13 tabs and 4 of them one-tab entries, 17 rows. PersistentStateType was 1 on "
+                 "the 7 windows and on both macOS 11.2.1 entries, and 0 on the 4 one-tab entries. "
+                 "Private Window was No on the 13 window rows and blank on the 4 one-tab rows. "
+                 "LastVisitTime was a date value on all 17 rows; Last Visit Time was later than Closed "
+                 "on 5 rows and earlier on 12, and within one second of a History.db visit of the same "
+                 "URL on 2. Session State Size (bytes) had no value on any of the 17 rows, because no "
+                 "tab had a SessionState key. What Closed and Last Visit Time each mark is not "
+                 "established. A Private Window of Yes, a number LastVisitTime, a SessionState and an "
+                 "entry that is neither a window nor a tab were exercised with constructed plists "
+                 "only. A logical extraction can hold one user's RecentlyClosedTabs.plist under Users/ "
+                 "and again under System/Volumes/Data/Users/. A copy under System/Volumes/Data/ whose "
+                 "bytes equal the other copy's is not read again and the run log counts it; copies "
+                 "that differ are both read, and each row shows the Source File it came from. On the "
+                 "MacBook Pro extraction the two copies were byte-identical and the 17 tabs are "
+                 "reported once, from the copy under Users/. Copies that differ were exercised with "
+                 "constructed plists only.",
         "paths": (
             "*/Library/Safari/RecentlyClosedTabs.plist",
         ),
         "output_types": ["standard"],
         "artifact_icon": "x-circle",
         "sample_data": {
-            "dleapp_safari_bigsur": "macOS Big Sur (Josh Hickman public test "
-                "image, thisisdfir), RecentlyClosedTabs.plist | 2 closed "
-                "windows, 1 tab each",
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
         },
     },
     "safariCloudTabs": {
         "name": "Safari iCloud Tabs (CloudTabs.db)",
-        "description": "Tabs synced to this Mac from other Apple devices "
-                       "via iCloud Tabs/Handoff, joined to the "
-                       "originating device's name.",
+        "description": "Rows of the cloud_tabs table in Safari's CloudTabs.db, each with the name of the "
+                       "cloud_tab_devices row its device_uuid names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
-        "notes": "Every CloudTabs.db found is parsed, tagged by Source File. "
-                 "system_fields and position are opaque NSKeyedArchiver/zlib "
-                 "CloudKit-metadata blobs and are not decoded. "
-                 "cloud_tab_close_requests exists in the schema but is not "
-                 "read.",
+        "notes": "One row per cloud_tabs row, joined to cloud_tab_devices on device_uuid. Tab Title, "
+                 "URL and Tab UUID are the title, url and tab_uuid columns. Device Name, Device UUID "
+                 "and Device Last Modified come from the device row, and would be blank for a tab "
+                 "whose device_uuid no device row has, which no tested database held. Device Last "
+                 "Modified is last_modified read as Mac Absolute Time (seconds since 2001-01-01) and "
+                 "shown in UTC. Ephemeral Device, Pinned and Showing Reader show Yes for a stored true "
+                 "value and are blank otherwise. Reader Scroll Page is "
+                 "reader_scroll_position_page_index as stored. A cloud_tab_devices row that no tab "
+                 "names is not reported, and cloud_tab_close_requests is not read. system_fields and "
+                 "position are not decoded; on both tested databases every system_fields value began "
+                 "with bplist00 and every position value with the bytes 78 DA. A row is not by itself "
+                 "evidence that a tab was open on another device: on dleapp_safari_bigsur (macOS "
+                 "11.2.1, 2 tabs, 1 device, 2 rows) the 2 rows carry the same 2 URLs as the 2 tabs in "
+                 "that image's LastSession.plist, and Device Last Modified is less than 0.04 seconds "
+                 "before the DateClosed of those tabs. On that database Ephemeral Device, Pinned and "
+                 "Showing Reader had no value on either row, each stored value being 0, and Reader "
+                 "Scroll Page held 0 on both. On the public MacBook Pro logical extraction (macOS "
+                 "15.4, not a registered corpus key) the database holds 1 tab and 2 devices: 1 row is "
+                 "reported, Ephemeral Device, Pinned and Showing Reader had no value on it, and the "
+                 "device no tab names is not reported. There cloud_tabs also has a last_viewed_time "
+                 "column and cloud_tab_devices a device_type_identifier column, neither of which is "
+                 "reported. cloud_tab_close_requests held no row on either database. No tested "
+                 "database held a true value for Ephemeral Device, Pinned or Showing Reader. The "
+                 "database was at Library/Safari/CloudTabs.db on the macOS 11.2.1 image and at "
+                 "Library/Containers/com.apple.Safari/Data/Library/Safari/CloudTabs.db on the macOS "
+                 "15.4 extraction; the declared path matches both. A logical extraction can hold one "
+                 "CloudTabs.db under Users/ and again under System/Volumes/Data/Users/. The two are "
+                 "read as one store: a tab both copies hold with the same values is reported once, "
+                 "with the Source File of the copy under Users/, and a tab only one copy holds, or "
+                 "that differs between them, is reported from the copy that holds it. On the MacBook "
+                 "Pro extraction CloudTabs.db was byte-identical under the two paths, with an empty "
+                 "-wal beside each, and its 1 tab is reported once. The differing-copies case was "
+                 "exercised with constructed databases only.",
         "paths": (
             "*/Library/Safari/CloudTabs.db*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "cloud",
         "sample_data": {
-            "dleapp_safari_bigsur": "macOS Big Sur (Josh Hickman public test "
-                "image, thisisdfir), CloudTabs.db | 2 synced tabs from 1 "
-                "device",
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
         },
     },
     "safariLastSession": {
         "name": "Safari Last Session (Open Tabs)",
-        "description": "Windows and tabs that were open the last time "
-                       "Safari quit, from LastSession.plist: title, "
-                       "URL, last-visit time and whether the window was "
-                       "private.",
+        "description": "Tabs of the windows listed in Safari's LastSession.plist, with each tab's title, "
+                       "URL, stored times and whether its window is marked private.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
-        "notes": "Every LastSession.plist found is parsed, tagged by Source "
-                 "File. Same tab shape as RecentlyClosedTabs, including the "
-                 "undecoded SessionState blob. LastVisitTime is Mac Absolute "
-                 "Time in seconds, the same unit as History.db.",
+        "notes": "One row per tab of each SessionWindows window's TabStates. Tab Title is TabTitle, "
+                 "URL is TabURL, Tab UUID is TabUUID, Tab Index is TabIndex and Window UUID is the "
+                 "window's WindowUUID. Window Closed is the tab's DateClosed, or the window's "
+                 "DateClosed when the tab has none. Last Visit Time is LastVisitTime: a number is read "
+                 "as Mac Absolute Time (seconds since 2001-01-01) and a date value is shown as stored, "
+                 "in UTC. Private Window shows Yes or No for the window's IsPrivateWindow and is blank "
+                 "when that key is absent. Session State Size (bytes) is the length of the tab's "
+                 "SessionState value, which is not decoded. What event writes the file, and what "
+                 "DateClosed marks in it, are not established. Measured on dleapp_safari_bigsur (macOS "
+                 "11.2.1): 1 window with 2 tabs, 2 rows. Each tab's LastVisitTime was a number that, "
+                 "read as Mac Absolute Time, equals the visit_time of a History.db visit of the same "
+                 "URL (2 of 2). Each tab had its own DateClosed, so Window Closed shows the tab's "
+                 "value on both rows; the window's own DateClosed was less than 0.01 seconds earlier. "
+                 "Private Window was No on both rows. Session State Size (bytes) was 1,516,728 and "
+                 "244,757; each SessionState began with the bytes 00 00 00 02 followed by bplist, and "
+                 "each tab's SessionStateIsEncrypted was false. The public MacBook Pro logical "
+                 "extraction (macOS 15.4, not a registered corpus key) holds no LastSession.plist "
+                 "under either path. A date LastVisitTime, a window without IsPrivateWindow, a Private "
+                 "Window of Yes and a tab without its own DateClosed were exercised with constructed "
+                 "plists only. A logical extraction can hold one user's LastSession.plist under Users/ "
+                 "and again under System/Volumes/Data/Users/. A copy under System/Volumes/Data/ whose "
+                 "bytes equal the other copy's is not read again and the run log counts it; copies "
+                 "that differ are both read, and each row shows the Source File it came from. Both "
+                 "cases were exercised with constructed plists only.",
         "paths": (
             "*/Library/Safari/LastSession.plist",
         ),
         "output_types": ["standard"],
         "artifact_icon": "layout",
         "sample_data": {
-            "dleapp_safari_bigsur": "macOS Big Sur (Josh Hickman public test "
-                "image, thisisdfir), LastSession.plist | 1 open window, 2 "
-                "tabs",
+            "dleapp_safari_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
         },
     },
 }
 
+import hashlib
 import os
 import plistlib
 import re
@@ -276,8 +359,17 @@ def _mac_abs_s_to_utc(value):
         return None
 
 
+def _plist_time(value):
+    """A time from a plist as UTC: a date value is kept (plistlib reads one as
+    UTC with no zone attached), a number is read as Mac Absolute Time in
+    seconds."""
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    return _mac_abs_s_to_utc(value)
+
+
 def _files_named(files_found, basename):
-    """Every file whose basename matches, one per user account."""
+    """Every file whose basename matches."""
     return [p for p in files_found if os.path.basename(p) == basename]
 
 
@@ -295,12 +387,12 @@ def _load_plist(path):
 _DATA_VOLUME = re.compile(r"(^|/)System/Volumes/Data/")
 
 
-def _history_stores(context):
-    """(staged path, evidence path, store key) per History.db, with a copy
-    under System/Volumes/Data/ after the copy at the root."""
+def _stores(context, basename):
+    """(staged path, evidence path, store key) per file named `basename`, with
+    a copy under System/Volumes/Data/ after the copy at the root."""
     stores = []
     for source in _files_named([str(f) for f in context.get_files_found()],
-                               "History.db"):
+                               basename):
         relative_source = context.get_relative_path(source)
         normal = relative_source.replace("\\", "/")
         store = _DATA_VOLUME.sub(r"\1", normal, count=1)
@@ -308,6 +400,31 @@ def _history_stores(context):
     stores.sort()
     return [(source, relative_source, store)
             for store, _second, source, relative_source in stores]
+
+
+def _plist_sources(context, basename, label):
+    """(staged path, evidence path) per plist named `basename`. A copy under
+    System/Volumes/Data/ whose bytes equal the copy at the root is left out
+    and counted in the run log under `label`; copies that differ are both
+    returned."""
+    kept = []
+    seen = set()
+    skipped = 0
+    for source, relative_source, store in _stores(context, basename):
+        try:
+            with open(source, "rb") as handle:
+                digest = hashlib.sha256(handle.read()).digest()
+        except OSError:
+            digest = None
+        if digest is not None and (store, digest) in seen:
+            skipped += 1
+            continue
+        seen.add((store, digest))
+        kept.append((source, relative_source))
+    if skipped:
+        logfunc(f"{label}: {skipped} byte-identical copy(ies) under "
+                f"System/Volumes/Data not read again")
+    return kept
 
 
 def _has_tag_tables(database):
@@ -371,7 +488,7 @@ def safariHistory(context):
     read_sources = []
     seen = set()
     repeated = 0
-    for source, relative_source, store in _history_stores(context):
+    for source, relative_source, store in _stores(context, "History.db"):
         database = open_sqlite_db_readonly(source)
         if database is None:
             continue
@@ -414,7 +531,7 @@ def safariHistoryTags(context):
     read_sources = []
     seen = set()
     repeated = 0
-    for source, relative_source, store in _history_stores(context):
+    for source, relative_source, store in _stores(context, "History.db"):
         database = open_sqlite_db_readonly(source)
         if database is None:
             continue
@@ -468,20 +585,18 @@ def _walk_bookmarks(node, folder_path, rows):
 @artifact_processor
 def safariBookmarks(context):
     data_headers = ("Folder Path", "Title", "URL", "Bookmark UUID", "Source File")
-    files_found = [str(f) for f in context.get_files_found()]
     data_list = []
     read_sources = []
-    for source in _files_named(files_found, "Bookmarks.plist"):
+    for source, relative_source in _plist_sources(context, "Bookmarks.plist",
+                                                  "Safari Bookmarks"):
         plist = _load_plist(source)
         if plist is None:
             continue
-        relative_source = context.get_relative_path(source)
+        read_sources.append(relative_source)
         rows = []
         _walk_bookmarks(plist, "", rows)
         for row in rows:
             data_list.append(row + (relative_source,))
-        if rows:
-            read_sources.append(relative_source)
 
     logfunc(f"Safari Bookmarks: {len(data_list)} bookmark(s) across "
             f"{len(read_sources)} Bookmarks.plist file(s).")
@@ -491,45 +606,60 @@ def safariBookmarks(context):
 @artifact_processor
 def safariTopSites(context):
     data_headers = ("Title", "URL", "Built-in Default", "Source File")
-    files_found = [str(f) for f in context.get_files_found()]
     data_list = []
     read_sources = []
-    for source in _files_named(files_found, "TopSites.plist"):
+    for source, relative_source in _plist_sources(context, "TopSites.plist",
+                                                  "Safari Top Sites"):
         plist = _load_plist(source)
         if plist is None:
             continue
-        relative_source = context.get_relative_path(source)
-        rows_here = 0
+        read_sources.append(relative_source)
         for site in plist.get("TopSites", []) or []:
+            if "TopSiteIsBuiltIn" in site:
+                built_in = "Yes" if site["TopSiteIsBuiltIn"] else "No"
+            else:
+                built_in = ""
             data_list.append((
                 site.get("TopSiteTitle", ""), site.get("TopSiteURLString", ""),
-                "Yes" if site.get("TopSiteIsBuiltIn") else "No", relative_source,
+                built_in, relative_source,
             ))
-            rows_here += 1
-        if rows_here:
-            read_sources.append(relative_source)
 
     logfunc(f"Safari Top Sites: {len(data_list)} entr(ies) across "
             f"{len(read_sources)} TopSites.plist file(s).")
     return data_headers, data_list, "\n".join(read_sources)
 
 
+def _tab_row(tab, window_uuid, window_closed, is_private):
+    session_state = tab.get("SessionState")
+    state_size = len(session_state) if isinstance(session_state, (bytes, bytearray)) else ""
+    return (
+        tab.get("TabTitle", ""), tab.get("TabURL", ""),
+        tab.get("DateClosed") or window_closed,
+        _plist_time(tab.get("LastVisitTime")),
+        window_uuid, tab.get("TabUUID", ""),
+        tab.get("TabIndex", ""), is_private, state_size,
+    )
+
+
 def _tab_rows(window):
-    window_uuid = window.get("WindowUUID", "")
-    window_closed = window.get("DateClosed")
-    is_private = "Yes" if window.get("IsPrivateWindow") else "No"
-    rows = []
-    for tab in window.get("TabStates", []) or []:
-        session_state = tab.get("SessionState")
-        state_size = len(session_state) if isinstance(session_state, (bytes, bytearray)) else ""
-        rows.append((
-            tab.get("TabTitle", ""), tab.get("TabURL", ""),
-            tab.get("DateClosed") or window_closed,
-            tab.get("LastVisitTime"),
-            window_uuid, tab.get("TabUUID", ""),
-            tab.get("TabIndex", ""), is_private, state_size,
-        ))
-    return rows
+    """One row per tab of a window's TabStates."""
+    if "IsPrivateWindow" in window:
+        is_private = "Yes" if window["IsPrivateWindow"] else "No"
+    else:
+        is_private = ""
+    return [_tab_row(tab, window.get("WindowUUID", ""), window.get("DateClosed"), is_private)
+            for tab in window.get("TabStates", []) or []]
+
+
+def _closed_entry_rows(state):
+    """Rows of one RecentlyClosedTabs entry: a window's tabs when the entry
+    holds TabStates, the entry itself when it holds one tab's keys, or None
+    when it holds neither."""
+    if "TabStates" in state:
+        return _tab_rows(state)
+    if "TabUUID" in state or "TabURL" in state:
+        return [_tab_row(state, state.get("WindowUUID", ""), None, "")]
+    return None
 
 
 @artifact_processor
@@ -539,28 +669,26 @@ def safariRecentlyClosedTabs(context):
         "Window UUID", "Tab UUID", "Tab Index", "Private Window",
         "Session State Size (bytes)", "Source File",
     )
-    files_found = [str(f) for f in context.get_files_found()]
     data_list = []
     read_sources = []
-    for source in _files_named(files_found, "RecentlyClosedTabs.plist"):
+    unread = 0
+    for source, relative_source in _plist_sources(context, "RecentlyClosedTabs.plist",
+                                                  "Safari Recently Closed Tabs"):
         plist = _load_plist(source)
         if plist is None:
             continue
-        relative_source = context.get_relative_path(source)
-        rows_here = 0
+        read_sources.append(relative_source)
         for entry in plist.get("ClosedTabOrWindowPersistentStates", []) or []:
-            window = entry.get("PersistentState", {}) or {}
-            for title, url, closed, last_visit, w_uuid, t_uuid, idx, priv, state_size in _tab_rows(window):
-                data_list.append((
-                    title, url, closed, _mac_abs_s_to_utc(last_visit),
-                    w_uuid, t_uuid, idx, priv, state_size, relative_source,
-                ))
-                rows_here += 1
-        if rows_here:
-            read_sources.append(relative_source)
+            rows = _closed_entry_rows(entry.get("PersistentState", {}) or {})
+            if rows is None:
+                unread += 1
+                continue
+            for row in rows:
+                data_list.append(row + (relative_source,))
 
     logfunc(f"Safari Recently Closed Tabs: {len(data_list)} tab(s) across "
-            f"{len(read_sources)} file(s).")
+            f"{len(read_sources)} file(s); {unread} entr(ies) held neither "
+            f"TabStates nor a tab's own keys and were not reported.")
     return data_headers, data_list, "\n".join(read_sources)
 
 
@@ -572,24 +700,17 @@ def safariLastSession(context):
         "Tab Index", "Private Window", "Session State Size (bytes)",
         "Source File",
     )
-    files_found = [str(f) for f in context.get_files_found()]
     data_list = []
     read_sources = []
-    for source in _files_named(files_found, "LastSession.plist"):
+    for source, relative_source in _plist_sources(context, "LastSession.plist",
+                                                  "Safari Last Session"):
         plist = _load_plist(source)
         if plist is None:
             continue
-        relative_source = context.get_relative_path(source)
-        rows_here = 0
+        read_sources.append(relative_source)
         for window in plist.get("SessionWindows", []) or []:
-            for title, url, closed, last_visit, w_uuid, t_uuid, idx, priv, state_size in _tab_rows(window):
-                data_list.append((
-                    title, url, closed, _mac_abs_s_to_utc(last_visit),
-                    w_uuid, t_uuid, idx, priv, state_size, relative_source,
-                ))
-                rows_here += 1
-        if rows_here:
-            read_sources.append(relative_source)
+            for row in _tab_rows(window):
+                data_list.append(row + (relative_source,))
 
     logfunc(f"Safari Last Session: {len(data_list)} tab(s) across "
             f"{len(read_sources)} file(s).")
@@ -615,18 +736,23 @@ def safariCloudTabs(context):
         "Pinned", "Showing Reader", "Reader Scroll Page", "Tab UUID",
         "Source File",
     )
-    files_found = [str(f) for f in context.get_files_found()]
     data_list = []
     read_sources = []
-    for source in _files_named(files_found, "CloudTabs.db"):
+    seen = set()
+    repeated = 0
+    for source, relative_source, store in _stores(context, "CloudTabs.db"):
         database = open_sqlite_db_readonly(source)
         if database is None:
             continue
-        relative_source = context.get_relative_path(source)
-        rows_here = 0
+        read_sources.append(relative_source)
         for row in database.execute(_CLOUDTABS_QUERY):
             (tab_uuid, title, url, is_pinned, is_reader, reader_page,
              device_name, device_uuid, last_modified, is_ephemeral) = row
+            record = (store, tuple(row))
+            if record in seen:
+                repeated += 1
+                continue
+            seen.add(record)
             data_list.append((
                 title or "", url or "", device_name or "", device_uuid or "",
                 _mac_abs_s_to_utc(last_modified),
@@ -635,11 +761,9 @@ def safariCloudTabs(context):
                 reader_page if reader_page is not None else "",
                 tab_uuid or "", relative_source,
             ))
-            rows_here += 1
         database.close()
-        if rows_here:
-            read_sources.append(relative_source)
 
-    logfunc(f"Safari iCloud Tabs: {len(data_list)} synced tab(s) across "
-            f"{len(read_sources)} CloudTabs.db file(s).")
+    logfunc(f"Safari iCloud Tabs: {len(data_list)} tab(s) across "
+            f"{len(read_sources)} CloudTabs.db file(s); {repeated} tab(s) held "
+            f"by a second copy of a store were not reported again.")
     return data_headers, data_list, "\n".join(read_sources)
