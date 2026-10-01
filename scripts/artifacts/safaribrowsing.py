@@ -10,7 +10,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Safari (macOS)",
         "notes": "Every History.db found is parsed, so a Mac with more than one user account reports "
-                 "each account, tagged by Source File. visit_time is read as Mac Absolute Time "
+                 "each account, tagged by Source File. A Safari profile's History.db under "
+                 "Library/Safari/Profiles/<UUID>/ is read as its own store, and its Source File names "
+                 "that folder. On safari_tags_known_data_macos27 (macOS 27.0.1, Safari 27.0.1) the "
+                 "profile's folder was in Safari's container, at "
+                 "Library/Containers/com.apple.Safari/Data/Library/Safari/Profiles/<UUID>/; its "
+                 "History.db holds 11 visits, 7 of them showing a tag, and Item Visit Count (lifetime) "
+                 "held one value, 1, on all 11 rows. The folder name is a UUID, and this artifact does "
+                 "not report the profile's display name. visit_time is read as Mac Absolute Time "
                  "(seconds since 2001-01-01): read that way, the 27 visits on dleapp_safari_bigsur "
                  "fall between 2020-12-12 and 2021-02-17, and the 2 LastVisitTime numbers in that "
                  "image's LastSession.plist each equal the visit_time of a visit of the same URL. Tags "
@@ -35,12 +42,14 @@ __artifacts_v2__ = {
                  "any of the 139 rows. What the origin values mean is not established.",
         "paths": (
             "*/Library/Safari/History.db*",
+            "*/Library/Safari/Profiles/*/History.db*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
             "dleapp_safari_bigsur": "macOS Big Sur (Josh Hickman public test "
                 "image, thisisdfir), History.db | 22 history items, 27 visits",
+            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434, Safari 27.0.1 | 11 rows",
         },
     },
     "safariHistoryTags": {
@@ -87,9 +96,32 @@ __artifacts_v2__ = {
                  "digits, the form of a Wikidata item identifier. How Safari "
                  "chooses a tag for a page is not established. "
                  "dleapp_safari_bigsur (macOS 11.2.1) holds both tables with "
-                 "no rows. A tag with no link, and a History.db without the "
-                 "two tables, were exercised with constructed databases "
-                 "only. "
+                 "no rows. A History.db without the two tables was exercised "
+                 "with a constructed database only. "
+                 "safari_tags_known_data_macos27 is one Safari profile's "
+                 "History.db from a known-data session on macOS 27.0.1 with "
+                 "Safari 27.0.1, in which a script opened 13 public pages in a "
+                 "profile made for the test. 9 of the 13 pages were linked to "
+                 "a tag, each link's time 5.4 to 8.8 seconds after the visit. "
+                 "Two history items were then deleted in Safari's History "
+                 "window. Deleting the only item linked to a tag removed the "
+                 "link and left the tag, with Item Count going from 1 to 0. "
+                 "Deleting one of the two items linked to another tag removed "
+                 "that link and Item Count went from 2 to 1. Tag Modified did "
+                 "not change on either tag. Quitting Safari and opening it "
+                 "again changed nothing in the two tables. The sample is the "
+                 "database copied while Safari was quit: 7 tags and 7 links, reported as 8 "
+                 "rows, 1 of them a tag with no link, Item Count 0 and Linked "
+                 "Items 0. Item Count equalled Linked Items on all 7 tags, and "
+                 "Type held 1 and Level held 200 on all 7. Tag Modified is "
+                 "later than every Item Tagged value on the tag that lost one "
+                 "of its two links. After the sample was copied, Clear "
+                 "History for the last hour, which covered every visit, "
+                 "removed every row of both tables, the tag with no link "
+                 "included. History that expires by age and a Clear History "
+                 "range that leaves some of a tag's items were not tested. "
+                 "A Safari profile's History.db under "
+                 "Library/Safari/Profiles/<UUID>/ is read as its own store. "
                  "A logical extraction can hold one user's History.db under "
                  "Users/ and again under System/Volumes/Data/Users/. The two "
                  "are read as one store: a row both copies hold with the same "
@@ -104,6 +136,7 @@ __artifacts_v2__ = {
                  "https://www.swiftforensics.com/2026/10/tags-in-safari-history-db.html",
         "paths": (
             "*/Library/Safari/History.db*",
+            "*/Library/Safari/Profiles/*/History.db*",
         ),
         "output_types": ["standard"],
         "artifact_icon": "tag",
@@ -112,6 +145,7 @@ __artifacts_v2__ = {
                 "tag tables are empty)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (both "
                 "tag tables are empty)",
+            "safari_tags_known_data_macos27": "macOS 27.0.1 build 26A434, Safari 27.0.1 | 8 rows",
         },
     },
     "safariBookmarks": {
