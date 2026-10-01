@@ -69,6 +69,42 @@ reader ALEAPP and iLEAPP use, so it needs no native SQLCipher build.
 
 If you want to contribute hit me up on twitter: https://twitter.com/AlexisBrignoni   
 
+## Download
+
+Download a pre-built release, no Python installation required, from
+[DLEAPP GitHub Releases](https://github.com/abrignoni/DLEAPP/releases) or
+[LEAPPs Releases](https://leapps.org/releases).
+
+| Platform | Download |
+| -------- | -------- |
+| Windows (Intel/AMD) | `DLEAPP-*-windows-x64-setup.exe` (installer) or `DLEAPP-*-windows-x64-portable.zip` |
+| Windows (ARM) | `DLEAPP-*-windows-arm64-setup.exe` or `DLEAPP-*-windows-arm64-portable.zip` |
+| macOS (Apple Silicon) | `DLEAPP-*-macos-arm64.dmg` |
+| macOS (Intel) | `DLEAPP-*-macos-x64.dmg` |
+| Linux (Intel/AMD) | `DLEAPP-*-linux-x64.AppImage` |
+| Linux (ARM) | `DLEAPP-*-linux-arm64.AppImage` |
+
+Each download holds one program, `dleapp`. `SHA256SUMS.txt` in each release lets you check a download.
+
+**GUI**: open DLEAPP the usual way: from the Start menu after installing on Windows, by
+double-clicking `dleapp.exe` in the portable folder, DLEAPP in Applications on macOS, or
+the AppImage on Linux. Started without arguments, it opens the window.
+
+**CLI**: give `dleapp` arguments in a terminal and it runs as a command line instead. The
+output folder must already exist. On Windows, keep `dleapp.exe` in its folder with the
+files beside it.
+
+```
+dleapp.exe -t fs -i C:\path\to\extraction -o C:\path\to\output\
+```
+
+On Linux, run the AppImage with the same arguments. On macOS it is inside the app; to
+type just `dleapp` in a terminal, link it onto your PATH once:
+
+```
+sudo ln -s /Applications/DLEAPP.app/Contents/MacOS/dleapp /usr/local/bin/dleapp
+```
+
 ## Requirements
 
 **Python 3.9 or above** (older versions of 3.x will also work with the exception of one or two modules)
@@ -144,6 +180,24 @@ $ python dleappGUI.py
 ```
 $ python dleapp.py --help
 ```
+
+### Building the binaries
+
+`packaging/build.py` builds `dleapp` with PyInstaller for the machine it runs on, from the
+same virtual environment. Fetch the Unified Log parser first, or the build ships without
+native Unified Log support:
+
+```
+python admin/scripts/fetch_unifiedlog_iterator.py   # bin/unifiedlog_iterator, digest-verified
+python packaging/build.py exe          # dist/DLEAPP/, and dist/DLEAPP.app on macOS
+python packaging/build.py smoke        # run what it built, without opening a window
+python packaging/build.py installer    # Windows: Inno Setup installer; macOS: .dmg; Linux: AppImage
+```
+
+`exe --onefile` makes `dist/dleapp` (`dist\dleapp.exe` on Windows) as a single file
+instead. The Windows installer needs [Inno Setup](https://jrsoftware.org/isdl.php); on
+Linux, `smoke` needs a display, which `xvfb-run` provides. `python packaging/build.py --help`
+has the rest.
 
 ## Contributing artifact plugins
 

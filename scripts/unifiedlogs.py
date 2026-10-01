@@ -19,7 +19,7 @@ The binary is not committed to this repository. `find_iterator()` looks for it i
 explicit environment variable, then in a bin/ folder beside dleapp.py or inside a frozen
 build, then on PATH; when it is absent the artifact reports that and does nothing, leaving
 a 'log show' JSON export as the supported route. admin/scripts/fetch_unifiedlog_iterator.py
-places a digest-verified copy in bin/, and the PyInstaller specs bundle it from there; see
+places a digest-verified copy in bin/, and packaging/build.py bundles it from there; see
 bin/PROVENANCE.md.
 
 Ported from iLEAPP's scripts/unifiedlogs.py.
@@ -64,8 +64,10 @@ MAX_DIAGNOSTIC_LINE_LENGTH = 300
 def _bundled_binary_dirs():
     """Directories to search for a binary placed beside DLEAPP, frozen or from source.
 
-    Both point at 'bin': inside a frozen build's bundle, and in the repository for a
-    source checkout.
+    Both point at 'bin': packaging/build.py places the executable there inside the bundle,
+    and admin/scripts/fetch_unifiedlog_iterator.py places it in the repository's bin/ for a
+    source checkout. Keep the two in step; a mismatch means a build that bundles the parser
+    cannot find it at run time.
     """
     dirs = []
     meipass = getattr(sys, '_MEIPASS', None)
