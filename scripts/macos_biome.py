@@ -13,11 +13,9 @@ import struct
 from datetime import timezone
 
 from scripts.ilapfuncs import logfunc
-from scripts.macos_plists import user_from_path
+from scripts.macos_plists import canonical_relative, user_from_path
 from scripts.vendor.ccl_segb.ccl_segb import read_segb_file
 from scripts.vendor.ccl_segb.ccl_segb_common import EntryState
-
-_FIRMLINK_PREFIX = 'System/Volumes/Data/'
 
 
 class StreamRecord:
@@ -43,14 +41,6 @@ def sync_origin(relative_path):
     return 'Local'
 
 
-def _view_key(relative_path):
-    """The path with any System/Volumes/Data/ prefix removed, so both firmlink views match."""
-    normalized = str(relative_path).replace('\\', '/').lstrip('/')
-    if normalized.startswith(_FIRMLINK_PREFIX):
-        return normalized[len(_FIRMLINK_PREFIX):]
-    return normalized
-
-
 def stream_records(context, label):
     """(records, sources): the written records of every SEGB file the artifact matched, and
     the files that contributed at least one of them.
@@ -58,8 +48,8 @@ def stream_records(context, label):
     Hidden files, directories, the stream's lock file and anything under a tombstone folder
     are skipped. Records the SEGB file does not mark as written are counted in the run log
     and not returned. A logical extraction of a Mac can hold one stream file under Users/
-    and under System/Volumes/Data/Users/; a record with the same offset, time and bytes in
-    both copies is returned once, from the copy read first.
+    and under System/Volumes/Data/Users/, at the root or under a top folder; a record with
+    the same offset, time and bytes in both copies is returned once, from the copy read first.
     """
     sources = []
     records = []
@@ -80,7 +70,7 @@ def stream_records(context, label):
             continue
         origin = sync_origin(relative)
         user = user_from_path(relative)
-        view_key = _view_key(relative)
+        view_key = canonical_relative(relative)
         written = other = repeated = 0
         for entry in entries:
             if entry.state != EntryState.Written:

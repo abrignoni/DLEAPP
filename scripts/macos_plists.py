@@ -19,6 +19,7 @@ the volume creation date (0x2013). Bookmark dates are big-endian doubles of seco
 import hashlib
 import os
 import plistlib
+import re
 import struct
 from datetime import datetime, timedelta, timezone
 
@@ -180,7 +181,8 @@ def bookmark_fields(data):
     }
 
 
-_FIRMLINK_PREFIX = 'System/Volumes/Data/'
+# System/Volumes/Data/ as whole path segments, at the start of a path or after any folder.
+_FIRMLINK_SEGMENTS = re.compile(r'(?:^|(?<=/))System/Volumes/Data/')
 
 
 def user_from_path(path):
@@ -195,13 +197,16 @@ def user_from_path(path):
 
 
 def canonical_relative(relative):
-    """A path inside the extraction with a leading System/Volumes/Data/ removed.
+    """A path inside the extraction with every System/Volumes/Data/ folder run removed.
 
     macOS firmlinks expose the Data volume's folders both at the root and under
-    System/Volumes/Data/, so a logical extraction can hold one file under both paths.
+    System/Volumes/Data/, so a logical extraction can hold one file under both paths. The
+    run is removed wherever it stands as whole folders, not only at the start, so the two
+    views still share one path when the extraction's tree sits inside a top folder
+    (export/Users/... and export/System/Volumes/Data/Users/...).
     """
     relative = str(relative).replace('\\', '/').lstrip('/')
-    return relative[len(_FIRMLINK_PREFIX):] if relative.startswith(_FIRMLINK_PREFIX) else relative
+    return _FIRMLINK_SEGMENTS.sub('', relative)
 
 
 def _digest(path, sidecars):
@@ -224,8 +229,9 @@ def unique_sources(context, paths, sidecars=(), label=''):
 
     A logical extraction of a Mac can hold the same file under Users/ and under
     System/Volumes/Data/Users/, where macOS firmlinks expose it twice. Two paths that
-    differ only by that System/Volumes/Data/ prefix and have identical bytes (and
-    identical sidecars, such as -wal) are read once; copies that differ are both kept.
+    differ only by that System/Volumes/Data/ folder run, at the root or under a top folder,
+    and have identical bytes (and identical sidecars, such as -wal) are read once; copies
+    that differ are both kept.
     """
     kept, seen, skipped = [], set(), 0
     for path in sorted({str(p) for p in paths}, key=lambda p: (len(p), p)):
