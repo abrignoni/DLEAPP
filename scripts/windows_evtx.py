@@ -100,8 +100,8 @@ class EventRecord:
     """The System fields and the event data of one parsed record."""
 
     __slots__ = ('provider', 'event_id', 'version', 'level', 'time', 'record_id',
-                 'computer', 'user_sid', 'process_id', 'channel', 'fields', 'values',
-                 'user_data_name', 'source')
+                 'computer', 'user_sid', 'process_id', 'channel', 'activity_id', 'fields',
+                 'values', 'user_data_name', 'source')
 
     def __init__(self, root, source=''):
         self.source = source
@@ -116,6 +116,7 @@ class EventRecord:
         self.user_sid = ''
         self.process_id = ''
         self.channel = ''
+        self.activity_id = ''
         if system is not None:
             provider = system.find('{*}Provider')
             self.provider = provider.get('Name', '') if provider is not None else ''
@@ -132,6 +133,9 @@ class EventRecord:
             self.user_sid = (security.get('UserID') or '') if security is not None else ''
             execution = system.find('{*}Execution')
             self.process_id = (execution.get('ProcessID') or '') if execution is not None else ''
+            correlation = system.find('{*}Correlation')
+            self.activity_id = ((correlation.get('ActivityID') or '')
+                                if correlation is not None else '')
         self.fields = {}
         self.values = []
         self.user_data_name = ''
