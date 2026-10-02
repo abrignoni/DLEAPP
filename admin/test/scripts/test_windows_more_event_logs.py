@@ -124,6 +124,13 @@ class DeviceSetupTest(unittest.TestCase):
                                           'Prop_SoftwareName': 's'})['Result'], '')
         self.assertEqual(self.row('112', {'Prop_PackageId': 'p'})['Driver Package ID'], '')
 
+    def test_a_removal_failure_with_the_newer_fields_has_its_name_and_container(self):
+        row = self.row('152', {'Prop_DeviceName': 'Example Printer', 'Prop_ContainerId': '{0000-1}', 'HRESULT': '5'})
+        self.assertEqual((row['Device Name'], row['Container ID'], row['Device Instance ID'], row['Result']),
+                         ('Example Printer', '{0000-1}', '', '0x00000005 (5)'))
+        older = self.row('152', {'Prop_DevnodeId': 'USB\\C\\1', 'HRESULT': '5'})
+        self.assertEqual((older['Device Name'], older['Container ID'], older['Device Instance ID']), ('', '', 'USB\\C\\1'))
+
 
 class UserProfileTest(unittest.TestCase):
     def row(self, event_id, fields, sid='S-1-5-18'):

@@ -35,9 +35,9 @@ _EVENTS = {
 # Report column -> the event data field each event stores it in (see notes).
 _FIELDS = {
     'Device Name': {'112': 'Prop_DeviceName', '150': 'Prop_DeviceName',
-                    '151': 'Prop_DeviceName'},
+                    '151': 'Prop_DeviceName', '152': 'Prop_DeviceName'},
     'Container ID': {'112': 'Prop_ContainerId', '150': 'Prop_ContainerId',
-                     '151': 'Prop_ContainerId'},
+                     '151': 'Prop_ContainerId', '152': 'Prop_ContainerId'},
     'Device Instance ID': {'121': 'Prop_DevnodeId', '123': 'Prop_DeviceId',
                            '124': 'Prop_DeviceInstanceId', '125': 'Prop_DevnodeId',
                            '126': 'Prop_DeviceInstanceId', '152': 'Prop_DevnodeId',
@@ -59,7 +59,7 @@ __artifacts_v2__ = {
                        "it names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-DeviceSetupManager%4Admin.evtx, named in the report's "
@@ -82,7 +82,17 @@ __artifacts_v2__ = {
                  "#L453-L466, #L467-L481, #L560-L573 and #L824-L837; the same messages and fields were "
                  "read from DeviceSetupManager.dll and its en-US .mui on the tested images, where build "
                  "16299 on lonewolf_win10 defines neither 160 nor 166). Device Name and Container ID are "
-                 "Prop_DeviceName and Prop_ContainerId on 112, 150 and 151. Device Instance ID is "
+                 "Prop_DeviceName and Prop_ContainerId on 112, 150 and 151, and on 152 when the record "
+                 "carries them: the manifest of Windows 11 build 26100.1742 gives 152 the fields "
+                 "Prop_DeviceName, Prop_ContainerId and HRESULT and the message 'Device '%1' (%2) "
+                 "removal failed with error %3.' "
+                 "(https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-DeviceSetupManager.xml#L732-L746), "
+                 "where the older manifest gives it Prop_DevnodeId and HRESULT, and it words the other "
+                 "eleven messages differently too (112 is 'Device container '%1' (%2) has been serviced, "
+                 "processed %3 tasks, and wrote %4 properties in %5 ms.', "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-DeviceSetupManager.xml#L435-L451). "
+                 "No tested record is of that build, and Event keeps the labels made from the older "
+                 "messages. Device Instance ID is "
                  "Prop_DevnodeId on 121, 125, 152 and 234, Prop_DeviceId on 123, and Prop_DeviceInstanceId "
                  "on 124, 126, 160 and 166. Driver Package ID is Prop_PackageId on 124 and 126, which "
                  "their messages call the driver and the driver update. Software is Prop_SoftwareName on "
