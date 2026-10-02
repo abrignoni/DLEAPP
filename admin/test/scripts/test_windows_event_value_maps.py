@@ -23,6 +23,11 @@ sys.path.insert(0, str(REPO_ROOT))
 from scripts import windows_messages  # pylint: disable=wrong-import-position
 from scripts.artifacts import windowsSystemPowerEvents as power  # pylint: disable=wrong-import-position
 
+# These read a PE file's resources, which needs the pefile package. Without it the
+# reader returns nothing, by design, so a test of what it reads has nothing to check.
+_NEEDS_PEFILE = unittest.skipIf(windows_messages.pefile is None,
+                                'pefile is not installed (it is in requirements.txt)')
+
 POTS = 'cdc05e28-c449-49c6-b9d2-88cf761644df'
 WAKE_MAP = 'pots:mapWakeSource'
 UNICODE = 0x0001
@@ -172,6 +177,7 @@ class TestParseEventManifest(unittest.TestCase):
             windows_messages.parse_event_manifest(bytes(data), POTS)
 
 
+@_NEEDS_PEFILE
 class TestReadEventValueMaps(_TempDir):
     """The manifest is the PE resource named WEVT_TEMPLATE, and a bad one gives nothing."""
 
@@ -259,15 +265,18 @@ class TestValueNames(_TempDir):
         self.log1 = str(self.tmp / 'data/lba1' / self.LOG)
         self.names = power._ValueNames(_Context(str(self.tmp / 'data'), files))  # pylint: disable=protected-access
 
+    @_NEEDS_PEFILE
     def test_a_mapped_number_reads_name_then_number(self):
         self.assertEqual(self.names.text(self.log0, _wake('1'), self.BOOTS, 'WakeSourceType'), 'Power Button (1)')
         self.assertEqual(self.names.text(self.log0, _wake('6', version=3), self.BOOTS, 'WakeSourceType'),
                          'Timer - (6)')
 
+    @_NEEDS_PEFILE
     def test_a_volume_without_the_english_mui_keeps_the_number(self):
         self.assertEqual(self.names.text(self.log1, _wake('1'), self.BOOTS, 'WakeSourceType'), '1')
         self.assertEqual(self.names.kept['no value map'], 1)
 
+    @_NEEDS_PEFILE
     def test_a_mui_without_a_message_table_keeps_the_number(self):
         self.write('data/lba1/Windows/System32/en-US/pots.dll.mui',
                    pe_with_resource(b'not a table', type_id=6))
@@ -276,6 +285,7 @@ class TestValueNames(_TempDir):
         self.assertEqual(names.text(self.log1, _wake('1'), self.BOOTS, 'WakeSourceType'), '1')
         self.assertEqual(dict(names.kept), {'no value map': 1})
 
+    @_NEEDS_PEFILE
     def test_a_record_not_written_under_the_last_build_keeps_the_number(self):
         boots = [(3, '17134'), (20, '17763')]
         self.assertEqual(self.names.text(self.log0, _wake('1', record_id=10), boots, 'WakeSourceType'), '1')
@@ -283,6 +293,7 @@ class TestValueNames(_TempDir):
                          'Power Button (1)')
         self.assertEqual(self.names.kept['build'], 1)
 
+    @_NEEDS_PEFILE
     def test_a_number_or_version_the_map_lacks_keeps_the_number(self):
         self.assertEqual(self.names.text(self.log0, _wake('7'), self.BOOTS, 'WakeSourceType'), '7')
         self.assertEqual(self.names.text(self.log0, _wake('1', version=0), self.BOOTS, 'WakeSourceType'), '1')
@@ -294,6 +305,7 @@ class TestValueNames(_TempDir):
         self.addCleanup(setattr, windows_messages, 'pefile', original)
         self.assertEqual(self.names.text(self.log0, _wake('1'), self.BOOTS, 'WakeSourceType'), '1')
 
+    @_NEEDS_PEFILE
     def test_the_files_that_named_a_number_are_given_for_the_source_path(self):
         self.names.text(self.log0, _wake('1'), self.BOOTS, 'WakeSourceType')
         self.names.text(self.log1, _wake('1'), self.BOOTS, 'WakeSourceType')
@@ -302,6 +314,7 @@ class TestValueNames(_TempDir):
                           'lba0/Windows/System32/pots.dll'])
 
 
+@_NEEDS_PEFILE
 class TestShutdownNames(_TempDir):
     """A 109 names its action and its reason, each through the map its manifest binds."""
 

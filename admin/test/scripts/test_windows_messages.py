@@ -20,6 +20,11 @@ sys.path.insert(0, str(REPO_ROOT))
 from scripts import windows_messages  # pylint: disable=wrong-import-position
 from scripts.artifacts import windowsDefenderEvents  # pylint: disable=wrong-import-position
 
+# These read a PE file's resources, which needs the pefile package. Without it the
+# reader returns nothing, by design, so a test of what it reads has nothing to check.
+_NEEDS_PEFILE = unittest.skipIf(windows_messages.pefile is None,
+                                'pefile is not installed (it is in requirements.txt)')
+
 UNICODE, ANSI = 0x0001, 0x0000
 
 
@@ -79,6 +84,7 @@ class _TempDir(unittest.TestCase):
         return str(path)
 
 
+@_NEEDS_PEFILE
 class TestReadMessageTable(_TempDir):
     """The reader returns what FormatMessage prints, for every documented encoding."""
 
@@ -157,23 +163,28 @@ class TestDefenderParameterText(_TempDir):
         self.text = windowsDefenderEvents._ParameterText(  # pylint: disable=protected-access
             _Context(str(self.tmp / 'data'), files), 'test')
 
+    @_NEEDS_PEFILE
     def test_the_platform_copy_named_for_the_records_version_comes_first(self):
         self.assertEqual(self.text.text(_Record(self.log0, '4.18.1'), '%%802'),
                          'Platform (%%802)')
 
+    @_NEEDS_PEFILE
     def test_the_program_files_copy_serves_a_version_with_no_platform_folder(self):
         self.assertEqual(self.text.text(_Record(self.log0, '4.18.9'), '%%802'),
                          'Inbox (%%802)')
 
+    @_NEEDS_PEFILE
     def test_a_message_the_platform_copy_lacks_comes_from_the_program_files_copy(self):
         self.assertEqual(self.text.text(_Record(self.log0, '4.18.1'), '%%901'),
                          'Only in the inbox copy (%%901)')
         self.assertEqual(self.text.kept, 0)
 
+    @_NEEDS_PEFILE
     def test_each_volume_uses_its_own_files(self):
         self.assertEqual(self.text.text(_Record(self.log1, '4.18.1'), '%%802'),
                          'Other volume (%%802)')
 
+    @_NEEDS_PEFILE
     def test_what_no_file_resolves_is_kept_as_stored_and_counted(self):
         self.assertEqual(self.text.text(_Record(self.log0, '4.18.1'), '%%999'), '%%999')
         elsewhere = str(self.tmp / 'data/lba2' / self.LOG)
@@ -193,6 +204,7 @@ class TestDefenderParameterText(_TempDir):
         self.assertEqual(self.text.text(_Record(self.log0, '4.18.1'), '%%802'), '%%802')
         self.assertEqual(self.text.kept, 1)
 
+    @_NEEDS_PEFILE
     def test_the_files_used_are_named_for_the_source_path(self):
         self.text.text(_Record(self.log0, '4.18.1'), '%%802')
         self.text.text(_Record(self.log1, '4.18.1'), '%%802')
