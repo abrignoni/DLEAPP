@@ -1,5 +1,6 @@
-"""Pin the InventoryApplicationFile, InventoryApplication, InventoryApplicationShortcut, InventoryDriverBinary and
-InventoryDevicePnp readers in scripts/artifacts/windowsAmcache.py.
+"""Pin the InventoryApplicationFile, InventoryApplication, InventoryApplicationShortcut, InventoryDriverBinary,
+InventoryDevicePnp, InventoryDeviceContainer and InventoryDriverPackage readers in
+scripts/artifacts/windowsAmcache.py.
 
 The hive is stood in for by small objects that answer the python-registry calls the readers make; the expected rows
 are written out.
@@ -195,6 +196,25 @@ DEVICE_ROW = (WRITTEN_UTC, '09-18-2020', '09-17-2020', DEVICE_NAME, 'USB Mass St
               'Compatible USB storage device', 'usb', 'usb', 'Example Bus Name', 'usbstor', 'usbstor.sys', SHA1,
               'usb\\root_hub30\\4&1&0&0', '{11111111-2222-3333-4444-555555555555}',
               'usb\\vid_0000&pid_0001&rev_0100,usb\\vid_0000&pid_0001', 'usbstor.inf')
+CONTAINER = {'ModelName': 'Example Model', 'Icon': 'c:\\windows\\system32\\ddores.dll,-2',
+             'FriendlyName': 'Example Drive', 'ModelNumber': 'EX-1', 'Manufacturer': 'Example Corp',
+             'ModelId': '{aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee}', 'PrimaryCategory': 'Storage',
+             'Categories': 'Storage.USB', 'IsMachineContainer': '0', 'DiscoveryMethod': 'PnP', 'IsConnected': '1',
+             'IsActive': '2', 'IsPaired': '3', 'IsNetworked': '4', 'State': 9}
+CONTAINER_NAME = '{11111111-2222-3333-4444-555555555555}'
+CONTAINER_ROW = (WRITTEN_UTC, CONTAINER_NAME, 'Example Drive', 'Example Model', 'EX-1', 'Example Corp', 'Storage',
+                 'Storage.USB', '0', '1', '2', '3', '4', 'PnP', 9, '{aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee}',
+                 'c:\\windows\\system32\\ddores.dll,-2')
+PACKAGE = {'ClassGuid': '{4d36e972-e325-11ce-bfc1-08002be10318}', 'Class': 'net',
+           'Directory': 'c:\\windows\\system32\\driverstore\\filerepository\\example.inf_amd64_0123456789abcdef',
+           'Date': '2018-9-15', 'Version': '1.2.3.4', 'Provider': 'Example Corp', 'SubmissionId': '12345',
+           'DriverInBox': '0', 'Inf': 'oem7.inf', 'Hwids': 'pci\\ven_0000&dev_0001', 'SYSFILE': 'example.sys',
+           'IsActive': '1', 'FlightIds': 'x', 'RecoveryIds': 'y'}
+PACKAGE_NAME = 'example.inf_amd64_0123456789abcdef'
+PACKAGE_ROW = (WRITTEN_UTC, '2018-9-15', PACKAGE_NAME, '1.2.3.4', 'Example Corp', 'net',
+               '{4d36e972-e325-11ce-bfc1-08002be10318}',
+               'c:\\windows\\system32\\driverstore\\filerepository\\example.inf_amd64_0123456789abcdef', 'oem7.inf',
+               'pci\\ven_0000&dev_0001', 'example.sys', '0', '1', '12345')
 
 
 @unittest.skipIf(Registry is None, 'python-registry is not installed')
@@ -218,6 +238,42 @@ class DeviceRowTest(unittest.TestCase):
         self.assertEqual(amcache.device_row(entry),
                          (WRITTEN_UTC, '', '', 'storage/volume/1', 'Volume', '', '', 'volume', 'storage', '', '', '',
                           '', '', '', '', ''))
+
+
+@unittest.skipIf(Registry is None, 'python-registry is not installed')
+class ContainerRowTest(unittest.TestCase):
+    def test_each_column_carries_its_own_value(self):
+        self.assertEqual(amcache.container_row(_Key(CONTAINER, name=CONTAINER_NAME)), CONTAINER_ROW)
+
+    def test_absent_values_are_blank_and_a_stored_state_of_zero_is_kept(self):
+        row = amcache.container_row(_Key({'State': 0, 'IsConnected': '0'}, name='{a}'))
+        self.assertEqual(row, (WRITTEN_UTC, '{a}', '', '', '', '', '', '', '', '0', '', '', '', '', 0, '', ''))
+
+    def test_a_value_stored_as_a_number_is_left_a_number_in_every_column(self):
+        row = amcache.container_row(_Key({name: 7 for name in CONTAINER}, name='{c}'))
+        self.assertEqual(row, (WRITTEN_UTC, '{c}') + (7,) * 15)
+
+    def test_the_unnamed_value_is_not_reported(self):
+        entry = _Key({'': 'x', 'FriendlyName': 'PC'}, name='{b}')
+        self.assertEqual(amcache.container_row(entry),
+                         (WRITTEN_UTC, '{b}', 'PC', '', '', '', '', '', '', '', '', '', '', '', '', '', ''))
+
+
+@unittest.skipIf(Registry is None, 'python-registry is not installed')
+class PackageRowTest(unittest.TestCase):
+    def test_each_column_carries_its_own_value(self):
+        self.assertEqual(amcache.package_row(_Key(PACKAGE, name=PACKAGE_NAME)), PACKAGE_ROW)
+
+    def test_a_value_stored_as_a_number_is_left_a_number_in_every_column(self):
+        values = {name: 7 for name in PACKAGE if name not in ('FlightIds', 'RecoveryIds')}
+        row = amcache.package_row(_Key(values, name='a.inf_amd64_1'))
+        self.assertEqual(row, (WRITTEN_UTC, 7, 'a.inf_amd64_1') + (7,) * 11)
+
+    def test_an_entry_without_the_active_value(self):
+        entry = _Key({'Inf': 'oem1.inf', 'DriverInBox': '1', 'Date': '2006-6-21'}, name='a.inf_amd64_1')
+        self.assertEqual(amcache.package_row(entry),
+                         (WRITTEN_UTC, '2006-6-21', 'a.inf_amd64_1', '', '', '', '', '', 'oem1.inf', '', '', '1', '',
+                          ''))
 
 
 @unittest.skipIf(Registry is None, 'python-registry is not installed')
@@ -348,9 +404,37 @@ class ArtifactTest(unittest.TestCase):
                                    'Driver SHA-1', 'Parent ID', 'Container ID', 'Hardware IDs', 'INF'))
         self.assertEqual((source, logged), (self.HIVE, []))
 
+    def test_containers_and_packages_come_from_their_own_keys(self):
+        hive = _Hive({'Root\\InventoryDeviceContainer': _Key(subkeys=[_Key(CONTAINER, name=CONTAINER_NAME)]),
+                      'Root\\InventoryDriverPackage': _Key(subkeys=[_Key(PACKAGE, name=PACKAGE_NAME)]),
+                      'Root\\InventoryDriverBinary': _Key(subkeys=[_Key(DRIVER, name=DRIVER_PATH)]),
+                      'Root\\InventoryDevicePnp': _Key(subkeys=[_Key(DEVICE, name=DEVICE_NAME)])})
+        (headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheDeviceContainers,
+                                                                     {self.HIVE: hive})
+        self.assertEqual(rows, [CONTAINER_ROW])
+        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), 'Container ID', 'Friendly Name',
+                                   'Model Name', 'Model Number', 'Manufacturer', 'Primary Category', 'Categories',
+                                   'Machine Container (as stored)', 'Connected (as stored)', 'Active (as stored)',
+                                   'Paired (as stored)', 'Networked (as stored)', 'Discovery Method',
+                                   'State (as stored)', 'Model ID', 'Icon'))
+        self.assertEqual((source, logged), (self.HIVE, []))
+        (headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheDriverPackages,
+                                                                     {self.HIVE: hive})
+        self.assertEqual(rows, [PACKAGE_ROW])
+        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), 'Date (as stored)', 'Driver Package',
+                                   'Version', 'Provider', 'Class', 'Class GUID', 'Directory', 'INF', 'Hardware IDs',
+                                   'Files', 'In Box (as stored)', 'Active (as stored)', 'Submission ID'))
+        self.assertEqual((source, logged), (self.HIVE, []))
+
+    def test_a_hive_without_the_container_or_package_key_gives_no_rows_and_is_still_named(self):
+        for function in (amcache.amcacheDeviceContainers, amcache.amcacheDriverPackages):
+            (_headers, rows, source), _opened, logged = self.run_artifact(function, {self.HIVE: _Hive({})})
+            self.assertEqual((rows, source, logged), ([], self.HIVE, []))
+
     def test_without_python_registry_nothing_is_read(self):
         functions = (amcache.amcacheApplicationFiles, amcache.amcacheApplications, amcache.amcacheShortcuts,
-                     amcache.amcacheDrivers, amcache.amcacheDevices)
+                     amcache.amcacheDrivers, amcache.amcacheDevices, amcache.amcacheDeviceContainers,
+                     amcache.amcacheDriverPackages)
         with mock.patch.object(amcache, 'Registry', None), mock.patch.object(amcache, 'logfunc') as log, \
                 mock.patch.object(amcache, 'open_hive') as opened:
             for function in functions:
