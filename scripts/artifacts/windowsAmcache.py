@@ -10,7 +10,10 @@ sourced from public Amcache research and measured on the test images (see the
 artifact notes). The InventoryApplication values are compared with the Uninstall
 keys they name, the InventoryApplicationShortcut paths with the link files, the
 InventoryDriverBinary values with the driver files and the InventoryDevicePnp
-values with the SYSTEM hive's Enum keys, on the same images.
+values with the SYSTEM hive's Enum keys, on the same images. The
+InventoryDeviceContainer entries are compared with the device entries that name
+them, and the InventoryDriverPackage values with the driver store folder and the
+INF file each names.
 """
 
 from datetime import timezone
@@ -33,6 +36,8 @@ _APPLICATION_PATH = "Root\\InventoryApplication"
 _SHORTCUT_PATH = "Root\\InventoryApplicationShortcut"
 _DRIVER_PATH = "Root\\InventoryDriverBinary"
 _DEVICE_PATH = "Root\\InventoryDevicePnp"
+_CONTAINER_PATH = "Root\\InventoryDeviceContainer"
+_PACKAGE_PATH = "Root\\InventoryDriverPackage"
 
 __artifacts_v2__ = {
     "amcacheApplicationFiles": {
@@ -482,6 +487,204 @@ __artifacts_v2__ = {
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 81 rows",
         },
     },
+    "amcacheDeviceContainers": {
+        "name": "Amcache Device Containers",
+        "description": "Device containers Windows inventoried, from Amcache.hve InventoryDeviceContainer: the "
+                       "identifier the hive gives the container, its friendly name, model, manufacturer and "
+                       "categories, and the connected, active, paired, networked and machine-container values as "
+                       "stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-01",
+        "last_update_date": "2026-10-01",
+        "requirements": "python-registry",
+        "category": "Windows",
+        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+                 "Root\\InventoryDeviceContainer. Microsoft describes a container ID as the identification string "
+                 "that groups the functional devices of one device installed in the computer, and calls each such "
+                 "device instance the device container (Microsoft, 'Container ID', "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/container-ids.md#L11-L13). "
+                 "Container ID is the subkey's name. The other columns are values of the entry as stored, blank "
+                 "where the entry lacks one: Friendly Name is FriendlyName, Model Name is ModelName, Model Number is "
+                 "ModelNumber, Primary Category is PrimaryCategory, Machine Container (as stored) is "
+                 "IsMachineContainer, Connected (as stored) is IsConnected, Active (as stored) is IsActive, Paired "
+                 "(as stored) is IsPaired, Networked (as stored) is IsNetworked, Discovery Method is "
+                 "DiscoveryMethod, State (as stored) is State, Model ID is ModelId, and Manufacturer, Categories and "
+                 "Icon carry their value's name. Microsoft's published field descriptions are for its "
+                 "InventoryDeviceContainerAdd diagnostic event, and none for the registry values was found; that "
+                 "event's fields carry the names of 14 of the 15 values reported here, all but State (Microsoft, "
+                 "'Required diagnostic events and fields for Windows 10, versions 22H2 and 21H2', as updated 26 June "
+                 "2026, "
+                 "https://learn.microsoft.com/en-us/windows/privacy/required-windows-diagnostic-data-events-and-fields-2004#microsoftwindowsinventorycoreinventorydevicecontaineradd). "
+                 "It describes IsMachineContainer as whether the container is the root device itself, IsConnected as "
+                 "the same as IsPresent for a physically attached device and a communication link for a wireless "
+                 "one, IsActive as whether the device is connected or was seen in the last 14 days, IsPaired as "
+                 "whether the device container requires pairing and IsNetworked as whether it is a networked device. "
+                 "The figures below are from af_case2_win10, lonewolf_win10 and szechuan_win10 (Windows 10 builds "
+                 "17763, 16299 and 19041), whose keys hold 7, 11 and 16 entries, against the Amcache Devices rows of "
+                 "the same run and the SYSTEM hive of the same image. Container ID is a GUID in braces and lower "
+                 "case on all 34 entries. It is the Container ID of Amcache Devices rows: 91 of 92, 125 of 131 and "
+                 "194 of 201 device rows name a container that is a row here, and 6, 5 and 15 of the containers are "
+                 "named by a device row. All 26 containers a device row names hold 1 in Connected (as stored), and 7 "
+                 "of the 8 that none names hold 0. Container ID is not the container ID the SYSTEM hive records: "
+                 "none of the 34 is the name of a key under Control\\DeviceContainers of the current control set, "
+                 "which holds 7, 12 and 20 keys, and on none of the 91, 125 and 193 of those device rows that have a "
+                 "key under Enum did it equal that key's ContainerID value. Across those rows each Container ID went "
+                 "with one ContainerID value and each ContainerID value with one Container ID, 6, 5 and 14 pairs; "
+                 "how the hive derives its identifier was not established. Of the 1, 6 and 7 device rows whose "
+                 "Container ID is not a row here, 0, 5 and 6 have a key under Enum, and on all 11 the Container ID "
+                 "equalled that key's ContainerID value. One entry of each image holds 1 in Machine Container (as "
+                 "stored): its Friendly Name equalled the ComputerName value of the SYSTEM hive without case, its "
+                 "Primary Category is computer, and the 84, 118 and 171 device rows that name it have Enum keys "
+                 "whose ContainerID is {00000000-0000-0000-ffff-ffffffffffff}. State (as stored) is stored as a "
+                 "number and the five values whose names begin with Is as text. On all 34 entries State (as stored) "
+                 "equalled Connected (as stored) plus 8 times Active (as stored) plus 16 times Machine Container (as "
+                 "stored): 25 on the 3 machine containers, 9 on 24 entries and 8 on 7. No description of State was "
+                 "found. Active (as stored) held one value, 1, on all 34 entries, Paired (as stored) and Networked "
+                 "(as stored) each held one value, 0, on all 34, and Connected (as stored) was 1 on 6, 6 and 15. "
+                 "Discovery Method was blank on every entry of the three images. Model Number was blank on every "
+                 "entry of af_case2_win10 and szechuan_win10 and filled on 1 of lonewolf_win10; Manufacturer was "
+                 "blank on every entry of lonewolf_win10 and filled on 1 each of the other two. Friendly Name was "
+                 "filled on 5, 5 and 11 entries, Model Name on 7, 10 and 16 and Model ID, a GUID in braces, on 6, 10 "
+                 "and 15. Primary Category and Icon were filled on all 34, and Categories equalled Primary Category "
+                 "on 7, 10 and 14. Key Last Write (UTC) is the entry's registry last-written time, not a time the "
+                 "device was connected: the entries of each image were written within 3 seconds of each other, the "
+                 "first of them within 1 second of the image's first Amcache Devices entry. pc_mus_001_win11 "
+                 "(Windows 11 build 22621) holds the key with no subkeys. On windows11_arm_known_20261001, a capture "
+                 "made on 1 October 2026 of the hive and the SYSTEM hive of a Windows 11 build 26200 ARM64 virtual "
+                 "machine, the key holds 21 entries, all written within 1 second on 30 July 2026, 63 days before the "
+                 "capture. 80 of its 81 device rows name a container that is a row here and 7 of the 21 containers "
+                 "are named by a device row; the 7 hold 1 in Connected (as stored), and 13 of the other 14 hold 0. "
+                 "None of the 21 is the name of a key under Control\\DeviceContainers, which holds 19, and on none of "
+                 "the 77 device rows with a key under Enum did Container ID equal that key's ContainerID value; the "
+                 "rows gave 5 pairs, each identifier with one of the other kind. One entry holds 1 in Machine "
+                 "Container (as stored), and its Friendly Name equalled the ComputerName value without case. "
+                 "Connected (as stored) was 1 on 8 entries and Active (as stored) 1 on 13; the 8 entries with 0 in "
+                 "Active (as stored) all hold 0 in Connected (as stored). State (as stored) followed the same sum on "
+                 "all 21: 0 on 8, 9 on 7, 8 on 5 and 25 on 1. Paired (as stored) and Networked (as stored) each held "
+                 "one value, 0, on all 21 and Discovery Method was blank on all 21. Each entry there also holds an "
+                 "unnamed default value, 0 on all 21, which is not reported. An entry records that Windows "
+                 "inventoried the container; this artifact does not treat it as proof of when a device was connected "
+                 "or of who connected it. Reading the hive needs the python-registry package. A dirty hive is read "
+                 "after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
+                 "following Maxim Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
+                 "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
+                 "names each hive replayed.",
+        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+        "output_types": ["standard"],
+        "artifact_icon": "box",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the key holds no subkeys)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 7 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 11 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 16 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 21 rows",
+        },
+    },
+    "amcacheDriverPackages": {
+        "name": "Amcache Driver Packages",
+        "description": "Driver packages Windows inventoried, from Amcache.hve InventoryDriverPackage: the package's "
+                       "name, date, version, provider and device class, its directory, INF name, hardware IDs and "
+                       ".sys file names, and the in-box and active values as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-01",
+        "last_update_date": "2026-10-01",
+        "requirements": "python-registry",
+        "category": "Windows",
+        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+                 "Root\\InventoryDriverPackage. Driver Package is the subkey's name. The other columns are values of "
+                 "the entry as stored, blank where the entry lacks one: Date (as stored) is Date, Class GUID is "
+                 "ClassGuid, INF is Inf, Hardware IDs is Hwids, Files is SYSFILE, In Box (as stored) is DriverInBox, "
+                 "Active (as stored) is IsActive, Submission ID is SubmissionId, and Version, Provider, Class and "
+                 "Directory carry their value's name. Microsoft's published field descriptions are for its "
+                 "InventoryDriverPackageAdd diagnostic event, and none for the registry values was found; that "
+                 "event's fields carry the names of 9 of the 12 values reported here, all but Hwids, SYSFILE and "
+                 "IsActive (Microsoft, 'Required diagnostic events and fields for Windows 10, versions 22H2 and "
+                 "21H2', as updated 26 June 2026, "
+                 "https://learn.microsoft.com/en-us/windows/privacy/required-windows-diagnostic-data-events-and-fields-2004#microsoftwindowsinventorycoreinventorydriverpackageadd). "
+                 "It describes Date as the driver package date, Directory as the path to the driver package, "
+                 "DriverInBox as whether the driver is included with the operating system, Inf as the INF name of "
+                 "the driver package and SubmissionId as the HLK submission ID for the driver package. The figures "
+                 "below are from af_case2_win10, lonewolf_win10 and szechuan_win10 (Windows 10 builds 17763, 16299 "
+                 "and 19041), whose keys hold 3, 9 and 4 entries; the folder and the INF file each entry names were "
+                 "looked up on the same image, and the SYSTEM hive of the same image was read. Driver Package has "
+                 "the form of an INF file name, _amd64_ and 16 hexadecimal digits on all 16 entries. Directory is "
+                 "c:\\windows\\system32\\driverstore\\filerepository\\ followed by Driver Package on all 16, and a folder "
+                 "exists at that path on the image for all 16. Files is a list of file names ending .sys, joined "
+                 "with commas: 6, 14 and 7 names, 3 of them on lonewolf_win10 with a subfolder before the name, and "
+                 "a file of each name exists under Directory on the image for all 27. INF is of the form oemN.inf on "
+                 "all 16, and a file of that name exists in Windows\\INF on the image for all 16. Each of those 16 "
+                 "INF files holds one DriverVer directive, which Microsoft documents as "
+                 "DriverVer=mm/dd/yyyy,w.x.y.z, the date of the driver package and a version number (Microsoft, 'INF "
+                 "DriverVer Directive', "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/inf-driverver-directive.md#L24, "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/inf-driverver-directive.md#L29-L30, "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/inf-driverver-directive.md#L34-L35). "
+                 "Date (as stored) is text in the form YYYY-M-D, without leading zeroes, and gave the directive's "
+                 "date on all 16. Version equalled the directive's version as text on 14 and as four numbers on all "
+                 "16; the other 2 INF files write parts with leading zeroes, as in 9.17.04.0002 against a stored "
+                 "9.17.4.2. Class and Class GUID, stored in lower case, equalled the Class and ClassGuid entries of "
+                 "the INF without case on all 16, and Provider equalled the INF's Provider entry, with its token "
+                 "filled in from the INF's Strings section, on all 16 (Microsoft, 'INF Version Section', "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/inf-version-section.md#L61-L62, "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/inf-version-section.md#L73-L74, "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/inf-version-section.md#L94-L95). "
+                 "The SYSTEM hive's DriverDatabase\\DriverPackages key holds a subkey named as Driver Package for 2, "
+                 "5 and 3 of the entries. On those 10 the subkey's default value equalled INF, its Provider value "
+                 "equalled Provider, and its 48-byte Version value, read as a class GUID at byte 8, a FILETIME at "
+                 "byte 24 and four 16-bit numbers at byte 32, gave Class GUID, the day in Date (as stored) and "
+                 "Version. No description of that Version value or of the subkey's ImportDate value was found; the "
+                 "reading is this comparison's. Key Last Write (UTC) is the entry's registry last-written time. It "
+                 "is not the time the package's INF file was written to Windows\\INF: on all 16 entries it is 1.1 to "
+                 "22.5 hours later than that file's last-modified time, which on the 10 with a DriverPackages subkey "
+                 "is within 1 second of the subkey's ImportDate value read as a FILETIME. The entries of each image "
+                 "were written within 13 seconds of each other; those of af_case2_win10 and lonewolf_win10 1.8 and "
+                 "9.0 days before the image's first Amcache Drivers entry, and those of szechuan_win10 9 seconds "
+                 "after it. In Box (as stored) held one value, 0, on all 16 entries. Active (as stored) was blank on "
+                 "every entry of af_case2_win10 and lonewolf_win10, whose entries hold no IsActive value, and held "
+                 "one value, 1, on all 4 of szechuan_win10. Submission ID was blank on 2 entries of lonewolf_win10 "
+                 "and filled on the other 14. Provider held one value on every entry of af_case2_win10 and one on "
+                 "every entry of szechuan_win10. Driver Package is the Driver Package of an Amcache Drivers row for "
+                 "3, 9 and 3 of the entries, and every such row carries the entry's INF. INF is the INF of Amcache "
+                 "Devices rows for 3, 9 and 4 of the entries: 4, 13 and 5 device rows, of which 4, 11 and 5 carry a "
+                 "hardware ID that is in the entry's Hardware IDs. The key does not hold an entry for every "
+                 "DriverPackages subkey of that kind: DriverDatabase\\DriverPackages holds 5, 6 and 5 subkeys whose "
+                 "default value is of the form oemN.inf, of which 2, 5 and 3 are rows here, and 1, 4 and 1 rows have "
+                 "no subkey there. pc_mus_001_win11 (Windows 11 build 22621) holds the key with no subkeys. On "
+                 "windows11_arm_known_20261001, a capture made on 1 October 2026 of the hive and the SYSTEM hive of "
+                 "a Windows 11 build 26200 ARM64 virtual machine, the key holds 31 entries; the folders and INF "
+                 "files were not captured, so no value was compared with a file there. Driver Package has the same "
+                 "form with _arm64_ on all 31, Directory is the same path followed by Driver Package on all 31, INF "
+                 "is of the form oemN.inf on all 31, In Box (as stored) held one value, 0, and Active (as stored) "
+                 "one value, 1, on all 31, and Submission ID was filled on all 31. DriverDatabase\\DriverPackages "
+                 "holds a subkey for 26 of the 31, and on all 26 its default value, Provider and Version gave INF, "
+                 "Provider, Class GUID, Date (as stored) and Version. Key Last Write (UTC) is 0.1 to 1,420.6 hours "
+                 "later than the ImportDate value on those 26, within a day on 8. The 31 entries were written on 9 "
+                 "dates from 9 August 2025 to 29 July 2026, 2 to 4 on each, where the capture's Amcache Drivers "
+                 "entries were all written on 30 July 2026. 5 of the 31 are the Driver Package of an Amcache Drivers "
+                 "row. DriverDatabase\\DriverPackages holds 67 subkeys whose default value is of the form oemN.inf, "
+                 "of which 26 are rows here. Each entry there also holds FlightIds and RecoveryIds values, which are "
+                 "not reported. An entry records that Windows inventoried the driver package; this artifact does not "
+                 "treat it as proof that a driver of the package was loaded or that a device it names was connected. "
+                 "Reading the hive needs the python-registry package. A dirty hive is read after the entries in its "
+                 ".LOG1 and .LOG2 transaction logs that continue its sequence are applied, following Maxim Suhanov's "
+                 "'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
+                 "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
+                 "names each hive replayed.",
+        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+        "output_types": ["standard"],
+        "artifact_icon": "package",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the key holds no subkeys)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 3 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 4 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 31 rows",
+        },
+    },
 }
 
 
@@ -602,6 +805,24 @@ def device_row(entry):
             _stored(entry, 'Inf'))
 
 
+def container_row(entry):
+    return (_written(entry), entry.name(), _stored(entry, 'FriendlyName'), _stored(entry, 'ModelName'),
+            _stored(entry, 'ModelNumber'), _stored(entry, 'Manufacturer'),
+            _stored(entry, 'PrimaryCategory'), _stored(entry, 'Categories'),
+            _stored(entry, 'IsMachineContainer'), _stored(entry, 'IsConnected'),
+            _stored(entry, 'IsActive'), _stored(entry, 'IsPaired'), _stored(entry, 'IsNetworked'),
+            _stored(entry, 'DiscoveryMethod'), _stored(entry, 'State'), _stored(entry, 'ModelId'),
+            _stored(entry, 'Icon'))
+
+
+def package_row(entry):
+    return (_written(entry), _stored(entry, 'Date'), entry.name(), _stored(entry, 'Version'),
+            _stored(entry, 'Provider'), _stored(entry, 'Class'), _stored(entry, 'ClassGuid'),
+            _stored(entry, 'Directory'), _stored(entry, 'Inf'), _stored(entry, 'Hwids'),
+            _stored(entry, 'SYSFILE'), _stored(entry, 'DriverInBox'), _stored(entry, 'IsActive'),
+            _stored(entry, 'SubmissionId'))
+
+
 def _inventory_rows(context, key_path, row_of):
     """One row per subkey of key_path in each Amcache.hve found, and the hives read."""
     data_list = []
@@ -675,4 +896,30 @@ def amcacheDevices(context):
         logfunc('Amcache: the python-registry package is not installed')
         return data_headers, [], ''
     data_list, sources = _inventory_rows(context, _DEVICE_PATH, device_row)
+    return data_headers, data_list, sources
+
+
+@artifact_processor
+def amcacheDeviceContainers(context):
+    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Container ID', 'Friendly Name', 'Model Name',
+                    'Model Number', 'Manufacturer', 'Primary Category', 'Categories',
+                    'Machine Container (as stored)', 'Connected (as stored)', 'Active (as stored)',
+                    'Paired (as stored)', 'Networked (as stored)', 'Discovery Method',
+                    'State (as stored)', 'Model ID', 'Icon')
+    if Registry is None:
+        logfunc('Amcache: the python-registry package is not installed')
+        return data_headers, [], ''
+    data_list, sources = _inventory_rows(context, _CONTAINER_PATH, container_row)
+    return data_headers, data_list, sources
+
+
+@artifact_processor
+def amcacheDriverPackages(context):
+    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Date (as stored)', 'Driver Package', 'Version',
+                    'Provider', 'Class', 'Class GUID', 'Directory', 'INF', 'Hardware IDs', 'Files',
+                    'In Box (as stored)', 'Active (as stored)', 'Submission ID')
+    if Registry is None:
+        logfunc('Amcache: the python-registry package is not installed')
+        return data_headers, [], ''
+    data_list, sources = _inventory_rows(context, _PACKAGE_PATH, package_row)
     return data_headers, data_list, sources
