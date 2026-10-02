@@ -110,7 +110,7 @@ _MANAGEMENT_EVENTS = {
             'Authority is invalid.'),
     '837': ('BitLocker cannot use Secure Boot for integrity because the expected TCG Log entry for the OS Loader '
             'Authority is invalid.'),
-    '838': ('BitLocker cannot use Secure Boot for integrity because the signature of the boot loader could not be '
+    '838': ('BitLocker cannot use Secure Boot for integrity because the signature of the boot manager could not be '
             'validated as a Windows signature chained to a trusted Microsoft root certificate.'),
     '839': ('BitLocker cannot use Secure Boot for integrity because the TCG Log entry for the OS Loader Authority '
             'is invalid.'),
@@ -150,6 +150,24 @@ _MANAGEMENT_EVENTS = {
     '874': 'Server reported a failure while attempting to delete recovery password(s) from AAD.',
     '875': 'Server reported a failure while attempting to retrieve recovery password information from AAD.',
     '876': 'Failed to delete BitLocker Drive Encryption recovery information from Azure AD.',
+    '878': 'BitLocker failed to validate secure boot state.',
+    '879': ('BitLocker failed to add a recovery password because the maximum number of recovery passwords has been '
+            'reached.'),
+    '880': ('BitLocker is unable to predict PCR7 value and will attempt to seal to current TPM PCR7 value as '
+            'required by policy Policy PCR profile: %1.'),
+    '881': ('The signature contained in the EFI_SIGNATURE_DATA structure from the TCG Log OS Loader Authority event '
+            'could not be found in the verified certificate chain for the boot manager.'),
+    '882': ('BitLocker cannot use Secure Boot for integrity because hash of the boot manager for the TCG Log OS '
+            'Loader Authority event could not be predicted.'),
+    '883': ('BitLocker cannot use Secure Boot for integrity because the expected TCG Log entry for the OS Loader '
+            'Authority is invalid.'),
+    '884': ('BitLocker cannot use Secure Boot for integrity because the signature in a TCG Log Authority event was '
+            "not found in the Secure Boot 'db' signature database."),
+    '885': ('BitLocker cannot use Secure Boot for integrity because the signature predicted for the boot manager '
+            "was not found in the Secure Boot 'db' signature database."),
+    '886': 'BitLocker removed an orphaned TPM digest datum with identifier %2.',
+    '889': ('BitLocker is attempting to seal to a PCR which is known to have events extended into the TPM after the '
+            'BitLocker TPM cap event.'),
     '4096': 'Device Encryption could not be initialized.',
     '4099': 'Device Encryption failed to process user logon event.',
     '4102': 'BitLocker failed to recover after Device Lock.',
@@ -171,6 +189,8 @@ _MANAGEMENT_EVENTS = {
     '4143': 'Failed to evaluate PCR4 predicted value from TPM info.',
     '4144': 'Predicted PCR7 value for TPM info based protector.',
     '4145': 'Failed to evaluate PCR7 predicted value from TPM info.',
+    '4146': 'Device Encryption initialized automatically for volume %3.',
+    '4147': 'Device Encryption initialized by user for volume %3.',
 }
 
 _DRIVER_EVENTS = {
@@ -315,7 +335,20 @@ _DRIVER_EVENTS = {
     '24702': 'Read-only BitLocker Drive Encryption policy has been applied to volume %2.',
     '24703': ('Failed to determine whether volume %2 should be excluded from enforcement by BitLocker Drive '
               'Encryption policy.'),
+    '24704': ('BitLocker Drive Encryption metadata was found to use unencrypted integrity validation hash on volume '
+              '%1.'),
+    '24705': 'TPM protector %2 binding %3 final PCR values did not match those observed in the TPM',
+    '24706': 'TPM protector %2 binding %3 final PCR values did not match those observed in the TPM',
+    '24707': 'TPM protector %2 binding %3 final PCR values did not match those observed in the TPM',
+    '24708': 'TPM protector %2 binding %3 final PCR values did not match those observed in the TPM',
+    '24709': 'This event contains the boot-time final TPM PCR values and TCG log data.',
+    '24710': 'There was a problem communicating with the TPM at boot.',
+    '24711': 'A V2 TPM protector was used to start Windows.',
+    '24712': 'The TPM was not available at boot.',
+    '24713': 'The Inline Crypto Engine hardware did not produce the expected cryptographic output.',
+    '24720': 'A TPM protector binding failed to unlock the volume despite matching the expected TPM unlock state.',
 }
+
 
 __artifacts_v2__ = {
     "bitLockerManagementEvents": {
@@ -333,40 +366,43 @@ __artifacts_v2__ = {
                  "python-evtx and reports, one row per record, every record whose provider is "
                  "Microsoft-Windows-BitLocker-API, whatever its Event ID. The provider's manifest gives that log's "
                  "channel the path Microsoft-Windows-BitLocker/BitLocker Management "
-                 "(https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L19-L25) "
-                 "and sends 122 events to it, among them 'BitLocker encryption was started for volume %3 using %4 "
+                 "(https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L19-L25) "
+                 "and sends 134 events to it, among them 'BitLocker encryption was started for volume %3 using %4 "
                  "algorithm.' (768, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L370-L385), "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L383-L398), "
                  "'A BitLocker key protector was created. Protector GUID: %4 Identification GUID: %1' (775, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L478-L496), "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L491-L509), "
                  "'The identification field was changed. Identification GUID: %1' (780, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L564-L579), "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L577-L592), "
                  "'The BitLocker protected volume %3 was unlocked. Protector GUID: %4 Identification GUID: %1' (782, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L596-L614), "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L609-L627), "
                  "'BitLocker Drive Encryption is using software-based encryption to protect volume %3.' (796, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L811-L825), "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L824-L838), "
                  "'BitLocker cannot use Secure Boot for integrity because it is disabled.' (810, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L1038-L1047) "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L1051-L1060) "
                  "and 'The following DMA (Direct Memory Access) capable devices are not declared as protected from "
                  "external access, which can block security features such as BitLocker automatic device encryption: "
                  "%1' (4122, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L2390-L2405). "
-                 "These are entries of the provider's manifest as registered on Windows 11 build 22621.819, "
-                 "published in nasbench's EVTX-ETW-Resources repository. Event is, for each of those 122 Event IDs, "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-API.xml#L2563-L2578). "
+                 "These are entries of the provider's manifest as registered on Windows 11 build 26100.1742, "
+                 "published in nasbench's EVTX-ETW-Resources repository. Event is, for each of those 134 Event IDs, "
                  "the message's first sentence: the message with each run of white space made one space, cut after "
                  "the first period that a space or the end of the message follows, with its placeholders (such as %2 "
                  "or %3) as the manifest writes them. A placeholder is an insertion string for a data item of the "
                  "event's template by its position (Microsoft's Defining Events page: 'to include the third data "
                  "item in the template, include %3', "
                  "https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/WES/defining-events.md?plain=1#L19) "
-                 "and is not filled in. Event is blank for an Event ID outside the 122, which no tested record had. "
+                 "and is not filled in. Event is blank for an Event ID outside the 134, which no tested record had. "
                  "The manifests that repository publishes for Windows 10 builds 16299.15, 17763.107 and 19041.208 "
-                 "send 90, 94 and 102 of the 122 events to the channel with the same first sentence, but for 768, "
-                 "769 and 772 on build 16299.15, whose messages do not name an algorithm "
+                 "and Windows 11 build 22621.819 send 90, 94, 102 and 122 of the 134 events to the channel with the "
+                 "same first sentence, but for 768, 769 and 772 on build 16299.15, whose messages do not name an "
+                 "algorithm, and 838 on all four, whose message says boot loader where that of build 26100.1742 says "
+                 "boot manager "
                  "(https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1709/W10_1709_Pro_20171114_16299.15/WEPExplorer/Microsoft-Windows-BitLocker-API.xml, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1809/W10_1809_Pro_20181113_17763.107/WEPExplorer/Microsoft-Windows-BitLocker-API.xml "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1809/W10_1809_Pro_20181113_17763.107/WEPExplorer/Microsoft-Windows-BitLocker-API.xml, "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/2004/W10_2004_Pro_20200416_19041.208/WEPExplorer/Microsoft-Windows-BitLocker-API.xml "
                  "and "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/2004/W10_2004_Pro_20200416_19041.208/WEPExplorer/Microsoft-Windows-BitLocker-API.xml). "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-API.xml). "
                  "Volume Mount Point, Volume Name, Identification GUID, Protector GUID, Protector Type (as stored), "
                  "Algorithm Type (as stored) and Error Code (as stored) are the fields VolumeMountPoint, VolumeName, "
                  "IdentificationGUID, ProtectorGUID, ProtectorType, AlgorithmType and ErrorCode, read by name. Each "
@@ -374,7 +410,7 @@ __artifacts_v2__ = {
                  "field the record does not carry is blank. Other Fields lists every other named field that holds "
                  "more than white space as 'name: value', in the record's order, joined with ' | '; a data item that "
                  "has no name is not shown, and no tested record had one. If a record named a field twice the last "
-                 "would be read; no entry of the build 22621 manifest names a field twice. python-evtx renders a "
+                 "would be read; no entry of the build 26100 manifest names a field twice. python-evtx renders a "
                  "GUID in braces "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L1375-L1376), "
                  "a field the manifest types win:HexInt32, as it does ProtectorType, as 0x and eight hexadecimal "
@@ -408,7 +444,7 @@ __artifacts_v2__ = {
                  "gave 6, 25 and 2 rows in that order; lonewolf_win10 (build 16299) holds no such log. The rows are "
                  "1 each of 768, 780, 782 and 796 and 2 of 775 (af_case2_win10), 25 of 810 (pc_mus_001_win11) and 2 "
                  "of 4122 (szechuan_win10), each record version 0, and each tested record's field names were the "
-                 "names the manifest lists for its event, in the manifest's order. The other 115 events are "
+                 "names the manifest lists for its event, in the manifest's order. The other 127 events are "
                  "unexercised: they are read by the field names the manifest lists, which no tested record confirms "
                  "for them. On af_case2_win10 the 6 rows are for one volume, Volume Mount Point E:, in this order: "
                  "796, then 775 twice, 108.9 and 111.0 seconds later (Protector Type (as stored) 0x00000008, then "
@@ -433,7 +469,7 @@ __artifacts_v2__ = {
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
                  "reported. A log marked dirty is read past the chunks its header counts, and the run log says how "
                  "many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not "
-                 "read: the provider's events in other logs. Its manifest sends 21 events to the System channel, 8 "
+                 "read: the provider's events in other logs. Its manifest sends 24 events to the System channel, 8 "
                  "to Microsoft-Windows-BitLocker/BitLocker Operational and 27 to "
                  "Microsoft-Windows-BitLocker/Tracing; no System log of the four images, or of two captures of a "
                  "Windows 11 build 26200 machine, held a record of the provider. What makes the provider write an "
@@ -460,40 +496,43 @@ __artifacts_v2__ = {
         "category": "Windows",
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, every "
                  "record whose provider is Microsoft-Windows-BitLocker-Driver, whatever its Event ID. The provider's "
-                 "manifest sends all 127 of its events, 24577 to 24703, to the System channel "
-                 "(https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L12-L18), "
+                 "manifest sends all 138 of its events, 24577 to 24713 and 24720, to the System channel "
+                 "(https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L12-L18), "
                  "among them 'Decryption of volume %2 started.' (24580, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L90-L104), "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L90-L104), "
                  "'BitLocker encryption on write started for volume %2.' (24660, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L1400-L1414) "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L1400-L1414) "
                  "and 'BitLocker finalization sweep started for volume %2.' (24664), 'BitLocker finalization sweep "
                  "paused for volume %2.' (24665), 'BitLocker finalization sweep resumed for volume %2.' (24666) and "
                  "'BitLocker finalization sweep completed for volume %2.' (24667, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L1460-L1519). "
-                 "These are entries of the provider's manifest as registered on Windows 11 build 22621.819, "
-                 "published in nasbench's EVTX-ETW-Resources repository. Event is, for each of those 127 Event IDs, "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/24H2/W11_24H2_Pro_2024102_26100.1742/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml#L1460-L1519). "
+                 "These are entries of the provider's manifest as registered on Windows 11 build 26100.1742, "
+                 "published in nasbench's EVTX-ETW-Resources repository. Event is, for each of those 138 Event IDs, "
                  "the message's first sentence: the message with each run of white space made one space, cut after "
                  "the first period that a space or the end of the message follows, with its placeholders (such as %2 "
                  "or %3) as the manifest writes them. A placeholder is an insertion string for a data item of the "
                  "event's template by its position (Microsoft's Defining Events page: 'to include the third data "
                  "item in the template, include %3', "
                  "https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/WES/defining-events.md?plain=1#L19) "
-                 "and is not filled in. Event is blank for an Event ID outside the 127, which no tested record had. "
+                 "and is not filled in. Event is blank for an Event ID outside the 138, which no tested record had. "
                  "The manifests that repository publishes for Windows 10 builds 16299.15, 17763.107 and 19041.208 "
-                 "hold 109, 109 and 110 of the 127 events, each with the same first sentence "
+                 "and Windows 11 build 22621.819 hold 109, 109, 110 and 127 of the 138 events, each with the same "
+                 "first sentence "
                  "(https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1709/W10_1709_Pro_20171114_16299.15/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml, "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1809/W10_1809_Pro_20181113_17763.107/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1809/W10_1809_Pro_20181113_17763.107/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml, "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/2004/W10_2004_Pro_20200416_19041.208/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml "
                  "and "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/2004/W10_2004_Pro_20200416_19041.208/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml). "
-                 "Volume, Error Code (as stored), Write Phase (as stored), Volume GUID, Optional GUID and Flags (as "
-                 "stored) are the fields Volume, ErrorCode, WritePhase, VolumeGUID, OptionalGUID and Flags, read by "
-                 "name. Each value is as python-evtx renders it with any white space at either end removed, and a "
-                 "column whose field the record does not carry is blank. Other Fields lists every other named field "
-                 "that holds more than white space as 'name: value', in the record's order, joined with ' | '; a "
-                 "data item that has no name is not shown, and no tested record had one. If a record named a field "
-                 "twice the last would be read; no entry of the build 22621 manifest names a field twice. The "
-                 "manifest types ErrorCode, WritePhase and Flags win:HexInt32, which python-evtx renders as 0x and "
-                 "eight hexadecimal digits "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-BitLocker-Driver.xml). "
+                 "No manifest of build 26200, the captures' build, was read; the captures' records carried Event IDs "
+                 "and field names of the build 26100.1742 manifest. Volume, Error Code (as stored), Write Phase (as "
+                 "stored), Volume GUID, Optional GUID and Flags (as stored) are the fields Volume, ErrorCode, "
+                 "WritePhase, VolumeGUID, OptionalGUID and Flags, read by name. Each value is as python-evtx renders "
+                 "it with any white space at either end removed, and a column whose field the record does not carry "
+                 "is blank. Other Fields lists every other named field that holds more than white space as 'name: "
+                 "value', in the record's order, joined with ' | '; a data item that has no name is not shown, and "
+                 "no tested record had one. If a record named a field twice the last would be read; no entry of the "
+                 "build 26100 manifest names a field twice. The manifest types ErrorCode, WritePhase and Flags "
+                 "win:HexInt32, which python-evtx renders as 0x and eight hexadecimal digits "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L1481-L1486), "
                  "and VolumeGUID and OptionalGUID win:GUID, rendered in braces "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L1375-L1376). "
@@ -510,7 +549,7 @@ __artifacts_v2__ = {
                  "the second. The 10 rows of af_case2_win10 are 1 of 24660, 2 of 24664, 4 of 24665, 2 of 24666 and 1 "
                  "of 24667; the 130 of each capture are 13 of 24660, 26 of 24664, 53 of 24665, 27 of 24666, 10 of "
                  "24667 and 1 of 24580. Each record is version 0 and carries the three fields the manifest lists for "
-                 "its event, ErrorCode, Volume and WritePhase. The other 121 events are unexercised, every event "
+                 "its event, ErrorCode, Volume and WritePhase. The other 132 events are unexercised, every event "
                  "that carries VolumeGUID, OptionalGUID, Flags or a field without a column among them: Volume GUID, "
                  "Optional GUID, Flags (as stored) and Other Fields are blank on every tested row. Error Code (as "
                  "stored) held one value, 0x00000000, on every tested row, and so did Write Phase (as stored). "

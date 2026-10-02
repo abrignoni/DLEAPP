@@ -100,10 +100,13 @@ class ManagementRowTest(unittest.TestCase):
         self.assertNotIn('loose', ' '.join(str(cell) for cell in row))
 
     def test_the_table_holds_the_management_events_and_none_of_the_driver_events(self):
-        self.assertEqual(len(bitlocker._MANAGEMENT_EVENTS), 122)  # pylint: disable=protected-access
+        self.assertEqual(len(bitlocker._MANAGEMENT_EVENTS), 134)  # pylint: disable=protected-access
         self.assertEqual(bitlocker._MANAGEMENT_EVENTS['796'],  # pylint: disable=protected-access
                          'BitLocker Drive Encryption is using software-based encryption to protect volume %3.')
         self.assertNotIn('24660', bitlocker._MANAGEMENT_EVENTS)  # pylint: disable=protected-access
+        self.assertIn('of the boot manager could not be validated', bitlocker._MANAGEMENT_EVENTS['838'])  # pylint: disable=protected-access
+        self.assertEqual(bitlocker._MANAGEMENT_EVENTS['4147'],  # pylint: disable=protected-access
+                         'Device Encryption initialized by user for volume %3.')
 
 
 class DriverRowTest(unittest.TestCase):
@@ -137,9 +140,10 @@ class DriverRowTest(unittest.TestCase):
         self.assertNotIn(SID, row)
 
     def test_the_table_holds_the_driver_events_and_none_of_the_management_events(self):
-        self.assertEqual(len(bitlocker._DRIVER_EVENTS), 127)  # pylint: disable=protected-access
+        self.assertEqual(len(bitlocker._DRIVER_EVENTS), 138)  # pylint: disable=protected-access
         self.assertEqual(bitlocker._DRIVER_EVENTS['24580'], 'Decryption of volume %2 started.')  # pylint: disable=protected-access
         self.assertNotIn('768', bitlocker._DRIVER_EVENTS)  # pylint: disable=protected-access
+        self.assertEqual(bitlocker._DRIVER_EVENTS['24712'], 'The TPM was not available at boot.')  # pylint: disable=protected-access
 
 
 class ArtifactTest(unittest.TestCase):
