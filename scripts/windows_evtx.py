@@ -30,7 +30,8 @@ is read exactly as python-evtx reads it.
 `utc_from_system_time(value)` parses TimeCreated SystemTime. python-evtx 0.8.x
 renders it as '2018-03-27 09:35:33.595600+00:00' and 0.7.x as
 '2018-03-27 09:35:33.595600'; both come from the record's FILETIME converted in
-UTC (python-evtx Evtx/BinaryParser.py, parse_filetime). Those two forms and
+UTC (python-evtx Evtx/BinaryParser.py, parse_filetime, which this module
+replaces with an exact conversion, below). Those two forms and
 '2018-03-27T09:35:33.5956Z' are accepted, and a value with no offset is taken
 as UTC for that reason. python-evtx renders a zero FILETIME
 as 0001-01-01 00:00:00; that is returned as '' rather than as a date.
@@ -66,19 +67,32 @@ publisher is not compatible with the event template definition in the
 publisher's manifest'
 (https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/Debug/system-error-codes--12000-15999-.md?plain=1#L3526-L3536).
 EventRecord also keeps the RelatedActivityID of the record's Correlation element.
+
+python-evtx 0.8.1 turns a FILETIME (the record's TimeCreated and any FILETIME
+value) into a datetime through a floating-point number, float(qword) * 1e-7
+(parse_filetime,
+https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113).
+A FILETIME of this century is larger than 2^53, the largest integer a float
+holds exactly, so the result can differ from the stored count by a microsecond
+or two. This module replaces that function with integer arithmetic: the count
+of 100-nanosecond intervals since 1601-01-01 UTC, cut to whole microseconds.
+Zero, and a count outside the dates Python can hold, still give
+python-evtx's 0001-01-01.
 """
 
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from xml.etree import ElementTree
 
 try:
+    import Evtx.BinaryParser as evtx_binary
     import Evtx.Evtx as evtx
     import Evtx.Nodes as evtx_nodes
 except ImportError:
     evtx = None
     evtx_nodes = None
+    evtx_binary = None
 
 from scripts.ilapfuncs import logfunc
 
@@ -151,6 +165,32 @@ def _install_array_values():
 
 
 _install_array_values()
+
+_FILETIME_EPOCH = datetime(1601, 1, 1, tzinfo=timezone.utc)
+
+
+def _install_exact_filetime():
+    """Replace python-evtx's float FILETIME conversion with an exact one, keeping its form of result."""
+    if evtx_binary is None or getattr(evtx_binary.parse_filetime, 'dleapp_exact', False):
+        return
+    original = evtx_binary.parse_filetime
+    aware = original(116444736000000000).tzinfo is not None  # 1970-01-01: 0.8.x is aware, 0.7.x naive
+
+    def parse_filetime(qword):
+        if qword == 0:
+            return datetime.min
+        try:
+            when = _FILETIME_EPOCH + timedelta(microseconds=qword // 10)
+        except (OverflowError, ValueError):
+            return datetime.min
+        return when if aware else when.replace(tzinfo=None)
+
+    parse_filetime.dleapp_exact = True
+    parse_filetime.original = original
+    evtx_binary.parse_filetime = parse_filetime
+
+
+_install_exact_filetime()
 
 _SYSTEM_TIME = re.compile(
     r'^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.(\d+))?\s*(Z|[+-]\d{2}:\d{2})?$',
