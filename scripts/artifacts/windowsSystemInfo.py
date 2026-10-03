@@ -102,11 +102,14 @@ __artifacts_v2__ = {
                  "and one address on the DHCP "
                  "interface, each read from its own registry value. af_case2_win10's DHCP interface "
                  "has no DhcpDefaultGateway value, so Default Gateway is empty there."
-                 " Lease Obtained (UTC) and Lease Terminates (UTC) are blank on a row whose interface "
-                 "has no DHCP address (no non-empty DhcpIPAddress value), even when its key holds "
-                 "LeaseObtainedTime and LeaseTerminatesTime values: on szechuan_win10 both are blank on "
-                 "every row (one row), whose interface key has no DhcpIPAddress value and holds both of "
-                 "those values."
+                 " Lease Obtained (UTC) and Lease Terminates (UTC) are read from the interface key whether "
+                 "or not the interface has a DHCP address, and are blank when the key holds no "
+                 "LeaseObtainedTime or LeaseTerminatesTime value: on pc_mus_001_win11 both are blank on "
+                 "the row whose interface has a static address, whose key holds neither value."
+                 " On szechuan_win10 the one row's interface has no DhcpIPAddress value and DHCP Enabled "
+                 "reads No, and its key holds LeaseObtainedTime and LeaseTerminatesTime, so both columns "
+                 "are filled there; what those values mark on an interface without a DHCP address is not "
+                 "established."
                  " A dirty hive, one whose base block's two sequence numbers differ, is read after the "
                  "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
                  "following Maxim Suhanov's 'Windows registry file format specification' "
@@ -276,8 +279,8 @@ def windowsNetworkInterfaces(context):
                     continue
                 dhcp = value_of(iface, 'EnableDHCP')
                 data_list.append((
-                    unix_utc(value_of(iface, 'LeaseObtainedTime')) if dhcp_ip else '',
-                    unix_utc(value_of(iface, 'LeaseTerminatesTime')) if dhcp_ip else '',
+                    unix_utc(value_of(iface, 'LeaseObtainedTime')),
+                    unix_utc(value_of(iface, 'LeaseTerminatesTime')),
                     _adapter_name(reg, cs, iface.name()),
                     {1: 'Yes', 0: 'No'}.get(dhcp, _text(dhcp) or ''),
                     (_text(dhcp_ip) if dhcp_ip else _text(static_ip)) or '',
