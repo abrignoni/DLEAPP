@@ -10,8 +10,8 @@ the ShellBags parser for the LinkTargetIDList.
 `parse_lnk(data)` returns a dict of the fields an examiner acts on: the target's
 recorded created/modified/accessed times, the local path (or network path, or a
 shell path rebuilt from the target id list), target size, the volume the target
-lived on (drive type, serial, label), command-line arguments, and the machine id
-the shell link recorded when it was written. It is also used by the Jump Lists
+lived on (drive type, serial, label), command-line arguments, and the tracker block's machine
+name and droid identifiers. It is also used by the Jump Lists
 parser, whose destination streams are themselves shell links.
 
 `parse_destlist(data)` parses an automatic jump list's DestList stream (libyal
@@ -21,6 +21,7 @@ link stream), the recorded FILETIME, the pin status and the host name.
 """
 
 import struct
+import uuid
 from datetime import datetime, timedelta, timezone
 
 # LinkCLSID 00021401-0000-0000-C000-000000000046, little-endian on disk.
@@ -48,7 +49,7 @@ def _filetime(value):
     if not value:
         return ""
     try:
-        return datetime(1601, 1, 1, tzinfo=timezone.utc) + timedelta(microseconds=value / 10)
+        return datetime(1601, 1, 1, tzinfo=timezone.utc) + timedelta(microseconds=value // 10)
     except (OverflowError, ValueError, OSError):
         return ""
 
@@ -157,7 +158,8 @@ def parse_lnk(data):
     out["target_size"] = struct.unpack_from("<I", data, 52)[0]
     for key in ("local_path", "network_path", "shell_path", "drive_type",
                 "drive_serial", "volume_label", "arguments", "name",
-                "relative_path", "working_dir", "machine_id"):
+                "relative_path", "working_dir", "machine_id",
+                "droid_volume", "droid_file", "birth_droid_volume", "birth_droid_file"):
         out[key] = ""
 
     pos = 76
@@ -221,9 +223,35 @@ def parse_lnk(data):
         signature = struct.unpack_from("<I", data, pos + 4)[0]
         if signature == 0xA0000003 and block_size >= 0x60:   # TrackerDataBlock
             out["machine_id"] = data[pos + 16:pos + 32].split(b"\x00")[0].decode("latin-1", "replace")
+            for index, key in enumerate(("droid_volume", "droid_file", "birth_droid_volume", "birth_droid_file")):
+                out[key] = _guid(data[pos + 32 + index * 16:pos + 48 + index * 16])
         pos += block_size
 
     return out
+
+
+def uuid_v1_parts(text):
+    """(time, node) of a version 1 UUID (RFC 9562 section 5.1) given as text, else ('', '').
+
+    The time is the UUID's 60-bit count of 100-nanosecond intervals since 1582-10-15 UTC, cut to whole
+    microseconds; the node is its 48-bit node field written as six colon-separated hexadecimal bytes.
+    """
+    try:
+        value = uuid.UUID(text)
+    except (ValueError, TypeError):
+        return '', ''
+    if value.version != 1:      # None unless the variant is RFC 4122's
+        return '', ''
+    when = datetime(1582, 10, 15, tzinfo=timezone.utc) + timedelta(microseconds=value.time // 10)
+    node = value.node.to_bytes(6, 'big').hex(':')
+    return when, node
+
+
+def tracker_columns(parsed):
+    """The tracker block's identifiers for a row, as the artifacts' Droid and Birth Droid columns order them, with the droid file ID's time and node."""
+    when, node = uuid_v1_parts(parsed.get('droid_file', ''))
+    return (parsed.get('droid_volume', ''), parsed.get('droid_file', ''), when, node,
+            parsed.get('birth_droid_volume', ''), parsed.get('birth_droid_file', ''))
 
 
 def target_path(parsed):
