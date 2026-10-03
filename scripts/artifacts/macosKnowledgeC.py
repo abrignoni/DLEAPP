@@ -2,6 +2,7 @@ import sqlite3
 
 from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly,
                                convert_cocoa_core_data_ts_to_utc, logfunc)
+from scripts.macos_plists import unique_sources
 
 # macOS keeps knowledgeC.db in two places, and they carry different streams:
 # the per-user store at ~/Library/Application Support/Knowledge/knowledgeC.db
@@ -33,7 +34,8 @@ __artifacts_v2__ = {
         "notes": "The bundle identifier is in ZVALUESTRING. Times are Mac "
                  "Absolute Time (Core Data) in UTC; the -wal sidecar is read "
                  "alongside the database. Reference: Sarah Edwards, 'Knowledge "
-                 "is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "eye",
@@ -54,7 +56,8 @@ __artifacts_v2__ = {
         "notes": "The bundle identifier is in ZVALUESTRING. Times are Mac "
                  "Absolute Time (Core Data) in UTC; the -wal sidecar is read "
                  "alongside the database. Reference: Sarah Edwards, 'Knowledge "
-                 "is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "activity",
@@ -78,7 +81,8 @@ __artifacts_v2__ = {
                  "only one browser recorded web usage. Times are Mac Absolute "
                  "Time (Core Data) in UTC; the -wal sidecar is read alongside "
                  "the database. Reference: Sarah Edwards, 'Knowledge is Power', "
-                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "globe",
@@ -101,7 +105,8 @@ __artifacts_v2__ = {
                  "structured metadata. Visit Time is Mac Absolute Time (Core "
                  "Data) in UTC; the -wal sidecar is read alongside the "
                  "database. Reference: Sarah Edwards, 'Knowledge is Power', "
-                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "compass",
@@ -128,7 +133,8 @@ __artifacts_v2__ = {
                  "are not documented here. Times are Mac Absolute Time (Core "
                  "Data) in UTC; the -wal sidecar is read alongside the "
                  "database. Reference: Sarah Edwards, 'Knowledge is Power', "
-                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "zap",
@@ -152,7 +158,8 @@ __artifacts_v2__ = {
                  "where absent). Event Time is Mac Absolute Time (Core Data) in "
                  "UTC; the -wal sidecar is read alongside the database. "
                  "Reference: Sarah Edwards, 'Knowledge is Power', "
-                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "bell",
@@ -181,7 +188,8 @@ __artifacts_v2__ = {
                  "synthetic data; local private validation details are not "
                  "published. Sarah Edwards' APOLLO also reads this stream, in its "
                  "knowledge_app_media_usage module: "
-                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_app_media_usage.txt#L59-L101",
+                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_app_media_usage.txt#L59-L101"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "player-play",
@@ -204,7 +212,8 @@ __artifacts_v2__ = {
                  "metadata. Times are Mac Absolute Time (Core Data) in UTC; the "
                  "-wal sidecar is read alongside the database. References: Sarah "
                  "Edwards, 'Knowledge is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " and Ian Whiffin, https://www.doubleblak.com/blogPosts.php?id=29",
+                 " and Ian Whiffin, https://www.doubleblak.com/blogPosts.php?id=29"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "music",
@@ -226,7 +235,8 @@ __artifacts_v2__ = {
                  "off, 1 backlight on). Times are Mac Absolute Time (Core Data) "
                  "in UTC; the -wal sidecar is read alongside the database. "
                  "Reference: Sarah Edwards, 'Knowledge is Power', "
-                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "sun",
@@ -246,7 +256,8 @@ __artifacts_v2__ = {
         "notes": "The Lock Status is read from ZVALUEINTEGER (0 unlocked, 1 "
                  "locked). Times are Mac Absolute Time (Core Data) in UTC; the "
                  "-wal sidecar is read alongside the database. Reference: Sarah "
-                 "Edwards, 'Knowledge is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "Edwards, 'Knowledge is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "lock",
@@ -270,7 +281,8 @@ __artifacts_v2__ = {
                  "column can be uniform. Times are Mac Absolute Time (Core "
                  "Data) in UTC; the -wal sidecar is read alongside the "
                  "database. Reference: Sarah Edwards, 'Knowledge is Power', "
-                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage",
+                 "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "battery-charging",
@@ -282,7 +294,9 @@ __artifacts_v2__ = {
 
 
 def _kc_sources(context):
-    return [str(f) for f in context.get_files_found() if str(f).endswith('knowledgeC.db')]
+    stores = [str(f) for f in context.get_files_found() if str(f).endswith('knowledgeC.db')]
+    kept, _skipped = unique_sources(context, stores, sidecars=('-wal',), label='KnowledgeC')
+    return kept
 
 
 def _collect(context, query, transform):
