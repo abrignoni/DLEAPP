@@ -659,7 +659,7 @@ def _load_plist(path):
 
 # A logical extraction can hold the Data volume at its root and again under
 # System/Volumes/Data/. Removing that prefix gives both copies of a store one key.
-_DATA_VOLUME = re.compile(r"(^|/)System/Volumes/Data/")
+_DATA_VOLUME = re.compile(r"(^|/)(?:System/Volumes/Update/mnt1/|System/Volumes/Data/)+")
 
 
 def _stores(context, basename):

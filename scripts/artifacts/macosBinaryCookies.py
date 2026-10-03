@@ -82,7 +82,7 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.macos_plists import mac_absolute_utc, unique_sources
 
 _PAGE_SIGNATURE = b'\x00\x00\x01\x00'
-_FIRMLINK = re.compile(r'(^|/)System/Volumes/Data/')
+_FIRMLINK = re.compile(r'(^|/)(?:System/Volumes/Update/mnt1/|System/Volumes/Data/)+')
 _SECURE = 0x1
 _HTTP_ONLY = 0x4
 

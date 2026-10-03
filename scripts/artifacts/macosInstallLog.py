@@ -88,7 +88,7 @@ _ZONELESS_LINE = re.compile(r'^([A-Z][a-z]{2} [ \d]\d \d{2}:\d{2}:\d{2}) (\S+) (
 # install.log, a sequenced rotation (install.log.N) or a checkpoint named for its creation time
 # (install.log.T<seconds>), either one gzip compressed.
 _NAME = re.compile(r'install\.log(?:(?:\.(\d+)|\.T(\d+))(?:\.gz)?)?')
-_FIRMLINK = re.compile(r'(^|/)System/Volumes/Data/')
+_FIRMLINK = re.compile(r'(^|/)(?:System/Volumes/Update/mnt1/|System/Volumes/Data/)+')
 
 
 def _utc(written, offset):
