@@ -404,7 +404,7 @@ class ArtifactTest(unittest.TestCase):
         backup_relative = os.path.relpath(backup, self.root)
         self.assertEqual(sorted(self.logged), sorted([
             f'Spotlight Store Files: {backup_relative} not read: not a Spotlight store database',
-            'Spotlight Store Files: 1 byte-identical copy(ies) under System/Volumes/Data not read again',
+            'Spotlight Store Files: 1 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again',
             f'Spotlight Store Files: {STORE}store.db: 1 record(s) with no file name not reported']))
 
     def test_one_identifier_held_twice(self):

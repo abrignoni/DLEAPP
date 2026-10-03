@@ -298,7 +298,7 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(sorted(source.split('\n')), sorted(os.path.join(self.root, p) for p in
                                                             (NEWER + 'Data-A.sqlite', other, OLDER + 'Data-C.sqlite')))
         self.assertEqual(sorted(line for line in self.logged if 'due date' not in line), sorted([
-            'Reminders: 1 byte-identical copy(ies) under System/Volumes/Data not read again',
+            'Reminders: 1 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again',
             f'Reminders: no readable Core Data model in {NEWER}Data-none.sqlite',
             f'Reminders: no readable Core Data model in {NEWER}Data-junk.sqlite',
             f'Reminders: no REMCDReminder entity in the model of {NEWER}Data-noreminder.sqlite',

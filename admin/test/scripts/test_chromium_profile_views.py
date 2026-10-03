@@ -55,7 +55,7 @@ class ProfileViewsTest(unittest.TestCase):
         self.assertEqual([(s.relative, s.container, s.user) for s in stores],
                          [(f'{PROFILE}/History', PROFILE, 'someone')])
         self.assertEqual(log, ['Test Label: 1 byte-identical copy(ies) under '
-                               'System/Volumes/Data not read again'])
+                               'System/Volumes/Data or System/Volumes/Update/mnt1 not read again'])
 
     def test_copies_that_differ_are_both_read_and_share_a_container(self):
         self._write(f'{PROFILE}/History', b'history bytes')

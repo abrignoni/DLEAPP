@@ -159,7 +159,7 @@ class ArtifactTest(DriveFSCase):
             ('Notes.gdoc', 'Shared Folder/Notes.gdoc', folder + 'metadata_sqlite_db'),
             ('Notes', 'Notes', folder + 'mirror_metadata_sqlite.db')])
         self.assertEqual(sorted(self.logged), sorted([
-            'Google Drive Items: 1 byte-identical copy(ies) under System/Volumes/Data not read again',
+            'Google Drive Items: 1 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again',
             'Google Drive Items: no items table in Users/sam/Library/Application Support/Google/DriveFS/1/metadata_sqlite_db']))
 
     def test_mirrored_items(self):
@@ -316,7 +316,7 @@ class AccountsTest(DriveFSCase):
             DRIVEFS + 'experiments.db', folder + 'metadata_sqlite_db', folder + 'mirror_metadata_sqlite.db',
             'System/Volumes/Data/' + sam + '222333444555666777888/metadata_sqlite_db')))
         self.assertEqual(self.logged, [
-            'Google Drive Accounts (experiments.db): 1 byte-identical copy(ies) under System/Volumes/Data not read again'])
+            'Google Drive Accounts (experiments.db): 1 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again'])
 
     def test_differing_records_give_a_row_each(self):
         self.experiments(DRIVEFS, field(1, ACCOUNT.encode()))
@@ -406,7 +406,7 @@ class AuthorizationsTest(DriveFSCase):
         self.assertEqual(sorted(source.split('\n')), sorted(os.path.join(self.root, p) for p in (
             logs + 'drive_fs.txt', logs + 'drive_fs_1.txt', grown)))
         self.assertEqual(sorted(self.logged), sorted([
-            'Google Drive Account Authorizations: 1 byte-identical copy(ies) under System/Volumes/Data not read again',
+            'Google Drive Account Authorizations: 1 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again',
             'Google Drive Account Authorizations: 1 StartAccountAuthComplete line(s) not in the form read here, not reported']))
 
 
