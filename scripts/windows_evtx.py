@@ -34,6 +34,23 @@ UTC (python-evtx Evtx/BinaryParser.py, parse_filetime). Those two forms and
 '2018-03-27T09:35:33.5956Z' are accepted, and a value with no offset is taken
 as UTC for that reason. python-evtx renders a zero FILETIME
 as 0001-01-01 00:00:00; that is returned as '' rather than as a date.
+
+python-evtx 0.8.1 renders one array value type, the array of UTF-16 strings
+(0x81), as <string> pieces inside one element; for any other array type its
+value lookup raises KeyError (get_variant_value,
+https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L439-L474),
+and the record cannot be rendered. libyal's description of the format gives
+the arrays of fixed-width values as their elements stored one after another,
+little-endian
+(https://github.com/libyal/libevtx/blob/53ff3377d1360a9a3a428e7190c289757ccbf82b/documentation/Windows%20XML%20Event%20Log%20(EVTX).asciidoc?plain=1#L894-L940).
+This module adds the arrays whose element size that description gives and for
+which python-evtx has a value type of that size: 8, 16, 32 and 64-bit integers
+(0x83 to 0x8a), 32 and 64-bit floating point (0x8b, 0x8c), GUID (0x8f),
+FILETIME (0x91), system time (0x92) and 32 and 64-bit hexadecimal integers
+(0x94, 0x95). Each element is rendered by python-evtx's own value type, and the
+array as <string> pieces like a string array, which classic_strings splits.
+An array whose size is not a whole number of elements still raises. Arrays of
+booleans, size types, SIDs and ASCII strings are left as python-evtx has them.
 """
 
 import os
@@ -43,10 +60,82 @@ from xml.etree import ElementTree
 
 try:
     import Evtx.Evtx as evtx
+    import Evtx.Nodes as evtx_nodes
 except ImportError:
     evtx = None
+    evtx_nodes = None
 
 from scripts.ilapfuncs import logfunc
+
+# Array value type: (python-evtx value type of one element, element size in bytes).
+_ARRAY_ELEMENTS = {
+    0x83: ('SignedByteTypeNode', 1),
+    0x84: ('UnsignedByteTypeNode', 1),
+    0x85: ('SignedWordTypeNode', 2),
+    0x86: ('UnsignedWordTypeNode', 2),
+    0x87: ('SignedDwordTypeNode', 4),
+    0x88: ('UnsignedDwordTypeNode', 4),
+    0x89: ('SignedQwordTypeNode', 8),
+    0x8A: ('UnsignedQwordTypeNode', 8),
+    0x8B: ('FloatTypeNode', 4),
+    0x8C: ('DoubleTypeNode', 8),
+    0x8F: ('GuidTypeNode', 16),
+    0x91: ('FiletimeTypeNode', 8),
+    0x92: ('SystemtimeTypeNode', 16),
+    0x94: ('Hex32TypeNode', 4),
+    0x95: ('Hex64TypeNode', 8),
+}
+
+
+def _array_value_class(element_name, element_size):
+    """A python-evtx value type for an array of fixed-width values."""
+    element_class = getattr(evtx_nodes, element_name)
+
+    class ArrayTypeNode(evtx_nodes.VariantTypeNode):
+        """Elements stored one after another; rendered as <string> pieces."""
+
+        def __init__(self, buf, offset, chunk, parent, length=None):
+            if length is None:
+                raise NotImplementedError('an array value outside a substitution has no size')
+            if length % element_size:
+                raise ValueError(f'array of {length} bytes is not a whole number of {element_size}-byte values')
+            super().__init__(buf, offset, chunk, parent, length=length)
+            self._array_parent = parent
+
+        def tag_length(self):
+            return self._length
+
+        def string(self):
+            pieces = []
+            for index in range(self._length // element_size):
+                element = element_class(self._buf, self.offset() + index * element_size, self._chunk,
+                                        self._array_parent, length=element_size)
+                pieces.append(f'<string>{element.string()}</string>\n')
+            return ''.join(pieces)
+
+    ArrayTypeNode.__name__ = f'Array{element_name}'
+    return ArrayTypeNode
+
+
+def _install_array_values():
+    """Route the array types above to their classes; any other type goes to python-evtx."""
+    if evtx_nodes is None or getattr(evtx_nodes.get_variant_value, 'dleapp_arrays', False):
+        return
+    original = evtx_nodes.get_variant_value
+    classes = {value_type: _array_value_class(name, size) for value_type, (name, size) in _ARRAY_ELEMENTS.items()}
+
+    def get_variant_value(buf, offset, chunk, parent, type_, length=None):
+        array_class = classes.get(type_)
+        if array_class is not None:
+            return array_class(buf, offset, chunk, parent, length=length)
+        return original(buf, offset, chunk, parent, type_, length=length)
+
+    get_variant_value.dleapp_arrays = True
+    get_variant_value.original = original
+    evtx_nodes.get_variant_value = get_variant_value
+
+
+_install_array_values()
 
 _SYSTEM_TIME = re.compile(
     r'^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.(\d+))?\s*(Z|[+-]\d{2}:\d{2})?$',

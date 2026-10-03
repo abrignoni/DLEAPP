@@ -27,9 +27,9 @@ class FakeRecord:
 
     def xml(self):
         if not self.renders:
-            # python-evtx 0.8.1 raises KeyError for a value type missing from its table (132 is a
-            # byte array), as on the TPM event 27 records of windows11_arm_4688_known's System log.
-            raise KeyError(132)
+            # python-evtx 0.8.1 raises KeyError for a value type missing from its table; 147 (an
+            # array of SIDs) is one that scripts/windows_evtx.py does not add.
+            raise KeyError(147)
         return f'<Event><EventRecordID>{self.number}</EventRecordID></Event>'
 
 

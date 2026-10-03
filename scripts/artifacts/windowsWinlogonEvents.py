@@ -74,8 +74,9 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11) and Service Control Manager 7001 (1 on szechuan_win10, 3 on the capture). No "
                  "Microsoft-Windows-Winlogon record with another Event ID was in the tested System logs; Winlogon's "
                  "own Operational log is not read. A record python-evtx cannot render, or whose XML does not parse, "
-                 "is counted in the run log and not reported: 72 records of the capture's log did not render, and "
-                 "every record of the four public images' logs did. A log marked dirty is read past the chunks its "
+                 "is counted in the run log and not reported; every record of the tested logs rendered, among them "
+                 "the 72 TPM event 27 records of the capture's log, which python-evtx renders only with the array "
+                 "value types scripts/windows_evtx.py adds. A log marked dirty is read past the chunks its "
                  "header counts, and the run log says how many records came from there. Reading needs the "
                  "python-evtx package (pip install python-evtx).",
         "paths": ('*/Windows/System32/winevt/Logs/System.evtx',),

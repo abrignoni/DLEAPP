@@ -126,9 +126,9 @@ __artifacts_v2__ = {
                  "that are earlier than the row before them. Computer held one value on every row of af_case2_win10, "
                  "pc_mus_001_win11 and each capture; lonewolf_win10 and szechuan_win10 hold two names. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
-                 "reported. Every record of the four public images' logs rendered; 72 records of each capture's log "
-                 "did not, and each of those stores 27 at index 3 of its substitution values, the place that holds "
-                 "the Event ID on the records that rendered. A log marked dirty is read past the chunks its header "
+                 "reported. Every record of the tested logs rendered, among them the 72 TPM event 27 records of each "
+                 "capture's log, which python-evtx renders only with the array value types scripts/windows_evtx.py "
+                 "adds. A log marked dirty is read past the chunks its header "
                  "counts, and the run log says how many records came from there. Reading needs the python-evtx "
                  "package (pip install python-evtx). Not read: the provider's other events, 70 more of which the "
                  "build 22621 manifest sends to the System channel. No tested System log held one.",

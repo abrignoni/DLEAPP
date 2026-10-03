@@ -98,8 +98,9 @@ __artifacts_v2__ = {
                  "sent to a service, a service entering a state; "
                  "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Service%20Control%20Manager.xml#L426-L451). "
                  "A record python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
-                 "reported: 72 records of the capture's log did not render, and every record of the four public "
-                 "images' logs did. A log marked dirty is read past the chunks its header counts, and the run log "
+                 "reported; every record of the tested logs rendered, among them the 72 TPM event 27 records of the "
+                 "capture's log, which python-evtx renders only with the array value types scripts/windows_evtx.py "
+                 "adds. A log marked dirty is read past the chunks its header counts, and the run log "
                  "says how many records came from there. Reading needs the python-evtx package (pip install "
                  "python-evtx).",
         "paths": ('*/Windows/System32/winevt/Logs/System.evtx',),
@@ -180,8 +181,9 @@ __artifacts_v2__ = {
                  "events, among them 7026 (boot-start or system-start drivers that did not load, 118 records on the "
                  "tested logs) and 7030 (a service marked interactive, 5 records); 7040 is in Service Start Type "
                  "Changes and 7045 in Windows Service Installations. A record python-evtx cannot render, or whose "
-                 "XML does not parse, is counted in the run log and not reported: 72 records of the capture's log "
-                 "did not render, and every record of the four public images' logs did. A log marked dirty is read "
+                 "XML does not parse, is counted in the run log and not reported; every record of the tested logs "
+                 "rendered, among them the 72 TPM event 27 records of the capture's log, which python-evtx renders "
+                 "only with the array value types scripts/windows_evtx.py adds. A log marked dirty is read "
                  "past the chunks its header counts, and the run log says how many records came from there. Reading "
                  "needs the python-evtx package (pip install python-evtx); giving the references their text needs "
                  "the pefile package (pip install pefile), and without it they are reported as stored.",
