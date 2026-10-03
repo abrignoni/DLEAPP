@@ -122,9 +122,9 @@ __artifacts_v2__ = {
                  "rises with it except for 1 row on each capture that is earlier than the row before it. Computer "
                  "held one value on every row of each tested log except lonewolf_win10, where it held two. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
-                 "reported. Every record of the four public images' logs rendered; 72 records of each capture's log "
-                 "did not, and each of those stores 27 at index 3 of its substitution values, the place that holds "
-                 "the Event ID on the records that rendered. A log marked dirty is read past the chunks its header "
+                 "reported. Every record of the tested logs rendered, among them the 72 TPM event 27 records of each "
+                 "capture's log, which python-evtx renders only with the array value types scripts/windows_evtx.py "
+                 "adds. A log marked dirty is read past the chunks its header "
                  "counts, and the run log says how many records came from there. Reading needs the python-evtx "
                  "package (pip install python-evtx). Not read: the provider's other events; no tested System log "
                  "held one.",

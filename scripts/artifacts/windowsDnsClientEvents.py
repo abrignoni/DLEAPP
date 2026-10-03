@@ -114,9 +114,9 @@ __artifacts_v2__ = {
                  "with it except for 1 row on each capture that is earlier than the row before it. Computer held one "
                  "value on every row of each tested log that gave rows except szechuan_win10, where its 4 rows hold "
                  "three names. A record python-evtx cannot render, or whose XML does not parse, is counted in the "
-                 "run log and not reported. Every record of the four public images' logs rendered; 72 records of "
-                 "each capture's log did not, and each of those stores 27 at index 3 of its substitution values, the "
-                 "place that holds the Event ID on the records that rendered. A log marked dirty is read past the "
+                 "run log and not reported. Every record of the tested logs rendered, among them the 72 TPM event 27 "
+                 "records of each capture's log, which python-evtx renders only with the array value types "
+                 "scripts/windows_evtx.py adds. A log marked dirty is read past the "
                  "chunks its header counts, and the run log says how many records came from there. Reading needs the "
                  "python-evtx package (pip install python-evtx). Not read: the provider's other events. Of those, "
                  "the tested System logs held only 8014 (7 records) and 8015 (2 records), both on szechuan_win10.",
