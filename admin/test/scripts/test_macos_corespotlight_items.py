@@ -146,7 +146,7 @@ class ArtifactTest(unittest.TestCase):
             + (datetime(2025, 12, 25, 6, 41, 59, tzinfo=UTC), 'pat', both)])
         self.assertEqual(sorted(source.split('\n')), sorted(os.path.join(self.root, INDEX, n) for n in ('store.db', '.store.db')))
         self.assertEqual(sorted(self.logged), sorted([
-            'CoreSpotlight Items: 2 byte-identical copy(ies) under System/Volumes/Data not read again',
+            'CoreSpotlight Items: 2 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again',
             f'CoreSpotlight Items: {INDEX}store.db: 1 Help Viewer record(s) and 1 record(s) with no app not reported',
             f'CoreSpotlight Items: {INDEX}.store.db: 2 Help Viewer record(s) and 1 record(s) with no app not reported']))
 

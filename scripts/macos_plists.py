@@ -181,8 +181,9 @@ def bookmark_fields(data):
     }
 
 
-# System/Volumes/Data/ as whole path segments, at the start of a path or after any folder.
-_FIRMLINK_SEGMENTS = re.compile(r'(?:^|(?<=/))System/Volumes/Data/')
+# System/Volumes/Data/ and System/Volumes/Update/mnt1/ as whole path segments, at the start of
+# a path or after any folder.
+_FIRMLINK_SEGMENTS = re.compile(r'(?:^|(?<=/))(?:System/Volumes/Update/mnt1/|System/Volumes/Data/)+')
 
 
 def user_from_path(path):
@@ -197,13 +198,17 @@ def user_from_path(path):
 
 
 def canonical_relative(relative):
-    """A path inside the extraction with every System/Volumes/Data/ folder run removed.
+    """A path inside the extraction with every System/Volumes/Data/ and
+    System/Volumes/Update/mnt1/ folder run removed.
 
     macOS firmlinks expose the Data volume's folders both at the root and under
-    System/Volumes/Data/, so a logical extraction can hold one file under both paths. The
-    run is removed wherever it stands as whole folders, not only at the start, so the two
-    views still share one path when the extraction's tree sits inside a top folder
-    (export/Users/... and export/System/Volumes/Data/Users/...).
+    System/Volumes/Data/, so a logical extraction can hold one file under both paths. A
+    logical extraction can also hold a third copy of the tree under
+    System/Volumes/Update/mnt1/: the Magnet 2021 CTF macOS extraction (macOS 11.2.1) holds
+    494,893 files there, 493,713 of them byte-identical to the file at the same path in
+    the root or Data view. The run is removed wherever it stands as whole folders, not
+    only at the start, so the views still share one path when the extraction's tree sits
+    inside a top folder (export/Users/... and export/System/Volumes/Data/Users/...).
     """
     relative = str(relative).replace('\\', '/').lstrip('/')
     return _FIRMLINK_SEGMENTS.sub('', relative)
@@ -228,10 +233,10 @@ def unique_sources(context, paths, sidecars=(), label=''):
     """(paths, skipped): paths less byte-identical copies of one file under two views.
 
     A logical extraction of a Mac can hold the same file under Users/ and under
-    System/Volumes/Data/Users/, where macOS firmlinks expose it twice. Two paths that
-    differ only by that System/Volumes/Data/ folder run, at the root or under a top folder,
-    and have identical bytes (and identical sidecars, such as -wal) are read once; copies
-    that differ are both kept.
+    System/Volumes/Data/Users/, where macOS firmlinks expose it twice, and again under
+    System/Volumes/Update/mnt1/. Paths that differ only by those folder runs, at the root or
+    under a top folder, and have identical bytes (and identical sidecars, such as -wal) are
+    read once; copies that differ are all kept.
     """
     kept, seen, skipped = [], set(), 0
     for path in sorted({str(p) for p in paths}, key=lambda p: (len(p), p)):
@@ -244,5 +249,5 @@ def unique_sources(context, paths, sidecars=(), label=''):
         seen.add(key)
         kept.append(path)
     if skipped and label:
-        logfunc(f'{label}: {skipped} byte-identical copy(ies) under System/Volumes/Data not read again')
+        logfunc(f'{label}: {skipped} byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again')
     return kept, skipped

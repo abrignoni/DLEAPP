@@ -114,7 +114,7 @@ class ProcessorTest(unittest.TestCase):
         ])
         self.assertEqual(source.split('\n'), [str(files[0]), str(files[4])])
         self.assertEqual(sorted(self.logged), sorted([
-            'Application Firewall: 1 byte-identical copy(ies) under System/Volumes/Data not read again',
+            'Application Firewall: 1 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again',
             f'Application Firewall: {pathlib.Path("Volumes", "Other")/_PREFS} is not a plist dictionary',
             f'Application Firewall: {pathlib.Path("Volumes", "Array")/_PREFS} is not a plist dictionary',
         ]))

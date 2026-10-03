@@ -24,9 +24,10 @@ from scripts.chromium import browser_profiles  # pylint: disable=wrong-import-po
 from scripts.macos_plists import canonical_relative  # pylint: disable=wrong-import-position
 
 VIEW = 'System/Volumes/Data/'
+MNT1 = 'System/Volumes/Update/mnt1/'
 PLIST = 'Users/someone/Library/Safari/TopSites.plist'
 PROFILE = 'Users/someone/Library/Application Support/Google/Chrome/Default'
-SKIPPED_ONE = 'Test Label: 1 byte-identical copy(ies) under System/Volumes/Data not read again'
+SKIPPED_ONE = 'Test Label: 1 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again'
 
 
 class CanonicalRelativeTest(unittest.TestCase):
@@ -51,6 +52,21 @@ class CanonicalRelativeTest(unittest.TestCase):
         self.assertEqual(canonical_relative(VIEW + 'Users/a/old/' + VIEW + PLIST), 'Users/a/old/' + PLIST)
         self.assertEqual(canonical_relative('Users/a/old/' + VIEW + PLIST), 'Users/a/old/' + PLIST)
         self.assertEqual(canonical_relative(VIEW + VIEW + PLIST), PLIST)
+
+    def test_the_update_mnt1_view_is_removed(self):
+        self.assertEqual(canonical_relative(MNT1 + PLIST), PLIST)
+        self.assertEqual(canonical_relative(MNT1 + VIEW + PLIST), PLIST)
+        self.assertEqual(canonical_relative('export/' + MNT1 + PLIST), 'export/' + PLIST)
+        self.assertEqual(canonical_relative(MNT1 + 'Volumes/Macintosh HD - Data/x.plist'),
+                         'Volumes/Macintosh HD - Data/x.plist')
+
+    def test_names_that_only_look_like_the_update_view_are_kept(self):
+        for path in ('System/Volumes/Update/x.plist',
+                     'System/Volumes/Update/mnt10/x.plist',
+                     'System/Volumes/Update/mnt1',
+                     'MySystem/Volumes/Update/mnt1/x.plist',
+                     'export/system/volumes/update/mnt1/x.plist'):
+            self.assertEqual(canonical_relative(path), path)
 
     def test_names_that_only_look_like_the_prefix_are_kept(self):
         for path in ('MySystem/Volumes/Data/x.plist',
@@ -99,6 +115,20 @@ class UniqueSourcesTest(unittest.TestCase):
         copy = self._write('case 7/files/' + VIEW + PLIST, b'one')
         self.assertEqual(self._unique([copy, plain]), ([plain], 1, [SKIPPED_ONE]))
 
+    def test_the_root_data_and_update_mnt1_views_are_read_once(self):
+        plain = self._write(PLIST, b'one')
+        data = self._write(VIEW + PLIST, b'one')
+        mnt1 = self._write(MNT1 + PLIST, b'one')
+        kept, skipped, log = self._unique([mnt1, data, plain])
+        self.assertEqual((kept, skipped), ([plain], 2))
+        self.assertEqual(log, ['Test Label: 2 byte-identical copy(ies) under System/Volumes/Data or '
+                               'System/Volumes/Update/mnt1 not read again'])
+
+    def test_an_update_mnt1_copy_that_differs_is_read(self):
+        plain = self._write(PLIST, b'one')
+        mnt1 = self._write(MNT1 + PLIST, b'two')
+        self.assertEqual(self._unique([mnt1, plain]), ([plain, mnt1], 0, []))
+
     def test_views_that_differ_inside_a_wrapper_folder_are_both_read(self):
         plain = self._write('export/' + PLIST, b'one')
         copy = self._write('export/' + VIEW + PLIST, b'two')
@@ -126,7 +156,7 @@ class UniqueSourcesTest(unittest.TestCase):
         kept, skipped, log = self._unique(paths)
         self.assertEqual(kept, [str(self.root / ('one/' + PLIST)), str(self.root / ('two/' + PLIST))])
         self.assertEqual(skipped, 2)
-        self.assertEqual(log, ['Test Label: 2 byte-identical copy(ies) under System/Volumes/Data not read again'])
+        self.assertEqual(log, ['Test Label: 2 byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again'])
 
     def test_a_copied_root_seen_through_both_views_is_read_once_and_apart_from_the_live_file(self):
         live = self._write(PLIST, b'live')
