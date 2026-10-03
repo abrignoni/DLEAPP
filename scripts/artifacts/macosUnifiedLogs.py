@@ -395,10 +395,11 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "camera",
     },
-    "macosUnifiedLogIosDevices": {
-        "name": "Unified Logs - iOS Device Connections",
-        "description": "Unified log entries from usbmuxd recording iOS devices connecting to the Mac and "
-                       "pairing attempts.",
+    "macosUnifiedLogSleepWake": {
+        "name": "Unified Logs - Sleep and Wake",
+        "description": "Unified log entries recording system sleep and wake: the kernel's sleep and "
+                       "power-on notices to loginwindow and the wake reasons the kernel and powerd "
+                       "logged.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
@@ -407,19 +408,122 @@ __artifacts_v2__ = {
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
                  "run; Row Number is the entry's row number in that table and rows are in that "
-                 "order. Selects usbmuxd 'device connected' and 'device disconnected' entries and "
-                 "its MobileDevice 'Successfully paired', 'Failed to pair' and 'Could not pair "
-                 "with the device' entries. The connected entry carries the device identifier as "
-                 "stored; pair it with the Paired iOS Devices (lockdown) artifact. On macOS 14.6.1 "
-                 "one failed pairing gave kAMDPasswordProtectedError, reported as stored. Tested "
-                 "on dleapp_macos_bigsur (macOS 11.2.1), evidencelocker_macos14 (macOS 14.6.1) and "
-                 "the unified log store of a macOS 15.4 MacBook Pro logical extraction "
-                 "(mvs2026_macbookpro_macos15). Big Sur: none. macOS 14.6.1: 4 rows (1 connected, "
-                 "2 pairing failures, 1 successful pairing). macOS 15.4: none. Process Image Path "
-                 "held one value (usbmuxd) on all 4 rows.",
+                 "order. Selects the kernel's 'PMRD: kIOMessageSystemWillSleep' and 'PMRD: "
+                 "kIOMessageSystemWillPowerOn' entries for the notice sent to loginwindow (the "
+                 "kernel writes one such entry per notified client, and only the loginwindow one "
+                 "is kept), kernel entries containing 'Wake reason: ', and powerd 'Wake reason:' "
+                 "entries. Wake reasons are reported as stored; values seen were EC.LidOpen "
+                 "(User), EC.KeyboardTouchpad (User), EC.RTC (Alarm), EC.USBC (Maintenance), "
+                 "EC.SleepTimer (SleepTimer), EC.ACAttach (Maintenance) and Host followed by a "
+                 "hexadecimal value. The macOS 15.4 store held 224 kernel wake reasons and only 2 "
+                 "sleep and 2 power-on notices to loginwindow, so a wake reason does not always "
+                 "have a loginwindow notice beside it. PowerLog's sleep and wake rows are reported "
+                 "by the PowerLog artifacts. Tested on dleapp_macos_bigsur (macOS 11.2.1), "
+                 "evidencelocker_macos14 (macOS 14.6.1) and the unified log store of a macOS 15.4 "
+                 "MacBook Pro logical extraction (mvs2026_macbookpro_macos15). Big Sur: 43 rows "
+                 "(19 sleep, 19 power-on, 5 powerd wake reasons whose values were <private>). "
+                 "macOS 14.6.1: 61 rows (10 sleep, 10 power-on, 41 kernel wake reasons). macOS "
+                 "15.4: 228 rows (2 sleep, 2 power-on, 224 kernel wake reasons). Subsystem and "
+                 "Category held no value on the kernel rows, and Process Image Path (/kernel) and "
+                 "Process ID (0) held one value on every macOS 14.6.1 and 15.4 row.",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 | 43 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 61 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 228 rows",
+        },
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "moon",
+    },
+    "macosUnifiedLogUsbMassStorage": {
+        "name": "Unified Logs - USB Mass Storage",
+        "description": "Unified log entries in which the kernel logged a USB mass storage device's "
+                       "identifier.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
+        "category": "Unified Logs (macOS)",
+        "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
+                 "LAVA database in the same run, so it reports nothing when that artifact did not "
+                 "run; Row Number is the entry's row number in that table and rows are in that "
+                 "order. Selects kernel 'USBMSC Identifier (non-unique):' entries. The values "
+                 "after the colon are reported as stored: an identifier string, three further "
+                 "values and a number after a comma; their meaning is not established here. Tested "
+                 "on dleapp_macos_bigsur (macOS 11.2.1), evidencelocker_macos14 (macOS 14.6.1) "
+                 "and the unified log store of a macOS 15.4 MacBook Pro logical extraction "
+                 "(mvs2026_macbookpro_macos15). Big Sur: none. macOS 14.6.1: 10 rows carrying 3 "
+                 "distinct identifier strings. macOS 15.4: none. Process Image Path (/kernel) and "
+                 "Process ID (0) held one value and Subsystem and Category no value on all 10 "
+                 "macOS 14.6.1 rows.",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 | 0 rows",
-            "evidencelocker_macos14": "macOS 14.6.1 | 4 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 10 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows",
+        },
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "hard-drive",
+    },
+    "macosUnifiedLogLoginSessions": {
+        "name": "Unified Logs - Login Window Sessions",
+        "description": "Unified log entries from loginwindow recording that it started, user logins with "
+                       "the user ID, and logouts, restarts and shutdowns with their type.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
+        "category": "Unified Logs (macOS)",
+        "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
+                 "LAVA database in the same run, so it reports nothing when that artifact did not "
+                 "run; Row Number is the entry's row number in that table and rows are in that "
+                 "order. Selects loginwindow 'Login Window Application Started', "
+                 "'sendDistributedNotification: com.apple.sessionDidLogin, with userID:' and the "
+                 "'startLogout' entry that carries 'logoutType:', which names the type (Logout, "
+                 "Restart or Shutdown) and a subtype such as SoftwareUpdate, as loginwindow wrote "
+                 "it. Tested on dleapp_macos_bigsur (macOS 11.2.1), evidencelocker_macos14 (macOS "
+                 "14.6.1) and the unified log store of a macOS 15.4 MacBook Pro logical extraction "
+                 "(mvs2026_macbookpro_macos15). Big Sur: 19 rows (7 starts, 6 logins for user ID "
+                 "501, 5 Shutdown, 1 Restart with subtype SoftwareUpdate). macOS 14.6.1: 29 rows "
+                 "(10 starts, 10 logins for user IDs 501 to 504, 7 Logout, 1 Restart, 1 Shutdown). "
+                 "macOS 15.4: none. Process Image Path (loginwindow) and Subsystem "
+                 "(com.apple.loginwindow.logging) held one value on the Big Sur and macOS 14.6.1 "
+                 "rows.",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 | 19 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 29 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows",
+        },
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "log-in",
+    },
+    "macosUnifiedLogIosDevices": {
+        "name": "Unified Logs - iOS Device Connections",
+        "description": "Unified log entries from usbmuxd and iTunes recording iOS devices connecting to "
+                       "the Mac, and pairing attempts.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
+        "category": "Unified Logs (macOS)",
+        "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
+                 "LAVA database in the same run, so it reports nothing when that artifact did not "
+                 "run; Row Number is the entry's row number in that table and rows are in that "
+                 "order. Selects usbmuxd 'device connected' and 'device disconnected' entries, its "
+                 "MobileDevice 'Successfully paired', 'Failed to pair' and 'Could not pair with "
+                 "the device' entries, and 'Device attached over direct/cable' entries, which "
+                 "iTunes wrote on macOS 14.6.1 with the device's UDID as stored. The connected "
+                 "entry carries the device identifier as stored; pair it with the Paired iOS "
+                 "Devices (lockdown) artifact. On macOS 14.6.1 one failed pairing gave "
+                 "kAMDPasswordProtectedError, reported as stored. Tested on dleapp_macos_bigsur "
+                 "(macOS 11.2.1), evidencelocker_macos14 (macOS 14.6.1) and the unified log store "
+                 "of a macOS 15.4 MacBook Pro logical extraction (mvs2026_macbookpro_macos15). Big "
+                 "Sur: none. macOS 14.6.1: 5 rows (1 usbmuxd connected, 1 iTunes attached, 2 "
+                 "pairing failures, 1 successful pairing). macOS 15.4: none.",
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 | 0 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 5 rows",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows",
         },
         "paths": None,
@@ -679,12 +783,41 @@ def macosUnifiedLogScreenCapture(context):
 @artifact_processor
 def macosUnifiedLogIosDevices(context):
     return _selected_entries(context, """
-        process_image_path LIKE '%/usbmuxd'
-        AND (event_message LIKE '%device connected:%'
+        (process_image_path LIKE '%/usbmuxd'
+         AND (event_message LIKE '%device connected:%'
              OR event_message LIKE '%device disconnected:%'
              OR event_message LIKE 'Successfully paired%'
              OR event_message LIKE 'Failed to pair%'
-             OR event_message LIKE 'Could not pair with the device%')
+             OR event_message LIKE 'Could not pair with the device%'))
+        OR event_message LIKE '%Device attached over direct/cable:%'
+    """)
+
+
+@artifact_processor
+def macosUnifiedLogSleepWake(context):
+    return _selected_entries(context, """
+        (process_image_path = '/kernel'
+            AND (event_message LIKE 'PMRD: kIOMessageSystemWillSleep[%] to pid %, loginwindow%'
+                 OR event_message LIKE 'PMRD: kIOMessageSystemWillPowerOn to pid %, loginwindow%'
+                 OR event_message LIKE '%Wake reason: %'))
+        OR (process_image_path LIKE '%/powerd' AND event_message LIKE 'Wake reason:%')
+    """)
+
+
+@artifact_processor
+def macosUnifiedLogUsbMassStorage(context):
+    return _selected_entries(context, """
+        process_image_path = '/kernel' AND event_message LIKE 'USBMSC Identifier%'
+    """)
+
+
+@artifact_processor
+def macosUnifiedLogLoginSessions(context):
+    return _selected_entries(context, """
+        process_image_path LIKE '%/loginwindow'
+        AND (event_message LIKE '%Login Window Application Started%'
+             OR event_message LIKE '%sendDistributedNotification: com.apple.sessionDidLogin%'
+             OR event_message LIKE '%startLogout%logoutType:%')
     """)
 
 
