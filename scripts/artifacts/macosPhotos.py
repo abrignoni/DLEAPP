@@ -39,16 +39,13 @@ __artifacts_v2__ = {
                  "ZTRASHEDSTATE, ZHIDDEN and ZFAVORITE as stored; on dleapp_macos_bigsur 3 "
                  "assets have Trashed State 1 and a Trashed Date, and Hidden and Favorite "
                  "each held one value on all 116 rows. EXIF Timestamp has no value on any "
-                 "row of dleapp_macos_bigsur. The public MacBook Pro logical extraction (macOS "
-                 "15.4, not a registered corpus key) holds 2 assets in the Photos Library "
+                 "row of dleapp_macos_bigsur. The public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) holds 2 assets in the Photos Library "
                  "database under Pictures and 1 in the Syndication library database under "
                  "~/Library/Photos/Libraries, and neither database has a ZCREATORBUNDLEID "
                  "column, so Creator Bundle ID is empty there. On "
                  "the MacBook Pro, Trashed Date has no value on any row and Kind held one "
                  "value on all rows. The Users/ and System/Volumes/Data/Users/ copies of its "
-                 "Photos Library database are byte-identical but their -wal files differ, so "
-                 "both are read and each of its 2 assets appears twice, identical in every "
-                 "column but Source File; the two copies of the Syndication library database are "
+                 "Photos Library database are byte-identical but their -wal files differ, so both are read and each of its 2 assets is reported once, with both files in Source File; the two copies of the Syndication library database are "
                  "byte-identical, -wal included, so that database is read once and its asset "
                  "appears once. The original and derivative files in the "
                  "library are not read. All rows on each image come from one user, so User "
@@ -56,9 +53,14 @@ __artifacts_v2__ = {
                  "under Users/ and under System/Volumes/Data/Users/, a second copy whose "
                  "database and -wal file are both byte-identical to the first is not read again, "
                  "and is counted in the run log. Reference: Apple, "
-                 "'NSDate', https://developer.apple.com/documentation/foundation/nsdate.",
+                 "'NSDate', https://developer.apple.com/documentation/foundation/nsdate."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 116 rows",
+                           "mvs2026_macbookpro_macos15": "macOS 15.4 | 3 rows",
                        },
         "paths": ('*.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -70,7 +72,7 @@ import os
 
 from scripts.ilapfuncs import (artifact_processor, does_column_exist_in_db, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
-from scripts.macos_plists import mac_absolute_utc, unique_sources, user_from_path
+from scripts.macos_plists import fold_view_rows, mac_absolute_utc, unique_sources, user_from_path
 
 _LABEL = 'Photos Library Assets'
 _ASSET_COLUMNS = ('ZDATECREATED', 'ZADDEDDATE', 'ZMODIFICATIONDATE', 'ZTRASHEDDATE', 'ZFILENAME',
@@ -140,4 +142,4 @@ def macosPhotosAssets(context):
         if not found:
             logfunc(f'{_LABEL}: no assets in {relative}')
         data_list.extend(found)
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)

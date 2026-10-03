@@ -34,19 +34,24 @@ __artifacts_v2__ = {
                  "app_library_name of the app_libraries row the item names. Zone and App "
                  "Library held the same text on 56 of the 72 rows on dleapp_macos_bigsur "
                  "and were identical on every row of the public MacBook Pro logical "
-                 "extraction (macOS 15.4, not a registered corpus key). On the MacBook Pro "
+                 "extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15). On the MacBook Pro "
                  "version_mtime is 0 on 27 of the 42 items, so Version Modified is blank "
                  "on those rows, Trash Put-Back Path is empty on every row, and the Users/ and "
                  "System/Volumes/Data/Users/ copies hold a byte-identical client.db with "
-                 "different -wal files, and both are read, so each "
-                 "item appears twice, identical in every column but Source File. server.db "
+                 "different -wal files, and both are read; each of the 42 items is in both and is reported once, with both files in Source File. server.db "
                  "is not read. All rows on each image come from one user, so User holds "
                  "one value there. When a logical extraction holds the same file under "
                  "Users/ and under System/Volumes/Data/Users/, a second copy whose database and "
                  "-wal file are both byte-identical to the first is not read again, and is "
-                 "counted in the run log.",
+                 "counted in the run log."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 72 rows",
+                           "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 30 rows",
+                           "mvs2026_macbookpro_macos15": "macOS 15.4 | 42 rows",
                        },
         "paths": ('*/Library/Application Support/CloudDocs/session/db/client.db*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -59,7 +64,7 @@ from datetime import datetime, timezone
 
 from scripts.ilapfuncs import (artifact_processor, does_column_exist_in_db, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
-from scripts.macos_plists import unique_sources, user_from_path
+from scripts.macos_plists import fold_view_rows, unique_sources, user_from_path
 
 _LABEL = 'iCloud Drive Items'
 _ITEM_COLUMNS = ('item_id', 'item_parent_id', 'item_filename', 'item_type', 'version_size',
@@ -136,4 +141,4 @@ def macosICloudDriveItems(context):
         if not found:
             logfunc(f'{_LABEL}: no items in {relative}')
         data_list.extend(found)
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)

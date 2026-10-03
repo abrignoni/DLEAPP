@@ -18,8 +18,7 @@ __artifacts_v2__ = {
         "notes": "Reads the Notification Center database db2/db: under "
                  "private/var/folders/<xx>/<yyyy>/0/com.apple.notificationcenter on "
                  "dleapp_macos_bigsur, and in the group.com.apple.usernoted group "
-                 "container on the public MacBook Pro logical extraction (macOS 15.4, not "
-                 "a registered corpus key), the locations mac_apt's notifications plugin "
+                 "container on the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15), the locations mac_apt's notifications plugin "
                  "documents (mac_apt, plugins/notifications.py, "
                  "https://github.com/ydkhatri/mac_apt/blob/fb2360857aee2e4fafc8dff8eda2f82c97d86c54/plugins/notifications.py#L36-L42). "
                  "One row per record in the record table, with App the identifier of its "
@@ -43,16 +42,20 @@ __artifacts_v2__ = {
                  "is blank for a database under private/var/folders, whose path does not "
                  "name the account, as on all 6 rows of dleapp_macos_bigsur. On the "
                  "MacBook Pro the Users/ copy holds 2 records and the "
-                 "System/Volumes/Data/Users/ copy 1 of them, so both are read, and "
-                 "Subtitle has no value on any MacBook Pro row. When a logical extraction "
+                 "System/Volumes/Data/Users/ copy 1 of them, so both are read and the record both hold is reported once with both files in Source File, and Subtitle has no value on any MacBook Pro row. When a logical extraction "
                  "holds the same file with and without a System/Volumes/Data/ prefix, a second "
                  "copy whose database and -wal file are both byte-identical to the first is not "
                  "read again, and is counted in the run log. The "
                  "older com.apple.notificationcenter/db/db database is not read. "
                  "Reference: Apple, 'NSDate', "
-                 "https://developer.apple.com/documentation/foundation/nsdate.",
+                 "https://developer.apple.com/documentation/foundation/nsdate."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 6 rows",
+                           "mvs2026_macbookpro_macos15": "macOS 15.4 | 2 rows",
                        },
         "paths": ('*/private/var/folders/*/com.apple.notificationcenter/db2/db*',
                   '*/Library/Group Containers/group.com.apple.usernoted/db2/db*'),
@@ -66,7 +69,7 @@ import plistlib
 
 from scripts.ilapfuncs import (artifact_processor, does_column_exist_in_db, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
-from scripts.macos_plists import mac_absolute_utc, unique_sources, user_from_path
+from scripts.macos_plists import fold_view_rows, mac_absolute_utc, unique_sources, user_from_path
 
 _LABEL = 'Notification Center Records'
 _RECORD_COLUMNS = ('rec_id', 'app_id', 'data', 'delivered_date', 'presented', 'style')
@@ -140,4 +143,4 @@ def macosNotifications(context):
         if not found:
             logfunc(f'{_LABEL}: no notification records in {relative}')
         data_list.extend(found)
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)
