@@ -26,7 +26,11 @@ SET = datetime.datetime(2021, 3, 4, 5, 6, 7, 800)
 LATER = datetime.datetime(2022, 1, 2, 3, 4, 5, 6)
 EXTS = 'Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts'
 URLS = 'Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations'
-HEADERS = (('Key Last Written (UTC)', 'datetime'), 'User', 'Association', 'Program ID', 'Hash', 'Registry Key')
+HEADERS = (('Key Last Written (UTC)', 'datetime'), 'User', 'User SID', 'Association', 'Program ID', 'Hash', 'Hash Check',
+           'Registry Key')
+SID = 'S-1-5-21-100-200-300-1001'
+# The UserChoice hash of ('.pdf', SID, 'AppXabc', SET), computed by a separate implementation kept outside DLEAPP.
+PDF_HASH = 'hJkd84duMXg='
 
 
 class _Value:
@@ -58,6 +62,12 @@ class _Key:
 
     def timestamp(self):
         return self._written
+
+    def value(self, name):
+        for value in self._values:
+            if value.name() == name:
+                return value
+        raise Registry.RegistryValueNotFoundException(name)
 
 
 class _Hive:
@@ -94,8 +104,8 @@ class ChoiceRowsTest(unittest.TestCase):
             _Key('.txt', subkeys=[_choice('txtfile', 'SElKS0xNTk8=', written=LATER)]),
             _Key('.none', subkeys=[_Key('OpenWithProgids', [('p', b'')])])])
         self.assertEqual(choices.choice_rows(parent, EXTS, 'alice'), [
-            (SET.replace(tzinfo=UTC), 'alice', '.PDF', 'AppXabc', 'QUJDREVGR0g=', EXTS + '\\.PDF\\UserChoice'),
-            (LATER.replace(tzinfo=UTC), 'alice', '.txt', 'txtfile', 'SElKS0xNTk8=', EXTS + '\\.txt\\UserChoice')])
+            (SET.replace(tzinfo=UTC), 'alice', '', '.PDF', 'AppXabc', 'QUJDREVGR0g=', '', EXTS + '\\.PDF\\UserChoice'),
+            (LATER.replace(tzinfo=UTC), 'alice', '', '.txt', 'txtfile', 'SElKS0xNTk8=', '', EXTS + '\\.txt\\UserChoice')])
 
     def test_a_latest_key_takes_the_program_id_from_its_subkey_and_follows_the_plain_key(self):
         latest = _Key('UserChoiceLatest', [('Hash', 'TEFURVNUSEE=')], written=LATER,
@@ -103,33 +113,40 @@ class ChoiceRowsTest(unittest.TestCase):
                                _Key('Zeta', [('ProgId', 'also wrong')])])
         parent = _Key('UrlAssociations', subkeys=[_Key('http', subkeys=[_choice('AppXold'), latest])])
         self.assertEqual(choices.choice_rows(parent, URLS, 'bob'), [
-            (SET.replace(tzinfo=UTC), 'bob', 'http', 'AppXold', 'QUJDREVGR0g=', URLS + '\\http\\UserChoice'),
-            (LATER.replace(tzinfo=UTC), 'bob', 'http', 'AppXnew', 'TEFURVNUSEE=', URLS + '\\http\\UserChoiceLatest')])
+            (SET.replace(tzinfo=UTC), 'bob', '', 'http', 'AppXold', 'QUJDREVGR0g=', '', URLS + '\\http\\UserChoice'),
+            (LATER.replace(tzinfo=UTC), 'bob', '', 'http', 'AppXnew', 'TEFURVNUSEE=', '', URLS + '\\http\\UserChoiceLatest')])
 
     def test_a_program_id_value_of_the_key_wins_over_the_subkey(self):
         key = _Key('UserChoiceLatest', [('ProgId', '')], subkeys=[_Key('ProgId', [('ProgId', 'sub')])])
         rows = choices.choice_rows(_Key(subkeys=[_Key('.a', subkeys=[key])]), EXTS, '')
-        self.assertEqual([row[3:5] for row in rows], [('', '')])
+        self.assertEqual([row[4:6] for row in rows], [('', '')])
 
     def test_value_and_key_names_are_matched_without_case(self):
         old = _Key('userchoice', [('Progid', 'Applications\\notepad.exe'), ('HASH', 'h')])
         new = _Key('USERCHOICELATEST', [('hash', 'x')], subkeys=[_Key('progid', [('PROGID', 'sub')])])
         rows = choices.choice_rows(_Key(subkeys=[_Key('.log', subkeys=[old, new])]), EXTS, 'u')
-        self.assertEqual([row[2:] for row in rows], [
-            ('.log', 'Applications\\notepad.exe', 'h', EXTS + '\\.log\\userchoice'),
-            ('.log', 'sub', 'x', EXTS + '\\.log\\USERCHOICELATEST')])
+        self.assertEqual([row[3:] for row in rows], [
+            ('.log', 'Applications\\notepad.exe', 'h', '', EXTS + '\\.log\\userchoice'),
+            ('.log', 'sub', 'x', '', EXTS + '\\.log\\USERCHOICELATEST')])
 
     def test_a_key_without_the_values_gives_blanks_and_values_that_are_not_text_are_left_out(self):
         bare = _Key('UserChoice')
         odd = _Key('UserChoiceLatest', [('ProgId', 7), ('Hash', b'\x01\x02')], subkeys=[_Key('ProgId', [('ProgId', b'x')])])
         rows = choices.choice_rows(_Key(subkeys=[_Key('.x', subkeys=[bare, odd])]), EXTS, 'u')
-        self.assertEqual([row[3:5] for row in rows], [('', ''), ('', '')])
+        self.assertEqual([row[4:6] for row in rows], [('', ''), ('', '')])
 
     def test_keys_with_other_names_are_not_read(self):
         parent = _Key(subkeys=[_Key('.x', subkeys=[_choice(name='UserChoicePrevious'), _choice(name='Choice'),
                                                     _choice(name='XUserChoice'), _choice(name='UserChoice2')]),
                                _choice(name='UserChoice')])
         self.assertEqual(choices.choice_rows(parent, EXTS, 'u'), [])
+
+    def test_the_hash_check_with_a_sid(self):
+        parent = _Key(subkeys=[_Key('.pdf', subkeys=[_choice(hashed=PDF_HASH), _choice(hashed=PDF_HASH, name='UserChoiceLatest')]),
+                               _Key('.doc', subkeys=[_choice(hashed=PDF_HASH)]), _Key('.txt', subkeys=[_choice(hashed='')])])
+        rows = choices.choice_rows(parent, EXTS, 'alice', SID)
+        self.assertEqual([(row[2], row[3], row[6]) for row in rows], [
+            (SID, '.pdf', 'Matches'), (SID, '.pdf', ''), (SID, '.doc', 'Does not match'), (SID, '.txt', '')])
 
     def test_a_key_with_no_time_has_a_blank_time(self):
         rows = choices.choice_rows(_Key(subkeys=[_Key('.x', subkeys=[_choice(written=None)])]), EXTS, 'u')
@@ -141,8 +158,8 @@ class ArtifactTest(unittest.TestCase):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
         self.addCleanup(folder.cleanup)
         self.paths = []
-        for name in ('vol1/Users/alice/NTUSER.DAT', 'vol1/Users/bob/NTUSER.DAT', 'vol1/Users/carol/NTUSER.DAT',
-                     'vol1/Users/alice/NTUSER.DAT.LOG1', 'vol1/Users/alice/AppData/Local/Microsoft/Windows/UsrClass.dat'):
+        for name in ('vol1/Users/Alice/NTUSER.DAT', 'vol1/Users/bob/NTUSER.DAT', 'vol1/Users/carol/NTUSER.DAT',
+                     'vol1/Users/Alice/NTUSER.DAT.LOG1', 'vol1/Users/Alice/AppData/Local/Microsoft/Windows/UsrClass.dat'):
             # the staged path sits under the examiner's own Users folder, as a report folder often does
             path = pathlib.Path(folder.name, 'Users', 'examiner', 'report', 'data', name)
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -170,9 +187,9 @@ class ArtifactTest(unittest.TestCase):
                  self.carol: _Hive({})}
         (headers, rows, source), opened, logged = self.run_artifact(hives)
         self.assertEqual(headers, HEADERS)
-        self.assertEqual([(row[1], row[2], row[3], row[5]) for row in rows], [
-            ('alice', '.pdf', 'AppXabc', EXTS + '\\.pdf\\UserChoice'),
-            ('alice', 'mailto', 'AppXmail', URLS + '\\mailto\\UserChoice'),
+        self.assertEqual([(row[1], row[3], row[4], row[7]) for row in rows], [
+            ('Alice', '.pdf', 'AppXabc', EXTS + '\\.pdf\\UserChoice'),
+            ('Alice', 'mailto', 'AppXmail', URLS + '\\mailto\\UserChoice'),
             ('bob', '.txt', 'txtfile', EXTS + '\\.txt\\UserChoice')])
         self.assertTrue(all(len(row) == len(headers) for row in rows))
         self.assertEqual(opened, [self.alice, self.bob, self.carol])
@@ -185,11 +202,35 @@ class ArtifactTest(unittest.TestCase):
         hives = {self.alice: ValueError('bad header'), self.bob: _Hive({EXTS: _Key(subkeys=[_Key('.txt', subkeys=[_choice()])])}),
                  self.carol: _Hive({URLS: _Key(subkeys=[_Key('http', subkeys=[_choice()])]), EXTS: broken})}
         (_headers, rows, source), _opened, logged = self.run_artifact(hives)
-        self.assertEqual([(row[1], row[2]) for row in rows], [('bob', '.txt')])
+        self.assertEqual([(row[1], row[3]) for row in rows], [('bob', '.txt')])
         self.assertEqual(source, self.bob)
-        self.assertEqual(logged[0], 'Default App User Choices: could not read vol1/Users/alice/NTUSER.DAT: bad header')
+        self.assertEqual(logged[0], 'Default App User Choices: could not read vol1/Users/Alice/NTUSER.DAT: bad header')
         self.assertTrue(logged[1].startswith('Default App User Choices: could not read vol1/Users/carol/NTUSER.DAT: '))
         self.assertEqual(len(logged), 2)
+
+    @unittest.skipIf(Registry is None, 'python-registry is not installed')
+    def test_the_sid_comes_from_the_software_hive_of_the_same_volume(self):
+        folder = pathlib.Path(self.alice).parents[2]
+        software = folder / 'Windows' / 'System32' / 'config' / 'SOFTWARE'
+        elsewhere = folder.parent / 'vol2' / 'Windows' / 'System32' / 'config' / 'SOFTWARE'
+        for path in (software, elsewhere):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b'')
+        self.paths += [str(software), str(elsewhere)]
+        profile_list = 'Microsoft\\Windows NT\\CurrentVersion\\ProfileList'
+        here = _Key(subkeys=[_Key(SID, [('ProfileImagePath', 'C:/Users/Alice\\')]),
+                             _Key('S-1-5-21-1-1-1-1', [('ProfileImagePath', 'C:\\Users\\carol')]),
+                             _Key('S-1-5-21-2-2-2-2', [('ProfileImagePath', 'C:\\Users\\carol')]),
+                             _Key('S-1-5-18', [('ProfileImagePath', 7)])])
+        there = _Key(subkeys=[_Key('S-1-5-21-9-9-9-9', [('ProfileImagePath', 'C:\\Users\\bob')])])
+        hives = {self.alice: _Hive({EXTS: _Key(subkeys=[_Key('.pdf', subkeys=[_choice(hashed=PDF_HASH)])])}),
+                 self.bob: _Hive({EXTS: _Key(subkeys=[_Key('.pdf', subkeys=[_choice(hashed=PDF_HASH)])])}),
+                 self.carol: _Hive({EXTS: _Key(subkeys=[_Key('.pdf', subkeys=[_choice(hashed=PDF_HASH)])])}),
+                 str(software): _Hive({profile_list: here}), str(elsewhere): _Hive({profile_list: there})}
+        (_headers, rows, source), _opened, logged = self.run_artifact(hives)
+        self.assertEqual([(row[1], row[2], row[6]) for row in rows], [('Alice', SID, 'Matches'), ('bob', '', ''), ('carol', '', '')])
+        self.assertEqual(source, '\n'.join([self.alice, self.bob, self.carol, str(software), str(elsewhere)]))
+        self.assertEqual(logged, [])
 
     def test_without_python_registry_nothing_is_read_and_the_run_log_says_so(self):
         logged = []
