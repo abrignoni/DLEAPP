@@ -181,7 +181,9 @@ __artifacts_v2__ = {
                  "the record's "
                  "Security element, and it is blank on every lonewolf_win10 and szechuan_win10 row, because those records carry none. Event Time "
                  "(UTC) is the record's TimeCreated SystemTime, which "
-                 "python-evtx renders from the FILETIME the record stores, counted in UTC "
+                 "scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, counted "
+                 "in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
+                 "floating-point number, which can differ by microseconds "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
                  "and Record ID is the record's EventRecordID. Not reported: Bucket, BucketType, "
                  "Response, CabId, AnalysisSymbol, Rechecking and CabGuid.",
@@ -241,7 +243,9 @@ __artifacts_v2__ = {
                  "lonewolf_win10 row. User SID is the SID in the "
                  "record's Security element, and it is blank on every lonewolf_win10 row, because those records carry none. Event Time (UTC) is "
                  "the record's TimeCreated SystemTime, which "
-                 "python-evtx renders from the FILETIME the record stores, counted in UTC "
+                 "scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, counted "
+                 "in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
+                 "floating-point number, which can differ by microseconds "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
                  "and Record ID is the record's EventRecordID. Not reported: AppTimeStamp, "
                  "ModuleTimeStamp, PackageRelativeAppId and TerminationTime.",
