@@ -684,6 +684,12 @@ def _log_time(value):
 def _imported_rows(context, where_clause):
     """Rows of the imported unified log table matching where_clause, oldest first."""
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    imported = get_sqlite_db_records(
+        source_path, "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'macosunifiedlogs'")
+    if not imported:
+        logfunc('No imported unified log entries in this run (the Unified Logs artifact found no '
+                'log store, or did not run), so there is nothing to select from.')
+        return source_path, []
     query = ('SELECT timestamp_utc, process_image_path, process_id, subsystem, category, '
              'event_message, row_number FROM macosunifiedlogs WHERE ' + where_clause +
              ' ORDER BY CAST(row_number AS INTEGER)')
