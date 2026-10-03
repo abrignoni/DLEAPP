@@ -51,6 +51,21 @@ FILETIME (0x91), system time (0x92) and 32 and 64-bit hexadecimal integers
 array as <string> pieces like a string array, which classic_strings splits.
 An array whose size is not a whole number of elements still raises. Arrays of
 booleans, size types, SIDs and ASCII strings are left as python-evtx has them.
+
+A record can carry a ProcessingErrorData element in place of EventData, which
+Microsoft's event schema describes as details of the error that occurred while
+trying to render the event: the error code, the name of the data item that
+caused it, and the event's binary data (Microsoft's event schema,
+https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/WES/eventschema-processingerrordata-eventtype-element.md?plain=1#L20).
+EventRecord keeps those three as fields named ProcessingErrorData.ErrorCode,
+ProcessingErrorData.DataItemName and ProcessingErrorData.EventPayload (the
+binary data as python-evtx renders it, Base64 text), so an artifact that lists
+a record's fields shows them; they are not added to the positional values.
+ErrorCode 15005 is ERROR_EVT_INVALID_EVENT_DATA, 'The event data raised by the
+publisher is not compatible with the event template definition in the
+publisher's manifest'
+(https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/Debug/system-error-codes--12000-15999-.md?plain=1#L3526-L3536).
+EventRecord also keeps the RelatedActivityID of the record's Correlation element.
 """
 
 import os
@@ -190,7 +205,7 @@ class EventRecord:
 
     __slots__ = ('provider', 'event_id', 'version', 'level', 'time', 'record_id',
                  'computer', 'user_sid', 'process_id', 'channel', 'activity_id', 'fields',
-                 'values', 'user_data_name', 'source')
+                 'values', 'user_data_name', 'source', 'related_activity_id', 'processing_error')
 
     def __init__(self, root, source=''):
         self.source = source
@@ -206,6 +221,7 @@ class EventRecord:
         self.process_id = ''
         self.channel = ''
         self.activity_id = ''
+        self.related_activity_id = ''
         if system is not None:
             provider = system.find('{*}Provider')
             self.provider = provider.get('Name', '') if provider is not None else ''
@@ -225,11 +241,20 @@ class EventRecord:
             correlation = system.find('{*}Correlation')
             self.activity_id = ((correlation.get('ActivityID') or '')
                                 if correlation is not None else '')
+            self.related_activity_id = ((correlation.get('RelatedActivityID') or '')
+                                        if correlation is not None else '')
         self.fields = {}
         self.values = []
         self.user_data_name = ''
+        self.processing_error = {}
         event_data = root.find('{*}EventData')
         user_data = root.find('{*}UserData')
+        processing_error = root.find('{*}ProcessingErrorData')
+        if processing_error is not None:
+            for item in processing_error:
+                name = item.tag.split('}')[-1]
+                self.processing_error[name] = item.text or ''
+                self.fields[f'ProcessingErrorData.{name}'] = item.text or ''
         if event_data is not None:
             for item in event_data.findall('{*}Data'):
                 text = item.text or ''
