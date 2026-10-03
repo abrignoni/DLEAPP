@@ -5,6 +5,7 @@ are written out.
 """
 import datetime
 import pathlib
+import re
 import sys
 import tempfile
 import unittest
@@ -15,6 +16,10 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.artifacts import windowsProfileList as profiles  # pylint: disable=wrong-import-position
 from scripts.windows_registry import Registry  # pylint: disable=wrong-import-position
+
+# The fixtures put each hive under a vol<N> folder; match it as a whole path segment, since the
+# temporary folder above it can contain the letters vol.
+_VOLUME = re.compile(r'[\\/]vol(?=\d)')
 
 UTC = datetime.timezone.utc
 WRITTEN = datetime.datetime(2023, 2, 22, 23, 46, 5, 406186)
@@ -78,7 +83,7 @@ class _Context:
 
     @staticmethod
     def get_relative_path(path):
-        return 'vol' + path.split('vol', 1)[1]
+        return 'vol' + _VOLUME.split(path, maxsplit=1)[1]
 
 
 SID = 'S-1-5-21-1111111111-2222222222-3333333333-1001'
