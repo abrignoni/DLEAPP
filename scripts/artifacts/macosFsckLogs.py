@@ -87,7 +87,7 @@ _CTIME = r'[A-Z][a-z]{2} [A-Z][a-z]{2} [ \d]\d \d{2}:\d{2}:\d{2} \d{4}'
 # "<device>: <program> started at <ctime>", the device left out when the program could not name it.
 _STARTED = re.compile(rf'^(?:(\S+): )?(fsck_\w+) started at ({_CTIME})$')
 _COMPLETED = re.compile(rf'^(?:(\S+): )?(fsck_\w+) completed at ({_CTIME})$')
-_FIRMLINK = re.compile(r'(^|/)System/Volumes/Data/')
+_FIRMLINK = re.compile(r'(^|/)(?:System/Volumes/Update/mnt1/|System/Volumes/Data/)+')
 
 
 def _runs(text):

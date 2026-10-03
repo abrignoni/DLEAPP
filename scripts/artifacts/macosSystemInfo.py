@@ -104,7 +104,7 @@ _LOGIN_KEYS = (
     ('GuestEnabled', 'Guest Enabled'),
 )
 _LAST_CITY = 'com.apple.TimeZonePref.Last_Selected_City'
-_FIRMLINK = re.compile(r'(^|/)System/Volumes/Data/')
+_FIRMLINK = re.compile(r'(^|/)(?:System/Volumes/Update/mnt1/|System/Volumes/Data/)+')
 # The folder each file sits in on the volume it describes.
 _MARKERS = {
     'SystemVersion.plist': 'System/Library/CoreServices/',

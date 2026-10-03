@@ -23,6 +23,7 @@ import bisect
 import contextlib
 import gzip
 import os
+import re
 import shutil
 import sqlite3
 import tempfile
@@ -163,15 +164,19 @@ def open_databases(files_found, log, describe):
                 database.close()
 
 
+# The firmlinked Data view and the System/Volumes/Update/mnt1 view of private/var/.
+_FOLDER_VIEWS = re.compile(r'/(?:System/Volumes/Update/mnt1/|System/Volumes/Data/)+private/var/')
+
+
 def powerlog_folder(path):
     """The PowerLog folder a database belongs to: the folder holding it, or that folder's
     parent for a database in Archives or Quarantine, with the firmlinked
-    System/Volumes/Data/private/var/ read as private/var/, since a logical extraction of a
-    Mac can carry the folder under both paths."""
+    System/Volumes/Data/private/var/ and System/Volumes/Update/mnt1/private/var/ read as
+    private/var/, since a logical extraction of a Mac can carry the folder under those paths."""
     folder = os.path.dirname(str(path).replace('\\', '/'))
     if os.path.basename(folder) in ('Archives', 'Quarantine'):
         folder = os.path.dirname(folder)
-    return folder.replace('/System/Volumes/Data/private/var/', '/private/var/')
+    return _FOLDER_VIEWS.sub('/private/var/', folder)
 
 
 def share_offsets(databases, log, describe):
