@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                        "node ID and format version.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-10-03",
         "requirements": "none",
         "category": "File System (macOS)",
         "notes": "Reads the fseventsd disk log files in each .fseventsd folder the declared path "
@@ -48,9 +48,12 @@ __artifacts_v2__ = {
                  "no value on 40 rows of dleapp_macos_bigsur, 25 of them End of transaction "
                  "records, 14 carrying the Mount flag and 1 carrying Renamed and Directory, and "
                  "on 19 rows of the MacBook Pro, 17 End of transaction"
-                 " and 2 Mount.",
+                 " and 2 Mount. An Event ID above 9223372036854775807, the largest integer SQLite "
+                 "stores, is reported as text: all 668,539 on evidencelocker_macos14 are, from "
+                 "18427042000980820600 to 18427042000996205725.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 528,473 rows",
+                     "evidencelocker_macos14": "macOS 14.6.1 build 23G93 | 668,539 rows",
                  },
         "paths": ('*/.fseventsd/*',),
         "output_types": ["html", "tsv", "lava"],
@@ -134,6 +137,14 @@ def _decompress_members(compressed):
         remaining = decompressor.unused_data
 
 
+_SQLITE_INTEGER_MAX = 2 ** 63 - 1
+
+
+def _sqlite_integer(value):
+    """An unsigned value as stored, as text when it is above the largest integer SQLite holds."""
+    return str(value) if value > _SQLITE_INTEGER_MAX else value
+
+
 def _parse_stream(stream, source):
     """Records of one decompressed stream: pages of a 12-byte header and path records."""
     offset = 0
@@ -156,7 +167,7 @@ def _parse_stream(stream, source):
             values = record_struct.unpack_from(stream, position)
             position += record_struct.size
             event_id, flags = values[:2]
-            yield (event_id, path, _decode_flags(flags), f'0x{flags:08X}', _item_type(flags),
+            yield (_sqlite_integer(event_id), path, _decode_flags(flags), f'0x{flags:08X}', _item_type(flags),
                    values[2] if len(values) >= 3 else '', values[3] if len(values) == 4 else '',
                    signature[:1].decode('ascii'), source)
         offset = page_end
