@@ -113,14 +113,17 @@ __artifacts_v2__ = {
                  "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows10/1809/W10_1809_Pro_20181113_17763.107/WEPExplorer/Microsoft-Windows-Windows%20Defender.xml#L769, "
                  "against #L769 of the Windows 11 manifest above; the two templates differ "
                  "in no other field this artifact reads) and in the records of the "
-                 "defender_evtx_attack_samples log. A column whose field the manifest does "
+                 "defender_evtx_attack_samples log; the records of the defender_evtx_to_mitre log "
+                 "name it Security intelligence Version. A column whose field the manifest does "
                  "not give an event is blank on that event's rows. Every value is reported as "
                  "stored, without any spaces or line breaks it begins or ends with, except a "
                  "parameter reference, as described below. Defender platform "
                  "4.18.1906.3, which wrote the records of the "
-                 "defender_evtx_attack_samples log, stores Detection Source, Detection "
-                 "Origin, Detection Type and Action as a reference of the form %%818 "
-                 "rather than as text. Microsoft's documentation describes a parameter "
+                 "defender_evtx_attack_samples log, stores Detection Source, Detection Origin, "
+                 "Detection Type and Action as a reference of the form %%818 rather than as text. "
+                 "Platform 4.18.2011.6, which wrote the records of the defender_evtx_to_mitre log,"
+                 " stores them as text, for example Real-Time Protection. Microsoft's "
+                 "documentation describes a parameter "
                  "string of the form %%n as the identifier of a message in the message "
                  "table of the provider's parameter file (Microsoft Learn, 'ProviderType "
                  "complex type', "
@@ -161,9 +164,9 @@ __artifacts_v2__ = {
                  "Real-Time Protection, %%845 as Local machine, %%822 as Concrete, %%823 as "
                  "Generic, %%862 as FastPath, %%887 as Not Applicable, %%809 as Quarantine and "
                  "%%811 as Allow. No field of any record written by platform 4.18.2210.6 or "
-                 "4.18.2211.5 on pc_mus_001_win11 holds such a reference; none of those "
-                 "records is a detection event, so whether newer platforms store these "
-                 "four fields as text is not established. Event Time (UTC) is the record's "
+                 "4.18.2211.5 on pc_mus_001_win11 holds such a reference; none of those records is"
+                 " a detection event, so how those two platforms store these four fields is not "
+                 "established. Event Time (UTC) is the record's "
                  "TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME "
                  "the record stores with integer arithmetic, counted in UTC and cut to whole "
                  "microseconds, in place of python-evtx 0.8.1's conversion through a "
@@ -176,9 +179,15 @@ __artifacts_v2__ = {
                  "(six 1116 and five 1117), and every value reported on those rows matched "
                  "the record field the mapping above names. On those 11 rows Process Name, "
                  "Detection Source, Detection Origin, Status and Computer each held one "
-                 "value, and User SID was empty, since 1116 and 1117 carry no SID field. "
-                 "None of the registered Windows disk images or the defender_evtx_attack_samples "
-                 "log carries a record with Event ID 1006, 1007, 1008, 1009, 1011, 1015, 1118 or "
+                 "value, and User SID was empty, since 1116 and 1117 carry no SID field. The "
+                 "defender_evtx_to_mitre log, another public research sample, carries 6 (five 1116"
+                 " and one 1117): every value reported on those rows matched the record field the "
+                 "mapping above names, Severity, Category, Process Name, Detection Source, "
+                 "Detection Origin, Detection Type, Status, Error Code, Error Description, "
+                 "Security Intelligence Version, Engine Version and Computer each held one value, "
+                 "and User SID was empty. "
+                 "Neither the registered Windows disk images nor the two public samples carry a "
+                 "record with Event ID 1006, 1007, 1008, 1009, 1011, 1015, 1118 or "
                  "1119, so those branches have not been run on a record Defender wrote. Not "
                  "reported: the product name and version, the ID and index fields beside the "
                  "names other than Threat ID, the FWLink, the Status Code of 1007 and 1008, the "
@@ -188,11 +197,11 @@ __artifacts_v2__ = {
                  "intelligence ID, "
                  "fidelity, image hash and target file fields. A record python-evtx cannot "
                  "render, or whose XML does not parse, is counted in the run log and not "
-                 "reported. python-evtx 0.8.1 rendered every record of this log on the "
-                 "registered Windows disk images and in the defender_evtx_attack_samples "
-                 "log, and none of the 6 records of the defender_evtx_to_mitre log, "
-                 "another public sample whose file and chunk checksums all match, so that "
-                 "log gives no rows. A detection row records what Defender logged; it does "
+                 "reported. Every record of this log rendered on the registered Windows disk "
+                 "images and in the two public samples. The 6 records of the "
+                 "defender_evtx_to_mitre log hold their elements with no template, which "
+                 "python-evtx 0.8.1 by itself does not render; scripts/windows_evtx.py reads them."
+                 " A detection row records what Defender logged; it does "
                  "not by itself establish who placed the file or ran the process. Reading needs "
                  "the python-evtx package (pip install python-evtx); giving references their "
                  "text needs the pefile package (pip install pefile), and without it they are "
@@ -208,7 +217,7 @@ __artifacts_v2__ = {
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no detection or quarantine events in the Defender Operational log)",
                            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 11 rows",
-                           "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
+                           "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 6 rows",
                        },
     },
     "defenderProtectionChanges": {
@@ -234,8 +243,8 @@ __artifacts_v2__ = {
                  "values. Detail is Feature Name and Configuration on 5004, Changed Type "
                  "and Value on 5013, and Timestamp, Domain and User joined with a "
                  "backslash, and SID on 1013, each as 'name: value'. No 5004, 5010, 5012 or 5013 "
-                 "record is on the registered Windows disk images or in the "
-                 "defender_evtx_attack_samples log, so those branches are unexercised. Product "
+                 "record is on the registered Windows disk images or in the two public samples, so those branches are "
+                 "unexercised. Product "
                  "Version is "
                  "the Product Version field. Field names are those of the provider "
                  "manifest (manifest as registered on Windows 11 build 22621.819, "
@@ -277,11 +286,11 @@ __artifacts_v2__ = {
                  "three Defender event artifacts reads (1150, 1151, 2000, 2001, 2002, 2010, 2011 "
                  "and 2014 on the registered images). A "
                  "record python-evtx cannot render, or whose XML does not parse, is "
-                 "counted in the run log and not reported. python-evtx 0.8.1 rendered "
-                 "every record of this log on the registered Windows disk images and in "
-                 "the defender_evtx_attack_samples log, and none of the 6 records of the "
-                 "defender_evtx_to_mitre log, another public sample whose file and chunk "
-                 "checksums all match, so that log gives no rows. A 5007 row records a "
+                 "counted in the run log and not reported. Every record of this log rendered on the registered Windows"
+                 " disk images and in the two public samples. The 6 records of the defender_evtx_to_mitre log hold "
+                 "their elements with no template, which python-evtx 0.8.1 by itself does not render; "
+                 "scripts/windows_evtx.py reads them. All 6 are 1116 or 1117 records, which this artifact does not "
+                 "report. A 5007 row records a "
                  "configuration value Defender logged as changed; it does not by itself "
                  "establish which person or program changed it. Reading needs the python-evtx "
                  "package (pip install python-evtx); giving references their text needs the "
@@ -298,7 +307,7 @@ __artifacts_v2__ = {
                            "lonewolf_win10": "Windows 10 Education build 16299 | 10 rows",
                            "szechuan_win10": "Windows 10 2004 build 19041 | 34 rows",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
-                           "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
+                           "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 0 rows (the log holds only 1116 and 1117 records)",
                        },
     },
     "defenderScans": {
@@ -396,11 +405,12 @@ __artifacts_v2__ = {
                  "Not reported: the product name and the index fields beside the scan "
                  "type and parameters. A record python-evtx cannot render, or whose "
                  "XML does not parse, is counted in the run log and not reported. "
-                 "python-evtx 0.8.1 rendered every record of this log on the registered "
-                 "Windows disk images and in the defender_evtx_attack_samples log, and "
-                 "none of the 6 records of the defender_evtx_to_mitre log, another public "
-                 "sample whose file and chunk checksums all match, so that log gives no "
-                 "rows. A scan row records a scan Defender logged; the User the record "
+                 "Every record of this log rendered on the registered Windows disk images and in "
+                 "the two public samples. The 6 records of the defender_evtx_to_mitre log hold "
+                 "their elements with no template, which python-evtx 0.8.1 by itself does not "
+                 "render; scripts/windows_evtx.py reads them. All 6 are 1116 or 1117 records, "
+                 "which this artifact does not report. A scan row records a scan Defender logged; "
+                 "the User the record "
                  "names does not by itself establish that a person started the scan. "
                  "Reading needs the python-evtx package (pip install python-evtx); giving "
                  "references their text needs the pefile package (pip install pefile), and "
@@ -416,7 +426,7 @@ __artifacts_v2__ = {
                            "lonewolf_win10": "Windows 10 Education build 16299 | 7 rows",
                            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
-                           "defender_evtx_to_mitre": "Defender Operational log only | 0 rows (python-evtx 0.8.1 renders none of the log's 6 records)",
+                           "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 0 rows (the log holds only 1116 and 1117 records)",
                        },
     },
 }
