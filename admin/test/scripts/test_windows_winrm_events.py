@@ -54,7 +54,7 @@ class RowTest(unittest.TestCase):
     def test_a_session_being_created_has_its_connection_and_the_record_ids(self):
         row = winrm.winrm_row(record('7', '6', [('connection', 'host.example/wsman?PSVersion=5.1')], user='S-1-5-21-1-2-3-1001'))
         self.assertEqual(row, (TIME, '6', 'Creating WSMan Session.', 'connection: host.example/wsman?PSVersion=5.1', ACTIVITY,
-                               '4321', 'S-1-5-21-1-2-3-1001', '7', 'LAB-PC'))
+                               RELATED, '4321', 'S-1-5-21-1-2-3-1001', '7', 'LAB-PC'))
 
     def test_fields_are_listed_by_name_in_record_order_without_the_empty_ones(self):
         fields = [('resourceUri', ' http://x/y '), ('Blank', '   '), ('Empty', ''), ('operationName', 'Get  it\n')]
@@ -62,13 +62,12 @@ class RowTest(unittest.TestCase):
         self.assertEqual(row[2], 'WSMan operation %1 started with resourceUri %2')
         self.assertEqual(row[3], 'resourceUri: http://x/y | operationName: Get  it')
 
-    def test_the_related_activity_id_is_not_shown(self):
-        self.assertNotIn(RELATED, winrm.winrm_row(record('9', '254', [])))
-        self.assertEqual(winrm.winrm_row(record('9', '254', []))[2:5], ('Activity Transfer', '', ACTIVITY))
+    def test_the_related_activity_id_follows_the_activity_id(self):
+        self.assertEqual(winrm.winrm_row(record('9', '254', []))[2:7], ('Activity Transfer', '', ACTIVITY, RELATED, '4321'))
 
     def test_a_record_with_no_activity_and_no_user_has_blank_cells(self):
         row = winrm.winrm_row(record('10', '208', [], user='', activity='', pid='88'))
-        self.assertEqual(row[2:7], ('The Winrm service is starting', '', '', '88', ''))
+        self.assertEqual(row[2:8], ('The Winrm service is starting', '', '', '', '88', ''))
 
     def test_an_event_whose_message_is_a_placeholder_and_an_event_id_outside_the_table(self):
         self.assertEqual(winrm.winrm_row(record('11', '161', [('authFailureMessage', 'no')]))[2:4], ('%1', 'authFailureMessage: no'))
@@ -94,10 +93,10 @@ class ArtifactTest(unittest.TestCase):
             headers, rows, source = winrm.winRmEvents.__wrapped__(_Context())
         reader.assert_called_once_with(mock.ANY, 'Microsoft-Windows-WinRM%4Operational.evtx', 'WinRM Events',
                                        provider='Microsoft-Windows-WinRM')
-        self.assertEqual([(row[7], row[1]) for row in rows], [('23', '145'), ('21', '254'), ('22', '142'), ('24', '9999')])
+        self.assertEqual([(row[8], row[1]) for row in rows], [('23', '145'), ('21', '254'), ('22', '142'), ('24', '9999')])
         self.assertEqual(source, LOG)
-        self.assertEqual(headers, (('Event Time (UTC)', 'datetime'), 'Event ID', 'Event', 'Fields', 'Activity ID', 'Process ID',
-                                   'User SID', 'Record ID', 'Computer'))
+        self.assertEqual(headers, (('Event Time (UTC)', 'datetime'), 'Event ID', 'Event', 'Fields', 'Activity ID',
+                                   'Related Activity ID', 'Process ID', 'User SID', 'Record ID', 'Computer'))
         self.assertTrue(all(len(row) == len(headers) for row in rows))
 
     def test_two_logs_give_both_sources(self):
