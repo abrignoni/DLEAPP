@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        'rebuilt path, kind and size.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-27",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-03",
         "requirements": "none",
         "category": "Spotlight (macOS)",
         "notes": (
@@ -65,7 +65,11 @@ __artifacts_v2__ = {
             'rows on dleapp_macos_bigsur and 7,303 on the MacBook Pro do. File ID and Parent File '
             "ID are the record's identifier and parent identifier, which the documentation "
             'describes as the file system identifier (for example the CNID on HFS) of the file '
-            'and of its parent. Content Modified (UTC), Content Created (UTC), Date Added (UTC), '
+            'and of its parent. An identifier above 9223372036854775807, the largest integer SQLite '
+            'stores, is reported as text: on magnet2021_macos_bigsur the record named Macintosh HD - '
+            'Data in one of the two stores holds a parent identifier of 18446744073709551615, all 64 '
+            'bits set, and Downloaded (UTC) held no value on any of its 14,948 rows. Content Modified '
+            '(UTC), Content Created (UTC), Date Added (UTC), '
             'Last Used (UTC) and Downloaded (UTC) are kMDItemContentModificationDate, '
             'kMDItemContentCreationDate, kMDItemDateAdded, kMDItemLastUsedDate and '
             'kMDItemDownloadedDate, dates the documentation describes as Cocoa timestamps '
@@ -141,6 +145,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 13,677 rows",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 14,948 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
@@ -189,6 +194,16 @@ def _cocoa_text(value):
     """A date or list of dates as UTC text, one per line."""
     dates = [_cocoa(v) for v in (value if isinstance(value, list) else [value])]
     return '\n'.join(str(d.replace(tzinfo=None)) for d in dates if d != '')
+
+
+_SQLITE_INTEGER_MAX = 2 ** 63 - 1
+
+
+def _identifier(value):
+    """A stored identifier, as text when it is above the largest integer SQLite can hold."""
+    if isinstance(value, int) and value > _SQLITE_INTEGER_MAX:
+        return str(value)
+    return value
 
 
 def _text(value):
@@ -281,7 +296,7 @@ def macosSpotlightStoreFiles(context):
                 name, locate(item.identifier, item.parent, name),
                 _text(attributes.get('kMDItemKind')), _text(attributes.get('kMDItemContentType')),
                 _text(attributes.get('kMDItemLogicalSize')), _text(attributes.get('_kMDItemOwnerUserID')),
-                item.identifier, item.parent), relative))
+                _identifier(item.identifier), _identifier(item.parent)), relative))
         read.append(path)
         if unnamed:
             logfunc(f'Spotlight Store Files: {relative}: {unnamed} record(s) with no file name not reported')
