@@ -74,46 +74,71 @@ __artifacts_v2__ = {
     },
     "macosUnifiedLogScreenUnlock": {
         "name": "Unified Logs - Screen Unlock",
-        "description": "Unified log entries about unlocking a locked Mac: keybag lock transitions, Touch "
-                       "ID match results, loginwindow password attempts and failed password checks.",
+        "description": "Unified log entries about locking and unlocking a Mac: keybag state transitions, the "
+                       "kernel's volume lock and unlock notifications, Touch ID match results, loginwindow "
+                       "password attempts and failed password verification entries.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
         "category": "Unified Logs (macOS)",
-        "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
-                 "LAVA database in the same run, so it reports nothing when that artifact did not "
-                 "run; Row Number is the entry's row number in that table and rows are in that "
-                 "order. Selects the entries Tim Korver reports for a Mac unlock in 'Same unlock, "
-                 "three different stories' "
+        "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA "
+                 "database in the same run, so it reports nothing when that artifact did not run; Row "
+                 "Number is the entry's row number in that table and rows are in that order. Selects the "
+                 "entries Tim Korver reports for a Mac unlock in 'Same unlock, three different stories' "
                  "(https://thesisfriday.com/thesis-friday-26-same-unlock-three-different-stories/, "
-                 "measured there on macOS 26.6.2 on Apple silicon): the 'Transition: locked ->' "
-                 "entries of the com.apple.chrono keybag category, which that research reads as "
-                 "'locked -> inBioUnlock' after Touch ID and 'locked -> unlocked' after a "
-                 "password; biometrickitd 'matchResult:timestamp:' with MATCH and a user ID, or "
-                 "NO-MATCH; coreauthd 'has received no-match'; loginwindow 'loginPressed:' attempt "
-                 "numbers, 'password is CORRECT' and 'Unlock succeeded, with password'; "
-                 "opendirectoryd 'ODRecordVerifyPassword failed'; and authorizationhost "
-                 "'pam_authenticate failed'. The same research reports that most of these are "
-                 "written at the info and debug levels, so a log collected without those levels "
-                 "carries few of them. opendirectoryd logs every failed password check it makes, "
-                 "not only those at the lock screen; read it beside the loginwindow entries around "
-                 "it. Tested on dleapp_macos_bigsur (macOS 11.2.1), evidencelocker_macos14 (macOS "
-                 "14.6.1) and the unified log store of a macOS 15.4 MacBook Pro logical "
-                 "extraction (mvs2026_macbookpro_macos15). Big Sur: 61 rows, 5 attempt entries, 5 "
-                 "'password is CORRECT', 10 'Unlock succeeded' and 41 ODRecordVerifyPassword "
-                 "failures. macOS 14.6.1: 467 rows, 17 matchResult MATCH entries (user IDs 501 and "
-                 "503), 1 'password is CORRECT', 437 ODRecordVerifyPassword failures and 12 "
-                 "pam_authenticate failures, with no attempt or 'Unlock succeeded' entry. macOS "
-                 "15.4: 32 rows, 2 'Transition: locked -> unlocked' (chronod and "
-                 "NotificationCenter for one unlock), 1 attempt, 1 'password is CORRECT', 2 "
-                 "'Unlock succeeded' and 26 ODRecordVerifyPassword failures. No keybag transition "
-                 "appeared on Big Sur or 14.6.1, and no 'locked -> inBioUnlock', NO-MATCH or "
-                 "coreauthd no-match on any tested image.",
+                 "measured there on macOS 26.6.2 on Apple silicon): the 'Transition:' entries of the "
+                 "com.apple.chrono keybag category, of which that research reads 'locked -> inBioUnlock' "
+                 "as following Touch ID and 'locked -> unlocked' as following a password; biometrickitd "
+                 "'matchResult:timestamp:' with MATCH and a user ID, or NO-MATCH; coreauthd 'has "
+                 "received no-match'; loginwindow 'loginPressed:' attempt numbers, 'password is CORRECT' "
+                 "and 'Unlock succeeded, with password'; opendirectoryd 'ODRecordVerifyPassword failed'; "
+                 "and authorizationhost 'pam_authenticate failed'. Every keybag transition is selected, "
+                 "not only those leaving 'locked', and so is the kernel's 'Sending notification for "
+                 "volume' entry, which carries the state as written (unlocked or locked on the tested "
+                 "images). Tim Korver's 'Backward reasoning from a provable endpoint' "
+                 "(https://thesisfriday.com/thesis-friday-27-backward-reasoning-from-a-provable-endpoint/, "
+                 "measured on macOS 26.6.2) reports that a session unlocked with Touch ID stays in the "
+                 "biometric state until it locks, that two processes writing the same transition are one "
+                 "message relayed and not two observations, and that the kernel layer is the deepest "
+                 "record of an unlock where it is present; it does not name the kernel strings, and the "
+                 "volume notification is the entry his 'What a busy phone forgets' "
+                 "(https://thesisfriday.com/thesis-friday-28-what-a-busy-phone-forgets/) counts with the "
+                 "kernel lines of an unlock on iOS. Its relation to a screen unlock on macOS was not "
+                 "tested here. A MATCH entry is not an unlock: 'Backward reasoning from a provable "
+                 "endpoint' recorded successful matches with the machine already unlocked and no change "
+                 "of state. The same research reports that most of these are written at the info and "
+                 "debug levels, so a log collected without those levels carries few of them. An "
+                 "ODRecordVerifyPassword or pam_authenticate failure is not established to be a person "
+                 "typing a wrong password: 'Backward reasoning from a provable endpoint' found password "
+                 "verification and authentication failure lines in a block where no password was typed, "
+                 "without naming the strings, and whether these entries are of that kind was not tested "
+                 "here. Read them beside the loginwindow entries around them. An absent entry is not "
+                 "evidence that no unlock happened: 'The stop rule' "
+                 "(https://thesisfriday.com/the-stop-rule/) sets out that an empty result counts only "
+                 "when the log is shown to cover the period for that kind of entry. Tested on "
+                 "dleapp_macos_bigsur (macOS 11.2.1), evidencelocker_macos14 (macOS 14.6.1) and the "
+                 "unified log store of a macOS 15.4 MacBook Pro logical extraction "
+                 "(mvs2026_macbookpro_macos15). Big Sur: 61 rows, 5 attempt entries, 5 'password is "
+                 "CORRECT', 10 'Unlock succeeded' and 41 ODRecordVerifyPassword failures. macOS 14.6.1: "
+                 "524 rows, 17 matchResult MATCH entries (user IDs 501 and 503), 1 'password is "
+                 "CORRECT', 437 ODRecordVerifyPassword failures, 12 pam_authenticate failures, 37 keybag "
+                 "transitions (18 'disabled -> unlocked', 8 'disabled -> unknown', 7 'unlocked -> "
+                 "unknown', 2 'locking -> inBioUnlock', 2 'unlocked -> locking'; 'unknown' is reported "
+                 "as stored) and 20 volume notifications (11 unlocked, 9 locked), with no attempt or "
+                 "'Unlock succeeded' entry. macOS 15.4: 38 rows, 6 keybag transitions (2 'locked -> "
+                 "unlocked', 2 'locking -> locked', 2 'unlocked -> locking', each written once by "
+                 "chronod and once by NotificationCenter), 2 volume notifications (1 unlocked, 1 "
+                 "locked), 1 attempt, 1 'password is CORRECT', 2 'Unlock succeeded' and 26 "
+                 "ODRecordVerifyPassword failures. No keybag transition or volume notification appeared "
+                 "on Big Sur. No transition leaving 'locked' appeared on 14.6.1, where the only form "
+                 "naming inBioUnlock was 'locking -> inBioUnlock' (one entry each from chronod and "
+                 "NotificationCenter). No 'locked -> inBioUnlock', NO-MATCH or coreauthd no-match "
+                 "appeared on any tested image.",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 | 61 rows",
-            "evidencelocker_macos14": "macOS 14.6.1 | 467 rows",
-            "mvs2026_macbookpro_macos15": "macOS 15.4 | 32 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 524 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 38 rows",
         },
         "paths": None,
         "output_types": "standard",
@@ -710,7 +735,9 @@ def macosUnifiedLogScreenUnlock(context):
                  OR event_message LIKE '%password is CORRECT%'
                  OR event_message LIKE '%Unlock succeeded, with password%'))
         OR (subsystem = 'com.apple.chrono' AND category = 'keybag'
-            AND event_message LIKE 'Transition: locked ->%')
+            AND event_message LIKE 'Transition:%')
+        OR (process_image_path = '/kernel'
+            AND event_message LIKE '%Sending notification for volume%')
         OR (process_image_path LIKE '%/biometrickitd' AND event_message LIKE 'matchResult:timestamp:%')
         OR (process_image_path LIKE '%/coreauthd' AND event_message LIKE '%has received no-match%')
         OR (process_image_path LIKE '%/opendirectoryd'
