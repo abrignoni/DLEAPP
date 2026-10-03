@@ -57,7 +57,8 @@ __artifacts_v2__ = {
                  "in place of python-evtx 0.8.1's conversion through a floating-point number, which can "
                  "differ by microseconds ("
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
-                 "and it was within 0.015 seconds of New Time on every row. New Time (UTC) and Previous Time "
+                 "and on the four images it was within 0.015 seconds of New Time on every row. New Time (UTC) and "
+                 "Previous Time "
                  "(UTC) are NewTime and OldTime, FILETIMEs that python-evtx also renders counted in UTC. "
                  "Change (seconds) is New Time minus Previous Time, computed here; the TimeDeltaInMs that "
                  "version 4 stores agreed with it to within 1 millisecond on all 86 rows of "
@@ -79,7 +80,8 @@ __artifacts_v2__ = {
                  "which the event carries from version 2; on the version 2 and 4 rows it was blank on every "
                  "Reason 2 row and on one Reason 3 row of pc_mus_001_win11. Process ID is ProcessID where "
                  "the event stores it and otherwise, on version 1, the process ID in the record's Execution "
-                 "element: the two were equal on all 108 rows that store ProcessID, it was 4 on every Reason "
+                 "element: the two were equal on all 108 rows of the four images that store ProcessID and on "
+                 "every row of the two captures named below, it was 4 on every Reason "
                  "2 row and on every version 2 or 4 row with a blank Process Name, and it equalled the "
                  "paired record's process ID on all 48 rows paired with a Security 4616 record, 14 of them "
                  "version 1 rows on lonewolf_win10. Time Zone Bias (as stored) is TimeZoneBias, which only "
@@ -98,7 +100,18 @@ __artifacts_v2__ = {
                  "in chunks its header does not count; those chunks are read too, and they gave 37 of the 51 "
                  "lonewolf_win10 rows, 18 of the 86 pc_mus_001_win11 rows and 3 of the 12 szechuan_win10 "
                  "rows. A record python-evtx cannot render, or whose XML does not parse, is counted in the "
-                 "run log and not reported; every record in this log rendered on the four images. A row "
+                 "run log and not reported; every record in this log rendered on the four images. "
+                 "The two captures of a Windows 11 build 26200 machine, windows11_arm_4688_known and "
+                 "windows11_arm_known_20261001, gave 266 and 267 rows, all version 4. Neither holds "
+                 "microsoft-windows-system-events.dll, so Reason is reported as stored there (1 or 3) and the "
+                 "run log says the reasons were kept as stored. On each, the Reason 1 rows named prl_tools.exe"
+                 " (220 and 221 rows), svchost.exe (31) or rundll32.exe (1) and moved the clock both forward "
+                 "and back; the 14 Reason 3 rows named prl_tools.exe, TiWorker.exe, rundll32.exe or msoobe.exe"
+                 " and had the same Previous Time and New Time. Event Time was more than 0.015 seconds from "
+                 "New Time on 8 and 9 rows, all of them Reason 1 rows naming prl_tools.exe, and less than 0.27"
+                 " seconds from it on every row. Time Zone Bias (as stored) held 240 on 164 and 165 rows, 300 "
+                 "on 98 and -600 on 4, Computer held two values, and every record in the log rendered. "
+                 "A row "
                  "records a change to the system time as this provider logged it; it does not by itself "
                  "establish which person, if any, made the change. Reading needs the python-evtx package "
                  "(pip install python-evtx); naming the reason needs the pefile package (pip install "
@@ -113,6 +126,8 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 51 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 86 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 12 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 266 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 267 rows",
         },
     },
     "securityTimeChanges": {
@@ -137,7 +152,8 @@ __artifacts_v2__ = {
                  "microseconds, in place of python-evtx 0.8.1's conversion through a floating-point number, "
                  "which can differ by microseconds ("
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
-                 "and it was within 0.01 seconds of New Time on every row. Previous Time (UTC) and New Time "
+                 "and on the four images it was within 0.01 seconds of New Time on every row. Previous Time "
+                 "(UTC) and New Time "
                  "(UTC) are PreviousTime and NewTime, which that page describes as the previous time and the "
                  "new time in UTC, and Change (seconds) is New Time minus Previous Time, computed here. "
                  "Process Name is ProcessName, and Process ID is ProcessId, which the page describes as the "
@@ -161,7 +177,14 @@ __artifacts_v2__ = {
                  "and szechuan_win10. The Security log was marked dirty on lonewolf_win10, pc_mus_001_win11 "
                  "and szechuan_win10; on lonewolf_win10 and szechuan_win10 it held records in chunks its "
                  "header does not count, and those chunks, which are read too, gave 11 of the 14 "
-                 "lonewolf_win10 rows and 2 of the 9 szechuan_win10 rows. A record python-evtx cannot "
+                 "lonewolf_win10 rows and 2 of the 9 szechuan_win10 rows. "
+                 "On windows11_arm_4688_known, a capture of a Windows 11 build 26200 machine, the 19 rows are "
+                 "version 1: 17 hold the SID S-1-5-18 with a Process Name ending in prl_tools.exe and 2 hold "
+                 "LOCAL SERVICE with svchost.exe, so by the page's description the 17 were not made by the "
+                 "Windows Time service; Event Time was less than 0.27 seconds from New Time on every row, and "
+                 "each row had a Kernel-General 1 record with the same previous and new times. The Security "
+                 "log of windows11_arm_known_20261001, a capture of the same machine, holds no 4616 record. "
+                 "A record python-evtx cannot "
                  "render, or whose XML does not parse, is counted in the run log and not reported; every "
                  "record in this log rendered on the four images. Reading needs the python-evtx package (pip "
                  "install python-evtx).",
@@ -173,6 +196,8 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 14 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 21 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 9 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 19 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (the Security log holds no 4616 record)",
         },
     },
 }
