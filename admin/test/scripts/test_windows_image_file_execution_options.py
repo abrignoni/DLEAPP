@@ -6,6 +6,7 @@ are written out.
 """
 import datetime
 import pathlib
+import re
 import sys
 import tempfile
 import unittest
@@ -16,6 +17,10 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.artifacts import windowsImageFileExecutionOptions as ifeo  # pylint: disable=wrong-import-position
 from scripts.windows_registry import Registry  # pylint: disable=wrong-import-position
+
+# The fixtures put each hive under a vol<N> folder; match it as a whole path segment, since the
+# temporary folder above it can contain the letters vol.
+_VOLUME = re.compile(r'[\\/]vol(?=\d)')
 
 T1 = datetime.datetime(2026, 10, 1, 18, 8, 38, 430439)
 T2 = datetime.datetime(2026, 10, 1, 18, 8, 42, 123310)
@@ -76,7 +81,7 @@ class _Context:
 
     @staticmethod
     def get_relative_path(path):
-        return 'vol' + path.split('vol', 1)[1] if 'vol' in path else path
+        return 'vol' + _VOLUME.split(path, maxsplit=1)[1] if _VOLUME.search(path) else path
 
 
 NT = 'Microsoft\\Windows NT\\CurrentVersion'
