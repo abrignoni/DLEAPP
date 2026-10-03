@@ -46,7 +46,7 @@ __artifacts_v2__ = {
                  "length of receiver_data. On dleapp_macos_bigsur 44 caches gave 1,528 rows, from "
                  "2020-12-02 15:00:46 to 2021-02-19 19:53:28 UTC, and the Cache.db under "
                  "com.apple.parsecd/EngagedCompletions had no cfurl_cache_response table. On the "
-                 "public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) "
+                 "public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) "
                  "60 caches gave 1,728 rows, and 58 copies under System/Volumes/Data "
                  "byte-identical to another were read once and counted in the run log. The request "
                  "objects hold request headers: 967 on dleapp_macos_bigsur included a Cookie "

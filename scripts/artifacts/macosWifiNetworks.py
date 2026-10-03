@@ -23,7 +23,7 @@ __artifacts_v2__ = {
                  "LastDisconnectTimestamp values as stored; what event each records beyond its name is"
                  " not established. BSSIDs lists each BSSList entry's BSSID, channel and "
                  "LastAssociatedAt. com.apple.airport.preferences.plist is not read. On the public "
-                 "MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) the file "
+                 "MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the file "
                  "holds 5 networks: all 5 have AddedAt and JoinedByUserAt, 4 have the other four "
                  "dates, and 4 carry 10 BSSList entries between them; Hidden holds one value, No, on "
                  "all 5 rows. dleapp_macos_bigsur has no com.apple.wifi.known-networks.plist, and its "

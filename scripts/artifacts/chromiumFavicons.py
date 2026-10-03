@@ -87,7 +87,7 @@ __artifacts_v2__ = {
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/favicon/core/favicon_database.cc#L127); "
                  "every database on the tested Windows images is version 8, as its meta table records, "
                  "so Page URL Type was empty on every row there. On the public MacBook Pro logical "
-                 "extraction (macOS 15.4 build 24E248, not a registered corpus key), whose Chrome app "
+                 "extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15), whose Chrome app "
                  "bundle holds framework versions 143.0.7499.42 and 143.0.7499.170, the Chrome Default "
                  "profile's database is version 9: of its 68 rows, Page URL Type was kRegular (0) on "
                  "49 and kRedirect (1) on 19, Icon Type was kFavicon (1) on all, Last Updated was set "

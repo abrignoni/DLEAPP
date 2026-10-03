@@ -53,7 +53,7 @@ __artifacts_v2__ = {
                  "and the com.apple.iCal one listed none. The com.apple.Maps~iosmac and "
                  "com.apple.MobileSMS~iosmac folders there hold a KnownSceneSessions/data.data and "
                  "no windows.plist, and are not read. The public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key) holds no Saved Application State "
+                 "(macOS 15.4, corpus key mvs2026_macbookpro_macos15) holds no Saved Application State "
                  "folder, so the talagentd location was tested only on that private system.",
         "paths": (
             '*/Saved Application State/*.savedState/windows.plist',
@@ -136,7 +136,7 @@ __artifacts_v2__ = {
                  "while Close windows when quitting an application is off, and on that system "
                  "Terminal's folder was empty after Terminal was quit, so an empty or missing "
                  "Terminal folder does not show that Terminal went unused. The public MacBook Pro "
-                 "logical extraction (macOS 15.4, not a registered corpus key) holds no Saved "
+                 "logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) holds no Saved "
                  "Application State folder.",
         "paths": (
             '*/Saved Application State/*.savedState/windows.plist',

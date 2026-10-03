@@ -33,7 +33,7 @@ __artifacts_v2__ = {
             "records, which Mother's Ruin describes as corresponding, more or less, to when "
             'notarization was granted or the ticket issued, not a time this Mac stored or used '
             'the ticket: on the public MacBook Pro logical extraction (macOS 15.4 build 24E248, '
-            'not a registered corpus key), 10 stored tickets list exactly the hashes of a ticket '
+            'corpus key mvs2026_macbookpro_macos15), 10 stored tickets list exactly the hashes of a ticket '
             'stapled into a Contents/CodeResources file on the same extraction, decoded with the '
             "layout Mother's Ruin gives, and 7 of them carry exactly that stapled ticket's "
             'timestamp; the other 3 are later, one of them a second stored ticket for '

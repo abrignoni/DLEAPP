@@ -115,7 +115,7 @@ __artifacts_v2__ = {
                  "so a SubResources record's time stamp can be older than the record's last rewrite. As a "
                  "check, the time stamp was within 60 seconds of the response's own Date header on 1,503 "
                  "of the 1,851 dleapp_macos_bigsur Resource records carrying one and on 1,879 of the 2,951 "
-                 "on the public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key), "
+                 "on the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15), "
                  "with median gaps of 0.7 and 0.8 seconds. Partition, Type and URL are the key's "
                  "partition, type and URL: WebKit makes a response's key from the request's cache "
                  "partition, the type Resource and the URL without its fragment "

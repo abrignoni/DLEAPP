@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                  "reported files, one system agent and one system daemon, both use ProgramArguments "
                  "and set none of Program, Disabled, StartInterval or UserName, so Program, Disabled, "
                  "Start Interval, User Name and User are empty there. On the public MacBook Pro "
-                 "logical extraction (macOS 15.4, not a registered corpus key) 868 files under "
+                 "logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) 868 files under "
                  "/System/Library or /Library/Apple were not reported, 7 byte-identical copies "
                  "under System/Volumes/Data were not read again, and 7 were reported. Five of "
                  "those 7, the com.google.keystone plists of 181 bytes "

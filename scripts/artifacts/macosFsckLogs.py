@@ -49,7 +49,7 @@ __artifacts_v2__ = {
                  "Messages, and a file with no run is logged and not read. On dleapp_macos_bigsur "
                  "fsck_apfs.log held 40 runs, dated 2021-02-15 to 2021-02-19 as written, on seven devices "
                  "under /dev/rdisk1, so Program held one value, fsck_apfs, on all 40 rows. On the public "
-                 "MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) fsck_apfs.log "
+                 "MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) fsck_apfs.log "
                  "held 75 runs, dated 2025-09-03 to 2025-12-12, on seven devices under /dev/rdisk1 and on "
                  "/dev/rdisk3s1, and fsck_hfs.log held 11 runs, dated 2025-09-12 to 2025-12-24, on "
                  "/dev/rdisk2, /dev/rdisk2s1, /dev/rdisk2s2 and /dev/rdisk4s2. The 9 runs on /dev/rdisk3s1 "

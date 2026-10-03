@@ -17,7 +17,7 @@ __artifacts_v2__ = {
             'created_at of the two VMware kexts, 2020-12-02 15:16:17 and 15:16:22, falls 17 and '
             "22 seconds after the first VMware Tools Installer line in that Mac's install.log, "
             'stamped 2020-12-02 07:16:00-08 (15:16:00 UTC), and on the public MacBook Pro logical '
-            'extraction (macOS 15.4 build 24E248, not a registered corpus key) two of the three '
+            'extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15) two of the three '
             'last_seen values, 2025-12-12 15:48:26 and 15:48:27, fall 3 and 4 seconds after the '
             "last 'powerd process is started' record in its power management log (Power "
             "Management Log (ASL)), at 2025-12-12 15:48:23 UTC, while the third equals its row's "
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
             'no time. On dleapp_macos_bigsur it holds 2 rows, both with Developer Name VMware, '
             'Inc., Team ID EG7KH642X6 and Allowed 1, whose bundle IDs are those of the two VMware '
             'kexts in Kext Load History; on the public MacBook Pro logical extraction (macOS 15.4 '
-            'build 24E248, not a registered corpus key) it is empty. When a logical extraction '
+            'build 24E248, corpus key mvs2026_macbookpro_macos15) it is empty. When a logical extraction '
             'holds the database under private/var and under System/Volumes/Data/private/var, a '
             'row both copies hold is reported once and Source File lists both.'
         ),
@@ -76,8 +76,8 @@ __artifacts_v2__ = {
         "notes": (
             'Reads the object table of the SystemPolicy database, at /private/var/db/SystemPolicy '
             'on dleapp_macos_bigsur and at /private/var/db/SystemPolicyConfiguration/SystemPolicy '
-            'on the public MacBook Pro logical extraction (macOS 15.4 build 24E248, not a '
-            "registered corpus key), joined to its authority table for Authority Label. Apple's "
+            'on the public MacBook Pro logical extraction (macOS 15.4 build 24E248, corpus key '
+            "mvs2026_macbookpro_macos15), joined to its authority table for Authority Label. Apple's "
             'syspolicy.sql, the file format of this database, describes the object table as '
             'previously determined outcomes for individual objects, each with an operation type, '
             'a canonical hash of the object, allow as 1 for allow and 0 for deny, the governing '

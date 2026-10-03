@@ -40,7 +40,7 @@ __artifacts_v2__ = {
                  "path (7), or by com.apple.locationd.executable- (1). Authorized was Yes on 3, No "
                  "on 2 and absent on 7, and 6 entries each carry one of the two times, between "
                  "2020-12-02 15:17:15 and 2021-02-19 19:42:07 UTC. On the public MacBook Pro "
-                 "logical extraction (macOS 15.4, not a registered corpus key) the 23 entries are "
+                 "logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the 23 entries are "
                  "keyed by root (14) or a UUID (9), a colon, p and a path or i and a bundle ID, "
                  "and a colon, with a further p and a path on 4 of them. The UUID equals the "
                  "GeneratedUID in the dslocal record of the account with uid 501 on that "

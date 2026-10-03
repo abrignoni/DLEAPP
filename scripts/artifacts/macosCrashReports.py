@@ -55,7 +55,7 @@ __artifacts_v2__ = {
                  "reported. On dleapp_macos_bigsur the one report is a text .crash with no Launch Time, "
                  "Incident Identifier or CrashReporter Key line, so Launch Time (UTC), Incident ID and "
                  "Crash Reporter Key are empty on its row. On the public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key) the 5 reports, all in the user's Retired "
+                 "(macOS 15.4, corpus key mvs2026_macbookpro_macos15) the 5 reports, all in the user's Retired "
                  "folder, are five crashes of Google Drive whose crash times fall within six seconds, so "
                  "Process, Path, Bundle ID, Version, Parent Process, User ID (as stored), Exception Type, "
                  "Termination Reason, OS Version and Crash Reporter Key each held one value on all 5 rows; "

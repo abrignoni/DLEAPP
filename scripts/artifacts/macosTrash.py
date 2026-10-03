@@ -41,7 +41,7 @@ __artifacts_v2__ = {
             'identical on all 5 rows. Whether an item is still in the Trash is not checked here: '
             'on dleapp_macos_bigsur the iCloud Drive Trash folder holds IMG_0163.JPG, which has a '
             'row, and IMG_0188.JPG, which has none, and on the public MacBook Pro logical '
-            'extraction (macOS 15.4 build 24E248, not a registered corpus key) 3 of the 4 rows '
+            'extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15) 3 of the 4 rows '
             "name items the user's Trash folder no longer holds, none of them in the Downloads "
             'folder its row names, while GoogleDrive.dmg is in that Trash with no row. Poling '
             'reported in 2017 that entries remained after an item was put back and reappeared '

@@ -43,7 +43,7 @@ __artifacts_v2__ = {
                  "Settings File named that file on every row. The file gave 54 rows, the same as "
                  "an independent count of its 53 values and one empty array (applications), and "
                  "held integers and text only, so no boolean, data or date value was tested. The "
-                 "public MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) "
+                 "public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) "
                  "does not include the /Library/Preferences folder, so no file from a later macOS "
                  "version was tested.",
         "paths": ('*/Library/Preferences/com.apple.alf.plist',),

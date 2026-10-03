@@ -65,7 +65,7 @@ __artifacts_v2__ = {
                  "microsecond, the Entry Time of an ASL Login and Boot Records row on the same image, and "
                  "that store also holds the USER_PROCESS for the same console session and four earlier "
                  "boots, on 2021-02-15 and 2021-02-17, none of which the file kept. On the public MacBook "
-                 "Pro logical extraction (macOS 15.4, not a registered corpus key) the file held 3 "
+                 "Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the file held 3 "
                  "records: BOOT_TIME at 2025-12-12 15:48:19 UTC and two USER_PROCESS, on console and "
                  "ttys000, each equal to the Entry Time of an ASL Login and Boot Records row to the "
                  "microsecond. Remote Host was blank on every tested row. When a logical extraction holds "
