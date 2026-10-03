@@ -78,6 +78,22 @@ or two. This module replaces that function with integer arithmetic: the count
 of 100-nanosecond intervals since 1601-01-01 UTC, cut to whole microseconds.
 Zero, and a count outside the dates Python can hold, still give
 python-evtx's 0001-01-01.
+
+python-evtx 0.8.1 reads every element start with a 2-byte dependency
+identifier
+(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L279-L284)
+and reads every record through a template instance (RootNode.template,
+https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L1001-L1012),
+so a record whose binary XML holds its elements directly does not render. The
+evtx crate reads the identifier only inside a template definition: 'Direct
+record elements / nested BinXML (substitution value type 0x21): omit it'
+(https://github.com/omerbenamram/evtx/blob/47d63022caa8336ecdd0c42d335e2bb03381b00d/src/binxml/tokens.rs#L360-L362).
+This module reads an element start outside a template definition without the
+identifier, renders a root that holds no template instance from its own
+elements with no substitutions, and gives an entity reference such as &amp; its
+character, because python-evtx's XML view escapes what the reference returns
+(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Views.py#L143-L144),
+which turned & into &amp;amp;.
 """
 
 import os
@@ -191,6 +207,106 @@ def _install_exact_filetime():
 
 
 _install_exact_filetime()
+
+
+def _in_template_definition(node):
+    """Whether node is inside a template definition (a python-evtx TemplateNode)."""
+    while isinstance(node, evtx_nodes.BXmlNode):
+        if isinstance(node, evtx_nodes.TemplateNode):
+            return True
+        node = node._parent  # pylint: disable=protected-access
+    return False
+
+
+def _install_element_without_dependency_id():
+    """Read an element start outside a template definition without the 2-byte dependency identifier."""
+    if evtx_nodes is None or getattr(evtx_nodes.node_dispatch_table[1], 'dleapp_records', False):
+        return
+    original = evtx_nodes.node_dispatch_table[1]
+
+    class OpenStartElement(original):
+        """python-evtx's element start, with the identifier only inside a template definition."""
+
+        dleapp_records = True
+
+        def __init__(self, buf, offset, chunk, parent):  # pylint: disable=super-init-not-called
+            if _in_template_definition(parent):
+                original.__init__(self, buf, offset, chunk, parent)
+                return
+            evtx_nodes.BXmlNode.__init__(self, buf, offset, chunk, parent)  # pylint: disable=non-parent-init-called
+            self.declare_field('byte', 'token', 0x0)
+            self.declare_field('dword', 'size', 0x1)
+            self.declare_field('dword', 'string_offset', 0x5)
+            self._tag_length = 9
+            self._element_type = 0
+            if self.flags() & 0x04:
+                self._tag_length += 4
+            if self.string_offset() > self.offset() - self._chunk._offset:  # pylint: disable=protected-access
+                new_string = self._chunk.add_string(self.string_offset(), parent=self)
+                self._tag_length += new_string.length()
+
+    OpenStartElement.original = original
+    evtx_nodes.node_dispatch_table[1] = OpenStartElement
+
+
+def _root_is_templated(root):
+    """Whether a root's stream begins with a template instance (after the fragment header)."""
+    offset = 4 if root.unpack_byte(0x0) & 0x0F == 0x0F else 0
+    return root.unpack_byte(offset) & 0x0F == 0x0C
+
+
+def _install_root_without_template():
+    """Render a root whose stream holds its elements directly, with no template and no substitutions."""
+    root_class = evtx_nodes.RootNode if evtx_nodes is not None else None
+    if root_class is None or getattr(root_class.template, 'dleapp_records', False):
+        return
+    template, substitutions = root_class.template, root_class.substitutions
+
+    def root_template(self):
+        return template(self) if _root_is_templated(self) else self
+
+    def root_substitutions(self):
+        return substitutions(self) if _root_is_templated(self) else []
+
+    root_template.dleapp_records = True
+    root_template.original = template
+    root_substitutions.original = substitutions
+    root_class.template = root_template
+    root_class.substitutions = root_substitutions
+
+
+_XML_ENTITIES = {'amp': '&', 'lt': '<', 'gt': '>', 'quot': '"', 'apos': "'"}
+
+
+def _install_entity_characters():
+    """Give an entity reference its character, so the XML view escapes it once rather than twice."""
+    node_class = evtx_nodes.EntityReferenceNode if evtx_nodes is not None else None
+    if node_class is None or getattr(node_class.entity_reference, 'dleapp_records', False):
+        return
+    original = node_class.entity_reference
+
+    def entity_reference(self):
+        reference = original(self)
+        name = reference[1:-1]
+        if name in _XML_ENTITIES:
+            return _XML_ENTITIES[name]
+        try:
+            if name[:2].lower() == '#x':
+                return chr(int(name[2:], 16))
+            if name[:1] == '#':
+                return chr(int(name[1:]))
+        except (ValueError, OverflowError):
+            pass
+        return reference
+
+    entity_reference.dleapp_records = True
+    entity_reference.original = original
+    node_class.entity_reference = entity_reference
+
+
+_install_element_without_dependency_id()
+_install_root_without_template()
+_install_entity_characters()
 
 _SYSTEM_TIME = re.compile(
     r'^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.(\d+))?\s*(Z|[+-]\d{2}:\d{2})?$',
