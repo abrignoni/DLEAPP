@@ -2,6 +2,7 @@ import sqlite3
 
 from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly,
                                convert_cocoa_core_data_ts_to_utc, logfunc)
+from scripts.macos_plists import fold_view_rows
 
 # macOS CoreDuet keeps interactionC.db at /private/var/db/CoreDuet/People/. It
 # records per-app interactions (Messages, Mail, Calendar and other apps that
@@ -29,12 +30,17 @@ __artifacts_v2__ = {
                  "(integers). Times are Mac Absolute Time (Core Data), seconds "
                  "since 2001-01-01 UTC, rendered in UTC; the -wal sidecar is "
                  "read alongside the database. Adapted from the iLEAPP "
-                 "interactionC module.",
+                 "interactionC module."
+                 " Each copy of a file that an extraction also holds under System/Volumes/Data/ or "
+                 "System/Volumes/Update/mnt1/ is read; a row identical in every other column in more than "
+                 "one copy is reported as often as the copy holding it most often holds it, normally once, "
+                 "and its Source File lists each file that held it, one per line.",
         "paths": ('*/interactionC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "users",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 64 rows (Messages and Calendar interactions; 45 in the database and 19 more applied from the -wal)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 74 rows",
         },
     },
 }
@@ -78,4 +84,4 @@ def interactionCContacts(context):
         if rows_here:
             read_sources.append(relative_source)
 
-    return data_headers, data_list, "\n".join(read_sources)
+    return data_headers, fold_view_rows(data_list), "\n".join(read_sources)

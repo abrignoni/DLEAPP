@@ -2,6 +2,7 @@ import sqlite3
 
 from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly,
                                convert_unix_ts_to_utc, logfunc)
+from scripts.macos_plists import fold_view_rows
 
 # macOS keeps a system TCC.db at /Library/Application Support/com.apple.TCC/ and
 # a per-user one at ~/Library/Application Support/com.apple.TCC/. The pattern
@@ -37,12 +38,18 @@ __artifacts_v2__ = {
                  "target the client controls (for Apple Events / PostEvent), "
                  "blank when TCC stored UNUSED. Last Modified is Unix epoch "
                  "seconds in UTC. The -wal sidecar is read alongside the "
-                 "database.",
+                 "database."
+                 " Each copy of a file that an extraction also holds under System/Volumes/Data/ or "
+                 "System/Volumes/Update/mnt1/ is read; a row identical in every other column in more than "
+                 "one copy is reported as often as the copy holding it most often holds it, normally once, "
+                 "and its Source File lists each file that held it, one per line.",
         "paths": ('*/com.apple.TCC/TCC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "key",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 19 rows (13 user store + 6 system store)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 15 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 79 rows",
         },
     },
 }
@@ -96,4 +103,4 @@ def tccAccess(context):
         if rows_here:
             read_sources.append(relative_source)
 
-    return data_headers, data_list, "\n".join(read_sources)
+    return data_headers, fold_view_rows(data_list), "\n".join(read_sources)

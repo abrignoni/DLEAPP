@@ -20,7 +20,7 @@ __artifacts_v2__ = {
                  "An entry with no Enabled value appears in neither, so absence from those two columns"
                  " does not mean a service is off: 14 of the 16 listed services on dleapp_macos_bigsur"
                  " carry no Enabled value, and 8 of 22 on the public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key). Logged In, Managed Apple ID and Primary "
+                 "(macOS 15.4, corpus key mvs2026_macbookpro_macos15). Logged In, Managed Apple ID and Primary "
                  "Email Verified are the LoggedIn, isManagedAppleID and primaryEmailVerified values as"
                  " stored. On both images the account's AccountID equals the username of the Apple ID "
                  "and iCloud accounts in the same user's Accounts4.sqlite. The MacBook Pro's account "
@@ -30,7 +30,11 @@ __artifacts_v2__ = {
                  "read again, and is counted in the run log."
                  " User is the folder after Users in the source path, or root under private/var/root,"
                  " and is blank when the input is one user's home folder whose path names no user, as"
-                 " in an acquisition of a single user folder.",
+                 " in an acquisition of a single user folder."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Library/Preferences/MobileMeAccounts.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
@@ -57,11 +61,9 @@ __artifacts_v2__ = {
                  " not established. Active, Authenticated and Visible are the ZACTIVE, ZAUTHENTICATED "
                  "and ZVISIBLE values as stored; on dleapp_macos_bigsur Visible is Yes on all 12 rows "
                  "and 5 of the 12 accounts name a parent account. On the public MacBook Pro logical "
-                 "extraction (macOS 15.4, not a registered corpus key) the Users/ and "
+                 "extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the Users/ and "
                  "System/Volumes/Data/Users/ copies hold byte-identical database files and "
-                 "different -wal files, so both are read and each of their 22 accounts appears "
-                 "twice, identical "
-                 "in every column but Source File. All rows on each image come from one user, so User "
+                 "different -wal files, so both are read; each of their 22 accounts is in both and is reported once, with both files in Source File. All rows on each image come from one user, so User "
                  "holds one value there. When a logical extraction holds the same file under Users/ "
                  "and under System/Volumes/Data/Users/, a second copy whose database and -wal "
                  "file are both byte-identical to the first is not read again, and is counted in "
@@ -70,13 +72,18 @@ __artifacts_v2__ = {
                  " and is blank when the input is one user's home folder whose path names no user, as"
                  " in an acquisition of a single user folder."
                  " Reference: Apple, 'NSDate', "
-                 "https://developer.apple.com/documentation/foundation/nsdate.",
+                 "https://developer.apple.com/documentation/foundation/nsdate."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Library/Accounts/Accounts3.sqlite*',
                   '*/Library/Accounts/Accounts4.sqlite*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "users",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 12 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 22 rows",
         },
     },
 }
@@ -84,7 +91,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
-from scripts.macos_plists import (load_plist, mac_absolute_utc, unique_sources,
+from scripts.macos_plists import (fold_view_rows, load_plist, mac_absolute_utc, unique_sources,
                                   user_from_path)
 
 
@@ -129,7 +136,7 @@ def macosAppleIdAccounts(context):
                 user_from_path(context.get_relative_path(path)),
                 context.get_relative_path(path),
             ))
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)
 
 
 _ACCOUNTS_QUERY = '''
@@ -171,4 +178,4 @@ def macosInternetAccounts(context):
                 _flag({1: True, 0: False}.get(row[9], row[9])),
                 _text(row[10]), _text(row[11]), user_from_path(relative), relative,
             ))
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)

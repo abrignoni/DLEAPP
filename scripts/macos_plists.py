@@ -251,3 +251,30 @@ def unique_sources(context, paths, sidecars=(), label=''):
     if skipped and label:
         logfunc(f'{label}: {skipped} byte-identical copy(ies) under System/Volumes/Data or System/Volumes/Update/mnt1 not read again')
     return kept, skipped
+
+
+def fold_view_rows(rows):
+    """rows with a record held by several volume views of one file reported once.
+
+    Each row is a tuple whose last value is the file it was read from, as a path inside
+    the extraction. Rows with the same values, read from files whose paths differ only by
+    System/Volumes/Data/ or System/Volumes/Update/mnt1/ folder runs, are one record seen in
+    more than one view of the same file. Such a record is kept as many times as the one
+    file holding it most often, so a record a file itself holds twice stays twice, and its
+    last value lists every file that held it, one per line. A record only one view holds
+    is kept as read, and rows from files at different paths are never folded together.
+    Rows keep the order they were read in.
+    """
+    rows = [tuple(row) for row in rows]
+    held = {}
+    for row in rows:
+        per_file = held.setdefault((row[:-1], canonical_relative(row[-1])), {})
+        per_file[row[-1]] = per_file.get(row[-1], 0) + 1
+    seen, emitted, folded = {}, {}, []
+    for row in rows:
+        key = (row[:-1], canonical_relative(row[-1]))
+        seen[(key, row[-1])] = seen.get((key, row[-1]), 0) + 1
+        if seen[(key, row[-1])] > emitted.get(key, 0):
+            emitted[key] = emitted.get(key, 0) + 1
+            folded.append(row[:-1] + ('\n'.join(held[key]),))
+    return folded

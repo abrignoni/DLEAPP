@@ -39,13 +39,19 @@ __artifacts_v2__ = {
                  "not reported; they are named here so a reader knows they were considered. Column "
                  "names are the database's own. The item content itself is not read. Validated "
                  "locally against a private macOS extraction; row counts and values are not "
-                 "published. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user, as on the extraction this was built against.",
+                 "published. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user, as on the extraction this was built against."
+                 " Each copy of a file that an extraction also holds under System/Volumes/Data/ or "
+                 "System/Volumes/Update/mnt1/ is read; a row identical in every other column in more than "
+                 "one copy is reported as often as the copy holding it most often holds it, normally once, "
+                 "and its Source File lists each file that held it, one per line.",
         "paths": ('*/Library/Application Support/FileProvider/*/database/db',
                   '*/Library/Application Support/FileProvider/*/database/db-wal',
                   '*/Library/Application Support/FileProvider/*/database/db-shm'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "cloud",
-        "sample_data": {},
+        "sample_data": {
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 83 rows",
+        },
     },
 }
 
@@ -54,7 +60,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
-from scripts.macos_plists import user_from_path
+from scripts.macos_plists import fold_view_rows, user_from_path
 
 _ROOT = 'NSFileProviderRootContainerItemIdentifier'
 
@@ -140,4 +146,4 @@ def macosFileProviderItems(context):
                 _s(row[3]), _s(row[4]), _flag(row[8]), _flag(row[9]), item_id, domain, user,
                 relative))
         read.append(path)
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)

@@ -2,7 +2,7 @@ import sqlite3
 
 from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly,
                                convert_cocoa_core_data_ts_to_utc, logfunc)
-from scripts.macos_plists import unique_sources
+from scripts.macos_plists import fold_view_rows, unique_sources
 
 # macOS keeps knowledgeC.db in two places, and they carry different streams:
 # the per-user store at ~/Library/Application Support/Knowledge/knowledgeC.db
@@ -35,7 +35,11 @@ __artifacts_v2__ = {
                  "Absolute Time (Core Data) in UTC; the -wal sidecar is read "
                  "alongside the database. Reference: Sarah Edwards, 'Knowledge "
                  "is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "eye",
@@ -57,12 +61,18 @@ __artifacts_v2__ = {
                  "Absolute Time (Core Data) in UTC; the -wal sidecar is read "
                  "alongside the database. Reference: Sarah Edwards, 'Knowledge "
                  "is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "activity",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 220 rows",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 13 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 202 rows",
         },
     },
     "knowledgeCWebUsage": {
@@ -82,12 +92,17 @@ __artifacts_v2__ = {
                  "Time (Core Data) in UTC; the -wal sidecar is read alongside "
                  "the database. Reference: Sarah Edwards, 'Knowledge is Power', "
                  "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "globe",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 21 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 74 rows",
         },
     },
     "knowledgeCSafariHistory": {
@@ -106,7 +121,11 @@ __artifacts_v2__ = {
                  "Data) in UTC; the -wal sidecar is read alongside the "
                  "database. Reference: Sarah Edwards, 'Knowledge is Power', "
                  "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "compass",
@@ -134,7 +153,11 @@ __artifacts_v2__ = {
                  "Data) in UTC; the -wal sidecar is read alongside the "
                  "database. Reference: Sarah Edwards, 'Knowledge is Power', "
                  "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "zap",
@@ -159,12 +182,18 @@ __artifacts_v2__ = {
                  "UTC; the -wal sidecar is read alongside the database. "
                  "Reference: Sarah Edwards, 'Knowledge is Power', "
                  "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "bell",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 323 rows",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 4 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 13 rows",
         },
     },
     "knowledgeCAppMediaUsage": {
@@ -189,12 +218,17 @@ __artifacts_v2__ = {
                  "published. Sarah Edwards' APOLLO also reads this stream, in its "
                  "knowledge_app_media_usage module: "
                  "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_app_media_usage.txt#L59-L101"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "player-play",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 7 rows",
         },
     },
     "knowledgeCMediaPlaying": {
@@ -213,7 +247,11 @@ __artifacts_v2__ = {
                  "-wal sidecar is read alongside the database. References: Sarah "
                  "Edwards, 'Knowledge is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
                  " and Ian Whiffin, https://www.doubleblak.com/blogPosts.php?id=29"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "music",
@@ -236,12 +274,18 @@ __artifacts_v2__ = {
                  "in UTC; the -wal sidecar is read alongside the database. "
                  "Reference: Sarah Edwards, 'Knowledge is Power', "
                  "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "sun",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 225 rows",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 13 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 67 rows",
         },
     },
     "knowledgeCIsLocked": {
@@ -257,7 +301,11 @@ __artifacts_v2__ = {
                  "locked). Times are Mac Absolute Time (Core Data) in UTC; the "
                  "-wal sidecar is read alongside the database. Reference: Sarah "
                  "Edwards, 'Knowledge is Power', https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "lock",
@@ -282,7 +330,11 @@ __artifacts_v2__ = {
                  "Data) in UTC; the -wal sidecar is read alongside the "
                  "database. Reference: Sarah Edwards, 'Knowledge is Power', "
                  "https://www.mac4n6.com/blog/2018/8/5/knowledge-is-power-using-the-knowledgecdb-database-on-macos-and-ios-to-determine-precise-user-and-application-usage"
-                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again.",
+                 " A copy of knowledgeC.db under System/Volumes/Data that is byte-identical, -wal included, to one already read is not read again."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "paths": ('*/Knowledge/knowledgeC.db*',),
         "output_types": ["standard"],
         "artifact_icon": "battery-charging",
@@ -324,7 +376,7 @@ def _collect(context, query, transform):
             database.close()
         if rows_here:
             read_sources.append(relative_source)
-    return data_list, "\n".join(read_sources)
+    return fold_view_rows(data_list), "\n".join(read_sources)
 
 
 def _cd(ts):
@@ -371,7 +423,7 @@ def knowledgeCAppMediaUsage(context):
                               row[4] or '', _dur(row[0], row[1]), relative_source))
         if rows:
             read_sources.append(relative_source)
-    return data_headers, data_list, "\n".join(read_sources)
+    return data_headers, fold_view_rows(data_list), "\n".join(read_sources)
 
 
 @artifact_processor

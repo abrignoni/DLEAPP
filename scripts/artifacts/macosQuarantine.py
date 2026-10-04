@@ -2,6 +2,7 @@ import sqlite3
 
 from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly,
                                convert_cocoa_core_data_ts_to_utc, logfunc)
+from scripts.macos_plists import fold_view_rows
 
 # macOS records a quarantine event for files written by "quarantine-aware" apps
 # (browsers, mail, messaging, AirDrop), in a per-user SQLite store at
@@ -32,12 +33,17 @@ __artifacts_v2__ = {
                  "system was received the same way, Agent Bundle ID is uniform "
                  "and Origin Title and Sender Name are blank; these vary once "
                  "web downloads are present. The -wal sidecar is read alongside "
-                 "the database.",
+                 "the database."
+                 " Each copy of a file that an extraction also holds under System/Volumes/Data/ or "
+                 "System/Volumes/Update/mnt1/ is read; a row identical in every other column in more than "
+                 "one copy is reported as often as the copy holding it most often holds it, normally once, "
+                 "and its Source File lists each file that held it, one per line.",
         "paths": ('*/com.apple.LaunchServices.QuarantineEventsV2*',),
         "output_types": ["standard"],
         "artifact_icon": "download",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 10 rows (all iChat-received on this image; no web downloads)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 11 rows",
         },
     },
 }
@@ -78,4 +84,4 @@ def quarantineEvents(context):
         if rows_here:
             read_sources.append(relative_source)
 
-    return data_headers, data_list, "\n".join(read_sources)
+    return data_headers, fold_view_rows(data_list), "\n".join(read_sources)

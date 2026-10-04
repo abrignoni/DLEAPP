@@ -5,6 +5,7 @@ import zlib
 from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly,
                                get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc,
                                logfunc)
+from scripts.macos_plists import fold_view_rows
 
 # Apple Notes on macOS stores each note's body as a zlib/gzip-compressed
 # protobuf in ZICNOTEDATA.ZDATA. The decompression and the manual protobuf walk
@@ -48,12 +49,17 @@ __artifacts_v2__ = {
                  "https://github.com/iangray001/applenotes-mcp/blob/"
                  "74a2bb8d9e69d9ab254d10bd89830861dbec4011/NOTES.md#L100). "
                  "The decode was verified against a private macOS Notes "
-                 "sample; the public test image below holds no notes.",
+                 "sample; the public test image below holds no notes."
+                 " Each copy of a file that an extraction also holds under System/Volumes/Data/ or "
+                 "System/Volumes/Update/mnt1/ is read; a row identical in every other column in more than "
+                 "one copy is reported as often as the copy holding it most often holds it, normally once, "
+                 "and its Source File lists each file that held it, one per line.",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": ["standard"],
         "artifact_icon": "file-text",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (NoteStore.sqlite present, no notes stored)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 2 rows",
         },
     },
 }
@@ -209,4 +215,4 @@ def notes(context):
         if rows_here:
             read_sources.append(relative_source)
 
-    return data_headers, data_list, "\n".join(read_sources)
+    return data_headers, fold_view_rows(data_list), "\n".join(read_sources)

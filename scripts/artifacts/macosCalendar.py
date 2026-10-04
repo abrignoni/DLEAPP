@@ -19,7 +19,7 @@ __artifacts_v2__ = {
         "notes": "Reads each user's Calendar store: Calendar Cache under "
                  "~/Library/Calendars, as on dleapp_macos_bigsur, or Calendar.sqlitedb in "
                  "the group.com.apple.calendar group container, as on the public MacBook "
-                 "Pro logical extraction (macOS 15.4, not a registered corpus key). One "
+                 "Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15). One "
                  "row per ZCALENDARITEM row in Calendar Cache and per CalendarItem row in "
                  "Calendar.sqlitedb. Start (UTC), End (UTC), Created (UTC) and Last "
                  "Modified (UTC) are ZSTARTDATE, ZENDDATE, ZCREATIONDATE and "
@@ -65,16 +65,20 @@ __artifacts_v2__ = {
                  "rows. URL is empty on both tested images. On the MacBook Pro the 134 "
                  "items of the subscribed calendar store no creation date and share one "
                  "last-modified value, dated 1976, and the Users/ and "
-                 "System/Volumes/Data/Users/ copies differ and both are read, so each item "
-                 "appears twice, identical in every column but Source File. All rows on "
+                 "System/Volumes/Data/Users/ copies differ and both are read; each of the 135 items is in both and is reported once, with both files in Source File. All rows on "
                  "each image come from one user, so User holds one value there. When a "
                  "logical extraction holds the same file under Users/ and under "
                  "System/Volumes/Data/Users/, a second copy whose database and -wal file are "
                  "both byte-identical to the first is not read again, and is counted in the run "
                  "log. Reference: Apple, 'NSDate', "
-                 "https://developer.apple.com/documentation/foundation/nsdate.",
+                 "https://developer.apple.com/documentation/foundation/nsdate."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 105 rows",
+                           "mvs2026_macbookpro_macos15": "macOS 15.4 | 135 rows",
                        },
         "paths": ('*/Library/Calendars/Calendar Cache*',
                   '*/Library/Group Containers/group.com.apple.calendar/Calendar.sqlitedb*'),
@@ -89,7 +93,7 @@ from datetime import time
 
 from scripts.ilapfuncs import (artifact_processor, does_column_exist_in_db, does_table_exist_in_db,
                                get_sqlite_db_records, logfunc)
-from scripts.macos_plists import mac_absolute_utc, unique_sources, user_from_path
+from scripts.macos_plists import fold_view_rows, mac_absolute_utc, unique_sources, user_from_path
 
 _LABEL = 'Calendar Items'
 _CACHE = 'Calendar Cache'
@@ -242,4 +246,4 @@ def macosCalendarItems(context):
         if not found:
             logfunc(f'{_LABEL}: no items in {relative}')
         data_list.extend(found)
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)

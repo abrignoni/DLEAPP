@@ -20,8 +20,7 @@ __artifacts_v2__ = {
                  "row per ZABCDRECORD row whose entity is ABCDContact in Z_PRIMARYKEY. "
                  "Store is Main for the top-level database and Sources/ with the folder name for "
                  "one under Sources. Store and User do not separate the Users/ and "
-                 "System/Volumes/Data/Users/ copies of one database, which are both read when they"
-                 " differ, so Source File names the file each row came from. Created (UTC) and "
+                 "System/Volumes/Data/Users/ copies of one database, which are both read when they differ; a contact identical in every other column in both is reported once, and Source File names each file that held it, one per line. Created (UTC) and "
                  "Modified (UTC) are "
                  "ZCREATIONDATE and ZMODIFICATIONDATE read as seconds since 00:00:00 UTC "
                  "on 1 January 2001, the reference date Apple documents for NSDate; read "
@@ -40,20 +39,24 @@ __artifacts_v2__ = {
                  "top-level database and one Sources database each hold 2 contacts, 4 rows "
                  "in all, and Middle Name, Nickname, Department, Job Title and Note have "
                  "no value on any of them. On the public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key) the top-level database and one "
+                 "(macOS 15.4, corpus key mvs2026_macbookpro_macos15) the top-level database and one "
                  "Sources database each hold 1 contact and a second Sources database holds "
                  "none; Postal Addresses and URLs have no value on any MacBook Pro row. "
                  "The Users/ and System/Volumes/Data/Users/ copies there hold byte-identical "
-                 "database files but different -wal files, and both are read, so each contact "
-                 "appears twice, identical in every column but "
-                 "Source File. All rows on each image come from one user, so User holds "
+                 "database files but different -wal files, and both are read; each of the 2 contacts is in both and is reported once, with both files in Source File. All rows on each image come from one user, so User holds "
                  "one value there. When a logical extraction holds the same file under "
                  "Users/ and under System/Volumes/Data/Users/, a second copy whose database and "
                  "-wal file are both byte-identical to the first is not read again, and is "
                  "counted in the run log. Reference: Apple, "
-                 "'NSDate', https://developer.apple.com/documentation/foundation/nsdate.",
+                 "'NSDate', https://developer.apple.com/documentation/foundation/nsdate."
+                 " Copies of one file under System/Volumes/Data/ or System/Volumes/Update/mnt1/ that differ "
+                 "are all read; a row identical in every other column in more than one copy is reported as "
+                 "often as the copy holding it most often holds it, normally once, and its Source File "
+                 "lists each file that held it, one per line.",
         "sample_data": {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 4 rows",
+                           "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 3 rows",
+                           "mvs2026_macbookpro_macos15": "macOS 15.4 | 2 rows",
                        },
         "paths": ('*/Library/Application Support/AddressBook/*AddressBook-v22.abcddb*',),
         "output_types": ["html", "tsv", "lava"],
@@ -65,7 +68,8 @@ import re
 
 from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db, get_sqlite_db_records,
                                logfunc)
-from scripts.macos_plists import mac_absolute_utc, unique_sources, user_from_path
+from scripts.macos_plists import (fold_view_rows, mac_absolute_utc, unique_sources,
+                                  user_from_path)
 
 _CONTACTS = '''
     SELECT r.Z_PK, r.ZCREATIONDATE, r.ZMODIFICATIONDATE, r.ZFIRSTNAME, r.ZMIDDLENAME, r.ZLASTNAME,
@@ -139,4 +143,4 @@ def macosContacts(context):
                               *(row[i] or '' for i in range(3, 10)),
                               *(detail.get(pk, '') for detail in details), notes.get(pk, ''),
                               row[10] or '', _store(relative), user_from_path(relative), relative))
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)
