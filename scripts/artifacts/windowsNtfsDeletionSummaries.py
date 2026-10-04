@@ -50,7 +50,10 @@ __artifacts_v2__ = {
                  " is as python-evtx renders it with any white space at either end removed; no tested value had any. "
                  "Tested on the Ntfs Operational logs of four public images: pc_mus_001_win11 (build 22621) gave 4 "
                  "rows and szechuan_win10 (build 19041) gave 42. The logs of af_case2_win10 and lonewolf_win10 hold "
-                 "no record of this event, and the two captures of a Windows 11 build 26200 machine hold no such log."
+                 "no record of this event, and two earlier captures of a Windows 11 build 26200 machine hold no such log. A later capture of that machine, windows11_arm_ntfs_known_20261004, holds the log as wevtutil exported it at "
+                 "the end of a known session; its 6,194 records, from 2025-08-06 to 2026-10-04, include none of 151. In the session 5 files on the Desktop and 3 in Documents were created and then deleted with PowerShell's "
+                 "Remove-Item, and the log was exported 65.1 minutes later, after 3 records of the disk space summary (142) had been written; no 151 followed. Whether build 26200 writes this event, and for which deletions, is not "
+                 "established here."
                  " On szechuan_win10 the 42 records form 4 summaries, each a run of records with the same time to the"
                  " second, Period and Files Deleted, and in each the Deleted By The Process counts add up to Files "
                  "Deleted, which equalled Deletions With A Process Name. The largest, at 2020-09-19 04:13:28 UTC, "
@@ -81,6 +84,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 42 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 0 rows (the log holds no record of this event)",
         },
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-Ntfs%4Operational.evtx',),
         "output_types": ["standard"],

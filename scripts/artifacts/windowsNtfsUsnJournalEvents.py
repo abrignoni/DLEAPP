@@ -49,10 +49,13 @@ __artifacts_v2__ = {
                  "value had any); a column whose field the record does not carry is blank. Tested on the Ntfs "
                  "Operational logs of four public images: pc_mus_001_win11 (build 22621) gave 9 rows, all of 501, and"
                  " szechuan_win10 (build 19041) gave 13, 7 of 500 and 6 of 501. The logs of af_case2_win10 and "
-                 "lonewolf_win10 hold no record of these events, and the two captures of a Windows 11 build 26200 "
-                 "machine hold no such log. On pc_mus_001_win11 Event ID and Event held one value, 501, on every row."
-                 " Process Name was 'SearchIndexer.' on every row but the first 500 of szechuan_win10, which names "
-                 "System; no stored name was longer than 14 characters, and 'SearchIndexer.' is the first 14 of "
+                 "lonewolf_win10 hold no record of these events, and two earlier captures of a Windows 11 build 26200 machine hold no such log. A later capture of that machine, windows11_arm_ntfs_known_20261004, holds the log as "
+                 "wevtutil exported it at the end of a known session, and gave 70 rows, 5 of 500 and 65 of 501, both version 0 with the fields of build 22621. In the session fsutil created a USN journal on a newly formatted volume "
+                 "Q: with a maximum size of 1,048,576 and an allocation delta of 262,144, and 5 seconds later deleted it. One row of 500 is timed inside the first step, with Process Name fsutil.exe, Volume Name Q:, Maximum Size "
+                 "0x0000000000100000 and Allocation Delta 0x0000000000040000, and its Journal ID read as a FILETIME is 4.002 ms before the row. One row of 501 with the same Journal ID, fsutil.exe and Q: is timed 0.2 ms after the "
+                 "recorded end of the second step. On that build, then, a journal deleted with fsutil left a row of 501. The capture's other 64 rows of 501 name 'SearchIndexer.' and C: with one Journal ID, and none is followed by a"
+                 " row of 500; its other 4 rows of 500 name powershell.exe and W:. On pc_mus_001_win11 Event ID and Event held one value, 501, on every row."
+                 " On the two images Process Name was 'SearchIndexer.' on every row but the first 500 of szechuan_win10, which names System; no stored name was longer than 14 characters, and 'SearchIndexer.' is the first 14 of "
                  "SearchIndexer.exe. Volume Name was C: and Volume ID held one value on each image. Each of the 6 "
                  "rows of 501 on szechuan_win10 is followed by a row of 500 from the same process, at most 85.632 ms "
                  "later, and every 500 row there stores Maximum Size 0x0000000000400000 and Allocation Delta "
@@ -71,9 +74,8 @@ __artifacts_v2__ = {
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
                  "floating-point number, which can differ by microseconds "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113)."
-                 " Record ID is the record's EventRecordID and Computer the machine name the record stores, which "
-                 "held one value on pc_mus_001_win11 and three on szechuan_win10. Rows are in the order the file "
-                 "holds them, which was rising Record ID and time on both images. A record python-evtx cannot render,"
+                 " Record ID is the record's EventRecordID and Computer the machine name the record stores, which held one value on pc_mus_001_win11 and on the capture and three on szechuan_win10. Rows are in the order the file "
+                 "holds them, which was rising Record ID and time on both images and on the capture. A record python-evtx cannot render,"
                  " or whose XML does not parse, is counted in the run log and not reported. A log marked dirty is "
                  "read past the chunks its header counts, and the run log says how many records came from there. "
                  "Reading needs the python-evtx package (pip install python-evtx). Not read: the $UsnJrnl itself and "
@@ -85,6 +87,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 13 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 70 rows",
         },
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-Ntfs%4Operational.evtx',),
         "output_types": ["standard"],
