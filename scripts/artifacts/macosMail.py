@@ -19,7 +19,7 @@ __artifacts_v2__ = {
                  "row per message in its messages table. Date Received (UTC) and Date Sent "
                  "(UTC) are date_received and date_sent read as Unix seconds; read that "
                  "way the 98 messages on the public MacBook Pro logical extraction (macOS "
-                 "15.4, not a registered corpus key) were received between 4 November and "
+                 "15.4, corpus key mvs2026_macbookpro_macos15) were received between 4 November and "
                  "25 December 2025, where the 2001 epoch would place them in 2056. Sender "
                  "and Sender Name are the address and comment of the addresses row the "
                  "message names as its sender. To and Cc are the addresses of the "

@@ -54,7 +54,7 @@ __artifacts_v2__ = {
                  "another is read once and counted in the run log, and copies that differ each "
                  "give a row. The located-at line names every file read. dleapp_macos_bigsur held "
                  "one lease, for en0 with no SSID. On the public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key) the two copies of en0.plist differed "
+                 "(macOS 15.4, corpus key mvs2026_macbookpro_macos15) the two copies of en0.plist differed "
                  "and gave 2 rows, with lease starts about 11 and a half hours apart, the later "
                  "one in the copy under System/Volumes/Data.",
         "paths": ('*/private/var/db/dhcpclient/leases/*.plist',),

@@ -24,7 +24,7 @@ __artifacts_v2__ = {
             'On these stores the reader was compared with spotlight_parser 1.0.4 '
             '(https://github.com/ydkhatri/spotlight_parser/tree/82e80705b172489180f1a2b8c8681033a0e9c0b1), '
             'run on the four store files of dleapp_macos_bigsur and the public MacBook Pro '
-            'logical extraction (macOS 15.4, not a registered corpus key): it gives the same '
+            'logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15): it gives the same '
             'records, 56 in store.db and 58 in .store.db on dleapp_macos_bigsur and 11,783 in '
             'each copy on the MacBook Pro, with the same identifier, parent, flags and update '
             'time on every one, and the same value for every attribute reported here, 188,523 '

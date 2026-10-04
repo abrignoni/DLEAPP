@@ -47,7 +47,7 @@ __artifacts_v2__ = {
                  "are one log captured twice: an entry (time as written, host, process, PID and message) "
                  "is reported as many times as the copy holding it most often does, from the copy with "
                  "more entries first, and the run log counts the entries not reported again. The public "
-                 "MacBook Pro logical extraction (macOS 15.4, not a registered corpus key) holds "
+                 "MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) holds "
                  "install.log both ways: the copy at the root, 1,614,675 bytes, is the first 1,614,675 "
                  "bytes of the copy under System/Volumes/Data, 1,633,138, so the root copy's 10,452 "
                  "entries were each reported once, from the other copy's 10,562: 10,321 with an offset "

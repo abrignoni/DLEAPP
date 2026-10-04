@@ -63,8 +63,8 @@ __artifacts_v2__ = {
                  "byte-identical to another is read once and counted in the run log. "
                  "dleapp_macos_bigsur held 3 entries, 127.0.0.1 and ::1 for localhost and "
                  "255.255.255.255 for broadcasthost, byte-identical to its template copy, and so "
-                 "did the public MacBook Pro logical extraction (macOS 15.4, not a registered "
-                 "corpus key).",
+                 "did the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15"
+                 ").",
         "paths": ('*/private/etc/hosts',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "address-book",

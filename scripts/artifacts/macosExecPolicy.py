@@ -26,7 +26,7 @@ __artifacts_v2__ = {
             "measuring job reads measured_timestamp with SQLite's unixepoch modifier, which reads "
             'a number as seconds since 1970. Both are read as Unix seconds, and a time stored as '
             '0 is left blank, as measured_timestamp is on 1 row of the public MacBook Pro logical '
-            'extraction (macOS 15.4 build 24E248, not a registered corpus key). On that '
+            'extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15). On that '
             'extraction the rows for /Applications/Google Drive.app and for '
             '/Library/Google/GoogleSoftwareUpdate/GoogleSoftwareUpdate.bundle, the second with '
             "Installer.app's executable as Responsible Path, have a Timestamp of 2025-12-09 "
@@ -95,8 +95,8 @@ __artifacts_v2__ = {
             '(vmware-tools-daemon), Team ID, Main Executable Hash (the text secure-ts), Is '
             'Signed, Is Valid, Is Quarantined and Is Used each held one value on all 23 rows. On '
             'dleapp_macos_bigsur Bundle ID and Bundle Version were empty on every row. On the '
-            'public MacBook Pro logical extraction (macOS 15.4 build 24E248, not a registered '
-            'corpus key) Main Executable Hash held 64 hexadecimal digits on all 20 rows, and Is '
+            'public MacBook Pro logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15'
+            ') Main Executable Hash held 64 hexadecimal digits on all 20 rows, and Is '
             'Library held 0 on all 20 rows. Is Signed and Is Valid were identical on every row of '
             'both images. Every CDHash on dleapp_macos_bigsur, and 15 of the 20 on the public '
             'MacBook Pro extraction, also appears in Gatekeeper Scan Cache. When a logical '
@@ -133,7 +133,7 @@ __artifacts_v2__ = {
             'numbers record is not established here. A Malware Result of 1 is not by itself a '
             'malware finding: it held 1 on 6 of the 54 rows on dleapp_macos_bigsur and on 24 of '
             'the 51 rows on the public MacBook Pro logical extraction (macOS 15.4 build 24E248, '
-            "not a registered corpus key), and on both images those include Apple's own XProtect "
+            "corpus key mvs2026_macbookpro_macos15), and on both images those include Apple's own XProtect "
             'and Malware Removal Tool (com.apple.XProtect and com.apple.MRT). Timestamp, Mod Time '
             'and Revocation Check Time are read as Unix seconds in UTC, on this evidence: on '
             'dleapp_macos_bigsur the nine rows for the scripts in /private/etc/periodic/daily '
@@ -183,8 +183,8 @@ __artifacts_v2__ = {
             "it (Reference: Howard Oakley, 'How macOS now tracks the provenance of apps', "
             'https://eclecticlight.co/2023/05/10/how-macos-now-tracks-the-provenance-of-apps/). '
             "Path is the table's url column, which held a path on all 7 rows of the public "
-            'MacBook Pro logical extraction (macOS 15.4 build 24E248, not a registered corpus '
-            'key). Bundle ID, Signing ID, Team ID, CDHash, Flags, PK and Link PK are reported as '
+            'MacBook Pro logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15'
+            '). Bundle ID, Signing ID, Team ID, CDHash, Flags, PK and Link PK are reported as '
             'stored; Flags held 2 on all 7 rows, and what it and Link PK record is not '
             'established here. Linked Path is the Path of the row in the same copy of the '
             'database whose PK equals Link PK, and is blank for a Link PK of 0 or one that no row '

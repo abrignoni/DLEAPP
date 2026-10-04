@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                  "opened. Special Item Identifier and Hidden are the SpecialItemIdentifier and "
                  "ItemIsHidden custom properties as stored. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. On dleapp_macos_bigsur the 9 files hold 46 entries, 28 "
                  "with a path and 18 with a URL. On the public MacBook Pro logical extraction (macOS "
-                 "15.4, not a registered corpus key) every list is .sfl3: 31 files are read and "
+                 "15.4, corpus key mvs2026_macbookpro_macos15) every list is .sfl3: 31 files are read and "
                  "11 of them hold 55 entries, 36"
                  " with a path and 18 with a URL, and one entry holds no Bookmark, so it carries "
                  "neither. When a logical extraction holds the same file under Users/ or "

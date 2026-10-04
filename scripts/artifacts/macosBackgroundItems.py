@@ -27,7 +27,7 @@ __artifacts_v2__ = {
                  "modificationDate and executableModificationDate read as seconds since 00:00:00 UTC "
                  "on 1 January 2001, and a value of 0 or less is left empty. On the public "
                  "MacBook Pro logical"
-                 " extraction (macOS 15.4, not a registered corpus key) the file holds 7 items under 3"
+                 " extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the file holds 7 items under 3"
                  " user identifiers; read from 2001 their modification dates fall between 2025-05-23 "
                  "and 2025-12-10, before the 20251225 date in the extraction's file name, while read "
                  "from 1970 they would fall in 1994. One item has type 0x800, a bit DumpBTM does not "

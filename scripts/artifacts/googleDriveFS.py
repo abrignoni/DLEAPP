@@ -26,7 +26,7 @@ __artifacts_v2__ = {
             'https://amgedwageh.medium.com/drivefs-sleuth-investigating-google-drive-file-streams-disk-artifacts-0b5ea637c980). '
             'One row is reported per item in each database; an item that both databases hold with '
             'the same values is reported once, and Source File lists both. On the public MacBook '
-            'Pro logical extraction (macOS 15.4, not a registered corpus key) metadata_sqlite_db '
+            'Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) metadata_sqlite_db '
             'holds 9 items and mirror_metadata_sqlite.db holds 6, all 6 with an ID the first also '
             'holds; 3 of them give the same values in every reported column, and the other 3 '
             'store the title of a Google document, a spreadsheet and a shortcut without the .gdoc '
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
             "for the root that mirror_sqlite.db's root_config names, when that roots row names "
             "the same account. Volume is the name root_preference_sqlite.db's media table records "
             "for the item's volume ID, or the ID as stored. On the public MacBook Pro logical "
-            'extraction (macOS 15.4, not a registered corpus key) mirror_sqlite.db holds 2 items: '
+            'extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) mirror_sqlite.db holds 2 items: '
             "the folder Documents/Work in the user's home folder, the only root, and one Google "
             'document file in it. The extraction holds that file at the Local Path recorded, 183 '
             'bytes, the Local Size recorded, and the MD5 of its bytes is the Local MD5 recorded. '
@@ -184,8 +184,7 @@ __artifacts_v2__ = {
             'https://github.com/AmgdGocha/DriveFS-Sleuth/blob/839e27193fa650750ec6eaccb785b32c55c6ac11/src/drivefs_sleuth/setup.py#L326); '
             'the post describes it as the last syncing date between all the currently logged-in '
             'accounts. It is stored once per DriveFS folder, so every row of one folder holds the '
-            'same value. On the public MacBook Pro logical extraction (macOS 15.4, not a '
-            'registered corpus key) it reads 24 December 2025 21:48:51 UTC, and the line of '
+            'same value. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) it reads 24 December 2025 21:48:51 UTC, and the line of '
             "drive_fs_6.txt timed 2025-12-24T21:48:51.472Z logs 'ShouldSync: More than four hours "
             "since last sync.' from phenotype_impl.cc, followed by lines that create packages for "
             'drive_fs_ph and apps.drive.cello.desktop, the two packages experiments.db registers, '
@@ -232,7 +231,7 @@ __artifacts_v2__ = {
             '(UTC) is the time at the start of the line, which the log writes with a trailing Z '
             'and which is read as UTC; Email and Account ID are taken from the line as logged, '
             "and Line is the line's number in its file. On the public MacBook Pro logical "
-            'extraction (macOS 15.4, not a registered corpus key) each of the 12 drive_fs logs '
+            'extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) each of the 12 drive_fs logs '
             'holds one such line, so the artifact gives 12 rows, from 9 December 2025 21:45:36 to '
             '24 December 2025 22:05:34 UTC. Email and Account ID hold one value on every row '
             "there, the address and the ID of the DriveFS folder's one account, and every line of "
@@ -297,7 +296,7 @@ __artifacts_v2__ = {
             'roots added, so that a max_root_id greater than the number of roots means some roots '
             'were removed or their configuration was modified. A database whose roots table holds '
             'no row gives no row, whatever max_ids holds. On the public MacBook Pro logical '
-            'extraction (macOS 15.4, not a registered corpus key) the table holds 1 root, the '
+            'extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the table holds 1 root, the '
             "folder Documents/Work in the user's home folder, with destination 1, one_shot 0, the "
             'Macintosh HD - Data volume, the one account ID of the DriveFS folder and a '
             'max_root_id of 1; mirror_sqlite.db names the same root_id for that folder. '
@@ -341,8 +340,7 @@ __artifacts_v2__ = {
             'Point, Capacity (as stored), Ignored (as stored) and Media ID are name, '
             'last_mount_point, capacity, ignored and media_id as stored. File System Type (as '
             'stored) and Device Type (as stored) are fs_type and device_type; no source for their '
-            'values was found. On the public MacBook Pro logical extraction (macOS 15.4, not a '
-            'registered corpus key) the table holds 13 volumes, and Ignored (as stored) holds one '
+            'values was found. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the table holds 13 volumes, and Ignored (as stored) holds one '
             'value, 0, on every row. They are Preboot, VM, Update, Macintosh HD and home, last '
             'mounted under /System/Volumes; Macintosh HD - Data, last mounted at /; two named '
             'Install Google Drive with different capacities, one named qual and one named bkp, '

@@ -28,7 +28,7 @@ __artifacts_v2__ = {
             'Data-local.sqlite, under Library/Reminders/Container_v1/Stores, where '
             'dleapp_macos_bigsur (macOS 11.2.1) keeps them, and under Library/Group '
             'Containers/group.com.apple.reminders/Container_v1/Stores, where the public MacBook '
-            'Pro logical extraction (macOS 15.4, not a registered corpus key) keeps them. One row '
+            'Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) keeps them. One row '
             'is reported per row of the REMCDReminder entity. On the MacBook Pro those rows are '
             'in a ZREMCDREMINDER table. The stores on dleapp_macos_bigsur have no such table: '
             'their model makes REMCDReminder a subentity of REMCDObject, so a reminder would be a '

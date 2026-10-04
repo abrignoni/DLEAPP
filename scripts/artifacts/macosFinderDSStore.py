@@ -17,7 +17,7 @@ __artifacts_v2__ = {
             'https://cpan.metacpan.org/authors/id/W/WI/WIML/Mac-Finder-DSStore-1.00.tar.gz). One '
             'row is reported per name in each file, and Structure Codes lists the codes recorded '
             'for it, as stored. The public MacBook Pro logical extraction (macOS 15.4 build '
-            '24E248, not a registered corpus key) holds 150 .DS_Store files, the files of 75 '
+            '24E248, corpus key mvs2026_macbookpro_macos15) holds 150 .DS_Store files, the files of 75 '
             'folders each present both at its own path and under System/Volumes/Data; 69 of those '
             "folders are under the Stocks app's container tmp folder, 23 copies of the same three "
             'folders, each inside a folder named 20240516_control_minus_topic_48d. The counts '

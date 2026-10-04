@@ -23,8 +23,8 @@ __artifacts_v2__ = {
             'except that the entries of every database in the folder are used together. Time '
             'Offset (seconds) is the value added, blank when the folder has no entries or Time is '
             "blank, and Logged Time is the row's timestampLogged corrected the same way. On the "
-            'public MacBook Pro logical extraction (macOS 15.4 build 24E248, not a registered '
-            'corpus key) the values added were 5,942,080.9 to 5,942,095.0 seconds, about 68.8 '
+            'public MacBook Pro logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15'
+            ') the values added were 5,942,080.9 to 5,942,095.0 seconds, about 68.8 '
             "days, and 113 of the 167 Sleep, Wake and DarkWake records in that Mac's power "
             'management log (Power Management Log (ASL)) have a row here within one second of '
             'them, against none before the correction. On dleapp_macos_bigsur every value added '
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
             'PowerLog - Sleep and Wake artifact reads, with Time corrected, and rows held by more '
             'than one database reported once, as its notes describe. Idle is reported as stored '
             'and held 0 or 1 on both public images (dleapp_macos_bigsur and the public MacBook '
-            'Pro logical extraction (macOS 15.4 build 24E248, not a registered corpus key)); what '
+            'Pro logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15)); what '
             'each value records is not established here. On those images every row within five '
             "seconds of a 'Display is turned on' or 'Display is turned off' record in the Mac's "
             'power management log paired 0 with turned on (10 rows) and 1 with turned off (1 '
@@ -120,7 +120,7 @@ __artifacts_v2__ = {
             'than one database reported once, as its notes describe. Bundle ID, Application Type '
             'and ASN are reported as stored; what Application Type and ASN record is not '
             'established here. On both public images (dleapp_macos_bigsur and the public MacBook '
-            'Pro logical extraction (macOS 15.4 build 24E248, not a registered corpus key)) '
+            'Pro logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15)) '
             'Application Type was 3 on every row naming com.apple.ScreenSaver.Engine, '
             'com.apple.loginwindow, com.apple.SecurityAgent, com.apple.SystemProfiler or '
             'com.apple.UserNotificationCenter and 1 on every other row. Consecutive rows can name '
@@ -154,7 +154,7 @@ __artifacts_v2__ = {
             "'kCFTimeZoneSystemTimeZoneDidChangeNotification' on 2. There Country Code held "
             "'Unavailable' on every row, Locale ID was empty on every row, and Time Zone Is In "
             'DST held 0 and Time Offset (seconds) 0.001 on every row. On the public MacBook Pro '
-            'logical extraction (macOS 15.4 build 24E248, not a registered corpus key) Time Zone '
+            'logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15) Time Zone '
             'Name, Seconds From GMT, Time Zone Is In DST, Country Code, Locale ID and Trigger '
             'each held one value on all 7 rows: America/New_York, -18000, 0, US, en_US and '
             'powerlog. That extraction also carries a LocaleMetrics_TimeZone_1_2 table whose 7 '
@@ -183,8 +183,8 @@ __artifacts_v2__ = {
             'than one database reported once, as its notes describe. Closed is reported as '
             'stored; what each value records is not established here. The table was empty on '
             'dleapp_macos_bigsur, whose PowerLog - Peripherals rows name VMware virtual devices. '
-            'On the public MacBook Pro logical extraction (macOS 15.4 build 24E248, not a '
-            'registered corpus key) Closed held 1 on 59 of the 64 rows and 0 on 5, and 61 of the '
+            'On the public MacBook Pro logical extraction (macOS 15.4 build 24E248, corpus key '
+            'mvs2026_macbookpro_macos15) Closed held 1 on 59 of the 64 rows and 0 on 5, and 61 of the '
             '63 pairs of consecutive rows repeat the value, so a row does not always mark a '
             "change. That Mac's power management log (Power Management Log (ASL)) has one "
             "'Clamshell Sleep' record in the period these rows cover, with rows holding 1 at 15.0 "
@@ -216,7 +216,7 @@ __artifacts_v2__ = {
             'Bus Version Or Speed record is not established here; Vendor ID (hex) and Product ID '
             '(hex) are the same numbers in hexadecimal. On both public images '
             '(dleapp_macos_bigsur and the public MacBook Pro logical extraction (macOS 15.4 build '
-            '24E248, not a registered corpus key)) every row with Now Connected 0 has no Device '
+            '24E248, corpus key mvs2026_macbookpro_macos15)) every row with Now Connected 0 has no Device '
             'Name and holds 0 in Is Builtin, Vendor ID, Product ID and Bus Version Or Speed, and '
             'every row with Now Connected 1 has a name. On the public MacBook Pro extraction '
             'every named row holds 1 in Is Builtin, so Now Connected and Is Builtin are identical '
@@ -267,7 +267,7 @@ __artifacts_v2__ = {
             "Transport Type was 'bltn' on every row of both public images. On dleapp_macos_bigsur "
             "Source ID was 'hdpn' on 37 rows, all with Is Input 0, and 'spdf' on 24, all with Is "
             'Input 1, and Is Running held 1 on one row; on the public MacBook Pro logical '
-            'extraction (macOS 15.4 build 24E248, not a registered corpus key) Source ID was '
+            'extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15) Source ID was '
             "'ispk' on 7 rows, all with Is Input 0, and 'imic' on 6, all with Is Input 1, and Is "
             'Running held 0 on every row. Time Offset (seconds) held 0.001 on every row of '
             'dleapp_macos_bigsur.'
@@ -295,8 +295,8 @@ __artifacts_v2__ = {
             'ASN and Parent ASN are reported as stored; what Event, ASN and Parent ASN record is '
             'not established here. On dleapp_macos_bigsur Event held 1 on 3,464 rows, 2 on 3,351 '
             'and 0 on 61, and the rows of 2,194 of its 2,633 ASNs are one Event 1 followed by one '
-            'Event 2; on the public MacBook Pro logical extraction (macOS 15.4 build 24E248, not '
-            'a registered corpus key) Event held 0 on 505 of 596 rows, 2 on 49 and 1 on 42. Event '
+            'Event 2; on the public MacBook Pro logical extraction (macOS 15.4 build 24E248, corpus '
+            'key mvs2026_macbookpro_macos15) Event held 0 on 505 of 596 rows, 2 on 49 and 1 on 42. Event '
             '1 and Event 2 are not established as a launch and an exit: 6 of '
             "dleapp_macos_bigsur's PowerLog - Frontmost App rows name an ASN whose latest Event 1 "
             'or 2 at or before them was 2. An ASN can appear with more than one PID (421 of the '
@@ -329,7 +329,7 @@ __artifacts_v2__ = {
             "more than one database reported once, as its notes describe. Start Time is the row's "
             'timestamp and End Time its timestampEnd, each corrected; the rows span 1,767 to '
             '1,800 seconds on dleapp_macos_bigsur and 300 to 17,090 seconds on the public MacBook '
-            'Pro logical extraction (macOS 15.4 build 24E248, not a registered corpus key), 1,860 '
+            'Pro logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15), 1,860 '
             'seconds on 5,561 of its 6,663 rows. Bundle Name, Process Name, Extension Name and '
             'the In and Out values for each interface are reported as stored, and the unit of the '
             'In and Out values is not established here. On dleapp_macos_bigsur Wifi In, Wifi Out, '
@@ -366,7 +366,7 @@ __artifacts_v2__ = {
             'reported as stored; what Screen On records is not established here, nor whether Time '
             'marks the start or the end of the interval. The table is absent from '
             "dleapp_macos_bigsur's databases. On the public MacBook Pro logical extraction (macOS "
-            '15.4 build 24E248, not a registered corpus key) Time Interval held 3600.0 on all 102 '
+            '15.4 build 24E248, corpus key mvs2026_macbookpro_macos15) Time Interval held 3600.0 on all 102 '
             'rows, Screen On ran from 122 to 3600 and was never above Time Interval, and 91 of '
             'the 101 gaps between consecutive rows are 3,600 seconds. One interval appears twice '
             'there, with Screen On 3300 in the copy of the live database under private/var and '
@@ -396,7 +396,7 @@ __artifacts_v2__ = {
             "database reported once, as its notes describe. Device Boot Time is the row's "
             "DeviceBootTime, read as Unix seconds and corrected with the value added to the row's "
             'own Time, or on its own for a row whose Time is blank. On the public MacBook Pro '
-            'logical extraction (macOS 15.4 build 24E248, not a registered corpus key), where the '
+            'logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15), where the '
             'values added were 5,942,080.9 to 5,942,095.0 seconds, each of the 14 rows then gives '
             "a boot time 3.3 to 11.2 seconds after a BOOT_TIME record of that Mac's ASL Login and "
             'Boot Records; corrected on their own, the same values fall from 10.4 seconds before '
@@ -465,7 +465,7 @@ __artifacts_v2__ = {
             'Apple, IOPM.h, the IOKit power management header of the macOS SDK, '
             'System/Library/Frameworks/IOKit.framework/Headers/pwr_mgt/IOPM.h in MacOSX26.5.sdk). '
             "The table is absent from dleapp_macos_bigsur's databases. On the public MacBook Pro "
-            'logical extraction (macOS 15.4 build 24E248, not a registered corpus key) the 7,103 '
+            'logical extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15) the 7,103 '
             'rows run from 2025-12-18 05:01 to 2025-12-25 09:34 UTC, consecutive rows 60.0 '
             'seconds apart at the median; External Connected is 1 on 7,047 rows and 0 on 56, Is '
             'Charging is 1 on 137 and Fully Charged 1 on 603, and Level runs from 39 to 100. That '

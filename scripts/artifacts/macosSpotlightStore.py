@@ -27,7 +27,7 @@ __artifacts_v2__ = {
             'reads differently. Each value of a dbStr-N.map.data file starts with its size as a '
             'little-endian base-128 integer: the dbStr files hold 114 values on '
             'dleapp_macos_bigsur and 132 on the public MacBook Pro logical extraction (macOS '
-            '15.4, not a registered corpus key) whose size takes two or more bytes, and each '
+            '15.4, corpus key mvs2026_macbookpro_macos15) whose size takes two or more bytes, and each '
             'covers its value exactly only when read that way. A list of integers (value type 7 '
             'with the list bit of the property type set) is prefixed by a size that counts its '
             'values at eight bytes each, although each value is a variable-size integer: read as '

@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                  "Users, var, Library, Containers or Applications folder above that folder is left out: a "
                  "user's, the root account's, a service's or a template's preferences, and the "
                  "SystemVersion.plist of a developer SDK or a downloaded asset. On the public MacBook Pro "
-                 "logical extraction (macOS 15.4, not a registered corpus key) those were two Command Line "
+                 "logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) those were two Command Line "
                  "Tools SDK copies reading 15.5 and 14.5 and a MobileAsset copy with an empty ProductName "
                  "and ProductVersion and the build 11M6270. A value a file does not hold is left out too. "
                  "Each row names its Plist Key and the file it came from, so a copy on another volume "

@@ -81,7 +81,7 @@ __artifacts_v2__ = {
                  "with any -journal or -wal beside it, is read once and counted in the run "
                  "log, and copies that differ are both read. The macOS Google Chrome "
                  "folder was also exercised, on the public MacBook Pro logical extraction "
-                 "(macOS 15.4, not a registered corpus key), where each store was "
+                 "(macOS 15.4, corpus key mvs2026_macbookpro_macos15), where each store was "
                  "byte-identical under the two paths. "
                  "Not read: other Chrome channels (Beta, Dev, Canary), extension storage "
                  "partitions under a profile's Storage folder, and WebView2 or Electron app profiles such "
