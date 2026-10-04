@@ -7,9 +7,10 @@ A Windows 8+ prefetch file (.pf) is a MAM/Xpress-Huffman compressed container
 around the SCCA prefetch structure. The decompressor below is an original
 implementation of the LZ77+Huffman (Xpress Huffman) algorithm from the public
 [MS-XCA] specification (Microsoft grants the right to implement it); it uses only
-the standard library. The SCCA version 30 structure that Windows 10 and 11 write
-is then parsed with the field offsets from the libyal libscca format
-documentation. Both are cited in the notes.
+the standard library. The SCCA structure is then parsed with the field offsets
+from the libyal libscca format documentation: version 30, which Windows 10 and
+11 write, and version 31, which newer Windows 11 builds write with the layout of
+version 30's second variant. Both are cited in the notes.
 """
 
 import os
@@ -20,7 +21,9 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 _MAM_SIGNATURE = b"MAM\x04"       # Xpress Huffman, no checksum
 _SCCA_SIGNATURE = b"SCCA"
-_SUPPORTED_VERSION = 30           # Windows 10 and 11
+# Version 30 (Windows 10 and 11) and version 31 (Windows 11), which libscca describes as similar to
+# version 30 variant 2 in each structure this module reads; see the notes for what was measured.
+_SUPPORTED_VERSIONS = (30, 31)
 # Version 30 comes in two variants of the file information that follows the 84-byte
 # file header, told apart by the file metrics array offset stored first in it: 304 in
 # variant 1, which keeps the run count at file offset 208, and 296 in variant 2, which
@@ -50,17 +53,23 @@ __artifacts_v2__ = {
                  "(https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc?plain=1#L366-L391), "
                  "and 296 in variant 2, which keeps it at 200 "
                  "(https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc?plain=1#L402-L427); "
-                 "a file with any other value there gets a blank Run Count and a note "
-                 "in the run log. Every prefetch file read on af_case2_win10 and "
+                 "a file with any other value there gets a blank Run Count and a note in the run log. Version 31, which Windows 11 build 26200 writes, is read with the layout of "
+                 "version 30 variant 2: libscca says 'The file information - version 31 appears to be similar to the file information version 30 - variant 2.' "
+                 "(https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc?plain=1#L442-L443) "
+                 "and describes version 31's volume information the same way against version 30 "
+                 "(https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc?plain=1#L723-L724). "
+                 "Every prefetch file read on af_case2_win10 and "
                  "lonewolf_win10 is variant 1 and every one on pc_mus_001_win11 and "
                  "szechuan_win10 is variant 2, and on every row whose Run Count is 8 "
-                 "or less it equals the number of run times stored (134, 102, 398 and "
-                 "177 rows). Last Run (UTC) is the first of the recorded run times and "
+                 "or less it equals the number of run times stored (134, 102, 398 and 177 rows). On windows11_arm_winlogon_known_20261004, a capture of a Windows 11 build 26200 "
+                 "machine, all 371 files are version 31 and store 296 there, and Run Count equals the number of run times stored on the 285 rows where it is 8 or less. That capture's "
+                 "Security log records process creation (event 4688), and each of the 385 run times that fall inside the log's span has a 4688 record within 0.4 seconds whose process "
+                 "file name, cut to the 29 characters the prefetch header keeps, is the Executable. Last Run (UTC) is the first of the recorded run times and "
                  "Run Times (UTC) lists all of them in the order stored (Windows keeps "
                  "up to eight); that order was not newest first on 5 of the 184 "
                  "af_case2_win10 rows, 6 of the 160 lonewolf_win10 rows, 20 of the 527 "
-                 "pc_mus_001_win11 rows and 8 of the 196 szechuan_win10 rows, and on "
-                 "2, 2, 7 and 4 of those the first time was not the latest. Files "
+                 "pc_mus_001_win11 rows and 8 of the 196 szechuan_win10 rows, and on 2, 2, 7 and 4 of those the first time was not the latest. On the capture it was not newest first on"
+                 " 13 of the 371 rows, and on 7 of those the first time was not the latest. Files "
                  "Loaded is the number of "
                  "files the run referenced. Volume Device Path, Volume Serial and "
                  "Volume Created (UTC) describe the first volume the file records; a "
@@ -71,9 +80,8 @@ __artifacts_v2__ = {
                  "It is evidence that the program ran, not who ran "
                  "it. The .pf file is MAM Xpress-Huffman compressed; it is "
                  "decompressed in memory with an original implementation of the "
-                 "MS-XCA LZ77+Huffman algorithm and the SCCA version 30 structure "
-                 "that Windows 10 and 11 write is then parsed. A .pf whose format is "
-                 "not MAM Xpress-Huffman or whose SCCA version is not 30 is skipped "
+                 "MS-XCA LZ77+Huffman algorithm and the SCCA structure, version 30 or 31, is then parsed. A .pf whose format is "
+                 "not MAM Xpress-Huffman or whose SCCA version is neither 30 nor 31 is skipped "
                  "with a note in the run log. Times are Windows FILETIMEs shown in "
                  "UTC; a 0 or out-of-range value is blank. Format: original MS-XCA "
                  "implementation, https://learn.microsoft.com/en-us/openspecs/"
@@ -89,6 +97,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 184 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 160 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 196 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 371 rows",
         },
     },
     "prefetchFilesLoaded": {
@@ -103,8 +112,10 @@ __artifacts_v2__ = {
         "notes": "One row per file referenced by a prefetch file, so an executable "
                  "with many loaded files produces many rows. Executable is the name "
                  "from the prefetch header and Loaded File is the referenced path as "
-                 "stored, usually in \\VOLUME{...}\\ form naming the volume by its "
-                 "GUID and serial. "
+                 "stored, usually in \\VOLUME{...}\\ form naming the volume by its GUID and serial. "
+                 "Version 31 files, which Windows 11 build 26200 writes, are read the same way as "
+                 "version 30: on windows11_arm_winlogon_known_20261004 all 371 files are version "
+                 "31 and every loaded file name in them begins \\VOLUME{. "
                  "Prefetch File is the .pf file name. Prefetch File does not separate two copies "
                  "of one prefetch file, and the declared path also matches a Prefetch folder under"
                  " Windows.old, so Source File names the file each row came from."
@@ -115,9 +126,9 @@ __artifacts_v2__ = {
                  "It is evidence that the program ran, not who ran it. The .pf file "
                  "is MAM Xpress-Huffman compressed; it is decompressed in memory "
                  "with an original implementation of the MS-XCA LZ77+Huffman "
-                 "algorithm and the SCCA version 30 structure that Windows 10 and 11 "
-                 "write is then parsed. A .pf whose format is not MAM Xpress-Huffman "
-                 "or whose SCCA version is not 30 is skipped with a note in the run "
+                 "algorithm and the SCCA structure, version 30 or 31, is then parsed. A .pf whose "
+                 "format is not MAM Xpress-Huffman "
+                 "or whose SCCA version is neither 30 nor 31 is skipped with a note in the run "
                  "log. Format: original MS-XCA implementation, https://"
                  "learn.microsoft.com/en-us/openspecs/windows_protocols/ms-xca/"
                  "a8b7cb0a-92a6-4187-a23b-5e14273b96f8; SCCA fields from libyal libscca, "
@@ -132,6 +143,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 14460 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 19582 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 18,921 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 52128 rows",
         },
     },
 }
@@ -259,7 +271,7 @@ def _utf16(data, start, length):
 
 
 def _parse_scca_v30(data):
-    """Parse a decompressed SCCA version 30 prefetch image into a dict."""
+    """Parse a decompressed SCCA version 30 or 31 prefetch image into a dict."""
     executable = _utf16(data, 16, 60)
     prefetch_hash = struct.unpack_from("<I", data, 76)[0]
     run_times = []
@@ -316,7 +328,7 @@ def _parsed_prefetch(context, label):
                 logfunc(f"{label}: {relative_source} has no SCCA signature, skipped")
                 continue
             version = struct.unpack_from("<I", data, 0)[0]
-            if version != _SUPPORTED_VERSION:
+            if version not in _SUPPORTED_VERSIONS:
                 logfunc(f"{label}: {relative_source} SCCA version {version} not supported, skipped")
                 continue
             yield relative_source, os.path.basename(source), _parse_scca_v30(data)
