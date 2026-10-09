@@ -50,12 +50,35 @@ class BatteryCenterSourceTests(unittest.TestCase):
             '97', '100', '0', '1', '00-11-22-33-44-55', 'Keyboard', '', '76', '620', '1234',
             'Delayed Remove Power = -1; BatteryHealthCondition = '))
 
-    def test_a_line_that_is_not_a_pair_is_kept(self):
+    def test_a_list_value_stays_one_value(self):
         message = 'Found power source: {\n    Name = One;\n    Parts = (\n        Left\n    );\n}'
         pairs, leftover = module._bc_source_pairs(message)  # pylint: disable=protected-access
         row = module._bc_row(pairs, leftover, module._BC_SOURCE_KEYS)  # pylint: disable=protected-access
         self.assertEqual(row[0], 'One')
-        self.assertEqual(row[-1], 'Parts = ( Left );')
+        self.assertEqual(row[-1], 'Parts = (Left)')
+
+    def test_a_nested_value_stays_one_value(self):
+        message = ('Found power source: {\n    Name = One;\n    Details = {\n        Name = Inner;\n'
+                   '        Parts = (\n            Left\n        );\n    };\n    Type = Two;\n}')
+        pairs, leftover = module._bc_source_pairs(message)  # pylint: disable=protected-access
+        row = module._bc_row(pairs, leftover, module._BC_SOURCE_KEYS)  # pylint: disable=protected-access
+        self.assertEqual(row[:2], ('One', 'Two'))
+        self.assertEqual(row[-1], 'Details = {Name = Inner; Parts = ( Left );}')
+
+    def test_an_entry_cut_short_keeps_what_was_logged(self):
+        for cut, other in (('    Type = Tw', 'Type = Tw'),
+                           ('    Details = {\n        Inner = 1;', 'Details = {Inner = 1;'),
+                           ('    Details = {\n        Inner = 1;\n    };', 'Details = {Inner = 1;}')):
+            pairs, leftover = module._bc_source_pairs(  # pylint: disable=protected-access
+                'Found power source: {\n    Name = One;\n' + cut)
+            row = module._bc_row(pairs, leftover, module._BC_SOURCE_KEYS)  # pylint: disable=protected-access
+            self.assertEqual((row[0], row[1], row[-1]), ('One', '', other))
+
+    def test_a_line_that_is_not_a_pair_is_kept(self):
+        message = 'Found power source: {\n    Name = One;\n    not a pair\n}'
+        pairs, leftover = module._bc_source_pairs(message)  # pylint: disable=protected-access
+        row = module._bc_row(pairs, leftover, module._BC_SOURCE_KEYS)  # pylint: disable=protected-access
+        self.assertEqual((row[0], row[-1]), ('One', 'not a pair'))
 
     def test_a_message_without_braces_is_kept_whole(self):
         pairs, leftover = module._bc_source_pairs('Found power source: <private>')  # pylint: disable=protected-access

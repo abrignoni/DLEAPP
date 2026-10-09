@@ -571,7 +571,14 @@ __artifacts_v2__ = {
                  "containing 'Found power source: {', whose message is a dictionary of 'key = value;' lines. Each "
                  "column named for a key holds that key's value as logged, with the quotes and backslash escapes "
                  "of a quoted value removed; every other key goes to Other Values as 'key = value', with any line "
-                 'that is not a key and value pair, and a message with no braces is kept whole there. The meaning '
+                 'that is not a key and value pair, and a message with no opening brace is kept whole there. A '
+                 'value that is itself a dictionary or a list is kept as one value under its key, its lines as '
+                 'logged and joined by spaces, so a key inside it is not taken for a key of the power source. The '
+                 'closing brace is not required: an entry cut short is split up to the cut, and a line cut in '
+                 "half goes to Other Values. Both shapes were measured on iOS images with iLEAPP's Battery Center "
+                 'power source artifact (a nested dictionary in 3,929 entries on 5 images; 371 entries on 2 '
+                 'images cut at 1,031 bytes) and neither is exercised on macOS: all 8 entries here are 667 to 669 '
+                 'bytes long, end with the closing brace and hold no nested value. The meaning '
                  "and units of the values are not established here. Howard Oakley describes these entries in 'How "
                  "macOS keeps an eye on UPS and wireless devices' "
                  '(https://eclecticlight.co/2024/06/21/how-macos-keeps-an-eye-on-ups-and-wireless-devices/) and '
@@ -961,6 +968,7 @@ def macosUnifiedLogLoginSessions(context):
 # between braces) and each device as '<BCBatteryDevice: 0x...; key = value; ...>'.
 
 _BC_PAIR = re.compile(r'^\s*("(?:[^"\\]|\\.)*"|[^\s=;"]+)\s*=\s*("(?:[^"\\]|\\.)*"|[^;"]*);\s*$')
+_BC_OPEN = re.compile(r'^("(?:[^"\\]|\\.)*"|[^\s=;"]+)\s*=\s*([{(])$')
 _BC_ESCAPE = re.compile(r'\\(U[0-9a-fA-F]{4}|.)', re.DOTALL)
 _BC_ESCAPED = {'n': '\n', 't': '\t', 'r': '\r'}
 _BC_DEVICE = re.compile(r'Found device: <BCBatteryDevice: 0x[0-9a-fA-F]+; (.*?);?\s*>\s*$', re.DOTALL)
@@ -991,21 +999,50 @@ def _bc_unquote(text):
 
 
 def _bc_source_pairs(message):
-    """(pairs, leftover) of a 'Found power source: {...}' entry; leftover is what did not parse."""
+    """(pairs, leftover) of a 'Found power source: {...}' entry; leftover is what did not parse.
+
+    A value that is itself a dictionary or a list spans several lines. It is kept as one
+    value, its lines as logged, so a key inside it is never read as a key of the power
+    source. The log cuts a long entry short, so the closing brace is not required: what was
+    logged before the cut is still split, and a line cut in half goes to leftover.
+    """
     start = message.find('{')
-    end = message.rfind('}')
-    if start < 0 or end < start:
+    if start < 0:
         return [], message.strip()
     pairs = []
     leftover = []
-    for line in message[start + 1:end].splitlines():
-        if not line.strip():
+    key = None      # the key of the nested value being read, if any
+    opener = ''
+    depth = 0
+    lines = []
+    for line in message[start + 1:].splitlines():
+        text = line.strip()
+        if not text:
+            continue
+        if key is not None:
+            if text[-1] in '{(':
+                depth += 1
+            elif text.rstrip(';') in ('}', ')'):
+                if depth == 0:
+                    pairs.append((key, opener + ' '.join(lines) + text.rstrip(';')))
+                    key = None
+                    continue
+                depth -= 1
+            lines.append(text)
+            continue
+        if text == '}':
+            break
+        match = _BC_OPEN.match(text)
+        if match:
+            key, opener, depth, lines = _bc_unquote(match.group(1)), match.group(2), 0, []
             continue
         match = _BC_PAIR.match(line)
         if match:
             pairs.append((_bc_unquote(match.group(1)), _bc_unquote(match.group(2))))
         else:
-            leftover.append(line.strip())
+            leftover.append(text)
+    if key is not None:
+        pairs.append((key, opener + ' '.join(lines)))
     return pairs, ' '.join(leftover)
 
 
