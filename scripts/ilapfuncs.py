@@ -933,6 +933,10 @@ def attach_sqlite_db_readonly(path, db_name):
     return  f'''ATTACH DATABASE "file:{path}?mode=ro" AS {db_name}'''
 
 def get_sqlite_db_records(path, query, attach_query=None):
+    """Run a query and return all its rows as a list, [] when it fails.
+
+    The connection is closed before returning.
+    """
     db = open_sqlite_db_readonly(path)
     if db:
         db.row_factory = sqlite3.Row  # For fetching columns by name
@@ -946,6 +950,8 @@ def get_sqlite_db_records(path, query, attach_query=None):
         except sqlite3.DatabaseError as e:
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
+        finally:
+            db.close()
     return []
 
 def does_column_exist_in_db(path, table_name, col_name):
