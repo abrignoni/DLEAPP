@@ -555,6 +555,109 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "smartphone",
     },
+    "macosUnifiedLogBatteryCenterSources": {
+        "name": "Unified Logs - Battery Center Power Sources",
+        "description": 'Unified log entries in which Battery Center listed a power source: an internal battery, a '
+                       'wireless accessory or a UPS, with the name, type, transport, charge values and identifiers it '
+                       'logged.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-09",
+        "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
+        "category": "Unified Logs (macOS)",
+        "notes": 'Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA database in '
+                 "the same run, so it reports nothing when that artifact did not run; Row Number is the entry's "
+                 'row number in that table and rows are in that order. Selects com.apple.BatteryCenter entries '
+                 "containing 'Found power source: {', whose message is a dictionary of 'key = value;' lines. Each "
+                 "column named for a key holds that key's value as logged, with the quotes and backslash escapes "
+                 "of a quoted value removed; every other key goes to Other Values as 'key = value', with any line "
+                 'that is not a key and value pair, and a message with no braces is kept whole there. The meaning '
+                 "and units of the values are not established here. Howard Oakley describes these entries in 'How "
+                 "macOS keeps an eye on UPS and wireless devices' "
+                 '(https://eclecticlight.co/2024/06/21/how-macos-keeps-an-eye-on-ups-and-wireless-devices/) and '
+                 "'Check UPS, batteries and input devices using Unhidden' "
+                 '(https://eclecticlight.co/2024/07/08/check-ups-batteries-and-input-devices-using-unhidden/): he '
+                 'reports that they come from the BatteryCenter private framework added in macOS Sonoma, that they '
+                 "list wireless keyboards, mice and trackpads, a UPS connected by USB and a notebook's internal "
+                 'battery, and that they are written only once a Battery widget has been installed since the Mac '
+                 'started. His examples show Accessory Identifier holding six hyphen-separated hexadecimal pairs '
+                 'for a Bluetooth keyboard and an alphanumeric string for a USB UPS, with Vendor ID and Product ID '
+                 'beside it and Accessory Category for the keyboard. No tested image holds an accessory or UPS '
+                 'entry, so those four columns are taken from his published examples and were not exercised here: '
+                 'Accessory Identifier, Accessory Category, Vendor ID and Product ID had no value on any of the 8 '
+                 'rows. Tested on dleapp_macos_bigsur (macOS 11.2.1), evidencelocker_macos14 (macOS 14.6.1) and '
+                 'mvs2026_macbookpro_macos15 (macOS 15.4). The Big Sur and macOS 15.4 stores held no '
+                 'com.apple.BatteryCenter entry at all, so this artifact has no rows there; that is not evidence '
+                 'that no accessory or UPS was connected. macOS 14.6.1: 80 com.apple.BatteryCenter entries, of '
+                 'which 8 are selected here, 2 from each of 4 BatteriesAvocadoWidgetExtension processes; the 2 '
+                 'entries of one process carried the same values. All 8 describe the internal battery: Name '
+                 '(InternalBattery-0), Type (InternalBattery), Transport Type (Internal), Power Source State '
+                 '(Battery Power), Max Capacity (100), Is Charging (0), Is Present (1), Hardware Serial Number and '
+                 'Process Image Path held one value on all 8 rows; Current Capacity held 4 values and Power Source '
+                 'ID 3. Other Values carried Battery Provides Time Remaining, BatteryHealth, '
+                 'BatteryHealthCondition, Current, DesignCycleCount, LPM Active, Optimized Battery Charging '
+                 'Engaged, Time to Empty and Time to Full Charge. The other 72 entries (notification '
+                 "registrations, 'Fetch connected devices', source counts and the 'Found device' entries the "
+                 'Battery Center Devices artifact reports) are not selected.',
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 | 0 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 8 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows",
+        },
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery",
+    },
+    "macosUnifiedLogBatteryCenterDevices": {
+        "name": "Unified Logs - Battery Center Devices",
+        "description": 'Unified log entries in which Battery Center listed a device with a battery: its name, vendor, '
+                       'charge percentage, charging and connection values, transport and identifiers as logged.',
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-09",
+        "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
+        "category": "Unified Logs (macOS)",
+        "notes": 'Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA database in '
+                 "the same run, so it reports nothing when that artifact did not run; Row Number is the entry's "
+                 'row number in that table and rows are in that order. Selects com.apple.BatteryCenter entries '
+                 "containing 'Found device: <BCBatteryDevice:', whose message is a list of 'key = value' pairs "
+                 "separated by '; '. The message is split where '; ' is followed by a word and '='. Columns hold "
+                 "the values as logged, '(null)' included: Name (name), Group Name (groupName), Vendor (vendor), "
+                 'Model Number (modelNumber), Percent Charge (percentCharge), Charging (charging), Connected '
+                 '(connected), Internal (internal), Power Source State (the key is logged as poweredSoureState), '
+                 'Transport Type (transportType), Accessory Identifier (accessoryIdentifier), Accessory Category '
+                 '(accessoryCategory), Identifier (identifier) and Product Identifier (productIdentifier). Every '
+                 'other pair goes to Other Values, and a message of another shape is kept whole there. The meaning '
+                 "of the values is not established here. Howard Oakley describes these entries in 'How macOS keeps "
+                 "an eye on UPS and wireless devices' "
+                 '(https://eclecticlight.co/2024/06/21/how-macos-keeps-an-eye-on-ups-and-wireless-devices/) and '
+                 "'Check UPS, batteries and input devices using Unhidden' "
+                 '(https://eclecticlight.co/2024/07/08/check-ups-batteries-and-input-devices-using-unhidden/): he '
+                 'reports that they come from the BatteryCenter private framework added in macOS Sonoma, that they '
+                 "list wireless keyboards, mice and trackpads, a UPS connected by USB and a notebook's internal "
+                 'battery, and that they are written only once a Battery widget has been installed since the Mac '
+                 'started. His posts quote the power source dictionaries, reported by the Battery Center Power '
+                 'Sources artifact, and not this entry. Tested on dleapp_macos_bigsur (macOS 11.2.1), '
+                 'evidencelocker_macos14 (macOS 14.6.1) and mvs2026_macbookpro_macos15 (macOS 15.4). The Big Sur '
+                 'and macOS 15.4 stores held no com.apple.BatteryCenter entry at all, so this artifact has no rows '
+                 'there; that is not evidence that no accessory or UPS was connected. macOS 14.6.1: 8 rows, 2 from '
+                 'each of 4 BatteriesAvocadoWidgetExtension processes, all for the internal battery; in each '
+                 'process Identifier and Percent Charge equalled the Power Source ID and Current Capacity of that '
+                 "process's power source entries. Name, Group Name (InternalBattery-0), Vendor (Apple), Model "
+                 'Number ((null)), Charging (NO), Connected (YES), Internal (YES), Power Source State (Battery '
+                 'Power), Transport Type (Internal), Accessory Identifier ((null)), Accessory Category (Unknown), '
+                 'Product Identifier (0), Other Values (parts, matchIdentifier, lowBattery, lowPowerModeActive and '
+                 'powerSource) and Process Image Path held one value on all 8 rows. No tested image holds an entry '
+                 'for an accessory or a UPS, so how this entry describes one was not exercised here.',
+        "sample_data": {
+            "dleapp_macos_bigsur": "macOS 11.2.1 | 0 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 8 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows",
+        },
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery",
+    },
 }
 
 import os
@@ -852,6 +955,122 @@ def macosUnifiedLogLoginSessions(context):
              OR event_message LIKE '%sendDistributedNotification: com.apple.sessionDidLogin%'
              OR event_message LIKE '%startLogout%logoutType:%')
     """)
+
+
+# Battery Center writes each power source as an NSDictionary description ('key = value;' lines
+# between braces) and each device as '<BCBatteryDevice: 0x...; key = value; ...>'.
+
+_BC_PAIR = re.compile(r'^\s*("(?:[^"\\]|\\.)*"|[^\s=;"]+)\s*=\s*("(?:[^"\\]|\\.)*"|[^;"]*);\s*$')
+_BC_ESCAPE = re.compile(r'\\(U[0-9a-fA-F]{4}|.)', re.DOTALL)
+_BC_ESCAPED = {'n': '\n', 't': '\t', 'r': '\r'}
+_BC_DEVICE = re.compile(r'Found device: <BCBatteryDevice: 0x[0-9a-fA-F]+; (.*?);?\s*>\s*$', re.DOTALL)
+_BC_DEVICE_SPLIT = re.compile(r'; (?=\w+ ?=)')
+_BC_DEVICE_PAIR = re.compile(r'^(\w+) ?= ?(.*)$', re.DOTALL)
+
+_BC_SOURCE_KEYS = ('Name', 'Type', 'Transport Type', 'Power Source State', 'Current Capacity',
+                   'Max Capacity', 'Is Charging', 'Is Present', 'Accessory Identifier',
+                   'Accessory Category', 'Hardware Serial Number', 'Vendor ID', 'Product ID',
+                   'Power Source ID')
+_BC_DEVICE_KEYS = ('name', 'groupName', 'vendor', 'modelNumber', 'percentCharge', 'charging',
+                   'connected', 'internal', 'poweredSoureState', 'transportType',
+                   'accessoryIdentifier', 'accessoryCategory', 'identifier', 'productIdentifier')
+
+
+def _bc_unquote(text):
+    """A value or key of an NSDictionary description without its quotes and escapes."""
+    text = text.strip()
+    if len(text) < 2 or text[0] != '"' or text[-1] != '"':
+        return text
+
+    def unescape(match):
+        token = match.group(1)
+        if token[0] == 'U' and len(token) == 5:
+            return chr(int(token[1:], 16))
+        return _BC_ESCAPED.get(token, token)
+    return _BC_ESCAPE.sub(unescape, text[1:-1])
+
+
+def _bc_source_pairs(message):
+    """(pairs, leftover) of a 'Found power source: {...}' entry; leftover is what did not parse."""
+    start = message.find('{')
+    end = message.rfind('}')
+    if start < 0 or end < start:
+        return [], message.strip()
+    pairs = []
+    leftover = []
+    for line in message[start + 1:end].splitlines():
+        if not line.strip():
+            continue
+        match = _BC_PAIR.match(line)
+        if match:
+            pairs.append((_bc_unquote(match.group(1)), _bc_unquote(match.group(2))))
+        else:
+            leftover.append(line.strip())
+    return pairs, ' '.join(leftover)
+
+
+def _bc_device_pairs(message):
+    """(pairs, leftover) of a 'Found device: <BCBatteryDevice: ...>' entry."""
+    match = _BC_DEVICE.search(message)
+    if not match:
+        return [], message.strip()
+    pairs = []
+    leftover = []
+    for piece in _BC_DEVICE_SPLIT.split(match.group(1)):
+        pair = _BC_DEVICE_PAIR.match(piece)
+        if pair:
+            pairs.append((pair.group(1), pair.group(2).strip()))
+        else:
+            leftover.append(piece.strip())
+    return pairs, '; '.join(leftover)
+
+
+def _bc_row(pairs, leftover, shown_keys):
+    """The shown keys' values in order, then every pair not shown and anything unparsed."""
+    shown = {}
+    other = []
+    for key, value in pairs:
+        if key in shown_keys and key not in shown:
+            shown[key] = value
+        else:
+            other.append(f'{key} = {value}')
+    if leftover:
+        other.append(leftover)
+    return tuple(shown.get(key, '') for key in shown_keys) + ('; '.join(other),)
+
+
+def _bc_entries(context, where_clause, pairs_of, shown_keys):
+    source_path, records = _imported_rows(context, where_clause)
+    data_list = []
+    for record in records:
+        pairs, leftover = pairs_of(record[5] or '')
+        data_list.append((_log_time(record[0]),) + _bc_row(pairs, leftover, shown_keys)
+                         + (record[1], record[2], record[6]))
+    return data_list, source_path
+
+
+@artifact_processor
+def macosUnifiedLogBatteryCenterSources(context):
+    data_list, source_path = _bc_entries(context, """
+        subsystem = 'com.apple.BatteryCenter' AND event_message LIKE '%Found power source: {%'
+    """, _bc_source_pairs, _BC_SOURCE_KEYS)
+    data_headers = (('Timestamp (UTC)', 'datetime'),) + _BC_SOURCE_KEYS + (
+        'Other Values', 'Process Image Path', 'Process ID', 'Row Number')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def macosUnifiedLogBatteryCenterDevices(context):
+    data_list, source_path = _bc_entries(context, """
+        subsystem = 'com.apple.BatteryCenter'
+        AND event_message LIKE '%Found device: <BCBatteryDevice:%'
+    """, _bc_device_pairs, _BC_DEVICE_KEYS)
+    data_headers = (('Timestamp (UTC)', 'datetime'), 'Name', 'Group Name', 'Vendor', 'Model Number',
+                    'Percent Charge', 'Charging', 'Connected', 'Internal', 'Power Source State',
+                    'Transport Type', 'Accessory Identifier', 'Accessory Category', 'Identifier',
+                    'Product Identifier', 'Other Values', 'Process Image Path', 'Process ID',
+                    'Row Number')
+    return data_headers, data_list, source_path
 
 
 _TCC_PATTERNS = {
