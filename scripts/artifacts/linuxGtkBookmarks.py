@@ -51,8 +51,11 @@ __artifacts_v2__ = {
                  "as the label, and the file's modified time was the second of the move, so for a bookmark Nautilus "
                  "followed a Label can differ from the folder's present name. Remove from Bookmarks took that "
                  "folder's line out. The capture's 10 rows are the 9 lines left from the first capture and the moved "
-                 "folder's line. Not exercised: renaming a bookmark, and a bookmark made in a GTK file chooser. The "
-                 "file does not record when a bookmark was made or which application made it.",
+                 "folder's line. On ubuntu2604_arm64_gtkbookmarks_chooser a bookmark was dragged to a new place in "
+                 "the sidebar of a GTK 3.24.52 file chooser, twice: each time GTK rewrote the file with the lines in "
+                 "the new order and every URI and label unchanged, so the 10 rows are those of the capture before in "
+                 "another order. Not exercised: renaming a bookmark, and adding or removing one in a GTK file "
+                 "chooser. The file does not record when a bookmark was made or which application made it.",
         "paths": ("*/.config/gtk-3.0/bookmarks", "*/.gtk-bookmarks"),
         "output_types": "standard",
         "artifact_icon": "bookmark",
@@ -61,6 +64,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_gtkbookmarks": "Ubuntu 26.04 LTS aarch64, Nautilus 50.2.2 | 10 rows",
+            "ubuntu2604_arm64_gtkbookmarks_chooser": "Ubuntu 26.04 LTS aarch64, GTK 3.24.52 | 10 rows",
             "ubuntu2604_arm64_gtkbookmarks_gui": "Ubuntu 26.04 LTS aarch64, Nautilus 50.2.2 | 10 rows",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_upower": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
