@@ -61,8 +61,8 @@ __artifacts_v2__ = {
                  "is Machine for SOFTWARE and SYSTEM and User for an NTUSER.DAT, User is the folder name under "
                  "Users in the NTUSER.DAT's path, Key is the key path under the hive root, and Source File is "
                  "the hive. Only the current control set is read; each of the five tested SYSTEM hives has "
-                 "ControlSet001 alone. The tested data holds default values only. On pc_mus_001_win11 (72 "
-                 "rows), af_case2_win10 (69), lonewolf_win10 (71), szechuan_win10 (69) and "
+                 "ControlSet001 alone. Five of the tested images hold default values only. On pc_mus_001_win11 "
+                 "(72 rows), af_case2_win10 (69), lonewolf_win10 (71), szechuan_win10 (69) and "
                  "windows11_arm_known_20261001 (72) every row has Scope Machine and an empty User, because no "
                  "NTUSER.DAT in them holds a Winlogon Userinit or Shell value. On all five, Winlogon Shell is "
                  "explorer.exe and Userinit names userinit.exe in system32 followed by a comma, the "
@@ -73,8 +73,13 @@ __artifacts_v2__ = {
                  "providers are NtpClient with Enabled 1, NtpServer with Enabled 0 and VMICTimeProvider with "
                  "Enabled 1. Print Monitors gives 6 rows on four images and 7 on lonewolf_win10, Netsh Helper "
                  "DLLs 37 to 40 rows across the two keys, and Active Setup 9 to 11 rows of the 38 to 42 "
-                 "subkeys. A value other than the defaults, a per-user row, an OSConfig row, a "
-                 "RequireSignedAppInit_DLLs row, binary data and a current control set other than "
+                 "subkeys. windows11_arm_known_20261010 is known data made on a Windows 11 build 26200 ARM64 "
+                 "virtual machine on 10 October 2026: five made-up values were added with reg.exe, the hives "
+                 "were saved and the values were removed. Its 77 rows hold them: a user Winlogon Shell row "
+                 "with Scope User, an Active Setup row with the made-up component name in Entry Label, a Netsh "
+                 "Helper DLLs row, and Time Providers DllName and Enabled rows for a made-up provider, each "
+                 "with a Key Last Written (UTC) in the second the script recorded adding it. An OSConfig row, "
+                 "a RequireSignedAppInit_DLLs row, binary data and a current control set other than "
                  "ControlSet001 were tested with constructed input only. Whether Windows loads what a value "
                  "names was not tested: the presence of a row does not establish that the program or DLL ran, "
                  "and other autostart locations exist that this artifact does not read. Reading the hives "
@@ -96,6 +101,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 69 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 72 rows",
+            "windows11_arm_known_20261010": "Windows 11 build 26200 | 77 rows",
             "windows11_arm_parallels": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
         },
     },
