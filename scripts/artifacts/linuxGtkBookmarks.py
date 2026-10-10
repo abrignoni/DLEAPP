@@ -41,9 +41,18 @@ __artifacts_v2__ = {
                  "the sixth, which starts with a space, is the one counted. With Nautilus running, moving the first "
                  "test folder with mv, trashing the second with gio trash and removing the third with rmdir left the "
                  "file byte for byte as it was 6 seconds after each step and at the capture, 34 seconds after the "
-                 "lines were added, so a row can name a folder that no longer exists. Not exercised: a bookmark "
-                 "added, renamed or removed in an application's own window. The file does not record when a bookmark "
-                 "was made or which application made it.",
+                 "lines were added, so a row can name a folder that no longer exists. "
+                 "ubuntu2604_arm64_gtkbookmarks_gui continues that test in the Files window of the same running "
+                 "Nautilus. Add to Bookmarks on a folder made Nautilus rewrite the file: the new bookmark became the "
+                 "last line with the folder's name as its label, the line without a label got its folder's name as "
+                 "one, the line starting with a space and the second line for the first folder were gone, and the "
+                 "three lines whose folders no longer existed stayed. A second folder bookmarked the same way was "
+                 "then moved with mv: 8 seconds later its line held the new path as the URI and still the old name "
+                 "as the label, and the file's modified time was the second of the move, so for a bookmark Nautilus "
+                 "followed a Label can differ from the folder's present name. Remove from Bookmarks took that "
+                 "folder's line out. The capture's 10 rows are the 9 lines left from the first capture and the moved "
+                 "folder's line. Not exercised: renaming a bookmark, and a bookmark made in a GTK file chooser. The "
+                 "file does not record when a bookmark was made or which application made it.",
         "paths": ("*/.config/gtk-3.0/bookmarks", "*/.gtk-bookmarks"),
         "output_types": "standard",
         "artifact_icon": "bookmark",
@@ -52,6 +61,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_gtkbookmarks": "Ubuntu 26.04 LTS aarch64, Nautilus 50.2.2 | 10 rows",
+            "ubuntu2604_arm64_gtkbookmarks_gui": "Ubuntu 26.04 LTS aarch64, Nautilus 50.2.2 | 10 rows",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_upower": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
