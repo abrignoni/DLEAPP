@@ -440,12 +440,16 @@ The Windows builds are not signed yet. DLEAPP is applying to SignPath Foundation
 signing program for open source projects, and this policy applies to every Windows release
 signed under it.
 
-The Windows executables and installers attached to
+The Windows executables attached to
 [GitHub Releases](https://github.com/abrignoni/DLEAPP/releases) are built from this
 repository by GitHub Actions, on GitHub-hosted runners
 ([`release.yml`](.github/workflows/release.yml)). Under this policy, SignPath signs only
 what that workflow built. The macOS disk images are signed separately, with an Apple
 Developer ID, and notarised by Apple.
+
+SignPath signs `dleapp.exe`, the single-file program in the portable zip. Third-party files
+packed inside it, such as Mandiant's Unified Log parser (`unifiedlog_iterator.exe`), are not
+signed on their own.
 
 ### Team roles
 
