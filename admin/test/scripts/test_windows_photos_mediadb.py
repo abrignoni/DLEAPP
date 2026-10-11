@@ -58,9 +58,24 @@ def database(script=SCHEMA):
     return db
 
 
+class FakeSeeker:
+    def __init__(self, found):
+        self.found, self.asked = found, []
+
+    def search(self, pattern):
+        self.asked.append(pattern)
+        return self.found.get(pattern, [])
+
+
 class FakeContext:
-    def __init__(self, paths, root):
-        self.paths, self.root = paths, root
+    def __init__(self, paths, root, found=None):
+        self.paths, self.root, self.seeker = paths, root, FakeSeeker(found or {})
+
+    def get_seeker(self):
+        return self.seeker
+
+    def set_files_found(self, paths):
+        self.paths = paths
 
     def get_files_found(self):
         return self.paths
@@ -76,6 +91,16 @@ class Values(unittest.TestCase):
             self.assertEqual(pm.filetime(other), '', other)
         self.assertEqual(pm.stored_clock(CREATED), '2018-04-03 06:37:42')
         self.assertEqual(pm.stored_clock(None), '')
+
+    def test_media_pattern(self):
+        base = 'p4/Users/b/AppData/Local/Packages/x/LocalState/MediaDb.v1.sqlite'
+        self.assertEqual(pm.media_pattern(base, 'C:\\Users\\u\\Pictures', 'a [1]*?.jpg'),
+                         '*/p4/Users/u/Pictures/a [[]1][*][?].jpg')
+        self.assertEqual(pm.media_pattern('Users/b/x.sqlite', 'D:\\Photos\\', 'a.jpg'), '*/Photos/a.jpg')
+        self.assertEqual(pm.media_pattern('p4/users/b/x.sqlite', 'C:\\', 'a.jpg'), '*/p4/a.jpg')
+        for folder, name in (('', 'a.jpg'), ('\\\\server\\share', 'a.jpg'), ('C:', 'a.jpg'), ('C:\\Users', '')):
+            self.assertIsNone(pm.media_pattern(base, folder, name), folder)
+        self.assertIsNone(pm.media_pattern('export/MediaDb.v1.sqlite', 'C:\\Users\\u', 'a.jpg'))
 
     def test_user(self):
         self.assertEqual(pm._user('p4/Users/someone/AppData/Local/x/MediaDb.v1.sqlite'), 'someone')  # pylint: disable=protected-access
@@ -110,6 +135,8 @@ class Processors(unittest.TestCase):
         self.addCleanup(folder.cleanup)
         self.root = folder.name
         self.paths = []
+        self.context = None
+        self.checked = None
         empty = SCHEMA[:SCHEMA.index('INSERT INTO Source')]
         for user, script in (('b', SCHEMA), ('a', 'CREATE TABLE Other(x);'), ('c', None), ('d', empty)):
             path = os.path.join(self.root, 'C', 'Users', user, 'AppData', 'Local', 'Packages',
@@ -130,22 +157,37 @@ class Processors(unittest.TestCase):
         db.close()
         self.paths.append(other)
 
-    def run_one(self, processor):
-        with mock.patch.object(pm, 'logfunc') as log:
-            headers, data, located = processor.__wrapped__(FakeContext(self.paths[::-1], self.root))
+    def run_one(self, processor, found=None):
+        self.context = FakeContext(self.paths[::-1], self.root, found)
+        with mock.patch.object(pm, 'logfunc') as log, \
+                mock.patch.object(pm, 'check_in_media', side_effect=lambda path, name='': 'ref:' + name) as checked:
+            headers, data, located = processor.__wrapped__(self.context)
+        self.checked = checked
         return headers, data, located, [call[0][0] for call in log.call_args_list]
 
     def test_items(self):
-        headers, data, located, logged = self.run_one(pm.photosMediaDbItems)
+        pattern = '*/C/Users/u/Pictures/second.jpg'
+        headers, data, located, logged = self.run_one(pm.photosMediaDbItems, {pattern: ['/staged/second.jpg', '/staged/other.jpg']})
         relative = 'C/Users/b/AppData/Local/Packages/Microsoft.Windows.Photos_8wekyb3d8bbwe/LocalState/MediaDb.v1.sqlite'
-        self.assertEqual(len(headers), 21)
-        self.assertEqual(headers[2:4], ('Date Taken (As Stored)', ('Date Ingested (UTC)', 'datetime')))
-        self.assertEqual(data, [row + ('b', relative) for row in ITEMS])
+        self.assertEqual(len(headers), 22)
+        self.assertEqual(headers[2:5], ('Date Taken (As Stored)', ('Date Ingested (UTC)', 'datetime'), ('Media', 'media')))
+        self.assertEqual(data, [ITEMS[0][:4] + ('',) + ITEMS[0][4:] + ('b', relative),
+                                ITEMS[1][:4] + ('ref:second.jpg',) + ITEMS[1][4:] + ('b', relative)])
         self.assertEqual(located, self.good)
-        self.assertEqual(len(logged), 2)
+        self.assertEqual(self.context.seeker.asked, [pattern])
+        self.checked.assert_called_once_with('/staged/second.jpg', name='second.jpg')
+        self.assertIn('/staged/second.jpg', self.context.paths)
+        self.assertEqual(len(logged), 3)
         self.assertIn('C/Users/a/', logged[0])
         self.assertIn('does not have the table this artifact reads', logged[0])
-        self.assertIn('could not read C/Users/c/', logged[1])
+        self.assertIn('1 of 2 items of C/Users/b/', logged[1])
+        self.assertIn('could not read C/Users/c/', logged[2])
+
+    def test_items_whose_files_are_not_in_the_extraction(self):
+        data = self.run_one(pm.photosMediaDbItems)[1]
+        self.assertEqual([row[4] for row in data], ['', ''])
+        self.checked.assert_not_called()
+        self.assertNotIn('/staged/second.jpg', self.context.paths)
 
     def test_folders(self):
         headers, data, located, logged = self.run_one(pm.photosMediaDbFolders)
