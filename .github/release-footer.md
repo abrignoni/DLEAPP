@@ -5,26 +5,32 @@
 
 | Platform | File |
 |---|---|
-| Windows 10 or 11, 64-bit Intel or AMD | `-windows-x64-setup.exe` (installer), or `-windows-x64-portable.zip` to run without installing |
-| Windows 11 on ARM | `-windows-arm64-setup.exe`, or `-windows-arm64-portable.zip` |
+| Windows 10 or 11, 64-bit Intel or AMD | `-windows-x64-portable.zip` |
+| Windows 11 on ARM | `-windows-arm64-portable.zip` |
 | macOS, Apple silicon | `-macos-arm64.dmg` |
 | macOS, Intel | `-macos-x64.dmg` |
 | Linux, 64-bit Intel or AMD | `-linux-x64.AppImage` |
 | Linux on ARM | `-linux-arm64.AppImage` |
 
-Every download holds one program, `dleapp`. Started without arguments, from the Start
-menu, the Applications folder or a double-click, it opens the window. Given arguments in a
-terminal, it is the command line. On macOS the command line is inside the app:
+Every download holds one program, `dleapp`. Started without arguments, from the
+Applications folder or a double-click, it opens the window. Given arguments in a terminal,
+it is the command line. On macOS the command line is inside the app:
 
 ```bash
 /Applications/DLEAPP.app/Contents/MacOS/dleapp --help
 ```
 
 **For tools that run DLEAPP themselves.** The options, output and exit codes of `dleapp`
-are those of earlier releases, but the downloads changed shape: there is no `dleappGUI`
-any more, since `dleapp` without arguments opens the window. On Windows and macOS,
-`dleapp` needs the folder it came in, so run it from there rather than copying the
-executable elsewhere on its own; on Linux the AppImage is the whole program.
+are those of earlier releases, but there is no `dleappGUI` any more, since `dleapp`
+without arguments opens the window. On Windows the zip holds the whole program as one
+file, `dleapp.exe`, which can be put wherever the tool expects it; there is no installer.
+The executable inside the macOS app needs the folder it came in; on Linux the AppImage is
+the whole program.
+
+**`dleapp.exe` on Windows** unpacks itself to a temporary folder each time it starts, so it
+takes a few seconds to start, and it does not run where a policy (AppLocker, WDAC) forbids
+running programs from the temporary folder. There, run DLEAPP from source; the README has
+the steps.
 
 ## First launch
 
