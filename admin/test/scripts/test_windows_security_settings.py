@@ -77,6 +77,7 @@ SYSTEM = _Hive({
     'ControlSet001\\Control\\Terminal Server': _Key({'fDenyTSConnections': 1}),
     'ControlSet002\\Control\\Terminal Server': _Key({'fDenyTSConnections': 0, 'TSEnabled': 1}, T2),
     'ControlSet002\\Control\\Terminal Server\\WinStations\\RDP-Tcp': _Key({'PortNumber': 3390}, T2),
+    'ControlSet002\\Control\\SecurityProviders\\WDigest': _Key({'UseLogonCredential': 1, 'Negotiate': 0}, T2),
     'ControlSet002\\Control\\Lsa': _Key({'RunAsPPL': 2, 'NoLMHash': b'\x01\x00', 'LmCompatibilityLevel': ['a', 'b']}),
 })
 SOFTWARE_ROWS = [
@@ -99,7 +100,8 @@ SYSTEM_ROWS = [
     (W2, 'Remote Desktop', 'PortNumber', 3390, 'Yes', 'ControlSet002\\Control\\Terminal Server\\WinStations\\RDP-Tcp'),
     (W1, 'LSA', 'RunAsPPL', 2, 'Yes', 'ControlSet002\\Control\\Lsa'),
     (W1, 'LSA', 'LmCompatibilityLevel', 'a | b', 'Yes', 'ControlSet002\\Control\\Lsa'),
-    (W1, 'LSA', 'NoLMHash', '0100', 'Yes', 'ControlSet002\\Control\\Lsa')]
+    (W1, 'LSA', 'NoLMHash', '0100', 'Yes', 'ControlSet002\\Control\\Lsa'),
+    (W2, 'LSA', 'UseLogonCredential', 1, 'Yes', 'ControlSet002\\Control\\SecurityProviders\\WDigest')]
 
 
 @unittest.skipIf(Registry is None, 'python-registry is not installed')
