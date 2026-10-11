@@ -25,3 +25,4 @@ pefile
 olefile
 argon2-cffi
 PyNaCl
+PyYAML
