@@ -51,8 +51,15 @@ __artifacts_v2__ = {
                  "11) and a yes dleapp_known_crash process ended with SIGABRT (Signal 6), both run from the folder "
                  "made for the test: each Date is one second after the second the signal was sent, read in that "
                  "zone, the User ID is 1000, the real user ID in the report's ProcStatus field, and both reports "
-                 "hold a core dump. The VM's five earlier reports belong to root or system accounts, could not be "
-                 "read by the unprivileged capture and are not in the sample. Not exercised: a package installation "
+                 "hold a core dump. ubuntu2604_arm64_apport_root is a later capture of the same folder made with root "
+                 "rights, 7 rows: those two reports and five that were not made for a test, system daemons started "
+                 "by process 1 and ended with SIGABRT, their Dates within three seconds of each other, three with "
+                 "User ID 0 and two with the IDs of system accounts; on each of the 7 the User ID is the real user "
+                 "ID in ProcStatus. For all 7 the text fields, 21, or 20 on the two system-account reports, which "
+                 "have no ProcCwd field, and the one binary field are those Apport's ProblemReport.load returns. "
+                 "Working Directory is empty on the rows of those two system-account reports, and Problem Type, "
+                 "Distro Release, Architecture, Kernel, Core Dump and Other Fields each held one value on all 7 "
+                 "rows. Not exercised: a package installation "
                  "failure, a kernel report, a Python traceback report, and the .upload and .uploaded marker files, "
                  "which are not read.",
         "paths": ("*/var/crash/*.crash",),
@@ -62,6 +69,7 @@ __artifacts_v2__ = {
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
             "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_apport": "Ubuntu 26.04 LTS aarch64, Apport 2.34.1 | 2 rows",
+            "ubuntu2604_arm64_apport_root": "Ubuntu 26.04 LTS aarch64, Apport 2.34.1 | 7 rows",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_upower": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
