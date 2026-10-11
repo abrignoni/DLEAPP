@@ -38,14 +38,19 @@ __artifacts_v2__ = {
                  "items on the disk and items of a cloud account, which is not established from a source. Tags is "
                  "the number of rows the ItemTags table holds for the item, labels the app's image analysis gave it; "
                  "the labels' names are not in the database, only numbers, so only the count is reported: 9 items "
-                 "have 1 to 7 and 19 have none. Item ID is Item_Id, User the folder under Users in the database's "
-                 "path, and Source File the database. Latitude, Longitude, Camera Manufacturer and Camera Model were "
-                 "empty on all 28 rows and Media Type and User each held one value on all 28, so a location and a "
-                 "camera were tested with constructed input only, as were a database from an app version that lacks "
-                 "one of the columns, which gives an empty cell, and one without an Item table, which is named in "
-                 "the run log. The tables for faces, recognised text, albums and the user's actions in the app are "
-                 "not read. pc_mus_001_win11, af_case2_win10 and szechuan_win10 hold the database with an empty Item "
-                 "table and give no row. A row shows that the app indexed the file, not that the user opened it.",
+                 "have 1 to 7 and 19 have none. Media shows the picture or video itself when the extraction holds "
+                 "the file the row names: the file whose name is File Name in the folder Folder Path, looked for on "
+                 "the volume the database is on. On lonewolf_win10 it is shown for the 9 items that have a local "
+                 "Folder Path, all 9 found, and is empty for the 19 that have none. A file that is no longer in the "
+                 "extraction leaves Media empty, which was tested with constructed input only. Item ID is Item_Id, "
+                 "User the folder under Users in the database's path, and Source File the database. Latitude, "
+                 "Longitude, Camera Manufacturer and Camera Model were empty on all 28 rows and Media Type and User "
+                 "each held one value on all 28, so a location and a camera were tested with constructed input only, "
+                 "as were a database from an app version that lacks one of the columns, which gives an empty cell, "
+                 "and one without an Item table, which is named in the run log. The tables for faces, recognised "
+                 "text, albums and the user's actions in the app are not read. pc_mus_001_win11, af_case2_win10 and "
+                 "szechuan_win10 hold the database with an empty Item table and give no row. A row shows that the "
+                 "app indexed the file, not that the user opened it.",
         "paths": ("*/AppData/Local/Packages/Microsoft.Windows.Photos_*/LocalState/MediaDb.v1.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "image",
@@ -106,7 +111,7 @@ import os
 import sqlite3
 from datetime import datetime, timedelta, timezone
 
-from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc, open_sqlite_db_readonly
 
 EPOCH_1601 = datetime(1601, 1, 1, tzinfo=timezone.utc)
 DB_NAME = 'MediaDb.v1.sqlite'
@@ -203,7 +208,7 @@ def folder_rows(db):
              folder['Folder_Id']) for folder in folders]
 
 
-def _collect(context, label, reader):
+def _collect(context, label, reader, media=False):
     data_list, read = [], []
     for path in sorted({str(p) for p in context.get_files_found()}):
         if os.path.basename(path) != DB_NAME or not os.path.isfile(path):
@@ -223,11 +228,48 @@ def _collect(context, label, reader):
         if rows is None:
             logfunc(f'{label}: {relative} does not have the table this artifact reads')
             continue
+        if media and rows:
+            rows, shown = _with_media(context, relative, rows)
+            logfunc(f'{label}: {shown} of {len(rows)} items of {relative} have their file in the extraction')
         user = _user(relative)
         data_list.extend(row + (user, relative) for row in rows)
         if rows:
             read.append(path)
     return data_list, '\n'.join(read)
+
+
+def media_pattern(relative, folder_path, file_name):
+    """The seeker pattern for the file an item names, on the volume its database is on: the item's folder path
+    without the drive, under whatever comes before Users in the database's own path. None when the folder path is
+    not a drive path or the database is not under a Users folder."""
+    parts = relative.replace('\\', '/').split('/')
+    lowered = [part.lower() for part in parts]
+    if 'users' not in lowered or len(folder_path) < 3 or folder_path[1:3] != ':\\' or not file_name:
+        return None
+    volume = '/'.join(parts[:lowered.index('users')])
+    inside = folder_path[3:].replace('\\', '/').strip('/')
+    literal = '/'.join(part for part in (volume, inside, file_name) if part)
+    return '*/' + ''.join('[' + char + ']' if char in '*?[' else char for char in literal)
+
+
+def _with_media(context, relative, rows):
+    """The item rows with a media reference in front of the file name, for each item whose file the extraction
+    holds; and how many were found. The files found are added to the run's found files, which is where the media
+    check-in looks them up."""
+    seeker, staged = context.get_seeker(), []
+    for row in rows:
+        pattern = media_pattern(relative, row[5], row[4])
+        matches = seeker.search(pattern) if pattern is not None else []
+        staged.append(str(matches[0]) if matches else '')
+    extra = [path for path in dict.fromkeys(staged) if path]
+    if extra:
+        context.set_files_found(list(dict.fromkeys([str(p) for p in context.get_files_found()] + extra)))
+    out, found = [], 0
+    for row, path in zip(rows, staged):
+        reference = (check_in_media(path, name=row[4]) or '') if path else ''
+        found += bool(reference)
+        out.append(row[:4] + (reference,) + row[4:])
+    return out, found
 
 
 def _user(relative):
@@ -242,11 +284,12 @@ def _user(relative):
 @artifact_processor
 def photosMediaDbItems(context):
     data_headers = (('Date Created (UTC)', 'datetime'), ('Date Modified (UTC)', 'datetime'),
-                    'Date Taken (As Stored)', ('Date Ingested (UTC)', 'datetime'), 'File Name', 'Folder Path',
+                    'Date Taken (As Stored)', ('Date Ingested (UTC)', 'datetime'), ('Media', 'media'), 'File Name',
+                    'Folder Path',
                     'File Size', 'Width', 'Height', 'Media Type', 'Latitude', 'Longitude', 'Camera Manufacturer',
                     'Camera Model', 'Source Type', 'Account', 'Storage Provider File ID', 'Tags', 'Item ID', 'User',
                     'Source File')
-    data_list, located = _collect(context, 'Photos Library Items (MediaDb)', item_rows)
+    data_list, located = _collect(context, 'Photos Library Items (MediaDb)', item_rows, media=True)
     return data_headers, data_list, located
 
 
