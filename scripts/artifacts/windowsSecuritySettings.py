@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "One row for each of 19 registry settings, whether the value is stored or not: Stored is Yes "
+        "notes": "One row for each of 20 registry settings, whether the value is stored or not: Stored is Yes "
                  "or No, Data is the value as stored and empty when it is not stored, and Key Last Written "
                  "(UTC) is the last-written time of the key, which changes when any of its values is written "
                  "and is empty when the key does not exist. A value that is not stored leaves Windows on its "
@@ -38,7 +38,10 @@ __artifacts_v2__ = {
                  "LmCompatibilityLevel, the LAN Manager authentication level "
                  "(https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/security-policy-settings/network-security-lan-manager-authentication-level), "
                  "and NoLMHash, which prevents new LM hashes from being stored "
-                 "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/prevent-windows-store-lm-hash-password). "
+                 "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/prevent-windows-store-lm-hash-password), "
+                 "and UseLogonCredential under Control\\SecurityProviders\\WDigest, which when 0 keeps WDigest "
+                 "from storing credentials in memory and when 1 has it store them "
+                 "(https://support.microsoft.com/en-us/topic/microsoft-security-advisory-update-to-improve-credentials-protection-and-management-may-13-2014-93434251-04ac-b7f3-52aa-9f951c14b649). "
                  "Logging: ProcessCreationIncludeCmdLine_Enabled under Policies\\System\\Audit, the policy that "
                  "includes the command line in process creation events "
                  "(https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-admx-auditsettings), "
@@ -55,22 +58,22 @@ __artifacts_v2__ = {
                  "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon). "
                  "Value names are matched without case, Area groups the rows as above, Key is the key path "
                  "under the hive root and Source File is the hive; only the current control set of SYSTEM is "
-                 "read. Every one of the six tested extractions gives 19 rows, 5 from SYSTEM and 14 from "
+                 "read. Every one of the six tested extractions gives 20 rows, 6 from SYSTEM and 14 from "
                  "SOFTWARE. On all six, PortNumber is 3389, EnableLUA is 1, ConsentPromptBehaviorAdmin is 5 "
                  "and NoLMHash is 1, and the Terminal Services policy value, FilterAdministratorToken, "
-                 "LmCompatibilityLevel and the three PowerShell logging values are not stored, the three "
-                 "PowerShell keys being absent. fDenyTSConnections is 0 on szechuan_win10 and 1 on the other "
-                 "five. LocalAccountTokenFilterPolicy is stored, as 1, on af_case2_win10 only. "
-                 "PromptOnSecureDesktop is 1 on the four public images and 0 on windows11_arm_known_20261001 "
-                 "and windows11_arm_known_20261010, which also hold RunAsPPL 2 and "
-                 "ProcessCreationIncludeCmdLine_Enabled 1, neither stored on the public images. AutoAdminLogon "
-                 "is 1 on af_case2_win10 and on the two build 26200 captures, and DefaultPassword is stored on "
-                 "af_case2_win10 only. A setting stored in another form, a second control set and a hive that "
-                 "cannot be read were tested with constructed input only. These values are the configuration "
-                 "at the time of the hive: they do not show who changed a setting, and whether Windows "
-                 "honoured each value on these systems was not tested. Reading the hives requires the "
-                 "python-registry package; a dirty hive is read after its transaction logs are applied, and "
-                 "the run log names each.",
+                 "LmCompatibilityLevel, UseLogonCredential and the three PowerShell logging values are not "
+                 "stored, the three PowerShell keys being absent. fDenyTSConnections is 0 on szechuan_win10 "
+                 "and 1 on the other five. LocalAccountTokenFilterPolicy is stored, as 1, on af_case2_win10 "
+                 "only. PromptOnSecureDesktop is 1 on the four public images and 0 on "
+                 "windows11_arm_known_20261001 and windows11_arm_known_20261010, which also hold RunAsPPL 2 "
+                 "and ProcessCreationIncludeCmdLine_Enabled 1, neither stored on the public images. "
+                 "AutoAdminLogon is 1 on af_case2_win10 and on the two build 26200 captures, and "
+                 "DefaultPassword is stored on af_case2_win10 only. A setting stored in another form, a second "
+                 "control set and a hive that cannot be read were tested with constructed input only. These "
+                 "values are the configuration at the time of the hive: they do not show who changed a "
+                 "setting, and whether Windows honoured each value on these systems was not tested. Reading "
+                 "the hives requires the python-registry package; a dirty hive is read after its transaction "
+                 "logs are applied, and the run log names each.",
         "paths": ('*/Windows/System32/config/SOFTWARE',
                   '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
                   '*/Windows/System32/config/SYSTEM',
@@ -78,13 +81,13 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield",
         "sample_data": {
-            "af_case2_win10": "Windows 10 1809 build 17763 | 19 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 19 rows",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 19 rows",
-            "szechuan_win10": "Windows 10 2004 build 19041 | 19 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 20 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 20 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 20 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 20 rows",
             "windows11_arm_7zip_known_20261010": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
-            "windows11_arm_known_20261001": "Windows 11 build 26200 | 19 rows",
-            "windows11_arm_known_20261010": "Windows 11 build 26200 | 19 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 20 rows",
+            "windows11_arm_known_20261010": "Windows 11 build 26200 | 20 rows",
         },
     },
 }
@@ -118,6 +121,7 @@ _SYSTEM_SETTINGS = (
     ('Remote Desktop', r'Control\Terminal Server', ('fDenyTSConnections',)),
     ('Remote Desktop', r'Control\Terminal Server\WinStations\RDP-Tcp', ('PortNumber',)),
     ('LSA', r'Control\Lsa', ('RunAsPPL', 'LmCompatibilityLevel', 'NoLMHash')),
+    ('LSA', r'Control\SecurityProviders\WDigest', ('UseLogonCredential',)),
 )
 
 
