@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "the stored request and response objects.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Web Cache (macOS)",
         "notes": "Reads each Cache.db under a Library/Caches folder, including ones nested below "
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                  "that form is left blank and counted in the run log. Response Object Time (UTC) "
                  "is the second element of the response object's Array read as seconds since "
                  "2001-01-01 UTC. It equalled Time Stamp to the second on 1,299 of 1,528 rows on "
-                 "dleapp_macos_bigsur and 1,061 of 1,728 on the MacBook Pro extraction below, and "
+                 "dleapp_macos_bigsur and 949 of 1,450 on the MacBook Pro extraction below, and "
                  "was earlier or later on the rest, so the two are not the same time. User is the "
                  "folder after Users in the path, root under private/var/root, and blank "
                  "elsewhere, and Cache Path is the folder holding the Cache.db. URL and Partition "
@@ -47,11 +47,12 @@ __artifacts_v2__ = {
                  "2020-12-02 15:00:46 to 2021-02-19 19:53:28 UTC, and the Cache.db under "
                  "com.apple.parsecd/EngagedCompletions had no cfurl_cache_response table. On the "
                  "public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) "
-                 "60 caches gave 1,728 rows, and 58 copies under System/Volumes/Data "
-                 "byte-identical to another were read once and counted in the run log. The request "
-                 "objects hold request headers: 967 on dleapp_macos_bigsur included a Cookie "
-                 "header and 28 an Authorization header, and on the MacBook Pro extraction 280 and "
-                 "492.",
+                 "60 caches gave 1,450 rows: 58 copies under System/Volumes/Data byte-identical "
+                 "to another were read once and counted in the run log, and 13 copies that differed "
+                 "from the one under Users were read too, an entry both copies hold being reported "
+                 "once. The request objects hold request headers: 967 on dleapp_macos_bigsur "
+                 "included a Cookie header and 28 an Authorization header, and on the MacBook Pro "
+                 "extraction 257 and 359.",
         "paths": ('*/Library/Caches/*/Cache.db*',),
         "output_types": ["standard"],
         "artifact_icon": "world-www",
@@ -68,7 +69,7 @@ from datetime import datetime, timezone
 
 from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db, get_sqlite_db_records,
                                logfunc)
-from scripts.macos_plists import canonical_relative, mac_absolute_utc, unique_sources, user_from_path
+from scripts.macos_plists import canonical_relative, fold_view_rows, mac_absolute_utc, unique_sources, user_from_path
 
 _QUERY = '''
     SELECT r.entry_ID, r.request_key, r.time_stamp, r.partition, b.response_object,
@@ -160,6 +161,9 @@ def macosAppUrlCache(context):
         if unparsed:
             logfunc(f'App URL Cache: {unparsed} time_stamp value(s) in {relative} not in the '
                     'YYYY-MM-DD HH:MM:SS form, left blank')
-        data_list.extend(rows)
+        data_list.extend(tuple(row) + (relative,) for row in rows)
         sources.append(path)
+    # One entry held by copies of a Cache.db under two volume views that differ in bytes is reported once. The
+    # rows have no source column, so the file is added for the fold and removed again.
+    data_list = [row[:-1] for row in fold_view_rows(data_list)]
     return data_headers, data_list, '\n'.join(sources)

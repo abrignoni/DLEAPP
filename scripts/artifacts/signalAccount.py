@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        "device record.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-12",
         "requirements": "PyCryptodome; the Signal database credential for the "
                         "account fields",
         "category": "Signal (macOS)",
@@ -17,7 +17,10 @@ __artifacts_v2__ = {
                  "the store also holds the account password, master key, "
                  "profile key and storage keys, which would let the account be "
                  "impersonated. The unencrypted profile files are reported even "
-                 "when no credential is available.",
+                 "when no credential is available. When an extraction holds the same "
+                 "file at its own path and again under System/Volumes/Data or "
+                 "System/Volumes/Update/mnt1, a value both copies hold is reported once, "
+                 "with both files in Source File.",
         "paths": (
             '*/Signal*/sql/db.sqlite',
             '*/Signal*/config.json',
@@ -41,6 +44,7 @@ import os
 
 from scripts import signal_desktop
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.macos_plists import fold_view_rows
 
 # Items whose value is key material or a credential. Their presence is
 # evidence the account is registered; their value would allow impersonation.
@@ -137,7 +141,7 @@ def signalAccount(context):
     if connection is None:
         signal_desktop.explain(note, logfunc)
         add("Database", f"Not opened: {note}", source_path or "config.json")
-        return data_headers, data_list, source_path
+        return data_headers, fold_view_rows(data_list), source_path
 
     database_path = next(iter(signal_desktop.database_files(files_found)), "")
     source_path = database_path or source_path
@@ -180,5 +184,7 @@ def signalAccount(context):
             continue
 
     connection.close()
+    # one value held by two volume views of the same file is reported once
+    data_list = fold_view_rows(data_list)
     logfunc(f"Signal Account & Application: {len(data_list)} property value(s).")
     return data_headers, data_list, source_path
