@@ -44,6 +44,14 @@ class LeafTest(unittest.TestCase):
         buf = struct.pack(">I", 100) + b"abc"
         self.assertEqual(reader(buf)._string(0), b"abc")  # pylint: disable=protected-access
 
+    def test_creator_is_read_as_four_bytes_not_a_string(self):
+        # read as a string, the creator's own four bytes became a length and pulled in everything after it
+        header = kc._RECORD_HEADER_ATOMS * _ATOM  # pylint: disable=protected-access
+        record = (struct.pack(">I", 0) + b"\x00" * (header - _ATOM)
+                  + struct.pack(">I", header + _ATOM) + b"abcd" + b"x" * 64)
+        item = reader(record)._record(0, ("crtr",))  # pylint: disable=protected-access
+        self.assertEqual(item["crtr"], "abcd")
+
     def test_string_position_past_end_raises(self):
         with self.assertRaises(kc._KeychainFormatError):  # pylint: disable=protected-access
             reader(b"\x00\x00")._string(0)  # pylint: disable=protected-access
