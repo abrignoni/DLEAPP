@@ -14,13 +14,19 @@ __artifacts_v2__ = {
         "category": "Keychains (macOS)",
         "notes": "Reads Apple's classic 'kych' keychain format (the "
                  "AppleDatabase on-disk layout: 16-byte header, schema "
-                 "section, per-relation tables, length-prefixed attribute "
+                 "section, per-relation tables, length-prefixed string "
                  "values). Only cleartext attribute metadata is read; the "
                  "SSGP secret area is never decrypted, only its presence is "
                  "reported. Every generic-password record's account, service "
                  "and dates were checked against macOS's own "
                  "'security dump-keychain' on the validation image and match "
                  "exactly. "
+                 "Creator (raw) is the record's 4-byte creator code shown as its ASCII "
+                 "characters, the way security dump-keychain prints it (as hex when the "
+                 "bytes are not ASCII, which no validation record exercises). On the validation "
+                 "image 2 of the 18 records carry one and the other 16 have none, matching "
+                 "security dump-keychain record for record in all three keychain files; "
+                 "Type (raw) is empty on all 18. "
                  "A record number the keychain has deleted holds a free-list link with "
                  "its low bit set, or zero; this reader skips both, as Apple's own reader skips "
                  "them (Reference: Apple Security, commit 3dab46a11f45f2ffdbd70e2127cc5a8ce4a1f222, 'OSX/libsecurity_filedb/lib/AppleDatabase.cpp' lines 144 to 149, https://github.com/apple-oss-distributions/Security). Following such a link read a garbage record "
@@ -184,9 +190,11 @@ _INET_SCHEMA = (
     "ptcl", "atyp", "port", "path",
 )
 
-_STRING_ATTRS = {"desc", "icmt", "crtr", "acct", "svce", "labl", "alias",
+_STRING_ATTRS = {"desc", "icmt", "acct", "svce", "labl", "alias",
                  "gena", "sdmn", "srvr", "path"}
-_FOURCC_ATTRS = {"ptcl", "atyp"}
+# crtr is a 4-byte creator code, not a length-prefixed string: security
+# dump-keychain prints it as a uint32 shown as four characters.
+_FOURCC_ATTRS = {"ptcl", "atyp", "crtr"}
 _TIME_ATTRS = {"cdat", "mdat"}
 
 
