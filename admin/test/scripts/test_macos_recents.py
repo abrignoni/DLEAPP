@@ -166,9 +166,10 @@ class Artifact(unittest.TestCase):
         database.commit()
         database.close()
         (_, rows, located), logged = self.run_artifact([view, changed, other, path])
+        both = os.path.relpath(changed, self.folder.name) + '\n' + os.path.relpath(other, self.folder.name)
         self.assertEqual([row[-1] for row in rows],
-                         [os.path.relpath(changed, self.folder.name)] * 2 + [os.path.relpath(path, self.folder.name)] * 4
-                         + [os.path.relpath(other, self.folder.name)] * 4)
+                         [both] * 2 + [os.path.relpath(path, self.folder.name)] * 4
+                         + [os.path.relpath(other, self.folder.name)] * 2)
         self.assertEqual(located, changed + '\n' + path + '\n' + other)
         self.assertEqual(len(logged), 2)
         self.assertIn('1 byte-identical copy(ies)', logged[0])

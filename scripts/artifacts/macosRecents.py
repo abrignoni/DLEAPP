@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "contact's address and name, and the details stored with it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-11",
-        "last_update_date": "2026-10-11",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Recents (macOS)",
         "notes": "Reads the Recents database in the com.apple.corerecents.recentsd container of each user, a SQLite "
@@ -37,25 +37,27 @@ __artifacts_v2__ = {
                  "row with no recents row is not reported; neither tested database holds one. The properties table "
                  "and recents.record_hash are not read. When an extraction holds the same database, with its -wal "
                  "file, under Users and under System/Volumes/Data/Users with identical bytes, it is read once, and "
-                 "the run log says so; copies that differ are all read. On dleapp_macos_bigsur (macOS 11.2.1) the 5 "
-                 "rows are 5 entries with one contact each: one of com.apple.mail and one of com.apple.messages, "
-                 "each with a Sending Address, one of com.apple.eventkit.osx whose contact is a map location, with a "
-                 "Latitude and a Longitude from its 7 metadata values, and two of com.apple.passbook with Weight "
-                 "10.0 and 5 metadata values each. Contact Kind is email on 2 rows, phone on 2 and map-location on "
-                 "1. The Messages entry has 5 dates and the others 1, and on every row Last Date (UTC) is the latest "
-                 "of its Dates (UTC). In both images the rows are in the database's write-ahead log: the database "
-                 "file read without its -wal file has no recents table. On mvs2026_macbookpro_macos15 (macOS 15.4) "
-                 "the 3 rows are one entry each of com.apple.passbook, com.apple.messages, with 5 dates, and "
-                 "com.apple.mail; the extraction holds the database under both paths and it is read once; Latitude "
-                 "and Longitude are empty on all 3 rows. On both, Entry Name and Contact Name are identical on every "
-                 "row (both empty on one row of the second sample), each entry having one contact, and Count, Group "
-                 "Kind and Source File each held one value on every row, 1, 0 and the one database. Not exercised on "
-                 "real data: an entry with several contacts or with none, a comma between dates, a date that is not "
-                 "a number, a metadata value that is not a property list or that holds a dictionary or an array, "
-                 "copies of the database under the two paths that differ, and more than one user, which were tested "
-                 "with constructed input. A row shows that the database holds the contact under that app identifier "
-                 "with those dates; what the dates record is not sourced here, and a row does not show what was sent "
-                 "or to whom it was delivered.",
+                 "the run log says so; when the copies differ, a record both hold is reported once, with both files "
+                 "in Source File, and a record one copy holds twice stays twice, cases tested with constructed "
+                 "input. On dleapp_macos_bigsur (macOS 11.2.1) the 5 rows are 5 entries with one contact each: one "
+                 "of com.apple.mail and one of com.apple.messages, each with a Sending Address, one of "
+                 "com.apple.eventkit.osx whose contact is a map location, with a Latitude and a Longitude from its 7 "
+                 "metadata values, and two of com.apple.passbook with Weight 10.0 and 5 metadata values each. "
+                 "Contact Kind is email on 2 rows, phone on 2 and map-location on 1. The Messages entry has 5 dates "
+                 "and the others 1, and on every row Last Date (UTC) is the latest of its Dates (UTC). In both "
+                 "images the rows are in the database's write-ahead log: the database file read without its -wal "
+                 "file has no recents table. On mvs2026_macbookpro_macos15 (macOS 15.4) the 3 rows are one entry "
+                 "each of com.apple.passbook, com.apple.messages, with 5 dates, and com.apple.mail; the extraction "
+                 "holds the database under both paths and it is read once; Latitude and Longitude are empty on all 3 "
+                 "rows. On both, Entry Name and Contact Name are identical on every row (both empty on one row of "
+                 "the second sample), each entry having one contact, and Count, Group Kind and Source File each held "
+                 "one value on every row, 1, 0 and the one database. Not exercised on real data: an entry with "
+                 "several contacts or with none, a comma between dates, a date that is not a number, a metadata "
+                 "value that is not a property list or that holds a dictionary or an array, copies of the database "
+                 "under the two paths that differ, and more than one user, which were tested with constructed input. "
+                 "A row shows that the database holds the contact under that app identifier with those dates; what "
+                 "the dates record is not sourced here, and a row does not show what was sent or to whom it was "
+                 "delivered.",
         "paths": ("*/Library/Containers/com.apple.corerecents.recentsd/Data/Library/Recents/Recents*",),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -75,7 +77,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
-from scripts.macos_plists import unique_sources
+from scripts.macos_plists import fold_view_rows, unique_sources
 
 _LABEL = 'Recents (CoreRecents)'
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -182,4 +184,4 @@ def macosRecents(context):
             read.append(path)
     if counts:
         logfunc(_LABEL + ': ' + ', '.join(f'{count} {kind}' for kind, count in sorted(counts.items())))
-    return data_headers, data_list, '\n'.join(read)
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)
