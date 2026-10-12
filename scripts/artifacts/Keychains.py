@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        "present is reported.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Keychains (macOS)",
         "notes": "Reads Apple's classic 'kych' keychain format (the "
@@ -20,7 +20,10 @@ __artifacts_v2__ = {
                  "reported. Every generic-password record's account, service "
                  "and dates were checked against macOS's own "
                  "'security dump-keychain' on the validation image and match "
-                 "exactly.",
+                 "exactly. "
+                 "When an extraction holds the same keychain file at its own path and "
+                 "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
+                 "copies hold is reported once, with both files in Source File.",
         "paths": (
             "*/Library/Keychains/*.keychain-db",
             "*/Library/Keychains/System.keychain",
@@ -44,7 +47,7 @@ __artifacts_v2__ = {
                        "credentials.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Keychains (macOS)",
         "notes": "Shares the classic-keychain parser with Keychain Generic "
@@ -54,7 +57,10 @@ __artifacts_v2__ = {
                  "validation image held no internet password records, but the "
                  "layout was confirmed against security dump-keychain on a "
                  "private sample that did carry them, matching server and "
-                 "account exactly.",
+                 "account exactly. "
+                 "When an extraction holds the same keychain file at its own path and "
+                 "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
+                 "copies hold is reported once, with both files in Source File.",
         "paths": (
             "*/Library/Keychains/*.keychain-db",
             "*/Library/Keychains/System.keychain",
@@ -83,7 +89,7 @@ __artifacts_v2__ = {
                        "run.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Keychains (macOS)",
         "notes": "acct/svce/labl are reported as-is: plaintext when SQLite "
@@ -99,7 +105,10 @@ __artifacts_v2__ = {
                  "secret) is never decrypted, only its size is reported. The "
                  "classic keychain files are matched too, purely as a source "
                  "of plaintext candidates for the dictionary; only "
-                 "keychain-2.db rows are reported here.",
+                 "keychain-2.db rows are reported here. "
+                 "When an extraction holds the same keychain file at its own path and "
+                 "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
+                 "copies hold is reported once, with both files in Source File.",
         "paths": (
             "*/Library/Keychains/*/keychain-2.db",
             "*/Library/Keychains/*.keychain-db",
@@ -124,6 +133,7 @@ import struct
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
+from scripts.macos_plists import fold_view_rows
 
 # ---------------------------------------------------------------------------
 # Classic "kych" keychain reader.
@@ -320,6 +330,8 @@ def keychainGenericPasswords(context):
         if rows_here:
             read_sources.append(relative_source)
 
+    # one record held by two volume views of the same keychain is reported once
+    data_list = fold_view_rows(data_list)
     logfunc(f"Keychain Generic Passwords: {len(data_list)} item(s) across "
             f"{len(read_sources)} keychain file(s).")
     return data_headers, data_list, "\n".join(read_sources)
@@ -362,6 +374,8 @@ def keychainInternetPasswords(context):
         if rows_here:
             read_sources.append(relative_source)
 
+    # one record held by two volume views of the same keychain is reported once
+    data_list = fold_view_rows(data_list)
     logfunc(f"Keychain Internet Passwords: {len(data_list)} item(s) across "
             f"{len(read_sources)} keychain file(s).")
     return data_headers, data_list, "\n".join(read_sources)
@@ -497,6 +511,8 @@ def keychainLocalItems(context):
         if rows_here:
             read_sources.append(relative_source)
 
+    # one record held by two volume views of the same keychain is reported once
+    data_list = fold_view_rows(data_list)
     resolved_count = sum(1 for row in data_list if row[6])
     logfunc(f"Keychain Local Items: {len(data_list)} item(s) across "
             f"{len(read_sources)} keychain-2.db file(s); {resolved_count} "

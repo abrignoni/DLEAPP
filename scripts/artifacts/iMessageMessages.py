@@ -8,7 +8,7 @@ __artifacts_v2__ = {
                        "reaction labels where the message is one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
         "notes": "Rows are listed by message date, then message ROWID, then chat ROWID. "
@@ -22,7 +22,10 @@ __artifacts_v2__ = {
                  "message carried plain text, so a row with empty text but a "
                  "non-null attributedBody is flagged in Body Source rather "
                  "than shown as an empty message. That flag path was present "
-                 "but not exercised by the validation data.",
+                 "but not exercised by the validation data. "
+                 "When an extraction holds the same chat.db at its own path and "
+                 "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
+                 "copies hold is reported once, with both files in Source File.",
         "paths": (
             "*/Library/Messages/chat.db*",
         ),
@@ -55,7 +58,7 @@ __artifacts_v2__ = {
                        "extraction.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
         "notes": "Rows are listed by created_date, then attachment ROWID, then message ROWID. "
@@ -66,7 +69,10 @@ __artifacts_v2__ = {
                  "extraction is matched and embedded. Embedding therefore "
                  "depends on the attachment files being present under "
                  "Library/Messages/Attachments, which this artifact's paths "
-                 "glob picks up.",
+                 "glob picks up. "
+                 "When an extraction holds the same chat.db at its own path and "
+                 "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
+                 "copies hold is reported once, with both files in Source File.",
         "paths": (
             "*/Library/Messages/chat.db*",
             "*/Library/Messages/Attachments/*",
@@ -86,11 +92,14 @@ __artifacts_v2__ = {
                        "participant handles joined via chat_handle_join.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-25",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
         "notes": "Participants are listed in chat_handle_join row order. "
-                 "Every chat.db found is parsed, tagged by Source File.",
+                 "Every chat.db found is parsed, tagged by Source File. "
+                 "When an extraction holds the same chat.db at its own path and "
+                 "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
+                 "copies hold is reported once, with both files in Source File.",
         "paths": (
             "*/Library/Messages/chat.db*",
         ),
@@ -112,7 +121,7 @@ __artifacts_v2__ = {
                        "gone.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
         "notes": "All four tables were empty on the validation image (no "
@@ -123,7 +132,10 @@ __artifacts_v2__ = {
                  "sync_deleted_chats.timestamp is reported with the same "
                  "nanosecond Mac Absolute Time handling as the message dates, "
                  "but that unit was not independently confirmed because the "
-                 "table was empty here.",
+                 "table was empty here. "
+                 "When an extraction holds the same chat.db at its own path and "
+                 "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
+                 "copies hold is reported once, with both files in Source File.",
         "paths": (
             "*/Library/Messages/chat.db*",
         ),
@@ -145,6 +157,7 @@ from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import (artifact_processor, check_in_media, logfunc,
                                open_sqlite_db_readonly)
+from scripts.macos_plists import fold_view_rows
 
 # Seconds between the Unix epoch (1970-01-01) and the Mac/Cocoa epoch
 # (2001-01-01).
@@ -262,6 +275,8 @@ def imessageMessages(context):
         if rows_here:
             read_sources.append(relative_source)
 
+    # one record held by two volume views of the same chat.db is reported once
+    data_list = fold_view_rows(data_list)
     logfunc(f"iMessage Messages: {len(data_list)} message(s) across "
             f"{len(read_sources)} chat.db file(s).")
     return data_headers, data_list, "\n".join(read_sources)
@@ -329,6 +344,8 @@ def imessageAttachments(context):
         if rows_here:
             read_sources.append(relative_source)
 
+    # one record held by two volume views of the same chat.db is reported once
+    data_list = fold_view_rows(data_list)
     logfunc(f"iMessage Attachments: {len(data_list)} attachment(s); "
             f"{embedded} embedded from the extraction.")
     return data_headers, data_list, "\n".join(read_sources)
@@ -374,6 +391,8 @@ def imessageChats(context):
         if rows_here:
             read_sources.append(relative_source)
 
+    # one record held by two volume views of the same chat.db is reported once
+    data_list = fold_view_rows(data_list)
     logfunc(f"iMessage Chat Threads: {len(data_list)} chat(s) across "
             f"{len(read_sources)} chat.db file(s).")
     return data_headers, data_list, "\n".join(read_sources)
@@ -419,5 +438,7 @@ def imessageDeletedItems(context):
         if rows_here:
             read_sources.append(relative_source)
 
+    # one record held by two volume views of the same chat.db is reported once
+    data_list = fold_view_rows(data_list)
     logfunc(f"iMessage Deletion Tombstones: {len(data_list)} tombstone(s).")
     return data_headers, data_list, "\n".join(read_sources)
