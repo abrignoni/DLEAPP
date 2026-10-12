@@ -21,6 +21,14 @@ __artifacts_v2__ = {
                  "and dates were checked against macOS's own "
                  "'security dump-keychain' on the validation image and match "
                  "exactly. "
+                 "A record number the keychain has deleted holds a free-list link with "
+                 "its low bit set, or zero; this reader skips both, as Apple's own reader skips "
+                 "them (Reference: Apple Security, commit 3dab46a11f45f2ffdbd70e2127cc5a8ce4a1f222, 'OSX/libsecurity_filedb/lib/AppleDatabase.cpp' lines 144 to 149, https://github.com/apple-oss-distributions/Security). Following such a link read a garbage record "
+                 "header and raised an error that lost every keychain in the extraction. The "
+                 "Magnet 2021 CTF macOS login.keychain-db has 27 such deleted record numbers; "
+                 "the reader now yields its 23 live generic-password records where it used to "
+                 "report none. A live record whose fields point outside the file is skipped and "
+                 "counted in the run log. "
                  "When an extraction holds the same keychain file at its own path and "
                  "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
                  "copies hold is reported once, with both files in Source File.",
@@ -58,6 +66,12 @@ __artifacts_v2__ = {
                  "layout was confirmed against security dump-keychain on a "
                  "private sample that did carry them, matching server and "
                  "account exactly. "
+                 "A record number the keychain has deleted holds a free-list link with "
+                 "its low bit set, or zero, which this reader skips as Apple's own reader does "
+                 "(Reference: Apple Security, commit 3dab46a11f45f2ffdbd70e2127cc5a8ce4a1f222, 'OSX/libsecurity_filedb/lib/AppleDatabase.cpp' lines 144 to 149, https://github.com/apple-oss-distributions/Security); following one read a garbage record header "
+                 "and raised an error, which this reader no longer does. A live record whose "
+                 "fields point outside the file is skipped and counted in the run log; neither "
+                 "case is exercised by the validation image, which has no internet passwords. "
                  "When an extraction holds the same keychain file at its own path and "
                  "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
                  "copies hold is reported once, with both files in Source File.",
@@ -189,10 +203,14 @@ class _KeychainReader:
             self.buf = handle.read()
         if self.buf[:4] != b"kych":
             raise _KeychainFormatError(f"not a kych keychain: {path!r}")
+        self.skipped = 0     # records whose structure points past the file
         self.schema_offset = self._u32(12)
         self.tables = self._read_schema()
 
     def _u32(self, offset):
+        if offset < 0 or offset + _ATOM > len(self.buf):
+            raise _KeychainFormatError(
+                f"read past end of keychain at offset {offset}")
         return struct.unpack_from(">I", self.buf, offset)[0]
 
     def _read_schema(self):
@@ -212,12 +230,19 @@ class _KeychainReader:
         offsets = []
         for i in range(record_number_count):
             record_offset = self._u32(table_base + _TABLE_HEADER_SIZE + _ATOM * i)
-            if record_offset:
-                offsets.append(table_base + record_offset)
+            # A deleted record number holds a free-list link with its low bit
+            # set, or zero; Apple's own reader skips both. Following one reads a
+            # garbage record header, which is what used to crash the reader.
+            if record_offset == 0 or record_offset & 1:
+                continue
+            offsets.append(table_base + record_offset)
         return offsets
 
     def _string(self, position):
         length = self._u32(position)
+        # Slicing clamps a length that runs past the file, the way this reader
+        # has always read a string; only a position past the file (caught in
+        # _u32) skips the record.
         return self.buf[position + _ATOM:position + _ATOM + length]
 
     def _fourcc(self, position):
@@ -242,28 +267,37 @@ class _KeychainReader:
         if table_base is None:
             return
         for record_base in self._record_offsets(table_base):
-            record_size = self._u32(record_base)
-            item = {}
-            for index, name in enumerate(schema):
-                raw_offset = self._u32(record_base + _RECORD_HEADER_ATOMS * _ATOM
-                                       + _ATOM * index)
-                offset = raw_offset & 0xFFFFFFFE     # low bit is a present-flag
-                if not offset:
-                    item[name] = None
-                    continue
-                position = record_base + offset
-                if name in _TIME_ATTRS:
-                    item[name] = self._time(position)
-                elif name in _FOURCC_ATTRS:
-                    item[name] = self._fourcc(position)
-                elif name in _STRING_ATTRS:
-                    item[name] = self._string(position)
-                else:
-                    item[name] = self._u32(position)
-            # The record's data area carries the encrypted secret as an 'ssgp'
-            # block; report only its presence.
-            item["has_secret"] = b"ssgp" in self.buf[record_base:record_base + record_size]
-            yield item
+            try:
+                yield self._record(record_base, schema)
+            except _KeychainFormatError:
+                # a live record whose fields still point outside the file (a
+                # damaged keychain) is skipped and counted, so one bad record
+                # does not lose the rest
+                self.skipped += 1
+
+    def _record(self, record_base, schema):
+        record_size = self._u32(record_base)
+        item = {}
+        for index, name in enumerate(schema):
+            raw_offset = self._u32(record_base + _RECORD_HEADER_ATOMS * _ATOM
+                                   + _ATOM * index)
+            offset = raw_offset & 0xFFFFFFFE     # low bit is a present-flag
+            if not offset:
+                item[name] = None
+                continue
+            position = record_base + offset
+            if name in _TIME_ATTRS:
+                item[name] = self._time(position)
+            elif name in _FOURCC_ATTRS:
+                item[name] = self._fourcc(position)
+            elif name in _STRING_ATTRS:
+                item[name] = self._string(position)
+            else:
+                item[name] = self._u32(position)
+        # The record's data area carries the encrypted secret as an 'ssgp'
+        # block; report only its presence.
+        item["has_secret"] = b"ssgp" in self.buf[record_base:record_base + record_size]
+        return item
 
     def generic_passwords(self):
         return self._records(_REC_GENERIC_PASSWORD, _GENP_SCHEMA)
@@ -307,6 +341,7 @@ def keychainGenericPasswords(context):
 
     data_list = []
     read_sources = []
+    skipped = 0
     for path in keychains:
         relative_source = context.get_relative_path(path)
         try:
@@ -327,13 +362,15 @@ def keychainGenericPasswords(context):
                 "Yes" if item.get("has_secret") else "", relative_source,
             ))
             rows_here += 1
+        skipped += reader.skipped
         if rows_here:
             read_sources.append(relative_source)
 
     # one record held by two volume views of the same keychain is reported once
     data_list = fold_view_rows(data_list)
     logfunc(f"Keychain Generic Passwords: {len(data_list)} item(s) across "
-            f"{len(read_sources)} keychain file(s).")
+            f"{len(read_sources)} keychain file(s)"
+            + (f"; {skipped} record(s) skipped as unreadable." if skipped else "."))
     return data_headers, data_list, "\n".join(read_sources)
 
 
@@ -350,6 +387,7 @@ def keychainInternetPasswords(context):
 
     data_list = []
     read_sources = []
+    skipped = 0
     for path in keychains:
         relative_source = context.get_relative_path(path)
         try:
@@ -371,13 +409,15 @@ def keychainInternetPasswords(context):
                 "Yes" if item.get("has_secret") else "", relative_source,
             ))
             rows_here += 1
+        skipped += reader.skipped
         if rows_here:
             read_sources.append(relative_source)
 
     # one record held by two volume views of the same keychain is reported once
     data_list = fold_view_rows(data_list)
     logfunc(f"Keychain Internet Passwords: {len(data_list)} item(s) across "
-            f"{len(read_sources)} keychain file(s).")
+            f"{len(read_sources)} keychain file(s)"
+            + (f"; {skipped} record(s) skipped as unreadable." if skipped else "."))
     return data_headers, data_list, "\n".join(read_sources)
 
 
