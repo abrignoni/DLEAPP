@@ -7,25 +7,37 @@ __artifacts_v2__ = {
     "windowsSecuritySettings": {
         "name": "Security Settings",
         "description": "Registry settings that decide how exposed a Windows system was: Remote Desktop, User Account "
-                       "Control, LSA protection and LAN Manager hashes, PowerShell and command-line logging, and "
+                       "Control, LSA protection and LAN Manager hashes, Network Level Authentication, anonymous "
+                       "access and local accounts with blank passwords, PowerShell and command-line logging, and "
                        "automatic logon. One row per setting, whether it is stored or not.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
-        "last_update_date": "2026-10-10",
+        "last_update_date": "2026-10-12",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "One row for each of 20 registry settings, whether the value is stored or not: Stored is Yes "
+        "notes": "One row for each of 25 registry settings, whether the value is stored or not: Stored is Yes "
                  "or No, Data is the value as stored and empty when it is not stored, and Key Last Written "
                  "(UTC) is the last-written time of the key, which changes when any of its values is written "
                  "and is empty when the key does not exist. A value that is not stored leaves Windows on its "
-                 "default, which this artifact does not state. Only values whose key and name a Microsoft page "
-                 "gives are read; Data is not interpreted, and what the pages say is this. Remote Desktop: "
+                 "default, which this artifact does not state. Every value is read under a key and name a "
+                 "Microsoft page gives, except UserAuthentication, EveryoneIncludesAnonymous and "
+                 "LimitBlankPasswordUse, whose key and value name no Microsoft page read here states and which "
+                 "are named for the policy they carry; Data is not interpreted, and what the pages say is this. "
+                 "Remote Desktop: "
                  "fDenyTSConnections under Control\\Terminal Server of the current control set and under "
                  "Policies\\Microsoft\\Windows NT\\Terminal Services of SOFTWARE, 0 meaning RDP is enabled and 1 "
                  "disabled "
                  "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/remote/rdp-error-general-troubleshooting), "
                  "and PortNumber of WinStations\\RDP-Tcp, the port Remote Desktop listens on "
-                 "(https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/change-listening-port). "
+                 "(https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/change-listening-port), "
+                 "and UserAuthentication of WinStations\\RDP-Tcp: the Win32_TSGeneralSetting class, whose context "
+                 "is the WinStations key, has a UserAuthenticationRequired property that is 0 when user "
+                 "authentication at connection is disabled and 1 when it is enabled "
+                 "(https://learn.microsoft.com/en-us/windows/win32/termserv/win32-tsgeneralsetting), and the policy "
+                 "that requires Network Level Authentication writes a value also named UserAuthentication under "
+                 "Policies\\Microsoft\\Windows NT\\Terminal Services of SOFTWARE "
+                 "(https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-admx-terminalserver), "
+                 "but no Microsoft page read here names the WinStations\\RDP-Tcp value itself. "
                  "User Account Control, under Microsoft\\Windows\\CurrentVersion\\Policies\\System: EnableLUA (run "
                  "all administrators in Admin Approval Mode, 0 disabled, 1 enabled), "
                  "ConsentPromptBehaviorAdmin (0 elevate without prompting to 5 prompt for consent for "
@@ -42,6 +54,22 @@ __artifacts_v2__ = {
                  "and UseLogonCredential under Control\\SecurityProviders\\WDigest, which when 0 keeps WDigest "
                  "from storing credentials in memory and when 1 has it store them "
                  "(https://support.microsoft.com/en-us/topic/microsoft-security-advisory-update-to-improve-credentials-protection-and-management-may-13-2014-93434251-04ac-b7f3-52aa-9f951c14b649). "
+                 "Anonymous access, under Control\\Lsa: RestrictAnonymous and RestrictAnonymousSAM, the Network "
+                 "access policies that do not allow anonymous enumeration of SAM accounts and shares "
+                 "(https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/security-policy-settings/network-access-do-not-allow-anonymous-enumeration-of-sam-accounts-and-shares) "
+                 "and of SAM accounts "
+                 "(https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/security-policy-settings/network-access-do-not-allow-anonymous-enumeration-of-sam-accounts); "
+                 "Microsoft names these two values, RestrictAnonymousSAM and RestrictAnonymous, in the "
+                 "HKLM\\System\\CurrentControlSet\\Control\\Lsa key "
+                 "(https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd349805(v=ws.10)). "
+                 "And EveryoneIncludesAnonymous, which decides whether permissions assigned to the Everyone group "
+                 "apply to anonymous users "
+                 "(https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/security-policy-settings/network-access-let-everyone-permissions-apply-to-anonymous-users). "
+                 "Accounts, under Control\\Lsa: LimitBlankPasswordUse, which when enabled requires a local account "
+                 "to have a nonblank password for a remote interactive or network logon through Windows services "
+                 "such as Remote Desktop, though the page notes non-Microsoft applications that use remote "
+                 "interactive logons can bypass it "
+                 "(https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/security-policy-settings/accounts-limit-local-account-use-of-blank-passwords-to-console-logon-only). "
                  "Logging: ProcessCreationIncludeCmdLine_Enabled under Policies\\System\\Audit, the policy that "
                  "includes the command line in process creation events "
                  "(https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-admx-auditsettings), "
@@ -58,9 +86,11 @@ __artifacts_v2__ = {
                  "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon). "
                  "Value names are matched without case, Area groups the rows as above, Key is the key path "
                  "under the hive root and Source File is the hive; only the current control set of SYSTEM is "
-                 "read. Every one of the six tested extractions gives 20 rows, 6 from SYSTEM and 14 from "
+                 "read. Every one of the six tested extractions gives 25 rows, 11 from SYSTEM and 14 from "
                  "SOFTWARE. On all six, PortNumber is 3389, EnableLUA is 1, ConsentPromptBehaviorAdmin is 5 "
-                 "and NoLMHash is 1, and the Terminal Services policy value, FilterAdministratorToken, "
+                 "and NoLMHash is 1, RestrictAnonymous is 0, RestrictAnonymousSAM is 1, EveryoneIncludesAnonymous "
+                 "is 0, LimitBlankPasswordUse is 1 and UserAuthentication is 1, and the Terminal Services policy "
+                 "value, FilterAdministratorToken, "
                  "LmCompatibilityLevel, UseLogonCredential and the three PowerShell logging values are not "
                  "stored, the three PowerShell keys being absent. fDenyTSConnections is 0 on szechuan_win10 "
                  "and 1 on the other five. LocalAccountTokenFilterPolicy is stored, as 1, on af_case2_win10 "
@@ -81,13 +111,13 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield",
         "sample_data": {
-            "af_case2_win10": "Windows 10 1809 build 17763 | 20 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 20 rows",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 20 rows",
-            "szechuan_win10": "Windows 10 2004 build 19041 | 20 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 25 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 25 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 25 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 25 rows",
             "windows11_arm_7zip_known_20261010": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
-            "windows11_arm_known_20261001": "Windows 11 build 26200 | 20 rows",
-            "windows11_arm_known_20261010": "Windows 11 build 26200 | 20 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 25 rows",
+            "windows11_arm_known_20261010": "Windows 11 build 26200 | 25 rows",
         },
     },
 }
@@ -119,9 +149,12 @@ _SOFTWARE_SETTINGS = (
 # the same, under the control set the Select key names as current
 _SYSTEM_SETTINGS = (
     ('Remote Desktop', r'Control\Terminal Server', ('fDenyTSConnections',)),
-    ('Remote Desktop', r'Control\Terminal Server\WinStations\RDP-Tcp', ('PortNumber',)),
+    ('Remote Desktop', r'Control\Terminal Server\WinStations\RDP-Tcp', ('PortNumber', 'UserAuthentication')),
     ('LSA', r'Control\Lsa', ('RunAsPPL', 'LmCompatibilityLevel', 'NoLMHash')),
     ('LSA', r'Control\SecurityProviders\WDigest', ('UseLogonCredential',)),
+    ('Anonymous access', r'Control\Lsa', ('RestrictAnonymous', 'RestrictAnonymousSAM',
+                                          'EveryoneIncludesAnonymous')),
+    ('Accounts', r'Control\Lsa', ('LimitBlankPasswordUse',)),
 )
 
 
