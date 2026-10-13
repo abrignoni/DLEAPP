@@ -76,9 +76,12 @@ SYSTEM = _Hive({
     'Select': _Key({'Current': 2}),
     'ControlSet001\\Control\\Terminal Server': _Key({'fDenyTSConnections': 1}),
     'ControlSet002\\Control\\Terminal Server': _Key({'fDenyTSConnections': 0, 'TSEnabled': 1}, T2),
-    'ControlSet002\\Control\\Terminal Server\\WinStations\\RDP-Tcp': _Key({'PortNumber': 3390}, T2),
+    'ControlSet002\\Control\\Terminal Server\\WinStations\\RDP-Tcp': _Key({'PortNumber': 3390,
+                                                                           'UserAuthentication': 1}, T2),
     'ControlSet002\\Control\\SecurityProviders\\WDigest': _Key({'UseLogonCredential': 1, 'Negotiate': 0}, T2),
-    'ControlSet002\\Control\\Lsa': _Key({'RunAsPPL': 2, 'NoLMHash': b'\x01\x00', 'LmCompatibilityLevel': ['a', 'b']}),
+    'ControlSet002\\Control\\Lsa': _Key({'RunAsPPL': 2, 'NoLMHash': b'\x01\x00', 'LmCompatibilityLevel': ['a', 'b'],
+                                         'RestrictAnonymous': 0, 'RestrictAnonymousSAM': 1,
+                                         'LimitBlankPasswordUse': 1}),
 })
 SOFTWARE_ROWS = [
     ('', 'Remote Desktop', 'fDenyTSConnections', '', 'No', 'Policies\\Microsoft\\Windows NT\\Terminal Services'),
@@ -95,13 +98,20 @@ SOFTWARE_ROWS = [
     (W1, 'Automatic Logon', 'DefaultUserName', 'made-up user', 'Yes', WINLOGON),
     (W1, 'Automatic Logon', 'DefaultDomainName', '', 'No', WINLOGON),
     (W1, 'Automatic Logon', 'DefaultPassword', 'made-up', 'Yes', WINLOGON)]
+_RDPTCP = 'ControlSet002\\Control\\Terminal Server\\WinStations\\RDP-Tcp'
+_LSA_KEY = 'ControlSet002\\Control\\Lsa'
 SYSTEM_ROWS = [
     (W2, 'Remote Desktop', 'fDenyTSConnections', 0, 'Yes', 'ControlSet002\\Control\\Terminal Server'),
-    (W2, 'Remote Desktop', 'PortNumber', 3390, 'Yes', 'ControlSet002\\Control\\Terminal Server\\WinStations\\RDP-Tcp'),
-    (W1, 'LSA', 'RunAsPPL', 2, 'Yes', 'ControlSet002\\Control\\Lsa'),
-    (W1, 'LSA', 'LmCompatibilityLevel', 'a | b', 'Yes', 'ControlSet002\\Control\\Lsa'),
-    (W1, 'LSA', 'NoLMHash', '0100', 'Yes', 'ControlSet002\\Control\\Lsa'),
-    (W2, 'LSA', 'UseLogonCredential', 1, 'Yes', 'ControlSet002\\Control\\SecurityProviders\\WDigest')]
+    (W2, 'Remote Desktop', 'PortNumber', 3390, 'Yes', _RDPTCP),
+    (W2, 'Remote Desktop', 'UserAuthentication', 1, 'Yes', _RDPTCP),
+    (W1, 'LSA', 'RunAsPPL', 2, 'Yes', _LSA_KEY),
+    (W1, 'LSA', 'LmCompatibilityLevel', 'a | b', 'Yes', _LSA_KEY),
+    (W1, 'LSA', 'NoLMHash', '0100', 'Yes', _LSA_KEY),
+    (W2, 'LSA', 'UseLogonCredential', 1, 'Yes', 'ControlSet002\\Control\\SecurityProviders\\WDigest'),
+    (W1, 'Anonymous access', 'RestrictAnonymous', 0, 'Yes', _LSA_KEY),
+    (W1, 'Anonymous access', 'RestrictAnonymousSAM', 1, 'Yes', _LSA_KEY),
+    (W1, 'Anonymous access', 'EveryoneIncludesAnonymous', '', 'No', _LSA_KEY),
+    (W1, 'Accounts', 'LimitBlankPasswordUse', 1, 'Yes', _LSA_KEY)]
 
 
 @unittest.skipIf(Registry is None, 'python-registry is not installed')
