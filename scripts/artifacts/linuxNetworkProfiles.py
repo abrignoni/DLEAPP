@@ -51,8 +51,17 @@ __artifacts_v2__ = {
                  "Autoconnect are empty on all 3. NetworkManager treats the /run folder as runtime-only storage "
                  "('src/core/settings/plugins/keyfile/nms-keyfile-utils.h' line 17). An image of a powered-off "
                  "system was not tested; on a system like this one the profiles kept on disk are the files the "
-                 "Netplan Network Definitions artifact reads. Not exercised on real data: a profile under "
-                 "/etc/NetworkManager, a profile that was activated over Wi-Fi, the 802-11-wireless group names, a "
+                 "Netplan Network Definitions artifact reads. ubuntu2604_arm64_nm_etcwifi adds two constructed "
+                 "Wi-Fi keyfiles under /etc/NetworkManager/system-connections, the keyfile location NetworkManager "
+                 "marks as persistent in the nms-keyfile-utils.h header cited above, where it keeps profiles when "
+                 "netplan is not managing them: its 5 rows are those two profiles, one WPA-PSK and one open, with "
+                 "the loopback and two wired /run profiles that nm_a also holds. Both /etc profiles parse with Type "
+                 "wifi and their SSID, the WPA-PSK one also with Key Management wpa-psk and the made-up Pre-Shared "
+                 "Key, and each with a Timestamp decoded from the made-up timestamp key in its file, which is not an "
+                 "activation on this system; the two /etc keyfiles are constructed and were never activated. Not "
+                 "exercised on real data: a profile NetworkManager itself wrote under /etc/NetworkManager (tested "
+                 "with constructed keyfiles in ubuntu2604_arm64_nm_etcwifi), a profile that was activated over "
+                 "Wi-Fi, the 802-11-wireless group names, a "
                  "network name written as a list of byte values or holding a semicolon, which NetworkManager writes "
                  "with a backslash before it ('src/libnm-core-impl/nm-keyfile.c' lines 2764 to 2774), both shown as "
                  "written, and VPN, WireGuard and 802.1X profiles, whose own keys are not shown; the 802-11-wireless "
@@ -66,6 +75,7 @@ __artifacts_v2__ = {
             "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_nm_a": "Ubuntu 26.04 LTS aarch64, NetworkManager 1.54.3 | 5 rows",
             "ubuntu2604_arm64_nm_b": "Ubuntu 26.04 LTS aarch64, NetworkManager 1.54.3 | 3 rows",
+            "ubuntu2604_arm64_nm_etcwifi": "Ubuntu 26.04 LTS aarch64, NetworkManager 1.54.3 | 5 rows (two constructed /etc Wi-Fi keyfiles and the /run profiles)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
@@ -134,6 +144,7 @@ __artifacts_v2__ = {
             "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_nm_a": "Ubuntu 26.04 LTS aarch64, netplan 1.2 | 4 rows",
             "ubuntu2604_arm64_nm_b": "Ubuntu 26.04 LTS aarch64, netplan 1.2 | 2 rows",
+            "ubuntu2604_arm64_nm_etcwifi": "Ubuntu 26.04 LTS aarch64, netplan 1.2 | 2 rows",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
@@ -183,6 +194,7 @@ __artifacts_v2__ = {
             "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_nm_a": "Ubuntu 26.04 LTS aarch64, NetworkManager 1.54.3 | 2 rows",
             "ubuntu2604_arm64_nm_b": "Ubuntu 26.04 LTS aarch64, NetworkManager 1.54.3 | 2 rows",
+            "ubuntu2604_arm64_nm_etcwifi": "Ubuntu 26.04 LTS aarch64, NetworkManager 1.54.3 | 0 rows (no /var/lib/NetworkManager in the capture)",
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
         },
     },
