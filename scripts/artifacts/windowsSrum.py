@@ -2,7 +2,8 @@
 
 Author: @AlexisBrignoni, Claude.
 Inspired by the Velociraptor exchange Windows.Forensics.SRUM artifact; the
-provider-table GUID names used here are taken from that artifact. SRUDB.dat is an
+provider-table GUID names of the first four artifacts are taken from that artifact,
+and those of the WPN and Energy Usage providers from the SRUM Extensions registry key. SRUDB.dat is an
 ESE (Extensible Storage Engine) database and is read with the ESE reader adapted
 from impacket in scripts/vendor/impacket_ese.py.
 
@@ -35,6 +36,10 @@ _NETWORK_USAGE = "{973F5D5C-1D90-4944-BE8E-24B94231A174}"
 _APP_RESOURCE = "{D10CA2FE-6FCF-4F6D-848E-B2E99266FA89}"
 _NETWORK_CONNECTIONS = "{DD6636C4-8929-4683-974E-22C046A43763}"
 _EXECUTION = "{5C8CF1C7-7257-4F13-B223-970EF5939312}"
+# The names of these two are the ones each provider's key carries under
+# SOFTWARE\Microsoft\Windows NT\CurrentVersion\SRUM\Extensions on the tested images.
+_WPN = "{D10CA2FE-6FCF-4F6D-848E-B2E99266FA86}"        # WPN SRUM Provider
+_ENERGY_USAGE = "{FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}"  # Energy Usage Provider
 
 _IDMAP = "SruDbIdMapTable"
 _SRUDB = "srudb.dat"
@@ -312,6 +317,92 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 1,488 rows",
         },
     },
+    "srumWpnNotifications": {
+        "name": "SRUM WPN Notifications",
+        "description": "Notification entries recorded by SRUM per application, from the WPN SRUM Provider "
+                       "table in SRUDB.dat, with the application, user SID, notification type, payload size "
+                       "and the entry's recorded time.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-13",
+        "last_update_date": "2026-10-13",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the SRUM table {D10CA2FE-6FCF-4F6D-848E-B2E99266FA86}. On the four tested "
+                 "images the key of that GUID under SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\"
+                 "Extensions is named WPN SRUM Provider with the DLL wpnsruprov.dll. Each row is one entry of "
+                 "the table. Application and User SID are resolved from SruDbIdMapTable and are blank when the "
+                 "entry's id is absent from the map or maps to an entry with no IdBlob. Notification Type, Payload Size and Network Type are the "
+                 "NotificationType, PayloadSize and NetworkType columns as stored; no source for the meaning "
+                 "of the Notification Type and Network Type numbers or for the unit of Payload Size was read, "
+                 "so they are not translated. On the tested images Notification Type held 1, 4 and 128 and "
+                 "Network Type held 0 on every row, and User SID held one value on every row of af_case2_win10, "
+                 "lonewolf_win10 and pc_mus_001_win11 and three values on szechuan_win10. "
+                 "Read from SRUDB.dat, named in Source File, with the ESE reader adapted from impacket in "
+                 "scripts/vendor, the same way as the SRUM Network Usage artifact, whose notes say how "
+                 "deleted records, values stored apart and a file cut short are handled; the .jfm and .log "
+                 "transaction logs beside SRUDB.dat are not replayed. Timestamp (UTC) is the entry's "
+                 "TimeStamp column decoded as an OLE automation date (days since 1899-12-30). "
+                 "A row is an entry SRUM recorded for an application; it does not show that a notification "
+                 "was displayed or read.",
+        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "output_types": ["standard"],
+        "artifact_icon": "bell",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 73 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 13 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 90 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 11 rows",
+        },
+    },
+    "srumEnergyUsage": {
+        "name": "SRUM Energy Usage",
+        "description": "Battery state entries recorded by SRUM, from the Energy Usage Provider table in "
+                       "SRUDB.dat: the event time, state transition, charge level and battery capacities.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-13",
+        "last_update_date": "2026-10-13",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the SRUM table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}. On the four tested "
+                 "images the key of that GUID under SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\"
+                 "Extensions is named Energy Usage Provider with the DLL energyprov.dll. Each row is one entry "
+                 "of the table. Event Time (UTC) is the EventTimestamp column read as a Windows FILETIME: on "
+                 "lonewolf_win10 and pc_mus_001_win11 that reading puts every value at or before the row's own "
+                 "Timestamp (UTC), or after it by less than a tenth of a second, with a median gap under one "
+                 "hour and a largest gap of about 29 hours on lonewolf_win10 and about 235 hours on "
+                 "pc_mus_001_win11. State Transition, Designed Capacity, Full Charged "
+                 "Capacity, Charge Level, Cycle Count, Battery Count, Battery Charge Limited and Configuration "
+                 "Hash are the columns of those names as stored, Configuration Hash as text; no source for the meaning of the State "
+                 "Transition numbers or for the unit of the capacity and charge columns was read, so they are "
+                 "not translated. Battery Count and Battery Charge Limited are blank where the file has no such "
+                 "column (lonewolf_win10) or the entry holds no value (188 of 494 rows on pc_mus_001_win11). "
+                 "Cycle Count held 0 on every row of both images and Configuration Hash held one value on every "
+                 "row of each. On lonewolf_win10 Designed Capacity and Full Charged Capacity each held one "
+                 "value on all 289 rows, and on pc_mus_001_win11 Full Charged Capacity equalled Designed "
+                 "Capacity on all 494 rows. The table's AppId and UserId held 1 and 2 on "
+                 "every row and are not shown. On af_case2_win10 and szechuan_win10 the table is "
+                 "empty. Not read: the long-term table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}LT (1 and 7 "
+                 "rows on the two images), and three other provider tables, named in the same registry key on "
+                 "the images that carry them, Energy Estimation Provider {DA73FB89-2BEA-4DDC-86B8-6E048C6DA477} and Tagged "
+                 "Energy Provider {B6D82AF1-F780-4E17-8077-6CB9AD8A6FC4}, whose payload columns are binary, with no layout "
+                 "read here, and vfuprov {7ACBBAA3-D029-4BE4-9A7A-0885927F1D8F}, whose "
+                 "entries are keyed by short codes and not by application. "
+                 "Read from SRUDB.dat, named in Source File, with the ESE reader adapted from impacket in "
+                 "scripts/vendor, the same way as the SRUM Network Usage artifact, whose notes say how "
+                 "deleted records, values stored apart and a file cut short are handled; the .jfm and .log "
+                 "transaction logs beside SRUDB.dat are not replayed. Timestamp (UTC) is the entry's "
+                 "TimeStamp column decoded as an OLE automation date (days since 1899-12-30). "
+                 "A row is a battery state SRUM recorded, not a user action.",
+        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "output_types": ["standard"],
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 494 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (the table is empty)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 289 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the table is empty)",
+        },
+    },
 }
 
 
@@ -525,3 +616,47 @@ def srumExecutionStats(context):
                 _cell(row.get('SpanMS')))
 
     return _run(context, _EXECUTION, headers, build, "SRUM Execution Stats")
+
+
+def _text(value):
+    """An identifier as text: a 64-bit hash can be larger than the report database's integers hold."""
+    return "" if value is None else str(value)
+
+
+@artifact_processor
+def srumWpnNotifications(context):
+    headers = (('Timestamp (UTC)', 'datetime'), 'Application', 'User SID',
+               'Notification Type', 'Payload Size', 'Network Type', 'Source File')
+
+    def build(row, idmap):
+        return (_ole_datetime(row.get('TimeStamp')),
+                idmap.get(row.get('AppId'), ''),
+                idmap.get(row.get('UserId'), ''),
+                _cell(row.get('NotificationType')),
+                _cell(row.get('PayloadSize')),
+                _cell(row.get('NetworkType')))
+
+    return _run(context, _WPN, headers, build, "SRUM WPN Notifications")
+
+
+@artifact_processor
+def srumEnergyUsage(context):
+    headers = (('Event Time (UTC)', 'datetime'), ('Timestamp (UTC)', 'datetime'),
+               'State Transition', 'Charge Level', 'Full Charged Capacity',
+               'Designed Capacity', 'Cycle Count', 'Battery Count',
+               'Battery Charge Limited', 'Configuration Hash', 'Source File')
+
+    def build(row, _idmap):
+        return (_filetime_datetime(row.get('EventTimestamp')),
+                _ole_datetime(row.get('TimeStamp')),
+                _cell(row.get('StateTransition')),
+                _cell(row.get('ChargeLevel')),
+                _cell(row.get('FullChargedCapacity')),
+                _cell(row.get('DesignedCapacity')),
+                _cell(row.get('CycleCount')),
+                _cell(row.get('BatteryCount')),
+                _cell(row.get('BatteryChargeLimited')),
+                _text(row.get('ConfigurationHash')))
+
+    return _run(context, _ENERGY_USAGE, headers, build, "SRUM Energy Usage")
+
