@@ -87,15 +87,89 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041, log version 2.0 | 2308 rows",
         },
     },
+    "windowsNtfsLogFileRecords": {
+        "name": "NTFS $LogFile File Records Created",
+        "description": "File records that the log records of each volume's $LogFile initialise in the $MFT: "
+                       "the file's name, references and times as the log record holds them at "
+                       "initialisation, beside what the same volume's $MFT holds for that record now.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-13",
+        "last_update_date": "2026-10-13",
+        "requirements": "none",
+        "category": "File System (Windows)",
+        "notes": "One row per log record of a volume's $LogFile whose redo operation is "
+                 "InitializeFileRecordSegment (2), the operation that writes a new file record into the $MFT, "
+                 "where its redo data is the start of a file record. The log is read the way the NTFS $LogFile "
+                 "File Name Changes artifact reads it, and its notes say how a record is located and what is "
+                 "passed over (Reference: NTFS-3G 2022.10.3, "
+                 "https://github.com/tuxera/ntfs-3g/blob/78414d93613532fd82f3a82aba5d4a1c32898781/include/ntfs-3g/logfile.h, "
+                 "https://github.com/tuxera/ntfs-3g/blob/78414d93613532fd82f3a82aba5d4a1c32898781/ntfsprogs/ntfsrecover.h "
+                 "for the operation number, and "
+                 "https://github.com/tuxera/ntfs-3g/blob/78414d93613532fd82f3a82aba5d4a1c32898781/include/ntfs-3g/layout.h "
+                 "for the file record header, the attribute header, $STANDARD_INFORMATION and $FILE_NAME). File "
+                 "Record and File Sequence are the mft_record_number and sequence_number of the record's own "
+                 "header, so no volume geometry is used; a record of the older header layout, which holds no "
+                 "record number, is counted in the run log with the initialisations whose data is not read as a "
+                 "file record, and not reported. SI Created, SI Modified, SI Record Changed and SI Accessed are "
+                 "the four times of the record's $STANDARD_INFORMATION attribute as the log record holds them, "
+                 "read as UTC FILETIMEs: they are the times the record held when this log record initialised it, "
+                 "and are blank when the data holds no such attribute. File Name is the name of the record's first "
+                 "$FILE_NAME attribute that is not a DOS name, or its DOS name when it has no other, and Parent "
+                 "Record and Parent Sequence are that name's parent reference. Kind is Extension record when the "
+                 "header's base_mft_record is set, with that record's number in Base Record, and otherwise "
+                 "Directory or File by the header's directory flag. The data is read as it lies in the log, "
+                 "without an update sequence array being applied, and only the attributes that lie whole inside it "
+                 "are read. The other columns come from the same volume's $MFT and are blank when none was found "
+                 "beside the log. Parent Path is the path it gives for the parent reference, blank when it no "
+                 "longer holds a directory under that record and sequence number or that directory's own path "
+                 "cannot be resolved. MFT Record Now compares the record of the same number with the sequence "
+                 "number the log gives: Same sequence, in use; Same sequence, not in use; Sequence one higher, not "
+                 "in use; Another sequence; or No record. SI Created Now is that record's $STANDARD_INFORMATION "
+                 "created time, given only when the sequence number is the same, and Created Differs says Yes or "
+                 "No when both created times are present. A sequence number that differs means the record has been "
+                 "freed and may have been given to another file since; a created time that differs means the time "
+                 "was written again after the record was initialised, and the artifact does not say by what. A row "
+                 "shows that a file record was initialised, with no time for the log record itself. Run on "
+                 "pc_mus_001_win11, lonewolf_win10, szechuan_win10 and af_case2_win10: 3,118, 2,628, 710 and 492 "
+                 "rows. On every row of the four images that holds SI times, SI Modified, SI Record Changed and SI "
+                 "Accessed were identical, and SI Created equalled them on 2,591, 2,046, 648 and 343 rows. SI "
+                 "times were blank on 193, 2, 2 and 1 rows, all of them the rows whose Kind is Extension record. "
+                 "MFT Record Now was Another sequence on 732, 1,951, 167 and 324 rows, where the record has been "
+                 "put to another use, and Sequence one higher, not in use on 807, 11, 7 and 14 rows; on both the "
+                 "artifact takes no created time from the $MFT, because the record's sequence number no longer "
+                 "matches the one the log gave it. A record and sequence number can appear in more than one row, "
+                 "which happened for 6, 6 and 4 pairs on the smaller volumes of pc_mus_001_win11, lonewolf_win10 "
+                 "and szechuan_win10, so a row is a log record and not a file. Created Differs was Yes on 8, 16, 4 "
+                 "and 11 rows, and on each SI Created Now was the earlier of the two. The rows were compared with "
+                 "the USN Journal artifact's rows for the same volumes, a separate store that also records names "
+                 "and references: of the rows with a name that are not extension records, 2,896 of 2,925, 2,596 of "
+                 "2,626, 682 of 702 and 491 of 491 have a USN record with the same file record, sequence and name, "
+                 "every one of those with a FILE_CREATE reason, and on 2,781, 2,052, 626 and 373 of them SI "
+                 "Created is within 2 seconds of a FILE_CREATE record's time. Not read: the record's other "
+                 "attributes, among them $DATA, and any later change the log holds to the same record. Not "
+                 "exercised on real data: a record of the older header layout, a log whose $MFT is missing, and a "
+                 "record now absent from the $MFT (No record); each was tested with constructed input.",
+        "paths": ('*/$LogFile', '*/$MFT'),
+        "output_types": "standard",
+        "artifact_icon": "file-plus",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, log version 2.0 | 3118 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763, log version 1.1 | 492 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299, log version 2.0 | 2628 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041, log version 2.0 | 710 rows",
+        },
+    },
 }
 
 import os
 import struct
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_ntfs import FILE_ATTRIBUTES, decode_flags, filetime, mft_index, split_reference
+from scripts.windows_ntfs import (FILE_ATTRIBUTES, decode_flags, filetime, iter_mft, mft_index,
+                                  split_reference)
 
 _LABEL = 'NTFS $LogFile File Name Changes'
+_RECORDS_LABEL = 'NTFS $LogFile File Records Created'
 _SECTOR = 512                                   # the stride of the update sequence array
 _SPECIAL_BLOCKS = {1: 4, 2: 34}                 # blocks kept apart, by major version (ntfsrecover.c)
 _ADD_ROOT, _DELETE_ROOT, _ADD_ALLOCATION, _DELETE_ALLOCATION = 12, 13, 14, 15
@@ -105,6 +179,10 @@ _NAME_SPACES = {0: 'POSIX', 1: 'Win32', 2: 'DOS', 3: 'Win32 and DOS'}   # FILE_N
 _ENTRY_HEADER = 16                              # INDEX_ENTRY_HEADER
 _NAME_FIXED = 66                                # FILE_NAME_ATTR up to the name
 _MAX_CLIENT_DATA = 0x100000
+_INITIALIZE_FILE_RECORD = 2                     # InitializeFileRecordSegment
+_RECORD_HEADER = 48                             # MFT_RECORD, the layout that holds its own record number
+_STANDARD_INFORMATION, _FILE_NAME, _ATTRIBUTES_END = 0x10, 0x30, 0xFFFFFFFF
+_DOS_NAME = 2
 
 
 def fix_up(page):
@@ -320,5 +398,147 @@ def windowsNtfsLogFile(context):
             sources.append(path)
         else:
             logfunc(f'{_LABEL}: no file name changes read from {member}')
+    results.set_source_path('\n'.join(sources))
+    return results
+
+
+def logged_file_record(data):
+    """What the start of an MFT record gives, as (record number, sequence, flags, base reference, the four
+    $STANDARD_INFORMATION times or None, [(parent reference, name space, name)]), or None when the data is
+    not a record of the layout that holds its own number. The data is read as it lies: a log record holds
+    the record before its update sequence array is applied to the sector ends, and may hold only its start."""
+    if len(data) < _RECORD_HEADER or data[:4] != b'FILE':
+        return None
+    array, = struct.unpack_from('<H', data, 4)
+    if array < _RECORD_HEADER:
+        return None
+    sequence, _links, first, flags, used = struct.unpack_from('<HHHHI', data, 16)
+    base, = struct.unpack_from('<Q', data, 32)
+    number, = struct.unpack_from('<I', data, 44)
+    times, names = None, []
+    position, limit = first, min(used, len(data))
+    while position + 24 <= limit:
+        kind, length = struct.unpack_from('<II', data, position)
+        if kind == _ATTRIBUTES_END or length < 24 or position + length > limit:
+            break
+        if not data[position + 8]:                      # resident
+            size, start = struct.unpack_from('<IH', data, position + 16)
+            value = data[position + start:position + start + size]
+            if position + start + size > position + length:
+                value = b''
+            if kind == _STANDARD_INFORMATION and len(value) >= 32 and times is None:
+                times = struct.unpack_from('<qqqq', value, 0)
+            elif kind == _FILE_NAME and len(value) >= _NAME_FIXED and len(value) >= _NAME_FIXED + 2 * value[64]:
+                parent, = struct.unpack_from('<Q', value, 0)
+                text = value[_NAME_FIXED:_NAME_FIXED + 2 * value[64]].decode('utf-16-le', 'replace')
+                names.append((parent, value[65], text))
+        position += length
+    return number, sequence, flags, base, times, names
+
+
+def new_file_records(log):
+    """(lsn, transaction id, record) for each record of a log that initialises a file record, where its redo
+    data is the start of one."""
+    for lsn, transaction, data in log.records():
+        redo, _undo, start, length = struct.unpack_from('<HHHH', data, 0)
+        if redo != _INITIALIZE_FILE_RECORD:
+            continue
+        record = logged_file_record(data[start:start + length])
+        if record is None:
+            log._count('file record initialisations whose data is not read as a file record, not reported')  # pylint: disable=protected-access
+            continue
+        yield lsn, transaction, record
+
+
+def record_states(path):
+    """{record number: (sequence, in use, the four $STANDARD_INFORMATION times or None)} for a $MFT file."""
+    states = {}
+    with open(path, 'rb') as handle:
+        for number, record in iter_mft(handle):
+            if record is not None:
+                states[number] = (record.sequence, record.in_use, record.std_times)
+    return states
+
+
+def state_now(states, number, sequence):
+    """How the $MFT's record of a number stands against the sequence number a log record gave it, and that
+    record's $STANDARD_INFORMATION created time when it carries the same sequence number."""
+    current = states.get(number)
+    if current is None:
+        return 'No record', None
+    now, in_use, times = current
+    if now == sequence:
+        return ('Same sequence, in use' if in_use else 'Same sequence, not in use'), (times[0] if times else None)
+    if not in_use and now == (sequence + 1) & 0xFFFF:
+        return 'Sequence one higher, not in use', None
+    return 'Another sequence', None
+
+
+@artifact_processor
+def windowsNtfsLogFileRecords(context):
+    data_headers = (('SI Created', 'datetime'), ('SI Modified', 'datetime'), ('SI Record Changed', 'datetime'),
+                    ('SI Accessed', 'datetime'), ('SI Created Now', 'datetime'), 'Created Differs',
+                    'File Name', 'Parent Path', 'Kind', 'MFT Record Now', 'LSN', 'Transaction ID', 'File Record',
+                    'File Sequence', 'Parent Record', 'Parent Sequence', 'Base Record', 'Source File')
+    results = context.create_artifact_result(headers=data_headers)
+    seeker = context.get_seeker()
+    infos = getattr(seeker, 'file_infos', {}) if seeker else {}
+    logs, tables = [], {}
+    for path in sorted(str(p) for p in context.get_files_found()):
+        if os.path.isdir(path):
+            continue
+        member = _member(context, infos, path)
+        if member.endswith('/$MFT') or member == '$MFT':
+            tables[os.path.dirname(path)] = path
+        elif member.endswith('/$LogFile') or member == '$LogFile':
+            logs.append((path, member))
+    sources = []
+    for path, member in logs:
+        try:
+            with open(path, 'rb') as handle:
+                log = LogFile(handle.read())
+        except OSError as exc:
+            logfunc(f'{_RECORDS_LABEL}: could not read {member}: {type(exc).__name__}')
+            continue
+        if log.problem:
+            logfunc(f'{_RECORDS_LABEL}: {member} {log.problem}')
+            continue
+        table = tables.get(os.path.dirname(path))
+        index = mft_index(table) if table else None
+        states = None
+        if index is None:
+            logfunc(f'{_RECORDS_LABEL}: no $MFT beside {member}, so the columns that come from it are blank')
+        else:
+            states = record_states(table)
+        relative = context.get_relative_path(path)
+        rows = 0
+        for lsn, transaction, record in sorted(new_file_records(log), key=lambda item: item[0]):
+            number, sequence, flags, base, times, names = record
+            names.sort(key=lambda item: item[1] == _DOS_NAME)
+            name, parent_record, parent_sequence, parent_path = '', '', '', ''
+            if names:
+                name = names[0][2]
+                parent_record, parent_sequence = split_reference(names[0][0])
+                if index is not None:
+                    found = index.directory_path(names[0][0])
+                    parent_path = '' if found is None else '/' + found
+            base_record = split_reference(base)[0] if base else ''
+            kind = 'Extension record' if base else ('Directory' if flags & 2 else 'File')
+            now, created_now = state_now(states, number, sequence) if states is not None else ('', None)
+            differs = ''
+            if times is not None and created_now is not None:
+                differs = 'Yes' if created_now != times[0] else 'No'
+            shown = [filetime(value) for value in times] if times is not None else ['', '', '', '']
+            results.add_row((*shown, filetime(created_now) if created_now is not None else '', differs, name,
+                             parent_path, kind, now, lsn, transaction, number, sequence, parent_record,
+                             parent_sequence, base_record, relative))
+            rows += 1
+        if log.counts:
+            logfunc(f'{_RECORDS_LABEL}: {member} (log version {log.major}.{log.minor}): '
+                    + '; '.join(f'{count:,} {what}' for what, count in sorted(log.counts.items())))
+        if rows:
+            sources.append(path)
+        else:
+            logfunc(f'{_RECORDS_LABEL}: no file record initialisations read from {member}')
     results.set_source_path('\n'.join(sources))
     return results
