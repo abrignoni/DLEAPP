@@ -200,23 +200,70 @@ has the rest.
 
 ## Contributing artifact plugins
 
-Each plugin is a Python source file which should be added to the `scripts/artifacts` folder which will be loaded dynamically each time DLEAPP is run.
+Artifact modules live in `scripts/artifacts/` and are loaded each time DLEAPP runs.
+
+**New modules:** start with [How to Write an iLEAPP Module](https://leapps.org/blog-post?post=2026-06-14-how-to-write-an-ileapp-module). It uses iLEAPP as its reference, and DLEAPP modules use the same `__artifacts_v2__` block and `@artifact_processor` decorator. The helpers are not identical across the tools, so check that one exists in DLEAPP's `scripts/ilapfuncs.py` before you import it.
 
 The helper functions a module calls to find files, read SQLite, check in media and convert timestamps are described in [Helper Functions for Artifact Modules](admin/docs/helper_functions.md).
 
-The plugin source file must contain a dictionary named `__artifacts_v2__` at the very beginning of the module, which defines the artifacts that the plugin processes. The keys in the `__artifacts_v2__` dictionary should be IDs for the artifact(s) which must be unique within DLEAPP. The values should be dictionaries containing the following keys:
+A module has two parts: an `__artifacts_v2__` dictionary at the top of the file, and one function per artifact decorated with `@artifact_processor`. For example:
 
-- `name`: The name of the artifact as a string.
-- `description`: A description of the artifact as a string.
-- `author`: The author of the plugin as a string.
-- `version`: The version of the artifact as a string.
-- `date`: The date of the last update to the artifact as a string.
-- `requirements`: Any requirements for processing the artifact as a string.
-- `category`: The category of the artifact as a string.
-- `notes`: Any additional notes as a string.
-- `paths`: A tuple of strings containing glob search patterns to match the path of the data that the plugin expects for the artifact.
-- `function`: The name of the function which is the entry point for the artifact's processing as a string.
-- `sample_data`: Optional. A mapping of test corpus name to a short note about what that corpus produced, for example `{"discord_macos": "Discord 0.0.402 macOS | 12940 rows"}`. The artifact processor ignores it; it records where the artifact has actually been run.
+```python
+__artifacts_v2__ = {
+    "get_cool_messages": {
+        "name": "Cool App Messages",
+        "description": "Messages from the Cool App database",
+        "author": "@username",
+        "creation_date": "2026-10-14",
+        "last_update_date": "2026-10-14",
+        "requirements": "none",
+        "category": "Cool App",
+        "notes": "",
+        "paths": ('*/CoolApp/cool.db*',),
+        "output_types": "standard",
+        "artifact_icon": "message",
+    }
+}
+
+from scripts.ilapfuncs import (
+    artifact_processor, convert_unix_ts_to_utc, get_file_path, get_sqlite_db_records)
+
+
+@artifact_processor
+def get_cool_messages(context):
+    source_path = get_file_path(context.get_files_found(), 'cool.db')
+    if not source_path:
+        return (), [], ''
+
+    query = 'SELECT sent_at, sender, body FROM messages'
+    data_list = []
+    for row in get_sqlite_db_records(source_path, query):
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1], row[2]))
+
+    data_headers = (('Sent', 'datetime'), 'Sender', 'Message')
+    return data_headers, data_list, source_path
+```
+
+The key of each entry (`get_cool_messages` above) must match the name of its decorated function. That is how the loader and the decorator find each other. The entry holds:
+
+- `name`: the artifact name shown in the report. It must be unique within DLEAPP; the loader stops on a duplicate.
+- `description`, `author`, `notes`: text about the artifact. `notes` can be empty.
+- `creation_date`, `last_update_date`: dates in `YYYY-MM-DD` form. Both are written to the LAVA output. Bump `last_update_date` when you change the module.
+- `requirements`: a note on anything the artifact needs, or `"none"`.
+- `category`: groups artifacts in the report.
+- `paths`: a tuple of patterns for the files the artifact reads. They are matched with Python's `fnmatch`, so `*` can cross `/`.
+- `output_types`: `"standard"` (every output except KML), `"all"`, or a list taken from `html`, `tsv`, `timeline`, `lava` and `kml`.
+- `artifact_icon`: a Tabler icon name that appears in `scripts/_elements/tabler-icons.css`.
+
+Optional keys:
+
+- `html_columns`: columns written to the HTML report without escaping. Pass any value that comes from the evidence through the helpers in `scripts/html_safe.py`.
+- `data_views`: alternate LAVA views, such as a conversation view for message artifacts. Column order for those is in [Conversation Column Order](admin/docs/conversation_column_order.md).
+- `sample_data`: a mapping of test corpus name to a short note about what that corpus produced, for example `{"discord_macos": "Discord 0.0.402 macOS | 12940 rows"}`. The artifact processor ignores it; it records where the artifact has been run. See [Test corpora and `sample_data`](#test-corpora-and-sample_data).
+
+The function takes one argument, `context`, which gives it the files its `paths` matched (`context.get_files_found()`) and the rest of the run. It returns three things: the column headers, a list of row tuples, and the path of the file the rows came from. The decorator writes the HTML, TSV, timeline, KML and LAVA output from them, as `output_types` asks. An empty list writes no table.
+
+A header can be a tuple that names a column type: `('Sent', 'datetime')`, `('Day', 'date')`, `('Number', 'phonenumber')` or `('Photo', 'media')`. A plain string is a text column.
 
 ### Test corpora and `sample_data`
 
