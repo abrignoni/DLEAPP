@@ -80,12 +80,15 @@ __artifacts_v2__ = {
                  ' the first three rows, and Snapshot Created does not put the row with Product Type 3 (Server) '
                  'before the rows with 2 (Domain Controller), the order seen on szechuan_dc01_server2012r2: it has'
                  ' a later Snapshot Created than two of them. On ou_ransomware_server2022 Snapshot Created is not '
-                 'a reliable order of the records. How User Access Logging decides to start a new record is not '
-                 'established. Snapshot Created was not compared with a second source. Not read: the client access'
-                 " records, which Patrick Bennett's research places in the CLIENTS table of Current.mdb and of the"
-                 " per-year {GUID}.mdb databases that SystemIdentity.mdb's CHAINED_DATABASES table names "
-                 '(Reference: "UAL Thank Us Later: Leveraging User Access Logging for Forensic Investigations", '
-                 'CrowdStrike, 8 June 2021, '
+                 'a reliable order of the records. Also run on alihadi_threatsim_server2019 (Windows Server 2019 '
+                 'Standard, build 17763): 2 rows, Product Type 3 (Server) then 2 (Domain Controller), and on both '
+                 'the time zone offset inside OS Last Boot (as stored) equals Time Zone Offset (Minutes); that '
+                 "image's System event log holds no event 12 to compare OS Last Boot with. How User Access Logging"
+                 ' decides to start a new record is not established. Snapshot Created was not compared with a '
+                 "second source. Not read: the client access records, which Patrick Bennett's research places in "
+                 'the CLIENTS table of Current.mdb and of the per-year {GUID}.mdb databases that '
+                 'SystemIdentity.mdb\'s CHAINED_DATABASES table names (Reference: "UAL Thank Us Later: Leveraging '
+                 'User Access Logging for Forensic Investigations", CrowdStrike, 8 June 2021, '
                  'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/); on '
                  "szechuan_dc01_server2012r2 Current.mdb's header records a dirty shutdown (state 2, "
                  'JET_dbstateDirtyShutdown) and, read without replaying the ESE transaction logs beside it '
@@ -102,6 +105,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 2 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 3 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 5 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no SystemIdentity.mdb)",
@@ -161,18 +165,25 @@ __artifacts_v2__ = {
                  'holds events from 4 to 9 February 2024 only: 92 rows have a Last Access in that span, and on 81 '
                  'of them a logon event 4624 of logon type 3 for the same account name (the part after the '
                  'backslash) and IP address is within one second of Last Access, on 1 within a minute, and on 10 '
-                 'there is none (5 DHCP Server, 3 File Server, 2 Active Directory Domain Services). A row is a '
-                 'count User Access Logging kept, not a list of accesses: it gives a time only for the first and '
-                 'the last access of the year. Not read: the transaction logs (Svc*.log) beside the databases, '
-                 "which this artifact does not replay. On szechuan_dc01_server2012r2 Current.mdb's header records "
-                 'a dirty shutdown and, read without its logs, its CLIENTS table held no records, so the artifact '
-                 "gives 0 rows there. The corpus's other Windows disk images, pc_mus_001_win11, af_case2_win10, "
-                 'lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and alihadi_challenge3_win81, hold no User '
-                 'Access Logging databases among their live files.',
+                 'there is none (5 DHCP Server, 3 File Server, 2 Active Directory Domain Services). Also run on '
+                 'alihadi_threatsim_server2019 (Windows Server 2019 Standard, build 17763): 18 rows (Active '
+                 'Directory Domain Services 11, File Server 7) from a Current.mdb whose header records a clean '
+                 'shutdown; the DayN agreement above held on all 18, and Databases named only Current.mdb, the '
+                 "{GUID}.mdb that SystemIdentity.mdb names for 2024 not being among the image's live files. That "
+                 "image's Security event log spans 18 seconds and no row's Last Access falls in it, so no "
+                 'comparison was made there. A row is a count User Access Logging kept, not a list of accesses: it'
+                 ' gives a time only for the first and the last access of the year. Not read: the transaction logs'
+                 ' (Svc*.log) beside the databases, which this artifact does not replay. On '
+                 "szechuan_dc01_server2012r2 Current.mdb's header records a dirty shutdown and, read without its "
+                 "logs, its CLIENTS table held no records, so the artifact gives 0 rows there. The corpus's other "
+                 'Windows disk images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, '
+                 'cfreds_leakage_win7 and alihadi_challenge3_win81, hold no User Access Logging databases among '
+                 'their live files.',
         "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb',),
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 18 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 315 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 0 rows (Current.mdb dirty, CLIENTS empty without log replay)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no User Access Logging databases)",
@@ -213,15 +224,22 @@ __artifacts_v2__ = {
                  "the earliest Insert Date and Last Seen the latest Last Access of that role's client rows; for "
                  'Active Directory Domain Services Last Seen equals the latest Last Access and First Seen is about'
                  ' 7 milliseconds after the earliest Insert Date; Print and Document Services has no client rows. '
-                 "On szechuan_dc01_server2012r2 Current.mdb's header records a dirty shutdown and, read without "
-                 'its logs, its ROLE_ACCESS table held no records, so the artifact gives 0 rows there. The '
-                 "corpus's other Windows disk images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, "
-                 'szechuan_win10, cfreds_leakage_win7 and alihadi_challenge3_win81, hold no User Access Logging '
-                 'databases among their live files.',
+                 'Also run on alihadi_threatsim_server2019 (Windows Server 2019 Standard, build 17763): 3 rows, '
+                 'Active Directory Domain Services, File Server and Print and Document Services, from Current.mdb '
+                 "alone; File Server's First Seen and Last Seen equal its client rows' earliest Insert Date and "
+                 "latest Last Access, Active Directory Domain Services' Last Seen equals the latest Last Access "
+                 'and its First Seen is about 6.7 seconds before the earliest Insert Date, and Print and Document '
+                 'Services has no client rows. So First Seen and the earliest client Insert Date of a role need '
+                 "not be equal, in either direction. On szechuan_dc01_server2012r2 Current.mdb's header records a "
+                 'dirty shutdown and, read without its logs, its ROLE_ACCESS table held no records, so the '
+                 "artifact gives 0 rows there. The corpus's other Windows disk images, pc_mus_001_win11, "
+                 'af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and '
+                 'alihadi_challenge3_win81, hold no User Access Logging databases among their live files.',
         "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb',),
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 3 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 4 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 0 rows (Current.mdb dirty, ROLE_ACCESS empty without log replay)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no User Access Logging databases)",
@@ -256,17 +274,20 @@ __artifacts_v2__ = {
                  'whitespace removed. Validated on ou_ransomware_server2022 (Windows Server 2022 Standard, build '
                  '20348): 11 rows, 11 host names and 6 addresses; Current.mdb (dirty shutdown, read without '
                  'replaying its logs) and the 2024 {GUID}.mdb held the same 11 records, so Databases held one '
-                 'value on all 11 rows, naming both. What a row shows about any client or lookup is not '
-                 'established, and Last Seen was not compared with a second source. On szechuan_dc01_server2012r2 '
-                 "Current.mdb's header records a dirty shutdown and, read without its logs, its DNS table held no "
-                 'records, so the artifact gives 0 rows there. The VIRTUALMACHINES table of the same databases is '
-                 "not reported: it held no records on either server. The corpus's other Windows disk images, "
-                 'pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and '
-                 'alihadi_challenge3_win81, hold no User Access Logging databases among their live files.',
+                 'value on all 11 rows, naming both. On alihadi_threatsim_server2019 (Windows Server 2019 '
+                 'Standard, build 17763) the DNS table of its Current.mdb, whose header records a clean shutdown, '
+                 'held no records: 0 rows. What a row shows about any client or lookup is not established, and '
+                 "Last Seen was not compared with a second source. On szechuan_dc01_server2012r2 Current.mdb's "
+                 'header records a dirty shutdown and, read without its logs, its DNS table held no records, so '
+                 'the artifact gives 0 rows there. The VIRTUALMACHINES table of the same databases is not '
+                 "reported: it held no records on any of the three servers. The corpus's other Windows disk "
+                 'images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 '
+                 'and alihadi_challenge3_win81, hold no User Access Logging databases among their live files.',
         "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb',),
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (DNS table empty)",
             "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 11 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 0 rows (Current.mdb dirty, DNS empty without log replay)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no User Access Logging databases)",
