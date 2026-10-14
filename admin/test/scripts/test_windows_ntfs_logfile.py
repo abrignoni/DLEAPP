@@ -297,5 +297,162 @@ class Artifact(unittest.TestCase):
         self.assertIn('no file name changes read from b/$LogFile', logged[2])
 
 
+T_NOW = datetime.datetime(2019, 1, 1, 0, 0, 0, tzinfo=UTC)
+
+
+def attribute(kind, value, non_resident=False):
+    """A resident attribute: a 24-byte header then its value, padded to 8 bytes."""
+    length = (24 + len(value) + 7) & ~7
+    head = struct.pack('<IIBBHHHIH', kind, length, 1 if non_resident else 0, 0, 24, 0, 0, len(value), 24)
+    return head.ljust(24, b'\0') + value.ljust(length - 24, b'\0')
+
+
+def name_value(parent, parent_sequence, name, space=1):
+    text = name.encode('utf-16-le')
+    return struct.pack('<QqqqqqqIIBB', parent | parent_sequence << 48, 1, 2, 3, 4, 0, 0, 0, 0, len(name), space) + text
+
+
+def mft_record(number, sequence, attributes, flags=1, base=0, array=48):
+    """The start of an MFT record as a log record holds it: the header, then the attributes and an end mark."""
+    body = b''.join(attributes) + struct.pack('<I', 0xFFFFFFFF)
+    head = struct.pack('<4sHHqHHHHIIQHHI', b'FILE', array, 3, 0, sequence, 1, 56, flags, 56 + len(body), 1024,
+                       base, 0, 0, number)
+    return head.ljust(56, b'\0') + body
+
+
+SI_TIMES = (ticks(T_CREATED), ticks(T_MODIFIED), ticks(T_CHANGED), ticks(T_ACCESSED))
+SI = attribute(0x10, struct.pack('<qqqq', *SI_TIMES) + bytes(40))
+
+
+class FileRecords(unittest.TestCase):
+    def test_file_record(self):
+        record = mft_record(900, 7, [SI, attribute(0x30, name_value(50, 2, 'SHORT~1.TXT', space=2)),
+                                     attribute(0x30, name_value(50, 2, 'a long name.txt')),
+                                     attribute(0x80, b'content')], flags=3)
+        self.assertEqual(lf.logged_file_record(record),
+                         (900, 7, 3, 0, SI_TIMES, [(50 | 2 << 48, 2, 'SHORT~1.TXT'), (50 | 2 << 48, 1, 'a long name.txt')]))
+
+    def test_records_that_are_not_read(self):
+        good = mft_record(1, 1, [SI])
+        self.assertIsNone(lf.logged_file_record(good[:40]))
+        self.assertIsNone(lf.logged_file_record(b'BAAD' + good[4:]))
+        self.assertIsNone(lf.logged_file_record(mft_record(1, 1, [SI], array=42)))        # the older header layout
+        cut = mft_record(2, 1, [SI, attribute(0x30, name_value(5, 5, 'cut off.txt'))])
+        self.assertEqual(lf.logged_file_record(cut[:56 + len(SI) + 30])[4:], (SI_TIMES, []))   # the name is not whole
+        self.assertEqual(lf.logged_file_record(cut[:56 + len(SI) + 4])[4:], (SI_TIMES, []))    # cut inside a header
+        longer = bytearray(mft_record(5, 1, [SI]))
+        struct.pack_into('<I', longer, 56 + 4, 4000)                               # an attribute past the data
+        self.assertEqual(lf.logged_file_record(bytes(longer))[4:], (None, []))
+        spill = struct.pack('<IIBBHHHIH', 0x10, 32, 0, 0, 24, 0, 0, 72, 24).ljust(24, b'\0') + bytes(8)
+        self.assertEqual(lf.logged_file_record(mft_record(6, 1, [spill, attribute(0x80, b'\x01' * 64)]))[4:], (None, []))
+        non_resident = mft_record(3, 1, [attribute(0x10, struct.pack('<qqqq', *SI_TIMES) + bytes(40), True)])
+        self.assertEqual(lf.logged_file_record(non_resident)[4:], (None, []))
+        self.assertEqual(lf.logged_file_record(mft_record(4, 1, [SI], base=77 | 3 << 48))[3], 77 | 3 << 48)
+
+    def test_new_file_records(self):
+        log = Log()
+        first = log.add(client(2, 0, redo_data=mft_record(900, 7, [SI])), transaction=5)
+        log.add(client(2, 0, redo_data=b'not a record at all, only bytes that fill the payload out ..'))
+        log.add(client(3, 2, undo_data=mft_record(901, 1, [SI])))                    # a deallocation
+        read = lf.LogFile(log.build())
+        self.assertEqual([(lsn, tr, rec[0]) for lsn, tr, rec in lf.new_file_records(read)], [(first, 5, 900)])
+        self.assertEqual(read.counts, {'file record initialisations whose data is not read as a file record, not reported': 1})
+
+    def test_state_now(self):
+        states = {10: (4, True, (111, 2, 3, 4)), 11: (4, False, None), 12: (5, False, (9, 9, 9, 9)),
+                  13: (9, True, (9, 9, 9, 9)), 14: (5, True, (9, 9, 9, 9)), 15: (0, False, (9, 9, 9, 9))}
+        self.assertEqual(lf.state_now(states, 10, 4), ('Same sequence, in use', 111))
+        self.assertEqual(lf.state_now(states, 11, 4), ('Same sequence, not in use', None))
+        self.assertEqual(lf.state_now(states, 12, 4), ('Sequence one higher, not in use', None))
+        self.assertEqual(lf.state_now(states, 13, 4), ('Another sequence', None))
+        self.assertEqual(lf.state_now(states, 14, 4), ('Another sequence', None))    # one higher but in use
+        self.assertEqual(lf.state_now(states, 15, 0xFFFF), ('Sequence one higher, not in use', None))
+        self.assertEqual(lf.state_now(states, 99, 4), ('No record', None))
+
+
+class RecordsArtifact(unittest.TestCase):
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+
+    def run_artifact(self, files, states=None, paths_of=None):
+        found = []
+        for relative, data in files.items():
+            path = os.path.join(self.folder.name, relative)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'wb') as handle:
+                handle.write(data)
+            found.append(path)
+        rows = []
+        result = mock.Mock()
+        result.add_row.side_effect = rows.append
+        context = mock.Mock()
+        context.get_files_found.return_value = found
+        context.get_seeker.return_value = None
+        context.get_relative_path.side_effect = lambda p: os.path.relpath(p, self.folder.name)
+        context.create_artifact_result.return_value = result
+        index = None
+        if paths_of is not None:
+            index = mock.Mock()
+            index.directory_path.side_effect = paths_of.get
+        with mock.patch.object(lf, 'logfunc') as log, mock.patch.object(lf, 'mft_index', return_value=index), \
+             mock.patch.object(lf, 'record_states', return_value=states):
+            lf.windowsNtfsLogFileRecords.__wrapped__(context)
+        return rows, result, [c.args[0] for c in log.call_args_list], context
+
+    def log(self):
+        log = Log()
+        lsns = [
+            log.add(client(2, 0, redo_data=mft_record(900, 7, [
+                SI, attribute(0x30, name_value(50, 2, 'KEPT~1.TXT', space=2)),
+                attribute(0x30, name_value(50, 2, 'kept and changed.txt'))])), transaction=5),
+            log.add(client(2, 0, redo_data=mft_record(901, 3, [SI, attribute(0x30, name_value(5, 5, 'folder'))],
+                                                      flags=3)), transaction=6),
+            log.add(client(2, 0, redo_data=mft_record(902, 1, [attribute(0x30, name_value(60, 1, 'ONLY~1.DOS',
+                                                                                         space=2))])), transaction=7),
+            log.add(client(2, 0, redo_data=mft_record(903, 2, [attribute(0x80, b'')], base=900 | 7 << 48)),
+                    transaction=8)]
+        return log.build(), lsns
+
+    def test_rows_beside_the_mft(self):
+        data, lsns = self.log()
+        states = {900: (7, True, (ticks(T_NOW), 2, 3, 4)), 901: (3, True, SI_TIMES), 902: (2, False, None)}
+        rows, result, logged, context = self.run_artifact(
+            {'vol/$LogFile': data, 'vol/$MFT': b'x'}, states, {50 | 2 << 48: 'Users/someone', 5 | 5 << 48: ''})
+        headers = context.create_artifact_result.call_args.kwargs['headers']
+        self.assertEqual(headers[:6], (('SI Created', 'datetime'), ('SI Modified', 'datetime'),
+                                       ('SI Record Changed', 'datetime'), ('SI Accessed', 'datetime'),
+                                       ('SI Created Now', 'datetime'), 'Created Differs'))
+        self.assertEqual(len(headers), 18)
+        log_file = 'vol/$LogFile'
+        self.assertEqual(rows, [
+            (T_CREATED, T_MODIFIED, T_CHANGED, T_ACCESSED, T_NOW, 'Yes', 'kept and changed.txt', '/Users/someone',
+             'File', 'Same sequence, in use', lsns[0], 5, 900, 7, 50, 2, '', log_file),
+            (T_CREATED, T_MODIFIED, T_CHANGED, T_ACCESSED, T_CREATED, 'No', 'folder', '/', 'Directory',
+             'Same sequence, in use', lsns[1], 6, 901, 3, 5, 5, '', log_file),
+            ('', '', '', '', '', '', 'ONLY~1.DOS', '', 'File', 'Sequence one higher, not in use', lsns[2], 7, 902, 1,
+             60, 1, '', log_file),
+            ('', '', '', '', '', '', '', '', 'Extension record', 'No record', lsns[3], 8, 903, 2, '', '', 900,
+             log_file)])
+        result.set_source_path.assert_called_once_with(os.path.join(self.folder.name, 'vol/$LogFile'))
+        self.assertEqual(logged, [])
+
+    def test_rows_without_an_mft(self):
+        data, lsns = self.log()
+        rows, _, logged, _ = self.run_artifact({'vol/$LogFile': data})
+        self.assertEqual(rows[0], (T_CREATED, T_MODIFIED, T_CHANGED, T_ACCESSED, '', '', 'kept and changed.txt', '',
+                                   'File', '', lsns[0], 5, 900, 7, 50, 2, '', 'vol/$LogFile'))
+        self.assertEqual(len(rows), 4)
+        self.assertEqual(logged, ['NTFS $LogFile File Records Created: no $MFT beside vol/$LogFile, so the columns '
+                                  'that come from it are blank'])
+
+    def test_not_a_log_and_nothing_in_a_log(self):
+        rows, result, logged, _ = self.run_artifact({'a/$LogFile': b'\0' * 8192, 'b/$LogFile': Log().build()})
+        self.assertEqual(rows, [])
+        result.set_source_path.assert_called_once_with('')
+        self.assertIn('a/$LogFile does not start with a restart page', logged[0])
+        self.assertIn('no file record initialisations read from b/$LogFile', logged[-1])
+
+
 if __name__ == '__main__':
     unittest.main()
