@@ -18,7 +18,7 @@ __artifacts_v2__ = {
                        "operating system version, last boot time and hardware, one row per snapshot.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-14",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Reads the SYSTEM_IDENTITY table of Windows/System32/LogFiles/Sum/SystemIdentity.mdb, an ESE '
@@ -94,7 +94,9 @@ __artifacts_v2__ = {
                  'JET_dbstateDirtyShutdown) and, read without replaying the ESE transaction logs beside it '
                  '(Svc.log), which this artifact does not do, its CLIENTS, DNS, ROLE_ACCESS and VIRTUALMACHINES '
                  "tables held no records; the per-year database named for 2020 is not among the image's live "
-                 "files. SystemIdentity.mdb's ROLE_IDS table is not reported: on szechuan_dc01_server2012r2 its 13"
+                 "files. Replaying those logs on a copy with the esentutl /r of Windows 11 gave CLIENTS 3 records and "
+                 "ROLE_ACCESS 2, and DNS and VIRTUALMACHINES none. "
+                 "SystemIdentity.mdb's ROLE_IDS table is not reported: on szechuan_dc01_server2012r2 its 13"
                  " rows each name a role; 11 match an entry on Microsoft's list of the roles User Access Logging "
                  'can support by name, and two (File Server, Remote Access) resemble entries on it (File Services;'
                  ' Routing and Remote Access Service); whether a row records a role installed on the server is not'
@@ -123,7 +125,7 @@ __artifacts_v2__ = {
                        "address, with the record's insert and last access times and its access counts per day.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-14",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Reads the CLIENTS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum, '
@@ -175,7 +177,15 @@ __artifacts_v2__ = {
                  ' gives a time only for the first and the last access of the year. Not read: the transaction logs'
                  ' (Svc*.log) beside the databases, which this artifact does not replay. On '
                  "szechuan_dc01_server2012r2 Current.mdb's header records a dirty shutdown and, read without its "
-                 "logs, its CLIENTS table held no records, so the artifact gives 0 rows there. The corpus's other "
+                 "logs, its CLIENTS table held no records, so the artifact gives 0 rows there. A database whose "
+                 "header records a dirty shutdown is read as it stands, and that can be older than what the server "
+                 "last wrote. This was measured by replaying the logs of copies with the esentutl /r of Windows 11: on "
+                 "ou_ransomware_server2022 the replay changed 16 of Current.mdb's 315 CLIENTS records, each to a "
+                 "higher Total Accesses, a later Last Access and a higher count for one day, and the latest Last "
+                 "Access in the table moved from 21:01:54 to 22:56:11 UTC on 9 February 2024; the 2024 {GUID}.mdb, "
+                 "whose header records a clean shutdown, held those records as they were before the replay. On "
+                 "szechuan_dc01_server2012r2 the replay gave Current.mdb's CLIENTS table 3 records. The corpus's "
+                 "other "
                  'Windows disk images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, '
                  'cfreds_leakage_win7 and alihadi_challenge3_win81, hold no User Access Logging databases among '
                  'their live files.',
@@ -201,7 +211,7 @@ __artifacts_v2__ = {
                        'seen times.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-14",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Reads the ROLE_ACCESS table of Current.mdb and of each {GUID}.mdb in '
@@ -232,7 +242,11 @@ __artifacts_v2__ = {
                  'Services has no client rows. So First Seen and the earliest client Insert Date of a role need '
                  "not be equal, in either direction. On szechuan_dc01_server2012r2 Current.mdb's header records a "
                  'dirty shutdown and, read without its logs, its ROLE_ACCESS table held no records, so the '
-                 "artifact gives 0 rows there. The corpus's other Windows disk images, pc_mus_001_win11, "
+                 "artifact gives 0 rows there. Replaying the logs of copies with the esentutl /r of Windows 11 changed "
+                 "2 of the 4 ROLE_ACCESS records of ou_ransomware_server2022's Current.mdb, each to a later Last "
+                 "Seen, and gave szechuan_dc01_server2012r2's ROLE_ACCESS table 2 records, so a row read from a "
+                 "database whose header records a dirty shutdown can be older than what the server last wrote. "
+                 "The corpus's other Windows disk images, pc_mus_001_win11, "
                  'af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and '
                  'alihadi_challenge3_win81, hold no User Access Logging databases among their live files.',
         "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb',),
@@ -257,7 +271,7 @@ __artifacts_v2__ = {
                        'seen time.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-14",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Reads the DNS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum. A '
@@ -279,7 +293,9 @@ __artifacts_v2__ = {
                  'held no records: 0 rows. What a row shows about any client or lookup is not established, and '
                  "Last Seen was not compared with a second source. On szechuan_dc01_server2012r2 Current.mdb's "
                  'header records a dirty shutdown and, read without its logs, its DNS table held no records, so '
-                 'the artifact gives 0 rows there. The VIRTUALMACHINES table of the same databases is not '
+                 "the artifact gives 0 rows there. Replaying the logs of copies with the esentutl /r of Windows 11 left "
+                 "the DNS table of each server's Current.mdb as it was: 11 records on ou_ransomware_server2022 and "
+                 "none on szechuan_dc01_server2012r2. The VIRTUALMACHINES table of the same databases is not "
                  "reported: it held no records on any of the three servers. The corpus's other Windows disk "
                  'images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 '
                  'and alihadi_challenge3_win81, hold no User Access Logging databases among their live files.',
