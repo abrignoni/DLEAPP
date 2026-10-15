@@ -38,6 +38,7 @@ column's list of values, not in its header (tagfld.hxx#L501), and TableRows does
 that list.
 """
 
+import io
 import math
 import struct
 from binascii import hexlify
@@ -54,9 +55,28 @@ class PageOutOfRange(ValueError):
     """A page the database names lies past the end of its file."""
 
 
+class _BytesSource(io.BytesIO):
+    """Database bytes held in memory, in the shape the vendored reader's isRemote path
+    expects: it calls open() once, then seek, read, tell and close (ESENT_DB.mountDB)."""
+
+    def open(self):
+        self.seek(0)
+
+
 class ESEDatabase(impacket_ese.ESENT_DB):
     """The vendored ESE reader, opened and mounted the same way, whose getPage stops at the
-    end of the file."""
+    end of the file.
+
+    With `data` (bytes), the database is read from those bytes instead of from the file at
+    `fileName`, which is then kept only as `source_path`; scripts/ese_recovery passes a
+    replayed copy this way. Without it, nothing changes."""
+
+    def __init__(self, fileName, pageSize=8192, isRemote=False, data=None):  # pylint: disable=invalid-name
+        self.source_path = fileName
+        if data is None:
+            super().__init__(fileName, pageSize, isRemote)
+        else:
+            super().__init__(_BytesSource(bytes(data)), pageSize, isRemote=True)
 
     def getPage(self, pageNum):  # pylint: disable=invalid-name
         """The vendored getPage, raising PageOutOfRange where it would wait forever."""
