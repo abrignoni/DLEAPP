@@ -23,87 +23,82 @@ __artifacts_v2__ = {
         "category": "Windows",
         "notes": 'Reads the SYSTEM_IDENTITY table of Windows/System32/LogFiles/Sum/SystemIdentity.mdb, an ESE '
                  'database, and reports one row per record, ordered by Snapshot Created. Microsoft describes User '
-                 'Access Logging as a Windows Server feature, installed and enabled by default, that aggregates '
-                 'client usage data by role and product (Reference: "Get Started with User Access Logging", '
-                 'Microsoft Learn, '
+                 'Access Logging as a Windows Server feature, installed and enabled by default, that aggregates client'
+                 ' usage data by role and product (Reference: "Get Started with User Access Logging", Microsoft Learn,'
+                 ' '
                  'https://github.com/MicrosoftDocs/windowsserverdocs/blob/7c489ebf866ebbd7074f453d436ed8c65f4bb9bd/WindowsServerDocs/administration/user-access-logging/get-started-with-user-access-logging.md).'
-                 " Snapshot Created is the record's CreationTime, a column typed JET_coltypDateTime whose eight "
-                 "bytes the vendored ESE reader returns as an unsigned integer, read as a FILETIME, as plaso's "
-                 'User Access Logging parser reads it (Reference: plaso, '
-                 "'plaso/parsers/esedb_plugins/user_access_logging.py', "
+                 " Snapshot Created is the record's CreationTime, a column typed JET_coltypDateTime whose eight bytes "
+                 "the vendored ESE reader returns as an unsigned integer, read as a FILETIME, as plaso's User Access "
+                 "Logging parser reads it (Reference: plaso, 'plaso/parsers/esedb_plugins/user_access_logging.py', "
                  'https://github.com/log2timeline/plaso/blob/2320e8dc947fc9ec1d8ceebc884a3c8c35479177/plaso/parsers/esedb_plugins/user_access_logging.py).'
-                 ' OS Last Boot (as stored) is OSLastBootUpTime as the database holds it, a CIM DATETIME string, a'
-                 ' local time followed by the minutes its zone deviates from UTC (Reference: "CIM_DATETIME", '
+                 ' OS Last Boot (as stored) is OSLastBootUpTime as the database holds it, a CIM DATETIME string, a '
+                 'local time followed by the minutes its zone deviates from UTC (Reference: "CIM_DATETIME", '
                  'MicrosoftDocs/win32, '
                  'https://github.com/MicrosoftDocs/win32/blob/497e7a7dd17a495a277c4a7afa54aca9eb902782/desktop-src/WmiSdk/cim-datetime.md),'
-                 ' and OS Last Boot is that time moved to UTC by its own offset; a string in another shape leaves '
-                 'OS Last Boot blank. Time Zone Offset (Minutes) is OSCurrentTimeZone, stored in an unsigned '
-                 "16-bit column, read as a signed 16-bit number of minutes, the type of Win32_OperatingSystem's "
-                 'CurrentTimeZone, and Product Type is OSProductType with the name Win32_OperatingSystem gives the'
-                 ' same number for ProductType: 1 Work Station, 2 Domain Controller, 3 Server (Reference: '
+                 ' and OS Last Boot is that time moved to UTC by its own offset; a string in another shape leaves OS '
+                 'Last Boot blank. Time Zone Offset (Minutes) is OSCurrentTimeZone, stored in an unsigned 16-bit '
+                 "column, read as a signed 16-bit number of minutes, the type of Win32_OperatingSystem's "
+                 'CurrentTimeZone, and Product Type is OSProductType with the name Win32_OperatingSystem gives the '
+                 'same number for ProductType: 1 Work Station, 2 Domain Controller, 3 Server (Reference: '
                  '"Win32_OperatingSystem class", MicrosoftDocs/win32, '
                  'https://github.com/MicrosoftDocs/win32/blob/3f42ac423191be263920ddf69b1ae6c2975c81b0/desktop-src/CIMWin32Prov/win32-operatingsystem.md).'
-                 ' Those two readings rest on the column names matching the WMI properties; no Microsoft source '
-                 "was found that documents this table's columns. OS Version joins OSMajor, OSMinor and "
-                 'OSBuildNumber, and Service Pack joins ServicePackMajor and ServicePackMinor. The other columns '
-                 'are reported as stored, with the NULs that pad the strings and any surrounding whitespace '
-                 'removed: OS Serial Number (OSSerialNumber), System Manufacturer, System Product Name, SMBIOS '
-                 'UUID (SystemSMBIOSUUID), System Serial Number, Physical Processors, Cores per Processor, Logical'
-                 ' Processors per Processor, Maximum Memory and OS Country Code. Not reported: OSPlatformId, '
-                 'OSSuiteMask and OSDaylightInEffect, whose meaning in this table is not established. Validated on'
-                 ' szechuan_dc01_server2012r2, the Szechuan Sauce case domain controller (Windows Server 2012 R2, '
-                 'build 9600): 3 rows from a database whose header records a clean shutdown (state 3, '
+                 ' Those two readings rest on the column names matching the WMI properties; no Microsoft source was '
+                 "found that documents this table's columns. OS Version joins OSMajor, OSMinor and OSBuildNumber, and "
+                 'Service Pack joins ServicePackMajor and ServicePackMinor. The other columns are reported as stored, '
+                 'with the NULs that pad the strings and any surrounding whitespace removed: OS Serial Number '
+                 '(OSSerialNumber), System Manufacturer, System Product Name, SMBIOS UUID (SystemSMBIOSUUID), System '
+                 'Serial Number, Physical Processors, Cores per Processor, Logical Processors per Processor, Maximum '
+                 'Memory and OS Country Code. Not reported: OSPlatformId, OSSuiteMask and OSDaylightInEffect, whose '
+                 'meaning in this table is not established. A SystemIdentity.mdb whose header records a dirty shutdown'
+                 ' would be read after its logs are replayed, as the User Access Logging - Client Access artifact '
+                 'describes; on the three servers below it records a clean shutdown. Validated on '
+                 'szechuan_dc01_server2012r2, the Szechuan Sauce case domain controller (Windows Server 2012 R2, build'
+                 ' 9600): 3 rows from a database whose header records a clean shutdown (state 3, '
                  "JET_dbstateCleanShutdown, in ESE's published header, Reference: Extensible-Storage-Engine, "
                  "'dev/ese/published/inc/jethdr.w', "
                  'https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/published/inc/jethdr.w#L5406-L5408).'
                  ' Host Name took two values and Domain two values across the rows, and Product Type went from 3 '
                  '(Server) on the first row to 2 (Domain Controller) on the second and third. OS Version, Service '
-                 'Pack, OS Serial Number, System Manufacturer, System Product Name, SMBIOS UUID, System Serial '
-                 'Number, Physical Processors, Cores per Processor, Logical Processors per Processor, Maximum '
-                 'Memory, OS Country Code and Time Zone Offset (Minutes) each held one value on all 3 rows. OS '
-                 "Last Boot was compared with the image's System event log: on each row it equals the StartTime of"
-                 ' a Microsoft-Windows-Kernel-General event 12 to within one microsecond, and the time zone offset'
-                 " inside the string equals Time Zone Offset (Minutes) on every row. Each row's Snapshot Created "
-                 "fell between two and four minutes after an event 12 start, and each row's OS Last Boot was a "
-                 "later start than that one, so on szechuan_dc01_server2012r2 a row's OS Last Boot is later than "
-                 'its Snapshot Created and the two do not describe the same boot. Also validated on '
-                 "ou_ransomware_server2022, the Open University's simulated compromised server (Windows Server "
-                 '2022 Standard, build 20348): 5 rows, and on each the time zone offset inside OS Last Boot (as '
-                 'stored) equals Time Zone Offset (Minutes), which took three values. Host Name held one value on '
-                 'all 5 rows and Domain two; Cores per Processor and Logical Processors per Processor were '
-                 'identical on all 5 rows, each taking two values. There OS Last Boot equals the StartTime of an '
-                 'event 12 exactly on 3 rows. On one row it is later than the nearest event 12 StartTime by '
-                 '3,594.640575 seconds, and the System log records the clock being moved forward by 3,594.640576 '
-                 'seconds after that start (Microsoft-Windows-Kernel-General event 1), so OS Last Boot can move '
-                 'with a clock change made after the boot. On the other row it is earlier than the first event 12 '
-                 'in the log. The same log records the clock being set back by more than seven hours on the day of'
-                 ' the first three rows, and Snapshot Created does not put the row with Product Type 3 (Server) '
-                 'before the rows with 2 (Domain Controller), the order seen on szechuan_dc01_server2012r2: it has'
-                 ' a later Snapshot Created than two of them. On ou_ransomware_server2022 Snapshot Created is not '
-                 'a reliable order of the records. Also run on alihadi_threatsim_server2019 (Windows Server 2019 '
-                 'Standard, build 17763): 2 rows, Product Type 3 (Server) then 2 (Domain Controller), and on both '
-                 'the time zone offset inside OS Last Boot (as stored) equals Time Zone Offset (Minutes); that '
-                 "image's System event log holds no event 12 to compare OS Last Boot with. How User Access Logging"
-                 ' decides to start a new record is not established. Snapshot Created was not compared with a '
-                 "second source. Not read: the client access records, which Patrick Bennett's research places in "
-                 'the CLIENTS table of Current.mdb and of the per-year {GUID}.mdb databases that '
-                 'SystemIdentity.mdb\'s CHAINED_DATABASES table names (Reference: "UAL Thank Us Later: Leveraging '
-                 'User Access Logging for Forensic Investigations", CrowdStrike, 8 June 2021, '
-                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/); on '
-                 "szechuan_dc01_server2012r2 Current.mdb's header records a dirty shutdown (state 2, "
-                 'JET_dbstateDirtyShutdown) and, read without replaying the ESE transaction logs beside it '
-                 '(Svc.log), which this artifact does not do, its CLIENTS, DNS, ROLE_ACCESS and VIRTUALMACHINES '
-                 "tables held no records; the per-year database named for 2020 is not among the image's live "
-                 "files. Replaying those logs on a copy with the esentutl /r of Windows 11 gave CLIENTS 3 records and "
-                 "ROLE_ACCESS 2, and DNS and VIRTUALMACHINES none. "
-                 "SystemIdentity.mdb's ROLE_IDS table is not reported: on szechuan_dc01_server2012r2 its 13"
-                 " rows each name a role; 11 match an entry on Microsoft's list of the roles User Access Logging "
-                 'can support by name, and two (File Server, Remote Access) resemble entries on it (File Services;'
-                 ' Routing and Remote Access Service); whether a row records a role installed on the server is not'
-                 " established. The corpus's other Windows disk images, pc_mus_001_win11, af_case2_win10, "
-                 'lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and alihadi_challenge3_win81, all client '
-                 'editions, hold no SystemIdentity.mdb.',
-        "paths": ('*/Windows/System32/LogFiles/Sum/SystemIdentity.mdb',),
+                 'Pack, OS Serial Number, System Manufacturer, System Product Name, SMBIOS UUID, System Serial Number,'
+                 ' Physical Processors, Cores per Processor, Logical Processors per Processor, Maximum Memory, OS '
+                 'Country Code and Time Zone Offset (Minutes) each held one value on all 3 rows. OS Last Boot was '
+                 "compared with the image's System event log: on each row it equals the StartTime of a "
+                 'Microsoft-Windows-Kernel-General event 12 to within one microsecond, and the time zone offset inside'
+                 " the string equals Time Zone Offset (Minutes) on every row. Each row's Snapshot Created fell between"
+                 " two and four minutes after an event 12 start, and each row's OS Last Boot was a later start than "
+                 "that one, so on szechuan_dc01_server2012r2 a row's OS Last Boot is later than its Snapshot Created "
+                 'and the two do not describe the same boot. Also validated on ou_ransomware_server2022, the Open '
+                 "University's simulated compromised server (Windows Server 2022 Standard, build 20348): 5 rows, and "
+                 'on each the time zone offset inside OS Last Boot (as stored) equals Time Zone Offset (Minutes), '
+                 'which took three values. Host Name held one value on all 5 rows and Domain two; Cores per Processor '
+                 'and Logical Processors per Processor were identical on all 5 rows, each taking two values. There OS '
+                 'Last Boot equals the StartTime of an event 12 exactly on 3 rows. On one row it is later than the '
+                 'nearest event 12 StartTime by 3,594.640575 seconds, and the System log records the clock being moved'
+                 ' forward by 3,594.640576 seconds after that start (Microsoft-Windows-Kernel-General event 1), so OS '
+                 'Last Boot can move with a clock change made after the boot. On the other row it is earlier than the '
+                 'first event 12 in the log. The same log records the clock being set back by more than seven hours on'
+                 ' the day of the first three rows, and Snapshot Created does not put the row with Product Type 3 '
+                 '(Server) before the rows with 2 (Domain Controller), the order seen on szechuan_dc01_server2012r2: '
+                 'it has a later Snapshot Created than two of them. On ou_ransomware_server2022 Snapshot Created is '
+                 'not a reliable order of the records. Also run on alihadi_threatsim_server2019 (Windows Server 2019 '
+                 'Standard, build 17763): 2 rows, Product Type 3 (Server) then 2 (Domain Controller), and on both the '
+                 "time zone offset inside OS Last Boot (as stored) equals Time Zone Offset (Minutes); that image's "
+                 'System event log holds no event 12 to compare OS Last Boot with. How User Access Logging decides to '
+                 'start a new record is not established. Snapshot Created was not compared with a second source. Not '
+                 "read here: the client access records, which Patrick Bennett's research places in the CLIENTS table "
+                 "of Current.mdb and of the per-year {GUID}.mdb databases that SystemIdentity.mdb's CHAINED_DATABASES "
+                 'table names (Reference: "UAL Thank Us Later: Leveraging User Access Logging for Forensic '
+                 'Investigations", CrowdStrike, 8 June 2021, '
+                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/); the User Access Logging -'
+                 ' Client Access, Role Access and DNS artifacts read them. On szechuan_dc01_server2012r2 the per-year '
+                 "database named for 2020 is not among the image's live files. SystemIdentity.mdb's ROLE_IDS table is "
+                 'not reported: on szechuan_dc01_server2012r2 its 13 rows each name a role; 11 match an entry on '
+                 "Microsoft's list of the roles User Access Logging can support by name, and two (File Server, Remote "
+                 'Access) resemble entries on it (File Services; Routing and Remote Access Service); whether a row '
+                 "records a role installed on the server is not established. The corpus's other Windows disk images, "
+                 'pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and '
+                 'alihadi_challenge3_win81, all client editions, hold no SystemIdentity.mdb.',
+        "paths": ('*/Windows/System32/LogFiles/Sum/SystemIdentity.mdb', '*/Windows/System32/LogFiles/Sum/*.log'),
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
@@ -128,74 +123,84 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Windows",
-        "notes": 'Reads the CLIENTS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum, '
-                 'and the ROLE_IDS table of the SystemIdentity.mdb in the same folder to name each role. A record '
-                 "found with the same values in several of the folder's databases is one row, and Databases names "
-                 'each database it was found in; a record that differs in any value is a row of its own. Patrick '
-                 'Bennett\'s research describes the table (Reference: "UAL Thank Us Later: Leveraging User Access '
-                 'Logging for Forensic Investigations", CrowdStrike, 8 June 2021, '
-                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/): CLIENTS holds records'
-                 " of users accessing the server's roles, one per RoleGuid, AuthenticatedUserName and Address for "
-                 'the year; InsertDate is the first access of the year, LastAccess the most recent, TotalAccesses '
-                 'the count for the year, and Day1 to Day366 a count per day of the year; Current.mdb holds the '
-                 "current year's data and is copied to a {GUID}.mdb; the research, quoting Microsoft, says a new "
-                 '{GUID}.mdb starts each year and the old one is kept for two years. Insert Date and Last Access '
-                 'are read as FILETIMEs, Role GUID is RoleGuid read as a little-endian GUID, and Client Address is'
-                 " Address read as an IP address, as plaso's User Access Logging parser reads them (Reference: "
-                 "plaso, 'plaso/parsers/esedb_plugins/user_access_logging.py', "
+        "notes": 'Reads the CLIENTS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum, and '
+                 'the ROLE_IDS table of the SystemIdentity.mdb in the same folder to name each role. A record found '
+                 "with the same values in several of the folder's databases is one row, and Databases names each "
+                 'database it was found in; a record that differs in any value is a row of its own. A database whose '
+                 "header records a dirty shutdown (state 2, JET_dbstateDirtyShutdown) is read with its tables as ESE's"
+                 ' own recovery would leave them: the transaction logs beside it that carry its log signature, every '
+                 'generation from the oldest its header requires to the newest present (Svc.log and any older '
+                 "Svc*.log), are replayed in memory, following the log format and the redo rules of Microsoft's ESE "
+                 "source (Reference: Extensible-Storage-Engine, 'dev/ese/src/ese/_log/logredo.cxx', "
+                 'https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/_log/logredo.cxx),'
+                 " and the files themselves are only read. Databases then adds '(logs replayed)' to its name, as in "
+                 "'Current.mdb (logs replayed)'. The replay redoes only the kinds of change these databases' logs were"
+                 ' seen to need, inserting and replacing committed records, and refuses anything else, such as a '
+                 'missing or damaged log, a change never committed, or another kind of change; the database is then '
+                 'read as stored and the run log says why. It was checked against Windows: copies replayed with the '
+                 'esentutl /r of Windows 11 gave, table by table and as read by the same ESE reader, the same records '
+                 'with the same values as this replay on szechuan_dc01_server2012r2 and ou_ransomware_server2022. A '
+                 'record the replay changed that a {GUID}.mdb still holds as it was before is two rows, one per state,'
+                 " each naming its database. Patrick Bennett's research describes the table (Reference: \"UAL Thank Us "
+                 'Later: Leveraging User Access Logging for Forensic Investigations", CrowdStrike, 8 June 2021, '
+                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/): CLIENTS holds records of '
+                 "users accessing the server's roles, one per RoleGuid, AuthenticatedUserName and Address for the "
+                 'year; InsertDate is the first access of the year, LastAccess the most recent, TotalAccesses the '
+                 'count for the year, and Day1 to Day366 a count per day of the year; Current.mdb holds the current '
+                 "year's data and is copied to a {GUID}.mdb; the research, quoting Microsoft, says a new {GUID}.mdb "
+                 'starts each year and the old one is kept for two years. Insert Date and Last Access are read as '
+                 'FILETIMEs, Role GUID is RoleGuid read as a little-endian GUID, and Client Address is Address read as'
+                 " an IP address, as plaso's User Access Logging parser reads them (Reference: plaso, "
+                 "'plaso/parsers/esedb_plugins/user_access_logging.py', "
                  'https://github.com/log2timeline/plaso/blob/2320e8dc947fc9ec1d8ceebc884a3c8c35479177/plaso/parsers/esedb_plugins/user_access_logging.py).'
-                 ' The vendored ESE reader returns Address as hex text, which is read as 4 bytes for IPv4 or 16 '
-                 'for IPv6; any other value is shown as the reader gave it. Role is the RoleName that ROLE_IDS '
-                 'gives the GUID, blank when it gives none. Authenticated User Name is the stored string with the '
-                 'NULs that pad it and any surrounding whitespace removed. Total Accesses is as stored. Accesses '
-                 "per Day lists each non-zero DayN column as the date of day N of Insert Date's year, with its "
-                 'count. Tenant ID is TenantId read as a GUID; the research reports seeing it populated with the '
-                 'Active Directory Domain Services role and calls its interpretation unclear. ClientName is not '
-                 'reported: the research reports not having seen it populated, and it held no value on any record '
-                 'here. Validated on ou_ransomware_server2022 (Windows Server 2022 Standard, build 20348), a '
-                 'simulation whose README states its user names and IP addresses are synthetic: 315 rows. There '
-                 "Current.mdb's header records a dirty shutdown (state 2) and the 2024 {GUID}.mdb's a clean one "
-                 '(state 3); read as they are, without replaying the transaction logs, both held the same 315 '
-                 'CLIENTS records, so Databases held one value on all 315 rows, naming both. The {GUID}.mdb that '
-                 "SystemIdentity.mdb's CHAINED_DATABASES table names for 2023 is not among the image's live files."
-                 " Every row's Role resolved through ROLE_IDS: File Server 163, Active Directory Domain Services "
-                 "147, DHCP Server 5. On every row the first non-zero DayN is Insert Date's day of the year, the "
-                 "last non-zero DayN is Last Access's, and the counts sum to Total Accesses; reading DayN as day N"
-                 " of Insert Date's year rests on that agreement. Client Address held a 4-byte address on 312 rows"
-                 ' and a 16-byte one on 3. Tenant ID held the all-zero GUID on 168 rows and one other GUID on the '
-                 "147 Active Directory Domain Services rows. Compared with the image's Security event log, which "
-                 'holds events from 4 to 9 February 2024 only: 92 rows have a Last Access in that span, and on 81 '
-                 'of them a logon event 4624 of logon type 3 for the same account name (the part after the '
-                 'backslash) and IP address is within one second of Last Access, on 1 within a minute, and on 10 '
-                 'there is none (5 DHCP Server, 3 File Server, 2 Active Directory Domain Services). Also run on '
-                 'alihadi_threatsim_server2019 (Windows Server 2019 Standard, build 17763): 18 rows (Active '
-                 'Directory Domain Services 11, File Server 7) from a Current.mdb whose header records a clean '
-                 'shutdown; the DayN agreement above held on all 18, and Databases named only Current.mdb, the '
-                 "{GUID}.mdb that SystemIdentity.mdb names for 2024 not being among the image's live files. That "
-                 "image's Security event log spans 18 seconds and no row's Last Access falls in it, so no "
-                 'comparison was made there. A row is a count User Access Logging kept, not a list of accesses: it'
-                 ' gives a time only for the first and the last access of the year. Not read: the transaction logs'
-                 ' (Svc*.log) beside the databases, which this artifact does not replay. On '
-                 "szechuan_dc01_server2012r2 Current.mdb's header records a dirty shutdown and, read without its "
-                 "logs, its CLIENTS table held no records, so the artifact gives 0 rows there. A database whose "
-                 "header records a dirty shutdown is read as it stands, and that can be older than what the server "
-                 "last wrote. This was measured by replaying the logs of copies with the esentutl /r of Windows 11: on "
-                 "ou_ransomware_server2022 the replay changed 16 of Current.mdb's 315 CLIENTS records, each to a "
-                 "higher Total Accesses, a later Last Access and a higher count for one day, and the latest Last "
-                 "Access in the table moved from 21:01:54 to 22:56:11 UTC on 9 February 2024; the 2024 {GUID}.mdb, "
-                 "whose header records a clean shutdown, held those records as they were before the replay. On "
-                 "szechuan_dc01_server2012r2 the replay gave Current.mdb's CLIENTS table 3 records. The corpus's "
-                 "other "
-                 'Windows disk images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, '
-                 'cfreds_leakage_win7 and alihadi_challenge3_win81, hold no User Access Logging databases among '
-                 'their live files.',
-        "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb',),
+                 ' The vendored ESE reader returns Address as hex text, which is read as 4 bytes for IPv4 or 16 for '
+                 'IPv6; any other value is shown as the reader gave it. Role is the RoleName that ROLE_IDS gives the '
+                 'GUID, blank when it gives none. Authenticated User Name is the stored string with the NULs that pad '
+                 'it and any surrounding whitespace removed. Total Accesses is as stored. Accesses per Day lists each '
+                 "non-zero DayN column as the date of day N of Insert Date's year, with its count. Tenant ID is "
+                 'TenantId read as a GUID; the research reports seeing it populated with the Active Directory Domain '
+                 'Services role and calls its interpretation unclear. ClientName is not reported: the research reports'
+                 ' not having seen it populated, and it held no value on any record here. Validated on '
+                 'ou_ransomware_server2022 (Windows Server 2022 Standard, build 20348), a simulation whose README '
+                 "states its user names and IP addresses are synthetic: 331 rows. There Current.mdb's header records a"
+                 " dirty shutdown and the 2024 {GUID}.mdb's a clean one (state 3). Replaying Current.mdb's log changed"
+                 ' 16 of its 315 CLIENTS records, each to a higher Total Accesses, a later Last Access and a higher '
+                 'count for one day, the latest Last Access in the table moving from 21:01:54 to 22:56:11 UTC on 9 '
+                 'February 2024; the {GUID}.mdb holds those 16 as they were before. So Databases names both databases '
+                 'on 299 rows, Current.mdb (logs replayed) alone on 16 and the {GUID}.mdb alone on 16. The {GUID}.mdb '
+                 "that SystemIdentity.mdb's CHAINED_DATABASES table names for 2023 is not among the image's live "
+                 "files. Every row's Role resolved through ROLE_IDS: File Server 170, Active Directory Domain Services"
+                 " 156, DHCP Server 5. On every row the first non-zero DayN is Insert Date's day of the year, the last"
+                 " non-zero DayN is Last Access's, and the counts sum to Total Accesses; reading DayN as day N of "
+                 "Insert Date's year rests on that agreement. Client Address held a 4-byte address on 327 rows and a "
+                 '16-byte one on 4. Tenant ID held the all-zero GUID on 175 rows and one other GUID on the 156 Active '
+                 'Directory Domain Services rows. Compared, on the 315 rows that hold the records as the {GUID}.mdb '
+                 "stores them, with the image's Security event log, which holds events from 4 to 9 February 2024 only:"
+                 ' 92 rows have a Last Access in that span, and on 81 of them a logon event 4624 of logon type 3 for '
+                 'the same account name (the part after the backslash) and IP address is within one second of Last '
+                 'Access, on 1 within a minute, and on 10 there is none (5 DHCP Server, 3 File Server, 2 Active '
+                 'Directory Domain Services). The 16 rows holding the replayed values were not compared. Also run on '
+                 'alihadi_threatsim_server2019 (Windows Server 2019 Standard, build 17763): 18 rows (Active Directory '
+                 'Domain Services 11, File Server 7) from a Current.mdb whose header records a clean shutdown; the '
+                 'DayN agreement above held on all 18, and Databases named only Current.mdb, the {GUID}.mdb that '
+                 "SystemIdentity.mdb names for 2024 not being among the image's live files. That image's Security "
+                 "event log spans 18 seconds and no row's Last Access falls in it, so no comparison was made there. A "
+                 'row is a count User Access Logging kept, not a list of accesses: it gives a time only for the first '
+                 'and the last access of the year. Also validated on szechuan_dc01_server2012r2 (Windows Server 2012 '
+                 'R2, build 9600): 3 rows, all from Current.mdb, whose header records a dirty shutdown and whose '
+                 'CLIENTS table holds no records until its log is replayed. On all 3, Role is File Server (Role GUID '
+                 'held one value) and Tenant ID the all-zero GUID; Client Address held a 4-byte address on 2 and a '
+                 '16-byte one on 1, Insert Date and Last Access fell on 19 September 2020, and the DayN agreement '
+                 "above held. The corpus's other Windows disk images, pc_mus_001_win11, af_case2_win10, "
+                 'lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and alihadi_challenge3_win81, hold no User '
+                 'Access Logging databases among their live files.',
+        "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb', '*/Windows/System32/LogFiles/Sum/*.log'),
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 18 rows",
-            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 315 rows",
-            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 0 rows (Current.mdb dirty, CLIENTS empty without log replay)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 331 rows (Current.mdb dirty, log replayed)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 3 rows (Current.mdb dirty, log replayed)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no User Access Logging databases)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no User Access Logging databases)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no User Access Logging databases)",
@@ -206,56 +211,70 @@ __artifacts_v2__ = {
     },
     "windowsUserAccessLoggingRoleAccess": {
         "name": "User Access Logging - Role Access",
-        "description": "One record per role for the year in Windows Server's User Access Logging databases (Current.mdb "
-                       'and the per-year {GUID}.mdb files in Windows/System32/LogFiles/Sum), with its first and last '
-                       'seen times.',
+        "description": "The role access records of Windows Server's User Access Logging databases (Current.mdb and the "
+                       'per-year {GUID}.mdb files in Windows/System32/LogFiles/Sum): each role with its first and '
+                       'last seen times for the year, and the databases the record was found in.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Windows",
-        "notes": 'Reads the ROLE_ACCESS table of Current.mdb and of each {GUID}.mdb in '
-                 'Windows/System32/LogFiles/Sum, and names each role from the ROLE_IDS table of the '
-                 'SystemIdentity.mdb in the same folder. A record found with the same values in several of the '
-                 "folder's databases is one row, and Databases names each database it was found in. Patrick "
-                 "Bennett's research describes FirstSeen as the earliest access to the role for the year and "
-                 'LastSeen as the most recent (Reference: "UAL Thank Us Later: Leveraging User Access Logging for '
-                 'Forensic Investigations", CrowdStrike, 8 June 2021, '
-                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/). First Seen and Last '
-                 "Seen are read as FILETIMEs and Role GUID as a little-endian GUID, as plaso's User Access Logging"
-                 " parser reads them (Reference: plaso, 'plaso/parsers/esedb_plugins/user_access_logging.py', "
+        "notes": 'Reads the ROLE_ACCESS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum, '
+                 'and names each role from the ROLE_IDS table of the SystemIdentity.mdb in the same folder. A record '
+                 "found with the same values in several of the folder's databases is one row, and Databases names each"
+                 ' database it was found in. A database whose header records a dirty shutdown (state 2, '
+                 "JET_dbstateDirtyShutdown) is read with its tables as ESE's own recovery would leave them: the "
+                 'transaction logs beside it that carry its log signature, every generation from the oldest its header'
+                 ' requires to the newest present (Svc.log and any older Svc*.log), are replayed in memory, following '
+                 "the log format and the redo rules of Microsoft's ESE source (Reference: Extensible-Storage-Engine, "
+                 "'dev/ese/src/ese/_log/logredo.cxx', "
+                 'https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/_log/logredo.cxx),'
+                 " and the files themselves are only read. Databases then adds '(logs replayed)' to its name, as in "
+                 "'Current.mdb (logs replayed)'. The replay redoes only the kinds of change these databases' logs were"
+                 ' seen to need, inserting and replacing committed records, and refuses anything else, such as a '
+                 'missing or damaged log, a change never committed, or another kind of change; the database is then '
+                 'read as stored and the run log says why. It was checked against Windows: copies replayed with the '
+                 'esentutl /r of Windows 11 gave, table by table and as read by the same ESE reader, the same records '
+                 'with the same values as this replay on szechuan_dc01_server2012r2 and ou_ransomware_server2022. A '
+                 'record the replay changed that a {GUID}.mdb still holds as it was before is two rows, one per state,'
+                 " each naming its database. Patrick Bennett's research describes FirstSeen as the earliest access to "
+                 'the role for the year and LastSeen as the most recent (Reference: "UAL Thank Us Later: Leveraging '
+                 'User Access Logging for Forensic Investigations", CrowdStrike, 8 June 2021, '
+                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/). First Seen and Last Seen '
+                 "are read as FILETIMEs and Role GUID as a little-endian GUID, as plaso's User Access Logging parser "
+                 "reads them (Reference: plaso, 'plaso/parsers/esedb_plugins/user_access_logging.py', "
                  'https://github.com/log2timeline/plaso/blob/2320e8dc947fc9ec1d8ceebc884a3c8c35479177/plaso/parsers/esedb_plugins/user_access_logging.py).'
                  ' Role is the RoleName that ROLE_IDS gives the GUID, blank when it gives none. Validated on '
-                 'ou_ransomware_server2022 (Windows Server 2022 Standard, build 20348): 4 rows, Active Directory '
-                 'Domain Services, File Server, DHCP Server and Print and Document Services; Current.mdb (dirty '
-                 'shutdown, read without replaying its logs) and the 2024 {GUID}.mdb held the same 4 records, so '
-                 'Databases held one value on all 4 rows, naming both. Compared with the User Access Logging - '
-                 'Client Access rows from the same databases: for File Server and DHCP Server, First Seen equals '
-                 "the earliest Insert Date and Last Seen the latest Last Access of that role's client rows; for "
-                 'Active Directory Domain Services Last Seen equals the latest Last Access and First Seen is about'
-                 ' 7 milliseconds after the earliest Insert Date; Print and Document Services has no client rows. '
-                 'Also run on alihadi_threatsim_server2019 (Windows Server 2019 Standard, build 17763): 3 rows, '
-                 'Active Directory Domain Services, File Server and Print and Document Services, from Current.mdb '
-                 "alone; File Server's First Seen and Last Seen equal its client rows' earliest Insert Date and "
-                 "latest Last Access, Active Directory Domain Services' Last Seen equals the latest Last Access "
-                 'and its First Seen is about 6.7 seconds before the earliest Insert Date, and Print and Document '
-                 'Services has no client rows. So First Seen and the earliest client Insert Date of a role need '
-                 "not be equal, in either direction. On szechuan_dc01_server2012r2 Current.mdb's header records a "
-                 'dirty shutdown and, read without its logs, its ROLE_ACCESS table held no records, so the '
-                 "artifact gives 0 rows there. Replaying the logs of copies with the esentutl /r of Windows 11 changed "
-                 "2 of the 4 ROLE_ACCESS records of ou_ransomware_server2022's Current.mdb, each to a later Last "
-                 "Seen, and gave szechuan_dc01_server2012r2's ROLE_ACCESS table 2 records, so a row read from a "
-                 "database whose header records a dirty shutdown can be older than what the server last wrote. "
-                 "The corpus's other Windows disk images, pc_mus_001_win11, "
-                 'af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and '
-                 'alihadi_challenge3_win81, hold no User Access Logging databases among their live files.',
-        "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb',),
+                 'ou_ransomware_server2022 (Windows Server 2022 Standard, build 20348): 6 rows, for Active Directory '
+                 "Domain Services, File Server, DHCP Server and Print and Document Services. Replaying Current.mdb's "
+                 'log moved Last Seen later on 2 of its 4 ROLE_ACCESS records, Active Directory Domain Services and '
+                 'File Server, which the 2024 {GUID}.mdb holds as they were before, so those two roles have a row for '
+                 'each database, and DHCP Server and Print and Document Services one row naming both. Compared with '
+                 'the User Access Logging - Client Access rows from the same database, in the replayed Current.mdb and'
+                 ' in the {GUID}.mdb alike: for File Server and DHCP Server, First Seen equals the earliest Insert '
+                 "Date and Last Seen the latest Last Access of that role's client rows; for Active Directory Domain "
+                 'Services Last Seen equals the latest Last Access and First Seen is about 7 milliseconds after the '
+                 'earliest Insert Date; Print and Document Services has no client rows. Also run on '
+                 'alihadi_threatsim_server2019 (Windows Server 2019 Standard, build 17763): 3 rows, Active Directory '
+                 "Domain Services, File Server and Print and Document Services, from Current.mdb alone; File Server's "
+                 "First Seen and Last Seen equal its client rows' earliest Insert Date and latest Last Access, Active "
+                 "Directory Domain Services' Last Seen equals the latest Last Access and its First Seen is about 6.7 "
+                 'seconds before the earliest Insert Date, and Print and Document Services has no client rows. So '
+                 'First Seen and the earliest client Insert Date of a role need not be equal, in either direction. '
+                 'Also validated on szechuan_dc01_server2012r2 (Windows Server 2012 R2, build 9600): 2 rows, File '
+                 'Server and Print and Document Services, from Current.mdb, whose header records a dirty shutdown and '
+                 "whose ROLE_ACCESS table holds no records until its log is replayed; File Server's First Seen and "
+                 "Last Seen equal its client rows' earliest Insert Date and latest Last Access, and Print and Document"
+                 " Services has no client rows. The corpus's other Windows disk images, pc_mus_001_win11, "
+                 'af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 and alihadi_challenge3_win81, '
+                 'hold no User Access Logging databases among their live files.',
+        "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb', '*/Windows/System32/LogFiles/Sum/*.log'),
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 3 rows",
-            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 4 rows",
-            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 0 rows (Current.mdb dirty, ROLE_ACCESS empty without log replay)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 6 rows (Current.mdb dirty, log replayed)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 2 rows (Current.mdb dirty, log replayed)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no User Access Logging databases)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no User Access Logging databases)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no User Access Logging databases)",
@@ -274,38 +293,51 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-15",
         "requirements": "none",
         "category": "Windows",
-        "notes": 'Reads the DNS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum. A '
-                 "record found with the same values in several of the folder's databases is one row, and Databases"
-                 " names each database it was found in. Patrick Bennett's research reports that the table appears "
-                 'to be populated only when the server has the DNS Server role, that it holds IP address to host '
-                 'name mappings, and that what fills it needs more research (Reference: "UAL Thank Us Later: '
-                 'Leveraging User Access Logging for Forensic Investigations", CrowdStrike, 8 June 2021, '
-                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/). Last Seen is read as '
-                 "a FILETIME, as plaso's User Access Logging parser reads it (Reference: plaso, "
+        "notes": 'Reads the DNS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum. A record'
+                 " found with the same values in several of the folder's databases is one row, and Databases names "
+                 'each database it was found in. A database whose header records a dirty shutdown (state 2, '
+                 "JET_dbstateDirtyShutdown) is read with its tables as ESE's own recovery would leave them: the "
+                 'transaction logs beside it that carry its log signature, every generation from the oldest its header'
+                 ' requires to the newest present (Svc.log and any older Svc*.log), are replayed in memory, following '
+                 "the log format and the redo rules of Microsoft's ESE source (Reference: Extensible-Storage-Engine, "
+                 "'dev/ese/src/ese/_log/logredo.cxx', "
+                 'https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/_log/logredo.cxx),'
+                 " and the files themselves are only read. Databases then adds '(logs replayed)' to its name, as in "
+                 "'Current.mdb (logs replayed)'. The replay redoes only the kinds of change these databases' logs were"
+                 ' seen to need, inserting and replacing committed records, and refuses anything else, such as a '
+                 'missing or damaged log, a change never committed, or another kind of change; the database is then '
+                 'read as stored and the run log says why. It was checked against Windows: copies replayed with the '
+                 'esentutl /r of Windows 11 gave, table by table and as read by the same ESE reader, the same records '
+                 'with the same values as this replay on szechuan_dc01_server2012r2 and ou_ransomware_server2022. A '
+                 'record the replay changed that a {GUID}.mdb still holds as it was before is two rows, one per state,'
+                 " each naming its database. Patrick Bennett's research reports that the table appears to be populated"
+                 ' only when the server has the DNS Server role, that it holds IP address to host name mappings, and '
+                 'that what fills it needs more research (Reference: "UAL Thank Us Later: Leveraging User Access '
+                 'Logging for Forensic Investigations", CrowdStrike, 8 June 2021, '
+                 'https://www.crowdstrike.com/en-us/blog/user-access-logging-ual-overview/). Last Seen is read as a '
+                 "FILETIME, as plaso's User Access Logging parser reads it (Reference: plaso, "
                  "'plaso/parsers/esedb_plugins/user_access_logging.py', "
                  'https://github.com/log2timeline/plaso/blob/2320e8dc947fc9ec1d8ceebc884a3c8c35479177/plaso/parsers/esedb_plugins/user_access_logging.py).'
                  ' Host Name and Address are the stored strings with the NULs that pad them and any surrounding '
                  'whitespace removed. Validated on ou_ransomware_server2022 (Windows Server 2022 Standard, build '
-                 '20348): 11 rows, 11 host names and 6 addresses; Current.mdb (dirty shutdown, read without '
-                 'replaying its logs) and the 2024 {GUID}.mdb held the same 11 records, so Databases held one '
-                 'value on all 11 rows, naming both. On alihadi_threatsim_server2019 (Windows Server 2019 '
-                 'Standard, build 17763) the DNS table of its Current.mdb, whose header records a clean shutdown, '
-                 'held no records: 0 rows. What a row shows about any client or lookup is not established, and '
-                 "Last Seen was not compared with a second source. On szechuan_dc01_server2012r2 Current.mdb's "
-                 'header records a dirty shutdown and, read without its logs, its DNS table held no records, so '
-                 "the artifact gives 0 rows there. Replaying the logs of copies with the esentutl /r of Windows 11 left "
-                 "the DNS table of each server's Current.mdb as it was: 11 records on ou_ransomware_server2022 and "
-                 "none on szechuan_dc01_server2012r2. The VIRTUALMACHINES table of the same databases is not "
-                 "reported: it held no records on any of the three servers. The corpus's other Windows disk "
-                 'images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, cfreds_leakage_win7 '
-                 'and alihadi_challenge3_win81, hold no User Access Logging databases among their live files.',
-        "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb',),
+                 "20348): 11 rows, 11 host names and 6 addresses; replaying Current.mdb's log left its 11 DNS records "
+                 'as they were, and the 2024 {GUID}.mdb holds the same 11, so Databases names both on all 11 rows. On '
+                 'alihadi_threatsim_server2019 (Windows Server 2019 Standard, build 17763) the DNS table of its '
+                 'Current.mdb, whose header records a clean shutdown, held no records: 0 rows. What a row shows about '
+                 'any client or lookup is not established, and Last Seen was not compared with a second source. On '
+                 'szechuan_dc01_server2012r2 (Windows Server 2012 R2, build 9600) the DNS table of Current.mdb holds '
+                 'no records, before and after its log is replayed: 0 rows. The VIRTUALMACHINES table of the same '
+                 "databases is not reported: it held no records on any of the three servers. The corpus's other "
+                 'Windows disk images, pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10, '
+                 'cfreds_leakage_win7 and alihadi_challenge3_win81, hold no User Access Logging databases among their '
+                 'live files.',
+        "paths": ('*/Windows/System32/LogFiles/Sum/*.mdb', '*/Windows/System32/LogFiles/Sum/*.log'),
         "output_types": "standard",
         "artifact_icon": "server",
         "sample_data": {
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (DNS table empty)",
             "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 11 rows",
-            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 0 rows (Current.mdb dirty, DNS empty without log replay)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation (build 9600) | 0 rows (DNS table empty after log replay)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no User Access Logging databases)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no User Access Logging databases)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no User Access Logging databases)",
@@ -324,9 +356,9 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 
 try:
-    from scripts import ese_rows
+    from scripts import ese_recovery, ese_rows
 except ImportError:
-    ese_rows = None
+    ese_recovery = ese_rows = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_ntfs import filetime
@@ -422,8 +454,36 @@ def _named(record):
             for key, value in record.items()}
 
 
+# What each database read as, by path, size and modification time: (bytes or None for the file as stored,
+# whether its logs were replayed, and the replay's own summary). The four artifacts read the
+# same databases, so each is replayed once.
+_REPLAYED = {}
+
+
+def _open(path, label, relative):
+    """The database at `path` as ESE's recovery would leave it, and whether its logs were replayed.
+
+    A database whose header records a dirty shutdown is replayed in memory from the transaction
+    logs beside it (scripts/ese_recovery); when that is refused, it is read as stored and the
+    reason is logged. The files are only read."""
+    stat = os.stat(path)
+    key = (path, stat.st_size, stat.st_mtime_ns)
+    if key not in _REPLAYED:
+        try:
+            data, summary = ese_recovery.replayed_database(path)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            data, summary = None, f'not replayed: {type(exc).__name__}: {exc}'
+        replayed = data is not None and summary.startswith('replayed')
+        _REPLAYED[key] = (data if replayed else None, replayed, summary)
+    data, replayed, summary = _REPLAYED[key]
+    if replayed or 'clean shutdown' not in summary:
+        logfunc(f'{label}: {relative}, {summary}' + ('' if replayed else '; read as stored'))
+    database = ese_rows.ESEDatabase(path, data=data) if data is not None else ese_rows.ESEDatabase(path)
+    return database, replayed
+
+
 def _read(path, relative):
-    database = ese_rows.ESEDatabase(path)
+    database, _replayed = _open(path, _LABEL, relative)
     try:
         database.mountDB()
         walk = ese_rows.TableRows(database, _TABLE)
@@ -507,8 +567,9 @@ def _time(value):
 
 
 def _table(path, table, label, relative):
-    """The records of one table of one database as dicts, or [] with the reason logged."""
-    database = ese_rows.ESEDatabase(path)
+    """(the records of one table of one database as dicts, or [] with the reason logged, and
+    whether the database's logs were replayed)."""
+    database, replayed = _open(path, label, relative)
     try:
         database.mountDB()
         walk = ese_rows.TableRows(database, table)
@@ -517,7 +578,7 @@ def _table(path, table, label, relative):
             logfunc(f'{label}: {relative} has no {table} table')
         elif walk.summary():
             logfunc(f'{label}: {relative}, {walk.summary()}')
-        return rows
+        return rows, replayed
     finally:
         database.close()
 
@@ -538,7 +599,7 @@ def _role_names(folder, label, context):
         return {}
     relative = context.get_relative_path(path)
     try:
-        rows = _table(path, 'ROLE_IDS', label, relative)
+        rows, _replayed = _table(path, 'ROLE_IDS', label, relative)
     except Exception as exc:  # pylint: disable=broad-exception-caught
         logfunc(f'{label}: could not read {relative}: {type(exc).__name__}: {exc}')
         return {}
@@ -555,16 +616,17 @@ def _merged(context, table, label, build):
         for path in paths:
             relative = context.get_relative_path(path)
             try:
-                records = _table(path, table, label, relative)
+                records, replayed = _table(path, table, label, relative)
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logfunc(f'{label}: could not read {relative}: {type(exc).__name__}: {exc}')
                 continue
             read.append(path)
+            database_name = os.path.basename(path) + (' (logs replayed)' if replayed else '')
             for record in records:
                 key = tuple(sorted((name, repr(value)) for name, value in record.items()))
                 if key not in seen:
                     seen[key] = (build(record, roles), [])
-                seen[key][1].append(os.path.basename(path))
+                seen[key][1].append(database_name)
         data_list.extend(row + ('; '.join(names),) for row, names in seen.values())
     data_list.sort(key=lambda row: tuple(str(value) for value in row))
     return data_list, read

@@ -8,6 +8,7 @@ records.
 import datetime
 import os
 import pathlib
+import shutil
 import sys
 import tempfile
 import unittest
@@ -265,7 +266,9 @@ class AccessProcessor(unittest.TestCase):
                 key = (os.path.relpath(path, folder), name)
                 if key not in tables:
                     raise ValueError('unreadable')
-                return tables[key]
+                value = tables[key]
+                # (records, whether the logs were replayed); a bare list is a database read as stored
+                return value if isinstance(value, tuple) else (value, False)
 
             logged = []
             with mock.patch.object(ual, '_table', side_effect=table), \
@@ -333,12 +336,84 @@ class AccessProcessor(unittest.TestCase):
                                                  {('a/Sum/Current.mdb', 'DNS'): []}, ['a/Sum/Current.mdb'])
         self.assertEqual((rows, sources), ([], [os.path.join('a', 'Sum', 'Current.mdb')]))
 
+    def test_a_database_whose_logs_were_replayed_is_named_so(self):
+        """A record in a replayed Current.mdb that the stored {GUID}.mdb also holds is one row naming
+        both, Current.mdb marked as replayed; a record the replay changed is a row of its own."""
+        same, newer = client(), client(TotalAccesses=4, Day2=3)
+        older = client(TotalAccesses=2, Day2=1, LastAccess=133485700000000000)
+        tables = {('a/Sum/Current.mdb', 'CLIENTS'): ([same, newer], True),
+                  ('a/Sum/{12345678-ABCD-4EF0-9123-456789ABCDEF}.mdb', 'CLIENTS'): [same, older]}
+        _, rows, _, _, _ = self.run_access(
+            ual.windowsUserAccessLoggingClients, tables,
+            ['a/Sum/Current.mdb', 'a/Sum/{12345678-ABCD-4EF0-9123-456789ABCDEF}.mdb'])
+        names = sorted(row[-1] for row in rows)
+        self.assertEqual(names, ['Current.mdb (logs replayed)',
+                                 'Current.mdb (logs replayed); {12345678-ABCD-4EF0-9123-456789ABCDEF}.mdb',
+                                 '{12345678-ABCD-4EF0-9123-456789ABCDEF}.mdb'])
+
     def test_reader_missing(self):
         with mock.patch.object(ual, 'ese_rows', None):
             _, rows, sources, _, logged = self.run_access(ual.windowsUserAccessLoggingRoleAccess, {},
                                                           ['a/Sum/Current.mdb'])
         self.assertEqual((rows, sources), ([], []))
         self.assertIn('not available', logged[0])
+
+
+class OpenReplays(unittest.TestCase):
+    """_open reads a replayed copy when the replay succeeds, the file as stored when it is refused
+    or fails, and replays each file once."""
+
+    def setUp(self):
+        ual._REPLAYED.clear()  # pylint: disable=protected-access
+        self.folder = tempfile.mkdtemp(prefix='ual-open-')
+        self.path = os.path.join(self.folder, 'Current.mdb')
+        with open(self.path, 'wb') as handle:
+            handle.write(b'stored')
+
+    def tearDown(self):
+        ual._REPLAYED.clear()  # pylint: disable=protected-access
+        shutil.rmtree(self.folder)
+
+    def opened(self, outcome):
+        logged, made = [], []
+
+        def database(path, data=None):
+            made.append((path, data))
+            return mock.Mock()
+        with mock.patch.object(ual.ese_recovery, 'replayed_database', side_effect=outcome) as replay, \
+                mock.patch.object(ual.ese_rows, 'ESEDatabase', side_effect=database), \
+                mock.patch.object(ual, 'logfunc', side_effect=logged.append):
+            first = ual._open(self.path, 'L', 'rel')[1]  # pylint: disable=protected-access
+            second = ual._open(self.path, 'L', 'rel')[1]  # pylint: disable=protected-access
+        return first, second, made, logged, replay.call_count
+
+    def test_a_replayed_copy_is_read_and_the_replay_runs_once(self):
+        first, second, made, logged, calls = self.opened(
+            lambda p: (b'replayed', 'replayed 3 change(s) from Svc.log onto 1 page(s)'))
+        self.assertEqual((first, second, calls), (True, True, 1))
+        self.assertEqual(made, [(self.path, b'replayed')] * 2)
+        self.assertIn('replayed 3 change(s)', logged[0])
+
+    def test_a_refused_replay_reads_the_file_as_stored_and_says_why(self):
+        first, _, made, logged, _ = self.opened(lambda p: (None, 'not replayed: a log is missing'))
+        self.assertFalse(first)
+        self.assertEqual(made[0], (self.path, None))
+        self.assertEqual(logged[0], 'L: rel, not replayed: a log is missing; read as stored')
+
+    def test_a_failing_replay_reads_the_file_as_stored(self):
+        def fail(_path):
+            raise RuntimeError('boom')
+        first, _, made, logged, _ = self.opened(fail)
+        self.assertFalse(first)
+        self.assertEqual(made[0], (self.path, None))
+        self.assertIn('RuntimeError: boom; read as stored', logged[0])
+
+    def test_a_clean_database_is_read_as_stored_without_a_log_line(self):
+        first, _, made, logged, _ = self.opened(
+            lambda p: (b'stored', 'not replayed: the header records clean shutdown'))
+        self.assertFalse(first)
+        self.assertEqual(made[0], (self.path, None))
+        self.assertEqual(logged, [])
 
 
 if __name__ == '__main__':
