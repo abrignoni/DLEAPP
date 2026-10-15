@@ -8,6 +8,7 @@ folder holding one module and checks that module's search pattern reaches the
 """
 import os
 import pathlib
+import site
 import subprocess
 import sys
 import tempfile
@@ -54,7 +55,11 @@ class TestCustomArtifactsPath(unittest.TestCase):
             (custom / 'customArtifactsPathCheck.py').write_text(MODULE_SOURCE, encoding='utf-8')
             work = tmp / 'work'
             work.mkdir()
+            # A private HOME moves Python's per-user site-packages with it, so a
+            # dependency installed with pip --user would vanish from the child.
+            # Pin the user base to this interpreter's own.
             env = dict(os.environ, HOME=str(tmp / 'home'))
+            env.setdefault('PYTHONUSERBASE', site.getuserbase())
             result = subprocess.run(
                 [sys.executable, str(CLI_ENTRY_POINT), '-p',
                  '--custom_artifacts_path', str(custom)],
