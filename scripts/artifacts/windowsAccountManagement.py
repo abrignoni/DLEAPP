@@ -22,8 +22,9 @@ from scripts.windows_evtx import log_records
 
 # The Security event log records local account and group administration under
 # the account-management audit subcategories: an account being created,
-# enabled, disabled, changed, deleted, locked out or unlocked, a password
-# change or reset, and members being added to or removed from a group.
+# enabled, disabled, changed, renamed, deleted, locked out or unlocked, a password
+# change or reset, a computer account or security group being created, changed
+# or deleted, and members being added to or removed from a group.
 
 # Event ID titles as Microsoft documents them (account-management auditing).
 _ACCOUNT_EVENTS = {
@@ -36,6 +37,19 @@ _ACCOUNT_EVENTS = {
     '4738': 'A user account was changed',
     '4740': 'A user account was locked out',
     '4767': 'A user account was unlocked',
+    '4781': 'The name of an account was changed',
+    '4741': 'A computer account was created',
+    '4742': 'A computer account was changed',
+    '4743': 'A computer account was deleted',
+    '4731': 'A security-enabled local group was created',
+    '4735': 'A security-enabled local group was changed',
+    '4734': 'A security-enabled local group was deleted',
+    '4727': 'A security-enabled global group was created',
+    '4737': 'A security-enabled global group was changed',
+    '4730': 'A security-enabled global group was deleted',
+    '4754': 'A security-enabled universal group was created',
+    '4755': 'A security-enabled universal group was changed',
+    '4758': 'A security-enabled universal group was deleted',
     '4728': 'A member was added to a security-enabled global group',
     '4729': 'A member was removed from a security-enabled global group',
     '4732': 'A member was added to a security-enabled local group',
@@ -47,20 +61,22 @@ _ACCOUNT_EVENTS = {
 __artifacts_v2__ = {
     "accountManagement": {
         "name": "Windows Account Management",
-        "description": "Account and group administration from the Security event log: account "
-                       "creation, change, deletion, lockout "
-                       "and password events, and group membership changes, with "
-                       "the affected account, the member, and the account that requested it.",
+        "description": "Account, computer account and group administration from the Security event log: "
+                       "account creation, change, rename, deletion, lockout and password events, computer "
+                       "account and security group creation, change and deletion, and group membership changes, "
+                       "with the affected account, the member, and the account that requested it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Security.evtx, named in the report's located-at line. Reported are the "
                  "account-lifecycle events (creation, enabling, disabling, "
-                 "change, deletion, lockout, unlock, and password change or "
-                 "reset) and the security-group membership changes (a member "
-                 "added to or removed from a global, local or universal group); "
+                 "change, rename (4781), deletion, lockout, unlock, and password change or "
+                 "reset), the computer account events (created 4741, changed 4742, deleted 4743), the "
+                 "security-enabled group events (local group created 4731, changed 4735, deleted 4734; global "
+                 "group 4727, 4737, 4730; universal group 4754, 4755, 4758) and the security-group membership "
+                 "changes (a member added to or removed from a global, local or universal group); "
                  "the Event column is Microsoft's title for the Event ID. Event Time (UTC) is "
                  "the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME "
                  "the record stores with integer arithmetic, counted in UTC and cut to whole microseconds, in "
@@ -68,41 +84,76 @@ __artifacts_v2__ = {
                  "microseconds ("
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Target Account is TargetUserName as stored, which is the "
-                 "account for the lifecycle events and the group for the "
-                 "membership events. Member is the MemberName, or the MemberSid "
+                 "account for the lifecycle events, the computer account for 4741 to 4743 and the group for the "
+                 "group and membership events; for 4781, which stores no TargetUserName, it is NewTargetUserName "
+                 "and Old Account Name is OldTargetUserName, the two names Microsoft labels New Account Name and "
+                 "Old Account Name (Microsoft, '4781(S) The name of an account was changed.', "
+                 "https://github.com/MicrosoftDocs/officearchive-pr/blob/3781a3939e77300af0299d25b3e16928184faa07/windows-10/security/threat-protection/auditing/event-4781.md). "
+                 "Old Account Name is blank on every other event, so it was blank on every row of "
+                 "hexordia_mvs2025_win11, ou_ransomware_server2022 and pc_mus_001_win11, which hold no 4781. On "
+                 "114 of the 115 tested 4781 rows Old Account Name equals Target Account; the other is on "
+                 "szechuan_dc01_server2012r2. Member is the MemberName, or the MemberSid "
                  "when the name is not recorded, and is populated for the group "
                  "membership events (the account added or removed). Performed By is "
                  "SubjectUserName, which Microsoft describes as the account that requested the "
                  "operation (for example Microsoft, 'Event 4720', "
                  "https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4720). "
+                 "The changed-attribute fields that 4735, 4737, 4738, 4742 and 4755 carry, the SAM account name "
+                 "and attributes of the creation events and the target SIDs are not reported; read the record "
+                 "for them. Microsoft documents that 4742 can record a change with every changed attribute shown "
+                 "as -, and that for a local account 4738 fills those fields with previous values "
+                 "(https://github.com/MicrosoftDocs/officearchive-pr/blob/3781a3939e77300af0299d25b3e16928184faa07/windows-10/security/threat-protection/auditing/event-4742.md, "
+                 "https://github.com/MicrosoftDocs/officearchive-pr/blob/3781a3939e77300af0299d25b3e16928184faa07/windows-10/security/threat-protection/auditing/event-4738.md). "
                  "Computer is the machine that recorded the event. Computer held one value on "
                  "every row of lonewolf_win10 and pc_mus_001_win11, and two values on "
                  "af_case2_win10 and three on szechuan_win10. On af_case2_win10, lonewolf_win10 and "
                  "szechuan_win10 the account creation (4720), enabling (4722), disabling (4725), "
-                 "change (4738), deletion (4726) and password-reset (4724) events and the global "
+                 "change (4738), rename (4781), deletion (4726) and password-reset (4724) events, the local group "
+                 "creation (4731) and change (4735) events, the global group change (4737) and the global "
                  "and local group membership changes (4728, 4729, 4732, 4733) were all present, and "
-                 "on pc_mus_001_win11 only the change (4738) and a local group addition (4732); the "
-                 "password-change (4723), lockout (4740), unlock (4767) and universal-group (4756, "
-                 "4757) events are read and titled but were not present on any of the four "
-                 "registered images. "
-                 "The Security log of windows11_arm_4688_known holds none of these events. "
+                 "on pc_mus_001_win11 only the change (4738) and a local group addition (4732). On "
+                 "hexordia_mvs2025_win11 all 4 rows are changes (4738) of one account, with one Target Account, "
+                 "Target Domain and Performed By. The computer "
+                 "account events 4741 and 4742 and the global and universal group creation events "
+                 "4727 and 4754 were present only on szechuan_dc01_server2012r2, and the universal group change "
+                 "4755 on it and on ou_ransomware_server2022. The password-change (4723), lockout (4740) and unlock "
+                 "(4767) events and the deletion events 4730, 4734, 4743 and 4758 are read and titled but were "
+                 "not present on any tested image; the universal group membership events were present only on "
+                 "szechuan_dc01_server2012r2 (4756) and ou_ransomware_server2022 (4757). "
+                 "The Security logs of windows11_arm_4688_known and windows11_arm_known_20261001 hold none of "
+                 "these events, and alihadi_threatsim_server2019's holds none either. "
                  "A record python-evtx cannot render is skipped and counted in the run log, and the records after "
                  "it are still read; no record of this log failed to render on the tested images. "
                  "Reading needs the python-evtx package (pip install "
-                 "python-evtx). Event IDs: Microsoft, 'Audit User Account Management', "
+                 "python-evtx). Event IDs and titles: Microsoft, 'Audit User Account Management', "
                  "https://learn.microsoft.com/windows/security/threat-protection/auditing/audit-user-account-management "
-                 "(the account events), and Microsoft, 'Audit Security Group Management', "
+                 "(the account events), Microsoft, 'Audit Computer Account Management', "
+                 "https://github.com/MicrosoftDocs/officearchive-pr/blob/3781a3939e77300af0299d25b3e16928184faa07/windows-10/security/threat-protection/auditing/audit-computer-account-management.md "
+                 "(4741 to 4743), and Microsoft, 'Audit Security Group Management', "
                  "https://learn.microsoft.com/windows/security/threat-protection/auditing/audit-security-group-management "
-                 "(the group membership events)",
+                 "(the group events). The field names of 4781, 4741 to 4743 and the group events are those of the "
+                 "provider manifest as registered on Windows 11 build 22621.819, published in nasbench's "
+                 "EVTX-ETW-Resources repository (https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Security-Auditing.xml#L4105-L4931 "
+                 "and #L6464-L6499); the manifests of Windows 10 builds 16299.125, 17763.107 and 19041.208 in that "
+                 "repository give the same first message line and fields for each.",
         "paths": ("*/Windows/System32/winevt/Logs/Security.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "user-check",
         "sample_data": {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 84 rows",
-            "af_case2_win10": "Windows 10 1809 build 17763 | 53 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 50 rows",
-            "szechuan_win10": "Windows 10 2004 build 19041 | 55 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 135 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 129 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 137 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (the matched files held nothing this artifact reports)",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (the matched files held nothing this "
+                                            "artifact reports)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 75 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched files "
+                                            "held nothing this artifact reports)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 102 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 4 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 22 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 263 rows",
         },
     },
 }
@@ -161,9 +212,12 @@ def _account_row(xml_text):
             name = item.get('Name')
             if name:
                 data[name] = item.text or ''
+    # 4781 stores the account's name as OldTargetUserName and NewTargetUserName, not TargetUserName.
+    target = data.get('NewTargetUserName', '') if event_id == '4781' else data.get('TargetUserName', '')
     return (
         _utc_from_iso(when), event_id, _ACCOUNT_EVENTS[event_id],
-        data.get('TargetUserName', ''), data.get('TargetDomainName', ''),
+        target, data.get('OldTargetUserName', '') if event_id == '4781' else '',
+        data.get('TargetDomainName', ''),
         _member(data), data.get('SubjectUserName', ''),
         computer.text if computer is not None and computer.text else '')
 
@@ -171,8 +225,8 @@ def _account_row(xml_text):
 @artifact_processor
 def accountManagement(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Event',
-                    'Target Account', 'Target Domain', 'Member', 'Performed By',
-                    'Computer')
+                    'Target Account', 'Old Account Name', 'Target Domain', 'Member',
+                    'Performed By', 'Computer')
     data_list = []
     sources = []
     if evtx is None:
