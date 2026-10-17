@@ -114,27 +114,62 @@ __artifacts_v2__ = {
     },
     "setupapiSections": {
         "name": "SetupAPI Sections",
-        "description": "Section-level events from setupapi.dev.log, including "
+        "description": "Section-level events from setupapi.dev.log and the dated "
+                       "setupapi.dev.<date>_<time>.log copies beside it, including "
                        "device-install and other setup operations, their local "
                        "start/end times, device instance identifiers when "
                        "present, and recorded exit status.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Windows System",
-        "notes": "Modernized from WLEAPP. Timestamps in setupapi.dev.log "
-                 "carry no UTC offset and are treated as device-local, "
-                 "consistent with Microsoft's documented SetupAPI logging "
-                 "behavior. A section start is not automatically labeled as "
-                 "a device's first connection.",
+        "notes": "Modernized from WLEAPP. Read from setupapi.dev.log in the Windows inf folder, whatever the "
+                 "letter case of the folder and file names, and from the files beside it named "
+                 "setupapi.dev.<8 digits>_<6 digits>.log; Source File names the file each row came from. "
+                 "Microsoft documents the device installation text log as SetupAPI.dev.log in the "
+                 "%SystemRoot%\\inf folder (Microsoft, 'SetupAPI Text Logs', "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/81d06fd79dd36cdd74ec0b3aeed6c4e52c2e2fc3/windows-driver-docs-pr/install/setupapi-text-logs.md#L20-L24); "
+                 "that page does not describe the dated files. The folder is INF on most tested images, inf on "
+                 "cfreds_leakage_win7 and Inf on alihadi_challenge3_win81 and szechuan_dc01_server2012r2. Dated "
+                 "files are on hexordia_mvs2025_win11 (1) and ou_ransomware_server2022 (3); on both, each dated "
+                 "file's last section ends no later than the second its name gives, and the next file's first "
+                 "section starts after that second, so on these images the dated files hold the earlier sections "
+                 "of the same log. That reading rests on these two images only. Files are read in path order, so "
+                 "the dated files come before setupapi.dev.log, and each file's sections in the order the file "
+                 "holds them. The setupapi.setup.log, setupapi.offline*.log, setupapi.app.log and "
+                 "setupapi.upgrade.log files are not read. Timestamps carry no UTC offset. Microsoft "
+                 "describes the section start time stamp as local time (Microsoft, 'Format of a Text Log "
+                 "Section Header', "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/81d06fd79dd36cdd74ec0b3aeed6c4e52c2e2fc3/windows-driver-docs-pr/install/format-of-a-text-log-section-header.md#L45), "
+                 "so they are labelled device local here. A section start is not automatically labeled as "
+                 "a device's first connection. Device Instance ID is read only from a section title of the form "
+                 "Device Install (<text>) - <ID>. It is blank on every other title, including Device "
+                 "Installation Restrictions, and so on every row of alihadi_threatsim_server2019 and "
+                 "windows11_arm_parallels. Exit Status held SUCCESS on every row of alihadi_challenge3_win81, "
+                 "alihadi_threatsim_server2019, cfreds_leakage_win7, ou_ransomware_server2022 and "
+                 "windows11_arm_parallels. Section held one value on all 3 rows of alihadi_threatsim_server2019. "
+                 "Of the 47,933 rows of ou_ransomware_server2022, 45,551 come from its three dated files and "
+                 "47,876 are sections whose title begins Delete Device.",
         "paths": (
-            "*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/INF/setupapi.dev.log",
+            "*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/[Ii][Nn][Ff]/[Ss][Ee][Tt][Uu][Pp][Aa][Pp][Ii].[Dd][Ee][Vv].[Ll][Oo][Gg]",
+            "*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/[Ii][Nn][Ff]/[Ss][Ee][Tt][Uu][Pp][Aa][Pp][Ii].[Dd][Ee][Vv]."
+            "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9].[Ll][Oo][Gg]",
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "plug",
         "sample_data": {
             "windows11_arm_parallels": "Windows build 26200 | 1 row",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 55 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 10 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 3 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 223 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 335 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 107 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 47933 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 25 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 22 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 24 rows",
         },
     },
 }
@@ -527,6 +562,10 @@ def windowsStickyNotes(context):
     return data_headers, rows, "\n".join(sources)
 
 
+# setupapi.dev.log, and the dated name the corpus shows for an older copy of it beside it.
+_SETUP_LOG_NAME = re.compile(r"setupapi\.dev(?:\.\d{8}_\d{6})?\.log")
+
+
 def _setup_device(header):
     match = re.match(
         r"Device Install \([^)]+\)\s*-\s*(.+)$",
@@ -572,18 +611,20 @@ def setupapiSections(context):
         "Device Instance ID",
         "Exit Status",
         "Duration (seconds)",
+        "Source File",
     )
     rows = []
     sources = []
-    for file_found in map(str, context.get_files_found()):
-        if os.path.basename(file_found).lower() != "setupapi.dev.log":
+    for file_found in sorted(map(str, context.get_files_found())):
+        if not _SETUP_LOG_NAME.fullmatch(os.path.basename(file_found).lower()):
             continue
+        relative_source = context.get_relative_path(file_found)
         try:
             with open(file_found, "r", encoding="utf-8-sig", errors="replace") as source:
                 text = source.read()
         except OSError as exception:
-            logfunc(f"SetupAPI Sections: could not read '{file_found}': {exception}")
+            logfunc(f"SetupAPI Sections: could not read '{relative_source}': {exception}")
             continue
         sources.append(file_found)
-        rows.extend(_parse_setup_sections(text))
+        rows.extend(row + (relative_source,) for row in _parse_setup_sections(text))
     return data_headers, rows, "\n".join(sources)

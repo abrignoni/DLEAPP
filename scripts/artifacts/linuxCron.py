@@ -168,7 +168,10 @@ __artifacts_v2__ = {
         "artifact_icon": "calendar",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
-            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (the matched tabs folders hold no file)",
+            "evidencelocker_macos14": "macOS 14.6.1 build 23G93 | 0 rows (no member matches the declared paths)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (the matched tabs folders hold no file)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (the matched tabs folders hold no file)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 29 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
@@ -190,7 +193,7 @@ __artifacts_v2__ = {
                        "ID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Scheduled Jobs (Linux)",
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
@@ -240,7 +243,10 @@ __artifacts_v2__ = {
         "artifact_icon": "calendar",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
-            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (the matched tabs folders hold no file)",
+            "evidencelocker_macos14": "macOS 14.6.1 build 23G93 | 0 rows (no member matches the declared paths)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (the matched tabs folders hold no file)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (the matched tabs folders hold no file)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 0 rows (no member matches the declared paths)",
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
@@ -275,13 +281,13 @@ __artifacts_v2__ = {
     },
     "linuxCrontabEntries": {
         "name": "Crontab Entries",
-        "description": "Lines of the files in /var/spool/cron/crontabs, /var/spool/cron, /etc/crontab and "
-                       "/etc/cron.d, the places Debian's and Ubuntu's cron and cronie read crontabs from: "
-                       "environment settings, jobs split into "
+        "description": "Lines of the files in /var/spool/cron/crontabs, /var/spool/cron, /etc/crontab, "
+                       "/etc/cron.d and macOS's /usr/lib/cron/tabs, the places Debian's and Ubuntu's cron, cronie "
+                       "and macOS's cron read crontabs from: environment settings, jobs split into "
                        "their time fields, user and command, and comments.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Scheduled Jobs (Linux)",
         "notes": "One row per line that is not blank in each file in the three places Debian's and Ubuntu's cron "
@@ -302,7 +308,20 @@ __artifacts_v2__ = {
                  "src/database.c, "
                  "https://github.com/cronie-crond/cronie/blob/68fa84bc7ea70b829ba2cc622b5675fb6d237653/src/database.c#L548-L568), "
                  "and the artifact reports a file directly in /var/spool/cron as a User crontab, whichever cron "
-                 "the image runs. Files in other folders under /var/spool/cron, such as at's atjobs folder on "
+                 "the image runs. macOS's cron reads a user's crontab from the tabs folder of /usr/lib/cron, named "
+                 "for the user, and also /etc/crontab (Apple cron-52, cron/pathnames.h, "
+                 "https://github.com/apple-oss-distributions/cron/blob/189460cca8af2ee7d37d56cddd0fd9e6e8c906b8/cron/pathnames.h#L31-L46 "
+                 "and #L74; cron/database.c, "
+                 "https://github.com/apple-oss-distributions/cron/blob/189460cca8af2ee7d37d56cddd0fd9e6e8c906b8/cron/database.c#L104-L127, "
+                 "which skips a name beginning with a dot at line 118). The folder is matched both as "
+                 "usr/lib/cron/tabs and as private/var/at/tabs, where dleapp_macos_bigsur, magnet2021_macos_bigsur "
+                 "and mvs2026_macbookpro_macos15 hold it, and a file in it is a User crontab. Its lines are split "
+                 "by the rules below, which come from Ubuntu's cron; macOS's own parser was not compared with "
+                 "them. macOS's crontab writes the same three header lines and installs by renaming a new file "
+                 "over the old one (crontab/crontab.c, "
+                 "https://github.com/apple-oss-distributions/cron/blob/189460cca8af2ee7d37d56cddd0fd9e6e8c906b8/crontab/crontab.c#L604-L608 "
+                 "and #L688). The tabs folder on the three images named above holds no file, so no macOS crontab "
+                 "has been read by this artifact; that path is source-verified only. Files in other folders under /var/spool/cron, such as at's atjobs folder on "
                  "honeynet_fc7_debian5, or below /etc/cron.d, which cron does not read, and symbolic links, which "
                  "are not followed, are counted in the run log. Ubuntu's cron skips a file whose name begins with "
                  "a dot, and in /etc/cron.d one "
@@ -462,14 +481,19 @@ __artifacts_v2__ = {
                  "honeynet_fc7_debian5 carrying the same recorded time; on ubuntu2604_arm64_triage Crontab held "
                  "one value, System, on every row. Source File is kept although Crontab separates the two files of "
                  "honeynet_fc7_debian5 one to one, because /etc/cron.d can hold any number of files, which Crontab "
-                 "does not tell apart (three on ubuntu2604_arm64_crontab). No member of the other twenty-seven "
-                 "tested images matches the declared paths.",
-        "paths": ("*/var/spool/cron/*", "*/etc/crontab", "*/etc/cron.d/*"),
+                 "does not tell apart (three on ubuntu2604_arm64_crontab). No member of twenty-seven other tested "
+                 "images matches the declared paths, and on dleapp_macos_bigsur, magnet2021_macos_bigsur and "
+                 "mvs2026_macbookpro_macos15 only the empty tabs folders do.",
+        "paths": ("*/var/spool/cron/*", "*/etc/crontab", "*/etc/cron.d/*", "*/usr/lib/cron/tabs/*",
+                  "*/private/var/at/tabs/*"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "calendar",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
-            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (the matched tabs folders hold no file)",
+            "evidencelocker_macos14": "macOS 14.6.1 build 23G93 | 0 rows (no member matches the declared paths)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (the matched tabs folders hold no file)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (the matched tabs folders hold no file)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386, cron 3.0pl1-105 | 15 rows",
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
@@ -619,8 +643,12 @@ TOO_LONG = 'files with a line that is not blank or a comment at line 10,004 or l
 SKIPPED_NAME = ('files whose names cron skips (a name starting with a dot, in /etc/cron.d a name with a character '
                 'other than A to Z, a to z, 0 to 9, _ and -, and directly in /var/spool/cron a name starting with # or '
                 'ending with ~, .rpmsave, .rpmorig or .rpmnew), whose lines are reported')
-OTHER_FOLDERS = 'files in other folders under /var/spool/cron or /etc/cron.d, which cron does not read'
+OTHER_FOLDERS = ('files in other folders under /var/spool/cron, /etc/cron.d or macOS\'s tabs folder, which cron '
+                 'does not read')
 _CLASSICAL = re.compile(r'[a-zA-Z0-9_-]+')
+# macOS's cron reads users' crontabs from /usr/lib/cron/tabs; the tested images hold the folder at
+# private/var/at/tabs (see notes).
+_MACOS_TABS = ('/usr/lib/cron/tabs', '/private/var/at/tabs')
 _CRONIE_SKIP = ('~', '.rpmsave', '.rpmorig', '.rpmnew')
 LONG_COMMAND = 'commands of 999 or more characters, for which cron ignores the whole file'
 _NAMEI, _NAME, _EQ1, _EQ2, _VALUEI, _VALUE, _FINI, _ERROR = range(8)
@@ -766,10 +794,12 @@ def crontab_rows(data, system, counts):
 
 def crontab_kind(relative):
     """User, System or cron.d for a path cron reads crontabs from, else None. Debian's cron reads users'
-    crontabs from /var/spool/cron/crontabs and cronie from /var/spool/cron itself."""
+    crontabs from /var/spool/cron/crontabs, cronie from /var/spool/cron itself, and macOS's cron from
+    /usr/lib/cron/tabs, which the tested macOS images hold at private/var/at/tabs."""
     parent, name = os.path.split(relative.replace('\\', '/'))
     parent = '/' + parent.strip('/')
-    if parent.endswith('/var/spool/cron/crontabs') or parent.endswith('/var/spool/cron'):
+    if (parent.endswith('/var/spool/cron/crontabs') or parent.endswith('/var/spool/cron')
+            or parent.endswith(_MACOS_TABS)):
         return 'User'
     if parent.endswith('/etc') and name == 'crontab':
         return 'System'
@@ -804,7 +834,8 @@ def linuxCrontabEntries(context):
             counts['files that could not be read'] += 1
             continue
         name = os.path.basename(relative)
-        cronie_spool = kind == 'User' and not os.path.dirname(relative.replace('\\', '/')).endswith('/crontabs')
+        folder = os.path.dirname(relative.replace('\\', '/'))
+        cronie_spool = kind == 'User' and ('/' + folder).endswith('/var/spool/cron')
         if kind != 'System' and (name.startswith('.') or (kind == 'cron.d' and not _CLASSICAL.fullmatch(name))
                                  or (cronie_spool and (name.startswith('#') or name.endswith(_CRONIE_SKIP)))):
             counts[SKIPPED_NAME] += 1

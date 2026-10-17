@@ -1,13 +1,17 @@
-"""Pin the shell link reader's header times and TrackerDataBlock fields (scripts/windows_lnk.py).
+"""Pin the shell link reader's header times and TrackerDataBlock fields (scripts/windows_lnk.py), and the two Recent folders.
 
 The links are built here byte by byte. The version 1 UUID is RFC 9562's test vector (appendix A.1), whose timestamp the
 RFC gives as Tuesday, February 22, 2022 2:22:22.000000 PM GMT-05:00.
 """
+import fnmatch
+import os
 import pathlib
 import struct
 import sys
+import tempfile
 import unittest
 import uuid
+from unittest import mock
 from datetime import datetime, timezone
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -77,6 +81,53 @@ class HeaderTimeTest(unittest.TestCase):
     def test_zero_time_is_blank(self):
         parsed = parse_lnk(link())
         self.assertEqual((parsed['target_created'], parsed['target_accessed'], parsed['target_modified']), ('', '', ''))
+
+
+class _Context:
+    def __init__(self, files):
+        self.files = files
+
+    def get_files_found(self):
+        return self.files
+
+    @staticmethod
+    def get_relative_path(path):
+        return path
+
+
+class RecentFoldersTest(unittest.TestCase):
+    def test_each_folder_has_its_own_artifact(self):
+        from scripts.artifacts import windowsLnk  # pylint: disable=import-outside-toplevel
+        recent = windowsLnk.__artifacts_v2__['windowsLnkRecent']['paths']
+        office = windowsLnk.__artifacts_v2__['windowsLnkOfficeRecent']['paths']
+        windows_link = 'root/p2/Users/u/AppData/Roaming/Microsoft/Windows/Recent/a.lnk'
+        office_link = 'root/p2/Users/u/AppData/Roaming/Microsoft/Office/Recent/b.LNK'
+        old_profile = 'root/p2/Documents and Settings/u/Application Data/Microsoft/Office/Recent/c.lnk'
+        self.assertTrue(any(fnmatch.fnmatchcase(windows_link, p) for p in recent))
+        self.assertFalse(any(fnmatch.fnmatchcase(windows_link, p) for p in office))
+        for member in (office_link, old_profile):
+            self.assertTrue(any(fnmatch.fnmatchcase(member, p) for p in office), member)
+            self.assertFalse(any(fnmatch.fnmatchcase(member, p) for p in recent), member)
+        self.assertFalse(any(fnmatch.fnmatchcase('root/p2/Users/u/AppData/Roaming/Microsoft/Office/Recent/index.dat',
+                                                 p) for p in office))
+
+    def test_office_links_are_read_and_a_file_that_is_not_a_link_is_counted(self):
+        from scripts.artifacts import windowsLnk  # pylint: disable=import-outside-toplevel
+        with tempfile.TemporaryDirectory() as folder:
+            good = os.path.join(folder, 'b.LNK')
+            bad = os.path.join(folder, 'a.lnk')
+            with open(good, 'wb') as handle:
+                handle.write(link())
+            with open(bad, 'wb') as handle:
+                handle.write(b'not a link')
+            with mock.patch.object(windowsLnk, 'logfunc') as log:
+                headers, rows, source = windowsLnk.windowsLnkOfficeRecent.__wrapped__(_Context([good, bad]))
+        self.assertEqual(headers[-1], 'Source File')
+        self.assertEqual([row[-1] for row in rows], [good])
+        self.assertEqual(len(rows[0]), len(headers))
+        self.assertEqual(source, good)
+        log.assert_called_once_with('Office Recent Shell Links: 1 file(s) named .lnk did not read as a shell link '
+                                    'and were not reported')
 
 
 if __name__ == '__main__':
