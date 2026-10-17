@@ -114,7 +114,8 @@ __artifacts_v2__ = {
     },
     "setupapiSections": {
         "name": "SetupAPI Sections",
-        "description": "Section-level events from setupapi.dev.log, including "
+        "description": "Section-level events from setupapi.dev.log and the dated "
+                       "setupapi.dev.<date>_<time>.log copies beside it, including "
                        "device-install and other setup operations, their local "
                        "start/end times, device instance identifiers when "
                        "present, and recorded exit status.",
@@ -137,13 +138,15 @@ __artifacts_v2__ = {
                  "of the same log. That reading rests on these two images only. Files are read in path order, so "
                  "the dated files come before setupapi.dev.log, and each file's sections in the order the file "
                  "holds them. The setupapi.setup.log, setupapi.offline*.log, setupapi.app.log and "
-                 "setupapi.upgrade.log files are not read. Timestamps in setupapi.dev.log "
-                 "carry no UTC offset and are treated as device-local, "
-                 "consistent with Microsoft's documented SetupAPI logging "
-                 "behavior. A section start is not automatically labeled as "
-                 "a device's first connection. Device Instance ID is read only from a section title that begins "
-                 "Device Install and is blank on the others, which is every row of alihadi_threatsim_server2019 "
-                 "and windows11_arm_parallels. Exit Status held SUCCESS on every row of alihadi_challenge3_win81, "
+                 "setupapi.upgrade.log files are not read. Timestamps carry no UTC offset. Microsoft "
+                 "describes the section start time stamp as local time (Microsoft, 'Format of a Text Log "
+                 "Section Header', "
+                 "https://github.com/MicrosoftDocs/windows-driver-docs/blob/81d06fd79dd36cdd74ec0b3aeed6c4e52c2e2fc3/windows-driver-docs-pr/install/format-of-a-text-log-section-header.md#L45), "
+                 "so they are labelled device local here. A section start is not automatically labeled as "
+                 "a device's first connection. Device Instance ID is read only from a section title of the form "
+                 "Device Install (<text>) - <ID>. It is blank on every other title, including Device "
+                 "Installation Restrictions, and so on every row of alihadi_threatsim_server2019 and "
+                 "windows11_arm_parallels. Exit Status held SUCCESS on every row of alihadi_challenge3_win81, "
                  "alihadi_threatsim_server2019, cfreds_leakage_win7, ou_ransomware_server2022 and "
                  "windows11_arm_parallels. Section held one value on all 3 rows of alihadi_threatsim_server2019. "
                  "Of the 47,933 rows of ou_ransomware_server2022, 45,551 come from its three dated files and "

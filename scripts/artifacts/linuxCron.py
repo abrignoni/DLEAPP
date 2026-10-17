@@ -646,7 +646,8 @@ SKIPPED_NAME = ('files whose names cron skips (a name starting with a dot, in /e
 OTHER_FOLDERS = ('files in other folders under /var/spool/cron, /etc/cron.d or macOS\'s tabs folder, which cron '
                  'does not read')
 _CLASSICAL = re.compile(r'[a-zA-Z0-9_-]+')
-# macOS's cron reads users' crontabs from /usr/lib/cron/tabs, a link to /private/var/at (see notes).
+# macOS's cron reads users' crontabs from /usr/lib/cron/tabs; the tested images hold the folder at
+# private/var/at/tabs (see notes).
 _MACOS_TABS = ('/usr/lib/cron/tabs', '/private/var/at/tabs')
 _CRONIE_SKIP = ('~', '.rpmsave', '.rpmorig', '.rpmnew')
 LONG_COMMAND = 'commands of 999 or more characters, for which cron ignores the whole file'
@@ -794,7 +795,7 @@ def crontab_rows(data, system, counts):
 def crontab_kind(relative):
     """User, System or cron.d for a path cron reads crontabs from, else None. Debian's cron reads users'
     crontabs from /var/spool/cron/crontabs, cronie from /var/spool/cron itself, and macOS's cron from
-    /usr/lib/cron/tabs, the folder a macOS file system keeps at /private/var/at/tabs."""
+    /usr/lib/cron/tabs, which the tested macOS images hold at private/var/at/tabs."""
     parent, name = os.path.split(relative.replace('\\', '/'))
     parent = '/' + parent.strip('/')
     if (parent.endswith('/var/spool/cron/crontabs') or parent.endswith('/var/spool/cron')

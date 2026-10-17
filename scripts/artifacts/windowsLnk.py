@@ -119,8 +119,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in a user's Microsoft Office Recent folder "
-                 "(AppData\\Roaming\\Microsoft\\Office\\Recent in the tested profiles; the pattern matches "
-                 "any path ending Microsoft\\Office\\Recent), read from the files named in Source File. Each row "
+                 "(AppData\\Roaming\\Microsoft\\Office\\Recent in the tested profiles; the pattern matches a .lnk, "
+                 "in any letter case, under any folder whose path ends Microsoft\\Office\\Recent or "
+                 "Microsoft\\Office\\recent, subfolders included), read from the files named in Source File. Each row "
                  "is one shell link. What wrote a given link here, and when, is not established by this artifact; "
                  "a row does not record who was at the keyboard, and the target may since have been moved or "
                  "deleted. The columns are read from each link exactly as in Recent Shell Links (LNK), whose notes "
