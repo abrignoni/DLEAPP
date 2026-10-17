@@ -1,162 +1,113 @@
-"""Compact BitLocker protector inventory with stored PCR explanations."""
+"""BitLocker key protectors and the TPM PCRs they are sealed to, from raw disk images.
+
+The vendored qnxprobe reads each BitLocker volume's FVE metadata when the image is
+opened and keeps it on the volume it lists (``volumes()``, key ``bitlocker``), locked or
+opened. This module reports that, so it needs no file to match and reads nothing from
+the image itself. It reports nothing for inputs that are not disk images.
+"""
 
 __artifacts_v2__ = {
     "bitlockerKeyProtectors": {
         "name": "BitLocker Key Protectors",
-        "description": "BitLocker key-protector types and identifiers with stored PCR selections and short PC/UEFI explanations.",
-        "author": "@ForensikITGmbH",
-        "creation_date": "2026-10-17", "last_update_date": "2026-10-17",
-        "requirements": "none", "category": "BitLocker",
-        "paths": ("*/$BitLocker/*",),
-        "output_types": ["html", "tsv", "lava"], "artifact_icon": "key",
-        "notes": "Reads generated, byte-preserving $BitLocker range views, including locked volumes. "
-                 "Image / Volume identifies the input; identical protector GUID, protection code and "
-                 "decoded policy fields in multiple validated copies become one row per volume. "
-                 "Different policy fields remain separate rows; Status names partial, differing or "
-                 "unusable metadata. This is an inventory, not authentication of a wrapped key. "
-                 "Copies require a valid CRC32 and bounded v2 structure. CRC32 is not authentication; "
-                 "the encrypted integrity check is not verified. A diagnostic row is retained when "
-                 "there is no usable metadata copy or no VMK protector in validated copies. "
-                 "Protector ID is the VMK GUID, not a recovery password or secret. Unknown codes stay "
-                 "hexadecimal. Multiple TPM properties stay separately labelled within a row. "
-                 "An inner/outer PCR disagreement produces no decoded indices for that property. "
-                 "An unsupported inner layout is qualified as outer-bitmap-only in Status. "
-                 "PCRs are stored selected indices, not live TPM hashes. PCR Meaning uses the Windows "
-                 "PC/UEFI convention and does not establish firmware state, the active TPM bank, "
-                 "DBX/SVN or recovery-product eligibility. PCR 7 absent does not establish Secure Boot off. "
-                 "PCRs and PCR Meaning are blank for protectors without a TPM datum; they are empty "
-                 "throughout the public password/recovery/external-key samples for that reason. "
-                 "Image / Volume may be constant in a single-volume input. Status is constant at "
-                 "Validated when all three copies agree. Source manifests are retained by the normal "
-                 "report provenance. No timestamp is reported, so this inventory emits no timeline events. "
-                 "VMK layout: https://github.com/libyal/libbde/blob/"
-                 "dd48d476e3da4a19d7bf1c4d16d14b3b6efeddf0/documentation/"
-                 "BitLocker%20Drive%20Encryption%20%28BDE%29%20format.asciidoc#L868-L930. "
-                 "TPM selection: https://github.com/fox-it/dissect.fve/blob/"
-                 "0b3caf20c1e95136cb2eb4494303604e7629616b/dissect/fve/bde/c_tpm.py#L44-L57. "
-                 "PCR convention: https://learn.microsoft.com/en-us/windows/security/operating-system-security/"
-                 "data-protection/bitlocker/configure#configure-tpm-platform-validation-profile-for-native-uefi-firmware-configurations. "
-                 "TPM+PIN and TPM/startup-key combinations are source-verified and synthetically tested, not validated with Windows-written images of every combination. Public-key, TPM-certificate and SID-specific layouts are not classified; unknown on-disk codes remain visible. The public reference matrix includes unsupported Vista and CRC-negative controls; "
-                 "the additional public inputs contain no TPM datum. See admin/docs/bitlocker_metadata.md.",
+        "description": "Key protectors of each BitLocker volume in a disk image, locked or opened, "
+                       "with the PCRs each TPM protector is sealed to.",
+        "author": "@ForensikITGmbH, @AlexisBrignoni, Claude",
+        "creation_date": "2026-10-17",
+        "last_update_date": "2026-10-17",
+        "requirements": "none",
+        "category": "BitLocker",
+        "notes": "Read from each volume's FVE metadata, which is not encrypted, so a locked volume "
+                 "is reported too. One row per protector. Protector ID is the protector's GUID, the "
+                 "id Windows shows and the one to quote when asking for an escrowed recovery key; it "
+                 "is not a key. PCRs are the stored selection a TPM protector's key is sealed to, not "
+                 "measurements from a TPM: a change to what those PCRs measure makes Windows ask for "
+                 "the recovery key. PCR Meaning (UEFI) is Microsoft's description for native UEFI "
+                 "firmware; with BIOS or a CSM the PCRs mean other things. Windows' default is 7, 11 "
+                 "with Secure Boot and 0, 2, 4, 11 without. Nothing is unsealed or decrypted here. "
+                 "On the nine protectors checked, each added once and never changed, Protector Last "
+                 "Modified was when it was added. Volume, Volume Created, Volume Description, "
+                 "Encryption Method and Volume State belong to the volume, so they repeat on each of "
+                 "its protectors and are uniform when the input holds one BitLocker volume. Volume "
+                 "Description is the text Windows stored, the computer name, drive and date on the "
+                 "volumes checked. PCRs and PCR Meaning (UEFI) are empty for protectors other than "
+                 "TPM ones, as for every password, recovery password and startup key protector in "
+                 "the samples. Volumes in the Windows Vista layout are named with no protectors. "
+                 "TPM layout and PCR reading contributed by @ForensikITGmbH (DLEAPP #616).",
         "sample_data": {
-            "bitlocker_synthetic_profiles": "Two synthetic volumes with PCR 0/2/11 and 7/11 | 4 rows",
-            "bitlocker_synthetic_partial": "Synthetic partial ranges with CRC fallback | 2 rows",
-            "dissect_fve_xts256_metadata": "Public Dissect AES-XTS-256 password-only ranges | 1 rows",
-            "bitlocker_public_reference_matrix": "Additional public ranges including unsupported/CRC-negative controls | 19 rows",
-            "bitlocker_synthetic_protectors": "Synthetic standard protector codes and one unknown code | 9 rows",
-            "bitlocker_public_ctf_gteksd": "GTekSD BitLocker Breaker CTF ranges, no TPM | 3 rows"
+            "bitlocker_tpm_win11_states": "Windows 11 build 26200 | 11 rows",
+            "bitlocker_win11_ntfs_xts128": "Windows 11 Pro build 26200 | 3 rows",
         },
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "key",
     },
 }
 
-import json
-import os
+from scripts.ilapfuncs import artifact_processor
+from scripts.windows_ntfs import filetime
 
-from scripts.bitlocker_metadata import (BLOCK_LIMIT, CAPTURE_MANIFEST, PCR_MEANINGS,
-                                       PROTECTORS, analyze_capture)
-from scripts.ilapfuncs import artifact_processor, logfunc
+# Microsoft, "Configure BitLocker", the PCR list under "Configure TPM platform validation
+# profile for native UEFI firmware configurations" (MicrosoftDocs/windows-docs-pr at
+# 561b0d37f70d363250e59ac15f35d659ab266a7c, windows/security/operating-system-security/
+# data-protection/bitlocker/configure.md).
+_PCR_UEFI = {
+    0: "Core System Firmware executable code", 1: "Core System Firmware data",
+    2: "Extended or pluggable executable code", 3: "Extended or pluggable firmware data",
+    4: "Boot Manager", 5: "GPT/Partition Table", 6: "Resume from S4 and S5 Power State Events",
+    7: "Secure Boot State", 8: "Reserved", 9: "Reserved", 10: "Reserved",
+    11: "BitLocker access control", 12: "Data events and highly volatile events",
+    13: "Boot Module Details", 14: "Boot Authorities",
+}
 
 
-def _captures(context):
-    """Read only the fixed, staged range filenames; never follow manifest paths."""
-    groups = {}
-    names = {'volume-header.bin', 'metadata-1.bin', 'metadata-2.bin', 'metadata-3.bin',
-             CAPTURE_MANIFEST}
-    for path in context.get_files_found():
-        if os.path.basename(path) in names and not os.path.isdir(path):
-            groups.setdefault(os.path.dirname(path), {})[os.path.basename(path)] = path
-    for folder, paths in sorted(groups.items()):
-        if CAPTURE_MANIFEST not in paths:
+def _pcrs(protector):
+    """(PCRs, PCR Meaning) for one protector."""
+    if protector.get('pcrs_disagree'):
+        return 'Not read: the two stored PCR lists disagree', ''
+    if protector.get('tpm_unread'):
+        return 'Not read: TPM entry in a layout not decoded', ''
+    pcrs = protector.get('pcrs')
+    if pcrs is None:
+        return '', ''
+    if not pcrs:
+        return 'None', ''
+    return (', '.join(map(str, pcrs)),
+            '; '.join(f'{n}: {_PCR_UEFI.get(n, "Reserved")}' for n in pcrs))
+
+
+def _state(facts):
+    if facts.get('unlocked_by'):
+        return f"Opened with its {facts['unlocked_by']}"
+    return 'Locked' + (f": {facts['why']}" if facts.get('why') else '')
+
+
+def protector_rows(volumes):
+    """One row per key protector of every BitLocker volume among ``volumes`` (the
+    seeker's, as qnxprobe's volumes() lists them); a volume with none gets one row."""
+    rows = []
+    for vol in volumes or ():
+        facts = vol.get('bitlocker')
+        if not facts:
             continue
-        try:
-            with open(paths[CAPTURE_MANIFEST], 'rb') as handle:
-                payload = handle.read(BLOCK_LIMIT + 1)
-            if len(payload) > BLOCK_LIMIT:
-                raise ValueError('range manifest exceeds the size limit')
-            manifest = json.loads(payload)
-            files = {}
-            for name, path in paths.items():
-                if name != CAPTURE_MANIFEST:
-                    with open(path, 'rb') as handle:
-                        files[name] = handle.read(BLOCK_LIMIT + 1)
-                    if len(files[name]) > BLOCK_LIMIT:
-                        raise ValueError('metadata range exceeds the size limit')
-            capture = analyze_capture(manifest, files)
-        except (OSError, ValueError, KeyError, TypeError, UnicodeError) as exc:
-            logfunc(f'BitLocker metadata view {context.get_relative_path(folder)} not read: {exc}')
-            continue
-        source = context.get_relative_path(paths[CAPTURE_MANIFEST]).replace('\\', '/')
-        capture['source'] = source
-        yield capture
-
-
-
-def _policy_fields(policies):
-    profiles, meanings, warnings = [], [], []
-    for number, policy in enumerate(policies, 1):
-        prefix = f"Policy {number}: " if len(policies) > 1 else ''
-        indices = policy['pcrs']
-        profile = ', '.join(map(str, indices))
-        if not profile:
-            profile = ('None selected' if policy['bitmap'] == 0 and
-                       policy['status'] == 'outer and inner PCR bitmaps agree' else 'Not decoded')
-        profiles.append(prefix + profile)
-        meanings.append(prefix + '; '.join(f"{n}: {PCR_MEANINGS.get(n, 'Unknown')}" for n in indices))
-        if policy['status'] != 'outer and inner PCR bitmaps agree':
-            warnings.append(prefix + policy['status'])
-    return ' | '.join(profiles), ' | '.join(meanings), warnings
-
-
-def _protector_groups(capture):
-    groups = {}
-    for block in capture['copies']:
-        if not block['valid']:
-            continue
-        for protector in block['protectors']:
-            policies = protector['policies']
-            policy_key = tuple((p['bitmap'], tuple(p['pcrs']), p['digest'], p['status']) for p in policies)
-            key = (protector['id'], protector['type'], policy_key)
-            if key not in groups:
-                groups[key] = (protector, set())
-            groups[key][1].add(block['number'])
-    return groups.values()
-
-
-def _status(capture, copies):
-    valid = sum(b['valid'] for b in capture['copies'])
-    if valid == 3 and capture['copies_agree']:
-        return 'Validated'
-    observed = 'Copies ' + ', '.join(map(str, sorted(copies)))
-    notes = [observed]
-    if valid < 3:
-        notes.append(f'partial metadata ({valid}/3 valid copies)')
-    if not capture['copies_agree']:
-        notes.append('metadata copies differ')
-    return '; '.join(notes)
+        name = vol.get('name') or vol.get('label') or ''
+        common = (filetime(facts.get('created') or 0), name)
+        tail = (facts.get('description', ''), facts.get('method_name', ''), _state(facts))
+        protectors = facts.get('protectors') or []
+        for protector in protectors:
+            pcrs, meaning = _pcrs(protector)
+            rows.append((filetime(protector.get('modified') or 0),) + common
+                        + (protector['kind'], protector['id'], pcrs, meaning) + tail)
+        if not protectors:
+            rows.append(('',) + common + ('', '', '', '') + tail)
+    return rows
 
 
 @artifact_processor
 def bitlockerKeyProtectors(context):
-    data_headers = ('Image / Volume', 'Key Protector', 'Protector ID', 'PCRs', 'PCR Meaning', 'Status')
-    rows, captures = [], list(_captures(context))
-    for capture in captures:
-        meta = capture['manifest']
-        identity = meta['source_image'] + ' / ' + meta['volume_name']
-        groups = list(_protector_groups(capture))
-        for protector, copies in groups:
-            profiles, meanings, warnings = _policy_fields(protector['policies'])
-            status = '; '.join([_status(capture, copies), *warnings])
-            kind = PROTECTORS.get(protector['type'], f"Unknown (0x{protector['type']:04x})")
-            rows.append((identity, kind, protector['id'], profiles, meanings, status))
-        if not groups:
-            if capture['selected'] is not None:
-                valid = [b['number'] for b in capture['copies'] if b['valid']]
-                status = _status(capture, valid) + '; no VMK protector recorded in validated copies'
-                kind = 'None recorded'
-            else:
-                reason = '; '.join(dict.fromkeys(b['status'] for b in capture['copies']))
-                status = ('Vista metadata is not decoded' if not capture['copies'] else
-                          'No usable metadata copy: ' + reason)
-                kind = 'Not assessed'
-            rows.append((identity, kind, '', '', '', status))
-    return data_headers, rows, '\n'.join(c['source'] for c in captures)
+    data_headers = (('Protector Last Modified', 'datetime'), ('Volume Created', 'datetime'),
+                    'Volume', 'Key Protector', 'Protector ID', 'PCRs', 'PCR Meaning (UEFI)',
+                    'Volume Description', 'Encryption Method', 'Volume State')
+    seeker = context.get_seeker()
+    rows = protector_rows(getattr(seeker, 'volumes', None))
+    source = '\n'.join(getattr(seeker, 'image_paths', None) or ()) if rows else ''
+    return data_headers, rows, source
