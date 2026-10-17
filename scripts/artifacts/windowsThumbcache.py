@@ -24,7 +24,7 @@ except ImportError:
     impacket_ese = None
     ese_rows = None
 
-from scripts.ilapfuncs import artifact_processor, logfunc, check_in_embedded_media
+from scripts.ilapfuncs import artifact_processor, logfunc, check_in_embedded_media, get_sqlite_db_path
 
 _THUMBCACHE_PREFIX = "thumbcache_"
 _WINDOWS_EDB = "windows.edb"
@@ -255,7 +255,7 @@ def _edb_text(value):
 def _db_map(path):
     """Map System.ThumbnailCacheId to (path, name) from Windows.db."""
     result = {}
-    connection = sqlite3.connect(f"file:{path}?mode=ro&immutable=1", uri=True)
+    connection = sqlite3.connect(f"file:{get_sqlite_db_path(path)}?mode=ro&immutable=1", uri=True)
     try:
         cursor = connection.cursor()
         store = cursor.execute(
