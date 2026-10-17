@@ -20,7 +20,7 @@ import tempfile
 from datetime import datetime, timedelta, timezone
 
 from scripts import threema_keystorage
-from scripts.ilapfuncs import logfunc
+from scripts.ilapfuncs import get_sqlite_db_path, logfunc
 
 _RAW_KEY_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 _FILE_ID_RE = re.compile(r"^[0-9a-f]{48}$")
@@ -247,7 +247,7 @@ def open_database(path, files_found):
     """Open one database read-only, decrypting to a temporary copy when needed."""
     if is_plaintext_sqlite(path):
         try:
-            return sqlite3.connect(f"file:{path}?mode=ro", uri=True), "already decrypted"
+            return sqlite3.connect(f"file:{get_sqlite_db_path(path)}?mode=ro", uri=True), "already decrypted"
         except sqlite3.Error as exc:
             return None, f"the decrypted database could not be opened: {exc}"
 
@@ -259,7 +259,7 @@ def open_database(path, files_found):
     cached = _decrypted_cache.get(real)
     if cached and os.path.isfile(cached):
         try:
-            return sqlite3.connect(f"file:{cached}?mode=ro", uri=True), how
+            return sqlite3.connect(f"file:{get_sqlite_db_path(cached)}?mode=ro", uri=True), how
         except sqlite3.Error:
             pass
 
@@ -284,7 +284,7 @@ def open_database(path, files_found):
 
     _decrypted_cache[real] = output
     try:
-        return sqlite3.connect(f"file:{output}?mode=ro", uri=True), how
+        return sqlite3.connect(f"file:{get_sqlite_db_path(output)}?mode=ro", uri=True), how
     except sqlite3.Error as exc:
         return None, f"the decrypted database could not be opened: {exc}"
 

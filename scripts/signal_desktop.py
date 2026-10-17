@@ -56,6 +56,8 @@ import sqlite3
 import tempfile
 from datetime import datetime, timezone
 
+from scripts.ilapfuncs import get_sqlite_db_path
+
 _SAFE_STORAGE_PREFIX = b"v10"
 _SAFE_STORAGE_SALT = b"saltysalt"
 _SAFE_STORAGE_ITERATIONS = 1003
@@ -413,7 +415,7 @@ def open_database(files_found, log=None):
     cached = _decrypted_cache.get(os.path.realpath(database_path))
     if cached:
         try:
-            return sqlite3.connect(f"file:{cached}?mode=ro", uri=True), "decrypted earlier this run"
+            return sqlite3.connect(f"file:{get_sqlite_db_path(cached)}?mode=ro", uri=True), "decrypted earlier this run"
         except sqlite3.Error:
             pass
 
@@ -423,7 +425,7 @@ def open_database(files_found, log=None):
     if is_plaintext_sqlite(database_path):
         explain("the database is already decrypted, so no credential is needed", log)
         try:
-            return (sqlite3.connect(f"file:{database_path}?mode=ro", uri=True),
+            return (sqlite3.connect(f"file:{get_sqlite_db_path(database_path)}?mode=ro", uri=True),
                     "already decrypted before parsing")
         except sqlite3.Error as ex:
             return None, f"the decrypted database could not be opened: {ex}"
@@ -439,7 +441,7 @@ def open_database(files_found, log=None):
 
     _decrypted_cache[os.path.realpath(database_path)] = output_path
     try:
-        return sqlite3.connect(f"file:{output_path}?mode=ro", uri=True), how
+        return sqlite3.connect(f"file:{get_sqlite_db_path(output_path)}?mode=ro", uri=True), how
     except sqlite3.Error as ex:
         return None, f"the decrypted database could not be opened: {ex}"
 

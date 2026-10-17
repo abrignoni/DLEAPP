@@ -15,7 +15,7 @@ import sqlite3
 import struct
 from datetime import datetime, timedelta, timezone
 
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_path, logfunc
 
 _WINDOWS_DB = "windows.db"
 
@@ -133,7 +133,7 @@ def _table_names(cursor):
 
 
 def _read_windows_db(source):
-    connection = sqlite3.connect(f"file:{source}?mode=ro&immutable=1", uri=True)
+    connection = sqlite3.connect(f"file:{get_sqlite_db_path(source)}?mode=ro&immutable=1", uri=True)
     try:
         cursor = connection.cursor()
         store, meta = _table_names(cursor)
