@@ -2,6 +2,7 @@
 
 # pylint: disable=protected-access
 
+import fnmatch
 import pathlib
 import sqlite3
 import sys
@@ -180,6 +181,49 @@ class TestWindowsSystem(unittest.TestCase):
         self.assertEqual(rows[0][3], r"USB\VID_1234&PID_5678\ABC")
         self.assertEqual(rows[0][4], "SUCCESS")
         self.assertEqual(rows[0][5], 1.5)
+        self.assertEqual(rows[0][6], str(log_path))
+        self.assertEqual(len(rows[0]), len(headers))
+
+    def test_setupapi_paths_reach_every_spelling_of_the_folder_and_the_dated_copies(self):
+        patterns = windowsSystem.__artifacts_v2__["setupapiSections"]["paths"]
+        reached = (
+            "root/lba0/Windows/INF/setupapi.dev.log",
+            "root/C/WINDOWS/INF/setupapi.dev.log",
+            "root/p2/Windows/inf/setupapi.dev.log",
+            "root/lba0/Windows/Inf/setupapi.dev.log",
+            "root/p2/Windows/INF/setupapi.dev.20231123_112100.log",
+            "root/p2/Windows/inf/SetupAPI.dev.log",
+        )
+        missed = (
+            "root/p2/Windows/INF/setupapi.setup.log",
+            "root/p2/Windows/INF/setupapi.offline.20170929_064627.log",
+            "root/p2/Windows/INF/setupapi.app.log",
+            "root/p2/Windows/Recent/setupapi.dev.lnk",
+        )
+        for member in reached:
+            self.assertEqual(sum(fnmatch.fnmatchcase(member, p) for p in patterns), 1, member)
+        for member in missed:
+            self.assertFalse(any(fnmatch.fnmatchcase(member, p) for p in patterns), member)
+
+    def test_setupapi_reads_the_dated_copy_and_names_each_rows_file(self):
+        section = """>>>  [Device Install (Hardware initiated) - USB\\VID_1234&PID_5678\\{serial}]
+>>>  Section start 2026/07/2{day} 10:00:00.100
+<<<  Section end 2026/07/2{day} 10:00:01.600
+<<<  [Exit status: SUCCESS]
+"""
+        current = self.tmp_path / "setupapi.dev.log"
+        older = self.tmp_path / "setupapi.dev.20260701_090000.log"
+        other = self.tmp_path / "setupapi.setup.log"
+        current.write_text(section.format(serial="B", day=9), encoding="utf-8")
+        older.write_text(section.format(serial="A", day=1), encoding="utf-8")
+        other.write_text(section.format(serial="C", day=2), encoding="utf-8")
+        _headers, rows, source = windowsSystem.setupapiSections.__wrapped__(
+            _Context([current, other, older])
+        )
+        self.assertEqual([(row[3], row[6]) for row in rows],
+                         [(r"USB\VID_1234&PID_5678\A", str(older)),
+                          (r"USB\VID_1234&PID_5678\B", str(current))])
+        self.assertEqual(source, f"{older}\n{current}")
 
 
 if __name__ == "__main__":

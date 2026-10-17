@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                        "object IDs of the target and its volume.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in a user's Recent folder "
@@ -109,31 +109,72 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 19 rows",
         },
     },
+    "windowsLnkOfficeRecent": {
+        "name": "Office Recent Shell Links (LNK)",
+        "description": "Shell links (.lnk) in a user's Microsoft Office Recent folder, with each target's "
+                       "path, recorded timestamps, size and volume, and the link's tracker block.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-17",
+        "last_update_date": "2026-10-17",
+        "requirements": "none",
+        "category": "Windows",
+        "notes": "Rows from the .lnk shell links in a user's Microsoft Office Recent folder "
+                 "(AppData\\Roaming\\Microsoft\\Office\\Recent in the tested profiles; the pattern matches "
+                 "any path ending Microsoft\\Office\\Recent), read from the files named in Source File. Each row "
+                 "is one shell link. What wrote a given link here, and when, is not established by this artifact; "
+                 "a row does not record who was at the keyboard, and the target may since have been moved or "
+                 "deleted. The columns are read from each link exactly as in Recent Shell Links (LNK), whose notes "
+                 "source each one: Target Modified, Target Created and Target Accessed (UTC) are the times the link "
+                 "records for its target, not when the link was made or used. The folder's index.dat, present on "
+                 "all three images with rows, is not read; its format is not established here. A file named .lnk "
+                 "that does not read as a shell link is counted in the run log and not reported. Tested on "
+                 "cfreds_leakage_win7 (7 rows), lonewolf_win10 (8) and hexordia_mvs2025_win11 (1), one user "
+                 "profile each, each .lnk the image listing holds in the folder giving a row. Arguments was blank "
+                 "on all 16 rows. Drive Type and Drive Serial were filled on 14 of the 16 and blank on the 2 rows "
+                 "of cfreds_leakage_win7 that carry a Network Path; Volume Label was filled on 3. The tracker block "
+                 "columns (Droid Volume ID, Droid File ID, Droid File ID Time (UTC), Droid File ID Node, Birth "
+                 "Droid Volume ID and Birth Droid File ID) were filled on 14 rows and blank on 2 rows of "
+                 "cfreds_leakage_win7 whose links carry no tracker block. Machine ID was filled on 12 of the 14 "
+                 "rows with a tracker block and blank on the 2 with a Network Path. Birth Droid Volume ID and "
+                 "Birth Droid File ID equal Droid Volume ID and Droid File ID on all 14. On lonewolf_win10 Drive "
+                 "Type, Drive Serial, Machine ID, Droid Volume ID and Birth Droid Volume ID each held one value on "
+                 "all 8 rows, and Volume Label and Network Path were blank on all 8; on hexordia_mvs2025_win11 "
+                 "Network Path was blank on its one row.",
+        "paths": ("*/Microsoft/Office/[Rr]ecent/*.[Ll][Nn][Kk]",),
+        "output_types": ["standard"],
+        "artifact_icon": "link",
+        "sample_data": {
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 7 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 8 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 1 row",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (no member matches "
+                                        "the declared paths)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 0 rows (no member matches the "
+                                          "declared paths)",
+        },
+    },
 }
 
 
-@artifact_processor
-def windowsLnkRecent(context):
-    data_headers = (('Target Modified (UTC)', 'datetime'),
-                    ('Target Created (UTC)', 'datetime'),
-                    ('Target Accessed (UTC)', 'datetime'),
-                    'Target Path', 'Target Size (bytes)', 'Drive Type',
-                    'Drive Serial', 'Volume Label', 'Network Path', 'Arguments',
-                    'Machine ID', 'Droid Volume ID', 'Droid File ID',
-                    ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
-                    'Birth Droid Volume ID', 'Birth Droid File ID', 'Source File')
+def _link_rows(context, label):
+    """One row per shell link in files_found, and the staged paths read."""
     data_list = []
     sources = []
-    for source in [str(f) for f in context.get_files_found()
-                   if str(f).lower().endswith(_LNK)]:
+    not_links = 0
+    for source in sorted(str(f) for f in context.get_files_found()
+                         if str(f).lower().endswith(_LNK)):
         relative_source = context.get_relative_path(source)
         try:
             with open(source, 'rb') as handle:
                 parsed = parse_lnk(handle.read())
         except OSError as exc:
-            logfunc(f'Recent Shell Links: could not read {relative_source}: {exc}')
+            logfunc(f'{label}: could not read {relative_source}: {exc}')
             continue
         if parsed.get('error'):
+            not_links += 1
             continue
         data_list.append((
             parsed.get('target_modified', ''),
@@ -149,4 +190,34 @@ def windowsLnkRecent(context):
             parsed.get('machine_id', ''),
         ) + tracker_columns(parsed) + (relative_source,))
         sources.append(source)
+    if not_links:
+        logfunc(f'{label}: {not_links} file(s) named .lnk did not read as a shell link and were not reported')
+    return data_list, sources
+
+
+@artifact_processor
+def windowsLnkRecent(context):
+    data_headers = (('Target Modified (UTC)', 'datetime'),
+                    ('Target Created (UTC)', 'datetime'),
+                    ('Target Accessed (UTC)', 'datetime'),
+                    'Target Path', 'Target Size (bytes)', 'Drive Type',
+                    'Drive Serial', 'Volume Label', 'Network Path', 'Arguments',
+                    'Machine ID', 'Droid Volume ID', 'Droid File ID',
+                    ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
+                    'Birth Droid Volume ID', 'Birth Droid File ID', 'Source File')
+    data_list, sources = _link_rows(context, 'Recent Shell Links')
+    return data_headers, data_list, "\n".join(sources)
+
+
+@artifact_processor
+def windowsLnkOfficeRecent(context):
+    data_headers = (('Target Modified (UTC)', 'datetime'),
+                    ('Target Created (UTC)', 'datetime'),
+                    ('Target Accessed (UTC)', 'datetime'),
+                    'Target Path', 'Target Size (bytes)', 'Drive Type',
+                    'Drive Serial', 'Volume Label', 'Network Path', 'Arguments',
+                    'Machine ID', 'Droid Volume ID', 'Droid File ID',
+                    ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
+                    'Birth Droid Volume ID', 'Birth Droid File ID', 'Source File')
+    data_list, sources = _link_rows(context, 'Office Recent Shell Links')
     return data_headers, data_list, "\n".join(sources)
