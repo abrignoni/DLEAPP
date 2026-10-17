@@ -17,7 +17,8 @@ import sqlite3
 from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, logfunc,
                                open_sqlite_db_readonly)
 from scripts.filetype import guess as guess_type
-from scripts.windows_registry import filetime_utc, user_from_path
+from scripts.windows_app_settings import HIVE_ERRORS, open_settings, package_hives, settings
+from scripts.windows_registry import filetime_utc, key_written_utc, open_key, user_from_path
 
 __artifacts_v2__ = {
     "phoneLinkMessages": {
@@ -88,11 +89,9 @@ __artifacts_v2__ = {
                  "its -wal ignored and gave the same rows; earlier states held in the -wal "
                  "frames are not recovered. Phone Link folders with no LocalCache/Indexed "
                  "databases (only a Settings folder) were found on af_case2_win10, "
-                 "pc_mus_001_win11 and szechuan_win10; Settings/settings.dat, a registry hive "
+                 "pc_mus_001_win11 and szechuan_win10. Settings/settings.dat, a registry hive "
                  "that on the tested image holds a key named for the Device Folder id under "
-                 "LocalState/Devices, is not "
-                 "read, because its values use packaged-app value types this module does not "
-                 "decode.",
+                 "LocalState/Devices, is read by Phone Link Linked Devices.",
         "paths": ('*/AppData/Local/Packages/Microsoft.YourPhone_*/LocalCache/Indexed/*/System/Database/phone.db*',),
         "output_types": "standard",
         "artifact_icon": "message-square",
@@ -296,6 +295,77 @@ __artifacts_v2__ = {
         "artifact_icon": "phone",
         "sample_data": {
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100, Phone Link 1.24101.61.0 | 0 rows (call_history table present, empty)",
+        },
+    },
+    "phoneLinkLinkedDevices": {
+        "name": "Phone Link Linked Devices",
+        "description": "Phones linked to the PC with Phone Link, from the LocalState/Devices "
+                       "key of the app's Settings/settings.dat hive: name, manufacturer, model, the "
+                       "stored OS, SDK and agents version values, account id, network operator, battery, "
+                       "permissions and the times stored for each phone.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-17",
+        "last_update_date": "2026-10-17",
+        "requirements": "none",
+        "category": "Phone Link",
+        "notes": "Reads the LocalState/Devices key of Settings/settings.dat in a user's "
+                 "Packages/Microsoft.YourPhone_* folder, an offline registry hive opened as DLEAPP opens "
+                 "every hive (a dirty hive's .LOG1 and .LOG2 entries are applied first and the run log "
+                 "says so). Its values use packaged-app types, decoded by DLEAPP's own "
+                 "scripts/windows_app_settings.py from the type numbers and composite layout of "
+                 "python-registry's SettingsParse.py (Yogesh Khatri, MIT; "
+                 "https://github.com/williballenthin/python-registry/blob/4edb5d1b72597faf257878060aa68baa9c5b28df/Registry/SettingsParse.py#L38-L165). "
+                 "One row per subkey of Devices that holds values; the Deleted and IdMap subkeys are "
+                 "skipped, and held no values on any tested image. Every such value ends in an eight-byte "
+                 "FILETIME (ogmini's Notepad-State-Library, MIT, "
+                 "https://github.com/ogmini/Notepad-State-Library/blob/ce53f9d66de4551fa78f3cb19df90d7820f08d94/README.md#L298-L307). "
+                 "It is the time the value was stored, not the time of the event the value names: on "
+                 "hexordia_mvs2025_win11, 59 of the 63 values of the device key carry stamps within the same "
+                 "second, and 5 of its 6 DateTime values hold times more than 5 days before their own "
+                 "stamps. Device Key Last Written is the key's last-written time, equal to within a "
+                 "microsecond to the newest value stamp in the key on that image. Device Details Written is "
+                 "the stamp of FriendlyName and Network Operator Written the stamp of NetworkOperator. Last "
+                 "Seen Time, Messages Last Updated Time, Phone Apps Last Updated Time and Media Info Last "
+                 "Updated Time are the DateTime values of those names (LastSeenTime and so on), and Battery "
+                 "Last Updated Time, Battery Percent and Network Operator are values of the device's "
+                 "DeviceInfo subkey; what event each time records is not established. Friendly Name, "
+                 "Manufacturer, Model, OS Version, SDK Version, Agents Version, Package Name, Country ISO "
+                 "and Locale are the values of FriendlyName, Manufacturer, Model, OsVersion, SdkVersion, "
+                 "AgentsVersion, PackageName, CountryIso and Locale as stored. Device ID is the key's name. "
+                 "Checked against the Android image of the same exercise, userb2_a13: Device ID equals "
+                 "the deviceId the phone's Link to Windows app (com.microsoft.appmanager) stores in the JSON "
+                 "of the pref_auth_state_v2 preference in shared_prefs/auth_storage_prefs.xml, Friendly Name "
+                 "equals the displayName in the JSON of the prefs_device_metadata preference of the same "
+                 "folder, and Device ID equals the Device Folder of the other Phone Link artifacts. Default "
+                 "Device is Yes when Device ID equals the DefaultRemoteDevice value of the Devices key. "
+                 "Account ID is the AccountId value; on the tested image it equals the CurrentAccountId "
+                 "value of LocalState/AccountSettings in the same hive, and which account it names is not "
+                 "established here. Permissions lists each value of the device key whose name ends in "
+                 "Permission, as name=value (all 16 on the tested image are Boolean); what each one allows "
+                 "is not established. Not shown: the ten *Capabilities values (nine UInt32 and one "
+                 "Composite, meaning not established), the device's other subkeys (Bluetooth, Contacts, "
+                 "Media and the rest, which held Boolean and integer values or nothing), and the hive's "
+                 "other keys, among them FlightsDataStore, Exp, the YPP.Config.* keys and YppTelemetry, "
+                 "whose values include JSON strings with manufacturer, model, OS version and battery "
+                 "members; none of them is read. The tested image holds one linked phone, so every column "
+                 "held one value; more than one phone in a hive, and an iPhone, are unexercised. A tree "
+                 "holding the tested hive under two home folders, plus a copy below LocalState in a third, "
+                 "gave exactly 2 rows; a copy in a package named Microsoft.YourPhoneDecoy_* is not matched "
+                 "by the paths, and a decoy package reaching the code is covered by the unit tests only.",
+        "paths": ('*/AppData/Local/Packages/Microsoft.YourPhone_*/Settings/settings.dat*',),
+        "output_types": "standard",
+        "artifact_icon": "smartphone",
+        "sample_data": {
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100, Phone Link 1.24101.61.0 | 1 row",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (Devices key holds no phone key)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (3 hives: two Devices keys hold no phone key, one has no Devices key)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (hive has no Devices key)",
+            "lonewolf_win10": "Windows 10 1709 build 16299 | 0 rows (no Microsoft.YourPhone_* folder found)",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (no Microsoft.YourPhone_* folder found)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 build 17763 | 0 rows (no Microsoft.YourPhone_* folder found)",
+            "alihadi_challenge3_win81": "Windows 8.1 build 9600 | 0 rows (no Microsoft.YourPhone_* folder found)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 0 rows (no Microsoft.YourPhone_* folder found)",
+            "cfreds_leakage_win7": "Windows 7 SP1 build 7601 | 0 rows (no Microsoft.YourPhone_* folder found)",
         },
     },
 }
@@ -812,3 +882,118 @@ def phoneLinkCalls(context):
                 device, user, relative,
             ))
     return data_headers, data_list, '\n'.join(sources)
+
+
+# Device keys under LocalState\Devices that hold no phone: the two seen holding none.
+_NOT_DEVICES = {'deleted', 'idmap'}
+
+
+def _stored(values, name):
+    """A decoded setting's value, '' when the value is absent or undecoded."""
+    setting = values.get(name)
+    if setting is None or setting.error:
+        return ''
+    value = setting.value
+    if isinstance(value, bool):
+        return 'True' if value else 'False'
+    return value if value is not None else ''
+
+
+def _written(values, name):
+    """The FILETIME stored at the end of a value, '' when the value is absent."""
+    setting = values.get(name)
+    return setting.written if setting is not None else ''
+
+
+@artifact_processor
+def phoneLinkLinkedDevices(context):
+    data_headers = (
+        ('Device Key Last Written', 'datetime'),
+        ('Last Seen Time (as stored)', 'datetime'),
+        ('Messages Last Updated Time (as stored)', 'datetime'),
+        ('Phone Apps Last Updated Time (as stored)', 'datetime'),
+        ('Media Info Last Updated Time (as stored)', 'datetime'),
+        ('Battery Last Updated Time (as stored)', 'datetime'),
+        ('Device Details Written', 'datetime'),
+        ('Network Operator Written', 'datetime'),
+        'Friendly Name',
+        'Manufacturer',
+        'Model',
+        'OS Version (as stored)',
+        'SDK Version (as stored)',
+        'Agents Version (as stored)',
+        'Package Name',
+        'Default Device',
+        'Account ID (as stored)',
+        'Network Operator',
+        'Battery Percent (as stored)',
+        'Country ISO',
+        'Locale',
+        'Permissions (as stored)',
+        'Device ID',
+        'User',
+        'Source File',
+    )
+    label = 'Phone Link Linked Devices'
+    data_list = []
+    sources = []
+    for path, relative, _package, user in package_hives(context, 'Microsoft.YourPhone'):
+        try:
+            rows = _linked_devices(open_settings(path, context), relative, user, label)
+        except HIVE_ERRORS as ex:
+            logfunc(f'{label}: could not read {relative}: {ex}')
+            continue
+        sources.append(path)
+        data_list.extend(rows)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+def _linked_devices(reg, relative, user, label):
+    """One row per phone key under LocalState\\Devices of one Phone Link settings hive."""
+    devices = open_key(reg, 'LocalState\\Devices')
+    if devices is None:
+        return []
+    default = _stored(settings(devices), 'DefaultRemoteDevice')
+    rows = []
+    for key in devices.subkeys():
+        if key.name().lower() in _NOT_DEVICES:
+            continue
+        values = settings(key)
+        if not values:
+            logfunc(f'{label}: {relative}: Devices\\{key.name()} holds no values; not reported')
+            continue
+        info = settings(open_key(reg, f'LocalState\\Devices\\{key.name()}\\DeviceInfo'))
+        for setting in list(values.values()) + list(info.values()):
+            if setting.error:
+                logfunc(f'{label}: {relative}: {setting.name} not decoded: {setting.error}')
+        permissions = ', '.join(
+            f'{name}={setting.text()}' for name, setting in sorted(values.items())
+            if name.endswith('Permission') and not setting.error)
+        rows.append((
+            key_written_utc(key),
+            _stored(values, 'LastSeenTime'),
+            _stored(values, 'MessagesLastUpdatedTime'),
+            _stored(values, 'PhoneAppsLastUpdatedTime'),
+            _stored(values, 'MediaInfoLastUpdatedTime'),
+            _stored(info, 'BatteryLastUpdatedTime'),
+            _written(values, 'FriendlyName'),
+            _written(info, 'NetworkOperator'),
+            _stored(values, 'FriendlyName'),
+            _stored(values, 'Manufacturer'),
+            _stored(values, 'Model'),
+            _stored(values, 'OsVersion'),
+            _stored(values, 'SdkVersion'),
+            _stored(values, 'AgentsVersion'),
+            _stored(values, 'PackageName'),
+            ('Yes' if key.name().lower() == str(default).lower() else 'No') if default else '',
+            _stored(values, 'AccountId'),
+            _stored(info, 'NetworkOperator'),
+            _stored(info, 'BatteryPercent'),
+            _stored(values, 'CountryIso'),
+            _stored(values, 'Locale'),
+            permissions,
+            key.name(),
+            user,
+            relative,
+        ))
+    return sorted(rows, key=lambda r: r[22])

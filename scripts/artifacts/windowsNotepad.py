@@ -62,10 +62,9 @@ __artifacts_v2__ = {
                  " the 3 chunks of SavedFile-LargeCopyPaste-NotClosed.bin gave the stored text of "
                  "SavedFile-LargeCopyPaste-Closed.bin exactly. The other published pair, "
                  "SavedFile-UnsavedChanges-NotClosed.bin and -Closed.bin, does not match after replay; "
-                 "their timestamps differ, so they are not one capture. Not read: Settings/settings.dat, "
-                 "which Notepad-State-Library describes as holding the recent files list and the last find"
-                 " and replace strings (README.md lines 260 to 347), because its values use packaged-app "
-                 "value types this module does not decode.",
+                 "their timestamps differ, so they are not one capture. Settings/settings.dat, which "
+                 "Notepad-State-Library describes as holding the recent files list and the last find and "
+                 "replace strings (README.md lines 260 to 347), is read by Windows Notepad Settings.",
         "paths": ('*/AppData/Local/Packages/Microsoft.WindowsNotepad_*/LocalState/TabState/*.bin',
                   '*/AppData/Local/Packages/Microsoft.WindowsNotepad_*/LocalState/WindowState/*.bin'),
         "output_types": "standard",
@@ -118,6 +117,58 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 1709 build 16299 | 0 rows (no file matches the declared paths)",
         },
     },
+    "windowsNotepadSettings": {
+        "name": "Windows Notepad Settings",
+        "description": "Settings of Windows 11 Notepad from its Settings/settings.dat hive, one row "
+                       "per stored value with the time stored with it, which can include the recent "
+                       "files list and the last Find and Replace strings when Notepad has stored them "
+                       "(none on the tested images).",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-17",
+        "last_update_date": "2026-10-17",
+        "requirements": "none",
+        "category": "Windows Apps",
+        "notes": "Reads every value of every key in Settings/settings.dat under a user's "
+                 "Packages/Microsoft.WindowsNotepad_* folder, one row per value, from the hive opened and "
+                 "decoded as in Phone Link Linked Devices (scripts/windows_app_settings.py). "
+                 "Notepad-State-Library describes the file as an application hive in which a setting "
+                 "that is absent has not been changed from its default "
+                 "(https://github.com/ogmini/Notepad-State-Library/blob/ce53f9d66de4551fa78f3cb19df90d7820f08d94/README.md#L269), "
+                 "so a missing row is the default in effect, not a record that the feature was unused. "
+                 "Value Written is the FILETIME stored at the end of the value, which the same README "
+                 "describes as the time of the setting's change (lines 298 to 307 and 353); Key Last "
+                 "Written is the key's own last-written time. Free Text (Find or Replace) is Yes for "
+                 "FindString and ReplaceString, which the README describes as the last string searched with "
+                 "Find and the last replacement string (lines 313 and 330): free text typed into Notepad, not a setting Notepad chooses. "
+                 "RecentFiles, the recent files list, most recently closed first (line 327), is shown as "
+                 "stored and not split into files, since the README calls it a CSV array and no tested "
+                 "image holds one to check the separator against. Documented Meaning gives the README's "
+                 "description, with its line, for the 17 names it describes (lines 311 to 347); Value is "
+                 "the decoded value as stored, and Type is the packaged-app type it is stored as. Type "
+                 "0x5F5E104 (Int32) is read as signed, as python-registry reads it; the README lists it as "
+                 "unsigned (line 302). Tested on hexordia_mvs2025_win11 (Notepad package 11.2409.9.0): 9 "
+                 "rows, all in LocalState: six WindowPosition values and three TeachingTip values. That "
+                 "hive holds no FindString, ReplaceString or RecentFiles value, so Free Text (Find or Replace) "
+                 "held no value on any row, and Documented Meaning held no value on any row because the "
+                 "README lists those 9 names without a meaning; Key, Key Last Written and User held one value on "
+                 "every row (one key, one home folder). On pc_mus_001_win11 the hive holds no values (0 rows). The Find, Replace "
+                 "and recent files rows were run only on synthetic hives built for the tests.",
+        "paths": ('*/AppData/Local/Packages/Microsoft.WindowsNotepad_*/Settings/settings.dat*',),
+        "output_types": "standard",
+        "artifact_icon": "settings",
+        "sample_data": {
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100, Notepad 11.2409.9.0 | 9 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (hive holds no values)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no file matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no file matches the declared paths)",
+            "lonewolf_win10": "Windows 10 1709 build 16299 | 0 rows (no file matches the declared paths)",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (no file matches the declared paths)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 build 17763 | 0 rows (no file matches the declared paths)",
+            "alihadi_challenge3_win81": "Windows 8.1 build 9600 | 0 rows (no file matches the declared paths)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 0 rows (no file matches the declared paths)",
+            "cfreds_leakage_win7": "Windows 7 SP1 build 7601 | 0 rows (no file matches the declared paths)",
+        },
+    },
 }
 
 import os
@@ -125,6 +176,7 @@ import re
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_notepad import NotepadError, apply_chunks, parse_tab, parse_window
+from scripts.windows_app_settings import HIVE_ERRORS, keys, open_settings, package_hives, settings
 from scripts.windows_registry import filetime_utc, user_from_path
 
 # README.md, lines 131 and 132 (EncodingType, CarriageReturnType), commit ce53f9d6.
@@ -370,4 +422,78 @@ def windowsNotepadWindows(context):
         'User',
         'Source File',
     )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+# What Notepad-State-Library says each setting holds, by value name (README.md lines 311 to
+# 347, commit ce53f9d6). Names it lists without a description are left out.
+_SETTING_MEANINGS = {
+    'AutoCorrect': ('0 = Off / 1 = On', 311),
+    'FindMatchCase': ('0 = Off / 1 = On; default 0', 312),
+    'FindString': ('the last string searched with Find (free text)', 313),
+    'FindWrapAround': ('0 = Off / 1 = On; default 1', 314),
+    'FormattingEnabled': ('Markdown formatting enabled', 320),
+    'GhostFile': ('0 = open in a new window / 1 = open content from a previous session', 322),
+    'OpenFile': ('0 = new tab / 1 = new window', 325),
+    'RecentFiles': ('the recent files list, most recently closed file first', 327),
+    'RecentFilesEnabled': ('0 = Off / 1 = On', 328),
+    'RecentFilesFirstLoad': ('0 = Off / 1 = On', 329),
+    'ReplaceString': ('the last replacement string (free text)', 330),
+    'RewriteEnabled': ('0 = Off / 1 = On', 331),
+    'RewriteTeachingtip': ('0 = Off / 1 = On', 332),
+    'SpellCheckState': ('spell check state, as JSON', 333),
+    'StatusBarShown': ('0 = Off / 1 = On', 334),
+    'Theme': ('0 = System / 1 = Light / 2 = Dark', 338),
+    'WordWrap': ('0 = Off / 1 = On', 347),
+}
+
+_USER_TEXT = {'FindString', 'ReplaceString'}
+
+
+@artifact_processor
+def windowsNotepadSettings(context):
+    data_headers = (
+        ('Value Written', 'datetime'),
+        ('Key Last Written', 'datetime'),
+        'Setting',
+        'Value',
+        'Free Text (Find or Replace)',
+        'Documented Meaning',
+        'Type',
+        'Key',
+        'User',
+        'Source File',
+    )
+    label = 'Windows Notepad Settings'
+    data_list = []
+    sources = []
+    for path, relative, _package, user in package_hives(context, 'Microsoft.WindowsNotepad'):
+        rows = []
+        try:
+            reg = open_settings(path, context)
+            for key_path, key, key_written in keys(reg):
+                for name, setting in settings(key).items():
+                    if setting.error:
+                        logfunc(f'{label}: {relative}: {key_path}\\{name} not decoded, '
+                                f'reported as stored: {setting.error}')
+                    meaning = _SETTING_MEANINGS.get(name)
+                    rows.append((
+                        setting.written,
+                        key_written,
+                        name,
+                        setting.text(),
+                        'Yes' if name in _USER_TEXT else '',
+                        f'{meaning[0]} (Notepad-State-Library README.md line {meaning[1]})'
+                        if meaning else '',
+                        setting.type_name,
+                        key_path,
+                        user,
+                        relative,
+                    ))
+        except HIVE_ERRORS as ex:
+            logfunc(f'{label}: could not read {relative}: {ex}')
+            continue
+        sources.append(path)
+        rows.sort(key=lambda r: (r[7].lower(), r[2].lower()))
+        data_list.extend(rows)
     return data_headers, data_list, '\n'.join(sources)
