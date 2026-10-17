@@ -1,0 +1,829 @@
+{
+  "reference": "Dissect FVE 0b3caf20c1e95136cb2eb4494303604e7629616b",
+  "inputs": [
+    {
+      "name": "dissect_aes-xts_128",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/aes-xts_128.bin.gz",
+      "packed_sha256": "a7bcfcd31d4ac5db97578f8b4bdf1a601f8f2921676928c81239c2cd650e696c",
+      "expanded_bytes": 51032064,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "19540fda-3072-4554-9ddc-9df7343ef068",
+            "method": 32772,
+            "created_raw": 132781901616144963,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "55faeded-603a-459f-8f6b-325cf781f971",
+                "type": 8192,
+                "modified_raw": 132781901678840000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "19540fda-3072-4554-9ddc-9df7343ef068",
+            "method": 32772,
+            "created_raw": 132781901616144963,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "55faeded-603a-459f-8f6b-325cf781f971",
+                "type": 8192,
+                "modified_raw": 132781901678840000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "19540fda-3072-4554-9ddc-9df7343ef068",
+            "method": 32772,
+            "created_raw": 132781901616144963,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "55faeded-603a-459f-8f6b-325cf781f971",
+                "type": 8192,
+                "modified_raw": 132781901678840000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_aes_128",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/aes_128.bin.gz",
+      "packed_sha256": "da584b3633e23b0b2890d35cf93a6485882d8ec750e130fec24db581a81f654d",
+      "expanded_bytes": 51032064,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "bf4cf543-fdab-4dcd-8409-718f3334c6bd",
+            "method": 32770,
+            "created_raw": 132781901407201660,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "b1ca4ba2-ae7c-447c-8395-a484fc010f1b",
+                "type": 8192,
+                "modified_raw": 132781901474460000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "bf4cf543-fdab-4dcd-8409-718f3334c6bd",
+            "method": 32770,
+            "created_raw": 132781901407201660,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "b1ca4ba2-ae7c-447c-8395-a484fc010f1b",
+                "type": 8192,
+                "modified_raw": 132781901474460000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "bf4cf543-fdab-4dcd-8409-718f3334c6bd",
+            "method": 32770,
+            "created_raw": 132781901407201660,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "b1ca4ba2-ae7c-447c-8395-a484fc010f1b",
+                "type": 8192,
+                "modified_raw": 132781901474460000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_aes_128_diffuser",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/aes_128_diffuser.bin.gz",
+      "packed_sha256": "ccd95bb25086022a45e699800dc74fdb156a727cc6aa85a5be430172d677f137",
+      "expanded_bytes": 55595008,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 34603008,
+            "valid": true,
+            "volume_id": "2210b6bd-080e-4c5c-aa34-123fac7e138a",
+            "method": 32768,
+            "created_raw": 132795640272942488,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "026194ab-364b-4e7a-a692-8eae6db079f9",
+                "type": 8192,
+                "modified_raw": 132795640344700000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 45064192,
+            "valid": true,
+            "volume_id": "2210b6bd-080e-4c5c-aa34-123fac7e138a",
+            "method": 32768,
+            "created_raw": 132795640272942488,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "026194ab-364b-4e7a-a692-8eae6db079f9",
+                "type": 8192,
+                "modified_raw": 132795640344700000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 55529472,
+            "valid": true,
+            "volume_id": "2210b6bd-080e-4c5c-aa34-123fac7e138a",
+            "method": 32768,
+            "created_raw": 132795640272942488,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "026194ab-364b-4e7a-a692-8eae6db079f9",
+                "type": 8192,
+                "modified_raw": 132795640344700000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_aes_256",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/aes_256.bin.gz",
+      "packed_sha256": "607698640373697bb15aa6ca2069d66fe001adcb1ae1637a6edbbfadbf167d36",
+      "expanded_bytes": 51032064,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "5af5f534-3ef9-42fe-8ef3-9dcddd2f46e2",
+            "method": 32771,
+            "created_raw": 132781901505034638,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "82086473-2d67-4a10-82fd-5873db548249",
+                "type": 8192,
+                "modified_raw": 132781901582290000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "5af5f534-3ef9-42fe-8ef3-9dcddd2f46e2",
+            "method": 32771,
+            "created_raw": 132781901505034638,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "82086473-2d67-4a10-82fd-5873db548249",
+                "type": 8192,
+                "modified_raw": 132781901582290000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "5af5f534-3ef9-42fe-8ef3-9dcddd2f46e2",
+            "method": 32771,
+            "created_raw": 132781901505034638,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "82086473-2d67-4a10-82fd-5873db548249",
+                "type": 8192,
+                "modified_raw": 132781901582290000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_aes_256_diffuser",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/aes_256_diffuser.bin.gz",
+      "packed_sha256": "544a0817579a4a3c03f375df62319fc26da0c82d179f8bf69a25a3bce5b4fa07",
+      "expanded_bytes": 55595008,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 34603008,
+            "valid": true,
+            "volume_id": "20c7f7ca-9160-4281-bd7f-292733ecf00d",
+            "method": 32769,
+            "created_raw": 132795640422534411,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "74199f3e-3e65-455c-8c38-aacdab2beb63",
+                "type": 8192,
+                "modified_raw": 132795640497720000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 45064192,
+            "valid": true,
+            "volume_id": "20c7f7ca-9160-4281-bd7f-292733ecf00d",
+            "method": 32769,
+            "created_raw": 132795640422534411,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "74199f3e-3e65-455c-8c38-aacdab2beb63",
+                "type": 8192,
+                "modified_raw": 132795640497720000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 55529472,
+            "valid": true,
+            "volume_id": "20c7f7ca-9160-4281-bd7f-292733ecf00d",
+            "method": 32769,
+            "created_raw": 132795640422534411,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "74199f3e-3e65-455c-8c38-aacdab2beb63",
+                "type": 8192,
+                "modified_raw": 132795640497720000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_decrypted",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/decrypted.bin.gz",
+      "packed_sha256": "28e0e64902adffb917061bdee3ee929bf92e62809fd022b224d2e5359ba869b8",
+      "expanded_bytes": 55344128,
+      "expected": {
+        "layout": "Encrypt-on-Write",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "5990e160-faf6-4ad6-becd-2ced35d2b4d5",
+            "method": 0,
+            "created_raw": 132785294596177841,
+            "current_state": 1,
+            "next_state": 1,
+            "protectors": []
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "5990e160-faf6-4ad6-becd-2ced35d2b4d5",
+            "method": 0,
+            "created_raw": 132785294596177841,
+            "current_state": 1,
+            "next_state": 1,
+            "protectors": []
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "5990e160-faf6-4ad6-becd-2ced35d2b4d5",
+            "method": 0,
+            "created_raw": 132785294596177841,
+            "current_state": 1,
+            "next_state": 1,
+            "protectors": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_eow_partial",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/eow_partial.bin.gz",
+      "packed_sha256": "a6324af56d6f1a269c1cf08dce0edce33e234cd1c10ff51aad77f9bfb9034a3e",
+      "expanded_bytes": 361004032,
+      "expected": {
+        "layout": "Encrypt-on-Write",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "9a1ecf8f-7004-4ca6-b587-33503bf0aa30",
+            "method": 32770,
+            "created_raw": 132785307677315781,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "fd2a5af1-71e3-4729-a771-bc365f0ac9f9",
+                "type": 8192,
+                "modified_raw": 132785307730130000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 155123712,
+            "valid": true,
+            "volume_id": "9a1ecf8f-7004-4ca6-b587-33503bf0aa30",
+            "method": 32770,
+            "created_raw": 132785307677315781,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "fd2a5af1-71e3-4729-a771-bc365f0ac9f9",
+                "type": 8192,
+                "modified_raw": 132785307730130000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 274661376,
+            "valid": true,
+            "volume_id": "9a1ecf8f-7004-4ca6-b587-33503bf0aa30",
+            "method": 32770,
+            "created_raw": 132785307677315781,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "fd2a5af1-71e3-4729-a771-bc365f0ac9f9",
+                "type": 8192,
+                "modified_raw": 132785307730130000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_recovery_key",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/recovery_key.bin.gz",
+      "packed_sha256": "7a15a258753947c55859b0a6c0a837c8bd7f49d242b328f978ec66faffdd9038",
+      "expanded_bytes": 51032064,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "7414ad48-bb37-47b0-8f84-92e29b76db0a",
+            "method": 32772,
+            "created_raw": 132781901904593836,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "99b0081a-60b6-47e4-8482-dea46ee1891d",
+                "type": 512,
+                "modified_raw": 132781901965310000
+              },
+              {
+                "id": "1057e9bd-42bb-4a9c-965e-469e114f6dbd",
+                "type": 8192,
+                "modified_raw": 132781901972460000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "7414ad48-bb37-47b0-8f84-92e29b76db0a",
+            "method": 32772,
+            "created_raw": 132781901904593836,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "99b0081a-60b6-47e4-8482-dea46ee1891d",
+                "type": 512,
+                "modified_raw": 132781901965310000
+              },
+              {
+                "id": "1057e9bd-42bb-4a9c-965e-469e114f6dbd",
+                "type": 8192,
+                "modified_raw": 132781901972460000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "7414ad48-bb37-47b0-8f84-92e29b76db0a",
+            "method": 32772,
+            "created_raw": 132781901904593836,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "99b0081a-60b6-47e4-8482-dea46ee1891d",
+                "type": 512,
+                "modified_raw": 132781901965310000
+              },
+              {
+                "id": "1057e9bd-42bb-4a9c-965e-469e114f6dbd",
+                "type": 8192,
+                "modified_raw": 132781901972460000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_recovery_password",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/recovery_password.bin.gz",
+      "packed_sha256": "9999adc2a6d1c8b0248974236f4d0a0d4fe9be45d77ebab041865289c6eef00e",
+      "expanded_bytes": 51032064,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "8e6909f1-6ba3-49ea-bf8d-ec83fab656cd",
+            "method": 32772,
+            "created_raw": 132781901804512286,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "3c116b76-c67b-484e-b439-ce2ed68b561e",
+                "type": 2048,
+                "modified_raw": 132781901863450000
+              },
+              {
+                "id": "6dd54bcd-633d-4836-9ebc-44fa02f1776d",
+                "type": 8192,
+                "modified_raw": 132781901870240000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "8e6909f1-6ba3-49ea-bf8d-ec83fab656cd",
+            "method": 32772,
+            "created_raw": 132781901804512286,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "3c116b76-c67b-484e-b439-ce2ed68b561e",
+                "type": 2048,
+                "modified_raw": 132781901863450000
+              },
+              {
+                "id": "6dd54bcd-633d-4836-9ebc-44fa02f1776d",
+                "type": 8192,
+                "modified_raw": 132781901870240000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "8e6909f1-6ba3-49ea-bf8d-ec83fab656cd",
+            "method": 32772,
+            "created_raw": 132781901804512286,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "3c116b76-c67b-484e-b439-ce2ed68b561e",
+                "type": 2048,
+                "modified_raw": 132781901863450000
+              },
+              {
+                "id": "6dd54bcd-633d-4836-9ebc-44fa02f1776d",
+                "type": 8192,
+                "modified_raw": 132781901870240000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_startup_key",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/startup_key.bin.gz",
+      "packed_sha256": "877e572bf9b816381c7375bcba55fddeca063a6372cd827faf8fcf84949adb20",
+      "expanded_bytes": 51032064,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "81fb9ffe-0199-47f6-9779-ebf07bd69fc6",
+            "method": 32772,
+            "created_raw": 132781902005896176,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "b3411a58-3400-420a-8b7e-9b5f706425c0",
+                "type": 512,
+                "modified_raw": 132781902061950000
+              },
+              {
+                "id": "ee7a5fdb-3aca-4126-b09b-35873e92dcc8",
+                "type": 8192,
+                "modified_raw": 132781902069380000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "81fb9ffe-0199-47f6-9779-ebf07bd69fc6",
+            "method": 32772,
+            "created_raw": 132781902005896176,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "b3411a58-3400-420a-8b7e-9b5f706425c0",
+                "type": 512,
+                "modified_raw": 132781902061950000
+              },
+              {
+                "id": "ee7a5fdb-3aca-4126-b09b-35873e92dcc8",
+                "type": 8192,
+                "modified_raw": 132781902069380000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "81fb9ffe-0199-47f6-9779-ebf07bd69fc6",
+            "method": 32772,
+            "created_raw": 132781902005896176,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "b3411a58-3400-420a-8b7e-9b5f706425c0",
+                "type": 512,
+                "modified_raw": 132781902061950000
+              },
+              {
+                "id": "ee7a5fdb-3aca-4126-b09b-35873e92dcc8",
+                "type": 8192,
+                "modified_raw": 132781902069380000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_suspended",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/suspended.bin.gz",
+      "packed_sha256": "12defb96fb3f0f2d43382fbac86e25d8788e80044758c8b214f64e176d1840f0",
+      "expanded_bytes": 51032064,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 35586048,
+            "valid": true,
+            "volume_id": "2d07ad36-231d-4ae6-b995-21f7e5fbdc34",
+            "method": 32772,
+            "created_raw": 132795745514760157,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "62472a91-12f9-40d4-81b5-4c1567e40d0e",
+                "type": 0,
+                "modified_raw": 132795745515690000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 43278336,
+            "valid": true,
+            "volume_id": "2d07ad36-231d-4ae6-b995-21f7e5fbdc34",
+            "method": 32772,
+            "created_raw": 132795745514760157,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "62472a91-12f9-40d4-81b5-4c1567e40d0e",
+                "type": 0,
+                "modified_raw": 132795745515690000
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "offset": 50966528,
+            "valid": true,
+            "volume_id": "2d07ad36-231d-4ae6-b995-21f7e5fbdc34",
+            "method": 32772,
+            "created_raw": 132795745514760157,
+            "current_state": 4,
+            "next_state": 4,
+            "protectors": [
+              {
+                "id": "62472a91-12f9-40d4-81b5-4c1567e40d0e",
+                "type": 0,
+                "modified_raw": 132795745515690000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dissect_vista",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/vista.bin.gz",
+      "packed_sha256": "e30c3812d8eec87820e4b0046917955741b4deff9b99c09802313c0b3edc25e9",
+      "expanded_bytes": 22511616,
+      "expected": {
+        "layout": "Windows Vista (not decoded)",
+        "sector_size": 512,
+        "copies": []
+      }
+    },
+    {
+      "name": "dissect_win7_partial",
+      "source": "https://github.com/fox-it/dissect.fve/blob/0b3caf20c1e95136cb2eb4494303604e7629616b/tests/_data/bde/win7_partial.bin.gz",
+      "packed_sha256": "86c249f3a543c31a89efd388c276155ea8abc4726c9ce6888f3539474821f057",
+      "expanded_bytes": 2874839040,
+      "expected": {
+        "layout": "Windows 7 and later",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 48414720,
+            "valid": true,
+            "volume_id": "e52e1db4-e1b9-474b-92f6-a2a33b34491a",
+            "method": 32771,
+            "created_raw": 132793217679619529,
+            "current_state": 3,
+            "next_state": 1,
+            "protectors": [
+              {
+                "id": "6732dbac-3c5f-4e5d-a0cc-a367de2ee3a3",
+                "type": 512,
+                "modified_raw": 132793218300990000
+              },
+              {
+                "id": "8f716353-9c42-4c8e-a3bc-768def089e9d",
+                "type": 2048,
+                "modified_raw": 132793218340930000
+              },
+              {
+                "id": "f705a303-c66a-46bb-acbe-61d73c93d052",
+                "type": 0,
+                "modified_raw": 132795846352940000
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "offset": 2627555328,
+            "valid": false,
+            "reference_error": "InvalidHeaderError"
+          },
+          {
+            "number": 3,
+            "offset": 2874773504,
+            "valid": false,
+            "reference_error": "InvalidHeaderError"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dfvfs_bdetogo",
+      "source": "https://github.com/log2timeline/dfvfs/blob/917cefc9426d6ded2687d2b55164ded25b44fcb7/test_data/bdetogo.raw",
+      "packed_sha256": "ed7982a1f9263e4e54889fea1fa74112d12fea0a0aa7cd8f84fc6f03198ae71b",
+      "expanded_bytes": 67108864,
+      "expected": {
+        "layout": "BitLocker To Go",
+        "sector_size": 512,
+        "copies": [
+          {
+            "number": 1,
+            "offset": 34603008,
+            "valid": false
+          },
+          {
+            "number": 2,
+            "offset": 45438976,
+            "valid": false
+          },
+          {
+            "number": 3,
+            "offset": 56274944,
+            "valid": false
+          }
+        ]
+      },
+      "libbde_reference": {
+        "version": "20260916",
+        "method": 32768,
+        "volume_id": "b1454b16-2fe6-4668-a9fa-ad1e84ba88db",
+        "protectors": [
+          {
+            "id": "035b3bab-3b23-46e0-8a98-7291970802c6",
+            "type": 8192
+          },
+          {
+            "id": "cde2032f-723e-4607-b916-b489b5eb6ab7",
+            "type": 2048
+          }
+        ]
+      }
+    }
+  ]
+}

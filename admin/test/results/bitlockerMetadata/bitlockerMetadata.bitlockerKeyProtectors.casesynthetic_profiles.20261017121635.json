@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "module_name": "bitlockerMetadata",
+    "artifact_name": "BitLocker Key Protectors",
+    "function_name": "bitlockerKeyProtectors",
+    "case_number": "casesynthetic_profiles",
+    "number_of_columns": 6,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 482,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/bitlockerMetadata/testdata.bitlockerMetadata.bitlockerKeyProtectors.casesynthetic_profiles.zip",
+    "start_time": "2026-10-17T12:16:35.111423+00:00",
+    "end_time": "2026-10-17T12:16:35.118715+00:00",
+    "run_time_seconds": 0.0015997886657714844,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-17T12:16:35.114169",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Image / Volume",
+    "Key Protector",
+    "Protector ID",
+    "PCRs",
+    "PCR Meaning",
+    "Status"
+  ],
+  "data": [
+    [
+      "synthetic-a.img / volume-a",
+      "TPM",
+      "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "0, 2, 11",
+      "0: Core firmware code; 2: Additional firmware / UEFI driver code; 11: BitLocker access control",
+      "Validated"
+    ],
+    [
+      "synthetic-a.img / volume-a",
+      "Recovery password",
+      "99999999-8888-7777-6666-555555555555",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "synthetic-b.img / volume-b",
+      "TPM",
+      "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "7, 11",
+      "7: Secure Boot policy; 11: BitLocker access control",
+      "Validated"
+    ],
+    [
+      "synthetic-b.img / volume-b",
+      "Recovery password",
+      "99999999-8888-7777-6666-555555555555",
+      "",
+      "",
+      "Validated"
+    ]
+  ]
+}

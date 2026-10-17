@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "module_name": "bitlockerMetadata",
+    "artifact_name": "BitLocker Key Protectors",
+    "function_name": "bitlockerKeyProtectors",
+    "case_number": "casepublic_reference_matrix",
+    "number_of_columns": 6,
+    "number_of_rows": 19,
+    "total_data_size_bytes": 1722,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/bitlockerMetadata/testdata.bitlockerMetadata.bitlockerKeyProtectors.casepublic_reference_matrix.zip",
+    "start_time": "2026-10-17T12:16:35.128288+00:00",
+    "end_time": "2026-10-17T12:16:35.142145+00:00",
+    "run_time_seconds": 0.003537416458129883,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-17T12:16:35.130428",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Image / Volume",
+    "Key Protector",
+    "Protector ID",
+    "PCRs",
+    "PCR Meaning",
+    "Status"
+  ],
+  "data": [
+    [
+      "dfvfs_bdetogo.img / lba0",
+      "Not assessed",
+      "",
+      "",
+      "",
+      "No usable metadata copy: CRC32 mismatch"
+    ],
+    [
+      "dissect_aes-xts_128.img / lba0",
+      "Password",
+      "55faeded-603a-459f-8f6b-325cf781f971",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_aes_128.img / lba0",
+      "Password",
+      "b1ca4ba2-ae7c-447c-8395-a484fc010f1b",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_aes_128_diffuser.img / lba0",
+      "Password",
+      "026194ab-364b-4e7a-a692-8eae6db079f9",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_aes_256.img / lba0",
+      "Password",
+      "82086473-2d67-4a10-82fd-5873db548249",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_aes_256_diffuser.img / lba0",
+      "Password",
+      "74199f3e-3e65-455c-8c38-aacdab2beb63",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_decrypted.img / lba0",
+      "None recorded",
+      "",
+      "",
+      "",
+      "Validated; no VMK protector recorded in validated copies"
+    ],
+    [
+      "dissect_eow_partial.img / lba0",
+      "Password",
+      "fd2a5af1-71e3-4729-a771-bc365f0ac9f9",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_recovery_key.img / lba0",
+      "External key",
+      "99b0081a-60b6-47e4-8482-dea46ee1891d",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_recovery_key.img / lba0",
+      "Password",
+      "1057e9bd-42bb-4a9c-965e-469e114f6dbd",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_recovery_password.img / lba0",
+      "Recovery password",
+      "3c116b76-c67b-484e-b439-ce2ed68b561e",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_recovery_password.img / lba0",
+      "Password",
+      "6dd54bcd-633d-4836-9ebc-44fa02f1776d",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_startup_key.img / lba0",
+      "External key",
+      "b3411a58-3400-420a-8b7e-9b5f706425c0",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_startup_key.img / lba0",
+      "Password",
+      "ee7a5fdb-3aca-4126-b09b-35873e92dcc8",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_suspended.img / lba0",
+      "Clear key",
+      "62472a91-12f9-40d4-81b5-4c1567e40d0e",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "dissect_vista.img / lba0",
+      "Not assessed",
+      "",
+      "",
+      "",
+      "Vista metadata is not decoded"
+    ],
+    [
+      "dissect_win7_partial.img / lba0",
+      "External key",
+      "6732dbac-3c5f-4e5d-a0cc-a367de2ee3a3",
+      "",
+      "",
+      "Copies 1; partial metadata (1/3 valid copies)"
+    ],
+    [
+      "dissect_win7_partial.img / lba0",
+      "Recovery password",
+      "8f716353-9c42-4c8e-a3bc-768def089e9d",
+      "",
+      "",
+      "Copies 1; partial metadata (1/3 valid copies)"
+    ],
+    [
+      "dissect_win7_partial.img / lba0",
+      "Clear key",
+      "f705a303-c66a-46bb-acbe-61d73c93d052",
+      "",
+      "",
+      "Copies 1; partial metadata (1/3 valid copies)"
+    ]
+  ]
+}

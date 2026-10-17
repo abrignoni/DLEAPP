@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "module_name": "bitlockerMetadata",
+    "artifact_name": "BitLocker Key Protectors",
+    "function_name": "bitlockerKeyProtectors",
+    "case_number": "casepublic_ctf_gteksd",
+    "number_of_columns": 6,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 229,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/bitlockerMetadata/testdata.bitlockerMetadata.bitlockerKeyProtectors.casepublic_ctf_gteksd.zip",
+    "start_time": "2026-10-17T12:16:35.142640+00:00",
+    "end_time": "2026-10-17T12:16:35.147015+00:00",
+    "run_time_seconds": 0.00038886070251464844,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-17T12:16:35.145037",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Image / Volume",
+    "Key Protector",
+    "Protector ID",
+    "PCRs",
+    "PCR Meaning",
+    "Status"
+  ],
+  "data": [
+    [
+      "gteksd.raw / lba128",
+      "Password",
+      "a3b30240-ee37-4467-9042-aabaa422c9a3",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "gteksd.raw / lba128",
+      "Recovery password",
+      "25c1bd5e-9121-4922-83bc-21156661f23a",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "gteksd.raw / lba128",
+      "External key",
+      "e2fe2728-ba8f-4120-bc9d-a029a9d45d63",
+      "",
+      "",
+      "Validated"
+    ]
+  ]
+}

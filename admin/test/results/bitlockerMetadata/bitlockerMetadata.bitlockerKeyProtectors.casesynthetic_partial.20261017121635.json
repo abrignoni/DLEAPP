@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "module_name": "bitlockerMetadata",
+    "artifact_name": "BitLocker Key Protectors",
+    "function_name": "bitlockerKeyProtectors",
+    "case_number": "casesynthetic_partial",
+    "number_of_columns": 6,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 360,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/bitlockerMetadata/testdata.bitlockerMetadata.bitlockerKeyProtectors.casesynthetic_partial.zip",
+    "start_time": "2026-10-17T12:16:35.119246+00:00",
+    "end_time": "2026-10-17T12:16:35.123048+00:00",
+    "run_time_seconds": 0.00025916099548339844,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-17T12:16:35.121698",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Image / Volume",
+    "Key Protector",
+    "Protector ID",
+    "PCRs",
+    "PCR Meaning",
+    "Status"
+  ],
+  "data": [
+    [
+      "synthetic-partial.img / partial-volume",
+      "TPM",
+      "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "0, 2, 11",
+      "0: Core firmware code; 2: Additional firmware / UEFI driver code; 11: BitLocker access control",
+      "Copies 2; partial metadata (1/3 valid copies)"
+    ],
+    [
+      "synthetic-partial.img / partial-volume",
+      "Recovery password",
+      "99999999-8888-7777-6666-555555555555",
+      "",
+      "",
+      "Copies 2; partial metadata (1/3 valid copies)"
+    ]
+  ]
+}

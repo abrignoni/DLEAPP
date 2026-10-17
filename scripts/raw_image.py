@@ -1434,6 +1434,16 @@ class _LogicalReader:
                 times.get('modified', times.get('wr', 0)) or 0)
 
 
+class _MetadataBytes:
+    """Byte-preserving range captures, read only when a metadata pattern asks."""
+
+    def __init__(self, files):
+        self.files = files
+
+    def read_file(self, node, size):
+        yield self.files[node][:size]
+
+
 class FileSeekerRaw(FileSeekerBase):
     """Search a raw disk image or an acquisition and stage the files that match.
 
@@ -1505,6 +1515,10 @@ class FileSeekerRaw(FileSeekerBase):
         self.stream_list = []
         self.index_list = []
         self.free_list = []
+        # Generated provenance plus exact source ranges. Kept apart from files:
+        # a broad file glob must never turn a physical metadata view into a file.
+        self.metadata_list = None
+        self._metadata_sources = []
         self.volumes = []
         self._free = {}
         # deleted files a reader can recover, listed on the first pattern that asks
@@ -1728,6 +1742,10 @@ class FileSeekerRaw(FileSeekerBase):
             volumes = [_as_read_here(vol, prefix, covers, spans or {}, groups)
                        for vol in volumes]
         self.volumes += volumes
+        for bitlocker in _found:
+            volume = next((v for v in volumes if v.get('base') == bitlocker.base), None)
+            if volume is not None and not _read_elsewhere(volume, covers, spans or {}):
+                self._metadata_sources.append((bitlocker, size, image_name, volume['name']))
         if not volumes:
             logfunc('  no partition table and no filesystem the reader knows: '
                     'nothing to search')
@@ -2032,6 +2050,26 @@ class FileSeekerRaw(FileSeekerBase):
 
     # ---- searching and staging ----------------------------------------------
 
+    def _list_bitlocker_metadata(self):
+        """Expose exact BitLocker ranges even when their volume has no walker."""
+        from scripts.bitlocker_metadata import capture_ranges  # pylint: disable=import-outside-toplevel
+
+        self.metadata_list = []
+        for bitlocker, image_size, image_name, volume_name in self._metadata_sources:
+            try:
+                files = capture_ranges(
+                    lambda offset, length, source=bitlocker.fh:
+                    qnxprobe.read_at(source, offset, length),
+                    bitlocker.base, bitlocker.size, image_size, image_name, volume_name)
+            except (OSError, ValueError, OverflowError) as exc:
+                logfunc(f'  BitLocker metadata of {volume_name} not captured: {exc}')
+                continue
+            reader = _MetadataBytes(files)
+            for name, data in files.items():
+                member = f'{volume_name}/$BitLocker/{name}'
+                self.metadata_list.append(member)
+                self._entries[member] = _Entry(reader, name, len(data), 0)
+
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
@@ -2046,6 +2084,12 @@ class FileSeekerRaw(FileSeekerBase):
             members = members + self.index_list
         if self.free_list and names_free_space(filepattern):
             members = members + self.free_list
+        # Like $Unallocated and $Deleted, metadata is opt-in. These members are
+        # views of volume bytes, not files found in the encrypted filesystem.
+        if '/$bitlocker/' in filepattern.replace('\\', '/').lower():
+            if self.metadata_list is None:
+                self._list_bitlocker_metadata()
+            members = members + self.metadata_list
         if names_deleted(filepattern):
             if self.deleted_list is None:
                 self._list_deleted()
