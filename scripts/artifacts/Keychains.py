@@ -112,7 +112,7 @@ __artifacts_v2__ = {
                        "run.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-10-12",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Keychains (macOS)",
         "notes": "acct/svce/labl are reported as-is: plaintext when SQLite "
@@ -131,9 +131,18 @@ __artifacts_v2__ = {
                  "keychain-2.db rows are reported here. "
                  "When an extraction holds the same keychain file at its own path and "
                  "again under System/Volumes/Data or System/Volumes/Update/mnt1, a record both "
-                 "copies hold is reported once, with both files in Source File.",
+                 "copies hold is reported once, with both files in Source File. "
+                 "keychain-2.db is read together with its -wal write-ahead log when the "
+                 "extraction holds one, so items are reported as last committed. Compared "
+                 "with the database file read alone, 16 of 327 reported rows on "
+                 "dleapp_macos_bigsur carry a different Modified time (13 of them a different "
+                 "Created time too), 13 of 306 on magnet2021_macos_bigsur and 19 of 397 on "
+                 "evidencelocker_macos14, where 2 items appear only with the log. On mvs2026_macbookpro_macos15, whose two copies of the "
+                 "file carry logs of different sizes, fewer records are identical in both "
+                 "copies once the logs are applied (475 reported once for both, against 488), "
+                 "and the artifact reports 517 rows rather than 504.",
         "paths": (
-            "*/Library/Keychains/*/keychain-2.db",
+            "*/Library/Keychains/*/keychain-2.db*",
             "*/Library/Keychains/*.keychain-db",
             "*/Library/Keychains/System.keychain",
         ),

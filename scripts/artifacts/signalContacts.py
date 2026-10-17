@@ -7,14 +7,18 @@ __artifacts_v2__ = {
                        "messages recovered and the span they cover.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-10-17",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "A conversation exists here once Signal has learned of the "
                  "account, which includes accounts that were never messaged "
-                 "from this device. The message count distinguishes those.",
+                 "from this device. The message count distinguishes those." " db.sqlite-wal is staged with the database and the frames up to its last "
+                 "commit marker are decrypted over it, so that records committed only to the write-ahead log "
+                 "can be read. That replay is in the code but has not been exercised on any "
+                 "sample available to the author: none holds both a log and the credential "
+                 "that opens it.",
         "paths": (
-            '*/Signal*/sql/db.sqlite',
+            '*/Signal*/sql/db.sqlite*',
             '*/Signal*/config.json',
             '*/signal_password.txt',
             '*/signal-keychain.txt',
@@ -33,7 +37,7 @@ __artifacts_v2__ = {
                        "direction, how it ended and when.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-17",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "Signal Desktop records calls it observed. A call placed or "
@@ -42,9 +46,13 @@ __artifacts_v2__ = {
                  "Start To End (s) is the difference between the row's start "
                  "and end timestamps. It is reported for every row, including "
                  "missed, declined and unanswered outcomes, so it is not by "
-                 "itself the length of a connected call.",
+                 "itself the length of a connected call." " db.sqlite-wal is staged with the database and the frames up to its last "
+                 "commit marker are decrypted over it, so that records committed only to the write-ahead log "
+                 "can be read. That replay is in the code but has not been exercised on any "
+                 "sample available to the author: none holds both a log and the credential "
+                 "that opens it.",
         "paths": (
-            '*/Signal*/sql/db.sqlite',
+            '*/Signal*/sql/db.sqlite*',
             '*/Signal*/config.json',
             '*/signal_password.txt',
             '*/signal-keychain.txt',
@@ -66,14 +74,18 @@ __artifacts_v2__ = {
                        "record.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-17",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "These records show cryptographic contact at the protocol "
                  "level, which can name accounts that no longer appear in any "
-                 "message. Key material itself is not reported.",
+                 "message. Key material itself is not reported." " db.sqlite-wal is staged with the database and the frames up to its last "
+                 "commit marker are decrypted over it, so that records committed only to the write-ahead log "
+                 "can be read. That replay is in the code but has not been exercised on any "
+                 "sample available to the author: none holds both a log and the credential "
+                 "that opens it.",
         "paths": (
-            '*/Signal*/sql/db.sqlite',
+            '*/Signal*/sql/db.sqlite*',
             '*/Signal*/config.json',
             '*/signal_password.txt',
             '*/signal-keychain.txt',
