@@ -1,12 +1,12 @@
-"""Windows special privilege, group enumeration and Credential Manager event parser for DLEAPP.
+"""Windows special privilege, group enumeration, Credential Manager and vault event parser for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
-Reads four Microsoft-Windows-Security-Auditing events of the Security event log:
+Reads six Microsoft-Windows-Security-Auditing events of the Security event log:
 4672 (special privileges assigned to new logon), 4798 (a user's local group
 membership was enumerated), 4799 (a security-enabled local group membership was
-enumerated) and 5379 (Credential Manager credentials were read). The three
-artifacts share one read of the log. A 5379 stores its read operation as a
+enumerated), 5379 (Credential Manager credentials were read) and 5381 and 5382
+(vault credentials were read). The four artifacts share one read of the log. A 5379 stores its read operation as a
 parameter reference (%%n); it is given the text of that message from the English
 (en-US) msobjs.dll.mui on the log's own volume (_ParameterText), and is reported
 as stored when that file is not there. Event IDs, field names and message text
@@ -31,7 +31,12 @@ _ENUMERATIONS = {
     '4798': "A user's local group membership was enumerated",
     '4799': 'A security-enabled local group membership was enumerated',
 }
-_EVENT_IDS = {_PRIVILEGES, _READS, *_ENUMERATIONS}
+# The first sentence of each event's message, which the two share, and its last, which tells them apart (see notes).
+_VAULT = {
+    '5381': 'Vault credentials were read: a user enumerates stored vault credentials',
+    '5382': 'Vault credentials were read: a user reads a stored vault credential',
+}
+_EVENT_IDS = {_PRIVILEGES, _READS, *_ENUMERATIONS, *_VAULT}
 
 __artifacts_v2__ = {
     "specialPrivilegeLogons": {
@@ -263,6 +268,85 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 594 rows",
         },
     },
+    "vaultCredentialReads": {
+        "name": "Vault Credential Reads",
+        "description": "Reads and enumerations of stored vault credentials recorded in the Security event log, "
+                       "Event IDs 5381 and 5382: the vault schema, resource and identity, the return code and the "
+                       "client process the record stores.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-17",
+        "last_update_date": "2026-10-17",
+        "requirements": "python-evtx",
+        "category": "Windows",
+        "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
+                 "Microsoft-Windows-Security-Auditing event 5381 or 5382 is one row. The provider's message for "
+                 "both begins 'Vault credentials were read.' and names the account; it ends 'This event occurs "
+                 "when a user enumerates stored vault credentials.' for 5381 and 'This event occurs when a user "
+                 "reads a stored vault credential.' for 5382 (Microsoft-Windows-Security-Auditing manifest as "
+                 "registered on Windows 11 build 22621.819, published in nasbench's EVTX-ETW-Resources repository: "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Security-Auditing.xml#L13099-L13159). "
+                 "The Event column is that first sentence followed by the last, shortened. The manifests of "
+                 "Windows 10 builds 17763.107 and 19041.208 in that repository give the same messages and fields; "
+                 "the manifest of build 16299.125 has neither event, and the log of lonewolf_win10, build 16299, "
+                 "holds neither. Only that provider and these Event IDs are read. No Microsoft page describing "
+                 "either event or its fields was found, so the fields the message does not show are reported as "
+                 "stored. Schema Name, Schema, Resource, Identity and Package SID are the "
+                 "record's SchemaFriendlyName, Schema, Resource, Identity and PackageSid, which only 5382 stores; "
+                 "Flags (as stored) is Flags, which both store; Credentials Returned is CountOfCredentialsReturned, "
+                 "which only 5381 stores; Return Code (as stored) is ReturnCode, which only 5382 stores; and Client "
+                 "Process ID is ClientProcessId. Process Creation Time (UTC) is ProcessCreationTime, which the "
+                 "manifest types as a FILETIME and python-evtx renders as it does the event's own time; it was not "
+                 "later than Event Time (UTC) on any tested row. Account Name, Account Domain, Account SID and "
+                 "Logon ID are the record's SubjectUserName, SubjectDomainName, SubjectUserSid and SubjectLogonId, "
+                 "as stored with leading and trailing whitespace removed, as are the other fields. Record ID is the record's EventRecordID and Computer the machine name the record "
+                 "stores. The figures below are measurements. The tested logs give 7, 7, 93 and 16 rows on "
+                 "af_case2_win10, hexordia_mvs2025_win11, pc_mus_001_win11 and szechuan_win10, and 31 on "
+                 "windows11_arm_4688_known, the Security log of a Windows 11 build 26200 ARM64 virtual machine "
+                 "exported on 30 September 2026: 144 rows of 5382 and 10 of 5381, the 5381 rows on af_case2_win10 "
+                 "(4) and pc_mus_001_win11 (6). Schema Name held two distinct values across the 5382 rows, and "
+                 "Schema, Resource and Identity were filled on every 5382 row and blank on every 5381 row. Package "
+                 "SID was blank on every tested row and Flags (as stored) was 0 on every tested row. Credentials "
+                 "Returned was blank on every 5382 row and 0 on 8 and 1 on 2 of the 5381 rows. Return Code (as "
+                 "stored) was 1168 on 122 of the 5382 rows and 0 on 22, all 22 on windows11_arm_4688_known. "
+                 "Account SID is S-1-5-18 on 120 rows and a SID beginning S-1-5-21 on 34. On "
+                 "hexordia_mvs2025_win11 the 7 rows differ only in Event Time (UTC) and Record ID, and on "
+                 "szechuan_win10 the 16 rows hold one Schema Name, Schema, Resource and Return Code (as stored) "
+                 "and Account SID S-1-5-18. Computer held one value on every row of af_case2_win10, "
+                 "pc_mus_001_win11 and windows11_arm_4688_known. The Security logs of alihadi_challenge3_win81, "
+                 "alihadi_threatsim_server2019, cfreds_leakage_win7, lonewolf_win10, ou_ransomware_server2022, "
+                 "szechuan_dc01_server2012r2 and windows11_arm_known_20261001 hold neither event. A row records "
+                 "that a process read or listed stored vault credentials under the named account; the record does "
+                 "not hold the credential, and this artifact does not treat a row as proof of what the process did "
+                 "with it. A record python-evtx cannot render, or whose XML does not parse, is counted in the run "
+                 "log and not reported; every record of the tested logs rendered. A log marked dirty is read past "
+                 "the chunks its header counts, and the run log says how many records came from there when it "
+                 "finds any. Reading "
+                 "needs the python-evtx package (pip install python-evtx).",
+        "paths": ('*/Windows/System32/winevt/Logs/Security.evtx',),
+        "output_types": ["standard"],
+        "artifact_icon": "key",
+        "sample_data": {
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 31 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (the matched files held nothing this "
+                                            "artifact reports)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 93 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 7 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (the matched files held nothing this "
+                              "artifact reports)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 16 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 7 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched files held "
+                                        "nothing this artifact reports)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched files "
+                                            "held nothing this artifact reports)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched files held nothing "
+                                   "this artifact reports)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the matched files held "
+                                        "nothing this artifact reports)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 0 rows (the matched files held "
+                                          "nothing this artifact reports)",
+        },
+    },
 }
 
 _read = {}
@@ -274,9 +358,9 @@ def _security_logs(context):
 
 
 def access_records(context):
-    """The 4672, 4798, 4799 and 5379 records of every Security log found, and the logs read.
+    """The 4672, 4798, 4799, 5379, 5381 and 5382 records of every Security log found, and the logs read.
 
-    The module's three artifacts are given the same staged logs one after the other, so
+    The module's four artifacts are given the same staged logs one after the other, so
     the logs are read once and the result is kept while their paths, sizes and
     modification times stay the same.
     """
@@ -382,6 +466,14 @@ def read_row(record, parameters):
             record.get('ClientProcessId'), *_subject(record), record.record_id, record.computer)
 
 
+def vault_row(record):
+    return (record.time, utc_from_system_time(record.get('ProcessCreationTime')), record.event_id,
+            _VAULT[record.event_id], record.get('SchemaFriendlyName'), record.get('Schema'), record.get('Resource'),
+            record.get('Identity'), record.get('PackageSid'), record.get('Flags'),
+            record.get('CountOfCredentialsReturned'), record.get('ReturnCode'), record.get('ClientProcessId'),
+            *_subject(record), record.record_id, record.computer)
+
+
 @artifact_processor
 def specialPrivilegeLogons(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Account Name', 'Account Domain',
@@ -424,3 +516,25 @@ def credentialManagerReads(context):
         logfunc(f'Credential Manager Reads: {unread} record(s) store a process creation time that '
                 'could not be read as a time; the column is blank on those rows')
     return data_headers, data_list, '\n'.join(list(sources) + parameters.files_used())
+
+
+@artifact_processor
+def vaultCredentialReads(context):
+    data_headers = (('Event Time (UTC)', 'datetime'), ('Process Creation Time (UTC)', 'datetime'), 'Event ID',
+                    'Event', 'Schema Name', 'Schema', 'Resource', 'Identity', 'Package SID', 'Flags (as stored)',
+                    'Credentials Returned', 'Return Code (as stored)', 'Client Process ID', 'Account Name',
+                    'Account Domain', 'Account SID', 'Logon ID', 'Record ID', 'Computer')
+    records, sources = access_records(context)
+    data_list = []
+    unread = 0
+    for record in records:
+        if record.event_id not in _VAULT:
+            continue
+        row = vault_row(record)
+        if record.get('ProcessCreationTime') and row[1] == '':
+            unread += 1
+        data_list.append(row)
+    if unread:
+        logfunc(f'Vault Credential Reads: {unread} record(s) store a process creation time that could not be read '
+                'as a time; the column is blank on those rows')
+    return data_headers, data_list, '\n'.join(sources)
