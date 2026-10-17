@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "launch keys each one sets.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Persistence (macOS)",
         "notes": "Reads the property lists in every Library/LaunchAgents and "
@@ -22,9 +22,7 @@ __artifacts_v2__ = {
                  "Daemon when the path names a folder under Users or /private/var/root, and "
                  "System Agent or System Daemon otherwise. Files under /System/Library or "
                  "/Library/Apple are counted in the run log and not reported; the run log "
-                 "counted 72 on dleapp_macos_bigsur, where 617 more files in those folders could "
-                 "not be staged from the image because they are compressed with a method the "
-                 "image reader does not read, and the run log names each one. Label, Program, "
+                 "counted 689 on dleapp_macos_bigsur. Label, Program, "
                  "Program Arguments, Run At Load, Keep Alive, "
                  "Disabled, Start Interval and User Name are the file's Label, Program, "
                  "ProgramArguments, RunAtLoad, KeepAlive, Disabled, StartInterval and UserName keys, "

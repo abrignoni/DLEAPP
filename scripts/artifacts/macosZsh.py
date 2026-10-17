@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "beside each, with which copy zsh would select.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-24",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Persistence (macOS)",
         "notes": (
@@ -50,10 +50,9 @@ __artifacts_v2__ = {
             "from the compiled copy's header; zcompile stores the name exactly as it was given, "
             "so an entry name can be a bare file name or a full path on the machine that compiled "
             "it. On zsh_known_data_macos Scope is Home folder and User is dleapp on all 18 rows, "
-            "because each case is one home folder. On dleapp_macos_bigsur the one row is "
-            "/etc/zprofile, plaintext with no compiled copy; /etc/zshrc was not staged because "
-            "the image reader does not read its LZFSE compression, which the run log names, and "
-            "the image holds no user startup file and no .zwc, so Compiled Copy Modified, "
+            "because each case is one home folder. On dleapp_macos_bigsur the two rows are "
+            "/etc/zprofile and /etc/zshrc, plaintext with no compiled copy, and "
+            "no user startup file and no .zwc matched in the image, so Compiled Copy Modified, "
             "Compiled By zsh, Compiled Entry Names, Compiled Copy Size, Compiled Copy Path and "
             "User are empty there."),
         "paths": ('*/.zshenv', '*/.zshenv.zwc', '*/.zprofile', '*/.zprofile.zwc', '*/.zshrc',
@@ -65,7 +64,7 @@ __artifacts_v2__ = {
         "artifact_icon": "terminal",
         "sample_data": {
             "zsh_known_data_macos": "zsh 5.9 known data (synthetic) | 18 rows",
-            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 1 row",
+            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 2 rows",
         },
     },
     "macosZshCompiledFiles": {
