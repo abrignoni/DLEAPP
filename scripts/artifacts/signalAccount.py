@@ -9,7 +9,7 @@ __artifacts_v2__ = {
                        "device record.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-12",
+        "last_update_date": "2026-10-17",
         "requirements": "PyCryptodome; the Signal database credential for the "
                         "account fields",
         "category": "Signal (macOS)",
@@ -20,9 +20,13 @@ __artifacts_v2__ = {
                  "when no credential is available. When an extraction holds the same "
                  "file at its own path and again under System/Volumes/Data or "
                  "System/Volumes/Update/mnt1, a value both copies hold is reported once, "
-                 "with both files in Source File.",
+                 "with both files in Source File." " db.sqlite-wal is staged with the database and the frames up to its last "
+                 "commit marker are decrypted over it, so that records committed only to the write-ahead log "
+                 "can be read. That replay is in the code but has not been exercised on any "
+                 "sample available to the author: none holds both a log and the credential "
+                 "that opens it.",
         "paths": (
-            '*/Signal*/sql/db.sqlite',
+            '*/Signal*/sql/db.sqlite*',
             '*/Signal*/config.json',
             '*/Signal*/ephemeral.json',
             '*/Signal*/Preferences',

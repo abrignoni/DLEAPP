@@ -9,16 +9,20 @@ __artifacts_v2__ = {
                        "decrypt are embedded against their message.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-10-17",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "Message bodies come from the messages table. A row with an "
                  "empty body is not necessarily an empty message: it may be a "
                  "view-once message that was opened, a message whose body was "
                  "erased, or an event such as a key change. The message type is "
-                 "reported so those cases are distinguishable.",
+                 "reported so those cases are distinguishable." " db.sqlite-wal is staged with the database and the frames up to its last "
+                 "commit marker are decrypted over it, so that records committed only to the write-ahead log "
+                 "can be read. That replay is in the code but has not been exercised on any "
+                 "sample available to the author: none holds both a log and the credential "
+                 "that opens it.",
         "paths": (
-            '*/Signal*/sql/db.sqlite',
+            '*/Signal*/sql/db.sqlite*',
             '*/Signal*/config.json',
             '*/Signal*/attachments.noindex/*/*',
             '*/signal_password.txt',
@@ -53,7 +57,7 @@ __artifacts_v2__ = {
                        "recorded one, its SHA-256.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-17",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "The stored plaintext is longer than the recorded size, so it "
@@ -64,9 +68,13 @@ __artifacts_v2__ = {
                  "apart here (no attachments folder, no key or no path in the "
                  "database, or the file absent from disk); every other failure "
                  "is reported as 'Could not decrypt' rather than asserting a "
-                 "single cause for all of them.",
+                 "single cause for all of them." " db.sqlite-wal is staged with the database and the frames up to its last "
+                 "commit marker are decrypted over it, so that records committed only to the write-ahead log "
+                 "can be read. That replay is in the code but has not been exercised on any "
+                 "sample available to the author: none holds both a log and the credential "
+                 "that opens it.",
         "paths": (
-            '*/Signal*/sql/db.sqlite',
+            '*/Signal*/sql/db.sqlite*',
             '*/Signal*/config.json',
             '*/Signal*/attachments.noindex/*/*',
             '*/signal_password.txt',
@@ -85,13 +93,17 @@ __artifacts_v2__ = {
                        "account that sent each one and the message it targets.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-10-17",
         "requirements": "PyCryptodome; the Signal database credential",
         "category": "Signal (macOS)",
         "notes": "A reaction is stored separately from the message it targets, "
-                 "so it survives here even where the message body is empty.",
+                 "so it survives here even where the message body is empty." " db.sqlite-wal is staged with the database and the frames up to its last "
+                 "commit marker are decrypted over it, so that records committed only to the write-ahead log "
+                 "can be read. That replay is in the code but has not been exercised on any "
+                 "sample available to the author: none holds both a log and the credential "
+                 "that opens it.",
         "paths": (
-            '*/Signal*/sql/db.sqlite',
+            '*/Signal*/sql/db.sqlite*',
             '*/Signal*/config.json',
             '*/signal_password.txt',
             '*/signal-keychain.txt',
