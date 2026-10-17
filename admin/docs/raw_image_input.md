@@ -278,7 +278,9 @@ names the method and what opened it (`[BitLocker AES-256-CBC, unlocked with its
 recovery password]`); one they do not open is listed with the reason and what would
 open it, and nothing in it is searched. A volume that keeps a clear key (protection
 suspended) opens with nothing given. A Vista-era volume, the diffuser and a TPM-only
-volume are named as not read. Measured on five volumes Windows 11 encrypted
+volume are named as not read. Locked or opened, each BitLocker volume's key protectors,
+with the PCRs a TPM protector is sealed to as stored, are reported by the BitLocker Key
+Protectors artifact (from qnxprobe 1.73). Measured on five volumes Windows 11 encrypted
 (NTFS, FAT32 and exFAT, in fixed VHDs): every file Windows hashed before encrypting
 staged with that hash, opened with a startup key, a recovery password, a password and
 a clear key.
