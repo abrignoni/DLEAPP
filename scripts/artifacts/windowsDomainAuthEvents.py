@@ -297,13 +297,14 @@ __artifacts_v2__ = {
                  'address on the other 1,172. Every tested record of these four events is event version 0. Microsoft notes '
                  'that Windows Server 2016 and later show an updated 4768 and 4769 after the January 2025 security update, '
                  'with more fields (the encryption types supported and the keys available for the account, the service and '
-                 'the domain controller); those fields are not reported, and no tested log holds such a record. A row '
-                 'records what the domain controller logged for the request; it does not show that the ticket was then '
-                 'presented to the named service. The Security logs of af_case2_win10, alihadi_challenge3_win81, '
-                 'alihadi_threatsim_server2019, cfreds_leakage_win7, hexordia_mvs2025_win11, lonewolf_win10, '
-                 'pc_mus_001_win11, szechuan_win10, windows11_arm_4688_known, windows11_arm_known_20261001 and '
-                 'windows11_arm_winlogon_known_20261004 hold none of these events. A record python-evtx cannot render, or '
-                 'whose XML does not parse, is counted in the run log and not reported; every record of the tested logs '
+                 'the domain controller); those fields are not reported, and no tested log holds such a record. Result '
+                 'Code held one value on every row of szechuan_dc01_server2012r2. Computer held one value on every row of '
+                 'ou_ransomware_server2022. A row records what the domain controller logged for the request; it does not '
+                 'show that the ticket was then presented to the named service. The Security logs of af_case2_win10, '
+                 'alihadi_challenge3_win81, alihadi_threatsim_server2019, cfreds_leakage_win7, hexordia_mvs2025_win11, '
+                 'lonewolf_win10, pc_mus_001_win11, szechuan_win10, windows11_arm_4688_known, windows11_arm_known_20261001 '
+                 'and windows11_arm_winlogon_known_20261004 hold none of these events. A record python-evtx cannot render, '
+                 'or whose XML does not parse, is counted in the run log and not reported; every record of the tested logs '
                  'rendered. A log marked dirty is read past the chunks its header counts, and the run log says how many '
                  'records came from there; the Security log of szechuan_dc01_server2012r2 is marked dirty and 2,414 of its '
                  '8,574 records come from those chunks. Reading needs the python-evtx package (pip install python-evtx).',
@@ -358,14 +359,15 @@ __artifacts_v2__ = {
                  'row of the two servers; on the sample logs 5 rows hold 0x00000000 and 5 hold 0xc0000064, which the table '
                  'describes as a bad user name. Authentication Package held MICROSOFT_AUTHENTICATION_PACKAGE_V1_0 on every '
                  "row, the value Microsoft's page gives for this event. Source Workstation was blank on 1 row of the "
-                 'sample logs. The Security logs of af_case2_win10, alihadi_challenge3_win81, '
-                 'alihadi_threatsim_server2019, cfreds_leakage_win7, hexordia_mvs2025_win11, lonewolf_win10, '
-                 'pc_mus_001_win11, szechuan_win10, windows11_arm_4688_known, windows11_arm_known_20261001 and '
-                 'windows11_arm_winlogon_known_20261004 hold none of these events. A record python-evtx cannot render, or '
-                 'whose XML does not parse, is counted in the run log and not reported; every record of the tested logs '
-                 'rendered. A log marked dirty is read past the chunks its header counts, and the run log says how many '
-                 'records came from there; the Security log of szechuan_dc01_server2012r2 is marked dirty and 2,414 of its '
-                 '8,574 records come from those chunks. Reading needs the python-evtx package (pip install python-evtx).',
+                 'sample logs. Computer held one value on every row of ou_ransomware_server2022. The Security logs of '
+                 'af_case2_win10, alihadi_challenge3_win81, alihadi_threatsim_server2019, cfreds_leakage_win7, '
+                 'hexordia_mvs2025_win11, lonewolf_win10, pc_mus_001_win11, szechuan_win10, windows11_arm_4688_known, '
+                 'windows11_arm_known_20261001 and windows11_arm_winlogon_known_20261004 hold none of these events. A '
+                 'record python-evtx cannot render, or whose XML does not parse, is counted in the run log and not '
+                 'reported; every record of the tested logs rendered. A log marked dirty is read past the chunks its '
+                 'header counts, and the run log says how many records came from there; the Security log of '
+                 'szechuan_dc01_server2012r2 is marked dirty and 2,414 of its 8,574 records come from those chunks. '
+                 'Reading needs the python-evtx package (pip install python-evtx).',
         "paths": ('*/Windows/System32/winevt/Logs/Security.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "user-check",
@@ -494,10 +496,11 @@ __artifacts_v2__ = {
                  'tested logs give 50 rows on szechuan_dc01_server2012r2, 143 on ou_ransomware_server2022 and 3 on '
                  "evtx_mitre_attack_4688_cc0 (mdecrevoisier's public CC0 sample logs). Control Access Rights names "
                  'DS-Replication-Get-Changes on 10 and 123 rows of the two servers, every one with Accesses Control Access '
-                 'and an Account Name ending in $; no other right was named, and none on the sample logs. Operation Type, '
-                 'Object Server and Handle ID held one value on every row of each server, Account Domain one value on '
-                 "every row of each server, and Additional Info held '-' on every row of the sample logs. On the sample "
-                 'logs 1 row has Object Server LSA, where the 4662 page gives DS for this event. The Security logs of '
+                 'and an Account Name ending in $; no other right was named. Control Access Rights was blank on every row '
+                 'of the sample logs. Operation Type, Object Server and Handle ID held one value on every row of each '
+                 "server, Account Domain one value on every row of each server, and Additional Info held '-' on every row "
+                 'of the sample logs. On the sample logs 1 row has Object Server LSA, where the 4662 page gives DS for '
+                 'this event. Computer held one value on every row of ou_ransomware_server2022. The Security logs of '
                  'af_case2_win10, alihadi_challenge3_win81, alihadi_threatsim_server2019, cfreds_leakage_win7, '
                  'hexordia_mvs2025_win11, lonewolf_win10, pc_mus_001_win11, szechuan_win10, windows11_arm_4688_known, '
                  'windows11_arm_known_20261001 and windows11_arm_winlogon_known_20261004 hold none of these events. A '
