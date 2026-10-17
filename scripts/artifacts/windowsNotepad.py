@@ -120,8 +120,9 @@ __artifacts_v2__ = {
     "windowsNotepadSettings": {
         "name": "Windows Notepad Settings",
         "description": "Settings of Windows 11 Notepad from its Settings/settings.dat hive, one row "
-                       "per stored value with the time stored with it, among them the recent files "
-                       "list and the last Find and Replace strings, which hold free text typed into Notepad.",
+                       "per stored value with the time stored with it, which can include the recent "
+                       "files list and the last Find and Replace strings when Notepad has stored them "
+                       "(none on the tested images).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
@@ -142,14 +143,14 @@ __artifacts_v2__ = {
                  "RecentFiles, the recent files list, most recently closed first (line 327), is shown as "
                  "stored and not split into files, since the README calls it a CSV array and no tested "
                  "image holds one to check the separator against. Documented Meaning gives the README's "
-                 "description for the names it describes (lines 311 to 347), with the line; Value is "
+                 "description, with its line, for the 17 names it describes (lines 311 to 347); Value is "
                  "the decoded value as stored, and Type is the packaged-app type it is stored as. Type "
                  "0x5F5E104 (Int32) is read as signed, as python-registry reads it; the README lists it as "
                  "unsigned (line 302). Tested on hexordia_mvs2025_win11 (Notepad package 11.2409.9.0): 9 "
                  "rows, all in LocalState: six WindowPosition values and three TeachingTip values. That "
                  "hive holds no FindString, ReplaceString or RecentFiles value, so Free Text (Find or Replace) "
                  "held no value on any row, and Documented Meaning held no value on any row because the "
-                 "README describes none of those 9 names; Key, Key Last Written and User held one value on "
+                 "README lists those 9 names without a meaning; Key, Key Last Written and User held one value on "
                  "every row (one key, one home folder). On pc_mus_001_win11 the hive holds no values (0 rows). The Find, Replace "
                  "and recent files rows were run only on synthetic hives built for the tests.",
         "paths": ('*/AppData/Local/Packages/Microsoft.WindowsNotepad_*/Settings/settings.dat*',),
@@ -436,8 +437,10 @@ _SETTING_MEANINGS = {
     'OpenFile': ('0 = new tab / 1 = new window', 325),
     'RecentFiles': ('the recent files list, most recently closed file first', 327),
     'RecentFilesEnabled': ('0 = Off / 1 = On', 328),
+    'RecentFilesFirstLoad': ('0 = Off / 1 = On', 329),
     'ReplaceString': ('the last replacement string (free text)', 330),
     'RewriteEnabled': ('0 = Off / 1 = On', 331),
+    'RewriteTeachingtip': ('0 = Off / 1 = On', 332),
     'SpellCheckState': ('spell check state, as JSON', 333),
     'StatusBarShown': ('0 = Off / 1 = On', 334),
     'Theme': ('0 = System / 1 = Light / 2 = Dark', 338),
@@ -451,13 +454,13 @@ _USER_TEXT = {'FindString', 'ReplaceString'}
 def windowsNotepadSettings(context):
     data_headers = (
         ('Value Written', 'datetime'),
+        ('Key Last Written', 'datetime'),
         'Setting',
         'Value',
         'Free Text (Find or Replace)',
         'Documented Meaning',
         'Type',
         'Key',
-        ('Key Last Written', 'datetime'),
         'User',
         'Source File',
     )
@@ -476,6 +479,7 @@ def windowsNotepadSettings(context):
                     meaning = _SETTING_MEANINGS.get(name)
                     rows.append((
                         setting.written,
+                        key_written,
                         name,
                         setting.text(),
                         'Yes' if name in _USER_TEXT else '',
@@ -483,7 +487,6 @@ def windowsNotepadSettings(context):
                         if meaning else '',
                         setting.type_name,
                         key_path,
-                        key_written,
                         user,
                         relative,
                     ))
@@ -491,6 +494,6 @@ def windowsNotepadSettings(context):
             logfunc(f'{label}: could not read {relative}: {ex}')
             continue
         sources.append(path)
-        rows.sort(key=lambda r: (r[6].lower(), r[1].lower()))
+        rows.sort(key=lambda r: (r[7].lower(), r[2].lower()))
         data_list.extend(rows)
     return data_headers, data_list, '\n'.join(sources)

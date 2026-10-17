@@ -300,9 +300,9 @@ __artifacts_v2__ = {
     "phoneLinkLinkedDevices": {
         "name": "Phone Link Linked Devices",
         "description": "Phones linked to the PC with Phone Link, from the LocalState/Devices "
-                       "key of the app's Settings/settings.dat hive: name, manufacturer, model, "
-                       "OS and app versions, account id, network operator, battery, permissions and the "
-                       "times stored for each phone.",
+                       "key of the app's Settings/settings.dat hive: name, manufacturer, model, the "
+                       "stored OS, SDK and agents version values, account id, network operator, battery, "
+                       "permissions and the times stored for each phone.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
@@ -333,21 +333,25 @@ __artifacts_v2__ = {
                  "and Locale are the values of FriendlyName, Manufacturer, Model, OsVersion, SdkVersion, "
                  "AgentsVersion, PackageName, CountryIso and Locale as stored. Device ID is the key's name. "
                  "Checked against the Android image of the same exercise, userb2_a13: Device ID equals "
-                 "the deviceId that the phone's Link to Windows app (com.microsoft.appmanager) records in "
-                 "shared_prefs/auth_storage_prefs.xml, beside a displayName equal to Friendly Name, and it "
-                 "equals the Device Folder of the other Phone Link artifacts. Default Device is Yes when "
-                 "Device ID equals the DefaultRemoteDevice value of the Devices key. Account ID is the "
-                 "AccountId value; on the tested image it equals the CurrentAccountId value of "
-                 "LocalState/AccountSettings in the same hive, and which account it names is not "
-                 "established here. Permissions lists each Boolean value of the device key whose name ends "
-                 "in Permission, as name=value; what each one allows is not established. Not shown: the "
-                 "Capabilities values (undocumented UInt32 fields), the device's other subkeys (Bluetooth, "
-                 "Contacts, Media and the rest, which held settings flags), and the hive's other keys, "
-                 "which hold experiment and feature flags (FlightsDataStore, Exp), service configuration "
-                 "(YPP.Config.*) and copies of the device details as JSON (YppTelemetry). The tested image "
-                 "holds one linked phone, so every column held one value; more than one phone in a hive, "
-                 "and an iPhone, are unexercised. A tree holding the tested hive under two home folders, plus "
-                 "copies in a decoy package and below LocalState, gave exactly 2 rows.",
+                 "the deviceId the phone's Link to Windows app (com.microsoft.appmanager) stores in the JSON "
+                 "of the pref_auth_state_v2 preference in shared_prefs/auth_storage_prefs.xml, Friendly Name "
+                 "equals the displayName in the JSON of the prefs_device_metadata preference of the same "
+                 "folder, and Device ID equals the Device Folder of the other Phone Link artifacts. Default "
+                 "Device is Yes when Device ID equals the DefaultRemoteDevice value of the Devices key. "
+                 "Account ID is the AccountId value; on the tested image it equals the CurrentAccountId "
+                 "value of LocalState/AccountSettings in the same hive, and which account it names is not "
+                 "established here. Permissions lists each value of the device key whose name ends in "
+                 "Permission, as name=value (all 16 on the tested image are Boolean); what each one allows "
+                 "is not established. Not shown: the ten *Capabilities values (nine UInt32 and one "
+                 "Composite, meaning not established), the device's other subkeys (Bluetooth, Contacts, "
+                 "Media and the rest, which held Boolean and integer values or nothing), and the hive's "
+                 "other keys, among them FlightsDataStore, Exp, the YPP.Config.* keys and YppTelemetry, "
+                 "whose values include JSON strings with manufacturer, model, OS version and battery "
+                 "members; none of them is read. The tested image holds one linked phone, so every column "
+                 "held one value; more than one phone in a hive, and an iPhone, are unexercised. A tree "
+                 "holding the tested hive under two home folders, plus a copy below LocalState in a third, "
+                 "gave exactly 2 rows; a copy in a package named Microsoft.YourPhoneDecoy_* is not matched "
+                 "by the paths, and a decoy package reaching the code is covered by the unit tests only.",
         "paths": ('*/AppData/Local/Packages/Microsoft.YourPhone_*/Settings/settings.dat*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",

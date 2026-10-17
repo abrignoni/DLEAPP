@@ -344,7 +344,7 @@ class NotepadSettingsTest(unittest.TestCase):
             headers, rows, source = windowsNotepad.windowsNotepadSettings.__wrapped__(
                 _Context(root, [path]))
         names = [h[0] if isinstance(h, tuple) else h for h in headers]
-        table = {r[1]: dict(zip(names, r)) for r in rows}
+        table = {r[2]: dict(zip(names, r)) for r in rows}
         self.assertEqual(list(table), ['FindString', 'RecentFiles', 'ReplaceString',
                                        'WindowPositionLeft', 'WordWrap'])
         self.assertEqual(table['FindString']['Value'], 'needle')

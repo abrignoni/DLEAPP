@@ -23,7 +23,8 @@ and Damir Arh describes the same eight-byte suffix on every value
 The code here is DLEAPP's own, written from those descriptions.
 
 Type numbers 0x01 to 0x13 carry the names Windows.Foundation.PropertyType gives the
-same numbers (https://learn.microsoft.com/en-us/uwp/api/windows.foundation.propertytype);
+same numbers (https://learn.microsoft.com/en-us/uwp/api/windows.foundation.propertytype),
+except 0x0D, which PropertyType names Inspectable and SettingsParse.py names a composite value;
 0x14 to 0x1F are the arrays in the order SettingsParse.py lists them. Point, Size and
 Rect (0x11 to 0x13), which SettingsParse.py leaves undecoded, are returned as hex.
 """
