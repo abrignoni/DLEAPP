@@ -174,17 +174,37 @@ __artifacts_v2__ = {
                  'alihadi_threatsim_server2019. Database State is the state the database header records '
                  '(JET_dbstateDirtyShutdown 2, JET_dbstateCleanShutdown 3, '
                  'https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/published/inc/jethdr.w#L5406-L5408) '
-                 'and how it was read, the same on every row of one database. The database is read as stored: a database '
-                 'whose header records a dirty shutdown would first have its transaction logs replayed in memory by '
-                 'scripts/ese_recovery, but that replay is checked only on 4 KiB pages and refuses the 8 KiB pages of '
-                 'every tested ntds.dit, so the run log says the database was not replayed, and the edb*.log files beside '
-                 'it are not collected. Changes still only in those logs are therefore not shown. '
+                 'and how the database was read, the same on every row of one database. A database whose header records '
+                 'a dirty shutdown is first brought up to date in memory by scripts/ese_recovery, which replays the '
+                 "edb*.log transaction logs collected beside it following the redo rules of ESE's soft recovery for the "
+                 'record types it handles, and is read as stored when that replay refuses; Database State then gives how '
+                 'many changes were redone from which logs (their count and the first and last when there are more than '
+                 'three) onto how many pages, or that the database was read as stored and why. The files are only read. The replay '
+                 'redoes only inserted and replaced records, passes over a logged change that every page it names already '
+                 'holds, and refuses when any other change would have to be redone, a change undone, or a log it needs '
+                 'is missing or damaged; it reads 4 and 8 KiB pages and refuses 16 and 32 KiB ones. '
                  'szechuan_dc01_server2012r2 and ou_ransomware_server2022 record a dirty shutdown and '
-                 'alihadi_threatsim_server2019 a clean one. Only ntds.dit under Windows/NTDS is read; a database moved '
+                 'alihadi_threatsim_server2019 a clean one. On ou_ransomware_server2022 the replay read the 23 logs from '
+                 'generation 26, the first the header requires, to the current edb.log, redid 610 changes onto 4 '
+                 'datatable pages and found 61,118 logged changes already on their pages. That changed 4 rows of this '
+                 'artifact and no row of Active Directory Groups: Last Logon (UTC) is later on 4, Logon Count higher on 3, '
+                 'and Changed (UTC), Last Logon Timestamp (UTC) and User Account Control differ on 1. The server\'s own '
+                 'Security log holds a 4624, 4768, 4769 or 4776 record for the account within 3 milliseconds of the '
+                 'replayed Last Logon (UTC) on 3 of those 4 rows (the fourth, a computer account, has none within 3 '
+                 'minutes of the stored or the replayed value), and, for the row whose User Account Control changed, a '
+                 '4738 and a 4725 record naming its SID less than 1 second after its replayed Changed (UTC). On '
+                 'szechuan_dc01_server2012r2 each of the 304 changes its log holds for the database after its last attach '
+                 'was already on its page, so the replay changed nothing. The 8 KiB replay follows Microsoft\'s ESE '
+                 'source, where pages of 8 KiB and less share one layout '
+                 '(https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/daedef.hxx#L5795), '
+                 'and was checked on these two databases only; it was not compared with esentutl. esentutl was compared '
+                 'with this replay code, before the change that added 8 KiB pages, only on the 4 KiB pages of User Access '
+                 'Logging, and that change leaves every User Access Logging row of the three tested servers as it was. '
+                 'Only ntds.dit under Windows/NTDS is read; a database moved '
                  "elsewhere by its domain controller's settings is not found, and any other copy of ntds.dit, for example "
                  'under System32 or WinSxS, is not read. Rows are ordered by Created (UTC), then SAM Account Name. The '
                  'other Windows keys hold no ntds.dit under Windows/NTDS and give no row.',
-        "paths": ('*/Windows/NTDS/ntds.dit',),
+        "paths": ('*/Windows/NTDS/ntds.dit', '*/Windows/NTDS/edb*.log'),
         "output_types": ["standard"],
         "artifact_icon": "users",
         "sample_data": {
@@ -254,7 +274,7 @@ __artifacts_v2__ = {
                  'Recycled and Last Known Parent are read as in Active Directory Accounts and were blank on every tested '
                  'row; Is Deleted and Is Recycled were identical on every tested row. Database State held one value on '
                  'every row of each database. Rows are ordered by Created (UTC), then SAM Account Name.',
-        "paths": ('*/Windows/NTDS/ntds.dit',),
+        "paths": ('*/Windows/NTDS/ntds.dit', '*/Windows/NTDS/edb*.log'),
         "output_types": ["standard"],
         "artifact_icon": "users",
         "sample_data": {
@@ -576,8 +596,7 @@ def _directory(path, label, relative):
         replayed = data is not None and summary.startswith('replayed')
         state = _header_state(path)
         directory = read_directory(path, data if replayed else None)
-        directory.state = f'{state}, logs replayed' if replayed else (
-            f'{state}, read as stored' if state else 'read as stored')
+        directory.state = database_state(state, summary, replayed)
         _READ.clear()
         _READ[key] = (directory, summary, replayed)
     directory, summary, replayed = _READ[key]
@@ -586,6 +605,16 @@ def _directory(path, label, relative):
     for note in directory.notes:
         logfunc(f'{label}: {relative} {note}')
     return directory
+
+
+def database_state(state, summary, replayed):
+    """The Database State cell: the header's state, then what the replay did or why the
+    database was read as stored."""
+    if replayed:
+        return f'{state}, {summary}'
+    if 'clean shutdown' in summary or not summary:
+        return f'{state}, read as stored' if state else 'read as stored'
+    return f'{state}, read as stored ({summary})' if state else f'read as stored ({summary})'
 
 
 def _header_state(path):

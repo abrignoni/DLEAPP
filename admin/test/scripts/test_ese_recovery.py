@@ -26,6 +26,8 @@ from scripts import ese_log, ese_recovery, ese_rows
 # pylint: enable=wrong-import-position
 
 REAL_ROOT = pathlib.Path('/Users/alexisbrignoni/Downloads/ual-replay-2026-10-14')
+# Windows/NTDS of the three domain controller images, copied out read-only; see RealNtds.
+NTDS_ROOT = pathlib.Path('/Users/alexisbrignoni/Downloads/dleapp-build3-2026-10-17/ese8k/orig')
 
 SIGN_LOG = bytes(range(1, 29))
 SIGN_DB = bytes(range(101, 129))
@@ -37,7 +39,7 @@ PGNO = 3
 
 # ---------------------------------------------------------------- building logs
 
-def log_header(generation, tm_create=b'\x01' * 8, tm_prev=b'\x00' * 8, csec=8, sign=SIGN_LOG):
+def log_header(generation, tm_create=b'\x01' * 8, tm_prev=b'\x00' * 8, csec=8, sign=SIGN_LOG, attachments=b''):
     header = bytearray(PAGE)
     struct.pack_into('<iHHHH', header, 4, generation, PAGE, 1, csec, PAGE)
     header[16:24] = tm_create
@@ -45,6 +47,7 @@ def log_header(generation, tm_create=b'\x01' * 8, tm_prev=b'\x00' * 8, csec=8, s
     struct.pack_into('<III', header, 32, 8, 4000, 4)
     header[44:72] = sign
     struct.pack_into('<I', header, 667, 3)
+    header[671:671 + len(attachments)] = attachments          # rgbAttach, src/inc/log.hxx#L231
     struct.pack_into('<I', header, 0, ese_log.checksum_old(bytes(header)))
     return header
 
@@ -67,8 +70,60 @@ def log_file(generation, bodies, csec=8, **kwargs):
     return bytes(data)
 
 
+def attach_info(dbid, lgpos_attach, lgpos_consistent, sign_db=SIGN_DB, names='C:\\x\\ntds.dit'):
+    """One ATTACHINFO (src/inc/log.hxx#L85-L101) for a log header's attachment list."""
+    name = names.encode('utf-16-le') + b'\0\0'
+    return (struct.pack('<BBHqII', dbid, 0x20, len(name), 1000, 50, 0)
+            + struct.pack('<HHi', lgpos_attach[2], lgpos_attach[1], lgpos_attach[0])
+            + struct.pack('<HHi', lgpos_consistent[2], lgpos_consistent[1], lgpos_consistent[0])
+            + sign_db + name)
+
+
 def begin0(procid):
     return struct.pack('<BHBI', 8, procid, 0x20, 0x1000)
+
+
+def begin(procid, level_from=1, levels=1):
+    """LRBEGIN: levelBeginFrom in the low four bits, clevelsToBegin in the high four
+    (src/inc/logapi.hxx#L1376-L1386)."""
+    return struct.pack('<BHB', 5, procid, level_from | levels << 4)
+
+
+def commit(procid, level_to=1):
+    return struct.pack('<BHB', 6, procid, level_to)
+
+
+def macro(lrtyp, procid, dbtime):
+    """LRMACROBEGIN (11) or LRMACROEND (12 commit, 13 abort), src/inc/logapi.hxx#L1474-L1493."""
+    return struct.pack('<BHq', lrtyp, procid, dbtime)
+
+
+def trace(procid=5):
+    return struct.pack('<BHH', 22, procid, 0)         # LRTRACE with no text, src/inc/logapi.hxx#L2059-L2077
+
+
+def page_op(lrtyp, dbid, pgno, dbtime, before, size, others=(), procid=5, level=2):
+    """A record of `size` fixed bytes starting with LRPAGE_ (src/inc/logapi.hxx#L377-L423),
+    every variable length zero, with (offset, pgno) pairs written after LRPAGE_."""
+    data = bytearray(size)
+    struct.pack_into('<BHBIqqIBHB', data, 0, lrtyp, procid, dbid, pgno, dbtime, before, 0x1000, level, 1, 0)
+    for offset, number in others:
+        struct.pack_into('<I', data, offset, number)
+    return bytes(data)
+
+
+def delete(dbid, pgno, dbtime, before, **kwargs):
+    return page_op(35, dbid, pgno, dbtime, before, 44, **kwargs)        # LRDELETE, LRNODE_ only
+
+
+def split2(dbid, pgno, dbtime, new, right, parent, **kwargs):
+    # LRSPLITNEW, 110 fixed bytes: pgnoNew 32, pgnoRight 36, pgnoParent 48 (src/inc/logapi.hxx#L873-L940)
+    return page_op(62, dbid, pgno, dbtime, dbtime - 1, 110, ((32, new), (36, right), (48, parent)), **kwargs)
+
+
+def merge2(dbid, pgno, dbtime, right, left, parent, **kwargs):
+    # LRMERGENEW, 96 fixed bytes: pgnoRight 32, pgnoLeft 44, pgnoParent 56 (src/inc/logapi.hxx#L954-L998)
+    return page_op(63, dbid, pgno, dbtime, dbtime - 1, 96, ((32, right), (44, left), (56, parent)), **kwargs)
 
 
 def commit0(procid):
@@ -130,20 +185,20 @@ def node(suffix, data):
     return struct.pack('<H', len(suffix)) + suffix + data
 
 
-def leaf_page(pgno, dbtime, nodes, external=b'', flags=LEAF_FLAGS, node_flags=0, layout=None):
+def leaf_page(pgno, dbtime, nodes, external=b'', flags=LEAF_FLAGS, node_flags=0, layout=None, size=PAGE):
     """A small-format leaf page: tag 0 is the external header, then one tag per node. The
     data is laid out from the start of the data area in tag order, or in the order of the
     tag numbers listed in `layout`."""
-    page = bytearray(PAGE)
+    page = bytearray(size)
     lines = [(external, 0)] + [(n, node_flags) for n in nodes]
     ib = 0
     for itag in layout or range(len(lines)):
         data, line_flags = lines[itag]
         page[40 + ib:40 + ib + len(data)] = data
-        struct.pack_into('<HH', page, PAGE - 4 * (itag + 1), len(data), ib | (line_flags << 13))
+        struct.pack_into('<HH', page, size - 4 * (itag + 1), len(data), ib | (line_flags << 13))
         ib += len(data)
     used = ib + 4 * len(lines)
-    struct.pack_into('<qIIIHHHHI', page, 8, dbtime, 0, 0, OBJID, PAGE - 40 - used, 0, ib, len(lines), flags)
+    struct.pack_into('<qIIIHHHHI', page, 8, dbtime, 0, 0, OBJID, size - 40 - used, 0, ib, len(lines), flags)
     struct.pack_into('<Q', page, 0, ese_log.checksum_new(bytes(page), pgno))
     return page
 
@@ -171,12 +226,12 @@ def build_database(pages, state=2, lgpos_attach=(1, 1, 0), lgpos_consistent=(1, 
     return bytes(out)
 
 
-def page_of(db_bytes, pgno):
-    return bytes(db_bytes[(pgno + 1) * PAGE:(pgno + 2) * PAGE])
+def page_of(db_bytes, pgno, size=PAGE):
+    return bytes(db_bytes[(pgno + 1) * size:(pgno + 2) * size])
 
 
 def lines_of(page_bytes, pgno=PGNO):
-    page = ese_recovery._Page(bytearray(page_bytes), 0, PAGE, pgno, False)  # pylint: disable=protected-access
+    page = ese_recovery._Page(bytearray(page_bytes), 0, len(page_bytes), pgno, False)  # pylint: disable=protected-access
     return [page.line(itag) for itag in range(page.ctag_reserved, page.itag_mic_free)]
 
 
@@ -669,10 +724,220 @@ class OtherPageSizes(unittest.TestCase):
         self.assertEqual(data, db)
         self.assertEqual(summary, 'not replayed: the header records clean shutdown')
 
-    def test_a_dirty_8k_database_refuses_for_its_page_size(self):
-        result = ese_recovery.replay(self.header_db(2), {})
+    def test_a_dirty_large_page_database_refuses_for_its_page_size(self):
+        # 16 and 32 KiB pages use the large page format (PGHDR2, 15-bit tags, a checksum per
+        # block), which the replay does not write
+        for size in (16384, 32768):
+            db = bytearray(build_database({PGNO: bytes(size)}, state=2, page_size=size))
+            for base in (0, size):
+                struct.pack_into('<I', db, base, ese_log.checksum_old(bytes(db[base:base + size])))
+            result = ese_recovery.replay(bytes(db), {1: ('edb.log', log_file(1, [attach(1, (1, 0, 8))]))})
+            self.assertIsNone(result.data)
+            self.assertEqual(result.refused, f'a page size of {size}')
+
+
+BIG = 8192
+
+
+class EightKiBPages(unittest.TestCase):
+    """The same redo on 8 KiB pages, with lines and tags past the first 4 KiB, so a 4 KiB
+    assumption anywhere (tag array, checksum, page offset, free space) shows."""
+
+    def setUp(self):
+        self.nodes = [node(b'k1', b'a' * 3000), node(b'k2', b'b' * 2500), node(b'k3', b'CCCC')]
+        self.page = leaf_page(PGNO, 50, self.nodes, size=BIG)
+        self.db = build_database({PGNO: self.page, PGNO + 1: leaf_page(PGNO + 1, 40, [], size=BIG)},
+                                 page_size=BIG)
+        self.attach = attach(1, (1, 0, 8))
+
+    def test_the_fixture_is_an_8k_page_with_a_line_past_4k(self):
+        cb_free, _unc, ib_mic_free, itag_state = page_header(self.page)
+        self.assertEqual(ib_mic_free, sum(len(n) for n in self.nodes))
+        self.assertGreater(ib_mic_free, PAGE)
+        self.assertEqual(itag_state, 4)
+        self.assertEqual(cb_free, BIG - 40 - ib_mic_free - 16)
+        self.assertEqual(struct.unpack_from('<Q', self.page, 0)[0], ese_log.checksum_new(self.page, PGNO))
+
+    def test_replace_d_on_the_line_past_4k(self):
+        body = begin0(5) + replace_d(1, PGNO, 60, 50, 2, diff2(1, b'Z'), 4) + commit0(5)
+        result = run(self.db, [self.attach, body])
+        self.assertIsNone(result.refused)
+        page = page_of(result.data, PGNO, BIG)
+        self.assertEqual([line for line, _ in lines_of(page)], self.nodes[:2] + [node(b'k3', b'CZCC')])
+        self.assertEqual(struct.unpack_from('<q', page, 8)[0], 60)
+        # the checksum covers all 8 KiB (src/ese/_osu/checksumu.cxx#L284-L327)
+        self.assertEqual(struct.unpack_from('<Q', page, 0)[0], ese_log.checksum_new(page, PGNO))
+        # the other page and the header pages are left as stored
+        self.assertEqual(page_of(result.data, -1, BIG) + page_of(result.data, 0, BIG), self.db[:2 * BIG])
+        self.assertEqual(page_of(result.data, PGNO + 1, BIG), page_of(self.db, PGNO + 1, BIG))
+
+    def test_an_insert_writes_its_tag_at_the_end_of_the_8k_page(self):
+        body = begin0(5) + insert(1, PGNO, 60, 50, 3, b'k4', b'DD') + commit0(5)
+        result = run(self.db, [self.attach, body])
+        self.assertIsNone(result.refused)
+        page = page_of(result.data, PGNO, BIG)
+        start = sum(len(n) for n in self.nodes)
+        self.assertEqual(struct.unpack_from('<HH', page, BIG - 20), (len(node(b'k4', b'DD')), start | 1 << 13))
+        self.assertEqual(page_header(page)[2:], (start + len(node(b'k4', b'DD')), 5))
+
+    def test_a_growing_replace_reorganizes_inside_8k(self):
+        # k2 grows by 1500 bytes: the 2620 contiguous free bytes after ibMicFree are too few
+        # for its 4004, so k1 and k3 move down in order of ib and k2 is written after them
+        grown = b'B' * 4000
+        result = run(self.db, [self.attach, begin0(5), replace(1, PGNO, 60, 50, 1, grown), commit0(5)])
+        self.assertIsNone(result.refused)
+        page = page_of(result.data, PGNO, BIG)
+        self.assertEqual([line for line, _ in lines_of(page)], [self.nodes[0], node(b'k2', grown), self.nodes[2]])
+        self.assertEqual(struct.unpack_from('<HH', page, BIG - 16), (8, 3004))
+        self.assertEqual(struct.unpack_from('<HH', page, BIG - 12), (4004, 3012 | 1 << 13))
+        self.assertEqual(page_header(page), (BIG - 40 - 7016 - 16, 0, 7016, 4))
+
+    def test_the_wrong_page_size_reads_the_wrong_page(self):
+        # control: the same records against the database read at 4 KiB offsets fail the checksum
+        body = begin0(5) + replace_d(1, PGNO, 60, 50, 2, diff2(1, b'Z'), 4) + commit0(5)
+        with mock.patch.object(ese_recovery.DatabaseHeader, '__init__', autospec=True,
+                               side_effect=_header_at(PAGE)):
+            result = run(self.db, [self.attach, body])
         self.assertIsNone(result.data)
-        self.assertEqual(result.refused, 'a page size of 8192')
+
+
+def _header_at(size):
+    real = ese_recovery.DatabaseHeader.__init__
+
+    def init(self, data):
+        real(self, data)
+        self.page_size = size
+    return init
+
+
+class StartAtTheFirstRequiredLog(unittest.TestCase):
+    """The attach is in a log that is gone; the dbid comes from the first required log's
+    header (LGFakeCheckpointToLogFile, src/ese/_log/logredo.cxx#L14742-L14755)."""
+
+    def setUp(self):
+        self.page = leaf_page(PGNO, 50, [node(b'k1', b'AAAA'), node(b'k2', b'BBBB')])
+        self.db = build_database({PGNO: self.page}, lgpos_attach=(1, 5, 616), lgpos_consistent=(1, 3, 8),
+                                 gens=(2, 2))
+        self.body = begin0(5) + replace_d(3, PGNO, 60, 50, 1, diff2(1, b'Z'), 4) + commit0(5)
+
+    def logs(self, attachments):
+        return {2: ('edb.log', log_file(2, [self.body], attachments=attachments))}
+
+    def test_the_dbid_from_the_log_header_is_replayed(self):
+        listed = attach_info(7, (1, 1, 0), (1, 0, 8), sign_db=b'\x05' * 28) + attach_info(3, (1, 5, 616), (1, 3, 8))
+        result = ese_recovery.replay(self.db, self.logs(listed))
+        self.assertIsNone(result.refused)
+        self.assertEqual(lines_of(page_of(result.data, PGNO))[1][0], node(b'k2', b'BZBB'))
+
+    def test_another_dbid_in_the_log_is_not_this_database(self):
+        result = ese_recovery.replay(self.db, self.logs(attach_info(4, (1, 5, 616), (1, 3, 8))))
+        self.assertIsNone(result.refused)
+        self.assertEqual(result.redone, 0)
+        self.assertEqual(result.data, self.db)
+
+    def test_a_header_that_does_not_list_this_attachment_refuses(self):
+        for listed in (b'', attach_info(3, (1, 4, 616), (1, 3, 8)), attach_info(3, (1, 5, 616), (1, 2, 8)),
+                       attach_info(3, (1, 5, 616), (1, 3, 8), sign_db=b'\x05' * 28)):
+            result = ese_recovery.replay(self.db, self.logs(listed))
+            self.assertIsNone(result.data)
+            self.assertIn('does not list this attachment', result.refused)
+
+
+class RecordsAlreadyOnThePage(unittest.TestCase):
+    """Delete, FlagDelete, Delta, Split2 and Merge2 are passed over only when every page they
+    name already holds their dbtime; otherwise the replay refuses."""
+
+    def setUp(self):
+        self.pages = {pgno: leaf_page(pgno, 50, [node(b'k1', b'AAAA'), node(b'k2', b'BBBB')])
+                      for pgno in (3, 4, 5, 6)}
+        self.db = build_database(self.pages)
+        self.attach = attach(1, (1, 0, 8))
+
+    def outcome(self, record):
+        return run(self.db, [self.attach, begin0(5) + record + commit0(5)])
+
+    def test_on_the_page_they_change_nothing(self):
+        for record in (delete(1, 3, 50, 49), page_op(32, 1, 3, 45, 44, 44), page_op(37, 1, 3, 50, 49, 54),
+                       split2(1, 3, 50, 4, 5, 6), merge2(1, 3, 48, 4, 0, 6)):
+            with self.subTest(record[0]):
+                result = self.outcome(record)
+                self.assertIsNone(result.refused)
+                self.assertEqual(result.data, self.db)
+                self.assertEqual(result.skipped_newer, 1)
+
+    def test_any_named_page_still_older_refuses(self):
+        for record, page in ((delete(1, 3, 51, 50), 3), (split2(1, 3, 51, 4, 5, 6), 3),
+                             (split2(1, 4, 50, 3, 0, 6), 3), (merge2(1, 3, 50, 4, 5, 0), 3)):
+            pages = dict(self.pages)
+            if record[0] == 62 and record != split2(1, 3, 51, 4, 5, 6):
+                pages[3] = leaf_page(3, 40, [node(b'k1', b'AAAA')])        # the new page is older
+                db = build_database(pages)
+            elif record[0] == 63:
+                pages[5] = leaf_page(5, 40, [node(b'k1', b'AAAA')])        # the right page is older
+                db, page = build_database(pages), 5
+            else:
+                db = self.db
+            with self.subTest(record[0]):
+                result = run(db, [self.attach, begin0(5) + record + commit0(5)])
+                self.assertIsNone(result.data)
+                self.assertIn(f'would change page {page}', result.refused)
+
+    def test_another_dbid_is_not_checked(self):
+        self.assertIsNone(self.outcome(delete(2, 3, 99, 98)).refused)
+
+    def test_an_uncommitted_pass_over_still_refuses(self):
+        result = run(self.db, [self.attach, begin0(5) + delete(1, 3, 50, 49)])
+        self.assertIn('never committed', result.refused)
+
+    def test_on_the_page_past_the_required_range_refuses(self):
+        db = build_database(self.pages, gens=(1, 1), committed=2)
+        gen1 = log_file(1, [self.attach], tm_create=b'\x02' * 8)
+        gen2 = log_file(2, [begin0(5) + delete(1, 3, 50, 49) + commit0(5)], tm_prev=b'\x02' * 8)
+        result = ese_recovery.replay(db, {1: ('edb00001.log', gen1), 2: ('edb.log', gen2)})
+        self.assertIn('past the required range', result.refused)
+
+    def test_a_flagdelete_that_would_change_the_page_refuses(self):
+        self.assertIn('does not redo FlagDelete', self.outcome(page_op(32, 1, 3, 60, 50, 44)).refused)
+
+
+class Sessions(unittest.TestCase):
+    def setUp(self):
+        self.page = leaf_page(PGNO, 50, [node(b'k1', b'AAAA'), node(b'k2', b'BBBB')])
+        self.db = build_database({PGNO: self.page})
+        self.attach = attach(1, (1, 0, 8))
+
+    def test_a_nested_begin_keeps_the_changes_open_and_replays(self):
+        body = (begin0(5) + replace_d(1, PGNO, 60, 50, 1, diff2(1, b'Z'), 4) + commit(5) + begin(5)
+                + replace_d(1, PGNO, 61, 60, 1, diff2(2, b'Y'), 4) + commit(5) + commit0(5))
+        result = run(self.db, [self.attach, body])
+        self.assertIsNone(result.refused)
+        self.assertEqual(lines_of(page_of(result.data, PGNO))[1][0], node(b'k2', b'BZYB'))
+
+    def test_a_change_for_a_session_not_seen_beginning_refuses(self):
+        body = replace_d(1, PGNO, 60, 50, 1, diff2(1, b'Z'), 4, procid=9) + commit0(9)
+        self.assertIn('began before the replay started', run(self.db, [self.attach, body]).refused)
+
+    def test_a_nested_begin_does_not_count_as_a_first_begin(self):
+        body = begin(9) + replace_d(1, PGNO, 60, 50, 1, diff2(1, b'Z'), 4, procid=9) + commit0(9)
+        self.assertIn('began before the replay started', run(self.db, [self.attach, body]).refused)
+
+    def test_a_change_inside_a_macro_refuses(self):
+        body = (begin0(5) + macro(11, 5, 60) + replace_d(1, PGNO, 60, 50, 1, diff2(1, b'Z'), 4)
+                + macro(12, 5, 60) + commit0(5))
+        self.assertIn('inside a macro', run(self.db, [self.attach, body]).refused)
+
+    def test_a_change_while_a_second_macro_is_still_open_refuses(self):
+        body = (begin0(5) + macro(11, 5, 55) + macro(11, 5, 56) + macro(12, 5, 55)
+                + replace_d(1, PGNO, 60, 50, 1, diff2(1, b'Z'), 4) + macro(12, 5, 56) + commit0(5))
+        self.assertIn('inside a macro', run(self.db, [self.attach, body]).refused)
+
+    def test_a_closed_macro_and_a_trace_change_nothing(self):
+        for end in (12, 13):
+            body = (begin0(5) + macro(11, 5, 55) + macro(end, 5, 55) + trace()
+                    + replace_d(1, PGNO, 60, 50, 1, diff2(1, b'Z'), 4) + commit0(5))
+            result = run(self.db, [self.attach, body])
+            self.assertIsNone(result.refused, end)
+            self.assertEqual(result.redone, 1)
 
 
 # ---------------------------------------------------------------- the reader hook
@@ -817,6 +1082,68 @@ class RealImages(unittest.TestCase):
             staged, _ = ese_recovery.replayed_database(os.path.join(folder, 'Current.mdb'))
         direct, _ = ese_recovery.replayed_database(str(REAL_ROOT / name / 'orig' / 'Current.mdb'))
         self.assertEqual(staged, direct)
+
+
+@unittest.skipUnless(NTDS_ROOT.is_dir(), f'the NTDS folders are not staged at {NTDS_ROOT}')
+class RealNtds(unittest.TestCase):
+    """ntds.dit (8 KiB pages) with its edb*.log, from szechuan_dc01_server2012r2 (dc01),
+    ou_ransomware_server2022 (srv2022) and alihadi_threatsim_server2019 (srv2019). Counts
+    only; nothing derived from the images is committed."""
+    BIG_PAGE = 8192
+    EXPECTED = {'dc01': 'replayed 0 change(s) from edb.log onto 0 page(s) (304 already on the page)',
+                'srv2022': 'replayed 610 change(s) from 23 logs, edb0001A.log to edb.log onto 4 page(s) '
+                           '(61118 already on the page)',
+                'srv2019': 'not replayed: the header records clean shutdown'}
+
+    def folder(self, name):
+        folder = NTDS_ROOT / name
+        if not (folder / 'ntds.dit').is_file():
+            self.skipTest(f'{folder} is not staged')
+        return folder
+
+    def test_summaries(self):
+        for name, expected in self.EXPECTED.items():
+            with self.subTest(name):
+                data, summary = ese_recovery.replayed_database(str(self.folder(name) / 'ntds.dit'))
+                self.assertEqual(summary, expected)
+                self.assertIsNotNone(data)
+
+    def test_dc01_comes_back_byte_for_byte(self):
+        path = self.folder('dc01') / 'ntds.dit'
+        self.assertEqual(ese_recovery.replayed_database(str(path))[0], path.read_bytes())
+
+    def test_srv2022_changes_only_four_pages_and_each_checksum_holds(self):
+        path = self.folder('srv2022') / 'ntds.dit'
+        stored = path.read_bytes()
+        data, _summary = ese_recovery.replayed_database(str(path))
+        size = self.BIG_PAGE
+        changed = [n - 1 for n in range(2, len(stored) // size) if data[n * size:(n + 1) * size] != stored[n * size:(n + 1) * size]]
+        self.assertEqual(changed, [1733, 1794, 1814, 2908])
+        for pgno in changed:
+            page = page_of(data, pgno, size)
+            self.assertEqual(struct.unpack_from('<Q', page, 0)[0], ese_log.checksum_new(page, pgno))
+
+    def test_srv2022_controls(self):
+        folder = self.folder('srv2022')
+        db = (folder / 'ntds.dit').read_bytes()
+        logs, _skipped = ese_recovery.find_logs(str(folder), ese_recovery.DatabaseHeader(db))
+        self.assertEqual(sorted(logs), list(range(26, 49)))
+        # a generation in the middle removed
+        self.assertIn('generation 37 is missing', ese_recovery.replay(
+            db, {g: v for g, v in logs.items() if g != 37}).refused)
+        # the current log removed: generation 48, the committed one, is missing
+        self.assertIn('generation 48', ese_recovery.replay(db, {g: v for g, v in logs.items() if g != 48}).refused)
+        # one byte flipped in a segment holding a redone change
+        path, data = logs[48]
+        flipped = bytearray(data)
+        flipped[1000 * PAGE + 200] ^= 0xff
+        self.assertIn('fails its checksum', ese_recovery.replay(db, {**logs, 48: (path, bytes(flipped))}).refused)
+        # the first required log's header without its attachment list
+        path, data = logs[26]
+        bare = bytearray(data)
+        bare[671:671 + 2048] = bytes(2048)
+        struct.pack_into('<I', bare, 0, ese_log.checksum_old(bytes(bare[:PAGE])))
+        self.assertIn('does not list this attachment', ese_recovery.replay(db, {**logs, 26: (path, bytes(bare))}).refused)
 
 
 if __name__ == '__main__':

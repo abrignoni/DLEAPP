@@ -301,18 +301,19 @@ class ArtifactTest(unittest.TestCase):
 
     def test_accounts_and_groups_split_by_account_type_and_carry_the_state(self):
         with mock.patch.object(ntds.ese_recovery, 'replayed_database',
-                               return_value=(None, 'not replayed: a page size of 8192')), \
+                               return_value=(None, 'not replayed: a page size of 16384')), \
                 mock.patch.object(ntds, '_header_state', return_value='dirty shutdown'):
             headers, accounts, source = ntds.ntdsAccounts.__wrapped__(_Context([self.path]))
             _headers, groups, _source = ntds.ntdsGroups.__wrapped__(_Context([self.path]))
         self.assertEqual([row[7] for row in accounts], ['admin1', 'HOST1$'])
         self.assertEqual(len(_headers), len(groups[0]))
         self.assertEqual([row[2] for row in groups], ['Administrators', 'Domain Users'])
-        self.assertEqual({row[-1] for row in accounts + groups}, {'dirty shutdown, read as stored'})
+        self.assertEqual({row[-1] for row in accounts + groups},
+                         {'dirty shutdown, read as stored (not replayed: a page size of 16384)'})
         self.assertEqual(len(headers), len(accounts[0]))
         self.assertEqual(source, self.path)
         self.log.assert_any_call('Active Directory Accounts: vol1/Windows/NTDS/ntds.dit, not replayed: a page '
-                                     'size of 8192; read as stored')
+                                     'size of 16384; read as stored')
 
     def test_a_replayed_database_is_read_from_the_replayed_bytes(self):
         opened = []
@@ -328,7 +329,23 @@ class ArtifactTest(unittest.TestCase):
                 mock.patch.object(ntds.ese_rows, 'ESEDatabase', Recording):
             _headers, accounts, _source = ntds.ntdsAccounts.__wrapped__(_Context([self.path]))
         self.assertEqual(opened, [b'replayed'])
-        self.assertEqual(accounts[0][-1], 'dirty shutdown, logs replayed')
+        self.assertEqual(accounts[0][-1], 'dirty shutdown, replayed 3 change(s) from edb.log onto 2 page(s)')
+
+    def test_database_state_says_what_the_replay_did(self):
+        self.assertEqual(ntds.database_state('clean shutdown', 'not replayed: the header records clean shutdown',
+                                             False), 'clean shutdown, read as stored')
+        self.assertEqual(ntds.database_state('dirty shutdown', 'not replayed: log generation 3 (required) is '
+                                             'missing', False),
+                         'dirty shutdown, read as stored (not replayed: log generation 3 (required) is missing)')
+        self.assertEqual(ntds.database_state('', '', False), 'read as stored')
+
+    def test_the_logs_beside_the_database_are_collected(self):
+        import fnmatch  # pylint: disable=import-outside-toplevel
+        for key in ('ntdsAccounts', 'ntdsGroups'):
+            paths = ntds.__artifacts_v2__[key]['paths']
+            for name in ('edb.log', 'edb0001A.log', 'edb00002.log', 'ntds.dit'):
+                self.assertTrue(any(fnmatch.fnmatch(f'C/Windows/NTDS/{name}', p) for p in paths), (key, name))
+            self.assertFalse(any(fnmatch.fnmatch('C/Windows/NTDS/edb.chk', p) for p in paths))
 
     def test_a_database_that_cannot_be_read_is_logged_and_skipped(self):
         with mock.patch.object(ntds, 'read_directory', side_effect=ValueError('bad page')), \
