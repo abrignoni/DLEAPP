@@ -298,7 +298,7 @@ __artifacts_v2__ = {
                  "manifest types as a FILETIME and python-evtx renders as it does the event's own time; it was not "
                  "later than Event Time (UTC) on any tested row. Account Name, Account Domain, Account SID and "
                  "Logon ID are the record's SubjectUserName, SubjectDomainName, SubjectUserSid and SubjectLogonId, "
-                 "as stored. Record ID is the record's EventRecordID and Computer the machine name the record "
+                 "as stored with leading and trailing whitespace removed, as are the other fields. Record ID is the record's EventRecordID and Computer the machine name the record "
                  "stores. The figures below are measurements. The tested logs give 7, 7, 93 and 16 rows on "
                  "af_case2_win10, hexordia_mvs2025_win11, pc_mus_001_win11 and szechuan_win10, and 31 on "
                  "windows11_arm_4688_known, the Security log of a Windows 11 build 26200 ARM64 virtual machine "
@@ -308,7 +308,7 @@ __artifacts_v2__ = {
                  "SID was blank on every tested row and Flags (as stored) was 0 on every tested row. Credentials "
                  "Returned was blank on every 5382 row and 0 on 8 and 1 on 2 of the 5381 rows. Return Code (as "
                  "stored) was 1168 on 122 of the 5382 rows and 0 on 22, all 22 on windows11_arm_4688_known. "
-                 "Account SID is S-1-5-18 on 120 rows and the SID of an account (S-1-5-21-...) on 34. On "
+                 "Account SID is S-1-5-18 on 120 rows and a SID beginning S-1-5-21 on 34. On "
                  "hexordia_mvs2025_win11 the 7 rows differ only in Event Time (UTC) and Record ID, and on "
                  "szechuan_win10 the 16 rows hold one Schema Name, Schema, Resource and Return Code (as stored) "
                  "and Account SID S-1-5-18. Computer held one value on every row of af_case2_win10, "
@@ -319,7 +319,8 @@ __artifacts_v2__ = {
                  "not hold the credential, and this artifact does not treat a row as proof of what the process did "
                  "with it. A record python-evtx cannot render, or whose XML does not parse, is counted in the run "
                  "log and not reported; every record of the tested logs rendered. A log marked dirty is read past "
-                 "the chunks its header counts, and the run log says how many records came from there. Reading "
+                 "the chunks its header counts, and the run log says how many records came from there when it "
+                 "finds any. Reading "
                  "needs the python-evtx package (pip install python-evtx).",
         "paths": ('*/Windows/System32/winevt/Logs/Security.evtx',),
         "output_types": ["standard"],
