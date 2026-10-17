@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.72"
+QNXPROBE_VERSION = "1.73"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -16520,8 +16520,12 @@ BDE_METHODS = {0x8000: "AES-128-CBC with the Elephant diffuser",
                0x8002: "AES-128-CBC", 0x8003: "AES-256-CBC",
                0x8004: "AES-128-XTS", 0x8005: "AES-256-XTS"}
 BDE_READ_METHODS = (0x8002, 0x8003, 0x8004, 0x8005)
+# libbde lists all but 0x0300 and 0x0700. Those two are the codes Windows 11 (build
+# 26200) wrote for the protectors manage-bde calls "TPM And Startup Key" and "TPM
+# And PIN And Startup Key" (tests/fixtures/bitlocker-win11-tpm, from a test VM).
 BDE_PROTECTORS = {0x0000: "clear key", 0x0100: "TPM", 0x0200: "startup key",
-                  0x0500: "TPM and PIN", 0x0800: "recovery password",
+                  0x0300: "TPM and startup key", 0x0500: "TPM and PIN",
+                  0x0700: "TPM, PIN and startup key", 0x0800: "recovery password",
                   0x2000: "password"}
 
 
@@ -16539,6 +16543,43 @@ def _bde_entries(data):
 
 def _bde_guid(raw):
     return str(uuid.UUID(bytes_le=bytes(raw))).upper()
+
+
+# A TPM-protected key (value type 6) as dissect.fve declares it
+# (dissect/fve/bde/c_tpm.py at 0b3caf20c1e95136cb2eb4494303604e7629616b, lines 44-53,
+# FVE_DATUM_TPM_ENC_BLOB): a 32-bit PCR bitmap, the sealed object's public and
+# private parts and the PCR digest, each behind a 16-bit size, then the PCR
+# selection behind an 8-bit size. Sizes are big-endian. dissect reads the policy
+# from that selection, little-endian (information.py, pcr_policy, line 522). On
+# the five TPM protectors Windows 11 wrote for tests/fixtures/bitlocker-win11-tpm,
+# the leading bitmap read little-endian names the same PCRs, and both are the
+# PCR Validation Profile manage-bde printed (7, 11 and 0, 2, 4, 11).
+BDE_TPM_DIGESTS = {20: "SHA-1", 32: "SHA-256", 48: "SHA-384", 64: "SHA-512"}
+
+
+def _bde_tpm(val):
+    """The PCRs a TPM-protected key is sealed to, as stored, or None when the value
+    does not have the layout above. ``agree`` is False when the leading bitmap and
+    the selection name different PCRs; ``pcrs`` is then empty, since neither is
+    known to be the one the TPM checks. Nothing is unsealed: the TPM keeps that key."""
+    if len(val) < 4:
+        return None
+    pos, parts = 4, []
+    for width in (2, 2, 2, 1):
+        if pos + width > len(val):
+            return None
+        n = int.from_bytes(val[pos:pos + width], "big")
+        pos += width
+        if pos + n > len(val):
+            return None
+        parts.append(val[pos:pos + n])
+        pos += n
+    if pos != len(val) or not 1 <= len(parts[3]) <= 4:
+        return None
+    selection = int.from_bytes(parts[3], "little")
+    agree = selection == int.from_bytes(val[:4], "little")
+    return dict(pcrs=[i for i in range(8 * len(parts[3])) if selection >> i & 1] if agree else [],
+                agree=agree, digest=BDE_TPM_DIGESTS.get(len(parts[2]), f"{len(parts[2])} bytes"))
 
 
 def _bde_ccm_open(key, value):
@@ -16677,7 +16718,11 @@ class BitLocker:
                 self.description = val.decode("utf-16-le", "replace").rstrip("\x00")
             elif etype == 2 and vtype == 8 and len(val) >= 28:
                 vmk = dict(id=_bde_guid(val[:16]), protection=struct.unpack_from("<H", val, 26)[0],
+                           modified=struct.unpack_from("<Q", val, 16)[0],
                            props=_bde_entries(val[28:]))
+                tpm = [_bde_tpm(v) for _e, vt, v in vmk["props"] if vt == 6]
+                vmk["tpm"] = tpm[0] if tpm else None
+                vmk["tpm_unread"] = bool(tpm) and tpm[0] is None
                 self.vmks.append(vmk)
                 self.protectors.append((BDE_PROTECTORS.get(vmk["protection"],
                                                            f"protection 0x{vmk['protection']:04x}"),
@@ -16766,8 +16811,16 @@ class BitLocker:
             out.append(f"created      {stamp(int(ntfs_time(self.created)))}")
         if self.volume_id:
             out.append(f"volume id    {self.volume_id}")
-        for kind, pid in self.protectors:
-            out.append(f"protector    {kind:<18} id {pid}")
+        for (kind, pid), vmk in zip(self.protectors, self.vmks):
+            line = f"protector    {kind:<18} id {pid}"
+            if vmk["tpm"] is not None and not vmk["tpm"]["agree"]:
+                line += "   PCRs not read: its two stored PCR lists disagree"
+            elif vmk["tpm"] is not None:
+                line += (f"   PCRs {', '.join(map(str, vmk['tpm']['pcrs'])) or 'none'}"
+                         f" ({vmk['tpm']['digest']} policy digest)")
+            elif vmk["tpm_unread"]:
+                line += "   PCRs not read: its TPM entry has a layout this does not know"
+            out.append(line)
         if any(kind == "clear key" for kind, _pid in self.protectors):
             # Windows lists no clear key among a volume's protectors; it is what
             # suspending protection leaves (manage-bde -protectors -disable).
@@ -16908,6 +16961,26 @@ class BitLocker:
     def summary(self):
         return (f"BitLocker {BDE_METHODS.get(self.method, '')}, unlocked with its {self.unlocked_by}"
                 if self.fvek is not None else "BitLocker, locked")
+
+    def facts(self):
+        """What the metadata says, as data, for a caller that reports it (volumes()
+        puts it under "bitlocker"): the layout, method, description, created and
+        volume id, and one dict per protector with its kind, code, id, last-modified
+        FILETIME and, for a TPM, the PCRs its key is sealed to as stored. ``why`` is
+        why the metadata or the volume could not be read, else empty."""
+        protectors = []
+        for (kind, pid), vmk in zip(self.protectors, self.vmks):
+            tpm = vmk["tpm"]
+            protectors.append(dict(kind=kind, code=vmk["protection"], id=pid,
+                                   modified=vmk["modified"],
+                                   pcrs=list(tpm["pcrs"]) if tpm and tpm["agree"] else None,
+                                   pcr_digest=tpm["digest"] if tpm else "",
+                                   pcrs_disagree=bool(tpm) and not tpm["agree"],
+                                   tpm_unread=vmk["tpm_unread"]))
+        return dict(layout=self.layout, method=self.method,
+                    method_name=BDE_METHODS.get(self.method, f"method 0x{self.method:04x}") if self.method else "",
+                    description=self.description, created=self.created, volume_id=self.volume_id,
+                    protectors=protectors, unlocked_by=self.unlocked_by or "", why=self.why)
 
     def locked_note(self):
         """Why the volume was not read, and what would open it."""
@@ -28466,6 +28539,8 @@ def volumes(fh, size=None):
         walker      an object with root, listdir, entry and read_file, when the
                     kind is one this reads; else
         note        why there is no walker
+        bitlocker   for a BitLocker volume, locked or opened, BitLocker.facts():
+                    its protectors (kind, id, and for a TPM the stored PCRs)
 
     Brute-scan finds are report-only in main() too (they have no region and so
     no base to walk), so they are not here either. fh is what open_image()
@@ -28530,11 +28605,14 @@ def volumes(fh, size=None):
         if opened is not None:
             vol["encryption"] = opened.summary()
             vol["detail"] = "; ".join([opened.summary()] + lines[:1])
+            vol["bitlocker"] = opened.facts()
         if kind == "bitlocker":
             bl = next((b for b in getattr(fh, "bitlocker_found", ()) if b.base == base), None)
             bl = bl or BitLocker.open(fh, base, rsize)
             vol["encryption"] = "BitLocker, locked"
             vol["note"] = bl.locked_note() if bl else "BitLocker-encrypted and not read"
+            if bl:
+                vol["bitlocker"] = bl.facts()
             out.append(vol)
             continue
         try:
@@ -36491,6 +36569,57 @@ def self_test():
                 print(f"  [{'PASS' if cond else 'FAIL'}] a BitLocker header (a FAT32 boot sector in "
                       f"all but its own fields, or Windows Vista's NTFS-like one) is taken for "
                       f"neither a FAT32 volume nor a partition table")
+
+        # ---- BitLocker protectors Windows 11 wrote, TPM ones among them ---
+        tpm_dir = os.path.join(here, "bitlocker-win11-tpm")
+        if not os.path.isfile(os.path.join(tpm_dir, "manifest.json")):
+            print("  [SKIP] BitLocker protectors Windows 11 wrote (fixtures not found)")
+        else:
+            class _Ranges:
+                """The captured header and metadata at their volume offsets, zeros elsewhere."""
+
+                def __init__(self, parts, size):
+                    self.parts, self.size, self.pos = parts, size, 0
+
+                def seek(self, off, whence=0):
+                    self.pos = off if whence == 0 else self.pos + off if whence == 1 else self.size + off
+                    return self.pos
+
+                def tell(self):
+                    return self.pos
+
+                def read(self, n=-1):
+                    end = self.size if n is None or n < 0 else min(self.size, self.pos + n)
+                    out = bytearray(max(0, end - self.pos))
+                    for start, data in self.parts:
+                        lo, hi = max(start, self.pos), min(start + len(data), end)
+                        if lo < hi:
+                            out[lo - self.pos:hi - self.pos] = data[lo - start:hi - start]
+                    self.pos = max(self.pos, end)
+                    return bytes(out)
+
+            with open(os.path.join(tpm_dir, "manifest.json"), encoding="utf-8") as handle:
+                tpm_states = json.load(handle)["states"]
+            windows_names = {"Numerical Password": "recovery password", "TPM": "TPM",
+                             "TPM And PIN": "TPM and PIN", "TPM And Startup Key": "TPM and startup key",
+                             "TPM And PIN And Startup Key": "TPM, PIN and startup key"}
+            for state, info in sorted(tpm_states.items()):
+                try:
+                    with gzip.open(os.path.join(tpm_dir, f"{state}.bin.gz"), "rb") as g:
+                        raw = g.read()
+                    parts = [(0, raw[:512])] + [(off, raw[512 + i * 65536:512 + (i + 1) * 65536])
+                                                for i, off in enumerate(info["metadata_offsets"])]
+                    fh = _Ranges(parts, info["partition_size"])
+                    facts = BitLocker.open(fh, 0, info["partition_size"]).facts()
+                    got = sorted((p["id"], p["kind"], p["pcrs"]) for p in facts["protectors"])
+                    want = sorted((w["id"], windows_names.get(w["type"]), w["pcrs"]) for w in info["windows"])
+                    cond, detail = got == want, f"{len(got)} protector(s)"
+                except Exception as exc:                 # pylint: disable=broad-except
+                    cond, detail = False, f"raised {type(exc).__name__}: {exc}"
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] BitLocker {state}: every protector's kind, id "
+                      f"and PCRs are what manage-bde printed ({detail})")
 
         # ---- AFF4 and encrypted APFS volumes --------------------------
         import hashlib as _hl4, io as _io4  # pylint: disable=import-outside-toplevel

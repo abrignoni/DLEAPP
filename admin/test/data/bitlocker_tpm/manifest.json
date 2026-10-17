@@ -1,0 +1,66 @@
+{
+ "what": "BitLocker header and FVE metadata of C: on a Windows 11 (build 26200) ARM64 test VM with a virtual TPM 2.0, read from the physical disk below the BitLocker filter, one protector setup per file. Each .bin.gz is volume-header.bin (512 bytes) then metadata-1, -2 and -3 (65,536 bytes each), byte for byte. 'windows' is what manage-bde -protectors -get C: printed for that setup.",
+ "states": {
+  "01-tpm-default": {
+   "partition_size": 273220108288,
+   "metadata_offsets": [
+    150364160,
+    1143160832,
+    2233708544
+   ],
+   "sha256": {
+    "volume-header.bin": "fa9b5b81d203517298108d7da3d9d3500441a61104f506ed9d89ade72112c381",
+    "metadata-1.bin": "596f39fec15975886fb340ac871258b32bafa0bd9ca77cdf005cfaeece74ba37",
+    "metadata-2.bin": "596f39fec15975886fb340ac871258b32bafa0bd9ca77cdf005cfaeece74ba37",
+    "metadata-3.bin": "596f39fec15975886fb340ac871258b32bafa0bd9ca77cdf005cfaeece74ba37"
+   },
+   "windows": [
+    {
+     "type": "Numerical Password",
+     "id": "2F8617F2-FB62-46E5-BDFF-9670A41A1F1E",
+     "pcrs": null
+    },
+    {
+     "type": "TPM",
+     "id": "32A466B4-B820-49F7-8943-64C5F3470128",
+     "pcrs": [
+      7,
+      11
+     ]
+    }
+   ]
+  },
+  "05-tpm-pcr-0-2-4-11": {
+   "partition_size": 273220108288,
+   "metadata_offsets": [
+    150364160,
+    1143160832,
+    2233708544
+   ],
+   "sha256": {
+    "volume-header.bin": "fa9b5b81d203517298108d7da3d9d3500441a61104f506ed9d89ade72112c381",
+    "metadata-1.bin": "ded59731e925ecb26acbbcf145e8ecca9accb3681f3e06f6be324d7d294bce5b",
+    "metadata-2.bin": "ded59731e925ecb26acbbcf145e8ecca9accb3681f3e06f6be324d7d294bce5b",
+    "metadata-3.bin": "ded59731e925ecb26acbbcf145e8ecca9accb3681f3e06f6be324d7d294bce5b"
+   },
+   "windows": [
+    {
+     "type": "Numerical Password",
+     "id": "2F8617F2-FB62-46E5-BDFF-9670A41A1F1E",
+     "pcrs": null
+    },
+    {
+     "type": "TPM",
+     "id": "D1B11C46-4015-4DC1-A13A-B8E7AD5EA973",
+     "pcrs": [
+      0,
+      2,
+      4,
+      11
+     ]
+    }
+   ]
+  }
+ },
+ "source": "Copied from abrignoni/qnxprobe tests/fixtures/bitlocker-win11-tpm at tag v1.73."
+}
