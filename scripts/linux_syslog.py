@@ -150,7 +150,7 @@ def read_journals(context, counts):
         relative = context.get_relative_path(path)
         staged[relative] = path
         try:
-            journals.append((relative, systemd_journal.read_journal(path)))
+            journals.append((relative, systemd_journal.read_journal(path, verify_hashes=False)))
         except (OSError, systemd_journal.JournalError) as exc:
             counts[f'journal files not read ({type(exc).__name__})'] += 1
     return journals, staged

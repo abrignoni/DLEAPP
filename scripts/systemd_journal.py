@@ -15,7 +15,9 @@ entry written but not yet linked into the chain, or one past a damaged object, i
 entry names is decoded (XZ with the lzma module, LZ4 with the block decoder below, zstd with compression.zstd
 from Python 3.14, or on earlier Pythons with the backports.zstd or zstandard package when one is installed)
 and its payload is checked against the hash systemd stored with it: SipHash-2-4 keyed with the file ID in
-files flagged KEYED_HASH, Jenkins lookup3 otherwise (journal_file_hash_data in journal-file.c).
+files flagged KEYED_HASH, Jenkins lookup3 otherwise (journal_file_hash_data in journal-file.c). A caller that never
+reads Entry.problems can turn the check off (verify_hashes=False): it is most of the reading time, and its only
+result is a problem string.
 """
 
 import struct
@@ -305,7 +307,7 @@ class JournalFile:
 
     CACHE_LIMIT = 100000
 
-    def __init__(self, data):
+    def __init__(self, data, verify_hashes=True):
         if len(data) < _HEADER.size:
             raise JournalError(f'{len(data)} bytes is shorter than a journal header')
         (signature, self.compatible_flags, self.incompatible_flags, self.state, self.file_id, self.machine_id,
@@ -318,6 +320,7 @@ class JournalFile:
         if self.header_size < _HEADER.size or self.header_size > len(data):
             raise JournalError(f'header size {self.header_size} is not possible for a {len(data)}-byte file')
         self.data = data
+        self.verify_hashes = verify_hashes
         self.keyed = bool(self.incompatible_flags & KEYED_HASH)
         self.compact = bool(self.incompatible_flags & COMPACT)
         self.unknown_incompatible = self.incompatible_flags & ~KNOWN_INCOMPATIBLE
@@ -454,19 +457,20 @@ class JournalFile:
                 return None, None, f'the DATA object at offset {offset} is {exc}'
         name, equals, value = payload.partition(b'=')
         name = name.decode('ascii', 'replace') if equals else None
-        computed = siphash24(payload, self.file_id) if self.keyed else jenkins_hash64(payload)
         problem = None
-        if computed != stored:
-            problem = 'the hash stored with the DATA object does not match its payload'
+        if self.verify_hashes:
+            computed = siphash24(payload, self.file_id) if self.keyed else jenkins_hash64(payload)
+            if computed != stored:
+                problem = 'the hash stored with the DATA object does not match its payload'
         if name is None:
             return None, None, f'the DATA object at offset {offset} holds no "="'
         return name, value, problem
 
 
-def read_journal(path):
+def read_journal(path, verify_hashes=True):
     """A JournalFile for the file at path."""
     with open(path, 'rb') as handle:
-        return JournalFile(handle.read())
+        return JournalFile(handle.read(), verify_hashes)
 
 
 def head_entry_realtime(path):

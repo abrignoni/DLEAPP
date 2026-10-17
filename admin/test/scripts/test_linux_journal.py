@@ -222,6 +222,10 @@ class DamageTest(unittest.TestCase):
         self.assertIn(('MESSAGE', b'fixture entry 8'), entries[3].fields)
         self.assertEqual(entries[3].problems, ['MESSAGE: the hash stored with the DATA object does not match its payload'])
         self.assertEqual(sum(bool(e.problems) for e in entries), 1)
+        # With the check off the same fields are read and the mismatch is not looked for.
+        unchecked = list(sj.JournalFile(bytes(data), verify_hashes=False).entries())
+        self.assertEqual([e.fields for e in unchecked], [e.fields for e in entries])
+        self.assertEqual(sum(bool(e.problems) for e in unchecked), 0)
 
     def test_item_not_pointing_to_data(self):
         data = bytearray(fixture('compact_plain_264'))
