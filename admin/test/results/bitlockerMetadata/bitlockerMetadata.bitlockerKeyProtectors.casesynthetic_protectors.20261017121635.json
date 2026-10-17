@@ -1,0 +1,106 @@
+{
+  "metadata": {
+    "module_name": "bitlockerMetadata",
+    "artifact_name": "BitLocker Key Protectors",
+    "function_name": "bitlockerKeyProtectors",
+    "case_number": "casesynthetic_protectors",
+    "number_of_columns": 6,
+    "number_of_rows": 9,
+    "total_data_size_bytes": 946,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/bitlockerMetadata/testdata.bitlockerMetadata.bitlockerKeyProtectors.casesynthetic_protectors.zip",
+    "start_time": "2026-10-17T12:16:35.147379+00:00",
+    "end_time": "2026-10-17T12:16:35.151651+00:00",
+    "run_time_seconds": 0.0006234645843505859,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-17T12:16:35.149755",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Image / Volume",
+    "Key Protector",
+    "Protector ID",
+    "PCRs",
+    "PCR Meaning",
+    "Status"
+  ],
+  "data": [
+    [
+      "synthetic.img / lba0",
+      "Clear key",
+      "00000000-0000-0000-0000-000000001000",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "TPM",
+      "00000000-0000-0000-0000-000000001001",
+      "7, 11",
+      "7: Secure Boot policy; 11: BitLocker access control",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "External key",
+      "00000000-0000-0000-0000-000000001002",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "TPM and external startup key",
+      "00000000-0000-0000-0000-000000001003",
+      "7, 11",
+      "7: Secure Boot policy; 11: BitLocker access control",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "TPM and PIN",
+      "00000000-0000-0000-0000-000000001004",
+      "7, 11",
+      "7: Secure Boot policy; 11: BitLocker access control",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "TPM, PIN and external startup key",
+      "00000000-0000-0000-0000-000000001005",
+      "7, 11",
+      "7: Secure Boot policy; 11: BitLocker access control",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "Recovery password",
+      "00000000-0000-0000-0000-000000001006",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "Password",
+      "00000000-0000-0000-0000-000000001007",
+      "",
+      "",
+      "Validated"
+    ],
+    [
+      "synthetic.img / lba0",
+      "Unknown (0x1234)",
+      "00000000-0000-0000-0000-000000001008",
+      "",
+      "",
+      "Validated"
+    ]
+  ]
+}
