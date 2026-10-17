@@ -141,9 +141,13 @@ GONE_GROUP = obj(22, sAMAccountName='oldgroup', objectSid=stored_sid(*DOMAIN, 11
                  whenCreated=dstime_of(CREATED), whenChanged=dstime_of(CREATED), isDeleted=1, name='oldgroup')
 UNKNOWN_GONE = obj(13, objectSid=stored_sid(*DOMAIN, 1109), isDeleted=1, name='x')    # neither: not reported
 DELETED_NO_SID = obj(14, sAMAccountName='nosid', isDeleted=1, userAccountControl=0x200)  # no SID: not kept
-LINKS = [{b'link_DNT': 21, b'backlink_DNT': 10, b'link_base': 1},
+FILLER = 0x2A2A2A2A2A2A2A2A          # the value the tested databases hold on every current link
+REMOVED = utc(2020, 9, 19, 2, 0, 0)
+LINKS = [{b'link_DNT': 21, b'backlink_DNT': 10, b'link_base': 1, b'link_deltime': FILLER},
          {b'link_DNT': 21, b'backlink_DNT': 31, b'link_base': 1},
-         {b'link_DNT': 21, b'backlink_DNT': 11, b'link_base': 47}]   # another linked attribute
+         {b'link_DNT': 21, b'backlink_DNT': 11, b'link_base': 47},   # another linked attribute
+         # a member link with a deletion time: HOST1$ removed from Administrators
+         {b'link_DNT': 21, b'backlink_DNT': 11, b'link_base': 1, b'link_deltime': dstime_of(REMOVED)}]
 
 
 class _Walk:
@@ -197,6 +201,8 @@ class DirectoryTest(unittest.TestCase):
                           22: 'group'})
         self.assertEqual(directory.members, {21: [10, 31]})
         self.assertEqual(directory.member_of, {10: [21], 31: [21]})
+        self.assertEqual(directory.removed_members, {21: [(11, REMOVED)]})
+        self.assertEqual(directory.removed_from, {11: [(21, REMOVED)]})
         self.assertEqual(directory.notes, [])
 
     def test_an_account_row(self):
@@ -205,12 +211,17 @@ class DirectoryTest(unittest.TestCase):
             CREATED, CREATED + datetime.timedelta(seconds=60), utc(2020, 9, 19, 1, 0, 0), '', CREATED, '', '',
             'admin1', '0x30000000 (SAM_USER_OBJECT)', 'S-1-5-21-1111111111-2222222222-3333333333-500',
             '0x00010200 (ADS_UF_NORMAL_ACCOUNT, ADS_UF_DONT_EXPIRE_PASSWD)', 'Domain Users (513)', 'Administrators',
-            0, 7, '', '', 'made-up account', '', '', '', 'clean shutdown'))
+            '', 0, 7, '', '', 'made-up account', '', '', '', 'clean shutdown'))
+
+    def test_a_removed_membership_is_not_current_and_carries_its_deletion_time(self):
+        directory = ntds.read_directory('/case/data/ntds.dit')
+        row = ntds.account_row(directory, 11, 'clean shutdown')
+        self.assertEqual(row[12:14], ('', 'Administrators (2020-09-19 02:00:00 UTC)'))
 
     def test_a_deleted_account_row(self):
         directory = ntds.read_directory('/case/data/ntds.dit')
         row = ntds.account_row(directory, 12, 'clean shutdown')
-        self.assertEqual((row[0], row[1], row[7], row[8], row[9], row[10], row[18:]), (
+        self.assertEqual((row[0], row[1], row[7], row[8], row[9], row[10], row[19:]), (
             CREATED, CREATED + datetime.timedelta(hours=1), 'olduser', '',
             'S-1-5-21-1111111111-2222222222-3333333333-1107', '0x00000200 (ADS_UF_NORMAL_ACCOUNT)',
             ('TRUE', 'TRUE', 'Users', 'clean shutdown')))
@@ -218,15 +229,16 @@ class DirectoryTest(unittest.TestCase):
     def test_a_primary_group_the_database_does_not_hold_is_the_rid(self):
         directory = ntds.read_directory('/case/data/ntds.dit')
         row = ntds.account_row(directory, 11, 'dirty shutdown, read as stored')
-        self.assertEqual((row[6], row[11], row[12], row[13], row[14]), ('', '515', '', '', ''))
+        self.assertEqual((row[6], row[11], row[12], row[14], row[15]), ('', '515', '', '', ''))
 
     def test_a_group_row_names_members_by_sam_name_or_object_name(self):
         directory = ntds.read_directory('/case/data/ntds.dit')
         self.assertEqual(ntds.group_row(directory, 21, 'clean shutdown'), (
             CREATED, CREATED, 'Administrators', '0x20000000 (SAM_ALIAS_OBJECT)', 'S-1-5-32-544',
             '0x80000005 (GROUP_TYPE_BUILTIN_LOCAL_GROUP, GROUP_TYPE_RESOURCE_GROUP, GROUP_TYPE_SECURITY_ENABLED)',
-            'made-up group', 'admin1, S-1-5-11', 2, '', '', '', 'clean shutdown'))
-        self.assertEqual(ntds.group_row(directory, 20, 'clean shutdown')[7:9], ('', 0))
+            'made-up group', 'admin1, S-1-5-11', 2, 'HOST1$ (2020-09-19 02:00:00 UTC)', '', '', '',
+            'clean shutdown'))
+        self.assertEqual(ntds.group_row(directory, 20, 'clean shutdown')[7:10], ('', 0, ''))
 
     def test_no_secret_column_is_asked_for(self):
         asked = []
@@ -250,7 +262,7 @@ class DirectoryTest(unittest.TestCase):
             + [ADMIN]
         directory = ntds.read_directory('/case/data/ntds.dit')
         self.assertIn('no datatable column was found for displayName', directory.notes)
-        self.assertEqual(ntds.account_row(directory, 10, '')[16], '')
+        self.assertEqual(ntds.account_row(directory, 10, '')[17], '')
 
     def test_without_a_member_link_id_no_membership_is_read(self):
         _Walk.tables['datatable'] = [r for r in schema_records() if r[COLUMNS['lDAPDisplayName']] != 'linkID'] + [ADMIN]

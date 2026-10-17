@@ -109,9 +109,9 @@ __artifacts_v2__ = {
                  'https://learn.microsoft.com/en-us/windows/win32/adschema/a-attributeid and '
                  'https://learn.microsoft.com/en-us/windows/win32/adschema/a-ldapdisplayname). All 22 attributes this '
                  'module reads resolved to a column that way on each of the three tested databases. Password hashes, '
-                 'password history and the other secret attributes are not read. Created (UTC) and Changed (UTC) are '
-                 'whenCreated and whenChanged, which the datatable stores as a whole number of seconds and are read as a '
-                 'DSTIME, seconds since 1 January 1601 ([MS-DRSR] 5.51 DSTIME, '
+                 'password history and the other secret attributes are not put in any row. Created (UTC) and Changed (UTC) '
+                 'are whenCreated and whenChanged, which the datatable stores as a whole number of seconds and are read as '
+                 'a DSTIME, seconds since 1 January 1601 ([MS-DRSR] 5.51 DSTIME, '
                  'https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-drsr/a72a16b9-73e4-41ca-a5c1-afc5fc54e175). '
                  'No Microsoft source says the datatable stores them that way; the data does: Password Last Set (UTC) lies '
                  'within 60 seconds of Created (UTC) on 521 of the 532 live accounts with both (10 of 12, 502 of 510 and 9 '
@@ -152,20 +152,25 @@ __artifacts_v2__ = {
                  "primaryGroupID, the RID of the account's primary group "
                  '(https://learn.microsoft.com/en-us/windows/win32/adschema/a-primarygroupid), with the name of the group '
                  "whose SID is the account's domain SID and that RID, or the RID alone when the database holds no such "
-                 'group. Member Of lists the groups the database links the account to through the member attribute (see '
-                 'Active Directory Groups for how those links are read); the primary group is not listed there, groups '
-                 'inside groups are not followed, and no deleted account had a link. Bad Password Count and Logon Count '
-                 'are badPwdCount and logonCount as stored; Bad Password Count held 0 on every row of '
-                 'alihadi_threatsim_server2019 and on every live row of szechuan_dc01_server2012r2, and the deleted rows '
-                 'hold none. User Principal Name, Display Name and Description are userPrincipalName, displayName and '
+                 'group. Member Of lists the groups the database links the account to through the member attribute with no '
+                 'deletion time on the link, and Removed From the groups whose link to the account carries one, each with '
+                 'that time (see Active Directory Groups for how those links are read); the primary group is not listed '
+                 'there, groups inside groups are not followed, and no deleted account had a link. Removed From was filled '
+                 'on 1 row, of ou_ransomware_server2022, and blank on every row of the other two databases. Bad Password '
+                 'Count and Logon Count are badPwdCount and logonCount as stored; Bad Password Count held 0 on every row '
+                 'of alihadi_threatsim_server2019 and on every live row of szechuan_dc01_server2012r2, and the deleted '
+                 'rows hold none. User Principal Name, Display Name and Description are userPrincipalName, displayName and '
                  'description; Display Name was blank on every row of alihadi_threatsim_server2019. Is Deleted and Is '
                  'Recycled are isDeleted and isRecycled, TRUE when set, FALSE when stored as not set, and blank when the '
                  'record does not hold them (https://learn.microsoft.com/en-us/windows/win32/adschema/a-isdeleted, '
-                 'https://learn.microsoft.com/en-us/windows/win32/adschema/a-isrecycled); both were TRUE on every deleted '
-                 'row and blank on every other row, and both were blank on every row of alihadi_threatsim_server2019, '
-                 'which holds no deleted account. Last Known Parent is the name of the object lastKnownParent points to '
+                 'https://learn.microsoft.com/en-us/windows/win32/adschema/a-isrecycled). They are two attributes: the '
+                 'first page describes an object marked for deletion and the second a recycled object, for use with AD '
+                 'Recycle Bin. Is Deleted and Is Recycled were identical on every tested row: both TRUE on every deleted '
+                 'row and blank on every other row, and both blank on every row of alihadi_threatsim_server2019, which '
+                 'holds no deleted account. Last Known Parent is the name of the object lastKnownParent points to '
                  '(https://learn.microsoft.com/en-us/windows/win32/adschema/a-lastknownparent), its relative name only, '
-                 'not its full distinguished name; it was blank on every live row and on every row of '
+                 'not its full distinguished name. Last Known Parent was blank on every live row and on every row of '
+                 'alihadi_threatsim_server2019. Bad Password Time (UTC) was blank on every row of '
                  'alihadi_threatsim_server2019. Database State is the state the database header records '
                  '(JET_dbstateDirtyShutdown 2, JET_dbstateCleanShutdown 3, '
                  'https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/published/inc/jethdr.w#L5406-L5408) '
@@ -212,29 +217,43 @@ __artifacts_v2__ = {
                  'deleted group. Group Type is groupType in hexadecimal with the names of the flags it sets from '
                  "Microsoft's [MS-ADTS] 2.2.12 Group Type Flags "
                  '(https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/11972272-09ec-4a42-bf5e-3e99b321cf55). '
-                 'Members lists the objects the database links to the group through the member attribute, by '
-                 "sAMAccountName, or by the object's name when it has none, and Member Count is how many links there are. "
-                 "The links are read from link_table: a row links the group (link_DNT, the group's DNT_col) to a member "
-                 "(backlink_DNT) for the attribute whose linkID is twice link_base. member's linkID is 2 in Microsoft's "
-                 "schema (https://learn.microsoft.com/en-us/windows/win32/adschema/a-member) and in each tested database's "
-                 'own schema, so member links are the rows with link_base 1. No Microsoft documentation of that table '
-                 'layout was found. The data supports it: on all three databases every link_base value in link_table is '
-                 'half the linkID of an attribute in the schema, and the links give the built-in Administrators group '
+                 'Members lists the objects the database links to the group through the member attribute with no deletion '
+                 "time on the link, by sAMAccountName, or by the object's name when it has none, and Member Count is how "
+                 'many such links there are. Removed Members lists the objects whose link to the group carries a deletion '
+                 'time, each followed by that time in UTC. The links are read from link_table: a row links the group '
+                 "(link_DNT, the group's DNT_col) to a member (backlink_DNT) for the attribute whose linkID is twice "
+                 "link_base. member's linkID is 2 in Microsoft's schema "
+                 "(https://learn.microsoft.com/en-us/windows/win32/adschema/a-member) and in each tested database's own "
+                 'schema, so member links are the rows with link_base 1. No Microsoft documentation of that table layout '
+                 'was found. The data supports it: on all three databases every link_base value in link_table is half the '
+                 'linkID of an attribute in the schema, and the links give the built-in Administrators group '
                  '(S-1-5-32-544) the members Microsoft lists as its default members, the accounts or groups with RIDs 500, '
                  '512 and 519 (Administrator, Domain Admins, Enterprise Admins; '
                  'https://github.com/MicrosoftDocs/windowsserverdocs/blob/6e20f882e7400d3b423267a6a5e728ad16b2a7c0/WindowsServerDocs/identity/ad-ds/manage/understand-security-groups.md#L211-L214), '
-                 'with one more member on szechuan_dc01_server2012r2 and on ou_ransomware_server2022. link_table also '
-                 'holds two more time columns, link_deactivetime and link_deltime. Their meaning is not established from a '
-                 'Microsoft source and this artifact does not read them, so every member link is listed. On the tested '
-                 'databases both hold one fixed filler value on every member link except 4 on ou_ransomware_server2022, '
-                 'whose link_deltime holds a value in the range of a DSTIME; those 4 links, from one account to four '
-                 'groups, are listed like the others, so Members and Member Of can include a membership that link_table '
-                 'marks in a way this artifact does not read. The tested databases hold 28, 25 and 25 member links '
-                 '(alihadi_threatsim_server2019, ou_ransomware_server2022, szechuan_dc01_server2012r2), 5 of them on each '
-                 "database to objects without an sAMAccountName. A member's own primary group is not a link and is not "
-                 'counted here (see Primary Group in Active Directory Accounts). Is Deleted, Is Recycled and Last Known '
-                 'Parent are read as in Active Directory Accounts and were blank on every tested row. Database State held '
-                 'one value on every row of each database. Rows are ordered by Created (UTC), then SAM Account Name.',
+                 'with one more member on szechuan_dc01_server2012r2 and on ou_ransomware_server2022. A link whose '
+                 'link_deltime reads as a DSTIME (seconds since 1601, as whenCreated is read) is treated as a removed '
+                 'membership with that deletion time. No Microsoft documentation of that column was found. Two published '
+                 'readers of ntds.dit support the reading: ntdsxtract (Csaba Barta, GPL-3.0) reads link_deltime as a '
+                 'DSTIME and lists a group member whose link has one as deleted at that time '
+                 '(https://github.com/csababarta/ntdsxtract/blob/7fa1c8c28cbbf97a42bef40f20009dba85e4c25f/ntds/dslink.py#L84-L100, '
+                 'https://github.com/csababarta/ntdsxtract/blob/7fa1c8c28cbbf97a42bef40f20009dba85e4c25f/dsgroups.py#L186-L213), '
+                 'and DSInternals (Michael Grafnetter, MIT) reads members through the link_table index it describes as the '
+                 'index of valid links '
+                 '(https://github.com/MichaelGrafnetter/DSInternals/blob/f54c3c3075bb6c3637623f775c93ed3a339b5ec6/Src/DSInternals.DataStore/LinkResolver.cs#L15-L20, '
+                 '#L76). No code from either is used. The data agrees: on the tested databases link_deltime holds the '
+                 'value 0x2A2A2A2A2A2A2A2A, which is out of range for a DSTIME, on every member link except 4 on '
+                 "ou_ransomware_server2022, from one account to four groups, and for each of those 4 the server's own "
+                 'Security log holds a member removed record (4729 or 4757) naming the same member SID and group SID 0.4 '
+                 "to 1.4 seconds after the link's deletion time (see Windows Account Management). link_deactivetime held "
+                 'that same value on every member link and is not read; what a value there would mean is not established. '
+                 'The tested databases hold 28, 25 and 25 member links (alihadi_threatsim_server2019, '
+                 'ou_ransomware_server2022, szechuan_dc01_server2012r2), 28, 21 and 25 of them with no deletion time, and '
+                 '5 on each database to objects without an sAMAccountName. Removed Members was filled on 4 rows of '
+                 "ou_ransomware_server2022 and blank on every row of the other two databases. A member's own primary group "
+                 'is not a link and is not counted here (see Primary Group in Active Directory Accounts). Is Deleted, Is '
+                 'Recycled and Last Known Parent are read as in Active Directory Accounts and were blank on every tested '
+                 'row; Is Deleted and Is Recycled were identical on every tested row. Database State held one value on '
+                 'every row of each database. Rows are ordered by Created (UTC), then SAM Account Name.',
         "paths": ('*/Windows/NTDS/ntds.dit',),
         "output_types": ["standard"],
         "artifact_icon": "users",
@@ -342,6 +361,8 @@ class Directory:
         self.objects = {}       # DNT -> {attribute name: value}
         self.members = {}       # group DNT -> [member DNT]
         self.member_of = {}     # member DNT -> [group DNT]
+        self.removed_members = {}   # group DNT -> [(member DNT, deletion time)]
+        self.removed_from = {}      # member DNT -> [(group DNT, deletion time)]
         self.names = {}         # DNT -> name, for every object, for members without a SAM name
         self.state = ''
         self.columns = {}
@@ -458,6 +479,11 @@ def _read_links(database, directory, base):
             continue
         group = record.get(b'link_DNT', record.get('link_DNT'))
         member = record.get(b'backlink_DNT', record.get('backlink_DNT'))
+        removed = dstime(record.get(b'link_deltime', record.get('link_deltime')))
+        if removed:
+            directory.removed_members.setdefault(group, []).append((member, removed))
+            directory.removed_from.setdefault(member, []).append((group, removed))
+            continue
         directory.members.setdefault(group, []).append(member)
         directory.member_of.setdefault(member, []).append(group)
     if not walk.found:
@@ -475,6 +501,13 @@ def _label(directory, dnt):
 
 def _names(directory, dnts):
     return ', '.join(sorted({_label(directory, dnt) for dnt in dnts}, key=str.lower))
+
+
+def _removed(directory, pairs):
+    """'name (time UTC)' for each link with a deletion time, ordered by name."""
+    shown = sorted({(_label(directory, dnt), when) for dnt, when in pairs},
+                   key=lambda pair: (pair[0].lower(), pair[1]))
+    return ', '.join(f'{name} ({when:%Y-%m-%d %H:%M:%S} UTC)' for name, when in shown)
 
 
 def _primary_group(directory, item):
@@ -510,7 +543,8 @@ def account_row(directory, dnt, state):
             account_expires(item.get('accountExpires')), _text(item.get('sAMAccountName')),
             account_type(item.get('sAMAccountType')), sid(item.get('objectSid')),
             flags(item.get('userAccountControl'), _UAC_FLAGS), _primary_group(directory, item),
-            _names(directory, directory.member_of.get(dnt, [])), _number(item.get('badPwdCount')),
+            _names(directory, directory.member_of.get(dnt, [])),
+            _removed(directory, directory.removed_from.get(dnt, [])), _number(item.get('badPwdCount')),
             _number(item.get('logonCount')), _text(item.get('userPrincipalName')),
             _text(item.get('displayName')), _text(item.get('description')), _boolean(item, 'isDeleted'),
             _boolean(item, 'isRecycled'), _parent(directory, item), state)
@@ -523,7 +557,7 @@ def group_row(directory, dnt, state):
             _text(item.get('sAMAccountName')), account_type(item.get('sAMAccountType')),
             sid(item.get('objectSid')), flags(item.get('groupType'), _GROUP_FLAGS),
             _text(item.get('description')), _names(directory, members), len(members),
-            _boolean(item, 'isDeleted'), _boolean(item, 'isRecycled'), _parent(directory, item), state)
+            _removed(directory, directory.removed_members.get(dnt, [])), _boolean(item, 'isDeleted'), _boolean(item, 'isRecycled'), _parent(directory, item), state)
 
 
 # What each database read as, keyed by path, size and modification time, so the two artifacts
@@ -590,7 +624,7 @@ def ntdsAccounts(context):
                     ('Last Logon Timestamp (UTC)', 'datetime'), ('Password Last Set (UTC)', 'datetime'),
                     ('Bad Password Time (UTC)', 'datetime'), ('Account Expires (UTC)', 'datetime'),
                     'SAM Account Name', 'Account Type', 'SID', 'User Account Control', 'Primary Group',
-                    'Member Of', 'Bad Password Count', 'Logon Count', 'User Principal Name', 'Display Name',
+                    'Member Of', 'Removed From', 'Bad Password Count', 'Logon Count', 'User Principal Name', 'Display Name',
                     'Description', 'Is Deleted', 'Is Recycled', 'Last Known Parent', 'Database State')
     data_list, sources = _rows(context, _LABEL_ACCOUNTS, 'account', account_row)
     return data_headers, data_list, '\n'.join(sources)
@@ -599,7 +633,7 @@ def ntdsAccounts(context):
 @artifact_processor
 def ntdsGroups(context):
     data_headers = (('Created (UTC)', 'datetime'), ('Changed (UTC)', 'datetime'), 'SAM Account Name',
-                    'Account Type', 'SID', 'Group Type', 'Description', 'Members', 'Member Count',
+                    'Account Type', 'SID', 'Group Type', 'Description', 'Members', 'Member Count', 'Removed Members',
                     'Is Deleted', 'Is Recycled', 'Last Known Parent', 'Database State')
     data_list, sources = _rows(context, _LABEL_GROUPS, 'group', group_row)
     return data_headers, data_list, '\n'.join(sources)
