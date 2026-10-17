@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (passwd and group only under private/etc, "
-                                   "LZVN-compressed, which the image reader does not stage)",
+                                   "which is not read)",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 23 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",

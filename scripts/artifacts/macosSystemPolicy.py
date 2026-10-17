@@ -70,7 +70,7 @@ __artifacts_v2__ = {
                        "expiry times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-27",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "System Policy (macOS)",
         "notes": (
@@ -102,9 +102,9 @@ __artifacts_v2__ = {
             'both public images its rules are labelled GKE, Apple System, Apple Installer, Mac '
             'App Store, Developer ID, Notarized Developer ID, Unnotarized Developer ID and No '
             'Matching Rule, with Testflight also on the public MacBook Pro extraction, and none '
-            'names a user. The copy under System/Library/Templates/Data is not staged from '
-            'dleapp_macos_bigsur, since the raw image reader does not read the compression it is '
-            'stored with, as the run log records. When a logical extraction holds the database '
+            'names a user. On dleapp_macos_bigsur the copy under System/Library/Templates/Data is '
+            'read too. Its object table is empty, as the live copy\'s is, so the artifact gives 0 '
+            'rows with or without it. When a logical extraction holds the database '
             'under private/var and under System/Volumes/Data/private/var, a row both copies hold '
             'is reported once and Source File lists both.'
         ),

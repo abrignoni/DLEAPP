@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "its value as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-30",
-        "last_update_date": "2026-09-30",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "SSH",
         "notes": "One row per directive in each user's .ssh/config and in etc/ssh/ssh_config and the files of "
@@ -53,13 +53,14 @@ __artifacts_v2__ = {
                  " Target is blank on every row except that of the ssh_config.d link on ubuntu2604_arm64_sshconfig. "
                  "On honeynet_fc7_debian5 Section holds one value, Host *, on all 5 rows, on pc_mus_001_win11 all 6 "
                  "have Scope System, and each of those two images holds one file, so File Modified holds one value "
-                 "on each.",
+                 "on each. dleapp_macos_bigsur gives 4 rows, 2 from private/etc/ssh/ssh_config and 2 from its copy "
+                 "under System/Library/Templates/Data, all with Scope System and Section Host *.",
         "paths": ('*/.ssh/config', '*/etc/ssh/ssh_config', '*/etc/ssh/ssh_config.d/*'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
-            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 4 rows",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 5 rows",
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
@@ -101,7 +102,7 @@ __artifacts_v2__ = {
                        "link, with the Match section it sits in, its keyword and its value as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-30",
-        "last_update_date": "2026-09-30",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "SSH",
         "notes": "One row per directive in etc/ssh/sshd_config and the files of etc/ssh/sshd_config.d, file by file "
@@ -128,13 +129,15 @@ __artifacts_v2__ = {
                  "sshd_config.d file is readable only by root and is not in that capture. honeynet_fc7_debian5 gives"
                  " 27 rows from etc/ssh/sshd_config, and pc_mus_001_win11 2 from the sshd_config Git for Windows "
                  "keeps under Program Files/Git/etc/ssh. Each of the three images holds one file here and no "
-                 "symbolic link, so File Modified holds one value and Link Target is blank on every row of each.",
+                 "symbolic link, so File Modified holds one value and Link Target is blank on every row of each. "
+                 "dleapp_macos_bigsur gives 8 rows, 4 from private/etc/ssh/sshd_config and 4 from its copy under "
+                 "System/Library/Templates/Data, all in the global section, and Link Target is blank on all 8.",
         "paths": ('*/etc/ssh/sshd_config', '*/etc/ssh/sshd_config.d/*'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
-            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 8 rows",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 27 rows",
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",

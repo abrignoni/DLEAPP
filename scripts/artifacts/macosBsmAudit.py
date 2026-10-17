@@ -90,12 +90,11 @@ __artifacts_v2__ = {
                  " Event Name From says which, per row. That table lacks the session events 44901 to 44904, which xnu "
                  "names AUE_SESSION_START, AUE_SESSION_UPDATE, AUE_SESSION_END and AUE_SESSION_CLOSE "
                  "(https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/bsd/bsm/audit_kevents.h#L624-L627)."
-                 " On dleapp_macos_bigsur the extraction's audit_event copies are compressed in a way the image reader"
-                 " does not decompress, so names came from the bundled tables: 4,103 rows from the OpenBSM table and "
-                 "1,150 from the constants; praudit took its descriptions from the comparing system's "
-                 "/etc/security/audit_event, which is byte-identical to magnet2021_macos_bigsur's, and with that table"
-                 " the reader's 5,253 descriptions all equal praudit's. On magnet2021_macos_bigsur Event Name From "
-                 "held one value on all rows, the extraction's own file, and every description equals praudit's. Event"
+                 " On both tested images Event Name From held one value on all rows, the extraction's own file. On "
+                 "dleapp_macos_bigsur the 5,253 descriptions, the 1,150 records of events 44901 to 44904 among them "
+                 "(session start, session update, session end and session close), equal those praudit -x printed for"
+                 " copies of the image's 11 trail files on a system whose /etc/security/audit_event has the same "
+                 "SHA-256 as the image's; on magnet2021_macos_bigsur every description equals praudit's. Event"
                  " ID is the number as stored. Result is success when the return token's error number is 0 and failure"
                  " otherwise. Error (BSM) is that number as stored, with the name OpenBSM's audit_errno.h gives it "
                  "where it gives one "
@@ -177,8 +176,7 @@ __artifacts_v2__ = {
                  "45025 and 45030) and audit session records (44901 to 44904), which make up most of both tested "
                  "images, stay in the full artifact only. On dleapp_macos_bigsur 449 of 5,253 records were kept and on"
                  " magnet2021_macos_bigsur 452 of 4,327. On both images Event Name From held one value on all kept "
-                 "rows (the bundled OpenBSM table on dleapp_macos_bigsur, the extraction's own audit_event on "
-                 "magnet2021_macos_bigsur), and Team ID, Arguments, Exec Args and Other Tokens held no value on any "
+                 "rows, the extraction's own audit_event, and Team ID, Arguments, Exec Args and Other Tokens held no value on any "
                  "kept row.",
         "paths": ('*/var/audit/*', '*/etc/security/audit_event',
                   '*/var/db/dslocal/nodes/Default/users/*.plist'),
