@@ -1,6 +1,6 @@
 """Pin the rows in scripts/artifacts/windowsSecurityAccessEvents.py.
 
-The records are built from XML of the shape python-evtx renders for the four events (made-up names and SIDs); the
+The records are built from XML of the shape python-evtx renders for the six events (made-up names and SIDs); the
 expected rows are written out.
 """
 import datetime
@@ -55,6 +55,15 @@ READ = record('5379', '2023-01-05 20:18:04.400000+00:00', '303', SUBJECT + [
     ('TargetName', 'TERMSRV/10.0.0.5'), ('Type', '2'), ('CountOfCredentialsReturned', '1'),
     ('ReadOperation', '%%8099'), ('ReturnCode', '0'), ('ProcessCreationTime', '2023-01-05 20:10:00.123456+00:00'),
     ('ClientProcessId', '4312')])
+
+VAULT_READ = record('5382', '2023-01-05 20:19:05.500000+00:00', '306', SUBJECT + [
+    ('SchemaFriendlyName', 'Windows Web Password Credential'), ('Schema', '{3ccd5499-87a8-4b10-a215-608888dd3b55}'),
+    ('Resource', 'https://login.example.test/'), ('Identity', 'someone@example.test'), ('PackageSid', '-'),
+    ('Flags', '0'), ('ReturnCode', '0'), ('ProcessCreationTime', '2023-01-05 20:11:00.654321+00:00'),
+    ('ClientProcessId', '5120')])
+VAULT_LIST = record('5381', '2023-01-05 20:19:06.600000+00:00', '307', SUBJECT + [
+    ('Flags', '0'), ('CountOfCredentialsReturned', '2'), ('ProcessCreationTime', '2023-01-05 20:11:00.654321+00:00'),
+    ('ClientProcessId', '5120')])
 
 
 class _Context:
@@ -201,7 +210,7 @@ class AccessRecordsTest(unittest.TestCase):
             third = access.credentialManagerReads.__wrapped__(_Context([self.log, self.other]))
             self.assertEqual(reader.call_count, 1)
             reader.assert_called_once_with(mock.ANY, 'security.evtx', 'Security Access Events',
-                                           event_ids={'4672', '4798', '4799', '5379'},
+                                           event_ids={'4672', '4798', '4799', '5379', '5381', '5382'},
                                            provider='Microsoft-Windows-Security-Auditing')
             with open(self.log, 'ab') as handle:
                 handle.write(b'more')
@@ -292,17 +301,43 @@ class AccessRecordsTest(unittest.TestCase):
                           'Credential Manager Reads: 1 record(s) store a process creation time that could not be read '
                           'as a time; the column is blank on those rows'])
 
+    def test_a_vault_read_and_a_vault_enumeration(self):
+        with mock.patch.object(access, 'read_event_records', return_value=([VAULT_READ, READ, VAULT_LIST], [LOG])), \
+                mock.patch.object(access, '_security_logs', return_value=[]), \
+                mock.patch.object(access, 'logfunc') as log:
+            headers, rows, source = access.vaultCredentialReads.__wrapped__(_Context([LOG]))
+        self.assertEqual(headers, (('Event Time (UTC)', 'datetime'), ('Process Creation Time (UTC)', 'datetime'),
+                                   'Event ID', 'Event', 'Schema Name', 'Schema', 'Resource', 'Identity',
+                                   'Package SID', 'Flags (as stored)', 'Credentials Returned',
+                                   'Return Code (as stored)', 'Client Process ID', 'Account Name',
+                                   'Account Domain', 'Account SID', 'Logon ID', 'Record ID', 'Computer'))
+        created = utc(2023, 1, 5, 20, 11, 0, 654321)
+        self.assertEqual(rows, [
+            (utc(2023, 1, 5, 20, 19, 5, 500000), created, '5382',
+             'Vault credentials were read: a user reads a stored vault credential',
+             'Windows Web Password Credential', '{3ccd5499-87a8-4b10-a215-608888dd3b55}',
+             'https://login.example.test/', 'someone@example.test', '-', '0', '', '0', '5120', *SUBJECT_ROW,
+             '306', 'LAB-PC'),
+            (utc(2023, 1, 5, 20, 19, 6, 600000), created, '5381',
+             'Vault credentials were read: a user enumerates stored vault credentials',
+             '', '', '', '', '', '0', '2', '', '5120', *SUBJECT_ROW, '307', 'LAB-PC')])
+        self.assertEqual(len(rows[0]), len(headers))
+        self.assertEqual(source, LOG)
+        log.assert_not_called()
+
     def test_each_artifact_takes_only_its_own_events(self):
-        found = ([READ, GROUP_MEMBERS, PRIVILEGED, USER_GROUPS], [LOG])
+        found = ([READ, GROUP_MEMBERS, PRIVILEGED, USER_GROUPS, VAULT_READ, VAULT_LIST], [LOG])
         with mock.patch.object(access, 'read_event_records', return_value=found), \
                 mock.patch.object(access, '_security_logs', return_value=[]), \
                 mock.patch.object(access, 'logfunc'):
             privileged = access.specialPrivilegeLogons.__wrapped__(_Context([LOG]))[1]
             enumerated = access.localGroupEnumerations.__wrapped__(_Context([LOG]))[1]
             reads = access.credentialManagerReads.__wrapped__(_Context([LOG]))[1]
+            vault = access.vaultCredentialReads.__wrapped__(_Context([LOG]))[1]
         self.assertEqual([row[-2] for row in privileged], ['300'])
         self.assertEqual([row[-2] for row in enumerated], ['302', '301'])
         self.assertEqual([row[-2] for row in reads], ['303'])
+        self.assertEqual([row[-2] for row in vault], ['306', '307'])
 
 
 if __name__ == '__main__':
