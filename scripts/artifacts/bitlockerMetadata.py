@@ -69,6 +69,7 @@ _PCR_UEFI = {
     13: "Boot Module Details", 14: "Boot Authorities",
     **{n: "Reserved for future use" for n in range(15, 24)},
 }
+_NOT_LISTED = "not in Microsoft's table"
 
 
 def _pcrs(protector):
@@ -83,7 +84,7 @@ def _pcrs(protector):
     if not pcrs:
         return 'None', ''
     return (', '.join(map(str, pcrs)),
-            '; '.join(f'{n}: {_PCR_UEFI.get(n, "not in Microsoft's table")}' for n in pcrs))
+            '; '.join(f'{n}: {_PCR_UEFI.get(n, _NOT_LISTED)}' for n in pcrs))
 
 
 def _state(facts):
