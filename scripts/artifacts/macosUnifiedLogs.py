@@ -79,7 +79,7 @@ __artifacts_v2__ = {
                        "password attempts and failed password verification entries.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-18",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
         "category": "Unified Logs (macOS)",
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA "
@@ -134,7 +134,11 @@ __artifacts_v2__ = {
                  "on Big Sur. No transition leaving 'locked' appeared on 14.6.1, where the only form "
                  "naming inBioUnlock was 'locking -> inBioUnlock' (one entry each from chronod and "
                  "NotificationCenter). No 'locked -> inBioUnlock', NO-MATCH or coreauthd no-match "
-                 "appeared on any tested image.",
+                 "appeared on any tested image. On Big Sur and 15.4 loginwindow wrote 'Unlock "
+                 "succeeded, with password' twice for each 'password is CORRECT', once ending "
+                 "'attempting to unlock the login keychain' and once 'attempting to unlock the "
+                 "keybag' (5 of each on Big Sur, 1 of each on 15.4), so those rows are not a count of "
+                 "unlocks.",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 | 61 rows",
             "evidencelocker_macos14": "macOS 14.6.1 | 524 rows",
