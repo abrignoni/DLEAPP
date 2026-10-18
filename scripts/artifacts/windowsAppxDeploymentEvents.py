@@ -158,7 +158,19 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11 and szechuan_win10; af_case2_win10 and lonewolf_win10 hold two names. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
                  "reported; every record of the four tested logs rendered. A log marked dirty is read past the "
-                 "chunks its header counts, and the run log says how many records came from there. Reading needs the "
+                 "chunks its header counts, and the run log says how many records came from there. So is a log not "
+                 "marked dirty whose header's next record number is not above the highest record number its counted "
+                 "chunks hold. The log of evtx_baseline_nextron_085_win11_client_2023 is one: its header counts 81 "
+                 "chunks and gives 9251 as the next record number, the counted chunks hold records up to 9330, and "
+                 "the next three chunks, each intact, hold 180 more, 9331 to 9510, which continue that numbering, the "
+                 "first 1.6 seconds after the last counted record. That log gave 1,040 rows (349 of 607, 298 of "
+                 "603, 292 of 400, 88 of 404 and 13 of 401), 43 of them from those three chunks, and python-evtx "
+                 "rendered every record of it. A separate read of that log with evtx "
+                 "0.13.1 (the Rust evtx crate's Python binding) gave 5,540 records and the same 1,040 Record IDs for "
+                 "these Event IDs, with the same Event ID, Event Time (UTC), Operation (as stored), Package, Path, "
+                 "Running for User SID, Calling Process, Error Code (as stored), Error, User SID and Computer on "
+                 "every row, each value compared as this artifact reports it: as text, with white space at either "
+                 "end removed. The four-image figures above do not include it. Reading needs the "
                  "python-evtx package (pip install python-evtx). Not read: the provider's other events. The four "
                  "tested logs hold 14,592 records of 108 other Event IDs.",
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-AppXDeploymentServer%4Operational.evtx',),
@@ -169,6 +181,8 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 695 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 604 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 548 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | "
+                                                           "1,040 rows",
         },
     },
 }

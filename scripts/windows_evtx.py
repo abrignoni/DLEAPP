@@ -25,10 +25,12 @@ https://github.com/libyal/libevtx/blob/53ff3377d1360a9a3a428e7190c289757ccbf82b/
 So for a log marked dirty this also reads each chunk after the counted ones
 that carries the chunk signature and whose header and data checksums match,
 and skips a record there whose number was already read. A log not marked dirty
-is read exactly as python-evtx reads it. With stale_header, which only
-EventRecordStream passes, a log not marked dirty is read the same way when its
-header's next record number is not above the highest record number its counted
-chunks hold, because then the header is behind the chunks it counts.
+is read the same way when its header's next record number is not above the
+highest record number its counted chunks hold, because then the header is behind
+the chunks it counts; any other log not marked dirty is read exactly as
+python-evtx reads it. log_records and EventRecordStream do this unless
+stale_header=False is passed, which keeps that second case to python-evtx's
+reading; read_event_records always does.
 
 `EventRecordStream(context, file_name, label, ...)` yields the parsed records of
 every matched copy of one log one at a time instead of returning a list, and
@@ -458,7 +460,7 @@ def _intact(chunk):
         return False
 
 
-def log_records(log, label='', relative_source='', stale_header=False):
+def log_records(log, label='', relative_source='', stale_header=True):
     """Every record of an open python-evtx log, with the chunks a dirty header does not count.
 
     The counted chunks are read as python-evtx reads them. For a log marked dirty,
@@ -467,10 +469,10 @@ def log_records(log, label='', relative_source='', stale_header=False):
     keeps the records read before that point. The run log names the log and says how
     many records came from chunks the header does not count.
 
-    With stale_header, a log not marked dirty is read the same way when its header
-    is behind its own counted chunks: when the header's next record number is not
-    above the highest record number those chunks hold. Without it, such a log is
-    read exactly as python-evtx reads it.
+    A log not marked dirty is read the same way when its header is behind its own
+    counted chunks: when the header's next record number is not above the highest
+    record number those chunks hold. With stale_header=False, such a log is read
+    exactly as python-evtx reads it.
     """
     header = log.get_file_header()
     counted = header.chunk_count()

@@ -87,13 +87,20 @@ class FakeLog:
         return self.header
 
 
-def read(chunks, counted, dirty, next_number=None, stale_header=False):
-    """The record numbers log_records yields, and the run log lines it writes."""
+def read(chunks, counted, dirty, next_number=None, **options):
+    """The record numbers log_records yields, and the run log lines it writes.
+
+    next_number defaults to one above the highest record number of the counted chunks,
+    the header of a log whose header is current.
+    """
+    if next_number is None:
+        counted_numbers = [number for chunk in chunks[:counted] for number in chunk.numbers]
+        next_number = max(counted_numbers, default=0) + 1
     lines = []
     with mock.patch.object(windows_evtx, 'logfunc', lines.append):
         numbers = [record.record_num() for record in
                    windows_evtx.log_records(FakeLog(chunks, counted, dirty, next_number), 'Label',
-                                            'vol/System.evtx', stale_header=stale_header)]
+                                            'vol/System.evtx', **options)]
     return numbers, lines
 
 
@@ -139,10 +146,10 @@ class LogRecordsTest(unittest.TestCase):
 
 
 class StaleHeaderTest(unittest.TestCase):
-    def test_a_clean_log_whose_header_is_behind_its_chunks_is_read_on_when_asked(self):
+    def test_a_clean_log_whose_header_is_behind_its_chunks_is_read_on_by_default(self):
         # The header's next record number (3) is not above the highest number the counted chunks hold (4).
         numbers, lines = read([FakeChunk([1, 2]), FakeChunk([3, 4]), FakeChunk([5, 6])], 2, False,
-                              next_number=3, stale_header=True)
+                              next_number=3)
         self.assertEqual(numbers, [1, 2, 3, 4, 5, 6])
         self.assertEqual(lines, ["Label: vol/System.evtx is not marked dirty, but its header's next record "
                                  'number (3) is not above the highest record number its counted chunks hold (4); '
@@ -150,25 +157,26 @@ class StaleHeaderTest(unittest.TestCase):
 
     def test_a_clean_log_whose_header_is_current_is_read_as_python_evtx_reads_it(self):
         numbers, lines = read([FakeChunk([1, 2]), FakeChunk([3, 4]), FakeChunk([5, 6])], 2, False,
-                              next_number=5, stale_header=True)
+                              next_number=5)
         self.assertEqual(numbers, [1, 2, 3, 4])
         self.assertEqual(lines, [])
 
-    def test_a_stale_header_is_not_read_on_unless_asked(self):
-        numbers, lines = read([FakeChunk([1, 2]), FakeChunk([3, 4]), FakeChunk([5, 6])], 2, False, next_number=3)
+    def test_a_stale_header_is_not_read_on_when_turned_off(self):
+        numbers, lines = read([FakeChunk([1, 2]), FakeChunk([3, 4]), FakeChunk([5, 6])], 2, False, next_number=3,
+                              stale_header=False)
         self.assertEqual(numbers, [1, 2, 3, 4])
         self.assertEqual(lines, [])
 
     def test_a_clean_log_with_no_counted_records_is_not_read_on(self):
-        numbers, _lines = read([FakeChunk([]), FakeChunk([5])], 1, False, next_number=1, stale_header=True)
+        numbers, _lines = read([FakeChunk([]), FakeChunk([5])], 1, False, next_number=1)
         self.assertEqual(numbers, [])
 
     def test_a_record_already_read_is_not_read_again_past_a_stale_header(self):
-        numbers, _lines = read([FakeChunk([1, 2]), FakeChunk([2, 3])], 1, False, next_number=2, stale_header=True)
+        numbers, _lines = read([FakeChunk([1, 2]), FakeChunk([2, 3])], 1, False, next_number=2)
         self.assertEqual(numbers, [1, 2, 3])
 
     def test_a_dirty_log_is_read_on_whatever_its_next_record_number(self):
-        numbers, _lines = read([FakeChunk([1]), FakeChunk([2])], 1, True, next_number=9, stale_header=True)
+        numbers, _lines = read([FakeChunk([1]), FakeChunk([2])], 1, True, next_number=9, stale_header=False)
         self.assertEqual(numbers, [1, 2])
 
 
@@ -211,8 +219,27 @@ class ReadEventRecordsTest(unittest.TestCase):
         self.assertEqual(len(sources), 1)
         self.assertIn('1 record(s) were read from 1 chunk(s) after the 1 its header counts', lines[0])
 
+    def test_the_shared_reader_reads_on_past_a_clean_log_whose_header_is_behind_its_chunks(self):
+        log = FakeLog([FakeChunk([1, 2]), FakeChunk([3])], 1, False, next_number=2)
+        lines = []
+        with mock.patch.object(windows_evtx, 'evtx', FakeEvtxModule(log)), \
+                mock.patch.object(windows_evtx, 'logfunc', lines.append):
+            records, _sources = windows_evtx.read_event_records(FakeContext(), 'system.evtx', 'Label')
+        self.assertEqual([r.record_id for r in records], ['1', '2', '3'])
+        self.assertIn('is not marked dirty, but its header', lines[0])
+
 
 class NoDirectReadsTest(unittest.TestCase):
+    def test_no_module_turns_off_the_stale_header_reading(self):
+        offenders = []
+        for path in sorted((REPO_ROOT / 'scripts').rglob('*.py')):
+            if path.name == 'windows_evtx.py':
+                continue
+            text = path.read_text(encoding='utf-8', errors='replace')
+            if re.search(r'stale_header\s*=\s*False', text):
+                offenders.append(str(path.relative_to(REPO_ROOT)))
+        self.assertEqual(offenders, [])
+
     def test_no_module_reads_a_log_with_python_evtx_records(self):
         offenders = []
         for path in sorted((REPO_ROOT / 'scripts').rglob('*.py')):
