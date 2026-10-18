@@ -539,7 +539,7 @@ __artifacts_v2__ = {
                  "header's next record number (512773) is not above the highest record number its "
                  "counted chunks hold (512840); its 12,248 records in the 262 intact chunks after "
                  "them continue that numbering and are read too. The other event log artifacts "
-                 "read such a log only as far as its header counts. Each record's Event ID and "
+                 "read such a log the same way. Each record's Event ID and "
                  "provider are read from its template's substitutions before it is rendered, and a"
                  " record ruled out that way is not rendered; the rest are rendered by "
                  "FastRenderer, which walks each template once per chunk. On all 6,039,417 records"
