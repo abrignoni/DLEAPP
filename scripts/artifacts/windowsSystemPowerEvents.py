@@ -21,7 +21,7 @@ except ImportError:
 
 from scripts import windows_messages
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_evtx import log_records, utc_from_system_time
+from scripts.windows_evtx import FastRenderer, log_records, utc_from_system_time
 
 # The System event log records the machine's power timeline from several
 # providers: the event log service starting and stopping (a proxy for boot and
@@ -474,9 +474,10 @@ def systemPowerEvents(context):
         boots = []
         try:
             with evtx.Evtx(source) as log:
+                renderer = FastRenderer()
                 for record in log_records(log, 'Windows System Power Events', relative_source):
                     try:
-                        xml_text = record.xml()
+                        xml_text = renderer.xml(record)
                     except Exception:  # pylint: disable=broad-exception-caught
                         unrendered += 1
                         continue
