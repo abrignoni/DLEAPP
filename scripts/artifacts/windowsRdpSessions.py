@@ -17,7 +17,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_evtx import log_records
+from scripts.windows_evtx import FastRenderer, log_records
 
 # The TerminalServices-LocalSessionManager Operational log records interactive
 # session activity for both local console and Remote Desktop sessions: a logon,
@@ -208,9 +208,10 @@ def rdpSessions(context):
         unrendered = 0
         try:
             with evtx.Evtx(source) as log:
+                renderer = FastRenderer()
                 for record in log_records(log, 'Windows Terminal Services Sessions', relative_source):
                     try:
-                        xml_text = record.xml()
+                        xml_text = renderer.xml(record)
                     except Exception:  # pylint: disable=broad-exception-caught
                         unrendered += 1
                         continue

@@ -18,7 +18,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_evtx import log_records
+from scripts.windows_evtx import FastRenderer, log_records
 
 # The Security event log records local account and group administration under
 # the account-management audit subcategories: an account being created,
@@ -241,9 +241,10 @@ def accountManagement(context):
         unrendered = 0
         try:
             with evtx.Evtx(source) as log:
+                renderer = FastRenderer()
                 for record in log_records(log, 'Windows Account Management', relative_source):
                     try:
-                        xml_text = record.xml()
+                        xml_text = renderer.xml(record)
                     except Exception:  # pylint: disable=broad-exception-caught
                         unrendered += 1
                         continue

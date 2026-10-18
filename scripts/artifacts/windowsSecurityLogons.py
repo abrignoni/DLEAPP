@@ -18,7 +18,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_evtx import log_records
+from scripts.windows_evtx import FastRenderer, log_records
 
 # The Security event log (Security.evtx) records logon activity. This reads the
 # logon family: a successful or failed logon, a logoff, and a logon attempted
@@ -196,9 +196,10 @@ def securityLogons(context):
         unrendered = 0
         try:
             with evtx.Evtx(source) as log:
+                renderer = FastRenderer()
                 for record in log_records(log, 'Windows Security Logons', relative_source):
                     try:
-                        xml_text = record.xml()
+                        xml_text = renderer.xml(record)
                     except Exception:  # pylint: disable=broad-exception-caught
                         unrendered += 1
                         continue

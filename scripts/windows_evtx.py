@@ -7,7 +7,8 @@ python-evtx and read with ElementTree.
 
 `read_event_records(context, file_name, label, ...)` reads every matched copy
 of one log and returns the parsed records it kept, each with the staged path it
-was read from as `source`, and the paths it read. A
+was read from as `source`, and the paths it read. It renders every record with
+`FastRenderer` (below), which gives the XML python-evtx's Record.xml() gives. A
 record python-evtx cannot render (the call raises) or whose XML does not parse
 is counted and skipped instead of ending the read of the rest of the file, and
 the count is written to the run log for each file.
@@ -537,7 +538,8 @@ def read_event_records(context, file_name, label, event_ids=None, provider=None)
 
     Returns (records, sources): the parsed EventRecord objects whose Event ID is
     in `event_ids` (and whose provider is `provider`, when given), in file order,
-    and the staged paths that were read.
+    and the staged paths that were read. Every record is rendered by FastRenderer,
+    not only those the filter keeps, and filtered on the parsed record.
     """
     records = []
     sources = []
@@ -551,13 +553,14 @@ def read_event_records(context, file_name, label, event_ids=None, provider=None)
             continue
         relative_source = context.get_relative_path(source)
         read = unrendered = unparsed = 0
+        renderer = FastRenderer()
         try:
             with evtx.Evtx(source) as log:
                 sources.append(source)
                 for record in log_records(log, label, relative_source):
                     read += 1
                     try:
-                        xml_text = record.xml()
+                        xml_text = renderer.xml(record)
                     except Exception:  # pylint: disable=broad-exception-caught
                         unrendered += 1
                         continue

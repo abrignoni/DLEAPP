@@ -17,7 +17,7 @@ except ImportError:
     evtx = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_evtx import log_records
+from scripts.windows_evtx import FastRenderer, log_records
 
 # The System event log records a Service Control Manager event 7045, "A service
 # was installed in the system", whenever a new service is registered. It carries
@@ -163,9 +163,10 @@ def serviceInstalls(context):
         unrendered = 0
         try:
             with evtx.Evtx(source) as log:
+                renderer = FastRenderer()
                 for record in log_records(log, 'Windows Service Installations', relative_source):
                     try:
-                        xml_text = record.xml()
+                        xml_text = renderer.xml(record)
                     except Exception:  # pylint: disable=broad-exception-caught
                         unrendered += 1
                         continue
