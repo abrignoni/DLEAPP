@@ -404,24 +404,27 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
         "category": "Unified Logs (macOS)",
-        "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA database in "
-                 "the same run, so it reports nothing when that artifact did not run; Row Number is the entry's row "
-                 "number in that table and rows are in that order. Selects secinitd entries ending 'AppSandbox "
-                 "request successful'. The secinitd(8) man page on macOS 27.0.1 describes secinitd as the security "
-                 "policy initialization daemon, which initializes the runtime security policies for processes. Each "
-                 "selected message has the form '<name>[<process ID>]: AppSandbox request successful', and Sandboxed "
-                 "Process and Sandboxed Process ID are those two values as written; Event Message keeps the whole "
-                 "entry. In a test on macOS 27.0.1, opening Calculator wrote one such entry within a second, naming "
-                 "Calculator and the process ID it ran under. That a row marks a process start was tested for that "
-                 "one launch only. A process that does not request the App Sandbox writes no such entry, so an "
-                 "application absent here is not shown not to have run. The names include extensions, widgets, "
-                 "agents and daemons, not only applications a person opened. A name and process ID can repeat on "
-                 "rows days apart. Tested on dleapp_macos_bigsur (macOS 11.2.1), evidencelocker_macos14 (macOS "
-                 "14.6.1) and mvs2026_macbookpro_macos15 (macOS 15.4). Big Sur: 563 rows, 265 names, 10 name and "
-                 "process ID pairs on more than one row. macOS 14.6.1: 893 rows, 160 names, 2 such pairs. macOS "
-                 "15.4: 415 rows, 41 names, none. Every row gave a name and a process ID, and every entry ending "
-                 "'AppSandbox request successful' in the three logs was written by /usr/libexec/secinitd with no "
-                 "Subsystem or Category, so those are not columns.",
+        "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA "
+                 "database in the same run, so it reports nothing when that artifact did not run; Row Number "
+                 "is the entry's row number in that table and rows are in that order. Selects secinitd entries "
+                 "ending 'AppSandbox request successful'. The secinitd(8) man page on macOS 27.0.1 describes "
+                 "secinitd as the security policy initialization daemon, which initializes the runtime "
+                 "security policies for processes. In the three tested logs every selected message had the "
+                 "form '<name>[<process ID>]: AppSandbox request successful', and Named Process and Named "
+                 "Process ID are those two values as written; a message of another shape would leave both "
+                 "blank. Event Message is the whole message. In a test on macOS 27.0.1, opening Calculator "
+                 "wrote one such entry within a second, naming Calculator and the process ID it ran under. "
+                 "That a row follows an application launch was seen for that one launch only. Only a process "
+                 "for which secinitd records a successful request appears here, so an application absent here "
+                 "is not shown not to have run. The names are not only applications: in the tested logs they "
+                 "include names ending in Extension, Widget, Agent, Helper and Service. A name and process ID "
+                 "can repeat on rows hours or days apart. Tested on dleapp_macos_bigsur (macOS 11.2.1), "
+                 "evidencelocker_macos14 (macOS 14.6.1) and mvs2026_macbookpro_macos15 (macOS 15.4). Big Sur: "
+                 "563 rows, 265 names, 10 name and process ID pairs on more than one row. macOS 14.6.1: 893 "
+                 "rows, 160 names, 2 such pairs. macOS 15.4: 415 rows, 41 names, none. Every row gave a name "
+                 "and a process ID, and every entry ending 'AppSandbox request successful' in the three logs "
+                 "was written by /usr/libexec/secinitd with no Subsystem or Category, so those are not "
+                 "columns.",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 | 563 rows",
             "evidencelocker_macos14": "macOS 14.6.1 | 893 rows",
@@ -976,7 +979,7 @@ def macosUnifiedLogAppSandbox(context):
         match = SANDBOX_REQUEST.match(message or '')
         name, pid = (match.group('name'), match.group('pid')) if match else ('', '')
         data_list.append((_log_time(timestamp), name, pid, message, row_number))
-    headers = (('Timestamp (UTC)', 'datetime'), 'Sandboxed Process', 'Sandboxed Process ID',
+    headers = (('Timestamp (UTC)', 'datetime'), 'Named Process', 'Named Process ID',
                'Event Message', 'Row Number')
     return headers, data_list, source_path
 
