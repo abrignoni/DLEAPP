@@ -25,7 +25,16 @@ https://github.com/libyal/libevtx/blob/53ff3377d1360a9a3a428e7190c289757ccbf82b/
 So for a log marked dirty this also reads each chunk after the counted ones
 that carries the chunk signature and whose header and data checksums match,
 and skips a record there whose number was already read. A log not marked dirty
-is read exactly as python-evtx reads it.
+is read exactly as python-evtx reads it. With stale_header, which only
+EventRecordStream passes, a log not marked dirty is read the same way when its
+header's next record number is not above the highest record number its counted
+chunks hold, because then the header is behind the chunks it counts.
+
+`EventRecordStream(context, file_name, label, ...)` yields the parsed records of
+every matched copy of one log one at a time instead of returning a list, and
+renders them with `FastRenderer`, which gives the XML python-evtx's Record.xml()
+gives while walking each template once per chunk instead of once per record; a
+record whose Event ID or provider rules it out is not rendered at all.
 
 `utc_from_system_time(value)` parses TimeCreated SystemTime. python-evtx 0.8.x
 renders it as '2018-03-27 09:35:33.595600+00:00' and 0.7.x as
@@ -100,15 +109,18 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 from xml.etree import ElementTree
+from xml.sax.saxutils import unescape as _xml_unescape
 
 try:
     import Evtx.BinaryParser as evtx_binary
     import Evtx.Evtx as evtx
     import Evtx.Nodes as evtx_nodes
+    import Evtx.Views as evtx_views
 except ImportError:
     evtx = None
     evtx_nodes = None
     evtx_binary = None
+    evtx_views = None
 
 from scripts.ilapfuncs import logfunc
 
@@ -446,7 +458,7 @@ def _intact(chunk):
         return False
 
 
-def log_records(log, label='', relative_source=''):
+def log_records(log, label='', relative_source='', stale_header=False):
     """Every record of an open python-evtx log, with the chunks a dirty header does not count.
 
     The counted chunks are read as python-evtx reads them. For a log marked dirty,
@@ -454,19 +466,33 @@ def log_records(log, label='', relative_source=''):
     already read is skipped, and a chunk whose records stop parsing part way through
     keeps the records read before that point. The run log names the log and says how
     many records came from chunks the header does not count.
+
+    With stale_header, a log not marked dirty is read the same way when its header
+    is behind its own counted chunks: when the header's next record number is not
+    above the highest record number those chunks hold. Without it, such a log is
+    read exactly as python-evtx reads it.
     """
     header = log.get_file_header()
     counted = header.chunk_count()
     dirty = header.is_dirty()
     seen = set()
+    highest = None
     added = read_chunks = failed_checksum = stopped = 0
-    for index, chunk in enumerate(header.chunks(include_inactive=dirty)):
+    reading_on = dirty
+    for index, chunk in enumerate(header.chunks(include_inactive=dirty or stale_header)):
         if index < counted:
             for record in chunk.records():
-                if dirty:
-                    seen.add(record.record_num())
+                if dirty or stale_header:
+                    number = record.record_num()
+                    seen.add(number)
+                    highest = number if highest is None else max(highest, number)
                 yield record
             continue
+        if not reading_on:
+            next_number = header.next_record_number()
+            if highest is None or next_number > highest:
+                break
+            reading_on = True
         if not chunk.check_magic():
             continue
         if not _intact(chunk):
@@ -489,8 +515,14 @@ def log_records(log, label='', relative_source=''):
             added += 1
             yield record
     if read_chunks or failed_checksum:
-        message = (f'{label}: {relative_source} is marked dirty; {added} record(s) were read '
-                   f'from {read_chunks} chunk(s) after the {counted} its header counts')
+        if dirty:
+            message = f'{label}: {relative_source} is marked dirty; '
+        else:
+            message = (f'{label}: {relative_source} is not marked dirty, but its header\'s next record '
+                       f'number ({header.next_record_number()}) is not above the highest record number '
+                       f'its counted chunks hold ({highest}); ')
+        message += (f'{added} record(s) were read '
+                    f'from {read_chunks} chunk(s) after the {counted} its header counts')
         if failed_checksum:
             message += f', and {failed_checksum} chunk(s) after them failed their checksums and were not read'
         if stopped:
@@ -544,3 +576,322 @@ def read_event_records(context, file_name, label, event_ids=None, provider=None)
                 f'{unrendered} could not be rendered by python-evtx and '
                 f'{unparsed} did not parse as XML')
     return records, sources
+
+
+# A substitution's place in a template is marked with this private-use character
+# while the template's System element is read. Every literal of a template is
+# escaped to ASCII by python-evtx's escape_value, and element and attribute names
+# must be ASCII (validate_name), so the character cannot come from a template.
+_SLOT_MARK = '\ue000'
+_SLOT = re.compile(_SLOT_MARK + r'(\d+)' + _SLOT_MARK)
+
+
+class _TemplateShape:
+    """A template rendered once: its literal text and the substitution index of each slot."""
+
+    __slots__ = ('parts', 'has_end', 'event_id', 'provider')
+
+    def __init__(self, root):
+        parts = []
+
+        def literal(text):
+            if parts and isinstance(parts[-1], str):
+                parts[-1] += text
+            else:
+                parts.append(text)
+
+        def walk(node):
+            # The same cases, in the same order, as python-evtx's render_root_node_with_subs.
+            if isinstance(node, evtx_nodes.EndOfStreamNode):
+                return
+            if isinstance(node, evtx_nodes.OpenStartElementNode):
+                literal('<' + node.tag_name())
+                for child in node.children():
+                    if isinstance(child, evtx_nodes.AttributeNode):
+                        literal(' ' + evtx_views.validate_name(child.attribute_name().string()) + '="')
+                        walk(child.attribute_value())
+                        literal('"')
+                literal('>')
+                for child in node.children():
+                    walk(child)
+                literal('</' + evtx_views.validate_name(node.tag_name()) + '>\n')
+            elif isinstance(node, (evtx_nodes.CloseStartElementNode, evtx_nodes.CloseEmptyElementNode,
+                                   evtx_nodes.CloseElementNode, evtx_nodes.AttributeNode,
+                                   evtx_nodes.StreamStartNode)):
+                return
+            elif isinstance(node, evtx_nodes.ValueNode):
+                literal(evtx_views.escape_value(node.children()[0].string()))
+            elif isinstance(node, evtx_nodes.CDataSectionNode):
+                literal('<![CDATA[' + evtx_views.escape_value(node.cdata()) + ']]>')
+            elif isinstance(node, evtx_nodes.EntityReferenceNode):
+                literal(evtx_views.escape_value(node.entity_reference()))
+            elif isinstance(node, evtx_nodes.ProcessingInstructionTargetNode):
+                literal(evtx_views.escape_value(node.processing_instruction_target()))
+            elif isinstance(node, evtx_nodes.ProcessingInstructionDataNode):
+                literal(evtx_views.escape_value(node.string()))
+            elif isinstance(node, evtx_nodes.TemplateInstanceNode):
+                raise evtx_views.UnexpectedElementException('TemplateInstanceNode')
+            elif isinstance(node, (evtx_nodes.NormalSubstitutionNode, evtx_nodes.ConditionalSubstitutionNode)):
+                parts.append(node.index())
+
+        template = root.template()
+        for child in template.children():
+            walk(child)
+        self.parts = parts
+        # python-evtx finds where a root's substitutions begin by parsing its children up
+        # to the template's end of stream (RootNode.tag_and_children_length); with one
+        # there, they begin straight after the template instance (see _substitutions).
+        self.has_end = bool(template.find_end_of_stream())
+        self.event_id, self.provider = self._system_slots()
+
+    def _system_slots(self):
+        """Where the EventID text and the Provider Name come from: ('slot', i), ('text', s) or None."""
+        marked = ''.join(part if isinstance(part, str) else f'{_SLOT_MARK}{part}{_SLOT_MARK}'
+                         for part in self.parts)
+        try:
+            root = ElementTree.fromstring(marked)
+        except ElementTree.ParseError:
+            return None, None
+        system = root.find('{*}System')
+        if system is None:
+            return None, None
+        event_id = provider = None
+        element = system.find('{*}EventID')
+        if element is not None and not len(element):
+            event_id = _slot_or_text((element.text or '').strip())
+        element = system.find('{*}Provider')
+        if element is not None:
+            provider = _slot_or_text(element.get('Name', ''))
+        return event_id, provider
+
+
+def _slot_or_text(value):
+    match = _SLOT.fullmatch(value)
+    if match:
+        return ('slot', int(match.group(1)))
+    if _SLOT_MARK in value:
+        return None
+    return ('text', value)
+
+
+def _substitution_start(root):
+    """Where the substitution array of a templated root begins, relative to the root.
+
+    The same sum python-evtx's RootNode.tag_and_children_length makes when the root's
+    children are the optional 4-byte stream start, then the template instance, whose
+    length is 10 bytes plus, when the template definition follows it in the record,
+    that definition's 0x18-byte header and its data (TemplateInstanceNode and
+    TemplateNode).
+    """
+    offset = 4 if root.unpack_byte(0x0) & 0x0F == 0x0F else 0
+    instance_absolute = root.offset() + offset
+    template_offset = root.unpack_dword(offset + 6)
+    length = 10
+    chunk_offset = root._chunk._offset  # pylint: disable=protected-access
+    if template_offset > instance_absolute - chunk_offset:
+        data_length = root.unpack_dword(template_offset + chunk_offset - root.offset() + 0x14)
+        length += 0x18 + data_length
+    return offset + length, template_offset
+
+
+def _declarations(root, start):
+    count = root.unpack_dword(start)
+    position = start + 4
+    declarations = []
+    for _ in range(count):
+        declarations.append((root.unpack_word(position), root.unpack_byte(position + 2)))
+        position += 4
+    return declarations, position
+
+
+def _substitutions(root, start):
+    """python-evtx's RootNode.substitutions from a known start, with its size check."""
+    declarations, position = _declarations(root, start)
+    values = []
+    for size, value_type in declarations:
+        value = evtx_nodes.get_variant_value(root._buf, root.offset() + position, root._chunk, root,  # pylint: disable=protected-access
+                                             value_type, length=size)
+        if abs(size - value.length()) > 4:
+            raise evtx_nodes.ParseException('Invalid substitution value size')
+        values.append(value)
+        position += size
+    return values
+
+
+def _one_substitution(root, start, index):
+    """The value of one substitution, or None when the array has no such index."""
+    declarations, position = _declarations(root, start)
+    if index >= len(declarations):
+        return None
+    position += sum(size for size, _type in declarations[:index])
+    size, value_type = declarations[index]
+    return evtx_nodes.get_variant_value(root._buf, root.offset() + position, root._chunk, root,  # pylint: disable=protected-access
+                                        value_type, length=size)
+
+
+def _as_parsed_text(value):
+    """The text ElementTree reads back for a rendered substitution value, or None when that is not plain."""
+    if isinstance(value, evtx_nodes.BXmlTypeNode):
+        return None
+    escaped = evtx_views.escape_value(value.string())
+    if '&#' in escaped or '\r' in escaped or '\n' in escaped or '\t' in escaped:
+        return None
+    return _xml_unescape(escaped)
+
+
+class FastRenderer:
+    """Render records to the XML python-evtx's Record.xml() returns, rendering each template once per chunk.
+
+    python-evtx renders every record by walking its template's binary XML again
+    (Views.render_root_node_with_subs, python-evtx v0.8.1,
+    https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Views.py#L95-L188).
+    This walks a template once, with the same cases in the same order, into its literal
+    text and the index of each substitution, and fills those from each record's own
+    substitution values, rendered by python-evtx's value types and escape_value as
+    there; a substitution holding binary XML is rendered the same way. A record whose
+    root holds no template instance, or whose template has no end of stream, or any
+    record on which this raises, is rendered by Record.xml() itself.
+
+    event_fields(record) reads a record's Event ID and Provider name from the
+    substitutions the template places in System/EventID and System/Provider's Name,
+    without rendering the record; either is None when that cannot be read that way.
+    """
+
+    def __init__(self):
+        self._chunk = None
+        self._shapes = {}
+
+    def _shape(self, root):
+        chunk = root._chunk  # pylint: disable=protected-access
+        if chunk is not self._chunk:
+            self._chunk = chunk
+            self._shapes = {}
+        start, template_offset = _substitution_start(root)
+        shape = self._shapes.get(template_offset)
+        if shape is None:
+            shape = self._shapes[template_offset] = _TemplateShape(root)
+        return shape, start
+
+    def _render_root(self, root):
+        if not _root_is_templated(root):
+            return evtx_views.render_root_node(root)
+        shape, start = self._shape(root)
+        values = _substitutions(root, start) if shape.has_end else root.substitutions()
+        pieces = []
+        for part in shape.parts:
+            if isinstance(part, str):
+                pieces.append(part)
+                continue
+            value = values[part]
+            if isinstance(value, evtx_nodes.BXmlTypeNode):
+                pieces.append(self._render_root(value.root()))
+            else:
+                pieces.append(evtx_views.escape_value(value.string()))
+        return ''.join(pieces)
+
+    def xml(self, record):
+        """The XML Record.xml() returns for this record; raises when Record.xml() raises."""
+        try:
+            return self._render_root(record.root())
+        except Exception:  # pylint: disable=broad-exception-caught
+            return record.xml()
+
+    def event_fields(self, record):
+        """(Event ID, Provider name) as the parsed record would give them; None for either one not read."""
+        try:
+            root = record.root()
+            if not _root_is_templated(root):
+                return None, None
+            shape, start = self._shape(root)
+            if not shape.has_end:
+                return None, None
+            return (self._system_value(root, start, shape.event_id, strip=True),
+                    self._system_value(root, start, shape.provider, strip=False))
+        except Exception:  # pylint: disable=broad-exception-caught
+            return None, None
+
+    @staticmethod
+    def _system_value(root, start, source, strip):
+        if source is None:
+            return None
+        kind, value = source
+        if kind == 'text':
+            return value
+        substitution = _one_substitution(root, start, value)
+        if substitution is None:
+            return None
+        text = _as_parsed_text(substitution)
+        if text is None:
+            return None
+        return text.strip() if strip else text
+
+
+class EventRecordStream:
+    """Stream the parsed records of every copy of one event log, one at a time.
+
+    Iterating yields EventRecord objects whose Event ID is in event_ids (and whose
+    provider is provider, when given), in file order; sources lists the staged
+    paths that were opened. Records go through log_records with stale_header as
+    given and are rendered by FastRenderer. A record whose Event ID and Provider
+    FastRenderer.event_fields reads, and which they rule out, is not rendered; every
+    other record is rendered and filtered on the parsed record, as read_event_records
+    does. The run log gives, per file, the records read, those rendered, and those
+    python-evtx could not render or whose XML did not parse.
+    """
+
+    def __init__(self, context, file_name, label, event_ids=None, provider=None, stale_header=True):
+        self.context = context
+        self.file_name = file_name.lower()
+        self.label = label
+        self.event_ids = frozenset(event_ids) if event_ids is not None else None
+        self.provider = provider
+        self.stale_header = stale_header
+        self.sources = []
+
+    def _wanted(self, event_id, provider):
+        if event_id is not None and self.event_ids is not None and event_id not in self.event_ids:
+            return False
+        if provider is not None and self.provider is not None and provider != self.provider:
+            return False
+        return True
+
+    def __iter__(self):
+        if evtx is None:
+            logfunc(f'{self.label}: python-evtx is not installed (pip install python-evtx)')
+            return
+        for source in [str(f) for f in self.context.get_files_found()
+                       if str(f).lower().endswith(self.file_name)]:
+            if os.path.isdir(source):
+                continue
+            relative_source = self.context.get_relative_path(source)
+            read = rendered = unrendered = unparsed = 0
+            renderer = FastRenderer()
+            try:
+                with evtx.Evtx(source) as log:
+                    self.sources.append(source)
+                    for record in log_records(log, self.label, relative_source, stale_header=self.stale_header):
+                        read += 1
+                        if not self._wanted(*renderer.event_fields(record)):
+                            continue
+                        rendered += 1
+                        try:
+                            xml_text = renderer.xml(record)
+                        except Exception:  # pylint: disable=broad-exception-caught
+                            unrendered += 1
+                            continue
+                        try:
+                            root = ElementTree.fromstring(xml_text)
+                        except ElementTree.ParseError:
+                            unparsed += 1
+                            continue
+                        parsed = EventRecord(root, source)
+                        if self.event_ids is not None and parsed.event_id not in self.event_ids:
+                            continue
+                        if self.provider is not None and parsed.provider != self.provider:
+                            continue
+                        yield parsed
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logfunc(f'{self.label}: could not read {relative_source}: {exc}')
+            logfunc(f'{self.label}: {read} records in {relative_source}; {rendered} rendered (the others '
+                    f'carry an Event ID or provider this artifact does not read); {unrendered} could not be '
+                    f'rendered by python-evtx and {unparsed} did not parse as XML')

@@ -60,10 +60,14 @@ class FakeChunk:
 
 
 class FakeHeader:
-    def __init__(self, chunks, counted, dirty):
+    def __init__(self, chunks, counted, dirty, next_number=None):
         self._chunks = chunks
         self.counted = counted
         self.dirty = dirty
+        self.next_number = next_number
+
+    def next_record_number(self):
+        return self.next_number
 
     def chunk_count(self):
         return self.counted
@@ -76,19 +80,20 @@ class FakeHeader:
 
 
 class FakeLog:
-    def __init__(self, chunks, counted, dirty):
-        self.header = FakeHeader(chunks, counted, dirty)
+    def __init__(self, chunks, counted, dirty, next_number=None):
+        self.header = FakeHeader(chunks, counted, dirty, next_number)
 
     def get_file_header(self):
         return self.header
 
 
-def read(chunks, counted, dirty):
+def read(chunks, counted, dirty, next_number=None, stale_header=False):
     """The record numbers log_records yields, and the run log lines it writes."""
     lines = []
     with mock.patch.object(windows_evtx, 'logfunc', lines.append):
         numbers = [record.record_num() for record in
-                   windows_evtx.log_records(FakeLog(chunks, counted, dirty), 'Label', 'vol/System.evtx')]
+                   windows_evtx.log_records(FakeLog(chunks, counted, dirty, next_number), 'Label',
+                                            'vol/System.evtx', stale_header=stale_header)]
     return numbers, lines
 
 
@@ -131,6 +136,40 @@ class LogRecordsTest(unittest.TestCase):
         numbers, lines = read([FakeChunk([1]), FakeChunk([], magic=False)], 1, True)
         self.assertEqual(numbers, [1])
         self.assertEqual(lines, [])
+
+
+class StaleHeaderTest(unittest.TestCase):
+    def test_a_clean_log_whose_header_is_behind_its_chunks_is_read_on_when_asked(self):
+        # The header's next record number (3) is not above the highest number the counted chunks hold (4).
+        numbers, lines = read([FakeChunk([1, 2]), FakeChunk([3, 4]), FakeChunk([5, 6])], 2, False,
+                              next_number=3, stale_header=True)
+        self.assertEqual(numbers, [1, 2, 3, 4, 5, 6])
+        self.assertEqual(lines, ["Label: vol/System.evtx is not marked dirty, but its header's next record "
+                                 'number (3) is not above the highest record number its counted chunks hold (4); '
+                                 '2 record(s) were read from 1 chunk(s) after the 2 its header counts'])
+
+    def test_a_clean_log_whose_header_is_current_is_read_as_python_evtx_reads_it(self):
+        numbers, lines = read([FakeChunk([1, 2]), FakeChunk([3, 4]), FakeChunk([5, 6])], 2, False,
+                              next_number=5, stale_header=True)
+        self.assertEqual(numbers, [1, 2, 3, 4])
+        self.assertEqual(lines, [])
+
+    def test_a_stale_header_is_not_read_on_unless_asked(self):
+        numbers, lines = read([FakeChunk([1, 2]), FakeChunk([3, 4]), FakeChunk([5, 6])], 2, False, next_number=3)
+        self.assertEqual(numbers, [1, 2, 3, 4])
+        self.assertEqual(lines, [])
+
+    def test_a_clean_log_with_no_counted_records_is_not_read_on(self):
+        numbers, _lines = read([FakeChunk([]), FakeChunk([5])], 1, False, next_number=1, stale_header=True)
+        self.assertEqual(numbers, [])
+
+    def test_a_record_already_read_is_not_read_again_past_a_stale_header(self):
+        numbers, _lines = read([FakeChunk([1, 2]), FakeChunk([2, 3])], 1, False, next_number=2, stale_header=True)
+        self.assertEqual(numbers, [1, 2, 3])
+
+    def test_a_dirty_log_is_read_on_whatever_its_next_record_number(self):
+        numbers, _lines = read([FakeChunk([1]), FakeChunk([2])], 1, True, next_number=9, stale_header=True)
+        self.assertEqual(numbers, [1, 2])
 
 
 class FakeEvtxModule:
@@ -192,7 +231,7 @@ class PythonEvtxInterfaceTest(unittest.TestCase):
         # declares on each instance, so they are checked on instances built over zeroed bytes.
         header = windows_evtx.evtx.FileHeader(bytearray(0x1000), 0)
         self.assertIn('include_inactive', inspect.signature(header.chunks).parameters)
-        for name in ('chunk_count', 'is_dirty'):
+        for name in ('chunk_count', 'is_dirty', 'next_record_number'):
             self.assertTrue(callable(getattr(header, name)))
         chunk = windows_evtx.evtx.ChunkHeader(bytearray(0x10000), 0)
         for name in ('check_magic', 'header_checksum', 'calculate_header_checksum', 'data_checksum',
