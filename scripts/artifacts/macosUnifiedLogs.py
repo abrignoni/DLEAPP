@@ -75,8 +75,9 @@ __artifacts_v2__ = {
     "macosUnifiedLogScreenUnlock": {
         "name": "Unified Logs - Screen Unlock",
         "description": "Unified log entries about locking and unlocking a Mac: keybag state transitions, the "
-                       "kernel's volume lock and unlock notifications, Touch ID match results, loginwindow "
-                       "password attempts and failed password verification entries.",
+                       "kernel's APFS volume unlock entries and volume lock and unlock notifications, Touch "
+                       "ID match results, loginwindow password attempts and failed password verification "
+                       "entries.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-18",
@@ -138,7 +139,15 @@ __artifacts_v2__ = {
                  "succeeded, with password' twice for each 'password is CORRECT', once ending "
                  "'attempting to unlock the login keychain' and once 'attempting to unlock the "
                  "keybag' (5 of each on Big Sur, 1 of each on 15.4), so those rows are not a count of "
-                 "unlocks.",
+                 "unlocks. "
+                 "The kernel's 'apfs is being UN-locked' and 'is now UN-locked' entries were added 2026-10-18. "
+                 "None appeared on the three corpus images. They were observed locally on a private macOS "
+                 "27.0.1 system; counts and values are not published. There each 'is now UN-locked' entry came "
+                 "less than two seconds after an 'is being UN-locked' entry and within five seconds of a "
+                 "volume notification reading unlocked. Their relation to a screen unlock on macOS was not "
+                 "tested here. The /kernel condition kept out the entries the log command wrote while "
+                 "searching, which carry 'is now UN-locked' or 'Sending notification for volume' in their "
+                 "arguments.",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 | 61 rows",
             "evidencelocker_macos14": "macOS 14.6.1 | 524 rows",
@@ -890,7 +899,9 @@ def macosUnifiedLogScreenUnlock(context):
         OR (subsystem = 'com.apple.chrono' AND category = 'keybag'
             AND event_message LIKE 'Transition:%')
         OR (process_image_path = '/kernel'
-            AND event_message LIKE '%Sending notification for volume%')
+            AND (event_message LIKE '%Sending notification for volume%'
+                 OR event_message LIKE '%apfs is being UN-locked%'
+                 OR event_message LIKE '%is now UN-locked%'))
         OR (process_image_path LIKE '%/biometrickitd' AND event_message LIKE 'matchResult:timestamp:%')
         OR (process_image_path LIKE '%/coreauthd' AND event_message LIKE '%has received no-match%')
         OR (process_image_path LIKE '%/opendirectoryd'
