@@ -1,20 +1,20 @@
-"""Shared file lists (.sfl2 and .sfl3): recent items, favorites and volumes, for DLEAPP.
+"""Shared file lists (.sfl2, .sfl3 and .sfl4): recent items, favorites and volumes, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 """
 
 __artifacts_v2__ = {
     "macosSharedFileLists": {
-        "name": "Shared File Lists (sfl2, sfl3)",
-        "description": "Items in each user's .sfl2 and .sfl3 shared file lists (recent "
+        "name": "Shared File Lists (sfl2, sfl3, sfl4)",
+        "description": "Items in each user's .sfl2, .sfl3 and .sfl4 shared file lists (recent "
                        "applications, documents and servers, favorites, volumes and per-app "
                        "recent documents), with the path, URL and volume their bookmarks record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Recent Items (macOS)",
-        "notes": "Reads the .sfl2 and .sfl3 files under each user's ~/Library/Application "
+        "notes": "Reads the .sfl2, .sfl3 and .sfl4 files under each user's ~/Library/Application "
                  "Support/com.apple.sharedfilelist, including the per-application lists in its "
                  "subfolders, and the same folder under /private/var/root. Each file is an "
                  "NSKeyedArchiver archive, each entry in its items array is one row, and Order is the "
@@ -22,8 +22,9 @@ __artifacts_v2__ = {
                  "read from the entry's Bookmark data (items 0x1004, 0x1003, 0x2010, 0x2002 and "
                  "0x1040): an entry such as a Finder tag or the iCloud Drive item carries a URL and no"
                  " path. Target Created is the bookmarked item's creation date, not a time it was "
-                 "opened. Special Item Identifier and Hidden are the SpecialItemIdentifier and "
-                 "ItemIsHidden custom properties as stored. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. On dleapp_macos_bigsur the 9 files hold 46 entries, 28 "
+                 "opened. Special Item Identifier is the SpecialItemIdentifier custom property as "
+                 "stored. Hidden is the ItemIsHidden custom property, shown as Yes or No when it is "
+                 "a boolean. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. On dleapp_macos_bigsur the 9 files hold 46 entries, 28 "
                  "with a path and 18 with a URL. On the public MacBook Pro logical extraction (macOS "
                  "15.4, corpus key mvs2026_macbookpro_macos15) every list is .sfl3: 31 files are read and "
                  "11 of them hold 55 entries, 36"
@@ -31,11 +32,27 @@ __artifacts_v2__ = {
                  "neither. When a logical extraction holds the same file under Users/ or "
                  "private/var/root/ and again under System/Volumes/Data/, a second copy "
                  "byte-identical to the first is not read again, and is counted in the run log. "
+                 "A .sfl4 file is read the same way as a .sfl3 file. On two private macOS 27 systems "
+                 "(27.0 and 27.0.1) every .sfl4 file was an NSKeyedArchiver binary plist with the "
+                 "same root keys (items, properties) and the same item keys as the .sfl3 files beside "
+                 "them (Bookmark, CustomItemProperties, uuid and visibility on every item, Name on "
+                 "some), and "
+                 "every Bookmark decoded. On one of them the first .sfl4 file was created within a "
+                 "minute of the install of macOS 26.2 (an upgrade from 15.7.3) and no .sfl3 file changed after "
+                 "that. The older .sfl3 files stay on disk and are read too, so one list can appear "
+                 "under both extensions; the List column names the file. Which macOS release first "
+                 "writes .sfl4 is not established. A search on 2026-10-17 found no Apple or published "
+                 "description of the .sfl4 layout, and no public corpus image holds a .sfl4 file "
+                 "(dleapp_macos_bigsur and magnet2021_macos_bigsur hold .sfl2, "
+                 "mvs2026_macbookpro_macos15 .sfl3), so the "
+                 ".sfl4 reading is shown on those private systems, whose counts and values are not "
+                 "published, and by tests built on synthetic files. "
                  "Reference: "
                  "mac_alias (dmgbuild), bookmark.py, "
                  "https://github.com/dmgbuild/mac_alias/blob/d0c076b4562541c1509d9874f42880378245d268/src/mac_alias/bookmark.py#L128-L169.",
         "paths": ('*/Library/Application Support/com.apple.sharedfilelist/*.sfl2',
-                  '*/Library/Application Support/com.apple.sharedfilelist/*.sfl3'),
+                  '*/Library/Application Support/com.apple.sharedfilelist/*.sfl3',
+                  '*/Library/Application Support/com.apple.sharedfilelist/*.sfl4'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "history",
         "sample_data": {
