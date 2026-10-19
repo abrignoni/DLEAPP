@@ -13,7 +13,8 @@ Entry file layout (``simple_entry_format.h``)::
         uint32 key_hash
     key                        key_length bytes
     stream 1                   the HTTP response body
-    SimpleFileEOF (stream 1)   24 bytes
+    SimpleFileEOF (stream 1)   24 bytes; its stream_size is not used, so stream 1's
+                               size is the space between the key and this record
     stream 0                   the serialised HttpResponseInfo
     key SHA-256                32 bytes, only when flags & FLAG_HAS_KEY_SHA256
     SimpleFileEOF (stream 0)   24 bytes
@@ -278,15 +279,16 @@ def read_entry(path):
             handle.seek(stream0_start)
             stream0 = handle.read(stream0_size)
 
+            # Stream 1 runs from the end of the key to its EOF record. Its size comes from
+            # that layout, as Chromium computes it: the EOF record's stream_size is only
+            # used for stream 0, and stream 1's record can hold 0 there.
             body_offset = key_offset + key_length
             body_size = 0
             if stream0_start - _EOF_SIZE >= body_offset:
                 handle.seek(stream0_start - _EOF_SIZE)
-                magic1, _flags1, _crc1, stream1_size = _EOF_FIELDS.unpack(
-                    handle.read(_EOF_FIELDS.size))
-                available = stream0_start - _EOF_SIZE - body_offset
-                if magic1 == SIMPLE_EOF_MAGIC and 0 <= stream1_size <= available:
-                    body_size = stream1_size
+                magic1 = _EOF_FIELDS.unpack(handle.read(_EOF_FIELDS.size))[0]
+                if magic1 == SIMPLE_EOF_MAGIC:
+                    body_size = stream0_start - _EOF_SIZE - body_offset
     except (OSError, struct.error, ValueError):
         return None
 
