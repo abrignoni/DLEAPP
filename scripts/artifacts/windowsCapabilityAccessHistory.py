@@ -14,11 +14,12 @@ __artifacts_v2__ = {
         "name": "Capability Access History",
         "description": "Capability access events (camera, microphone, location and others) kept "
                        "in the Windows 11 CapabilityAccessManager.db database: start and stop "
-                       "time, capability, app, user SID and, for non-packaged apps, the file "
-                       "and program IDs.",
+                       "time, capability, app, the app name and service name columns of later "
+                       "builds (seen on 24H2 and 25H2), user SID and, for non-packaged apps, the "
+                       "file and program IDs.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-10-19",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from "
@@ -57,7 +58,37 @@ __artifacts_v2__ = {
                  "ProgramId of that path's InventoryApplicationFile entry in its Amcache.hve. Record ID is "
                  "the row's ID in its own table, which the Part 1 post found increments and is not reused "
                  "after old rows are removed; on pc_mus_001_win11 the PackagedUsageHistory ids ran from 51 "
-                 "to 180 with 77 absent, and the NonPackagedUsageHistory ids were 2 and 3. Read the "
+                 "to 180 with 77 absent, and the NonPackagedUsageHistory ids were 2 and 3. "
+                 "App Name and Service Name are the AppName and ServiceName columns read through the "
+                 "AppNames and ServiceNames tables. ServiceName exists only in NonPackagedUsageHistory in "
+                 "both later files, so Service Name is blank on every Packaged row. App Name and Service "
+                 "Name are blank on every row of "
+                 "pc_mus_001_win11 (Windows 11 22H2), whose database has neither the columns nor those "
+                 "tables; they exist in hexordia_mvs2025_win11 (24H2, build 26100) and "
+                 "windows11_arm_cam_known_20261019 (25H2, build 26200). App Type held one value, "
+                 "NonPackaged, on all 257 rows of hexordia_mvs2025_win11, whose PackagedUsageHistory table "
+                 "had no rows. windows11_arm_cam_known_20261019 is known data made by using the camera, "
+                 "microphone and location from the Camera app, Sound Recorder and Microsoft Edge; App Name "
+                 "held Camera, Sound Recorder and Microsoft Edge on those apps' 7, 3 and 9 rows. On "
+                 "hexordia_mvs2025_win11 App Name was filled on all 257 rows, with one value per executable, "
+                 "and Service Name on 2 svchost.exe rows, where App Name held only 'Host Process for Windows "
+                 "Services' and Service Name named the service; Service Name was blank on every other row of "
+                 "the three samples. The usage tables of those two later files also carry AccessGUID and "
+                 "Label columns, which are not reported: AccessGUID was 0 on every row and the AccessGUIDs "
+                 "table was empty, and Label held 2 on all 276 rows, with no lookup table, and no source was "
+                 "found for its meaning. Their NonPackagedGlobalPromptHistory table is not read: it was empty in both, "
+                 "and a location request from PowerShell on the known-data machine added no row to it. On "
+                 "windows11_arm_cam_known_20261019 every use the session logs record, by the Camera app, Sound "
+                 "Recorder and Edge, had a row in the database when it was copied, and for each of the seven "
+                 "app and capability pairs with rows the latest Start Time equals the LastUsedTimeStart then "
+                 "in the user's registry ConsentStore, so on that build the database held the newest event "
+                 "of each pair that had rows as well as the earlier ones. The registry held an eighth pair, "
+                 "powershell.exe and location, from that PowerShell request, with no row in either usage "
+                 "table, so read the Capability Access Manager artifact for uses this one does not show. On the same data Microsoft Edge "
+                 "has a location row starting six seconds after Edge started, about four minutes before the "
+                 "test page asked for a position, and webcam rows for two requests on which the page reported "
+                 "that the camera did not start (AbortError); a row therefore shows neither that a web page "
+                 "asked for the capability nor that the page got the stream it asked for. Read the "
                  "Capability Access Manager artifact, which reports the registry ConsentStore, beside this "
                  "one. On pc_mus_001_win11 the user's hive held last-use times for five app and capability "
                  "pairs: three are not in the database, one equals the latest database row for its pair "
@@ -73,8 +104,10 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 257 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 131 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "windows11_arm_cam_known_20261019": "Windows 11 25H2 build 26200 | 19 rows",
         },
     },
     "capabilityAccessIdentities": {
@@ -114,8 +147,10 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 6 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1 row",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "windows11_arm_cam_known_20261019": "Windows 11 25H2 build 26200 | 1 row",
         },
     },
 }
@@ -129,22 +164,42 @@ from scripts.windows_registry import filetime_utc
 _DATABASE = 'CapabilityAccessManager.db'
 
 _PACKAGED = '''
-    SELECT h.LastUsedTimeStart, h.LastUsedTimeStop, c.StringValue, p.StringValue,
-           u.StringValue, h.AccessBlocked, NULL, NULL, h.ID
+    SELECT h.LastUsedTimeStart, h.LastUsedTimeStop, c.StringValue, p.StringValue, {app_name},
+           {service_name}, u.StringValue, h.AccessBlocked, NULL, NULL, h.ID
     FROM PackagedUsageHistory h
     LEFT JOIN Capabilities c ON c.ID = h.Capability
     LEFT JOIN PackageFamilyNames p ON p.ID = h.PackageFamilyName
-    LEFT JOIN Users u ON u.ID = h.UserSid'''
+    LEFT JOIN Users u ON u.ID = h.UserSid{joins}'''
 
 _NON_PACKAGED = '''
-    SELECT h.LastUsedTimeStart, h.LastUsedTimeStop, c.StringValue, b.StringValue,
-           u.StringValue, h.AccessBlocked, f.StringValue, g.StringValue, h.ID
+    SELECT h.LastUsedTimeStart, h.LastUsedTimeStop, c.StringValue, b.StringValue, {app_name},
+           {service_name}, u.StringValue, h.AccessBlocked, f.StringValue, g.StringValue, h.ID
     FROM NonPackagedUsageHistory h
     LEFT JOIN Capabilities c ON c.ID = h.Capability
     LEFT JOIN BinaryFullPaths b ON b.ID = h.BinaryFullPath
     LEFT JOIN Users u ON u.ID = h.UserSid
     LEFT JOIN FileIDs f ON f.ID = h.FileID
-    LEFT JOIN ProgramIDs g ON g.ID = h.ProgramID'''
+    LEFT JOIN ProgramIDs g ON g.ID = h.ProgramID{joins}'''
+
+# Columns that later builds added to the usage tables, each naming a row of a lookup table.
+# Windows 11 22H2 files have neither, so each is read only where both the column and its
+# lookup table exist.
+_LOOKUP_COLUMNS = (('AppName', 'AppNames', 'an'), ('ServiceName', 'ServiceNames', 'sn'))
+
+
+def _usage_query(db, table, template):
+    """The usage query for one table, reading the later lookup columns only where present."""
+    columns = {row[1] for row in db.execute(f'PRAGMA table_info("{table}")')}
+    tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    selects, joins = {}, ''
+    for column, lookup, alias in _LOOKUP_COLUMNS:
+        if column in columns and lookup in tables:
+            selects[column] = f'{alias}.StringValue'
+            joins += f'\n    LEFT JOIN {lookup} {alias} ON {alias}.ID = h.{column}'
+        else:
+            selects[column] = 'NULL'
+    return template.format(app_name=selects['AppName'], service_name=selects['ServiceName'], joins=joins)
+
 
 _IDENTITIES = '''
     SELECT i.LastObservedTime, b.StringValue, f.StringValue, g.StringValue, i.ID
@@ -174,6 +229,8 @@ def _read(path, relative, label, queries):
                 logfunc(f'{label}: {relative} has no {name} table')
                 results[name] = []
                 continue
+            if callable(query):
+                query = query(db)
             results[name] = db.execute(query).fetchall()
     except sqlite3.Error as exc:
         logfunc(f'{label}: could not read {relative}: {exc}')
@@ -187,22 +244,25 @@ def _read(path, relative, label, queries):
 def capabilityAccessHistory(context):
     label = 'Capability Access History'
     data_headers = (('Start Time (UTC)', 'datetime'), ('Stop Time (UTC)', 'datetime'), 'Capability',
-                    'App Type', 'App', 'User SID', 'Access Blocked (as stored)', 'File ID',
-                    'Program ID', 'Record ID', 'Source File')
+                    'App Type', 'App', 'App Name', 'Service Name', 'User SID',
+                    'Access Blocked (as stored)', 'File ID', 'Program ID', 'Record ID', 'Source File')
     data_list, sources = [], []
+    queries = (('PackagedUsageHistory', lambda db: _usage_query(db, 'PackagedUsageHistory', _PACKAGED)),
+               ('NonPackagedUsageHistory',
+                lambda db: _usage_query(db, 'NonPackagedUsageHistory', _NON_PACKAGED)))
     for path, relative in _databases(context):
-        results = _read(path, relative, label, (('PackagedUsageHistory', _PACKAGED),
-                                                ('NonPackagedUsageHistory', _NON_PACKAGED)))
+        results = _read(path, relative, label, queries)
         if results is None:
             continue
         sources.append(path)
         rows = [('Packaged',) + row for row in results['PackagedUsageHistory']]
         rows += [('NonPackaged',) + row for row in results['NonPackagedUsageHistory']]
-        rows.sort(key=lambda r: (r[1] or 0, r[0], r[9]))
-        for app_type, start, stop, capability, app, sid, blocked, file_id, program_id, record in rows:
+        rows.sort(key=lambda r: (r[1] or 0, r[0], r[11]))
+        for (app_type, start, stop, capability, app, app_name, service_name, sid, blocked, file_id,
+             program_id, record) in rows:
             data_list.append((filetime_utc(start), filetime_utc(stop), capability or '', app_type,
-                              app or '', sid or '', blocked, file_id or '', program_id or '', record,
-                              relative))
+                              app or '', app_name or '', service_name or '', sid or '', blocked,
+                              file_id or '', program_id or '', record, relative))
     return data_headers, data_list, '\n'.join(sources)
 
 

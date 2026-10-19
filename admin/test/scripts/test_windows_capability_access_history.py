@@ -128,15 +128,54 @@ class ProcessorTest(unittest.TestCase):
         relative = f'{_FOLDER}/CapabilityAccessManager.db'
         self.assertEqual(rows, [
             (_when(4, 9, 0), _when(4, 9, 0), 'contacts', 'Packaged',
-             'Microsoft.WindowsCamera_8wekyb3d8bbwe', _SID, 0, '', '', 53, relative),
-            (_when(5, 2, 50, 24, 642954), _when(5, 2, 50, 29), 'location', 'NonPackaged', _EDGE, _SID, 0,
-             _FILE_ID, _PROGRAM_ID, 2, relative),
+             'Microsoft.WindowsCamera_8wekyb3d8bbwe', '', '', _SID, 0, '', '', 53, relative),
+            (_when(5, 2, 50, 24, 642954), _when(5, 2, 50, 29), 'location', 'NonPackaged', _EDGE, '', '', _SID,
+             0, _FILE_ID, _PROGRAM_ID, 2, relative),
             (_when(5, 3, 0), _when(5, 3, 1, 30), 'location', 'Packaged',
-             'Microsoft.WindowsCamera_8wekyb3d8bbwe', _SID, 0, '', '', 51, relative),
+             'Microsoft.WindowsCamera_8wekyb3d8bbwe', '', '', _SID, 0, '', '', 51, relative),
             (_when(6, 17, 3, 37), _when(6, 17, 3, 37), 'contacts', 'Packaged',
-             'Microsoft.WindowsCamera_8wekyb3d8bbwe', _SID, 0, '', '', 52, relative),
+             'Microsoft.WindowsCamera_8wekyb3d8bbwe', '', '', _SID, 0, '', '', 52, relative),
         ])
         self.assertEqual(source.splitlines(), [str(self.path)])
+        self.assertEqual(logs, [])
+
+    def _add_later_columns(self, lookups=('AppNames', 'ServiceNames')):
+        """Add the columns and lookup tables a Windows 11 25H2 (build 26200) file carries."""
+        db = sqlite3.connect(self.path)
+        for table in ('PackagedUsageHistory', 'NonPackagedUsageHistory'):
+            for column in ('AccessGUID', 'Label', 'AppName'):
+                db.execute(f'ALTER TABLE {table} ADD COLUMN {column} INTEGER NOT NULL DEFAULT 0')
+        db.execute('ALTER TABLE NonPackagedUsageHistory ADD COLUMN ServiceName INTEGER NOT NULL DEFAULT 0')
+        for lookup in lookups:
+            db.execute(f'CREATE TABLE {lookup}(ID INTEGER PRIMARY KEY NOT NULL,StringValue TEXT COLLATE NOCASE '
+                       'NOT NULL)')
+        with db:
+            if 'AppNames' in lookups:
+                db.executemany('INSERT INTO AppNames VALUES (?, ?)', [(1, 'Camera'), (2, 'Microsoft Edge')])
+                db.execute('UPDATE PackagedUsageHistory SET AppName = 1, Label = 2')
+                db.execute('UPDATE NonPackagedUsageHistory SET AppName = 2, Label = 2')
+            if 'ServiceNames' in lookups:
+                db.execute('INSERT INTO ServiceNames VALUES (1, ?)', ('lfsvc',))
+                db.execute('UPDATE NonPackagedUsageHistory SET ServiceName = 1')
+        db.close()
+
+    def test_later_builds_add_the_app_and_service_names(self):
+        self._build()
+        self._add_later_columns()
+        _headers, rows, _source, logs = self._run(cam.capabilityAccessHistory)
+        self.assertEqual([(row[4], row[5], row[6]) for row in rows], [
+            ('Microsoft.WindowsCamera_8wekyb3d8bbwe', 'Camera', ''),
+            (_EDGE, 'Microsoft Edge', 'lfsvc'),
+            ('Microsoft.WindowsCamera_8wekyb3d8bbwe', 'Camera', ''),
+        ])
+        self.assertEqual(logs, [])
+
+    def test_a_name_column_without_its_lookup_table_reads_blank(self):
+        self._build()
+        self._add_later_columns(lookups=('AppNames',))
+        _headers, rows, _source, logs = self._run(cam.capabilityAccessHistory)
+        self.assertEqual([(row[5], row[6]) for row in rows],
+                         [('Camera', ''), ('Microsoft Edge', ''), ('Camera', '')])
         self.assertEqual(logs, [])
 
     def test_identity_rows(self):
@@ -150,7 +189,7 @@ class ProcessorTest(unittest.TestCase):
     def test_a_missing_table_is_logged_and_the_other_is_read(self):
         self._build(skip=('NonPackagedUsageHistory',))
         _headers, rows, _source, logs = self._run(cam.capabilityAccessHistory)
-        self.assertEqual([(row[3], row[9]) for row in rows], [('Packaged', 53), ('Packaged', 51)])
+        self.assertEqual([(row[3], row[11]) for row in rows], [('Packaged', 53), ('Packaged', 51)])
         self.assertEqual(logs, [f'Capability Access History: {_FOLDER}/CapabilityAccessManager.db has no '
                                 'NonPackagedUsageHistory table'])
 
