@@ -40,6 +40,13 @@ _DOM_NAMES = ('BASE', 'DOM_BLOB', 'DOM_FILE_WITHOUT_LASTMODIFIEDDATE', 'DOM_FILE
               'DOM_DOMPOINTREADONLY', 'DOM_CRYPTOKEY', 'DOM_NULL_PRINCIPAL', 'DOM_SYSTEM_PRINCIPAL',
               'DOM_CONTENT_PRINCIPAL', 'DOM_DOMQUAD', 'DOM_RTCCERTIFICATE', 'DOM_DOMRECT',
               'DOM_DOMRECTREADONLY', 'DOM_EXPANDED_PRINCIPAL')
+# js/public/ScalarType.h enum Scalar::Type, up to Float16 (the last one readTypedArray accepts),
+# with each element's size in bytes.
+_TYPED_ARRAYS = (('Int8Array', 1), ('Uint8Array', 1), ('Int16Array', 2), ('Uint16Array', 2),
+                 ('Int32Array', 4), ('Uint32Array', 4), ('Float32Array', 4), ('Float64Array', 8),
+                 ('Uint8ClampedArray', 1), ('BigInt64Array', 8), ('BigUint64Array', 8),
+                 ('Float16Array', 2))
+_AUTO_LENGTH = 0xFFFFFFFFFFFFFFFF
 _TAG_NAME = {value: f'SCTAG_{name}' for name, value in _T.items()}
 _TAG_NAME.update({0xFFFF8000 + index: f'SCTAG_{name}' for index, name in enumerate(_DOM_NAMES)})
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -98,6 +105,7 @@ class _CloneReader:
 
     def __init__(self, raw):
         self.raw, self.pos, self.objects = raw, 0, 0
+        self.buffers = {}  # object index -> ArrayBuffer bytes, so a view can follow a back reference
 
     def _word(self):
         if self.pos + 8 > len(self.raw):
@@ -178,10 +186,50 @@ class _CloneReader:
             nbytes = data if tag == _T['ARRAY_BUFFER_OBJECT_V2'] else self._word()
             if tag == _T['RESIZABLE_ARRAY_BUFFER_OBJECT']:
                 self._word()
-            return self._object({'$arraybuffer': self._bytes(nbytes, 1).hex()})
+            data_bytes = self._bytes(nbytes, 1)
+            self.buffers[self.objects] = data_bytes
+            return self._object({'$arraybuffer': data_bytes.hex()})
+        if tag in (_T['TYPED_ARRAY_OBJECT'], _T['TYPED_ARRAY_OBJECT_V2']):
+            # startRead: the current tag carries the element type and then the length as a
+            # word; V2 carries the length and then the element type as a word.
+            if tag == _T['TYPED_ARRAY_OBJECT']:
+                array_type, nelems = data, self._word()
+            else:
+                array_type, nelems = self._word(), data
+            if array_type >= len(_TYPED_ARRAYS):
+                raise ValueError('unhandled typed array element type')
+            name, size = _TYPED_ARRAYS[array_type]
+            return {'$typedarray': name, 'hex': self._view(stack, nelems, size).hex()}
+        if tag in (_T['DATA_VIEW_OBJECT'], _T['DATA_VIEW_OBJECT_V2']):
+            byte_length = self._word() if tag == _T['DATA_VIEW_OBJECT'] else data
+            return {'$dataview': self._view(stack, byte_length, 1).hex()}
         if tag <= _FLOAT_MAX:
             return _number(struct.unpack('<d', struct.pack('<Q', (tag << 32) | data))[0])
         raise NotDecoded(_tag_name(tag))
+
+    def _view(self, stack, count, size):
+        """readTypedArray / readDataView: the bytes a view sees in the buffer that follows it.
+
+        The view takes its object slot before its buffer, as the reader's placeholder does,
+        and the buffer is followed by the byte offset. A count of all ones is an auto-length
+        view, which runs to the end of the buffer.
+        """
+        self.objects += 1
+        index = self.objects
+        buffer = self._start(stack)
+        if isinstance(buffer, dict) and '$backref' in buffer:
+            index = buffer['$backref']
+        elif not (isinstance(buffer, dict) and '$arraybuffer' in buffer):
+            raise ValueError('view must be backed by an ArrayBuffer')
+        if index not in self.buffers:
+            raise NotDecoded('view over a buffer this reader does not hold')
+        data, offset = self.buffers[index], self._word()
+        if count == _AUTO_LENGTH:
+            count = max(len(data) - offset, 0) // size
+        end = offset + count * size
+        if end > len(data):
+            raise ValueError('view runs past its buffer')
+        return data[offset:end]
 
     def read(self):
         if self._peek_tag() == _HEADER:

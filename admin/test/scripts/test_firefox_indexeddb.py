@@ -84,14 +84,45 @@ class CloneReaderTest(unittest.TestCase):
         with self.assertRaises(idb.NotDecoded) as blob:
             idb.clone_value(HEADER + pair(BASE + 8) + latin1('f') + pair(0xFFFF8001, 0) + END)
         self.assertEqual(str(blob.exception), 'SCTAG_DOM_BLOB')
-        with self.assertRaises(idb.NotDecoded) as typed:
-            idb.clone_value(HEADER + pair(BASE + 0x20, 1) + word(0))
-        self.assertEqual(str(typed.exception), 'SCTAG_TYPED_ARRAY_OBJECT')
+        with self.assertRaises(idb.NotDecoded) as error:
+            idb.clone_value(HEADER + pair(BASE + 0x22, 1) + word(0))
+        self.assertEqual(str(error.exception), 'SCTAG_ERROR_OBJECT')
         with self.assertRaises(ValueError):
             idb.clone_value(HEADER + pair(BASE + 0xD, 5))
         with self.assertRaises(ValueError):
             idb.clone_value(HEADER + pair(BASE + 8) + latin1('open'))
 
+
+    def test_typed_arrays_and_data_views(self):
+        buffer4 = pair(BASE + 0x1F) + word(4) + b'\x01\x02\x03\x04' + b'\x00' * 4
+        buffer = (HEADER + pair(BASE + 8)
+                  # u: Uint8Array(4) over its own buffer at offset 0 (objects 1 and 2)
+                  + latin1('u') + pair(BASE + 0x20, 1) + word(4) + buffer4 + word(0)
+                  # w: Uint16Array(1) at offset 2 of the same buffer, by back reference to 2
+                  + latin1('w') + pair(BASE + 0x20, 3) + word(1) + pair(BASE + 0xD, 2) + word(2)
+                  # v: the V2 tag, length in the pair and the element type in a word
+                  + latin1('v') + pair(BASE + 0x10, 2) + word(1) + buffer4 + word(1)
+                  # x: an auto-length DataView from offset 1
+                  + latin1('x') + pair(BASE + 0x21) + word(0xFFFFFFFFFFFFFFFF) + buffer4 + word(1)
+                  # y: a V2 DataView with its length in the pair
+                  + latin1('y') + pair(BASE + 0x15, 1) + buffer4 + word(3)
+                  + END)
+        value, trailing = idb.clone_value(buffer)
+        self.assertEqual(trailing, 0)
+        self.assertEqual(value, {'u': {'$typedarray': 'Uint8Array', 'hex': '01020304'},
+                                 'w': {'$typedarray': 'Uint16Array', 'hex': '0304'},
+                                 'v': {'$typedarray': 'Uint8Array', 'hex': '0203'},
+                                 'x': {'$dataview': '020304'},
+                                 'y': {'$dataview': '04'}})
+
+    def test_bad_typed_arrays_stop_decoding(self):
+        buffer2 = pair(BASE + 0x1F) + word(2) + b'\x01\x02' + b'\x00' * 6
+        with self.assertRaises(ValueError):          # Uint32Array(1) needs 4 bytes, the buffer has 2
+            idb.clone_value(HEADER + pair(BASE + 0x20, 5) + word(1) + buffer2 + word(0))
+        with self.assertRaises(ValueError):          # element type 12 is past Float16
+            idb.clone_value(HEADER + pair(BASE + 0x20, 12) + word(1) + buffer2 + word(0))
+        with self.assertRaises(ValueError):          # a view must be backed by an ArrayBuffer
+            idb.clone_value(HEADER + pair(BASE + 0x20, 1) + word(1) + pair(BASE + 3, 1) + word(0))
 
 class KeyDecoderTest(unittest.TestCase):
 
