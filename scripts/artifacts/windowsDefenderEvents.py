@@ -75,7 +75,7 @@ __artifacts_v2__ = {
                        "them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
@@ -122,7 +122,9 @@ __artifacts_v2__ = {
                  "defender_evtx_attack_samples log, stores Detection Source, Detection Origin, "
                  "Detection Type and Action as a reference of the form %%818 rather than as text. "
                  "Platform 4.18.2011.6, which wrote the records of the defender_evtx_to_mitre log,"
-                 " stores them as text, for example Real-Time Protection. Microsoft's "
+                 " stores them as text, for example Real-Time Protection, and so does platform "
+                 "4.18.26090.9, which wrote the detection records of the "
+                 "windows11_arm_defender_eicar_known_20261018 log. Microsoft's "
                  "documentation describes a parameter "
                  "string of the form %%n as the identifier of a message in the message "
                  "table of the provider's parameter file (Microsoft Learn, 'ProviderType "
@@ -186,8 +188,28 @@ __artifacts_v2__ = {
                  "Detection Origin, Detection Type, Status, Error Code, Error Description, "
                  "Security Intelligence Version, Engine Version and Computer each held one value, "
                  "and User SID was empty. "
-                 "Neither the registered Windows disk images nor the two public samples carry a "
-                 "record with Event ID 1006, 1007, 1008, 1009, 1011, 1015, 1118 or "
+                 "The windows11_arm_defender_eicar_known_20261018 log, a wevtutil export of the "
+                 "live log, is known data from a "
+                 "Windows 11 build 26200 virtual machine with real-time protection on: the EICAR "
+                 "test file was written to three files, one in a folder whose name holds a comma "
+                 "and non-ASCII letters, and Defender detected and quarantined each. It carries 6 "
+                 "(a 1116 and a 1117 for each file, Record IDs 2472, 2474, 2475, 2476, 2479 and "
+                 "2480), and every value "
+                 "reported on those rows matched the record field the mapping above names, read "
+                 "from an XML export of the same records made on the machine during the session. "
+                 "Threat ID, Detection ID, Detection Time (as stored), Path, Process Name and the "
+                 "1116 rows' User also matched what Get-MpThreatDetection reported for each "
+                 "detection, Detection Time to the millisecond, and Path kept the folder name's "
+                 "comma and letters. On those rows Path held the file's path after the prefix "
+                 "file:_; User held the account that wrote the files on 1116 and NT "
+                 "AUTHORITY\\SYSTEM on 1117; Action held Not Applicable on 1116 and Quarantine on "
+                 "1117; Threat Name, Threat ID, Severity, Category, Process Name, Detection "
+                 "Source, Detection Origin, Detection Type, Status, Error Code, Error Description, "
+                 "Security Intelligence Version, Engine Version and Computer each held one value; "
+                 "and User SID was empty. Event Time (UTC) was 21 to 26 ms after Detection Time "
+                 "on the 1116 rows and 9.5 to 10.3 s after it on the 1117 rows. "
+                 "Neither the registered Windows disk images, the two public samples nor the "
+                 "known-data log carry a record with Event ID 1006, 1007, 1008, 1009, 1011, 1015, 1118 or "
                  "1119, so those branches have not been run on a record Defender wrote. Not "
                  "reported: the product name and version, the ID and index fields beside the "
                  "names other than Threat ID, the FWLink, the Status Code of 1007 and 1008, the "
@@ -198,7 +220,8 @@ __artifacts_v2__ = {
                  "fidelity, image hash and target file fields. A record python-evtx cannot "
                  "render, or whose XML does not parse, is counted in the run log and not "
                  "reported. Every record of this log rendered on the registered Windows disk "
-                 "images and in the two public samples. The 6 records of the "
+                 "images, in the two public samples and in the 2,480 records of the known-data "
+                 "log. The 6 records of the "
                  "defender_evtx_to_mitre log hold their elements with no template, which "
                  "python-evtx 0.8.1 by itself does not render; scripts/windows_evtx.py reads them."
                  " A detection row records what Defender logged; it does "
@@ -218,6 +241,7 @@ __artifacts_v2__ = {
                            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 11 rows",
                            "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 6 rows",
+                           "windows11_arm_defender_eicar_known_20261018": "Windows 11 build 26200 (ARM64), Defender platform 4.18.26090.9 | 6 rows",
                        },
     },
     "defenderProtectionChanges": {
@@ -228,7 +252,7 @@ __artifacts_v2__ = {
                        "old and new configuration values 5007 records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
@@ -242,9 +266,11 @@ __artifacts_v2__ = {
                  "which that page describes as the old and new antivirus configuration "
                  "values. Detail is Feature Name and Configuration on 5004, Changed Type "
                  "and Value on 5013, and Timestamp, Domain and User joined with a "
-                 "backslash, and SID on 1013, each as 'name: value'. No 5004, 5010, 5012 or 5013 "
-                 "record is on the registered Windows disk images or in the two public samples, so those branches are "
-                 "unexercised. Product "
+                 "backslash, and SID on 1013, each as 'name: value'. No 5004, 5010 or 5012 record "
+                 "is on the registered Windows disk images, in the two public samples or in the "
+                 "windows11_arm_defender_eicar_known_20261018 log, so those branches are "
+                 "unexercised. That log carries two 5013 records, written by platforms "
+                 "4.18.25070.5 and 4.18.26080.4 before its known-data session. Product "
                  "Version is "
                  "the Product Version field. Field names are those of the provider "
                  "manifest (manifest as registered on Windows 11 build 22621.819, "
@@ -274,7 +300,13 @@ __artifacts_v2__ = {
                  "the 18 5007 rows on af_case2_win10, 47 of 48 on pc_mus_001_win11 and 30 of 33 "
                  "on szechuan_win10, and New Value on 16 of 18, 47 of 48 and 33 of 33. On "
                  "lonewolf_win10 every row is 5007, so Event ID and "
-                 "Event held one value and Detail is empty. Event Time (UTC) is the "
+                 "Event held one value and Detail is empty. On "
+                 "windows11_arm_defender_eicar_known_20261018 the log gave 1,104 rows, 1,077 of "
+                 "them 5007, 21 1013 and two each of 5000, 5001 and 5013, written by twelve "
+                 "Defender platforms from 4.18.23110.3 to 4.18.26090.9; no Old Value or New Value "
+                 "held a reference, and every Event ID, Old Value, New Value, Detail, Product "
+                 "Version and Computer matched the record as python-evtx's own Record.xml() "
+                 "renders it, read without scripts/windows_evtx.py. Event Time (UTC) is the "
                  "record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME the record "
                  "stores with integer arithmetic, counted in UTC and cut to whole microseconds, in place of "
                  "python-evtx 0.8.1's conversion through a floating-point number, which can differ by microseconds ("
@@ -287,7 +319,8 @@ __artifacts_v2__ = {
                  "and 2014 on the registered images). A "
                  "record python-evtx cannot render, or whose XML does not parse, is "
                  "counted in the run log and not reported. Every record of this log rendered on the registered Windows"
-                 " disk images and in the two public samples. The 6 records of the defender_evtx_to_mitre log hold "
+                 " disk images, in the two public samples and in the 2,480 records of the "
+                 "windows11_arm_defender_eicar_known_20261018 log. The 6 records of the defender_evtx_to_mitre log hold "
                  "their elements with no template, which python-evtx 0.8.1 by itself does not render; "
                  "scripts/windows_evtx.py reads them. All 6 are 1116 or 1117 records, which this artifact does not "
                  "report. A 5007 row records a "
@@ -308,6 +341,7 @@ __artifacts_v2__ = {
                            "szechuan_win10": "Windows 10 2004 build 19041 | 34 rows",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
                            "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 0 rows (the log holds only 1116 and 1117 records)",
+                           "windows11_arm_defender_eicar_known_20261018": "Windows 11 build 26200 (ARM64), Defender platform 4.18.26090.9 | 1104 rows",
                        },
     },
     "defenderScans": {
@@ -317,7 +351,7 @@ __artifacts_v2__ = {
                        "account of each record and the duration of each finished scan.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
@@ -339,8 +373,11 @@ __artifacts_v2__ = {
                  "the SID field; Product Version is the Product Version field. Other "
                  "Fields (as stored) lists, as 'name: value', any field a record carries "
                  "beyond those the cited manifest defines for 1000 to 1002, other than its "
-                 "Unused fields. Other Fields (as stored) was empty on every row of the "
-                 "registered images. Every value is reported as stored, without any spaces or "
+                 "Unused fields. Other Fields (as stored) was empty on every row of the four "
+                 "registered Windows disk images. On windows11_arm_defender_eicar_known_20261018 "
+                 "it held Scan Trigger Index, Scan Trigger, Scan Only If Idle, Low CPU Priority "
+                 "for Scans and Thread Priority on all 50 1000 rows, Stop Reason Index and Stop "
+                 "Reason on all 21 1002 rows, and nothing on the 29 1001 rows. Every value is reported as stored, without any spaces or "
                  "line breaks it begins or ends with, except a parameter reference, as described "
                  "below. Scan Resources, "
                  "which only 1000 carries, was empty on every row of the registered "
@@ -393,7 +430,12 @@ __artifacts_v2__ = {
                  "Antimalware (%%802) and Quick Scan (%%806), and all seven English copies give "
                  "those two references the same text; the records of platforms 4.18.2210.6 and "
                  "4.18.2211.5 on pc_mus_001_win11 store the text Antimalware and Quick Scan in "
-                 "those fields. Event Time (UTC) is the record's "
+                 "those fields, as do those of the ten platforms from 4.18.25070.5 to "
+                 "4.18.26090.9 on windows11_arm_defender_eicar_known_20261018, where every Scan ID, "
+                 "Scan Type, Scan Parameters, Scan Resources, Product Version and Other Fields (as "
+                 "stored) value of the 100 rows matched the record as python-evtx's own "
+                 "Record.xml() renders it, read without scripts/windows_evtx.py. Event Time (UTC) "
+                 "is the record's "
                  "TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME "
                  "the record stores with integer arithmetic, counted in UTC and cut to whole "
                  "microseconds, in place of python-evtx 0.8.1's conversion through a "
@@ -405,8 +447,10 @@ __artifacts_v2__ = {
                  "Not reported: the product name and the index fields beside the scan "
                  "type and parameters. A record python-evtx cannot render, or whose "
                  "XML does not parse, is counted in the run log and not reported. "
-                 "Every record of this log rendered on the registered Windows disk images and in "
-                 "the two public samples. The 6 records of the defender_evtx_to_mitre log hold "
+                 "Every record of this log rendered on the registered Windows disk images, in "
+                 "the two public samples and in the 2,480 records of the "
+                 "windows11_arm_defender_eicar_known_20261018 log. The 6 records of the "
+                 "defender_evtx_to_mitre log hold "
                  "their elements with no template, which python-evtx 0.8.1 by itself does not "
                  "render; scripts/windows_evtx.py reads them. All 6 are 1116 or 1117 records, "
                  "which this artifact does not report. A scan row records a scan Defender logged; "
@@ -427,6 +471,7 @@ __artifacts_v2__ = {
                            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
                            "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 0 rows (the log holds only 1116 and 1117 records)",
+                           "windows11_arm_defender_eicar_known_20261018": "Windows 11 build 26200 (ARM64), Defender platform 4.18.26090.9 | 100 rows",
                        },
     },
 }
