@@ -44,14 +44,15 @@ __artifacts_v2__ = {
         "notes": "Rows from Enum\\USBSTOR in the SYSTEM hive, in the control set named by the "
                  "hive's Select\\Current value (ControlSet001 when that value cannot be read), "
                  "named in the report's located-at line, one row per device instance. Vendor, "
-                 "Product and Revision are parsed from the model key name "
-                 "(Disk&Ven_x&Prod_y&Rev_z), with underscores shown as spaces. Serial is the "
-                 "instance sub-key name as stored; when a device reports no system-unique "
-                 "serial, Windows modifies the instance name to make it unique (Microsoft, "
-                 "Instance IDs, "
+                 "Product and Revision are parsed from the Ven_, Prod_ and Rev_ segments of the "
+                 "model key name (for example Disk&Ven_x&Prod_y&Rev_z; the first segment was "
+                 "Disk, CdRom or Other in the tested hives), with underscores shown as spaces. "
+                 "Serial is the instance sub-key name as stored; when a device reports no "
+                 "system-unique serial, Windows modifies the instance name to make it unique "
+                 "(Microsoft, Instance IDs, "
                  "https://learn.microsoft.com/en-us/windows-hardware/drivers/install/instance-ids), "
-                 "so such a name is not the manufacturer's serial. No tested row has a modified "
-                 "name. Friendly Name is the device's FriendlyName value. First Install (UTC), "
+                 "so such a name is not the manufacturer's serial. Friendly Name is the device's "
+                 "FriendlyName value, blank when the instance holds none. First Install (UTC), "
                  "Last Connected (UTC) and Last Removed (UTC) are Windows FILETIMEs read from "
                  "the instance's device properties under the property-key GUID "
                  "83da6326-97a6-4088-9453-a1923f573b29 at property ids 0065 "
@@ -61,13 +62,16 @@ __artifacts_v2__ = {
                  "sub-keys have eight hex digits (00000065) and keep the data in a further "
                  "sub-key 00000000 with Type and Data values; on the Windows 10 and 11 hives "
                  "they have four digits (0065) and keep it in the sub-key's default value; both "
-                 "layouts are read. The Windows 8.1 hive holds no USBSTOR key, so its layout was "
-                 "not exercised here. The Windows 7 instances held First Install but no Last "
-                 "Connected or Last Removed property, so those two columns are blank there. Each "
-                 "time is blank when the instance holds no such property, holds it empty or with "
-                 "another type, or holds a zero FILETIME. USBSTOR covers USB mass storage; other "
-                 "USB devices are reported by USB Device Instances and HID Input Devices. A "
-                 "record shows the device was connected to the computer, not who connected it. "
+                 "layouts are read. The Windows 8.1 hive, read without its transaction log, "
+                 "holds no USBSTOR key, so its layout was not exercised here. The Windows 7 "
+                 "instances held First Install but no Last Connected or Last Removed property, "
+                 "so those two columns are blank there. Each time is blank when the instance "
+                 "holds no such property, holds it empty or with another type, or holds a zero "
+                 "FILETIME. USBSTOR covers USB mass storage (Microsoft, USB device class drivers "
+                 "included in Windows, "
+                 "https://learn.microsoft.com/en-us/windows-hardware/drivers/usbcon/supported-usb-classes); "
+                 "other USB devices are reported by USB Device Instances and HID Input Devices. "
+                 "A record shows the device was connected to the computer, not who connected it. "
                  "Reading the hive requires python-registry. A dirty hive, one whose base "
                  "block's two sequence numbers differ, is read after the entries in its .LOG1 "
                  "and .LOG2 transaction logs that continue its sequence are applied, following "
@@ -190,10 +194,10 @@ def _friendly_name(instance):
 
 @artifact_processor
 def usbDevices(context):
-    data_headers = ('Friendly Name', 'Vendor', 'Product', 'Revision', 'Serial',
+    data_headers = (('Last Connected (UTC)', 'datetime'),
                     ('First Install (UTC)', 'datetime'),
-                    ('Last Connected (UTC)', 'datetime'),
-                    ('Last Removed (UTC)', 'datetime'))
+                    ('Last Removed (UTC)', 'datetime'),
+                    'Friendly Name', 'Vendor', 'Product', 'Revision', 'Serial')
     data_list = []
     sources = []
     if Registry is None:
@@ -215,11 +219,11 @@ def usbDevices(context):
             vendor, product, revision = _model_parts(model.name())
             for instance in model.subkeys():
                 data_list.append((
-                    _friendly_name(instance), vendor, product, revision,
-                    instance.name(),
-                    _property_filetime(instance, _FIRST_INSTALL),
                     _property_filetime(instance, _LAST_ARRIVAL),
-                    _property_filetime(instance, _LAST_REMOVAL)))
+                    _property_filetime(instance, _FIRST_INSTALL),
+                    _property_filetime(instance, _LAST_REMOVAL),
+                    _friendly_name(instance), vendor, product, revision,
+                    instance.name()))
                 rows_here += 1
         if rows_here:
             sources.append(source)
