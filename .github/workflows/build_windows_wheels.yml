@@ -1,0 +1,172 @@
+name: Build Windows wheels
+
+# Builds the Windows wheels kept in whl_files/ for the Python versions and
+# machines PyPI carries no wheel for, so a Windows install needs no compiler.
+# Each package is built from its PyPI sdist, checked against the pinned
+# sha256, then installed into a clean venv and exercised before upload.
+# Download the artifacts and commit the wheels by hand, with a requirements.txt
+# line for each. Same workflow as iLEAPP's, with this core's packages.
+#
+# Gaps covered, measured against PyPI on 2026-10-19:
+#   Brotli 1.2.0: no cp315 x64 wheel, and no ARM64 wheel on any version.
+#   PyYAML 6.0.3: no cp315 wheel, x64 or ARM64, and no ARM64 wheel for 3.11.
+# setup-python offers Windows ARM64 builds of Python from 3.11 only.
+
+on:
+  # A change to this file rebuilds and checks every wheel.
+  pull_request:
+    paths:
+      - '.github/workflows/build_windows_wheels.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build ${{ matrix.name }} ${{ matrix.arch }} ${{ matrix.python }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Brotli
+            version: 1.2.0
+            runner: windows-latest
+            arch: x64
+            python: '3.15'
+            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
+            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
+            check: |
+              import brotli
+              data = bytes(range(256)) * 64
+              assert brotli.decompress(brotli.compress(data)) == data
+          - name: Brotli
+            version: 1.2.0
+            runner: windows-11-arm
+            arch: arm64
+            python: '3.11'
+            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
+            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
+            check: |
+              import brotli
+              data = bytes(range(256)) * 64
+              assert brotli.decompress(brotli.compress(data)) == data
+          - name: Brotli
+            version: 1.2.0
+            runner: windows-11-arm
+            arch: arm64
+            python: '3.12'
+            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
+            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
+            check: |
+              import brotli
+              data = bytes(range(256)) * 64
+              assert brotli.decompress(brotli.compress(data)) == data
+          - name: Brotli
+            version: 1.2.0
+            runner: windows-11-arm
+            arch: arm64
+            python: '3.13'
+            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
+            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
+            check: |
+              import brotli
+              data = bytes(range(256)) * 64
+              assert brotli.decompress(brotli.compress(data)) == data
+          - name: Brotli
+            version: 1.2.0
+            runner: windows-11-arm
+            arch: arm64
+            python: '3.14'
+            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
+            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
+            check: |
+              import brotli
+              data = bytes(range(256)) * 64
+              assert brotli.decompress(brotli.compress(data)) == data
+          - name: Brotli
+            version: 1.2.0
+            runner: windows-11-arm
+            arch: arm64
+            python: '3.15'
+            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
+            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
+            check: |
+              import brotli
+              data = bytes(range(256)) * 64
+              assert brotli.decompress(brotli.compress(data)) == data
+          - name: PyYAML
+            version: 6.0.3
+            runner: windows-latest
+            arch: x64
+            python: '3.15'
+            sdist: https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz
+            sha256: d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f
+            check: |
+              import yaml
+              doc = {'network': {'version': 2, 'ethernets': {'eth0': {'dhcp4': True}}}}
+              assert yaml.safe_load(yaml.safe_dump(doc)) == doc
+              assert yaml.load('a: [1, 2]', Loader=yaml.BaseLoader) == {'a': ['1', '2']}
+              print('with libyaml', yaml.__with_libyaml__)
+          - name: PyYAML
+            version: 6.0.3
+            runner: windows-11-arm
+            arch: arm64
+            python: '3.11'
+            sdist: https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz
+            sha256: d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f
+            check: |
+              import yaml
+              doc = {'network': {'version': 2, 'ethernets': {'eth0': {'dhcp4': True}}}}
+              assert yaml.safe_load(yaml.safe_dump(doc)) == doc
+              assert yaml.load('a: [1, 2]', Loader=yaml.BaseLoader) == {'a': ['1', '2']}
+              print('with libyaml', yaml.__with_libyaml__)
+          - name: PyYAML
+            version: 6.0.3
+            runner: windows-11-arm
+            arch: arm64
+            python: '3.15'
+            sdist: https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz
+            sha256: d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f
+            check: |
+              import yaml
+              doc = {'network': {'version': 2, 'ethernets': {'eth0': {'dhcp4': True}}}}
+              assert yaml.safe_load(yaml.safe_dump(doc)) == doc
+              assert yaml.load('a: [1, 2]', Loader=yaml.BaseLoader) == {'a': ['1', '2']}
+              print('with libyaml', yaml.__with_libyaml__)
+
+    steps:
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: ${{ matrix.arch }}
+
+      - name: Download and verify the sdist
+        shell: bash
+        run: |
+          curl -sSfL -o sdist.tar.gz "${{ matrix.sdist }}"
+          echo "${{ matrix.sha256 }}  sdist.tar.gz" | sha256sum -c -
+
+      - name: Build the wheel
+        shell: bash
+        run: python -m pip wheel --no-deps --wheel-dir dist sdist.tar.gz
+
+      - name: Install into a clean venv and exercise it
+        shell: bash
+        env:
+          CHECK: ${{ matrix.check }}
+        run: |
+          python -m venv check
+          check/Scripts/python -m pip install --quiet --no-index dist/*.whl
+          printf '%s\n' "$CHECK" > check.py
+          check/Scripts/python check.py
+          check/Scripts/python -c "import platform, sys; print(sys.version, platform.machine())"
+          sha256sum dist/*.whl
+          python -m zipfile -l dist/*.whl
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.name }}-${{ matrix.version }}-py${{ matrix.python }}-${{ matrix.arch }}
+          path: dist/*.whl
+          if-no-files-found: error
