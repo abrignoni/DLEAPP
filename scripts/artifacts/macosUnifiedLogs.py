@@ -76,11 +76,11 @@ __artifacts_v2__ = {
         "name": "Unified Logs - Screen Unlock",
         "description": "Unified log entries about locking and unlocking a Mac: keybag state transitions, the "
                        "kernel's APFS volume unlock entries and volume lock and unlock notifications, Touch "
-                       "ID match results, loginwindow password attempts and failed password verification "
-                       "entries.",
+                       "ID match results, loginwindow attempt, password-correct and unlock-succeeded "
+                       "entries, and failed password verification entries.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
-        "last_update_date": "2026-10-18",
+        "last_update_date": "2026-10-20",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
         "category": "Unified Logs (macOS)",
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA "
@@ -142,19 +142,27 @@ __artifacts_v2__ = {
                  "unlocks. "
                  "The kernel's 'apfs is being UN-locked' and 'is now UN-locked' entries were added 2026-10-18. "
                  "None appeared on the three corpus images. They were observed locally on a private macOS "
-                 "27.0.1 system; row counts and message values are not published. There each 'is now "
-                 "UN-locked' entry came less than two seconds after an 'is being UN-locked' entry and within "
-                 "five seconds of a volume notification reading unlocked. In two known-data lock and unlock "
-                 "cycles on that system on 2026-10-20 the keybag went 'unlocked -> locking -> unlocked' in "
-                 "under ten seconds without reaching 'locked', and no kernel entry was written. In the log of "
-                 "the three days before them the entry did not accompany most transitions out of a locked "
-                 "state: none accompanied a 'locked -> inBioUnlock' transition, though whether kernel entries "
-                 "of that period were retained was not checked, and the single entry seen came after the "
-                 "keybag had been locked for many hours, a fraction of a second before 'locked -> unlocked'. "
-                 "So on that system the entry did not record every screen unlock, and its absence is not "
-                 "evidence that none happened. The /kernel condition kept out the entries the log command "
-                 "wrote while searching, which carry 'is now UN-locked' or 'Sending notification for volume' "
-                 "in their arguments.",
+                 "27.0.1 system; row counts and message values are not published. Known data on that system on "
+                 "2026-10-20: after a lock of about a minute, unlocked with Touch ID and no password typed, "
+                 "the kernel wrote 'is being UN-locked', 'is now UN-locked' and a volume notification reading "
+                 "unlocked in the same millisecond, followed within twenty milliseconds by the keybag "
+                 "transition 'locked -> inBioUnlock' and a biometrickitd MATCH entry, and then by loginwindow "
+                 "'password is CORRECT'. That last entry was written although no password was typed, so it "
+                 "does not establish that a password was used. In two shorter cycles, each with a loginwindow "
+                 "attempt entry and no MATCH entry, the keybag went 'unlocked -> locking -> unlocked' in under "
+                 "ten seconds without reaching 'locked', and none of the kernel entries selected here was "
+                 "written. No 'Unlock succeeded, with password' entry was written in any of the three cycles, "
+                 "so the pairing seen on Big Sur and 15.4 did not hold there. In the cycle that reached it, "
+                 "and in each one in the log of the days before, 'locking -> locked' came ten seconds after "
+                 "'unlocked -> locking' or 'inBioUnlock -> locking'. The one other kernel entry in the log of "
+                 "the four days before came after a lock of many hours, a fraction of a second before 'locked "
+                 "-> unlocked'. So on that system the entry came with the two unlocks of 2026-10-20 that began "
+                 "from 'locked' and with neither of the two that did not reach it. Most transitions out of "
+                 "'locked' in the days before had no kernel entry, none of the 'locked -> inBioUnlock' ones "
+                 "among them; whether kernel entries of that period were retained was not checked. The entry "
+                 "is not a record of every screen unlock, and its absence is not evidence that none happened. "
+                 "The /kernel condition kept out the entries the log command wrote while searching, which "
+                 "carry 'is now UN-locked' or 'Sending notification for volume' in their arguments.",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 | 61 rows",
             "evidencelocker_macos14": "macOS 14.6.1 | 524 rows",
