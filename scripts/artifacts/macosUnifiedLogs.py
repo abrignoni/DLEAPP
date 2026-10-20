@@ -144,8 +144,14 @@ __artifacts_v2__ = {
                  "None appeared on the three corpus images. They were observed locally on a private macOS "
                  "27.0.1 system; counts and values are not published. There each 'is now UN-locked' entry came "
                  "less than two seconds after an 'is being UN-locked' entry and within five seconds of a "
-                 "volume notification reading unlocked. Their relation to a screen unlock on macOS was not "
-                 "tested here. The /kernel condition kept out the entries the log command wrote while "
+                 "volume notification reading unlocked. In two known-data lock and unlock cycles on that "
+                 "system on 2026-10-20, and in the four days of log before them, the entry did not follow "
+                 "most unlocks: "
+                 "none followed a Touch ID unlock ('locked -> inBioUnlock') or two locks of under ten "
+                 "seconds whose keybag went 'unlocked -> locking -> unlocked' without reaching 'locked', "
+                 "and the one seen came after the keybag had been locked for many hours, followed within "
+                 "a second by 'locked -> unlocked'. So the entry is not a record of every screen unlock, "
+                 "and its absence is not evidence that none happened. The /kernel condition kept out the entries the log command wrote while "
                  "searching, which carry 'is now UN-locked' or 'Sending notification for volume' in their "
                  "arguments.",
         "sample_data": {
