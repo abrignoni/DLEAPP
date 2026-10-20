@@ -142,18 +142,19 @@ __artifacts_v2__ = {
                  "unlocks. "
                  "The kernel's 'apfs is being UN-locked' and 'is now UN-locked' entries were added 2026-10-18. "
                  "None appeared on the three corpus images. They were observed locally on a private macOS "
-                 "27.0.1 system; counts and values are not published. There each 'is now UN-locked' entry came "
-                 "less than two seconds after an 'is being UN-locked' entry and within five seconds of a "
-                 "volume notification reading unlocked. In two known-data lock and unlock cycles on that "
-                 "system on 2026-10-20, and in the four days of log before them, the entry did not follow "
-                 "most unlocks: "
-                 "none followed a Touch ID unlock ('locked -> inBioUnlock') or two locks of under ten "
-                 "seconds whose keybag went 'unlocked -> locking -> unlocked' without reaching 'locked', "
-                 "and the one seen came after the keybag had been locked for many hours, followed within "
-                 "a second by 'locked -> unlocked'. So the entry is not a record of every screen unlock, "
-                 "and its absence is not evidence that none happened. The /kernel condition kept out the entries the log command wrote while "
-                 "searching, which carry 'is now UN-locked' or 'Sending notification for volume' in their "
-                 "arguments.",
+                 "27.0.1 system; row counts and message values are not published. There each 'is now "
+                 "UN-locked' entry came less than two seconds after an 'is being UN-locked' entry and within "
+                 "five seconds of a volume notification reading unlocked. In two known-data lock and unlock "
+                 "cycles on that system on 2026-10-20 the keybag went 'unlocked -> locking -> unlocked' in "
+                 "under ten seconds without reaching 'locked', and no kernel entry was written. In the log of "
+                 "the three days before them the entry did not accompany most transitions out of a locked "
+                 "state: none accompanied a 'locked -> inBioUnlock' transition, though whether kernel entries "
+                 "of that period were retained was not checked, and the single entry seen came after the "
+                 "keybag had been locked for many hours, a fraction of a second before 'locked -> unlocked'. "
+                 "So on that system the entry did not record every screen unlock, and its absence is not "
+                 "evidence that none happened. The /kernel condition kept out the entries the log command "
+                 "wrote while searching, which carry 'is now UN-locked' or 'Sending notification for volume' "
+                 "in their arguments.",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 | 61 rows",
             "evidencelocker_macos14": "macOS 14.6.1 | 524 rows",
