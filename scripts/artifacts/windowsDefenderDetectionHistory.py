@@ -64,12 +64,16 @@ __artifacts_v2__ = {
                        "times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-18",
-        "last_update_date": "2026-10-18",
+        "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from the files under ProgramData/Microsoft/Windows "
                  "Defender/Scans/History/Service/DetectionHistory/<folder>/ whose name is a GUID, each "
                  "named in the Source File column and the report's located-at line. One row per file. "
+                 "plaso_testdata_f951fc6 and dhparser_detectionhistory_gpl keep their files at their "
+                 "repository names, which the paths do not match, so neither gives rows as registered; "
+                 "what these notes say about those files was checked on copies of the same files placed "
+                 "at the DetectionHistory path, which are not registered (2 rows and 1 row). "
                  "The layout is the one in Joachim Metz's 'Windows Defender scan DetectionHistory file "
                  "format' (libyal dtformats, "
                  "https://github.com/libyal/dtformats/blob/308ce8c38df2eb95a71b6e832b3f9803f0c4b169/documentation/Windows%20Defender%20scan%20DetectionHistory%20file%20format.asciidoc#L66-L218,"
@@ -82,10 +86,11 @@ __artifacts_v2__ = {
                  "each a 32-bit size, a 32-bit type and the data, padded to 8 bytes; a string value "
                  "Magic.Version:1.2 separates the sets. Threat ID is the first value and Detection ID "
                  "the second, a GUID, which dtformats describes as the GUID of the file name "
-                 "(#L112-L114); it is shown in capitals, as the file names on the tested keys are. "
-                 "Threat Name is the second value of the threat set (#L125). Severity is its fourth "
-                 "value, which dtformats lists only as a possible SeverityID (#L129), and Category its "
-                 "fifth (#L131); both are shown as the name Microsoft's MPTHREAT_SEVERITY and "
+                 "(#L112-L114); it is shown in capitals, as the file names in the tested files are. "
+                 "Counting the separator as index 0, as dtformats does, Threat Name is index 1 of the "
+                 "threat set, the first value after the separator (#L125); Severity is index 3, which "
+                 "dtformats lists only as a possible SeverityID (#L129), and Category index 4 "
+                 "(#L131); both are shown as the name Microsoft's MPTHREAT_SEVERITY and "
                  "MPTHREAT_CATEGORY enumerations give the number, followed by the number "
                  "(https://github.com/MicrosoftDocs/win32/blob/2ec0df659644a793ed4f6160f238a95c9d9a9dcf/desktop-src/lwef/mpthreat-severity.md#L29-L33,"
                  " "
@@ -95,7 +100,7 @@ __artifacts_v2__ = {
                  "the last value of the threat set (#L151). Resources lists each resource set's type and"
                  " location (#L160-L162) as 'type: location', one per line, as stored; in the two "
                  "plaso_testdata_f951fc6 files the webfile location holds three parts separated by '|', "
-                 "which no source documents. SHA-256, SHA-1 and MD5 are the ThreatTrackingSha256, "
+                 "which neither dtformats nor plaso documents. SHA-256, SHA-1 and MD5 are the ThreatTrackingSha256, "
                  "ThreatTrackingSha1 and ThreatTrackingMD5 values (#L415, #L424, #L427) in each "
                  "resource's threat tracking data, each distinct value once, one per line. The remaining"
                  " columns are read at fixed positions after the separator that opens the last resource "
@@ -111,7 +116,8 @@ __artifacts_v2__ = {
                  " values end exactly at its size, the threat set's count equals the resource sets read,"
                  " every threat tracking block reads to its stated end, the GUID equals the file name "
                  "and the detection time is in place; otherwise it says which did not hold, and the run "
-                 "log names the file. Read Note was empty on every row of every tested key. Known data "
+                 "log names the file. Read Note was empty on every row of the known data and of those "
+                 "copies. Known data "
                  "(windows11_arm_defender_eicar_known_20261018): Defender platform 4.18.26090.9 on "
                  "Windows 11 build 26200 detected and quarantined three files holding the EICAR test "
                  "string, written locally; the three rows matched Get-MpThreatDetection and Get-MpThreat"
@@ -121,8 +127,8 @@ __artifacts_v2__ = {
                  " its file:_ prefix), Domain User and Process Name were equal; Initial Detection Time, "
                  "Last Status Change Time and Remediation Time equalled InitialDetectionTime, "
                  "LastThreatStatusChangeTime and RemediationTime to the millisecond; Initial Detection "
-                 "Time equalled the Detection Time of the 1116 and 1117 records to the millisecond, the "
-                 "precision the event carries, and Remediation Time came less than 2 ms before the 1117 "
+                 "Time equalled the Detection Time of the 1116 and 1117 records when cut to the "
+                 "millisecond, the precision the event carries, and Remediation Time came less than 2 ms before the 1117 "
                  "record's time. SHA-256, SHA-1 and MD5 equalled the hashes of the 68 bytes written, on "
                  "all three rows. On the known data Threat Name, Threat ID, Severity, Category, Resource"
                  " Count, SHA-256, SHA-1, MD5, Domain User, Process Name and Second User each held one "
@@ -147,12 +153,14 @@ __artifacts_v2__ = {
                  "under Scans/History/Results/Resource and Results/Quick, 86 on six of the ten "
                  "registered disk images (lonewolf_win10 38, alihadi_challenge3_win81 23, "
                  "ou_ransomware_server2022 15, pc_mus_001_win11 6, af_case2_win10 3, szechuan_win10 1; "
-                 "none on the other four) and 24 in the known data. Each opens with the RC4 key and "
+                 "none on the other four) and 24 in the known data. The 24 in the known data each open "
+                 "with the RC4 key and "
                  "60-byte header dissect.target uses for quarantine entry files "
                  "(https://github.com/fox-it/dissect.target/blob/b43db371c891fa3f382c5152e16f91b0bcde418c/dissect/target/plugins/os/windows/defender/quarantine.py#L92,"
-                 " #L169-L177): on all 110 the two section sizes in the header add up to the file size "
-                 "and the first section begins with the GUID of the file name, but no published layout "
-                 "for the second section was found, so their content is not decoded. Also not read: "
+                 " #L169-L177): on all 24 the 60-byte header plus the two section sizes it holds equals "
+                 "the file size and the first section begins with the GUID of the file name. No layout "
+                 "for the second section is given in the sources cited here, and this module does not "
+                 "decode it. Also not read: "
                  "Scans/History Store, RemCheck, CacheManager and the Service .Log files, and the "
                  "Quarantine folder. On the ten registered Windows disk images in sample_data no file "
                  "matched the declared path. No value read from the public files names the Windows or "
@@ -164,8 +172,8 @@ __artifacts_v2__ = {
         "artifact_icon": "shield",
         "sample_data": {
                            "windows11_arm_defender_eicar_known_20261018": "Windows 11 build 26200 (ARM64), Defender platform 4.18.26090.9 | 3 rows",
-                           "plaso_testdata_f951fc6": "DetectionHistory files only, Windows and Defender versions not established | 2 rows (the two files placed at the DetectionHistory path in a derived zip)",
-                           "dhparser_detectionhistory_gpl": "DetectionHistory file only, Windows and Defender versions not established | 1 row (the file placed at the DetectionHistory path in a derived zip)",
+                           "plaso_testdata_f951fc6": "DetectionHistory files only, Windows and Defender versions not established | 0 rows (its two files are kept at repository paths, which the paths do not match)",
+                           "dhparser_detectionhistory_gpl": "DetectionHistory file only, Windows and Defender versions not established | 0 rows (its file is kept at its repository name, which the paths do not match)",
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
                            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
