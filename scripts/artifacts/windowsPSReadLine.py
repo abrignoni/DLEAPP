@@ -27,7 +27,7 @@ __artifacts_v2__ = {
                        "PowerShell host and the profile folder the file belongs to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\"
@@ -80,8 +80,8 @@ __artifacts_v2__ = {
                  "Not read: the location PSReadLine uses on macOS and Linux, "
                  ".local/share/powershell/PSReadLine or the same folder under XDG_DATA_HOME "
                  "(https://github.com/PowerShell/PSReadLine/blob/6b5e9ff4bdfe15f67b3647e0d1ecdb6cf2e3bda6/PSReadLine/Cmdlets.cs#L170-L204), "
-                 "PowerShell transcripts, and the PowerShell event logs, which the "
-                 "PowerShell event artifacts read.",
+                 "PowerShell transcripts, which the PowerShell Transcripts artifacts read, "
+                 "and the PowerShell event logs, which the PowerShell event artifacts read.",
         "paths": ('*/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadLine/*_history.txt',),
         "output_types": ["standard"],
         "artifact_icon": "terminal",
