@@ -46,25 +46,51 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
-                 "plaso's test data whose origin the source does not state. The registered key "
-                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
-                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
-                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 'read it. The measurements in these notes come from two databases. The first is an '
+                 "EventTranscript.db from plaso's test data whose origin the source does not state. The "
+                 'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
+                 'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
+                 "at its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
                  "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
                  "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
-                 'it was read alone. None of the other registered Windows corpus images checked holds the '
-                 'database; the EventTranscript folder is present and empty on seven of them. One row per '
+                 'it was read alone. The second is known data, key windows11_arm_eventtranscript_known_20261022 '
+                 "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
+                 'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
+                 'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
+                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
+                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
+                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
+                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
+                 'the events were written in time order, behind the clock, and the session\'s own events were not '
+                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
+                 'how long the delay is elsewhere is not established, and an event missing from the database '
+                 'does not show that it did not happen. On the known data too the timestamp equalled the '
+                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
+                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
+                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
+                 'are shown by ID) without costing rows. '
+                 "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
+                 'with the SQLite message on the same line when the query fails; when that leaves the artifact '
+                 'with no rows it raises, so the run log '
+                 'says the artifact had errors and the LAVA module list marks it Error, where a database that was '
+                 "read and holds no matching event gives only 'No data found'. None of the other registered "
+                 'Windows corpus images checked holds the database; the EventTranscript folder is present and '
+                 'empty on seven of them. One row per '
                  'events_persisted row. Diagnostic Data Categories joins event_tags to tag_descriptions on '
                  'full_event_name_hash, as the SQLECmd map does '
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L235-L236), '
                  'and lists each tag ID once, in tag ID order, by its stored tag name (names from more than one '
                  "locale joined with ' / '); a tag ID with no stored description is shown as 'tag <n> (no "
                  "description stored)', a case the copy does not have. On the copy tag_descriptions held 6 names "
-                 'and 9 of the 2,526 rows had no tag. Producer is producers.producer_id_text and Provider Group '
-                 'GUID is provider_groups.group_guid. Trailing NUL characters are removed from Friendly Logging '
-                 'Binary Name and nothing else is changed; on the copy 1,397 rows ended in exactly one NUL and '
-                 'none held a NUL elsewhere. User SID is as stored and was empty on 570 rows. Is Core, Event '
+                 'and 9 of the 2,526 rows had no tag; on the known data tag_descriptions held the same 6 names and '
+                 '58 of the 2,136 rows had no tag. Producer is producers.producer_id_text or '
+                 'producers.producer_id_name, whichever the table has (Windows on 2,133 rows and Microsoft Edge on '
+                 '3 on the known data), and Provider Group GUID is provider_groups.group_guid. Trailing NUL '
+                 'characters are removed from Friendly Logging Binary Name and nothing else is changed; on the copy '
+                 '1,397 rows ended in exactly one NUL and none held a NUL elsewhere, and on the known data 158 rows '
+                 'held a NUL and none was left after the trailing ones were removed. User SID is as stored and was '
+                 'empty on 570 rows of the copy and 94 of the known data. Is Core, Event '
                  'Keywords and Compressed Payload Size are the stored integers; the sources cited here do not '
                  'document their meaning (the SQLECmd map shows is_core 0 and 1 as No and Yes). Payload is the '
                  'stored JSON text; Rathbun and Mitchell list its top-level keys as ver, name, time, iKey, ext '
@@ -77,10 +103,10 @@ __artifacts_v2__ = {
                  "Microsoft.Windows.SRUM.Telemetry.AppTimelines and Census.Userdefault, which Abhiram Kumar's "
                  'EventTranscriptParser reads '
                  '(https://github.com/stuxnet999/EventTranscriptParser/blob/902eb3c773d5c0a63b0997ea0f1612e860f05c1c/EventTranscriptParser.py#L104-L230); '
-                 'the copy holds none of the first three and one Census.Userdefault event. Not reported: '
-                 'full_event_name_hash (the join key), extra1 to extra3 (empty on every row of the copy), and the '
-                 'categories and event_categories tables, which were empty on the copy, so how they are filled is '
-                 'not established.',
+                 'the copy holds none of the first three and one Census.Userdefault event, the known data none of '
+                 'the four. Not reported: full_event_name_hash (the join key), extra1 to extra3 (empty on every row '
+                 'of both databases), and the categories and event_categories tables, which were empty on both, so '
+                 'how they are filled is not established.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -93,6 +119,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
+            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 2,136 rows',
         },
     },
     "eventTranscriptEdgeHistory": {
@@ -124,15 +151,37 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
-                 "plaso's test data whose origin the source does not state. The registered key "
-                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
-                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
-                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 'read it. The measurements in these notes come from two databases. The first is an '
+                 "EventTranscript.db from plaso's test data whose origin the source does not state. The "
+                 'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
+                 'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
+                 "at its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
                  "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
                  "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
-                 'it was read alone. None of the other registered Windows corpus images checked holds the '
-                 'database; the EventTranscript folder is present and empty on seven of them. Rows are events '
+                 'it was read alone. The second is known data, key windows11_arm_eventtranscript_known_20261022 '
+                 "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
+                 'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
+                 'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
+                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
+                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
+                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
+                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
+                 'the events were written in time order, behind the clock, and the session\'s own events were not '
+                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
+                 'how long the delay is elsewhere is not established, and an event missing from the database '
+                 'does not show that it did not happen. On the known data too the timestamp equalled the '
+                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
+                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
+                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
+                 'are shown by ID) without costing rows. '
+                 "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
+                 'with the SQLite message on the same line when the query fails; when that leaves the artifact '
+                 'with no rows it raises, so the run log '
+                 'says the artifact had errors and the LAVA module list marks it Error, where a database that was '
+                 "read and holds no matching event gives only 'No data found'. None of the other registered "
+                 'Windows corpus images checked holds the database; the EventTranscript folder is present and '
+                 'empty on seven of them. Rows are events '
                  "whose name contains '.Microsoft.WebBrowser.HistoryJournal.' and whose payload data holds a "
                  'non-empty navigationUrl, referUrl or PageTitle; Event is the part of the name after '
                  'HistoryJournal. Navigation URL (navigationUrl), Referrer URL (referUrl), Page Title '
@@ -159,7 +208,9 @@ __artifacts_v2__ = {
                  'Not read: the older Microsoft.Windows.App.Browser.HJ_* events, which Rathbun and Mitchell show '
                  'with the URL hex-encoded in navigationUrlBytes '
                  '(https://github.com/rathbuna/EventTranscript.db-Research/blob/a07e42a8a4fc9bfbe1fbf1c500fa79d0d4de92ed/README.md#L222-L245); '
-                 'the copy holds none.',
+                 'the copy holds none. The known data holds no HistoryJournal event (checked by event name; its 3 '
+                 'events with producer Microsoft Edge are Protobuf UMA events), and no Edge browsing was done for '
+                 'it, so this artifact is not exercised on build 26200.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "globe",
@@ -172,6 +223,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
+            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no HistoryJournal event in the database, checked by event name)',
         },
     },
     "eventTranscriptAppInteractivity": {
@@ -203,15 +255,37 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
-                 "plaso's test data whose origin the source does not state. The registered key "
-                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
-                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
-                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 'read it. The measurements in these notes come from two databases. The first is an '
+                 "EventTranscript.db from plaso's test data whose origin the source does not state. The "
+                 'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
+                 'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
+                 "at its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
                  "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
                  "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
-                 'it was read alone. None of the other registered Windows corpus images checked holds the '
-                 'database; the EventTranscript folder is present and empty on seven of them. Rows are '
+                 'it was read alone. The second is known data, key windows11_arm_eventtranscript_known_20261022 '
+                 "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
+                 'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
+                 'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
+                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
+                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
+                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
+                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
+                 'the events were written in time order, behind the clock, and the session\'s own events were not '
+                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
+                 'how long the delay is elsewhere is not established, and an event missing from the database '
+                 'does not show that it did not happen. On the known data too the timestamp equalled the '
+                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
+                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
+                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
+                 'are shown by ID) without costing rows. '
+                 "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
+                 'with the SQLite message on the same line when the query fails; when that leaves the artifact '
+                 'with no rows it raises, so the run log '
+                 'says the artifact had errors and the LAVA module list marks it Error, where a database that was '
+                 "read and holds no matching event gives only 'No data found'. None of the other registered "
+                 'Windows corpus images checked holds the database; the EventTranscript folder is present and '
+                 'empty on seven of them. Rows are '
                  'Win32kTraceLogging.AppInteractivitySummary and Win32kTraceLogging.AppInteractivity events, the '
                  "two Costas Katsavounidis's AppInteractivity.sql reads "
                  '(https://github.com/kacos2000/Queries/blob/e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/AppInteractivity.sql#L1-L3). '
@@ -240,7 +314,9 @@ __artifacts_v2__ = {
                  'which is not checked here because the copy has no Amcache. A row records a period over which '
                  'the counters were aggregated for the app; on its own it does not give the time the program '
                  "started. The event's other counters (touch, pen, audio, window and monitor sizes and more) are "
-                 'in its payload in Diagnostic Data Events.',
+                 'in its payload in Diagnostic Data Events. The known data holds no AppInteractivitySummary or '
+                 'AppInteractivity event (checked by event name), and its activity was made over SSH with no '
+                 'foreground app use, so this artifact is not exercised on build 26200.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "monitor",
@@ -253,6 +329,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
+            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no AppInteractivity or AppInteractivitySummary event in the database, checked by event name)',
         },
     },
     "eventTranscriptAppInventory": {
@@ -285,15 +362,37 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
-                 "plaso's test data whose origin the source does not state. The registered key "
-                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
-                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
-                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 'read it. The measurements in these notes come from two databases. The first is an '
+                 "EventTranscript.db from plaso's test data whose origin the source does not state. The "
+                 'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
+                 'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
+                 "at its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
                  "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
                  "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
-                 'it was read alone. None of the other registered Windows corpus images checked holds the '
-                 'database; the EventTranscript folder is present and empty on seven of them. Rows are '
+                 'it was read alone. The second is known data, key windows11_arm_eventtranscript_known_20261022 '
+                 "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
+                 'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
+                 'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
+                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
+                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
+                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
+                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
+                 'the events were written in time order, behind the clock, and the session\'s own events were not '
+                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
+                 'how long the delay is elsewhere is not established, and an event missing from the database '
+                 'does not show that it did not happen. On the known data too the timestamp equalled the '
+                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
+                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
+                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
+                 'are shown by ID) without costing rows. '
+                 "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
+                 'with the SQLite message on the same line when the query fails; when that leaves the artifact '
+                 'with no rows it raises, so the run log '
+                 'says the artifact had errors and the LAVA module list marks it Error, where a database that was '
+                 "read and holds no matching event gives only 'No data found'. None of the other registered "
+                 'Windows corpus images checked holds the database; the EventTranscript folder is present and '
+                 'empty on seven of them. Rows are '
                  'Microsoft.Windows.Inventory.Core.InventoryApplicationAdd and InventoryApplicationRemove events. '
                  'Name, Version, Publisher, Root Directory Path (RootDirPath), Install Date (InstallDate), '
                  'Source, Type, Package Full Name (PackageFullName) and Program Instance ID (ProgramInstanceId) '
@@ -312,7 +411,10 @@ __artifacts_v2__ = {
                  '11 Remove rows has an Object Instance ID that an Add row in the same database also carries. Not '
                  'reported: InstallDateMsi, InstallDateFromLinkFile and InstallDateArpLastModified (empty lists '
                  'on all 17 Add rows), and the other inventory events (drivers, frameworks, device containers), '
-                 'which are in Diagnostic Data Events.',
+                 'which are in Diagnostic Data Events. The known data holds no InventoryApplicationAdd or '
+                 'InventoryApplicationRemove event (checked by event name): an application was installed and '
+                 'removed during the capture session, but those events were not in the database when it was copied, '
+                 'as described above, so this artifact is not exercised on build 26200.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -325,6 +427,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
+            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryApplicationAdd or Remove event in the database, checked by event name)',
         },
     },
     "eventTranscriptDeviceInventory": {
@@ -356,15 +459,37 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
-                 "plaso's test data whose origin the source does not state. The registered key "
-                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
-                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
-                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 'read it. The measurements in these notes come from two databases. The first is an '
+                 "EventTranscript.db from plaso's test data whose origin the source does not state. The "
+                 'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
+                 'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
+                 "at its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
                  "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
                  "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
-                 'it was read alone. None of the other registered Windows corpus images checked holds the '
-                 'database; the EventTranscript folder is present and empty on seven of them. Rows are '
+                 'it was read alone. The second is known data, key windows11_arm_eventtranscript_known_20261022 '
+                 "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
+                 'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
+                 'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
+                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
+                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
+                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
+                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
+                 'the events were written in time order, behind the clock, and the session\'s own events were not '
+                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
+                 'how long the delay is elsewhere is not established, and an event missing from the database '
+                 'does not show that it did not happen. On the known data too the timestamp equalled the '
+                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
+                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
+                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
+                 'are shown by ID) without costing rows. '
+                 "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
+                 'with the SQLite message on the same line when the query fails; when that leaves the artifact '
+                 'with no rows it raises, so the run log '
+                 'says the artifact had errors and the LAVA module list marks it Error, where a database that was '
+                 "read and holds no matching event gives only 'No data found'. None of the other registered "
+                 'Windows corpus images checked holds the database; the EventTranscript folder is present and '
+                 'empty on seven of them. Rows are '
                  'Microsoft.Windows.Inventory.Core.InventoryDevicePnpAdd and InventoryDevicePnpRemove events. '
                  'Headers are the stored key names and values are as stored, because the field table for '
                  "InventoryDevicePnpAdd on Microsoft's 'Windows 11, version 24H2 required Windows diagnostic "
@@ -379,7 +504,10 @@ __artifacts_v2__ = {
                  'FirstInstallDate (as stored) were identical on all 17 rows, blank on the Remove rows; and none '
                  'of the 5 Remove rows has an Object Instance ID that an Add row in the same database carries. '
                  'The other keys (COMPID, STACKID, ClassGuid, MatchingID, DriverId, the filter lists, '
-                 'DeviceState, InstallState, ProblemCode and more) are in the payload in Diagnostic Data Events.',
+                 'DeviceState, InstallState, ProblemCode and more) are in the payload in Diagnostic Data Events. '
+                 'The known data holds no InventoryDevicePnpAdd or InventoryDevicePnpRemove event (checked by event '
+                 'name), and no device was added or removed for it, so this artifact is not exercised on build '
+                 '26200.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
@@ -392,6 +520,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
+            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryDevicePnpAdd or Remove event in the database, checked by event name)',
         },
     },
 }
@@ -436,17 +565,33 @@ def _column(present, name, alias='e'):
     return f'{alias}.{name}' if name in present else 'NULL'
 
 
-def _event_query(db, where):
-    """The events_persisted query with the lookup tables joined where they exist."""
+# The producer name column has two spellings: producer_id_text in plaso's build 19041
+# database, producer_id_name on Windows 11 build 26200. Both are read; neither is assumed.
+_PRODUCER_NAMES = ('producer_id_text', 'producer_id_name')
+
+
+def _event_query(db, where, label, relative):
+    """The events_persisted query with the lookup tables joined where they and their columns exist."""
     tables = _tables(db)
     present = _columns(db, 'events_persisted')
     producer, group, joins = 'NULL', 'NULL', ''
     if 'producer_id' in present and 'producers' in tables:
-        producer = 'p.producer_id_text'
-        joins += '\n    LEFT JOIN producers p ON p.producer_id = e.producer_id'
+        columns = _columns(db, 'producers')
+        names = [f'p.{name}' for name in _PRODUCER_NAMES if name in columns]
+        if 'producer_id' in columns and names:
+            producer = names[0] if len(names) == 1 else f'COALESCE({", ".join(names)})'
+            joins += '\n    LEFT JOIN producers p ON p.producer_id = e.producer_id'
+        else:
+            logfunc(f'{label}: {relative} producers has columns {", ".join(sorted(columns))}, none of '
+                    f'producer_id with {" or ".join(_PRODUCER_NAMES)}; Producer left blank')
     if 'provider_group_id' in present and 'provider_groups' in tables:
-        group = 'g.group_guid'
-        joins += '\n    LEFT JOIN provider_groups g ON g.group_id = e.provider_group_id'
+        columns = _columns(db, 'provider_groups')
+        if {'group_id', 'group_guid'} <= columns:
+            group = 'g.group_guid'
+            joins += '\n    LEFT JOIN provider_groups g ON g.group_id = e.provider_group_id'
+        else:
+            logfunc(f'{label}: {relative} provider_groups lacks group_id or group_guid; '
+                    'Provider Group GUID left blank')
     return f'''
     SELECT e.rowid, e.timestamp, e.full_event_name, e.full_event_name_hash, e.sid,
            {_column(present, 'logging_binary_name')}, {_column(present, 'friendly_logging_binary_name')},
@@ -460,16 +605,21 @@ def _event_query(db, where):
 def _categories(db, label, relative):
     """{full_event_name_hash: 'name; name'} from event_tags and tag_descriptions."""
     tables = _tables(db)
-    if 'event_tags' not in tables:
-        logfunc(f'{label}: {relative} has no event_tags table; categories left blank')
+    if 'event_tags' not in tables or not {'full_event_name_hash', 'tag_id'} <= _columns(db, 'event_tags'):
+        logfunc(f'{label}: {relative} has no event_tags table with full_event_name_hash and tag_id; '
+                'categories left blank')
         return {}
     names = {}
     if 'tag_descriptions' in tables:
-        for tag_id, tag_name in db.execute(
-                'SELECT tag_id, tag_name FROM tag_descriptions ORDER BY tag_id, locale_name'):
-            names.setdefault(tag_id, [])
-            if tag_name and tag_name not in names[tag_id]:
-                names[tag_id].append(tag_name)
+        columns = _columns(db, 'tag_descriptions')
+        if {'tag_id', 'tag_name'} <= columns:
+            order = 'tag_id, locale_name' if 'locale_name' in columns else 'tag_id'
+            for tag_id, tag_name in db.execute(f'SELECT tag_id, tag_name FROM tag_descriptions ORDER BY {order}'):
+                names.setdefault(tag_id, [])
+                if tag_name and tag_name not in names[tag_id]:
+                    names[tag_id].append(tag_name)
+        else:
+            logfunc(f'{label}: {relative} tag_descriptions lacks tag_id or tag_name; tags shown by ID')
     tags = {}
     for name_hash, tag_id in db.execute(
             'SELECT DISTINCT full_event_name_hash, tag_id FROM event_tags '
@@ -481,34 +631,53 @@ def _categories(db, label, relative):
 
 
 def _read(context, label, where='', params=(), with_categories=False):
-    """Yield (relative path, row, categories) per event, and the list of databases read."""
+    """(relative path, rows, categories) per database read, the databases found, and those not read."""
     sources = []
     results = []
+    failures = []
     for path, relative in _databases(context):
+        sources.append(path)
         db = open_sqlite_db_readonly(path)
         if db is None:
+            failures.append(relative)
+            logfunc(f'{label}: ERROR could not read {relative}: it did not open; its events are not in this artifact')
             continue
         try:
             if 'events_persisted' not in _tables(db):
                 logfunc(f'{label}: {relative} has no events_persisted table')
-                sources.append(path)
                 continue
             missing = _REQUIRED_COLUMNS - _columns(db, 'events_persisted')
             if missing:
                 logfunc(f'{label}: {relative} events_persisted lacks {", ".join(sorted(missing))}')
-                sources.append(path)
                 continue
-            categories = _categories(db, label, relative) if with_categories else {}
-            rows = db.execute(_event_query(db, where), params).fetchall()
+            categories = {}
+            if with_categories:
+                try:
+                    categories = _categories(db, label, relative)
+                except sqlite3.Error as exc:
+                    logfunc(f'{label}: ERROR could not read the tag tables of {relative} ({exc}); '
+                            'categories left blank')
+            rows = db.execute(_event_query(db, where, label, relative), params).fetchall()
         except sqlite3.Error as exc:
-            logfunc(f'{label}: could not read {relative}: {exc}')
-            sources.append(path)
+            failures.append(relative)
+            logfunc(f'{label}: ERROR could not read {relative}: {exc}; its events are not in this artifact')
             continue
         finally:
             db.close()
-        sources.append(path)
         results.append((relative, rows, categories))
-    return results, sources
+    return results, sources, failures
+
+
+def _finish(label, data_list, sources, failures):
+    """The artifact's return value; raises when a database was present but unreadable and no row came out.
+
+    Raising makes the run log say the artifact had errors and records it as an error in the
+    LAVA module list, so a database that could not be read does not look like one with no events.
+    """
+    if failures and not data_list:
+        raise RuntimeError(f'{label}: could not read {", ".join(failures)}; no rows were reported '
+                           'because of it, not because the database holds none')
+    return data_list, '\n'.join(sources)
 
 
 def _text(value):
@@ -570,7 +739,7 @@ def eventTranscriptEvents(context):
                     'Event Keywords (as stored)', 'Provider Group GUID',
                     'Compressed Payload Size (as stored)', 'Payload (as stored)', 'Row ID', 'Source File')
     data_list = []
-    results, sources = _read(context, label, with_categories=True)
+    results, sources, failures = _read(context, label, with_categories=True)
     for relative, rows, categories in results:
         for (row_id, stamp, name, name_hash, sid, binary, friendly, is_core, keywords, size, producer,
              group, payload) in rows:
@@ -578,7 +747,7 @@ def eventTranscriptEvents(context):
                               producer or '', binary or '', _strip_nul(friendly), sid or '',
                               _text(is_core), _text(keywords), group or '', _text(size),
                               payload or '', row_id, relative))
-    return data_headers, data_list, '\n'.join(sources)
+    return (data_headers,) + _finish(label, data_list, sources, failures)
 
 
 @artifact_processor
@@ -588,7 +757,7 @@ def eventTranscriptEdgeHistory(context):
                     'Navigation URL', 'Referrer URL (referUrl)', 'Page Title', 'Tab ID', 'HTTP Status Code',
                     'Correlation GUID', 'User SID', 'Event Name', 'Row ID', 'Source File')
     data_list = []
-    results, sources = _read(context, label, where="WHERE e.full_event_name LIKE ?",
+    results, sources, failures = _read(context, label, where="WHERE e.full_event_name LIKE ?",
                              params=(f'%{_HISTORY_JOURNAL}%',))
     for relative, rows, _ in results:
         skipped = []
@@ -604,7 +773,7 @@ def eventTranscriptEdgeHistory(context):
                               _text(data.get('TabId')), _text(data.get('HttpStatusCode')),
                               _text(data.get('CorrelationGuid')), sid or '', name, row_id, relative))
         _log_skipped(label, relative, skipped)
-    return data_headers, data_list, '\n'.join(sources)
+    return (data_headers,) + _finish(label, data_list, sources, failures)
 
 
 @artifact_processor
@@ -617,7 +786,7 @@ def eventTranscriptAppInteractivity(context):
                     'Event Name', 'User SID', 'Row ID', 'Source File')
     data_list = []
     marks = ', '.join('?' for _ in _APP_INTERACTIVITY)
-    results, sources = _read(context, label, where=f'WHERE e.full_event_name IN ({marks})',
+    results, sources, failures = _read(context, label, where=f'WHERE e.full_event_name IN ({marks})',
                              params=_APP_INTERACTIVITY)
     for relative, rows, _ in results:
         skipped = []
@@ -634,14 +803,14 @@ def eventTranscriptAppInteractivity(context):
                               _text(data.get('MouseInputSec')), _text(data.get('AppSessionId')),
                               name, sid or '', row_id, relative))
         _log_skipped(label, relative, skipped)
-    return data_headers, data_list, '\n'.join(sources)
+    return (data_headers,) + _finish(label, data_list, sources, failures)
 
 
 def _inventory_rows(context, label, names, fields):
-    """Rows of (time, event, field values..., object instance ID, row ID, source) for names."""
+    """(rows, sources) for names; each row is time, event, field values, object instance ID, row ID, source."""
     data_list = []
     marks = ', '.join('?' for _ in names)
-    results, sources = _read(context, label, where=f'WHERE e.full_event_name IN ({marks})', params=names)
+    results, sources, failures = _read(context, label, where=f'WHERE e.full_event_name IN ({marks})', params=names)
     for relative, rows, _ in results:
         skipped = []
         for row_id, stamp, name, *_rest, payload in rows:
@@ -653,7 +822,7 @@ def _inventory_rows(context, label, names, fields):
                              + tuple(_text(data.get(field)) for field in fields)
                              + (_text(base.get('objectInstanceId')), row_id, relative))
         _log_skipped(label, relative, skipped)
-    return data_list, sources
+    return _finish(label, data_list, sources, failures)
 
 
 _APP_FIELDS = ('Name', 'Version', 'Publisher', 'RootDirPath', 'InstallDate', 'Source', 'Type',
@@ -667,8 +836,7 @@ def eventTranscriptAppInventory(context):
                     'Root Directory Path', 'Install Date (as stored)', 'Source', 'Type',
                     'Package Full Name', 'Program Instance ID', 'Object Instance ID', 'Row ID',
                     'Source File')
-    data_list, sources = _inventory_rows(context, label, _APP_INVENTORY, _APP_FIELDS)
-    return data_headers, data_list, '\n'.join(sources)
+    return (data_headers,) + _inventory_rows(context, label, _APP_INVENTORY, _APP_FIELDS)
 
 
 _DEVICE_FIELDS = ('Description', 'BusReportedDescription', 'Manufacturer', 'Model', 'Class', 'Enumerator',
@@ -684,5 +852,4 @@ def eventTranscriptDeviceInventory(context):
                     'FirstInstallDate (as stored)', 'HWID', 'ParentId', 'ContainerId', 'Service',
                     'DriverName', 'DriverVerVersion', 'Inf', 'Provider', 'Object Instance ID', 'Row ID',
                     'Source File')
-    data_list, sources = _inventory_rows(context, label, _DEVICE_INVENTORY, _DEVICE_FIELDS)
-    return data_headers, data_list, '\n'.join(sources)
+    return (data_headers,) + _inventory_rows(context, label, _DEVICE_INVENTORY, _DEVICE_FIELDS)

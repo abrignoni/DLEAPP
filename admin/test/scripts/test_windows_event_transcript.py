@@ -21,6 +21,9 @@ from scripts.artifacts import windowsEventTranscript as et  # pylint: disable=wr
 _UTC = datetime.timezone.utc
 _FOLDER = 'ProgramData/Microsoft/Diagnosis/EventTranscript'
 _RELATIVE = f'{_FOLDER}/EventTranscript.db'
+# The producers table as plaso's build 19041 database has it, and as Windows 11 build 26200 has it.
+_PRODUCERS_19041 = 'CREATE TABLE producers (producer_id INTEGER PRIMARY KEY AUTOINCREMENT, producer_id_text TEXT)'
+_PRODUCERS_26200 = 'CREATE TABLE producers (producer_id INTEGER PRIMARY KEY, producer_id_name TEXT)'
 _SCHEMA = (
     'CREATE TABLE events_persisted (sid TEXT, timestamp INTEGER, payload TEXT, full_event_name TEXT, '
     'full_event_name_hash INTEGER, event_keywords INTEGER, is_core INTEGER, provider_group_id INTEGER, '
@@ -29,7 +32,7 @@ _SCHEMA = (
     'CREATE TABLE provider_groups (group_id INTEGER PRIMARY KEY AUTOINCREMENT, group_guid TEXT)',
     'CREATE TABLE event_tags (full_event_name_hash INTEGER, tag_id INTEGER)',
     'CREATE TABLE tag_descriptions (tag_id INTEGER, locale_name TEXT, tag_name TEXT, description TEXT)',
-    'CREATE TABLE producers (producer_id INTEGER PRIMARY KEY AUTOINCREMENT, producer_id_text TEXT)',
+    _PRODUCERS_19041,
     'CREATE TABLE event_categories (full_event_name_hash INTEGER, category_id INTEGER)',
     'CREATE TABLE categories (category_id INTEGER PRIMARY KEY AUTOINCREMENT, category_id_text TEXT, '
     'producer_id INTEGER)',
@@ -93,11 +96,13 @@ class ProcessorTest(unittest.TestCase):
                    (sid, _filetime(moment), payload if payload is not None else _payload(name, data), name,
                     self._hash(name), 140737488355328, 0, 1, 'example.exe', friendly, 42, producer, '', '', ''))
 
-    def _build(self, skip=(), wal_rows=False):
+    def _build(self, skip=(), wal_rows=False, producers=_PRODUCERS_19041):
         db = sqlite3.connect(self.path)
         db.execute('PRAGMA journal_mode=WAL')
         db.execute('PRAGMA wal_autocheckpoint=0')
         for statement in _SCHEMA:
+            if statement == _PRODUCERS_19041:
+                statement = producers
             if not any(f'TABLE {name} (' in statement for name in skip):
                 db.execute(statement)
         with db:
@@ -197,8 +202,78 @@ class ProcessorTest(unittest.TestCase):
         _headers, rows, _source, logs = self._run(et.eventTranscriptEvents)
         self.assertEqual(len(rows), 12)
         self.assertEqual({(row[2], row[3], row[9]) for row in rows}, {('', '', '')})
-        self.assertEqual(logs, [f'Diagnostic Data Events: {_RELATIVE} has no event_tags table; '
-                                'categories left blank'])
+        self.assertEqual(logs, [f'Diagnostic Data Events: {_RELATIVE} has no event_tags table with '
+                                'full_event_name_hash and tag_id; categories left blank'])
+
+    def test_both_producer_column_spellings_give_every_artifact_its_rows(self):
+        expected = {et.eventTranscriptEvents: 12, et.eventTranscriptEdgeHistory: 2,
+                    et.eventTranscriptAppInteractivity: 2, et.eventTranscriptAppInventory: 2,
+                    et.eventTranscriptDeviceInventory: 2}
+        for producers in (_PRODUCERS_19041, _PRODUCERS_26200):
+            with self.subTest(producers=producers):
+                self.path.unlink(missing_ok=True)
+                for sidecar in self.path.parent.glob('EventTranscript.db-*'):
+                    sidecar.unlink()
+                self._build(producers=producers)
+                for processor, count in expected.items():
+                    _headers, rows, source, logs = self._run(processor)
+                    self.assertEqual((len(rows), source.splitlines()), (count, [str(self.path)]),
+                                     processor.__name__)
+                    self.assertEqual([log for log in logs if 'producer' in log or 'could not' in log], [])
+                _headers, rows, _source, _logs = self._run(et.eventTranscriptEvents)
+                self.assertEqual([row[3] for row in rows].count('Microsoft Edge'), 4)
+                self.assertEqual([row[3] for row in rows].count('Windows'), 8)
+
+    def test_a_producers_table_with_neither_name_column_leaves_producer_blank(self):
+        self._build(producers='CREATE TABLE producers (producer_id INTEGER PRIMARY KEY, other TEXT)')
+        _headers, rows, _source, logs = self._run(et.eventTranscriptEvents)
+        self.assertEqual(len(rows), 12)
+        self.assertEqual({row[3] for row in rows}, {''})
+        self.assertEqual({row[9] for row in rows}, {_GROUP})
+        self.assertEqual(logs, [f'Diagnostic Data Events: {_RELATIVE} producers has columns other, producer_id, '
+                                'none of producer_id with producer_id_text or producer_id_name; Producer left '
+                                'blank'])
+
+    def test_a_producers_table_with_both_spellings_reads_either(self):
+        self._build(skip=('producers',))
+        db = sqlite3.connect(self.path)
+        db.execute('CREATE TABLE producers (producer_id INTEGER PRIMARY KEY, producer_id_text TEXT, '
+                   'producer_id_name TEXT)')
+        with db:
+            db.executemany('INSERT INTO producers VALUES (?, ?, ?)', [(1, 'Windows', None),
+                                                                      (2, None, 'Microsoft Edge')])
+        db.close()
+        _headers, rows, _source, logs = self._run(et.eventTranscriptEvents)
+        self.assertEqual(sorted({row[3] for row in rows}), ['Microsoft Edge', 'Windows'])
+        self.assertEqual(logs, [])
+
+    def test_lookup_tables_with_other_columns_cost_no_rows(self):
+        self._build(skip=('provider_groups', 'tag_descriptions'))
+        db = sqlite3.connect(self.path)
+        db.execute('CREATE TABLE provider_groups (group_id INTEGER, other TEXT)')
+        db.execute('CREATE TABLE tag_descriptions (tag_id INTEGER, other TEXT)')
+        db.close()
+        _headers, rows, _source, logs = self._run(et.eventTranscriptEvents)
+        self.assertEqual(len(rows), 12)
+        self.assertEqual({row[9] for row in rows}, {''})
+        self.assertEqual(rows[1][2], 'tag 1 (no description stored); tag 9 (no description stored); '
+                                     'tag 24 (no description stored)')
+        self.assertEqual(logs, [
+            f'Diagnostic Data Events: {_RELATIVE} tag_descriptions lacks tag_id or tag_name; tags shown by ID',
+            f'Diagnostic Data Events: {_RELATIVE} provider_groups lacks group_id or group_guid; '
+            'Provider Group GUID left blank'])
+
+    def test_a_present_database_that_cannot_be_read_is_an_error_not_an_empty_result(self):
+        self.path.write_bytes(b'not a database' * 512)
+        for processor in (et.eventTranscriptEvents, et.eventTranscriptEdgeHistory,
+                          et.eventTranscriptAppInteractivity, et.eventTranscriptAppInventory,
+                          et.eventTranscriptDeviceInventory):
+            logs = []
+            with mock.patch.object(et, 'logfunc', logs.append), self.assertRaises(RuntimeError) as raised:
+                processor.__wrapped__(FakeContext(self.root, self._files()))
+            self.assertIn(f'could not read {_RELATIVE}', str(raised.exception))
+            self.assertEqual(len(logs), 1)
+            self.assertIn(f'ERROR could not read {_RELATIVE}: file is not a database', logs[0])
 
     def test_edge_rows_need_a_url_or_title_and_bad_payloads_are_logged(self):
         self._build()
