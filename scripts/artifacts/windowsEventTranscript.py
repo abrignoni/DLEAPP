@@ -46,37 +46,41 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 "read it; on plaso_testdata_f951fc6 it equalled the payload's own time field to the 100 "
-                 'nanoseconds on all 2,526 rows. Validated on one database only, plaso_testdata_f951fc6 from '
-                 "plaso's test data, whose origin the source does not state; every payload's ext.os.ver begins "
-                 '10.0.19041.1165, and the database is in WAL mode with no -wal, so it was read alone. None of '
-                 'the other registered Windows corpus images checked holds the database; the EventTranscript '
-                 'folder is present and empty on seven of them. One row per events_persisted row. Diagnostic Data '
-                 'Categories joins event_tags to tag_descriptions on full_event_name_hash, as the SQLECmd map '
-                 'does '
+                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
+                 "plaso's test data whose origin the source does not state. The registered key "
+                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
+                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
+                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
+                 "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
+                 'it was read alone. None of the other registered Windows corpus images checked holds the '
+                 'database; the EventTranscript folder is present and empty on seven of them. One row per '
+                 'events_persisted row. Diagnostic Data Categories joins event_tags to tag_descriptions on '
+                 'full_event_name_hash, as the SQLECmd map does '
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L235-L236), '
                  'and lists each tag ID once, in tag ID order, by its stored tag name (names from more than one '
                  "locale joined with ' / '); a tag ID with no stored description is shown as 'tag <n> (no "
-                 "description stored)', a case the sample does not have. On plaso_testdata_f951fc6 "
-                 'tag_descriptions held 6 names and 9 of the 2,526 rows had no tag. Producer is '
-                 'producers.producer_id_text and Provider Group GUID is provider_groups.group_guid. Trailing NUL '
-                 'characters are removed from Friendly Logging Binary Name and nothing else is changed; on the '
-                 'sample 1,397 rows ended in exactly one NUL and none held a NUL elsewhere. User SID is as stored '
-                 'and was empty on 570 rows. Is Core, Event Keywords and Compressed Payload Size are the stored '
-                 'integers; the sources cited here do not document their meaning (the SQLECmd map shows is_core 0 '
-                 'and 1 as No and Yes). Payload is the stored JSON text; Rathbun and Mitchell list its top-level '
-                 'keys as ver, name, time, iKey, ext and data '
+                 "description stored)', a case the copy does not have. On the copy tag_descriptions held 6 names "
+                 'and 9 of the 2,526 rows had no tag. Producer is producers.producer_id_text and Provider Group '
+                 'GUID is provider_groups.group_guid. Trailing NUL characters are removed from Friendly Logging '
+                 'Binary Name and nothing else is changed; on the copy 1,397 rows ended in exactly one NUL and '
+                 'none held a NUL elsewhere. User SID is as stored and was empty on 570 rows. Is Core, Event '
+                 'Keywords and Compressed Payload Size are the stored integers; the sources cited here do not '
+                 'document their meaning (the SQLECmd map shows is_core 0 and 1 as No and Yes). Payload is the '
+                 'stored JSON text; Rathbun and Mitchell list its top-level keys as ver, name, time, iKey, ext '
+                 'and data '
                  '(https://github.com/rathbuna/EventTranscript.db-Research/blob/a07e42a8a4fc9bfbe1fbf1c500fa79d0d4de92ed/README.md#L52-L60), '
-                 'the keys every sample payload held. The other Diagnostic Data artifacts read named fields from '
-                 'it. Event families they do not read stay only here, among them WlanMSM.WirelessScanResults, '
+                 'the keys every payload on the copy held. The other Diagnostic Data artifacts read named fields '
+                 'from it. Event families they do not read stay only here, among them '
+                 'WlanMSM.WirelessScanResults, '
                  'Microsoft.OneCore.NetworkingTriage.GetConnected.WiFiConnectedEvent, '
                  "Microsoft.Windows.SRUM.Telemetry.AppTimelines and Census.Userdefault, which Abhiram Kumar's "
                  'EventTranscriptParser reads '
                  '(https://github.com/stuxnet999/EventTranscriptParser/blob/902eb3c773d5c0a63b0997ea0f1612e860f05c1c/EventTranscriptParser.py#L104-L230); '
-                 'the sample holds none of the first three and one Census.Userdefault event. Not reported: '
-                 'full_event_name_hash (the join key), extra1 to extra3 (empty on every sample row), and the '
-                 'categories and event_categories tables, which were empty on the sample, so how they are filled '
-                 'is not established.',
+                 'the copy holds none of the first three and one Census.Userdefault event. Not reported: '
+                 'full_event_name_hash (the join key), extra1 to extra3 (empty on every row of the copy), and the '
+                 'categories and event_categories tables, which were empty on the copy, so how they are filled is '
+                 'not established.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -87,7 +91,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": 'Windows 10 Education build 16299 | 0 rows (the EventTranscript folder holds no database)',
             "ou_ransomware_server2022": 'Windows Server 2022 build 20348 | 0 rows (the EventTranscript folder holds no database)',
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
-            "plaso_testdata_f951fc6": 'payload ext.os.ver 10.0.19041.1165 | 2,526 rows (the database placed at its ProgramData path in a derived zip)',
+            "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
         },
     },
@@ -120,39 +124,42 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 "read it; on plaso_testdata_f951fc6 it equalled the payload's own time field to the 100 "
-                 'nanoseconds on all 2,526 rows. Validated on one database only, plaso_testdata_f951fc6 from '
-                 "plaso's test data, whose origin the source does not state; every payload's ext.os.ver begins "
-                 '10.0.19041.1165, and the database is in WAL mode with no -wal, so it was read alone. None of '
-                 'the other registered Windows corpus images checked holds the database; the EventTranscript '
-                 'folder is present and empty on seven of them. Rows are events whose name contains '
-                 "'.Microsoft.WebBrowser.HistoryJournal.' and whose payload data holds a non-empty navigationUrl, "
-                 'referUrl or PageTitle; Event is the part of the name after HistoryJournal. Navigation URL '
-                 '(navigationUrl), Referrer URL (referUrl), Page Title (PageTitle), Tab ID (TabId), HTTP Status '
-                 'Code (HttpStatusCode), Correlation GUID (CorrelationGuid) and data.Timestamp are those payload '
-                 'keys as stored, with data.Timestamp read as an ISO 8601 UTC time. Microsoft says optional '
-                 "diagnostic data includes browsing history in Microsoft browsers (Microsoft, 'Configure Windows "
-                 "diagnostic data in your organization', ms.date 2025-09-11, "
+                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
+                 "plaso's test data whose origin the source does not state. The registered key "
+                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
+                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
+                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
+                 "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
+                 'it was read alone. None of the other registered Windows corpus images checked holds the '
+                 'database; the EventTranscript folder is present and empty on seven of them. Rows are events '
+                 "whose name contains '.Microsoft.WebBrowser.HistoryJournal.' and whose payload data holds a "
+                 'non-empty navigationUrl, referUrl or PageTitle; Event is the part of the name after '
+                 'HistoryJournal. Navigation URL (navigationUrl), Referrer URL (referUrl), Page Title '
+                 '(PageTitle), Tab ID (TabId), HTTP Status Code (HttpStatusCode), Correlation GUID '
+                 '(CorrelationGuid) and data.Timestamp are those payload keys as stored, with data.Timestamp read '
+                 'as an ISO 8601 UTC time. Microsoft says optional diagnostic data includes browsing history in '
+                 "Microsoft browsers (Microsoft, 'Configure Windows diagnostic data in your organization', "
+                 'ms.date 2025-09-11, '
                  'https://learn.microsoft.com/en-us/windows/privacy/configure-windows-diagnostic-data-in-your-organization), '
                  "and Abhiram Kumar's EventTranscriptParser builds its browsing history output from navigationUrl "
                  'as the URL, data.Timestamp as the time and referUrl as the referring URL '
                  '(https://github.com/stuxnet999/EventTranscriptParser/blob/902eb3c773d5c0a63b0997ea0f1612e860f05c1c/EventTranscriptParser.py#L22-L33); '
-                 'this artifact names the keys and does not attach those meanings. On plaso_testdata_f951fc6, 392 '
-                 'of 679 HistoryJournal rows qualified (HJ_BeforeNavigateExtended 128, '
-                 'HJ_NavigateCompleteExtended 128, HJ_HistoryAddUrlEx 54, HJ_HistoryAddUrl 53, HJ_PageContentInfo '
-                 '29) and data.Timestamp was 0.0004 to 182.4 seconds earlier than Timestamp (UTC). '
-                 'HJ_HistoryAddUrlEx rows held a Page Title and no URL, HJ_HistoryAddUrl rows a URL and an empty '
-                 'title, and 52 of the 54 HJ_HistoryAddUrlEx rows shared a Correlation GUID with an '
-                 'HJ_HistoryAddUrl row; that grouping is observed on this sample only. User SID held one value on '
-                 'all 392 rows, the only S-1-5-21 SID in the database. All 679 HistoryJournal rows had logging '
-                 'binary msedge.exe and producer Microsoft Edge; those columns are in Diagnostic Data Events, as '
-                 'are the 287 HistoryJournal rows with none of these values: 120 navigation events whose '
-                 'navigationUrl is empty, 6 HJ_HistoryAddUrl rows with an empty URL, and the W3cNavTiming, '
-                 'element click, tab, preference and browser information events. Not read: the older '
-                 'Microsoft.Windows.App.Browser.HJ_* events, which Rathbun and Mitchell show with the URL '
-                 'hex-encoded in navigationUrlBytes '
+                 'this artifact names the keys and does not attach those meanings. On the copy, 392 of 679 '
+                 'HistoryJournal rows qualified (HJ_BeforeNavigateExtended 128, HJ_NavigateCompleteExtended 128, '
+                 'HJ_HistoryAddUrlEx 54, HJ_HistoryAddUrl 53, HJ_PageContentInfo 29) and data.Timestamp was '
+                 '0.0004 to 182.4 seconds earlier than Timestamp (UTC). HJ_HistoryAddUrlEx rows held a Page Title '
+                 'and no URL, HJ_HistoryAddUrl rows a URL and an empty title, and 52 of the 54 HJ_HistoryAddUrlEx '
+                 'rows shared a Correlation GUID with an HJ_HistoryAddUrl row; that grouping is observed on the '
+                 'copy only. User SID held one value on all 392 rows, the only S-1-5-21 SID in the database. All '
+                 '679 HistoryJournal rows had logging binary msedge.exe and producer Microsoft Edge; those '
+                 'columns are in Diagnostic Data Events, as are the 287 HistoryJournal rows with none of these '
+                 'values: 120 navigation events whose navigationUrl is empty, 6 HJ_HistoryAddUrl rows with an '
+                 'empty URL, and the W3cNavTiming, element click, tab, preference and browser information events. '
+                 'Not read: the older Microsoft.Windows.App.Browser.HJ_* events, which Rathbun and Mitchell show '
+                 'with the URL hex-encoded in navigationUrlBytes '
                  '(https://github.com/rathbuna/EventTranscript.db-Research/blob/a07e42a8a4fc9bfbe1fbf1c500fa79d0d4de92ed/README.md#L222-L245); '
-                 'the sample holds none.',
+                 'the copy holds none.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "globe",
@@ -163,7 +170,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": 'Windows 10 Education build 16299 | 0 rows (the EventTranscript folder holds no database)',
             "ou_ransomware_server2022": 'Windows Server 2022 build 20348 | 0 rows (the EventTranscript folder holds no database)',
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
-            "plaso_testdata_f951fc6": 'payload ext.os.ver 10.0.19041.1165 | 392 rows (the database placed at its ProgramData path in a derived zip)',
+            "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
         },
     },
@@ -196,16 +203,19 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 "read it; on plaso_testdata_f951fc6 it equalled the payload's own time field to the 100 "
-                 'nanoseconds on all 2,526 rows. Validated on one database only, plaso_testdata_f951fc6 from '
-                 "plaso's test data, whose origin the source does not state; every payload's ext.os.ver begins "
-                 '10.0.19041.1165, and the database is in WAL mode with no -wal, so it was read alone. None of '
-                 'the other registered Windows corpus images checked holds the database; the EventTranscript '
-                 'folder is present and empty on seven of them. Rows are '
+                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
+                 "plaso's test data whose origin the source does not state. The registered key "
+                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
+                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
+                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
+                 "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
+                 'it was read alone. None of the other registered Windows corpus images checked holds the '
+                 'database; the EventTranscript folder is present and empty on seven of them. Rows are '
                  'Win32kTraceLogging.AppInteractivitySummary and Win32kTraceLogging.AppInteractivity events, the '
                  "two Costas Katsavounidis's AppInteractivity.sql reads "
                  '(https://github.com/kacos2000/Queries/blob/e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/AppInteractivity.sql#L1-L3). '
-                 'The sample holds only AppInteractivitySummary events, so Event Name held one value on all 152 '
+                 'The copy holds only AppInteractivitySummary events, so Event Name held one value on all 152 '
                  "rows and the AppInteractivity name is read but unexercised. Field meanings are that query's "
                  "comments, which cite Microsoft's enhanced diagnostic data events page "
                  '(https://github.com/kacos2000/Queries/blob/e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/AppInteractivity.sql#L7), '
@@ -222,12 +232,12 @@ __artifacts_v2__ = {
                  'They were not checked against a Microsoft page. Keyboard Input (KeyboardInputSec), App ID '
                  '(AppId), App Version (AppVersion) and App Session ID (AppSessionId) are reported as stored, by '
                  'key name. Aggregation Start Time is read as an ISO 8601 UTC time and a value that is not one is '
-                 'shown as stored; on plaso_testdata_f951fc6 all 152 were read, and Timestamp (UTC) was within '
-                 "2.4 seconds of Aggregation Start Time plus Aggregation Duration on every row. App ID held 'W:', "
-                 "two hexadecimal identifiers and an executable name on 127 rows and 'U:' with a package and app "
-                 "name on 25; the query reads the 'W:' identifiers as Amcache's ProgramId and FileId "
+                 'shown as stored; on the copy all 152 were read, and Timestamp (UTC) was within 2.4 seconds of '
+                 "Aggregation Start Time plus Aggregation Duration on every row. App ID held 'W:', two "
+                 "hexadecimal identifiers and an executable name on 127 rows and 'U:' with a package and app name "
+                 "on 25; the query reads the 'W:' identifiers as Amcache's ProgramId and FileId "
                  '(https://github.com/kacos2000/Queries/blob/e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/AppInteractivity.sql#L76-L84), '
-                 'which is not checked here because the sample has no Amcache. A row records a period over which '
+                 'which is not checked here because the copy has no Amcache. A row records a period over which '
                  'the counters were aggregated for the app; on its own it does not give the time the program '
                  "started. The event's other counters (touch, pen, audio, window and monitor sizes and more) are "
                  'in its payload in Diagnostic Data Events.',
@@ -241,7 +251,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": 'Windows 10 Education build 16299 | 0 rows (the EventTranscript folder holds no database)',
             "ou_ransomware_server2022": 'Windows Server 2022 build 20348 | 0 rows (the EventTranscript folder holds no database)',
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
-            "plaso_testdata_f951fc6": 'payload ext.os.ver 10.0.19041.1165 | 152 rows (the database placed at its ProgramData path in a derived zip)',
+            "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
         },
     },
@@ -275,12 +285,15 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 "read it; on plaso_testdata_f951fc6 it equalled the payload's own time field to the 100 "
-                 'nanoseconds on all 2,526 rows. Validated on one database only, plaso_testdata_f951fc6 from '
-                 "plaso's test data, whose origin the source does not state; every payload's ext.os.ver begins "
-                 '10.0.19041.1165, and the database is in WAL mode with no -wal, so it was read alone. None of '
-                 'the other registered Windows corpus images checked holds the database; the EventTranscript '
-                 'folder is present and empty on seven of them. Rows are '
+                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
+                 "plaso's test data whose origin the source does not state. The registered key "
+                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
+                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
+                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
+                 "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
+                 'it was read alone. None of the other registered Windows corpus images checked holds the '
+                 'database; the EventTranscript folder is present and empty on seven of them. Rows are '
                  'Microsoft.Windows.Inventory.Core.InventoryApplicationAdd and InventoryApplicationRemove events. '
                  'Name, Version, Publisher, Root Directory Path (RootDirPath), Install Date (InstallDate), '
                  'Source, Type, Package Full Name (PackageFullName) and Program Instance ID (ProgramInstanceId) '
@@ -294,12 +307,12 @@ __artifacts_v2__ = {
                  'Ms.Device.DeviceInventoryChange, describes as an object identity unique within the device '
                  "scope. That page's text for InventoryApplicationRemove describes a different event, so the "
                  "Remove event's meaning is taken from its name only. Remove events store only InventoryVersion, "
-                 'baseType and baseData, so their rows carry an Object Instance ID and no name. On '
-                 'plaso_testdata_f951fc6 there were 17 Add and 11 Remove rows, Install Date held a value on 6 of '
-                 'the 17 Add rows, and 1 of the 11 Remove rows has an Object Instance ID that an Add row in the '
-                 'same database also carries. Not reported: InstallDateMsi, InstallDateFromLinkFile and '
-                 'InstallDateArpLastModified (empty lists on all 17 Add rows), and the other inventory events '
-                 '(drivers, frameworks, device containers), which are in Diagnostic Data Events.',
+                 'baseType and baseData, so their rows carry an Object Instance ID and no name. On the copy there '
+                 'were 17 Add and 11 Remove rows, Install Date held a value on 6 of the 17 Add rows, and 1 of the '
+                 '11 Remove rows has an Object Instance ID that an Add row in the same database also carries. Not '
+                 'reported: InstallDateMsi, InstallDateFromLinkFile and InstallDateArpLastModified (empty lists '
+                 'on all 17 Add rows), and the other inventory events (drivers, frameworks, device containers), '
+                 'which are in Diagnostic Data Events.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -310,7 +323,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": 'Windows 10 Education build 16299 | 0 rows (the EventTranscript folder holds no database)',
             "ou_ransomware_server2022": 'Windows Server 2022 build 20348 | 0 rows (the EventTranscript folder holds no database)',
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
-            "plaso_testdata_f951fc6": 'payload ext.os.ver 10.0.19041.1165 | 28 rows (the database placed at its ProgramData path in a derived zip)',
+            "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
         },
     },
@@ -343,12 +356,15 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 "read it; on plaso_testdata_f951fc6 it equalled the payload's own time field to the 100 "
-                 'nanoseconds on all 2,526 rows. Validated on one database only, plaso_testdata_f951fc6 from '
-                 "plaso's test data, whose origin the source does not state; every payload's ext.os.ver begins "
-                 '10.0.19041.1165, and the database is in WAL mode with no -wal, so it was read alone. None of '
-                 'the other registered Windows corpus images checked holds the database; the EventTranscript '
-                 'folder is present and empty on seven of them. Rows are '
+                 'read it. The measurements in these notes come from one database, an EventTranscript.db from '
+                 "plaso's test data whose origin the source does not state. The registered key "
+                 'plaso_testdata_f951fc6 keeps it at a repository path, which the declared path does not match, '
+                 'so that key gives no rows; the measurements were taken on a copy of the same database placed at '
+                 "its ProgramData path, which is not a registered key ('the copy' below). On the copy the "
+                 "timestamp equalled the payload's own time field to the 100 nanoseconds on all 2,526 rows, every "
+                 "payload's ext.os.ver begins 10.0.19041.1165, and the database is in WAL mode with no -wal, so "
+                 'it was read alone. None of the other registered Windows corpus images checked holds the '
+                 'database; the EventTranscript folder is present and empty on seven of them. Rows are '
                  'Microsoft.Windows.Inventory.Core.InventoryDevicePnpAdd and InventoryDevicePnpRemove events. '
                  'Headers are the stored key names and values are as stored, because the field table for '
                  "InventoryDevicePnpAdd on Microsoft's 'Windows 11, version 24H2 required Windows diagnostic "
@@ -359,12 +375,11 @@ __artifacts_v2__ = {
                  'HWID, a list, is written as compact JSON. Object Instance ID is baseData.objectInstanceId, '
                  'which the same page, under Ms.Device.DeviceInventoryChange, describes as an object identity '
                  'unique within the device scope. Remove events store only InventoryVersion, baseType and '
-                 'baseData. On plaso_testdata_f951fc6 there were 12 Add and 5 Remove rows; InstallDate (as '
-                 'stored) and FirstInstallDate (as stored) were identical on all 17 rows, blank on the Remove '
-                 'rows; and none of the 5 Remove rows has an Object Instance ID that an Add row in the same '
-                 'database carries. The other keys (COMPID, STACKID, ClassGuid, MatchingID, DriverId, the filter '
-                 'lists, DeviceState, InstallState, ProblemCode and more) are in the payload in Diagnostic Data '
-                 'Events.',
+                 'baseData. On the copy there were 12 Add and 5 Remove rows; InstallDate (as stored) and '
+                 'FirstInstallDate (as stored) were identical on all 17 rows, blank on the Remove rows; and none '
+                 'of the 5 Remove rows has an Object Instance ID that an Add row in the same database carries. '
+                 'The other keys (COMPID, STACKID, ClassGuid, MatchingID, DriverId, the filter lists, '
+                 'DeviceState, InstallState, ProblemCode and more) are in the payload in Diagnostic Data Events.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
@@ -375,7 +390,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": 'Windows 10 Education build 16299 | 0 rows (the EventTranscript folder holds no database)',
             "ou_ransomware_server2022": 'Windows Server 2022 build 20348 | 0 rows (the EventTranscript folder holds no database)',
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
-            "plaso_testdata_f951fc6": 'payload ext.os.ver 10.0.19041.1165 | 17 rows (the database placed at its ProgramData path in a derived zip)',
+            "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
         },
     },
