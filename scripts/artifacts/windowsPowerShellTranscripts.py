@@ -74,8 +74,9 @@ __artifacts_v2__ = {
                  "and puts it in the user's Documents folder, the home folder on macOS and Linux "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/CoreCLR/CorePsPlatform.cs#L406-L418, "
                  "https://github.com/MicrosoftDocs/PowerShell-Docs/blob/a3de8f22552170e70852470d46cd52cd9ca471ec/reference/7.5/Microsoft.PowerShell.Host/Start-Transcript.md#L44-L48), "
-                 "unless Start-Transcript is given -OutputDirectory "
-                 "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/Microsoft.PowerShell.ConsoleHost/host/msh/StartTranscriptCmdlet.cs#L167-L176). "
+                 "unless Start-Transcript is given -OutputDirectory, or the $TRANSCRIPT variable is "
+                 "set, which replaces the file name "
+                 "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/Microsoft.PowerShell.ConsoleHost/host/msh/StartTranscriptCmdlet.cs#L158-L181). "
                  "When the Turn on PowerShell Transcription policy names an output directory, the "
                  "file sits in a yyyyMMdd folder below it "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/engine/hostifaces/MshHostUserInterface.cs#L1111-L1131, "
@@ -95,13 +96,16 @@ __artifacts_v2__ = {
                  "(https://github.com/PowerShell/PowerShell/commit/56fc426f8b309d2c1fe5a296afbbccb8049d09d8) "
                  "and is not in Windows PowerShell 5.1's Start-Transcript "
                  "(https://github.com/MicrosoftDocs/PowerShell-Docs/blob/a3de8f22552170e70852470d46cd52cd9ca471ec/reference/5.1/Microsoft.PowerShell.Host/Start-Transcript.md#L17-L36). "
-                 "PowerShell ships the header strings translated into 13 other languages, so fields "
-                 "are read by their position in the header, not by label. The Configuration Name "
-                 "line was added in PowerShell commit 3f274aad9ce6d30f709cfc79dcebc7c943093316 "
+                 "The cited code is PowerShell 7's; Windows PowerShell 5.1's code is not published, "
+                 "and its transcripts in the known data and in plaso's test data have the same "
+                 "layout. PowerShell's source holds the header strings in 13 other language "
+                 "resource files, one of which (pt-BR) keeps the English text, so fields are read "
+                 "by their position in the header, not by label. The Configuration Name line was "
+                 "added in PowerShell commit 3f274aad9ce6d30f709cfc79dcebc7c943093316 "
                  "(https://github.com/PowerShell/PowerShell/commit/3f274aad9ce6d30f709cfc79dcebc7c943093316), "
                  "and a header with one line fewer before the PSVersionTable entries is read "
                  "without it. A block's title is matched against the titles in PowerShell's "
-                 "resource strings in the 14 languages it ships and the older English Windows "
+                 "resource strings in all 14 resource files and the older English Windows "
                  "PowerShell titles, which PowerShell commit "
                  "3c597367ba32c8b32851a9caf824c7dea202d95b replaced "
                  "(https://github.com/PowerShell/PowerShell/commit/3c597367ba32c8b32851a9caf824c7dea202d95b); "
@@ -109,13 +113,12 @@ __artifacts_v2__ = {
                  "no session is open, and otherwise a footer. Start Time and End Time are the times "
                  "the header and footer store, which PowerShell takes from DateTime.Now and writes "
                  "as yyyyMMddHHmmss: the local time of the computer that wrote the file, with no "
-                 "time zone or UTC offset recorded, so they are shown as stored and not converted. "
-                 "A time that is not a valid date is shown as its digits. End Time is blank when "
-                 "the session has no footer: the session was not stopped, the process ended without "
-                 "writing one, or the file was copied while PowerShell was still writing it. "
-                 "Username is the account PowerShell ran as, as domain\\name, except that in a "
-                 "remoting session it is the connected user, and RunAs User is the account the "
-                 "process ran as in both cases "
+                 "time zone or UTC offset recorded, so they are shown in that local time with "
+                 "separators added, not converted to another zone. A time that is not a valid date "
+                 "is shown as its digits. End Time is blank when the file holds no footer for the "
+                 "session; the file does not say why. Username is the account PowerShell ran as, as "
+                 "domain\\name, except that in a remoting session it is the connected user, and "
+                 "RunAs User is the account the process ran as in both cases "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/engine/hostifaces/MshHostUserInterface.cs#L615-L621). "
                  "Configuration Name is the remoting session configuration and is empty otherwise "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/engine/hostifaces/MshHostUserInterface.cs#L638-L642). "
@@ -128,11 +131,12 @@ __artifacts_v2__ = {
                  "how many command start time blocks the session holds, reported one per row by the "
                  "PowerShell Transcript Commands artifact; it is 0 for a session started without "
                  "-IncludeInvocationHeader, whose commands are in the file but are not reported row "
-                 "by row, because nothing in such a session marks where a command begins. Start "
-                 "Line is the line of the file where the header begins. Files are read as UTF-8, or "
-                 "as UTF-16 when they begin with its byte order mark; bytes that are not UTF-8 are "
-                 "replaced and the run log counts them. A file whose first line is not a line of 22 "
-                 "asterisks is not a transcript and is named in the run log. On "
+                 "by row, because without the invocation header PowerShell writes only the prompt "
+                 "text before each command, and a prompt can be any text. Start Line is the line of "
+                 "the file where the header begins. Files are read as UTF-8, or as UTF-16 when they "
+                 "begin with its byte order mark; bytes that are not UTF-8 are replaced and the run "
+                 "log counts them. A file whose first line is not a line of 22 asterisks is not "
+                 "read as a transcript and is named in the run log. On "
                  "windows11_arm_pstranscript_known_20261022 (Windows PowerShell 5.1.26100.9711, "
                  "files UTF-8 with a byte order mark) the 3 rows match the 3 sessions made, two in "
                  "one file, their start and end times and process IDs included. Username and RunAs "
@@ -145,13 +149,13 @@ __artifacts_v2__ = {
                  "session each, Windows PowerShell 5.1 in English and in German, the German one "
                  "with no footer and a title not in PowerShell's published strings, read as a "
                  "header by its shape, and Username and RunAs User were identical and Configuration "
-                 "Name empty on both. How plaso's files were made is not stated by the source. The "
-                 "transcription policy is not read here: the Security Settings artifact reports the "
-                 "machine policy's EnableTranscripting value, and neither reads the policy's "
-                 "OutputDirectory or EnableInvocationHeader value or its per-user copy. Transcripts "
-                 "from PowerShell 7, the minimal header, remoting sessions and the policy output "
-                 "folder were not exercised on real data and are covered only by tests written from "
-                 "PowerShell's source.",
+                 "Name empty on both. The transcription policy is not read here: the Security "
+                 "Settings artifact reports the machine policy's EnableTranscripting value, and "
+                 "neither reads the policy's OutputDirectory or EnableInvocationHeader value or its "
+                 "per-user copy. PowerShell 7, the minimal header and remoting sessions were not "
+                 "exercised on real data and are covered by tests written from PowerShell's source; "
+                 "the policy output folder was exercised only on a copy of the known-data file "
+                 "placed in a yyyyMMdd folder.",
         "paths": ('*/PowerShell_transcript.*.txt',),
         "output_types": ["standard"],
         "artifact_icon": "terminal",
@@ -222,7 +226,7 @@ __artifacts_v2__ = {
     "powershellTranscriptCommands": {
         "name": "PowerShell Transcript Commands",
         "description": "Commands in PowerShell transcript files that carry a command start time, one row "
-                       "per command, with the command line and output as the transcript stores them.",
+                       "per command, with the command line and up to 10,000 characters of its output.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-22",
@@ -232,23 +236,26 @@ __artifacts_v2__ = {
                  "the file names, the folders and how sessions are found. When a transcript is "
                  "started with -IncludeInvocationHeader, or by the transcription policy with "
                  "invocation headers on, PowerShell writes, before the first line of each command, "
-                 "a line of 22 asterisks, 'Command start time: ' and the time as yyyyMMddHHmmss, "
-                 "and another line of asterisks, then the prompt text followed by the command "
+                 "a line of 22 asterisks, 'Command start time: ' (or its translation) and the time "
+                 "as yyyyMMddHHmmss, and another line of asterisks, then the prompt text followed "
+                 "by the command "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/engine/hostifaces/MshHostUserInterface.cs#L440-L450, "
                  "https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/resources/InternalHostUserInterfaceStrings.resx#L192-L194). "
                  "One row is one such block. Command Start Time is the time the block stores, taken "
                  "from DateTime.Now: the local time of the computer that wrote the file, with no "
-                 "time zone or UTC offset recorded, shown as stored and not converted. Command Line "
-                 "is the line after the block exactly as stored. It begins with the prompt text: "
-                 "PS> when no prompt was captured "
+                 "time zone or UTC offset recorded, shown in that local time with separators added, "
+                 "not converted to another zone. Command Line is the line after the block as "
+                 "stored, without its line end. It begins with the prompt text: PS> when no prompt "
+                 "was captured "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/engine/hostifaces/MshHostUserInterface.cs#L1198), "
                  "otherwise the text the session's prompt function returned "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/engine/hostifaces/MshHostUserInterface.cs#L754-L757), "
-                 "which with PowerShell's default prompt is PS, the current location and >; a "
-                 "custom prompt can return anything, so the prompt is not split off. Output is "
-                 "every line after the command line up to the next block of asterisks or the end of "
-                 "the file, without the blank lines at its end, kept as stored, including lines "
-                 "PowerShell writes for further commands of the same input, which begin with >> "
+                 "which with PowerShell's default prompt is PS, the current location and >, as on "
+                 "every known-data row; a custom prompt can return anything, so the prompt is not "
+                 "split off. Output is every line after the command line up to the next block of "
+                 "asterisks or the end of the file, without the blank lines at its end, kept as "
+                 "stored with the lines joined by a line feed, including lines PowerShell writes "
+                 "for further commands of the same input, which begin with >> "
                  "(https://github.com/PowerShell/PowerShell/blob/7962a6ae10d99655405c172bccc890b063c54c41/src/System.Management.Automation/engine/hostifaces/MshHostUserInterface.cs#L452-L455). "
                  "Output holds at most the first 10,000 characters; Output Lines is the number of "
                  "lines it had in full, whether or not it was cut, and the run log counts the "
@@ -256,14 +263,14 @@ __artifacts_v2__ = {
                  "command line. Session Start Time, Machine and Username are those of the session "
                  "header the command follows, and are blank for a block that follows no header. On "
                  "windows11_arm_pstranscript_known_20261022 the 6 rows match the 6 commands typed "
-                 "in the session made with -IncludeInvocationHeader, start times, command lines and "
-                 "output included, the last being Stop-Transcript, and the two sessions made "
-                 "without it add none; Session Start Time, Machine and Username held one value on "
-                 "every row, as all six commands come from one session. plaso_testdata_f951fc6 "
-                 "gives no rows, as its files are kept under repository names; copied to transcript "
-                 "file names, its German transcript gives 2 rows and its English one none. A "
-                 "session without invocation headers adds no rows here, however many commands it "
-                 "holds.",
+                 "in the session made with -IncludeInvocationHeader, start times and command lines "
+                 "included, the last being Stop-Transcript (the output has no separate record in "
+                 "the known data), and the two sessions made without it add none; Session Start "
+                 "Time, Machine and Username held one value on every row, as all six commands come "
+                 "from one session. plaso_testdata_f951fc6 gives no rows, as its files are kept "
+                 "under repository names; copied to transcript file names, its German transcript "
+                 "gives 2 rows and its English one none. A session without invocation headers adds "
+                 "no rows here, however many commands it holds.",
         "paths": ('*/PowerShell_transcript.*.txt',),
         "output_types": ["standard"],
         "artifact_icon": "terminal",
@@ -542,17 +549,17 @@ def powershellTranscripts(context):
 
 @artifact_processor
 def powershellTranscriptCommands(context):
-    data_headers = ('Command Start Time (local, no zone recorded)', 'Command Line', 'Output',
-                    'Output Lines', 'Line Number', 'Session Start Time (local, no zone recorded)',
-                    'Machine', 'Username', 'Source File')
+    data_headers = ('Command Start Time (local, no zone recorded)',
+                    'Session Start Time (local, no zone recorded)', 'Command Line', 'Output',
+                    'Output Lines', 'Line Number', 'Machine', 'Username', 'Source File')
     data_list = []
     results, sources = _read_transcripts(context, 'PowerShell Transcript Commands')
     for relative, sessions, commands in results:
         for c in commands:
             session = sessions[c['session']] if c['session'] is not None else None
-            data_list.append((c['time'], c['command'], c['output'], c['output_lines'],
-                              c['line'],
+            data_list.append((c['time'],
                               session['start'] if session else '',
+                              c['command'], c['output'], c['output_lines'], c['line'],
                               session['machine'] if session else '',
                               session['username'] if session else '',
                               relative))

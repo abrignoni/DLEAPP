@@ -233,5 +233,21 @@ class ReadFilesTest(unittest.TestCase):
                          [('PowerShell_transcript.LABPC.abc.20250102030405.txt', 1)])
 
 
+class PathsTest(unittest.TestCase):
+    def test_declared_glob(self):
+        import fnmatch  # pylint: disable=import-outside-toplevel
+        pattern = pst.__artifacts_v2__['powershellTranscripts']['paths'][0]
+        self.assertEqual(pattern, pst.__artifacts_v2__['powershellTranscriptCommands']['paths'][0])
+        matching = [
+            'root/C/Users/tester/Documents/PowerShell_transcript.LABPC.ab+cd_ef.20250102030405.txt',
+            'root/C/Transcripts/20250102/PowerShell_transcript.LABPC.abcdefgh.20250102030405.txt',
+            'root/home/tester/PowerShell_transcript.labhost.abcdefgh.20250102030405.txt',
+        ]
+        other = ['root/C/Users/tester/Documents/transcript.txt',
+                 'root/C/Users/tester/Documents/PowerShell_transcript.LABPC.abc.20250102030405.log']
+        self.assertEqual([fnmatch.fnmatchcase(p, pattern) for p in matching], [True] * 3)
+        self.assertEqual([fnmatch.fnmatchcase(p, pattern) for p in other], [False] * 2)
+
+
 if __name__ == '__main__':
     unittest.main()
