@@ -569,7 +569,7 @@ __artifacts_v2__ = {
                  "24580 and 24660 to 24667. Error Code (as stored) held one value, 0x00000000, on every tested row "
                  "that has one, and so did Write Phase (as stored). "
                  "Volume held one value on each tested log where it is filled, a drive letter and a colon (E: on af_case2_win10), and "
-                 "Computer held one value on each. These records can come several at a time. On af_case2_win10 the "
+                 "Computer held one value on each of those logs and two on hexordia_mvs2025_win11. These records can come several at a time. On af_case2_win10 the "
                  "10 rows are for E: and lie within 0.2 seconds, in this order: 24664, 24665, 24666, 24665, 24660, "
                  "24666, 24664, 24665, 24665, 24667; all 10 are within one second of the one row the BitLocker "
                  "Management Events artifact reports for encryption being started on E: (768). What a finalization "

@@ -173,7 +173,7 @@ __artifacts_v2__ = {
                  "end removed. The four-image figures above do not include it. Reading needs the "
                  "python-evtx package (pip install python-evtx). Not read: the provider's other events. The four "
                  "tested logs hold 14,592 records of 108 other Event IDs."
-                 " On alihadi_challenge3_win81 (build 9600) Running for User SID is empty on all 654 rows: its records carry UserName and UserDomain and no UserSid.",
+                 " On alihadi_challenge3_win81 (build 9600) Running for User SID is empty on all 654 rows. Its 278 records of 607 carry UserName and UserDomain and no UserSid, and its 400 and 603 records carry no user field.",
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-AppXDeploymentServer%4Operational.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "package",

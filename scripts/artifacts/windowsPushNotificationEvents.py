@@ -319,7 +319,8 @@ __artifacts_v2__ = {
                  "many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not "
                  "read: the events these manifests send to the provider's Admin and Debug channels."
                  " Payload was empty on all 333 rows of evtx_baseline_nextron_085_win2022_0_20348_azure and all 146 of"
-                 " evtx_baseline_nextron_085_win2022_ad, whose records carry no Payload field."
+                 " evtx_baseline_nextron_085_win2022_ad, all 2,034 of ou_ransomware_server2022 and all 12 of"
+                 " alihadi_threatsim_server2019, whose records carry no Payload field."
                  " On alihadi_threatsim_server2019 Package and Process Name are empty on all 12 rows, whose records carry no PackageFullName or ProcessName.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-PushNotification-Platform%4Operational.evtx",),
         "output_types": ["standard"],

@@ -138,7 +138,7 @@ __artifacts_v2__ = {
                  "device class the log names, not only storage. Not reported: the DriverInbox, "
                  "DriverSection, DriverRank, OutrankedDrivers and DeviceUpdated fields of 400, "
                  "the LowerFilters and UpperFilters fields of 410, and the log's other events "
-                 "(403, 411, 430, 440, 442 on the registered images). A "
+                 "(403, 411, 412, 430, 440, 442 on the registered images). A "
                  "record python-evtx cannot render, or whose XML does not parse, is "
                  "counted in the run log and not reported; every record in this log "
                  "rendered on the registered images. Reading needs the python-evtx package "

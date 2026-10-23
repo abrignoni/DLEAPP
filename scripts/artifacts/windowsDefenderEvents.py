@@ -282,7 +282,7 @@ __artifacts_v2__ = {
                  "is on the registered Windows disk images listed here, in the two public samples or in the "
                  "windows11_arm_defender_eicar_known_20261018 log, so those two branches are unexercised on them; "
                  "8 records of 5004 are on the evtx_baseline_nextron_085 win10_client, win11_client, "
-                 "win11_client_2023, win2022_0_20348_azure and win2022_evtx keys and 3 on ou_ransomware_server2022. That log carries two 5013 records, written by platforms "
+                 "win11_client_2023, win2022_0_20348_azure and win2022_evtx keys and 3 on ou_ransomware_server2022. The windows11_arm_defender_eicar_known_20261018 log carries two 5013 records, written by platforms "
                  "4.18.25070.5 and 4.18.26080.4 before its known-data session. Product "
                  "Version is "
                  "the Product Version field. Field names are those of the provider "
