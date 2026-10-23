@@ -136,7 +136,7 @@ __artifacts_v2__ = {
                  "successfully', 211, 'The Winrm service is stopping', and 212, 'The Winrm service was stopped successfully', and 6 of 224. Of the other 64 events, 20 occur on evtx_baseline_nextron_085_win2022_0_20348_azure, "
                  "evtx_baseline_nextron_085_win2022_ad or evtx_baseline_nextron_085_win2022_evtx, among them 6, 'Creating "
                  "WSMan Session.', and 91, 'Creating WSMan shell on server with ResourceUri: %1', on all three, and "
-                 "the remaining 44 are unexercised. Event Time (UTC) is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
+                 "the remaining 44 occur on none of the images listed here. Event Time (UTC) is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a floating-point number, which can differ by microseconds "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). User SID is the UserID of the record's Security element. User SID held one value, "
                  "S-1-5-18, on lonewolf_win10, pc_mus_001_win11 and szechuan_win10; on af_case2_win10 it is S-1-5-18 on 56 rows, S-1-5-20 on the 36 rows of 208, 209, 211 and 212 and one S-1-5-21 account on 30 (12 of 145, 12 of 132 and"

@@ -660,9 +660,10 @@ __artifacts_v2__ = {
                  "not happen. Not reported: the System Level, Task, Opcode, Keywords, Channel, "
                  "Security UserID and Execution ProcessID and ThreadID of the records. Reading "
                  "needs the python-evtx package (pip install python-evtx)."
-                 " NewName was empty on every row of the six other evtx_baseline_nextron_085 keys, which hold no event"
-                 " 14 record, and User on all 54,283 rows of evtx_baseline_nextron_085_win7_x86, whose records carry "
-                 "no User field.",
+                 " NewName was empty on every row of the evtx_baseline_nextron_085 win7_x86, win10_client, "
+                 "win11_client_2023, win2022_0_20348_azure, win2022_ad and win2022_evtx keys, which hold no event 14 "
+                 "record; win11_client holds 3 event 14 records. User was empty on all 54,283 rows of "
+                 "evtx_baseline_nextron_085_win7_x86, whose records carry no User field.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Sysmon%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "database",

@@ -301,7 +301,7 @@ __artifacts_v2__ = {
                  "table occur, 30 of them on all four images and 14 on one image only. Of the other 61, 1310 occurs on "
                  "evtx_baseline_nextron_085_win11_client_2023 and 3054 on evtx_baseline_nextron_085_win10_client, "
                  "evtx_baseline_nextron_085_win11_client and evtx_baseline_nextron_085_win2022_0_20348_azure, and "
-                 "the remaining 59 are unexercised. Event Time (UTC) is the record's TimeCreated SystemTime, which "
+                 "the remaining 59 occur on none of the images listed here. Event Time (UTC) is the record's TimeCreated SystemTime, which "
                  "scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
                  "floating-point number, which can differ by microseconds ("

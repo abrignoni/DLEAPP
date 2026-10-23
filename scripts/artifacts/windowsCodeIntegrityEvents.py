@@ -311,7 +311,7 @@ __artifacts_v2__ = {
                  "occur on evtx_baseline_nextron_085_win7_x86, version 1 of 3004 on "
                  "evtx_baseline_nextron_085_win11_client_2023, version 1 of 3010 on evtx_baseline_nextron_085_win2022_ad "
                  "and evtx_baseline_nextron_085_win2022_evtx and version 0 of 3084 on "
-                 "evtx_baseline_nextron_085_win11_client, and the remaining 125 are unexercised. Event Time (UTC) "
+                 "evtx_baseline_nextron_085_win11_client, and the remaining 125 occur on none of the images listed here. Event Time (UTC) "
                  "is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME "
                  "the record stores with integer arithmetic, counted in UTC and cut to whole microseconds, in place "
                  "of python-evtx 0.8.1's conversion through a floating-point number, which can differ by "
