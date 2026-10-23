@@ -22,7 +22,7 @@ from scripts.ilapfuncs import (
     logfunc,
     open_sqlite_db_readonly,
 )
-from scripts.windows_registry import open_hive
+from scripts.windows_app_settings import open_settings, settings
 
 
 __artifacts_v2__ = {
@@ -92,10 +92,11 @@ __artifacts_v2__ = {
         "name": "Alarms",
         "description": "Windows Clock alarms from the modern packaged-app "
                        "settings hive or the older Alarms.json format, "
-                       "including scheduled, created, and updated times.",
+                       "including scheduled, created, and updated times and "
+                       "the time each alarm's settings value was written.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-22",
         "requirements": "python-registry",
         "category": "Windows Apps",
         "notes": "Modernized from WLEAPP and validated on "
@@ -104,9 +105,36 @@ __artifacts_v2__ = {
                  "and updated values are converted from Windows FILETIME. "
                  "Days of Week is reported as stored, undecoded. When the "
                  "source carries no IsRecurring value, Recurring is derived "
-                 "from a nonzero Days of Week value. The registry parser "
-                 "reads offline hives without loading them into the "
-                 "examiner system registry."
+                 "from a nonzero Days of Week value. The settings.dat hive "
+                 "is read offline, without loading it into the examiner "
+                 "system registry, and the alarm values of its "
+                 "LocalState\\Alarms key are decoded by DLEAPP's own "
+                 "scripts/windows_app_settings.py, from the type numbers and "
+                 "composite layout of python-registry's SettingsParse.py "
+                 "(Yogesh Khatri, MIT; "
+                 "https://github.com/williballenthin/python-registry/blob/4edb5d1b72597faf257878060aa68baa9c5b28df/Registry/SettingsParse.py#L38-L165). "
+                 "Value Written (UTC) is the FILETIME stored at the end of "
+                 "the alarm's value, which ogmini's Notepad-State-Library "
+                 "(MIT) describes as the time of the setting's change "
+                 "(https://github.com/ogmini/Notepad-State-Library/blob/ce53f9d66de4551fa78f3cb19df90d7820f08d94/README.md#L298-L307): "
+                 "when the value was written, not when the alarm is due; "
+                 "it is blank for Alarms.json rows. Until 2026-10-22 the "
+                 "values were decoded by python-registry, which drops that "
+                 "time; on windows11_arm_parallels both alarm rows are "
+                 "unchanged in every other column by the move, and on each "
+                 "the stored FILETIME of Value Written (UTC) equals those "
+                 "of its __Created and __Updated members; the report can "
+                 "show Value Written (UTC) one microsecond earlier, because "
+                 "the columns are converted by two routines. Created Time (UTC) and Updated "
+                 "Time (UTC) were identical on both rows of that image. A "
+                 "hive with no alarm values gives no rows; its path appears "
+                 "in the located-at list only when another file in the run "
+                 "gave rows. The Clock hives of hexordia_mvs2025_win11, "
+                 "alihadi_challenge3_win81 (2) and two of szechuan_win10's "
+                 "three have no LocalState\\Alarms key; those of "
+                 "af_case2_win10, lonewolf_win10, pc_mus_001_win11 and the "
+                 "third szechuan_win10 hive have the key with no values, and the "
+                 "Alarms.json of lonewolf_win10 holds an empty Alarms list."
                  " A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, "
@@ -128,8 +156,18 @@ __artifacts_v2__ = {
         "artifact_icon": "clock",
         "sample_data": {
             "windows11_arm_parallels": (
-                "Clock 11.2605.10.0 | 2 alarms"
+                "Clock 11.2605.10.0 | 2 rows"
             ),
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (LocalState\\Alarms key holds no values)",
+            "lonewolf_win10": "Windows 10 1709 build 16299 | 0 rows (LocalState\\Alarms key holds no values; Alarms.json holds an empty Alarms list)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (LocalState\\Alarms key holds no values)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (two hives have no LocalState\\Alarms key, the third's key holds no values)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (no LocalState\\Alarms key)",
+            "alihadi_challenge3_win81": "Windows 8.1 build 9600 | 0 rows (no LocalState\\Alarms key)",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (no file matches the declared paths)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 build 17763 | 0 rows (no file matches the declared paths)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 0 rows (no file matches the declared paths)",
+            "cfreds_leakage_win7": "Windows 7 SP1 build 7601 | 0 rows (no file matches the declared paths)",
         },
     },
 }
@@ -421,7 +459,7 @@ def _scheduled_local(alarm):
         return ""
 
 
-def _alarm_row(alarm, record_id, source_format, source):
+def _alarm_row(alarm, record_id, source_format, source, written=""):
     days = alarm.get("DaysOfWeek")
     recurring = alarm.get("IsRecurring")
     if recurring is None and days is not None:
@@ -439,6 +477,7 @@ def _alarm_row(alarm, record_id, source_format, source):
         _scheduled_local(alarm),
         _utc_from_filetime(alarm.get("__Created")),
         _utc_from_filetime(alarm.get("__Updated")),
+        written,
         _clean_text(alarm.get("Name")),
         alarm_time,
         _yes_no(alarm.get("IsEnabled")),
@@ -458,7 +497,7 @@ def _json_alarms(file_found):
         document = json.load(source)
     values = document.get("Alarms", []) if isinstance(document, dict) else []
     return [
-        (value, str(index))
+        (value, str(index), "")
         for index, value in enumerate(values)
         if isinstance(value, dict)
     ]
@@ -469,13 +508,21 @@ def _registry_alarms(file_found):
         raise RuntimeError(
             "python-registry is required to read Windows Clock settings.dat"
         )
-    hive = open_hive(file_found)
-    key = hive.open(r"LocalState\Alarms")
-    return [
-        (value.value(), value.name())
-        for value in key.values()
-        if isinstance(value.value(), dict)
-    ]
+    hive = open_settings(file_found)
+    try:
+        key = hive.open(r"LocalState\Alarms")
+    except Registry.RegistryKeyNotFoundException:
+        return []
+    alarms = []
+    for name, setting in settings(key).items():
+        if setting.type_name != "Composite":
+            continue
+        if not isinstance(setting.value, dict):
+            logfunc(f"Alarms: alarm {name} not decoded: {setting.error}")
+            continue
+        members = {member: item[1] for member, item in setting.value.items()}
+        alarms.append((members, name, setting.written))
+    return alarms
 
 
 @artifact_processor
@@ -484,6 +531,7 @@ def windowsAlarms(context):
         ("Next Scheduled Time (device local)", "datetime"),
         ("Created Time (UTC)", "datetime"),
         ("Updated Time (UTC)", "datetime"),
+        ("Value Written (UTC)", "datetime"),
         "Name",
         "Alarm Time (device local)",
         "Enabled",
@@ -514,6 +562,6 @@ def windowsAlarms(context):
             continue
         sources.append(file_found)
         source = context.get_relative_path(file_found)
-        for alarm, record_id in alarms:
-            rows.append(_alarm_row(alarm, record_id, source_format, source))
+        for alarm, record_id, written in alarms:
+            rows.append(_alarm_row(alarm, record_id, source_format, source, written))
     return data_headers, rows, "\n".join(sources)

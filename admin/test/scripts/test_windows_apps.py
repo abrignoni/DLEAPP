@@ -214,7 +214,8 @@ class TestWindowsApps(unittest.TestCase):
             datetime(1970, 1, 1, 0, 0, 1, tzinfo=timezone.utc),
             datetime(1970, 1, 1, 0, 0, 2, tzinfo=timezone.utc),
         ))
-        self.assertEqual(row[3:9], (
+        self.assertEqual(row[3], "")
+        self.assertEqual(row[4:10], (
             "DLEAPP-ALARM-TEST-001",
             "02:05",
             "Yes",
@@ -241,12 +242,14 @@ class TestWindowsApps(unittest.TestCase):
             _Context([alarms_path])
         )
 
-        self.assertEqual(headers[:3], (
+        self.assertEqual(headers[:4], (
             ("Next Scheduled Time (device local)", "datetime"),
             ("Created Time (UTC)", "datetime"),
             ("Updated Time (UTC)", "datetime"),
+            ("Value Written (UTC)", "datetime"),
         ))
-        self.assertEqual([row[3] for row in rows], ["one", "two"])
+        self.assertEqual([row[4] for row in rows], ["one", "two"])
+        self.assertEqual([row[3] for row in rows], ["", ""])
 
 
 if __name__ == "__main__":
