@@ -23,7 +23,7 @@ __artifacts_v2__ = {
                        'stored.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-22",
-        "last_update_date": "2026-10-22",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from two databases. The first is an '
+                 'read it. The measurements in these notes come from three databases. The first is an '
                  "EventTranscript.db from plaso's test data whose origin the source does not state. The "
                  'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
                  'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
@@ -57,17 +57,35 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
-                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
-                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
-                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
-                 'the events were written in time order, behind the clock, and the session\'s own events were not '
-                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
-                 'how long the delay is elsewhere is not established, and an event missing from the database '
-                 'does not show that it did not happen. On the known data too the timestamp equalled the '
-                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
-                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
-                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
+                 'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
+                 'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
+                 'times run forward, with 35 steps back of at most 1.2 seconds on the known data and 144 of at '
+                 'most 71.7 seconds on the second capture. On both the timestamp equalled the payload\'s time '
+                 'field on every row, and on this VM both trailed the VM\'s own clock by about 14 hours 10 minutes '
+                 '49 seconds: each step of the activity made for the known data (a winget install and uninstall '
+                 'of an application and a series of commands over SSH, logged with the VM\'s clock from 21:12 to '
+                 '21:26 UTC) is matched in both databases by events at the step\'s time less 14:10:49.1 to '
+                 '14:10:49.2, the offsets measured at the install and, separately, at the uninstall. On the second '
+                 'capture W32Time LastSynchedTime was 14:10:49.5 and 14:10:49.7 ahead of the stored time (events '
+                 'stored at 11:40 and 20:46 UTC), and the last wall-clock payload fields, in '
+                 'BrokerInfrastructure.TaskCompleted and Update Orchestrator events stored at 22:50 to 22:54 UTC, '
+                 '14:10:48.3 to 14:10:49.8. At the three clock changes that '
+                 'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
+                 'the clock and the stored time changed by the size of the change, so the stored time did not step '
+                 'with the clock. Why the stored time is offset is not established and it was observed on '
+                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
+                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
+                 'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
+                 'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
+                 'at the second capture the newest event, with the offset, was at most about 3 minutes older than '
+                 'the copy: the copy time on the VM was not logged, and the copied files reached the machine they '
+                 'were copied to 3 minutes after that corrected time. How long the delay is elsewhere is not established, and an event '
+                 'missing from the database does not show that it did not happen. The three databases have the '
+                 'same tables and columns except one: the producer name column is producer_id_text on the copy '
+                 'and producer_id_name on the known data and the second capture. Both are read; a producers table with neither leaves Producer blank and the run '
                  'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
                  'are shown by ID) without costing rows. '
                  "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
@@ -84,13 +102,15 @@ __artifacts_v2__ = {
                  "locale joined with ' / '); a tag ID with no stored description is shown as 'tag <n> (no "
                  "description stored)', a case the copy does not have. On the copy tag_descriptions held 6 names "
                  'and 9 of the 2,526 rows had no tag; on the known data tag_descriptions held the same 6 names and '
-                 '58 of the 2,136 rows had no tag. Producer is producers.producer_id_text or '
+                 '58 of the 2,136 rows had no tag, and on the second capture the same 6 names and 127 of the '
+                 '44,008 rows. Producer is producers.producer_id_text or '
                  'producers.producer_id_name, whichever the table has (Windows on 2,133 rows and Microsoft Edge on '
-                 '3 on the known data), and Provider Group GUID is provider_groups.group_guid. Trailing NUL '
+                 '3 on the known data, 43,528 and 480 on the second capture), and Provider Group GUID is provider_groups.group_guid. Trailing NUL '
                  'characters are removed from Friendly Logging Binary Name and nothing else is changed; on the copy '
                  '1,397 rows ended in exactly one NUL and none held a NUL elsewhere, and on the known data 158 rows '
-                 'held a NUL and none was left after the trailing ones were removed. User SID is as stored and was '
-                 'empty on 570 rows of the copy and 94 of the known data. Is Core, Event '
+                 'held a NUL and none was left after the trailing ones were removed (17,012 and none on the second '
+                 'capture). User SID is as stored and was empty on 570 rows of the copy, 94 of the known data and '
+                 '5,929 of the second capture. Is Core, Event '
                  'Keywords and Compressed Payload Size are the stored integers; the sources cited here do not '
                  'document their meaning (the SQLECmd map shows is_core 0 and 1 as No and Yes). Payload is the '
                  'stored JSON text; Rathbun and Mitchell list its top-level keys as ver, name, time, iKey, ext '
@@ -103,9 +123,10 @@ __artifacts_v2__ = {
                  "Microsoft.Windows.SRUM.Telemetry.AppTimelines and Census.Userdefault, which Abhiram Kumar's "
                  'EventTranscriptParser reads '
                  '(https://github.com/stuxnet999/EventTranscriptParser/blob/902eb3c773d5c0a63b0997ea0f1612e860f05c1c/EventTranscriptParser.py#L104-L230); '
-                 'the copy holds none of the first three and one Census.Userdefault event, the known data none of '
-                 'the four. Not reported: full_event_name_hash (the join key), extra1 to extra3 (empty on every row '
-                 'of both databases), and the categories and event_categories tables, which were empty on both, so '
+                 'the copy holds none of the first three and one Census.Userdefault event, the known data and the '
+                 'second capture none of the four. Not reported: full_event_name_hash (the join key), extra1 to '
+                 'extra3 (empty on every row of all three databases), and the categories and event_categories '
+                 'tables, which were empty on all three, so '
                  'how they are filled is not established.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
@@ -120,6 +141,7 @@ __artifacts_v2__ = {
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
             "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 2,136 rows',
+            "windows11_arm_eventtranscript_known_20261023": 'Windows 11 25H2 build 26200 | 44,008 rows',
         },
     },
     "eventTranscriptEdgeHistory": {
@@ -128,7 +150,7 @@ __artifacts_v2__ = {
                        'a navigation URL, a referrer URL or a page title, with the tab ID as stored.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-22",
-        "last_update_date": "2026-10-22",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
@@ -151,7 +173,7 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from two databases. The first is an '
+                 'read it. The measurements in these notes come from three databases. The first is an '
                  "EventTranscript.db from plaso's test data whose origin the source does not state. The "
                  'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
                  'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
@@ -162,17 +184,35 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
-                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
-                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
-                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
-                 'the events were written in time order, behind the clock, and the session\'s own events were not '
-                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
-                 'how long the delay is elsewhere is not established, and an event missing from the database '
-                 'does not show that it did not happen. On the known data too the timestamp equalled the '
-                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
-                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
-                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
+                 'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
+                 'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
+                 'times run forward, with 35 steps back of at most 1.2 seconds on the known data and 144 of at '
+                 'most 71.7 seconds on the second capture. On both the timestamp equalled the payload\'s time '
+                 'field on every row, and on this VM both trailed the VM\'s own clock by about 14 hours 10 minutes '
+                 '49 seconds: each step of the activity made for the known data (a winget install and uninstall '
+                 'of an application and a series of commands over SSH, logged with the VM\'s clock from 21:12 to '
+                 '21:26 UTC) is matched in both databases by events at the step\'s time less 14:10:49.1 to '
+                 '14:10:49.2, the offsets measured at the install and, separately, at the uninstall. On the second '
+                 'capture W32Time LastSynchedTime was 14:10:49.5 and 14:10:49.7 ahead of the stored time (events '
+                 'stored at 11:40 and 20:46 UTC), and the last wall-clock payload fields, in '
+                 'BrokerInfrastructure.TaskCompleted and Update Orchestrator events stored at 22:50 to 22:54 UTC, '
+                 '14:10:48.3 to 14:10:49.8. At the three clock changes that '
+                 'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
+                 'the clock and the stored time changed by the size of the change, so the stored time did not step '
+                 'with the clock. Why the stored time is offset is not established and it was observed on '
+                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
+                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
+                 'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
+                 'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
+                 'at the second capture the newest event, with the offset, was at most about 3 minutes older than '
+                 'the copy: the copy time on the VM was not logged, and the copied files reached the machine they '
+                 'were copied to 3 minutes after that corrected time. How long the delay is elsewhere is not established, and an event '
+                 'missing from the database does not show that it did not happen. The three databases have the '
+                 'same tables and columns except one: the producer name column is producer_id_text on the copy '
+                 'and producer_id_name on the known data and the second capture. Both are read; a producers table with neither leaves Producer blank and the run '
                  'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
                  'are shown by ID) without costing rows. '
                  "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
@@ -210,7 +250,16 @@ __artifacts_v2__ = {
                  '(https://github.com/rathbuna/EventTranscript.db-Research/blob/a07e42a8a4fc9bfbe1fbf1c500fa79d0d4de92ed/README.md#L222-L245); '
                  'the copy holds none. The known data holds no HistoryJournal event (checked by event name; its 3 '
                  'events with producer Microsoft Edge are Protobuf UMA events), and no Edge browsing was done for '
-                 'it, so this artifact is not exercised on build 26200.',
+                 'it. The second capture holds 71, all with logging binary msedge.exe and producer Microsoft Edge, '
+                 'written at times for which no activity was logged, so what produced them is not established and '
+                 'its rows were checked against their payloads, not against known activity. 49 qualified (HJ_HistoryAddUrlEx 9, HJ_BeforeNavigateExtended 7, '
+                 'HJ_HistoryAddUrl 7, HJ_NavigateCompleteExtended 7, HJ_PageContentInfo 7, '
+                 'HJ_PageContentInfo_DocChange 7, HJ_NavigateElementClicked 3, HJ_SendBeacon 2) and every '
+                 'reported field of each matched its payload. data.Timestamp was blank on the 7 '
+                 'HJ_PageContentInfo_DocChange rows, whose payloads have no Timestamp key, and on the other 42 '
+                 'was 14:10:39.8 to 14:10:49.8 later than Timestamp (UTC), the offset described above. As on the '
+                 'copy, HJ_HistoryAddUrlEx rows held a Page Title and no URL and HJ_HistoryAddUrl rows a URL and '
+                 'an empty title, and User SID held one value on all 49 rows.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "globe",
@@ -224,6 +273,7 @@ __artifacts_v2__ = {
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
             "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no HistoryJournal event in the database, checked by event name)',
+            "windows11_arm_eventtranscript_known_20261023": 'Windows 11 25H2 build 26200 | 49 rows (of 71 HistoryJournal events)',
         },
     },
     "eventTranscriptAppInteractivity": {
@@ -232,7 +282,7 @@ __artifacts_v2__ = {
                        'app, the aggregation period and the focus, activity and input counters the event stores.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-22",
-        "last_update_date": "2026-10-22",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
@@ -255,7 +305,7 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from two databases. The first is an '
+                 'read it. The measurements in these notes come from three databases. The first is an '
                  "EventTranscript.db from plaso's test data whose origin the source does not state. The "
                  'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
                  'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
@@ -266,17 +316,35 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
-                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
-                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
-                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
-                 'the events were written in time order, behind the clock, and the session\'s own events were not '
-                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
-                 'how long the delay is elsewhere is not established, and an event missing from the database '
-                 'does not show that it did not happen. On the known data too the timestamp equalled the '
-                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
-                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
-                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
+                 'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
+                 'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
+                 'times run forward, with 35 steps back of at most 1.2 seconds on the known data and 144 of at '
+                 'most 71.7 seconds on the second capture. On both the timestamp equalled the payload\'s time '
+                 'field on every row, and on this VM both trailed the VM\'s own clock by about 14 hours 10 minutes '
+                 '49 seconds: each step of the activity made for the known data (a winget install and uninstall '
+                 'of an application and a series of commands over SSH, logged with the VM\'s clock from 21:12 to '
+                 '21:26 UTC) is matched in both databases by events at the step\'s time less 14:10:49.1 to '
+                 '14:10:49.2, the offsets measured at the install and, separately, at the uninstall. On the second '
+                 'capture W32Time LastSynchedTime was 14:10:49.5 and 14:10:49.7 ahead of the stored time (events '
+                 'stored at 11:40 and 20:46 UTC), and the last wall-clock payload fields, in '
+                 'BrokerInfrastructure.TaskCompleted and Update Orchestrator events stored at 22:50 to 22:54 UTC, '
+                 '14:10:48.3 to 14:10:49.8. At the three clock changes that '
+                 'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
+                 'the clock and the stored time changed by the size of the change, so the stored time did not step '
+                 'with the clock. Why the stored time is offset is not established and it was observed on '
+                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
+                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
+                 'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
+                 'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
+                 'at the second capture the newest event, with the offset, was at most about 3 minutes older than '
+                 'the copy: the copy time on the VM was not logged, and the copied files reached the machine they '
+                 'were copied to 3 minutes after that corrected time. How long the delay is elsewhere is not established, and an event '
+                 'missing from the database does not show that it did not happen. The three databases have the '
+                 'same tables and columns except one: the producer name column is producer_id_text on the copy '
+                 'and producer_id_name on the known data and the second capture. Both are read; a producers table with neither leaves Producer blank and the run '
                  'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
                  'are shown by ID) without costing rows. '
                  "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
@@ -290,7 +358,8 @@ __artifacts_v2__ = {
                  "two Costas Katsavounidis's AppInteractivity.sql reads "
                  '(https://github.com/kacos2000/Queries/blob/e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/AppInteractivity.sql#L1-L3). '
                  'The copy holds only AppInteractivitySummary events, so Event Name held one value on all 152 '
-                 "rows and the AppInteractivity name is read but unexercised. Field meanings are that query's "
+                 'rows, and the second capture likewise holds 9 AppInteractivitySummary events and no '
+                 "AppInteractivity event, so the AppInteractivity name is read but unexercised. Field meanings are that query's "
                  "comments, which cite Microsoft's enhanced diagnostic data events page "
                  '(https://github.com/kacos2000/Queries/blob/e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/AppInteractivity.sql#L7), '
                  'a page that on 2026-10-22 redirected to a Microsoft Tech Community post on the retirement of '
@@ -307,16 +376,21 @@ __artifacts_v2__ = {
                  '(AppId), App Version (AppVersion) and App Session ID (AppSessionId) are reported as stored, by '
                  'key name. Aggregation Start Time is read as an ISO 8601 UTC time and a value that is not one is '
                  'shown as stored; on the copy all 152 were read, and Timestamp (UTC) was within 2.4 seconds of '
-                 "Aggregation Start Time plus Aggregation Duration on every row. App ID held 'W:', two "
+                 'Aggregation Start Time plus Aggregation Duration on every row. On the second capture all 9 were '
+                 'read, and Aggregation Start Time plus Aggregation Duration was 14:08:50.6 after Timestamp (UTC) '
+                 'on the 6 rows whose aggregation started before the +118.9 second clock change and 14:10:49.8 '
+                 'after it on the other 3, the offset described above. App ID held \'W:\', two '
                  "hexadecimal identifiers and an executable name on 127 rows and 'U:' with a package and app name "
-                 "on 25; the query reads the 'W:' identifiers as Amcache's ProgramId and FileId "
+                 "on 25 (6 and 3 on the second capture); the query reads the 'W:' identifiers as Amcache's ProgramId and FileId "
                  '(https://github.com/kacos2000/Queries/blob/e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/AppInteractivity.sql#L76-L84), '
                  'which is not checked here because the copy has no Amcache. A row records a period over which '
                  'the counters were aggregated for the app; on its own it does not give the time the program '
                  "started. The event's other counters (touch, pen, audio, window and monitor sizes and more) are "
                  'in its payload in Diagnostic Data Events. The known data holds no AppInteractivitySummary or '
                  'AppInteractivity event (checked by event name), and its activity was made over SSH with no '
-                 'foreground app use, so this artifact is not exercised on build 26200.',
+                 'foreground app use. The second capture\'s 9 rows were written at times for which no activity '
+                 'was logged, so what produced them is not established and they were checked against their payloads, where every reported field matched, and '
+                 'not against known activity; User SID held one value on all 9 rows.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "monitor",
@@ -330,6 +404,7 @@ __artifacts_v2__ = {
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
             "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no AppInteractivity or AppInteractivitySummary event in the database, checked by event name)',
+            "windows11_arm_eventtranscript_known_20261023": 'Windows 11 25H2 build 26200 | 9 rows',
         },
     },
     "eventTranscriptAppInventory": {
@@ -339,7 +414,7 @@ __artifacts_v2__ = {
                        'event stores.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-22",
-        "last_update_date": "2026-10-22",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
@@ -362,7 +437,7 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from two databases. The first is an '
+                 'read it. The measurements in these notes come from three databases. The first is an '
                  "EventTranscript.db from plaso's test data whose origin the source does not state. The "
                  'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
                  'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
@@ -373,17 +448,35 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
-                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
-                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
-                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
-                 'the events were written in time order, behind the clock, and the session\'s own events were not '
-                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
-                 'how long the delay is elsewhere is not established, and an event missing from the database '
-                 'does not show that it did not happen. On the known data too the timestamp equalled the '
-                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
-                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
-                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
+                 'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
+                 'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
+                 'times run forward, with 35 steps back of at most 1.2 seconds on the known data and 144 of at '
+                 'most 71.7 seconds on the second capture. On both the timestamp equalled the payload\'s time '
+                 'field on every row, and on this VM both trailed the VM\'s own clock by about 14 hours 10 minutes '
+                 '49 seconds: each step of the activity made for the known data (a winget install and uninstall '
+                 'of an application and a series of commands over SSH, logged with the VM\'s clock from 21:12 to '
+                 '21:26 UTC) is matched in both databases by events at the step\'s time less 14:10:49.1 to '
+                 '14:10:49.2, the offsets measured at the install and, separately, at the uninstall. On the second '
+                 'capture W32Time LastSynchedTime was 14:10:49.5 and 14:10:49.7 ahead of the stored time (events '
+                 'stored at 11:40 and 20:46 UTC), and the last wall-clock payload fields, in '
+                 'BrokerInfrastructure.TaskCompleted and Update Orchestrator events stored at 22:50 to 22:54 UTC, '
+                 '14:10:48.3 to 14:10:49.8. At the three clock changes that '
+                 'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
+                 'the clock and the stored time changed by the size of the change, so the stored time did not step '
+                 'with the clock. Why the stored time is offset is not established and it was observed on '
+                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
+                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
+                 'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
+                 'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
+                 'at the second capture the newest event, with the offset, was at most about 3 minutes older than '
+                 'the copy: the copy time on the VM was not logged, and the copied files reached the machine they '
+                 'were copied to 3 minutes after that corrected time. How long the delay is elsewhere is not established, and an event '
+                 'missing from the database does not show that it did not happen. The three databases have the '
+                 'same tables and columns except one: the producer name column is producer_id_text on the copy '
+                 'and producer_id_name on the known data and the second capture. Both are read; a producers table with neither leaves Producer blank and the run '
                  'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
                  'are shown by ID) without costing rows. '
                  "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
@@ -411,10 +504,16 @@ __artifacts_v2__ = {
                  '11 Remove rows has an Object Instance ID that an Add row in the same database also carries. Not '
                  'reported: InstallDateMsi, InstallDateFromLinkFile and InstallDateArpLastModified (empty lists '
                  'on all 17 Add rows), and the other inventory events (drivers, frameworks, device containers), '
-                 'which are in Diagnostic Data Events. The known data holds no InventoryApplicationAdd or '
-                 'InventoryApplicationRemove event (checked by event name): an application was installed and '
-                 'removed during the capture session, but those events were not in the database when it was copied, '
-                 'as described above, so this artifact is not exercised on build 26200.',
+                 'which are in Diagnostic Data Events. Neither the known data nor the second capture holds an '
+                 'InventoryApplicationAdd or InventoryApplicationRemove event (checked by event name), although an '
+                 'application was installed and removed with winget for the known data and both databases hold '
+                 'that session\'s events, as described above. There the install shows instead in '
+                 'Microsoft.PackageManager.Client events (SearchRequest, AppFound, ManifestFields, '
+                 'SelectedInstaller, InstallARPChange, SummaryV2), Microsoft.OSG.DU.DeliveryOptClient download '
+                 'events and a Win32kTraceLogging.Win32ProcDPIAwareness event from the installed program, and the '
+                 'uninstall in PackageManager.Client events and Win32kTraceLogging events from unins000.exe and '
+                 '_unins.tmp, all in Diagnostic Data Events. So this artifact is not exercised on build 26200, '
+                 'and an empty result here does not show that no application was installed.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -428,6 +527,7 @@ __artifacts_v2__ = {
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
             "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryApplicationAdd or Remove event in the database, checked by event name)',
+            "windows11_arm_eventtranscript_known_20261023": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryApplicationAdd or Remove event in the database, checked by event name)',
         },
     },
     "eventTranscriptDeviceInventory": {
@@ -436,7 +536,7 @@ __artifacts_v2__ = {
                        'database, with the device and driver values the Add event stores.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-22",
-        "last_update_date": "2026-10-22",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
@@ -459,7 +559,7 @@ __artifacts_v2__ = {
                  '(https://github.com/EricZimmerman/SQLECmd/blob/5839a5dbbc24285f8a0dfe769470d73a70a64d4b/SQLMap/Maps/Windows_EventTranscriptDB_NoDataSampling.smap#L215) '
                  'and plaso '
                  '(https://github.com/log2timeline/plaso/blob/f663c00cbc33ff930dd4f1e6297e4840192b5d39/plaso/parsers/sqlite_plugins/windows_eventtranscript.py#L172-L174) '
-                 'read it. The measurements in these notes come from two databases. The first is an '
+                 'read it. The measurements in these notes come from three databases. The first is an '
                  "EventTranscript.db from plaso's test data whose origin the source does not state. The "
                  'registered key plaso_testdata_f951fc6 keeps it at a repository path, which the declared path '
                  'does not match, so that key gives no rows; it was measured on a copy of the same database placed '
@@ -470,17 +570,35 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events timed 06:59 to 07:46 UTC, all before the activity made for the capture from 21:12 to 21:26 '
-                 'UTC the same day. In rowid order the event times run forward, with 35 steps back of at most 1.2 '
-                 'seconds. Three probe copies are noted in the capture\'s README as ending at events timed 07:04, '
-                 '07:10 and 07:40 UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept): '
-                 'the events were written in time order, behind the clock, and the session\'s own events were not '
-                 'in the database when it was copied at 21:57 UTC. That was observed on this capture only; '
-                 'how long the delay is elsewhere is not established, and an event missing from the database '
-                 'does not show that it did not happen. On the known data too the timestamp equalled the '
-                 "payload's time field on all 2,136 rows. The two databases have the same tables and columns "
-                 'except one: the producer name column is producer_id_text on the copy and producer_id_name on '
-                 'the known data. Both are read; a producers table with neither leaves Producer blank and the run '
+                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
+                 'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
+                 'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
+                 'times run forward, with 35 steps back of at most 1.2 seconds on the known data and 144 of at '
+                 'most 71.7 seconds on the second capture. On both the timestamp equalled the payload\'s time '
+                 'field on every row, and on this VM both trailed the VM\'s own clock by about 14 hours 10 minutes '
+                 '49 seconds: each step of the activity made for the known data (a winget install and uninstall '
+                 'of an application and a series of commands over SSH, logged with the VM\'s clock from 21:12 to '
+                 '21:26 UTC) is matched in both databases by events at the step\'s time less 14:10:49.1 to '
+                 '14:10:49.2, the offsets measured at the install and, separately, at the uninstall. On the second '
+                 'capture W32Time LastSynchedTime was 14:10:49.5 and 14:10:49.7 ahead of the stored time (events '
+                 'stored at 11:40 and 20:46 UTC), and the last wall-clock payload fields, in '
+                 'BrokerInfrastructure.TaskCompleted and Update Orchestrator events stored at 22:50 to 22:54 UTC, '
+                 '14:10:48.3 to 14:10:49.8. At the three clock changes that '
+                 'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
+                 'the clock and the stored time changed by the size of the change, so the stored time did not step '
+                 'with the clock. Why the stored time is offset is not established and it was observed on '
+                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
+                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
+                 'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
+                 'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
+                 'at the second capture the newest event, with the offset, was at most about 3 minutes older than '
+                 'the copy: the copy time on the VM was not logged, and the copied files reached the machine they '
+                 'were copied to 3 minutes after that corrected time. How long the delay is elsewhere is not established, and an event '
+                 'missing from the database does not show that it did not happen. The three databases have the '
+                 'same tables and columns except one: the producer name column is producer_id_text on the copy '
+                 'and producer_id_name on the known data and the second capture. Both are read; a producers table with neither leaves Producer blank and the run '
                  'log says so, and a missing lookup table or column leaves its column blank (tags with no stored name '
                  'are shown by ID) without costing rows. '
                  "A database that is present but cannot be opened or queried is logged as 'ERROR could not read', "
@@ -505,9 +623,10 @@ __artifacts_v2__ = {
                  'of the 5 Remove rows has an Object Instance ID that an Add row in the same database carries. '
                  'The other keys (COMPID, STACKID, ClassGuid, MatchingID, DriverId, the filter lists, '
                  'DeviceState, InstallState, ProblemCode and more) are in the payload in Diagnostic Data Events. '
-                 'The known data holds no InventoryDevicePnpAdd or InventoryDevicePnpRemove event (checked by event '
-                 'name), and no device was added or removed for it, so this artifact is not exercised on build '
-                 '26200.',
+                 'Neither the known data nor the second capture holds an InventoryDevicePnpAdd or '
+                 'InventoryDevicePnpRemove event (checked by event name); no device was added or removed for the '
+                 'known data, and whether one was between the two captures is not recorded, so this artifact is '
+                 'not exercised on build 26200.',
         "paths": ('*/ProgramData/Microsoft/Diagnosis/EventTranscript/EventTranscript.db*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
@@ -521,6 +640,7 @@ __artifacts_v2__ = {
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
             "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryDevicePnpAdd or Remove event in the database, checked by event name)',
+            "windows11_arm_eventtranscript_known_20261023": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryDevicePnpAdd or Remove event in the database, checked by event name)',
         },
     },
 }
