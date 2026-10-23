@@ -57,7 +57,8 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 'events with stored times 06:59 to 07:46 UTC, among them the events of the activity logged for it '
+                 '(the winget install at rowids 743 to 776 and the uninstall at rowids 1,438 to 1,447). The third is key '
                  "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
                  'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
                  'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
@@ -74,9 +75,14 @@ __artifacts_v2__ = {
                  '14:10:48.3 to 14:10:49.8. At the three clock changes that '
                  'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
                  'the clock and the stored time changed by the size of the change, so the stored time did not step '
-                 'with the clock. Why the stored time is offset is not established and it was observed on '
-                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
-                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'with the clock. On these two captures the stored event time trailed the VM\'s own clock by about '
+                 '14 hours 10 minutes 49 seconds, measured against logged actions and against wall-clock fields in '
+                 'payloads. Timestamp (UTC) is the time as stored and can differ from when the event happened; '
+                 'where a payload carries its own wall-clock field, compare the two before relying on either. The '
+                 'operator found the VM in the Parallels suspended state (prlctl list -i) at about 21:00 UTC on '
+                 '2026-10-22, just before the logged activity, and resumed it moments later; that observation is '
+                 'recorded in the capture README and no log of it was kept. Whether the suspend explains the '
+                 'offset is not established, and the offset was observed on this VM only. Three probe copies '
                  'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
                  'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
                  'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
@@ -140,7 +146,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
-            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 2,136 rows',
+            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 2,136 rows (the logged winget install at rowids 743 to 776 and uninstall at rowids 1,438 to 1,447 among them)',
             "windows11_arm_eventtranscript_known_20261023": 'Windows 11 25H2 build 26200 | 44,008 rows',
         },
     },
@@ -184,7 +190,8 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 'events with stored times 06:59 to 07:46 UTC, among them the events of the activity logged for it '
+                 '(the winget install at rowids 743 to 776 and the uninstall at rowids 1,438 to 1,447). The third is key '
                  "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
                  'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
                  'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
@@ -201,9 +208,14 @@ __artifacts_v2__ = {
                  '14:10:48.3 to 14:10:49.8. At the three clock changes that '
                  'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
                  'the clock and the stored time changed by the size of the change, so the stored time did not step '
-                 'with the clock. Why the stored time is offset is not established and it was observed on '
-                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
-                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'with the clock. On these two captures the stored event time trailed the VM\'s own clock by about '
+                 '14 hours 10 minutes 49 seconds, measured against logged actions and against wall-clock fields in '
+                 'payloads. Timestamp (UTC) is the time as stored and can differ from when the event happened; '
+                 'where a payload carries its own wall-clock field, compare the two before relying on either. The '
+                 'operator found the VM in the Parallels suspended state (prlctl list -i) at about 21:00 UTC on '
+                 '2026-10-22, just before the logged activity, and resumed it moments later; that observation is '
+                 'recorded in the capture README and no log of it was kept. Whether the suspend explains the '
+                 'offset is not established, and the offset was observed on this VM only. Three probe copies '
                  'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
                  'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
                  'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
@@ -316,7 +328,8 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 'events with stored times 06:59 to 07:46 UTC, among them the events of the activity logged for it '
+                 '(the winget install at rowids 743 to 776 and the uninstall at rowids 1,438 to 1,447). The third is key '
                  "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
                  'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
                  'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
@@ -333,9 +346,14 @@ __artifacts_v2__ = {
                  '14:10:48.3 to 14:10:49.8. At the three clock changes that '
                  'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
                  'the clock and the stored time changed by the size of the change, so the stored time did not step '
-                 'with the clock. Why the stored time is offset is not established and it was observed on '
-                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
-                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'with the clock. On these two captures the stored event time trailed the VM\'s own clock by about '
+                 '14 hours 10 minutes 49 seconds, measured against logged actions and against wall-clock fields in '
+                 'payloads. Timestamp (UTC) is the time as stored and can differ from when the event happened; '
+                 'where a payload carries its own wall-clock field, compare the two before relying on either. The '
+                 'operator found the VM in the Parallels suspended state (prlctl list -i) at about 21:00 UTC on '
+                 '2026-10-22, just before the logged activity, and resumed it moments later; that observation is '
+                 'recorded in the capture README and no log of it was kept. Whether the suspend explains the '
+                 'offset is not established, and the offset was observed on this VM only. Three probe copies '
                  'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
                  'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
                  'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
@@ -448,7 +466,8 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 'events with stored times 06:59 to 07:46 UTC, among them the events of the activity logged for it '
+                 '(the winget install at rowids 743 to 776 and the uninstall at rowids 1,438 to 1,447). The third is key '
                  "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
                  'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
                  'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
@@ -465,9 +484,14 @@ __artifacts_v2__ = {
                  '14:10:48.3 to 14:10:49.8. At the three clock changes that '
                  'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
                  'the clock and the stored time changed by the size of the change, so the stored time did not step '
-                 'with the clock. Why the stored time is offset is not established and it was observed on '
-                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
-                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'with the clock. On these two captures the stored event time trailed the VM\'s own clock by about '
+                 '14 hours 10 minutes 49 seconds, measured against logged actions and against wall-clock fields in '
+                 'payloads. Timestamp (UTC) is the time as stored and can differ from when the event happened; '
+                 'where a payload carries its own wall-clock field, compare the two before relying on either. The '
+                 'operator found the VM in the Parallels suspended state (prlctl list -i) at about 21:00 UTC on '
+                 '2026-10-22, just before the logged activity, and resumed it moments later; that observation is '
+                 'recorded in the capture README and no log of it was kept. Whether the suspend explains the '
+                 'offset is not established, and the offset was observed on this VM only. Three probe copies '
                  'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
                  'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
                  'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
@@ -526,7 +550,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": 'Windows 11 22H2 build 22621 | 0 rows (the EventTranscript folder holds no database)',
             "plaso_testdata_f951fc6": 'OS version not recorded | 0 rows (its EventTranscript.db is kept at a repository path, which the paths do not match)',
             "szechuan_win10": 'Windows 10 2004 build 19041 | 0 rows (the EventTranscript folder holds no database)',
-            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryApplicationAdd or Remove event in the database, checked by event name)',
+            "windows11_arm_eventtranscript_known_20261022": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryApplicationAdd or Remove event in the database, checked by event name; the logged install and uninstall are in it as winget PackageManager.Client events)',
             "windows11_arm_eventtranscript_known_20261023": 'Windows 11 25H2 build 26200 | 0 rows (no InventoryApplicationAdd or Remove event in the database, checked by event name)',
         },
     },
@@ -570,7 +594,8 @@ __artifacts_v2__ = {
                  "('the known data' below): Windows 11 25H2 build 26200 (ext.os.ver begins 10.0.26200.9711 on "
                  'every payload) with optional diagnostic data and the Diagnostic Data Viewer turned on in '
                  'Settings, the database with its -wal and -shm copied from a Volume Shadow Copy. It holds 2,136 '
-                 'events with stored times 06:59 to 07:46 UTC. The third is key '
+                 'events with stored times 06:59 to 07:46 UTC, among them the events of the activity logged for it '
+                 '(the winget install at rowids 743 to 776 and the uninstall at rowids 1,438 to 1,447). The third is key '
                  "windows11_arm_eventtranscript_known_20261023 ('the second capture' below), the same VM's "
                  'database copied the same way the next day: 44,008 events, 571 of them only in the -wal, whose '
                  'first 2,136 rows are identical by rowid and content to the known data. In rowid order the stored '
@@ -587,9 +612,14 @@ __artifacts_v2__ = {
                  '14:10:48.3 to 14:10:49.8. At the three clock changes that '
                  'KernelGeneral.SystemTimeChange recorded (+118.9, -5.6 and +5.4 seconds) the difference between '
                  'the clock and the stored time changed by the size of the change, so the stored time did not step '
-                 'with the clock. Why the stored time is offset is not established and it was observed on '
-                 'this VM only, so Timestamp (UTC) is the time as stored and can differ from when the event '
-                 'happened; where a payload carries its own wall-clock field, compare the two. Three probe copies '
+                 'with the clock. On these two captures the stored event time trailed the VM\'s own clock by about '
+                 '14 hours 10 minutes 49 seconds, measured against logged actions and against wall-clock fields in '
+                 'payloads. Timestamp (UTC) is the time as stored and can differ from when the event happened; '
+                 'where a payload carries its own wall-clock field, compare the two before relying on either. The '
+                 'operator found the VM in the Parallels suspended state (prlctl list -i) at about 21:00 UTC on '
+                 '2026-10-22, just before the logged activity, and resumed it moments later; that observation is '
+                 'recorded in the capture README and no log of it was kept. Whether the suspend explains the '
+                 'offset is not established, and the offset was observed on this VM only. Three probe copies '
                  'made for the known data, noted in its README as ending at events stored 07:04, 07:10 and 07:40 '
                  'UTC when taken at 21:16, 21:25 and 21:56 UTC (the probe outputs were not kept), were, with the '
                  'offset, about 1 to 6 minutes behind the clock (the README gives those times to the minute), and '
