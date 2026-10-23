@@ -1,9 +1,10 @@
 """What an extraction recorded about a staged Linux file, for DLEAPP artifacts that report a symbolic link rather
 than follow it.
 
-The seekers stage bytes. The tar seeker writes a symbolic link as an empty file, the zip seeker writes the target a
-stored link holds as the file's content, the folder seeker copies the file a link inside the input folder points to
-and returns, without staging anything, a link that resolves outside it, and the raw image seeker lists no links. So
+The seekers stage bytes. The tar seeker stages the member a link points to and returns, without staging anything, a
+link whose target the archive does not hold, the zip seeker writes the target a stored link holds as the file's
+content, the folder seeker copies the file a link inside the input folder points to and returns, without staging
+anything, a link that resolves outside it, and the raw image seeker lists no links. So
 an artifact that must not follow a link asks the seeker, or the input folder, what the source holds.
 """
 
