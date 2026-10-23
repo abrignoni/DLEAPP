@@ -1,7 +1,8 @@
 """Pin the Windows Error Reporting readers in scripts/artifacts/windowsErrorReporting.py.
 
 REPORT is shaped like the Report.wer files on the registered images: UTF-16 with a
-byte-order mark, one Key=Value pair per line, indexed Sig[n] and LoadedModule[n] fields.
+byte-order mark (builds 16299 and later) or UTF-16LE without one (builds 7601 and 9600),
+one Key=Value pair per line, indexed Sig[n] and LoadedModule[n] fields.
 The expected values are written out, never read back from the code.
 """
 import pathlib
@@ -49,6 +50,32 @@ class ReportTest(unittest.TestCase):
 
     def test_utf8_report(self):
         self.assertEqual(wer.read_report(b'\xef\xbb\xbfAppName=x\n')['AppName'], 'x')
+        self.assertEqual(wer.read_report(b'AppName=x\r\nEventType=y\r\n'),
+                         {'AppName': 'x', 'EventType': 'y'})
+
+    def test_utf16le_report_without_byte_order_mark(self):
+        # Every field of a no-mark UTF-16LE file used to be lost to a UTF-8 decode.
+        data = REPORT[2:]
+        self.assertFalse(data.startswith((b'\xff\xfe', b'\xfe\xff')))
+        self.assertEqual(wer.report_encoding(data), 'utf-16-le')
+        self.assertEqual(wer.read_report(data), wer.read_report(REPORT))
+        fields = wer.read_report(data)
+        self.assertEqual(fields['EventType'], 'APPCRASH')
+        self.assertEqual(wer.loaded_modules(fields)[1], 'C:\\Windows\\SYSTEM32\\ntdll.dll')
+
+    def test_utf16le_report_with_non_latin_text(self):
+        data = 'AppName=\u30c6\u30b9\u30c8\r\nAppPath=C:\\x.exe\r\n'.encode('utf-16-le')
+        self.assertEqual(wer.read_report(data)['AppName'], '\u30c6\u30b9\u30c8')
+
+    def test_utf16be_report_without_byte_order_mark(self):
+        data = 'AppName=x\r\nEventType=y\r\n'.encode('utf-16-be')
+        self.assertEqual(wer.report_encoding(data), 'utf-16-be')
+        self.assertEqual(wer.read_report(data), {'AppName': 'x', 'EventType': 'y'})
+
+    def test_byte_order_marks(self):
+        self.assertEqual(wer.read_report('AppName=x\r\n'.encode('utf-16'))['AppName'], 'x')
+        self.assertEqual(wer.read_report(b'\xfe\xff' + 'AppName=x\r\n'.encode('utf-16-be')),
+                         {'AppName': 'x'})
 
 
 class TimeTest(unittest.TestCase):
