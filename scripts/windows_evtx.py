@@ -106,6 +106,19 @@ elements with no substitutions, and gives an entity reference such as &amp; its
 character, because python-evtx's XML view escapes what the reference returns
 (https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Views.py#L143-L144),
 which turned & into &amp;amp;.
+
+python-evtx 0.8.1 decodes every UTF-16 string strictly (Block.unpack_wstring,
+https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L483-L498),
+so a string that does not decode as UTF-16, such as one holding a high
+surrogate with no low surrogate after it, raises UnicodeDecodeError and its
+record does not render. This module decodes a string read through
+Block.unpack_wstring with Python's 'replace' error handler instead, which puts
+U+FFFD in place of what does not decode, and log_records writes to the run log
+how many strings of a log were read that way. A string inside an array of
+UTF-16 strings is decoded by python-evtx's WstringArrayTypeNode.string
+(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L1554),
+which this module leaves strict, so a record holding such a string there still
+does not render.
 """
 
 import os
@@ -319,9 +332,35 @@ def _install_entity_characters():
     node_class.entity_reference = entity_reference
 
 
+# How many UTF-16 strings have been read with replacement characters, for the run log.
+_replaced_strings = [0]
+
+
+def _install_wstring_replacement():
+    """Read a UTF-16 string that does not decode with U+FFFD in place of each code unit that does not."""
+    block_class = evtx_binary.Block if evtx_binary is not None else None
+    if block_class is None or getattr(block_class.unpack_wstring, 'dleapp_records', False):
+        return
+    original = block_class.unpack_wstring
+
+    def unpack_wstring(self, offset, length):
+        try:
+            return original(self, offset, length)
+        except UnicodeDecodeError:
+            start = self._offset + offset  # pylint: disable=protected-access
+            _replaced_strings[0] += 1
+            return bytes(self._buf[start:start + 2 * length]).decode(  # pylint: disable=protected-access
+                'utf16', errors='replace')
+
+    unpack_wstring.dleapp_records = True
+    unpack_wstring.original = original
+    block_class.unpack_wstring = unpack_wstring
+
+
 _install_element_without_dependency_id()
 _install_root_without_template()
 _install_entity_characters()
+_install_wstring_replacement()
 
 _SYSTEM_TIME = re.compile(
     r'^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.(\d+))?\s*(Z|[+-]\d{2}:\d{2})?$',
@@ -474,7 +513,11 @@ def log_records(log, label='', relative_source='', stale_header=True):
     counted chunks: when the header's next record number is not above the highest
     record number those chunks hold. With stale_header=False, such a log is read
     exactly as python-evtx reads it.
+
+    The run log also says how many UTF-16 strings the records read held that did
+    not decode (_install_wstring_replacement).
     """
+    replaced_before = _replaced_strings[0]
     header = log.get_file_header()
     counted = header.chunk_count()
     dirty = header.is_dirty()
@@ -531,6 +574,10 @@ def log_records(log, label='', relative_source='', stale_header=True):
         if stopped:
             message += f'; {stopped} of those chunk(s) stopped parsing part way through'
         logfunc(message)
+    replaced = _replaced_strings[0] - replaced_before
+    if replaced:
+        logfunc(f'{label}: {replaced} UTF-16 string(s) in {relative_source} did not decode and were read with '
+                'U+FFFD in place of what did not')
 
 
 def read_event_records(context, file_name, label, event_ids=None, provider=None):
