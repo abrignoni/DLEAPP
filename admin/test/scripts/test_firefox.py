@@ -169,6 +169,45 @@ class FirefoxTest(unittest.TestCase):
                                       32, 0, 1, 4, 7))
         self.assertEqual(root, ('', '', '', 'https://example.test/favicon.ico', 65535, 1, 0, 1, 8))
 
+    def test_favicons_before_schema_78_has_no_flags(self):
+        """A moz_icons table from before the schema 78 migration reads, with Flags blank."""
+        self.db.executescript('''
+            CREATE TABLE moz_pages_w_icons(id INTEGER PRIMARY KEY, page_url TEXT NOT NULL,
+                page_url_hash INTEGER NOT NULL);
+            CREATE TABLE moz_icons(id INTEGER PRIMARY KEY, icon_url TEXT NOT NULL,
+                fixed_icon_url_hash INTEGER NOT NULL, width INTEGER NOT NULL DEFAULT 0,
+                root INTEGER NOT NULL DEFAULT 0, color INTEGER,
+                expire_ms INTEGER NOT NULL DEFAULT 0, data BLOB);
+            CREATE TABLE moz_icons_to_pages(page_id INTEGER NOT NULL, icon_id INTEGER NOT NULL,
+                expire_ms INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (page_id, icon_id)) WITHOUT ROWID;
+            INSERT INTO moz_pages_w_icons VALUES(1, 'https://example.test/page', 0);
+            INSERT INTO moz_icons VALUES(7, 'https://cdn.example.test/icon.png', 0, 32, 0, NULL,
+                1704067200123, X'00010203');
+            INSERT INTO moz_icons VALUES(8, 'https://example.test/favicon.ico', 0, 16, 1, NULL, 0, X'AA');
+            INSERT INTO moz_icons_to_pages VALUES(1, 7, 1704153600000);
+        ''')
+        linked, root = list(firefox.favicons(self.db))
+        self.assertEqual(linked[0], datetime(2024, 1, 1, 0, 0, 0, 123000, tzinfo=timezone.utc))
+        self.assertEqual(linked[1], datetime(2024, 1, 2, tzinfo=timezone.utc))
+        self.assertEqual(linked[2:], ('https://example.test/page', 'https://cdn.example.test/icon.png',
+                                      32, 0, None, 4, 7))
+        self.assertEqual(root, ('', '', '', 'https://example.test/favicon.ico', 16, 1, None, 1, 8))
+
+    def test_favicons_reads_blank_for_any_missing_column(self):
+        """Every column read is resolved from the table, not only flags."""
+        self.db.executescript('''
+            CREATE TABLE moz_pages_w_icons(id INTEGER PRIMARY KEY);
+            CREATE TABLE moz_icons(id INTEGER PRIMARY KEY);
+            CREATE TABLE moz_icons_to_pages(page_id INTEGER, icon_id INTEGER);
+            INSERT INTO moz_pages_w_icons VALUES(1);
+            INSERT INTO moz_icons VALUES(7);
+            INSERT INTO moz_icons VALUES(8);
+            INSERT INTO moz_icons_to_pages VALUES(1, 7);
+        ''')
+        self.assertEqual(list(firefox.favicons(self.db)),
+                         [('', '', None, None, None, None, None, None, 7),
+                          ('', '', '', None, None, None, None, None, 8)])
+
     def test_snappy_raw_follows_the_format_description(self):
         """The spec's own example, a long literal, a 2-byte offset copy, and malformed streams."""
         self.assertEqual(firefox.snappy_raw_uncompress(b'\x07\x08xab\x01\x02'), b'xababab')
