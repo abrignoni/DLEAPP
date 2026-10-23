@@ -111,10 +111,14 @@ python-evtx 0.8.1 decodes every UTF-16 string strictly (Block.unpack_wstring,
 https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L483-L498),
 so a string that does not decode as UTF-16, such as one holding a high
 surrogate with no low surrogate after it, raises UnicodeDecodeError and its
-record does not render. This module decodes such a string with Python's
-'replace' error handler instead, which puts U+FFFD in place of what does not
-decode, and log_records writes to the run log how many strings of a log were
-read that way.
+record does not render. This module decodes a string read through
+Block.unpack_wstring with Python's 'replace' error handler instead, which puts
+U+FFFD in place of what does not decode, and log_records writes to the run log
+how many strings of a log were read that way. A string inside an array of
+UTF-16 strings is decoded by python-evtx's WstringArrayTypeNode.string
+(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/Nodes.py#L1554),
+which this module leaves strict, so a record holding such a string there still
+does not render.
 """
 
 import os
