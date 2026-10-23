@@ -52,8 +52,8 @@ __artifacts_v2__ = {
                  "hold no live file by that name. A row shows that a path was in the file when it was acquired; it "
                  "gives no time, and by itself does not show that the program ran. Not exercised on real data: a "
                  "damaged file, tested with constructed input, and an input other than a raw image or E01: for a "
-                 "tar File Last Written is the member's recorded modified time, for a zip its extended timestamp "
-                 "when present, and for a folder or single file the modified time of the examiner's copy.",
+                 "tar File Last Written is the member's recorded modified time, for a zip its NTFS or extended "
+                 "timestamp field when present, and for a folder or single file the modified time of the examiner's copy.",
         "paths": ('*/Windows/AppCompat/Programs/RecentFileCache.bcf',),
         "output_types": "standard",
         "artifact_icon": "list",
