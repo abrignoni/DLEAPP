@@ -119,8 +119,8 @@ __artifacts_v2__ = {
                  " On evtx_baseline_nextron_085_win7_x86 Update Title, Update ID, Revision Number, Service ID and "
                  "Update Count were empty on all 68 rows, whose records carry none of those fields. Error Code (as "
                  "stored) held a value on each of the 12 rows of 25 there and on no other row: those records "
-                 "carry errorCode in UserData as one element whose own text is the value, and evtx 0.13.1 reads "
-                 "the same value from each of the 12 records.",
+                 "carry errorCode in UserData as one element whose own text is the value, and the evtx Python "
+                 "package (pyevtx-rs) 0.13.1 reads the same value from each of the 12 records.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-WindowsUpdateClient%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "download",

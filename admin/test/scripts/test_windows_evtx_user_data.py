@@ -1,8 +1,8 @@
 """Pin how scripts/windows_evtx.py's EventRecord reads each shape of UserData.
 
-The records are XML of the shape python-evtx renders (made-up names and values). The first test is the one
-that fails without the reading of an element that holds its value as its own text; the others pin the shapes
-that read the same as before it.
+The records are XML of the shape python-evtx renders (made-up names and values). Four of the LeafElementTest
+tests fail without the reading of an element that holds its value as its own text (the empty element read the
+same before). ShapesReadAsBeforeTest pins the shapes that read the same as before it.
 """
 import pathlib
 import sys

@@ -89,8 +89,8 @@ holds directly, so an element that holds further elements gives only that text;
 when a name repeats, the field holds the last value and the values hold all of
 them. An element that holds no elements and has text is itself the one value and
 the field of its own name; Microsoft-Windows-WindowsUpdateClient event 25 stores
-errorCode that way on evtx_baseline_nextron_085_win7_x86. Attributes and any
-element after the first are not read.
+errorCode that way on evtx_baseline_nextron_085_win7_x86. In UserData,
+attributes and any element after the first are not read.
 
 python-evtx 0.8.1 turns a FILETIME (the record's TimeCreated and any FILETIME
 value) into a datetime through a floating-point number, float(qword) * 1e-7
