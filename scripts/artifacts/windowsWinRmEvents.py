@@ -133,15 +133,21 @@ __artifacts_v2__ = {
                  " logs of four public images (af_case2_win10, build 17763; lonewolf_win10, build 16299; pc_mus_001_win11, build 22621; szechuan_win10, build 19041), which gave 122, 36, 168 and 32 rows in that order; the two captures "
                  "of a Windows 11 build 26200 machine hold no such log. Every image has rows of 145, 'WSMan operation %1 started with resourceUri %2' (27, 9, 42 and 8), 142, 'WSMan operation %1 failed, error code %2', 161 and 254, "
                  "'Activity Transfer' (13, 9, 42 and 8 of each). af_case2_win10 also has 14 rows of 132, 'WSMan operation %1 completed successfully', 9 each of 208, 'The Winrm service is starting', 209, 'The Winrm service started "
-                 "successfully', 211, 'The Winrm service is stopping', and 212, 'The Winrm service was stopped successfully', and 6 of 224. The other 64 events are unexercised, among them 6, 'Creating WSMan Session.', and 91, "
-                 "'Creating WSMan shell on server with ResourceUri: %1'. Event Time (UTC) is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
+                 "successfully', 211, 'The Winrm service is stopping', and 212, 'The Winrm service was stopped successfully', and 6 of 224. Of the other 64 events, 20 occur on evtx_baseline_nextron_085_win2022_0_20348_azure, "
+                 "evtx_baseline_nextron_085_win2022_ad or evtx_baseline_nextron_085_win2022_evtx, among them 6, 'Creating "
+                 "WSMan Session.', and 91, 'Creating WSMan shell on server with ResourceUri: %1', on all three, and "
+                 "the remaining 44 are unexercised. Event Time (UTC) is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a floating-point number, which can differ by microseconds "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). User SID is the UserID of the record's Security element. User SID held one value, "
                  "S-1-5-18, on lonewolf_win10, pc_mus_001_win11 and szechuan_win10; on af_case2_win10 it is S-1-5-18 on 56 rows, S-1-5-20 on the 36 rows of 208, 209, 211 and 212 and one S-1-5-21 account on 30 (12 of 145, 12 of 132 and"
                  " the 6 of 224). Record ID is the record's EventRecordID and Computer the machine name the record stores, which held one value on af_case2_win10 and pc_mus_001_win11, two on lonewolf_win10 and three on szechuan_win10."
                  " Rows are in the order the file holds them, which was rising Record ID on every tested log; in time order 1 row each of af_case2_win10 and lonewolf_win10 is earlier than the row before it. Every record of the tested "
                  "logs rendered and is the provider's. A record python-evtx cannot render, or whose XML does not parse, is counted in the run log and not reported. A log marked dirty is read past the chunks its header counts, and the "
-                 "run log says how many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not read: the events these manifests send to the provider's Analytic and Debug channels.",
+                 "run log says how many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not read: the events these manifests send to the provider's Analytic and Debug channels."
+                 " Related Activity ID was empty on all 126 rows of evtx_baseline_nextron_085_win2022_0_20348_azure, "
+                 "the 283 of evtx_baseline_nextron_085_win2022_ad and the 68 of "
+                 "evtx_baseline_nextron_085_win2022_evtx, which hold no 254 record and no record with a "
+                 "RelatedActivityID.",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 122 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 36 rows",
@@ -149,6 +155,13 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 32 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no records)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 44 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 24 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 84 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 126 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 283 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 68 rows",
         },
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-WinRM%4Operational.evtx",),
         "output_types": ["standard"],

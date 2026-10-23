@@ -183,6 +183,11 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 548 rows",
             "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | "
                                                            "1,040 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 826 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 579 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 352 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 167 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 179 rows",
         },
     },
 }

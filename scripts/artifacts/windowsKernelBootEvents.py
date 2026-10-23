@@ -144,7 +144,8 @@ __artifacts_v2__ = {
                  "124 on pc_mus_001_win11 (4 rows) and 247 on the captures (64 rows each). Every 20 and 27 record is "
                  "version 1, and the 238 records are version 0 on szechuan_win10 and version 1 on the others; each "
                  "tested record's field names were the names the manifest lists for its event and version, in the "
-                 "manifest's order. The other 23 Event IDs, and version 0 of 20 and of 27, are unexercised: they are "
+                 "manifest's order. Of the other 23 Event IDs, 156 occurs on evtx_baseline_nextron_085_win11_client_2023 "
+                 "(4 records); the remaining 22, and version 0 of 20 and of 27, are unexercised: they are "
                  "read by the field names the manifest lists, which no tested record confirms for them. What a Boot "
                  "Type (as stored) number stands for is not sourced here. It is 0 on 19, 4, 11, 7, 77 and 77 rows of "
                  "27 in the order of the logs above and 2 on the other 9 rows of lonewolf_win10. Load Options is "
@@ -186,6 +187,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 72 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 146 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 48 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 41 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 27 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 32 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 24 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 33 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 29 rows",
         },
     },
 }

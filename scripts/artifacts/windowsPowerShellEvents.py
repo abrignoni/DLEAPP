@@ -127,7 +127,9 @@ __artifacts_v2__ = {
                  "event source (Event ID 104), and pipeline execution details (800), which "
                  "the PowerShell Pipeline Execution Details artifact reports. Events 401, 402 "
                  "and 601 are read but appear on none of the registered images. Reading needs "
-                 "the python-evtx package (pip install python-evtx).",
+                 "the python-evtx package (pip install python-evtx)."
+                 " On evtx_baseline_nextron_085_win7_x86 Host Application was empty on all 127 rows: the context text "
+                 "of none of its records holds a HostApplication line.",
         "paths": ("*/Windows/System32/winevt/Logs/Windows PowerShell.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "terminal",
@@ -136,6 +138,13 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 154 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 48 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 15 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 127 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 47 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 64 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 309 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 122 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 110 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 54 rows",
         },
     },
     "powershellPipelineExecution": {
@@ -195,6 +204,13 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no 800 or 4103 records)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no 800 or 4103 records)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 159 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 95 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 52 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
         },
     },
     "powershellScriptBlocks": {
@@ -264,6 +280,13 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 4 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
             "szechuan_win10": "Windows 10 2004 build 19041 | 3 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no records)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 42 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 20 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 68 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 3 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 4 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 2 rows",
         },
     },
     "powershellConsoleEvents": {
@@ -315,6 +338,13 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 56 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 19 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 6 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no records)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 18 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 24 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 118 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 22 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 6 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 9 rows",
         },
     },
 }

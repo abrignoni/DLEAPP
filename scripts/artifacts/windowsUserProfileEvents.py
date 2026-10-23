@@ -66,7 +66,9 @@ __artifacts_v2__ = {
                  "not reported: the log's other events, of which the tested images carried one, a 59 on "
                  "szechuan_win10. A record python-evtx cannot render, or whose XML does not parse, is "
                  "counted in the run log and not reported; every record in this log rendered on the tested "
-                 "images. Reading needs the python-evtx package (pip install python-evtx).",
+                 "images. Reading needs the python-evtx package (pip install python-evtx)."
+                 " On evtx_baseline_nextron_085_win7_x86 Logon Type, Profile Location and Profile Type were empty on "
+                 "all 27 rows, records of 1, 3 and 5, which carry none of those fields.",
         "paths": ("*/Windows/System32/winevt/Logs/"
                   "Microsoft-Windows-User Profile Service%4Operational.evtx",),
         "output_types": ["standard"],
@@ -76,6 +78,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 25 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 54 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 60 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 27 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 40 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 25 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 49 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 24 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 19 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 19 rows",
         },
     },
 }

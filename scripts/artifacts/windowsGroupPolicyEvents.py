@@ -248,8 +248,10 @@ __artifacts_v2__ = {
                  "IsDomainJoined is True (13 of its 21 records of 4000 to 4005). Among those 22 are the domain "
                  "controller, computer and account details (5308, 5309 and 5310, 12 records each) and manual policy "
                  "processing (4004 and 4005, 3 and 1). The DescriptionString of 5312 held text on each of the 83 "
-                 "tested records, and its GPOInfoList held a GPO element on 5 records of szechuan_win10. The other "
-                 "95 Event IDs are unexercised. Event Time (UTC) is the record's TimeCreated SystemTime, which "
+                 "tested records, and its GPOInfoList held a GPO element on 5 records of szechuan_win10. Of the other "
+                 "95 Event IDs, 5315 occurs on evtx_baseline_nextron_085_win7_x86 and evtx_baseline_nextron_085_win2022_ad "
+                 "and 4006, 6314, 7326 and 8006 on evtx_baseline_nextron_085_win2022_ad alone, and the remaining 90 are "
+                 "unexercised. Event Time (UTC) is the record's TimeCreated SystemTime, which "
                  "scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
                  "floating-point number, which can differ by microseconds ("
@@ -277,6 +279,13 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 727 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 209 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 492 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 231 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 1,279 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 270 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 898 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 217 rows",
         },
     },
 }

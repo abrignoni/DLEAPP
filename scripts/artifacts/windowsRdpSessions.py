@@ -123,6 +123,13 @@ __artifacts_v2__ = {
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 43 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 1832 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 77 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 21 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 37 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 22 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 49 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 34 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 19 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 19 rows",
         },
     },
 }

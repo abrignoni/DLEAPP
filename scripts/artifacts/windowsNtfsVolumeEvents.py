@@ -93,6 +93,13 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 24 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 10 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 14 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 20 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 8 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 8 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 9 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 10 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 16 rows",
         },
     },
 }

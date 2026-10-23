@@ -78,11 +78,13 @@ __artifacts_v2__ = {
                  "updateCount and errorCode fields, which the manifests type as win:UnicodeString, win:GUID, "
                  "win:UInt32, win:GUID, win:UInt32 and win:HexInt32. Version 1 of 31 and 41 carries updateTitle, "
                  "which version 0 does not, and version 1 of 25, 26 and 40 carries serviceGuid. A field a record "
-                 "does not carry is left blank. Only 26 and 41 occur on the tested logs, every record of them "
+                 "does not carry is left blank. Only 26 and 41 occur on the logs of the four images, every record of them "
                  "version 1: 221 rows of 26 ('Windows Update successfully found %1 updates.'), with an Update Count "
                  "from 0 to 48 and a Service ID on each, and 254 rows of 41 ('An update was downloaded.'), each with "
                  "an Update Title, an Update ID in braces and a decimal Revision Number. Error Code (as stored) and "
-                 "Other Fields were blank on every tested row. The other 12 Event IDs are unexercised. 181 of the "
+                 "Other Fields were blank on every row of the four images. Of the other 12 Event IDs, version 0 of "
+                 "25, 30, 39 and 42 occurs on evtx_baseline_nextron_085_win7_x86 and version 1 of 31 on "
+                 "evtx_baseline_nextron_085_win2022_ad, and the remaining 7 are unexercised. 181 of the "
                  "254 titles are 12 capital letters and digits, a hyphen and a package name (such as "
                  "9WZDNCRFJBMP-Microsoft.WindowsStore), and 21 hold a KB number in parentheses. Service ID held four "
                  "values over the 221 rows of 26: {8b24b027-1dee-babb-9a95-3517dfb9c552} on 83, "
@@ -111,7 +113,9 @@ __artifacts_v2__ = {
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
                  "reported. A log marked dirty is read past the chunks its header counts, and the run log says how "
                  "many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not "
-                 "read: the events these manifests send to the provider's Analytic channel.",
+                 "read: the events these manifests send to the provider's Analytic channel."
+                 " On evtx_baseline_nextron_085_win7_x86 Update Title, Update ID, Revision Number, Service ID and "
+                 "Update Count were empty on all 68 rows, whose records carry none of those fields.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-WindowsUpdateClient%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "download",
@@ -122,6 +126,13 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 87 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 68 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 120 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 54 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 61 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 20 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 14 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 32 rows",
         },
     },
 }

@@ -96,9 +96,11 @@ __artifacts_v2__ = {
                  "on every row of af_case2_win10 and pc_mus_001_win11. A row records that the Service Control "
                  "Manager logged the change with that SID; it does not show which program or command made it. The "
                  "provider's other events are not read here: 7045 is in Windows Service Installations and eleven "
-                 "failure events are in Service Failures, and no tested log holds a 7035 or 7036 record (a control "
-                 "sent to a service, a service entering a state; "
-                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Service%20Control%20Manager.xml#L426-L451). "
+                 "failure events are in Service Failures, and 7035 and 7036 (a control sent to a service, a service "
+                 "entering a state; "
+                 "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Service%20Control%20Manager.xml#L426-L451) "
+                 "are not read either: no tested log holds a 7035, and 7036 records are on the evtx_baseline_nextron_085 "
+                 "win7_x86, win2022_0_20348_azure, win2022_ad and win2022_evtx keys. "
                  "A record python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
                  "reported; every record of the tested logs rendered, among them the 72 TPM event 27 records of the "
                  "capture's log, which python-evtx renders only with the array value types scripts/windows_evtx.py "
@@ -114,6 +116,13 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 30 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 27 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 17 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 50 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 38 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 19 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 23 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 28 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 41 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 45 rows",
         },
     },
     "serviceFailures": {
@@ -201,6 +210,13 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 27 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 5 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 19 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 2 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 10 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 2 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 4 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 3 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 2 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 11 rows",
         },
     },
 }

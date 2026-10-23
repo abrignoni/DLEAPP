@@ -96,9 +96,10 @@ __artifacts_v2__ = {
                  "szechuan_win10, the public DFIR Madness Szechuan Sauce desktop image (Windows 10 build 19041). "
                  "None of af_case2_win10, lonewolf_win10 and pc_mus_001_win11 holds the log file. The tested log "
                  "held 131 records, all of this provider, and 7 are reported: 2 of 131 and 1 each of 65, 66, 102, "
-                 "103 and 104, each reported record version 0. The log held no 139 and no 140 record, so those two "
-                 "events are unexercised and read as the manifest describes them, and Result Code (as stored) is "
-                 "blank on every row. The first 131 row is a TCP connection from 10.42.85.10:62514 and the second, "
+                 "103 and 104, each reported record version 0. The log held no 139 and no 140 record, so Result Code "
+                 "(as stored) is blank on every row of it; the log of evtx_baseline_nextron_085_win2022_0_20348_azure "
+                 "holds five 139 records, each with a Result Code, and no tested log holds a 140, which is "
+                 "unexercised and read as the manifest describes it. The first 131 row is a TCP connection from 10.42.85.10:62514 and the second, "
                  "28 seconds later, a UDP connection from [10.42.85.10]:63121: the address is reported in the form "
                  "the record stores, with its port and, on the UDP row, its square brackets. 6 of the 7 rows carry "
                  "the Activity ID of the TCP 131 row (131, 65, 104, 66, 103 and 102, in that order); the UDP 131 row "
@@ -127,6 +128,12 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 7 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no records)",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no records)",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 0 rows (the matched logs hold no records)",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 147 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no records)",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no records)",
         },
     },
 }

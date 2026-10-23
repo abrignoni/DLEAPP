@@ -77,7 +77,9 @@ __artifacts_v2__ = {
                  "af_case2_win10, 13 of 192 on pc_mus_001_win11, 14 of 86 on lonewolf_win10 and 3 of 14 on szechuan_win10; "
                  "a row does not by itself establish that a person started "
                  "the transfer. Reading needs the python-evtx package (pip install "
-                 "python-evtx).",
+                 "python-evtx)."
+                 " On evtx_baseline_nextron_085_win7_x86 Process Path and Process ID were empty on all 92 rows: none "
+                 "of its records carries processPath or processId.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Bits-Client%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "download",
@@ -86,6 +88,13 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 116 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 421 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 71 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 92 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 154 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 186 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 397 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 53 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 70 rows",
         },
     },
 }

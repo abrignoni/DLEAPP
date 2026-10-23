@@ -74,7 +74,9 @@ __artifacts_v2__ = {
                  "in this log rendered on the registered images. A row records what the "
                  "WMI-Activity provider logged about a query, filter or consumer; it does "
                  "not by itself establish who registered it or what it ran. Reading needs "
-                 "the python-evtx package (pip install python-evtx).",
+                 "the python-evtx package (pip install python-evtx)."
+                 " On evtx_baseline_nextron_085_win11_client_2023 Event Filter, Consumer and Provider were empty on "
+                 "its one row, a 5860 record, which carries no ESS, CONSUMER, Provider or providerName field.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-WMI-Activity%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "zap",
@@ -83,6 +85,12 @@ __artifacts_v2__ = {
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 49 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
                            "szechuan_win10": "Windows 10 2004 build 19041 | 17 rows",
+                           "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 24 rows",
+                           "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 14 rows",
+                           "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 1 row",
+                           "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 21 rows",
+                           "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 16 rows",
+                           "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 20 rows",
                        },
     },
     "wmiProviderActivity": {
@@ -141,6 +149,12 @@ __artifacts_v2__ = {
                            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 665 rows",
                            "lonewolf_win10": "Windows 10 Education build 16299 | 592 rows",
                            "szechuan_win10": "Windows 10 2004 build 19041 | 509 rows",
+                           "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 285 rows",
+                           "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 335 rows",
+                           "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 1,147 rows",
+                           "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 434 rows",
+                           "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 700 rows",
+                           "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 358 rows",
                        },
     },
 }
