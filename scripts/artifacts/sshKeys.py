@@ -7,10 +7,11 @@ __artifacts_v2__ = {
     "sshAuthorizedKeys": {
         "name": "SSH Authorized Keys",
         "description": "Public keys in OpenSSH authorized_keys files, which sshd reads by default for public key "
-                       "authentication to the account, with each key's SHA256 fingerprint, type, comment and options.",
+                       "authentication to the account, and in the administrators_authorized_keys file of Windows "
+                       "OpenSSH, with each key's SHA256 fingerprint, type, comment and options.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
-        "last_update_date": "2026-09-30",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
         "notes": "Reads each authorized_keys and authorized_keys2 file in a .ssh folder, "
@@ -48,8 +49,17 @@ __artifacts_v2__ = {
                  "(https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/auth2-pubkeyfile.c#L284-L299"
                  " and "
                  "https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/authfile.c#L469-L484)."
-                 " Every other fingerprint equals what ssh-keygen -lf prints for those files.",
-        "paths": ('*/.ssh/authorized_keys', '*/.ssh/authorized_keys2'),
+                 " Every other fingerprint equals what ssh-keygen -lf prints for those files."
+                 " ProgramData/ssh/administrators_authorized_keys is read the same way: Microsoft's OpenSSH Server "
+                 "Configuration for Windows says that when the user belongs to the administrator group, "
+                 "%programdata%/ssh/administrators_authorized_keys is used instead of the account's .ssh/authorized_keys "
+                 "(https://github.com/MicrosoftDocs/windowsserverdocs/blob/5abff92b2dc270ef58ef88a7b471219541d7feb1/"
+                 "WindowsServerDocs/administration/OpenSSH/openssh-server-configuration.md#L118-L122), and the default "
+                 "sshd_config of Win32-OpenSSH names it in a Match Group administrators section "
+                 "(https://github.com/PowerShell/openssh-portable/blob/274893f8d1fe86c4d128b514c3af4bc10cdc0c99/"
+                 "contrib/win32/openssh/sshd_config#L85-L86), so the file applies only where the configuration in "
+                 "effect says so. No tested image holds that file, so it was tested with constructed input only.",
+        "paths": ('*/.ssh/authorized_keys', '*/.ssh/authorized_keys2', '*/ProgramData/ssh/administrators_authorized_keys'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
         "sample_data": {
@@ -71,11 +81,11 @@ __artifacts_v2__ = {
                        "they are hashed, and each key's type and SHA256 fingerprint.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
-        "last_update_date": "2026-09-30",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
         "notes": "Reads each known_hosts, known_hosts2 and known_hosts.old file in a .ssh folder and each "
-                 "ssh_known_hosts and ssh_known_hosts2 file in an etc/ssh folder, one row "
+                 "ssh_known_hosts and ssh_known_hosts2 file in an etc/ssh or ProgramData/ssh folder, one row "
                  "per key line in file order; ssh_config(5) of OpenSSH 10.2p1 names these "
                  "as the default user and global host key files "
                  "(https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/ssh_config.5#L2191-L2193, "
@@ -113,9 +123,22 @@ __artifacts_v2__ = {
                  " line and a @cert-authority line whose host names ssh-keygen -H left in plain text, and one "
                  "plain line added afterwards; its known_hosts.old holds the 4 lines as they were before "
                  "hashing, every host name in plain text; etc/ssh/ssh_known_hosts holds 1. Each fingerprint "
-                 "ssh-keygen -lf prints for those files, which list no marker line, equals the one reported.",
+                 "ssh-keygen -lf prints for those files, which list no marker line, equals the one reported."
+                 " The Windows port of OpenSSH in PowerShell/openssh-portable defines the global host key files as SSHDIR "
+                 "/ssh_known_hosts and /ssh_known_hosts2 "
+                 "(https://github.com/PowerShell/openssh-portable/blob/274893f8d1fe86c4d128b514c3af4bc10cdc0c99/"
+                 "pathnames.h#L29-L31) with SSHDIR set to __PROGRAMDATA__\\ssh "
+                 "(https://github.com/PowerShell/openssh-portable/blob/274893f8d1fe86c4d128b514c3af4bc10cdc0c99/"
+                 "contrib/win32/openssh/config.h.vs#L1728); Microsoft says the server's host keys, which the default "
+                 "sshd_config lists under __PROGRAMDATA__/ssh, are stored under C:\\ProgramData\\ssh "
+                 "(https://github.com/MicrosoftDocs/windowsserverdocs/blob/5abff92b2dc270ef58ef88a7b471219541d7feb1/"
+                 "WindowsServerDocs/administration/OpenSSH/OpenSSH_KeyManagement.md#L53 and "
+                 "https://github.com/MicrosoftDocs/windowsserverdocs/blob/5abff92b2dc270ef58ef88a7b471219541d7feb1/"
+                 "WindowsServerDocs/administration/OpenSSH/openssh-server-configuration.md#L165-L173). No tested image holds "
+                 "either file there, so those paths were tested with constructed input only.",
         "paths": ('*/.ssh/known_hosts', '*/.ssh/known_hosts2', '*/.ssh/known_hosts.old',
-                  '*/etc/ssh/ssh_known_hosts', '*/etc/ssh/ssh_known_hosts2'),
+                  '*/etc/ssh/ssh_known_hosts', '*/etc/ssh/ssh_known_hosts2', '*/ProgramData/ssh/ssh_known_hosts',
+                  '*/ProgramData/ssh/ssh_known_hosts2'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "server",
         "sample_data": {

@@ -6,16 +6,16 @@ Author: @AlexisBrignoni, Claude.
 __artifacts_v2__ = {
     "sshClientConfig": {
         "name": "SSH Client Config",
-        "description": "Directives in users' ~/.ssh/config files and in /etc/ssh/ssh_config and ssh_config.d, one row "
-                       "per directive, and per symbolic link, with the Host or Match section it sits in, its keyword and "
-                       "its value as stored.",
+        "description": "Directives in users' ~/.ssh/config files, in /etc/ssh/ssh_config and ssh_config.d, and in "
+                       "the ssh_config of Windows OpenSSH under ProgramData\\ssh, one row per directive, and per symbolic "
+                       "link, with the Host or Match section it sits in, its keyword and its value as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-30",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
         "notes": "One row per directive in each user's .ssh/config and in etc/ssh/ssh_config and the files of "
-                 "etc/ssh/ssh_config.d, file by file in path order and within a file in line order; Line is the line"
+                 "etc/ssh/ssh_config.d, and in ProgramData/ssh/ssh_config, file by file in path order and within a file in line order; Line is the line"
                  " number and Source File the file, and the files read are named in the report's located-at line. "
                  "ssh takes options from the command line, then the user's ~/.ssh/config, then /etc/ssh/ssh_config, "
                  "and for each parameter uses the first value it obtains "
@@ -40,8 +40,13 @@ __artifacts_v2__ = {
                  " directive "
                  "(https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/ssh_config.5#L1219-L1237);"
                  " the files it names are read here only where the declared paths reach them. A symbolic link is "
-                 "reported with its Link Target and not read. Scope is System for a file under etc/ssh and User "
-                 "otherwise. The artifact does not work out which value ssh uses for a host. On "
+                 "reported with its Link Target and not read. Scope is System for a file under etc/ssh or "
+                 "ProgramData/ssh and User otherwise. Microsoft's OpenSSH Server Configuration for Windows says the "
+                 "OpenSSH client on Windows reads a user's %userprofile%\\.ssh\\config and then the system-wide "
+                 "%programdata%\\ssh\\ssh_config "
+                 "(https://github.com/MicrosoftDocs/windowsserverdocs/blob/5abff92b2dc270ef58ef88a7b471219541d7feb1/"
+                 "WindowsServerDocs/administration/OpenSSH/openssh-server-configuration.md#L29-L35); no tested image "
+                 "holds a ProgramData/ssh/ssh_config, so that path was tested with constructed input only. The artifact does not work out which value ssh uses for a host. On "
                  "ubuntu2604_arm64_sshconfig, known data made on the lab VM, whose clock was 5,157.8 to 5,158.1 s "
                  "ahead of real time, the User and Port ssh -G printed for dlknown-jump, dlknown-inner, dlknown-eq "
                  "and dlknown-other, and the HostName it printed for dlknown-jump and dlknown-inner, each equal the "
@@ -55,7 +60,7 @@ __artifacts_v2__ = {
                  "have Scope System, and each of those two images holds one file, so File Modified holds one value "
                  "on each. dleapp_macos_bigsur gives 4 rows, 2 from private/etc/ssh/ssh_config and 2 from its copy "
                  "under System/Library/Templates/Data, all with Scope System and Section Host *.",
-        "paths": ('*/.ssh/config', '*/etc/ssh/ssh_config', '*/etc/ssh/ssh_config.d/*'),
+        "paths": ('*/.ssh/config', '*/etc/ssh/ssh_config', '*/etc/ssh/ssh_config.d/*', '*/ProgramData/ssh/ssh_config'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
@@ -98,15 +103,16 @@ __artifacts_v2__ = {
     },
     "sshServerConfig": {
         "name": "SSH Server Config",
-        "description": "Directives in /etc/ssh/sshd_config and sshd_config.d, one row per directive, and per symbolic "
-                       "link, with the Match section it sits in, its keyword and its value as stored.",
+        "description": "Directives in /etc/ssh/sshd_config and sshd_config.d and in the sshd_config of Windows OpenSSH "
+                       "under ProgramData\\ssh, one row per directive, and per symbolic link, with the Match section it "
+                       "sits in, its keyword and its value as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-30",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
-        "notes": "One row per directive in etc/ssh/sshd_config and the files of etc/ssh/sshd_config.d, file by file "
-                 "in path order and within a file in line order; Line is the line number and Source File the file, "
+        "notes": "One row per directive in etc/ssh/sshd_config, the files of etc/ssh/sshd_config.d and "
+                 "ProgramData/ssh/sshd_config, file by file in path order and within a file in line order; Line is the line number and Source File the file, "
                  "and the files read are named in the report's located-at line. sshd reads /etc/ssh/sshd_config "
                  "unless started with -f, and for each keyword uses the first value it obtains "
                  "(https://github.com/openssh/openssh-portable/blob/d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/sshd_config.5#L44-L61)."
@@ -131,12 +137,19 @@ __artifacts_v2__ = {
                  "keeps under Program Files/Git/etc/ssh. Each of the three images holds one file here and no "
                  "symbolic link, so File Modified holds one value and Link Target is blank on every row of each. "
                  "dleapp_macos_bigsur gives 8 rows, 4 from private/etc/ssh/sshd_config and 4 from its copy under "
-                 "System/Library/Templates/Data, all in the global section, and Link Target is blank on all 8.",
-        "paths": ('*/etc/ssh/sshd_config', '*/etc/ssh/sshd_config.d/*'),
+                 "System/Library/Templates/Data, all in the global section, and Link Target is blank on all 8. "
+                 "Microsoft's OpenSSH Server Configuration for Windows says OpenSSH Server on Windows reads "
+                 "%programdata%\\ssh\\sshd_config by default "
+                 "(https://github.com/MicrosoftDocs/windowsserverdocs/blob/5abff92b2dc270ef58ef88a7b471219541d7feb1/"
+                 "WindowsServerDocs/administration/OpenSSH/openssh-server-configuration.md#L26-L27). On "
+                 "af_case2_win10 that file gives 4 rows: 2 in the global section and 2 in a Match section, the "
+                 "Match line and its one directive. Private host keys kept beside it under ProgramData/ssh match none of "
+                 "the declared paths and are not read.",
+        "paths": ('*/etc/ssh/sshd_config', '*/etc/ssh/sshd_config.d/*', '*/ProgramData/ssh/sshd_config'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
-            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 4 rows",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 8 rows",
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 27 rows",
             "less_history_known_macos": "macOS 27.0.1 build 26A434 | 0 rows (no member matches the declared paths)",
@@ -227,7 +240,8 @@ def _source(context, seeker, path):
 
 
 def _scope(source):
-    return 'System' if '/etc/ssh/' in '/' + source.strip('/') else 'User'
+    path = '/' + source.strip('/')
+    return 'System' if '/etc/ssh/' in path or '/ProgramData/ssh/' in path else 'User'
 
 
 def _config(context, label, sections, with_scope):

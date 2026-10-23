@@ -144,6 +144,34 @@ class ArtifactTest(unittest.TestCase):
         for member in ('home/a/.ssh/known_hosts.old.1', 'home/a/.ssh/known_hosts.bak', 'home/a/.ssh/known_hosts.XXXXXXXXXX'):
             self.assertFalse(any(fnmatch.fnmatch('x/' + member, p) for p in patterns), member)
 
+    def test_windows_programdata_paths(self):
+        import fnmatch  # pylint: disable=import-outside-toplevel
+        known = sshKeys.__artifacts_v2__['sshKnownHosts']['paths']
+        authorized = sshKeys.__artifacts_v2__['sshAuthorizedKeys']['paths']
+        for name in ('ssh_known_hosts', 'ssh_known_hosts2'):
+            self.assertEqual(sum(fnmatch.fnmatchcase('x/ProgramData/ssh/' + name, p) for p in known), 1, name)
+            self.assertFalse(any(fnmatch.fnmatchcase('x/ProgramData/ssh/' + name, p) for p in authorized), name)
+        member = 'x/ProgramData/ssh/administrators_authorized_keys'
+        self.assertEqual(sum(fnmatch.fnmatchcase(member, p) for p in authorized), 1)
+        self.assertFalse(any(fnmatch.fnmatchcase(member, p) for p in known))
+        # Private host keys and their public halves sit in the same folder and are never read.
+        for name in ('ssh_host_rsa_key', 'ssh_host_ed25519_key', 'ssh_host_ecdsa_key', 'ssh_host_dsa_key',
+                     'ssh_host_ed25519_key.pub', 'sshd_config', 'ssh_config', 'logs/sshd.log'):
+            self.assertFalse(any(fnmatch.fnmatchcase('x/ProgramData/ssh/' + name, p) for p in known + authorized), name)
+
+    def test_programdata_known_hosts_rows(self):
+        path = os.path.join('ProgramData', 'ssh', 'ssh_known_hosts')
+        rows, source, _log = self.run_artifact(sshKeys.sshKnownHosts, [(path, KNOWN)])
+        self.assertEqual(len(rows), 4)
+        self.assertEqual({row[-1] for row in rows}, {path})
+        self.assertEqual(source, [path])
+
+    def test_administrators_authorized_keys_rows(self):
+        path = os.path.join('ProgramData', 'ssh', 'administrators_authorized_keys')
+        rows, source, _log = self.run_artifact(sshKeys.sshAuthorizedKeys, [(path, f'ssh-rsa {RSA} made-up\n'.encode())])
+        self.assertEqual([(row[0], row[1], row[2], row[-1]) for row in rows], [(RSA_FP, 'ssh-rsa', 'made-up', path)])
+        self.assertEqual(source, [path])
+
 
 if __name__ == '__main__':
     unittest.main()
