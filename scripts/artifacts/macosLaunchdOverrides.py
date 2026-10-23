@@ -51,12 +51,11 @@ __artifacts_v2__ = {
             'mvs2026_macbookpro_macos15) disabled.plist held 4 entries and disabled.501.plist '
             '5, each file with one entry stored false, and 8 rows name one launch plist each, '
             'all under /System/Library. File Modified (UTC) is the modification time the input '
-            'records for the file: the volume\'s time on a raw image, a zip member\'s '
-            "extended timestamp field or a tar member's time; it is blank otherwise, and for a "
-            "folder input, whose times are those of the copy. The public MacBook Pro zip "
-            'records its times in an NTFS extra field (0x000a), and the zip seeker takes a file '
-            'time only from the extended timestamp field (0x5455), so File Modified (UTC) has '
-            'no value on any of its 9 rows. That extraction holds the folder under private/var and again under '
+            'records for the file: the volume\'s time on a raw image, a zip member\'s NTFS '
+            "(0x000a) or extended timestamp (0x5455) field, or a tar member's time; it is blank "
+            "otherwise, and for a folder input, whose times are those of the copy. The public "
+            'MacBook Pro zip records its times in an NTFS extra field, and File Modified (UTC) '
+            'has a value on all 9 of its rows (run of 2026-10-23). That extraction holds the folder under private/var and again under '
             'System/Volumes/Data/private/var with byte-identical files, so the second copies '
             'are not read again and are counted in the run log; when two copies differ, both '
             'are read, and an entry both hold with the same value and the same File Modified '
