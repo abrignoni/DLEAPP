@@ -115,8 +115,10 @@ __artifacts_v2__ = {
                  "on pc_mus_001_win11 only the change (4738) and a local group addition (4732). On "
                  "hexordia_mvs2025_win11 all 4 rows are changes (4738) of one account, with one Target Account, "
                  "Target Domain and Performed By. The computer "
-                 "account events 4741 and 4742 and the global and universal group creation events "
-                 "4727 and 4754 were present only on szechuan_dc01_server2012r2, and the universal group change "
+                 "account events 4741 and 4742 were present only on szechuan_dc01_server2012r2 and "
+                 "evtx_mitre_attack_4688_cc0, the global group creation event 4727 only on "
+                 "szechuan_dc01_server2012r2 and evtx_baseline_nextron_085_win2022_ad, the universal group "
+                 "creation event 4754 only on szechuan_dc01_server2012r2, and the universal group change "
                  "4755 on it and on ou_ransomware_server2022. The password-change (4723), lockout (4740) and unlock "
                  "(4767) events and the deletion events 4730, 4734, 4743 and 4758 are read and titled but were "
                  "not present on any tested image; the universal group membership events were present only on "
@@ -155,6 +157,14 @@ __artifacts_v2__ = {
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 4 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 22 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 263 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 80 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 131 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 131 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 79 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 130 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_mitre_attack_4688_cc0": "Public sample logs, Windows builds not recorded | 21 rows",
         },
     },
 }

@@ -186,7 +186,9 @@ __artifacts_v2__ = {
                  "floating-point number, which can differ by microseconds "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
                  "and Record ID is the record's EventRecordID. Not reported: Bucket, BucketType, "
-                 "Response, CabId, AnalysisSymbol, Rechecking and CabGuid.",
+                 "Response, CabId, AnalysisSymbol, Rechecking and CabGuid."
+                 " On evtx_baseline_nextron_085_win7_x86 Hashed Bucket was empty on all 49 rows: each of its records "
+                 "stores 21 unnamed strings, and Hashed bucket is the 22nd in the order above.",
         "paths": ('*/Windows/System32/winevt/Logs/Application.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "alert-triangle",
@@ -195,6 +197,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 33 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 68 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 14 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 49 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 9 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 4 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 2 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 15 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 16 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 11 rows",
         },
     },
     "appCrashHangEvents": {
@@ -248,7 +257,9 @@ __artifacts_v2__ = {
                  "floating-point number, which can differ by microseconds "
                  "(https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113), "
                  "and Record ID is the record's EventRecordID. Not reported: AppTimeStamp, "
-                 "ModuleTimeStamp, PackageRelativeAppId and TerminationTime.",
+                 "ModuleTimeStamp, PackageRelativeAppId and TerminationTime."
+                 " On evtx_baseline_nextron_085_win11_client_2023 Exception Code and Fault Offset were empty on its "
+                 "one row, a 1002 record, which carries neither field.",
         "paths": ('*/Windows/System32/winevt/Logs/Application.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "alert-triangle",
@@ -257,6 +268,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 4 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 24 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 1 row",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 3 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
         },
     },
 }

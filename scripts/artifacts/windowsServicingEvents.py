@@ -113,8 +113,9 @@ __artifacts_v2__ = {
                  "cannot render, or whose XML does not parse, is counted in the run log and not reported; every "
                  "record of the tested logs rendered. A log marked dirty is read past the chunks its header counts, "
                  "and the run log says how many records came from there. Reading needs the python-evtx package (pip "
-                 "install python-evtx). Not read: the provider's other events. No tested Setup log held a record of "
-                 "another Event ID or of another provider.",
+                 "install python-evtx). Not read: the provider's other events. Of the tested Setup logs only that of "
+                 "evtx_baseline_nextron_085_win7_x86 held a record of another Event ID or of another provider: 24 "
+                 "records of Microsoft-Windows-WUSA, one of event 2 and 23 of event 3.",
         "paths": ('*/Windows/System32/winevt/Logs/Setup.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "package",
@@ -123,6 +124,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 10 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 26 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 9 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 8 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 2 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 245 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 33 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 137 rows",
         },
     },
 }

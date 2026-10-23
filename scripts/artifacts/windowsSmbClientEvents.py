@@ -115,7 +115,9 @@ __artifacts_v2__ = {
                  "SMB client logged the event for that name, not that a share was opened or a file was read; 30800 "
                  "and 30803 are failures. For a log marked dirty, scripts/windows_evtx.py also reads the records of "
                  "intact chunks after the chunks its header counts, and the run log says how many records came from "
-                 "there. Reading needs the python-evtx package (pip install python-evtx).",
+                 "there. Reading needs the python-evtx package (pip install python-evtx)."
+                 " On evtx_baseline_nextron_085_win2022_ad Server Address was empty on its one row, a 30800 record, "
+                 "which carries no RemoteAddress or Address field.",
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-SmbClient%4Connectivity.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "share-2",
@@ -125,6 +127,12 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the matched files held nothing this artifact reports)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
             "windows11_arm_smb_known_20261011": "Windows 11 build 26200 | 854 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 1 row",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
         },
     },
 }

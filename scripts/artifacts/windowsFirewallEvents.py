@@ -71,9 +71,12 @@ __artifacts_v2__ = {
                  "records from 2019-03-19 12:59:30 to 2023-02-22 23:45:50 UTC on af_case2_win10, "
                  "902 from 2018-03-27 09:36:12 to 2018-04-06 12:26:14 UTC on lonewolf_win10 and "
                  "1,073 from 2022-12-08 02:57:51 to 2023-01-06 16:38:25 UTC on pc_mus_001_win11. "
-                 "No tested log held a 2032, 2033 or 2060 record, so those are unexercised. Also "
+                 "No tested log held a 2032 or 2060 record, so those are unexercised; 6 records of 2033 are on "
+                 "evtx_baseline_nextron_085_win11_client. Also "
                  "run on szechuan_win10, the public DFIR Madness Szechuan Sauce desktop image, which "
-                 "gave 894 rows.",
+                 "gave 894 rows."
+                 " On evtx_baseline_nextron_085_win11_client_2023 Other Fields was empty on all 238 rows, records of "
+                 "2052 and 2059 whose fields all have columns of their own.",
         "paths": (
             '*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Firewall With Advanced Security%4Firewall.evtx',
             '*/Windows/System32/[Mm][Pp][Ss][Ss][Vv][Cc].[Dd][Ll][Ll]',
@@ -87,6 +90,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 892 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 895 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 894 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 168 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 840 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 675 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 238 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 381 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 259 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 304 rows",
         },
     },
     "windowsFirewallSettingChanges": {
@@ -123,9 +133,10 @@ __artifacts_v2__ = {
                  "MS-FASP gives the private, domain and public profiles (section 2.2.2, last "
                  "updated 2023-09-20, "
                  "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fasp/7704e238-174d-4a5e-b809-5f3787dd8acc). "
-                 "2003, 2082 and 2083 records are unexercised, and so is the Setting Type map of "
-                 "2003 and 2082, which in the provider's manifest names 1 'Enable Windows Defender "
-                 "Firewall'.",
+                 "2003 records are unexercised. 18 records of 2082 and 6 of 2083 are on "
+                 "evtx_baseline_nextron_085_win11_client_2023, which holds no MPSSVC.dll, so their numbers "
+                 "are kept as stored, and the Setting Type map of 2003 and 2082, which in the provider's "
+                 "manifest names 1 'Enable Windows Defender Firewall', is unexercised.",
         "paths": (
             '*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Firewall With Advanced Security%4Firewall.evtx',
             '*/Windows/System32/[Mm][Pp][Ss][Ss][Vv][Cc].[Dd][Ll][Ll]',
@@ -139,6 +150,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no 2002, 2003, 2082 or 2083 record in the log)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no 2002, 2003, 2082 or 2083 record in the log)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 4 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 22 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 24 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 7 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
         },
     },
     "windowsFirewallBlockedApps": {
@@ -176,6 +194,13 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no 2011 record in the log)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no 2011 record in the log)",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 7 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 4 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 1 row",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
         },
     },
 }

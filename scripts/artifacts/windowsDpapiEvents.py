@@ -100,7 +100,8 @@ __artifacts_v2__ = {
                  "\"Master key's record successfully logged to Diagnostic file.\" (pc_mus_001_win11), 236 of 12289, "
                  "'DPAPI found credential key.' (62, 0, 93 and 81) and 274 of 12290, 'Credential key does not "
                  "exist.' (pc_mus_001_win11). Every tested record carried the field names and the level the build "
-                 "26100.1742 manifest gives its event. The other 14 events are unexercised. Each of the 24 rows of 1 "
+                 "26100.1742 manifest gives its event. Of the other 14 events, 8196 occurs on evtx_baseline_nextron_085_win2022_ad "
+                 "(one record), and the remaining 13 are unexercised. Each of the 24 rows of 1 "
                  "names a different key. For 21 of them (7 of 8, 5 of 6 and 9 of 10) the image holds a file named by "
                  "the GUID without its braces in the folder User Storage Area names, and the created time the image "
                  "records for that file is within 0.062 seconds of the row; the other 3 have no such file in the "
@@ -147,6 +148,12 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 103 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 40 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 32 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 60 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 57 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 46 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 13 rows",
         },
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Crypto-DPAPI%4Operational.evtx",),
         "output_types": ["standard"],

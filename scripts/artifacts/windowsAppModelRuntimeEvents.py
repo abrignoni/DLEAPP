@@ -222,18 +222,19 @@ __artifacts_v2__ = {
                  "AppContainerName, listed in Other Fields. 69 and 70 carry a User field, a SID on each of the 2,265 "
                  "tested records, and status numbers, reported as stored; what the numbers stand for is not "
                  "established here. ErrorCode is a decimal number on the tested 5, 21, 36 and 69 records and 0x with "
-                 "hexadecimal digits on 79 and 80, as stored. The 71 records of 219 on pc_mus_001_win11, the only "
-                 "tested records of that event, store a ProcessingErrorData element in place of event data, which "
+                 "hexadecimal digits on 79 and 80, as stored. The 71 records of 219 on pc_mus_001_win11 and the 12 "
+                 "and 17 on evtx_baseline_nextron_085_win11_client and evtx_baseline_nextron_085_win11_client_2023 "
+                 "store a ProcessingErrorData element in place of event data, which "
                  "Microsoft's event schema describes as details of the error that occurred while trying to render "
                  "the event "
                  "(https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/WES/eventschema-processingerrordata-eventtype-element.md?plain=1#L20). "
                  "Its children are listed in Other Fields as ProcessingErrorData.ErrorCode, "
                  "ProcessingErrorData.DataItemName and ProcessingErrorData.EventPayload. ErrorCode was 15005 on all "
-                 "71, which Microsoft's system error codes give as ERROR_EVT_INVALID_EVENT_DATA, 'The event data "
+                 "100, which Microsoft's system error codes give as ERROR_EVT_INVALID_EVENT_DATA, 'The event data "
                  "raised by the publisher is not compatible with the event template definition in the publisher's "
                  "manifest.' "
                  "(https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/Debug/system-error-codes--12000-15999-.md?plain=1#L3526-L3536), "
-                 "and DataItemName was PsmFlags on all 71. EventPayload is the event's binary data, which the schema "
+                 "and DataItemName was PsmFlags on all 100. EventPayload is the event's binary data, which the schema "
                  "types as hexBinary "
                  "(https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/WES/eventschema-eventpayload-processingerrordatatype-element.md?plain=1#L20-L25), "
                  "shown as python-evtx renders a binary value, in Base64 "
@@ -250,7 +251,10 @@ __artifacts_v2__ = {
                  "the two captures of a Windows 11 build 26200 machine hold no such log. 17 of the 95 Event IDs "
                  "occur: 39, 40, 41 and 42 on all four images, 69 and 70 on the three other than pc_mus_001_win11, "
                  "201, 210, 211 and 217 on pc_mus_001_win11 and szechuan_win10, and 5, 21, 36, 68, 79, 80 and 219 on "
-                 "one image each. The other 78 Event IDs are unexercised. Event Time (UTC) is the record's "
+                 "one image each. Of the other 78, 56 and 65 occur on evtx_baseline_nextron_085_win10_client and 66 on "
+                 "evtx_baseline_nextron_085_win2022_0_20348_azure, evtx_baseline_nextron_085_win2022_ad and "
+                 "evtx_baseline_nextron_085_win2022_evtx, and the remaining 75 occur on none of the images listed here. "
+                 "Event Time (UTC) is the record's "
                  "TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME the record stores "
                  "with integer arithmetic, counted in UTC and cut to whole microseconds, in place of python-evtx "
                  "0.8.1's conversion through a floating-point number, which can differ by microseconds ("
@@ -277,6 +281,12 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 1852 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 809 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 324 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 485 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 287 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 145 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 145 rows",
         },
     },
 }

@@ -298,8 +298,10 @@ __artifacts_v2__ = {
                  "(af_case2_win10, build 17763; lonewolf_win10, build 16299; pc_mus_001_win11, build 22621; "
                  "szechuan_win10, build 19041), which gave 848, 1,546, 1,670 and 1,139 rows in that order; the two "
                  "captures of a Windows 11 build 26200 machine hold no such log. 71 of the 132 Event IDs in the "
-                 "table occur, 30 of them on all four images and 14 on one image only. The other 61 Event IDs are "
-                 "unexercised. Event Time (UTC) is the record's TimeCreated SystemTime, which "
+                 "table occur, 30 of them on all four images and 14 on one image only. Of the other 61, 1310 occurs on "
+                 "evtx_baseline_nextron_085_win11_client_2023 and 3054 on evtx_baseline_nextron_085_win10_client, "
+                 "evtx_baseline_nextron_085_win11_client and evtx_baseline_nextron_085_win2022_0_20348_azure, and "
+                 "the remaining 59 occur on none of the images listed here. Event Time (UTC) is the record's TimeCreated SystemTime, which "
                  "scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
                  "floating-point number, which can differ by microseconds ("
@@ -314,7 +316,9 @@ __artifacts_v2__ = {
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
                  "reported. A log marked dirty is read past the chunks its header counts, and the run log says how "
                  "many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not "
-                 "read: the events these manifests send to the provider's Admin and Debug channels.",
+                 "read: the events these manifests send to the provider's Admin and Debug channels."
+                 " Payload was empty on all 333 rows of evtx_baseline_nextron_085_win2022_0_20348_azure and all 146 of"
+                 " evtx_baseline_nextron_085_win2022_ad, whose records carry no Payload field.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-PushNotification-Platform%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "bell",
@@ -325,6 +329,12 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 1139 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 1,256 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 664 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 1,647 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 333 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 146 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 229 rows",
         },
     },
 }

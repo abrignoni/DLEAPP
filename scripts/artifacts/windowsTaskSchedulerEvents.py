@@ -71,6 +71,8 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Task Scheduler Operational log on the image)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Task Scheduler Operational log on the image)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 262 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 100 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 68 rows",
         },
     },
     "taskSchedulerActions": {
@@ -121,6 +123,8 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no Task Scheduler Operational log on the image)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no Task Scheduler Operational log on the image)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 315 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 366 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 190 rows",
         },
     },
 }

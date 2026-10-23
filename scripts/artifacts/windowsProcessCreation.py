@@ -140,7 +140,10 @@ __artifacts_v2__ = {
                  "records a process creation as this log recorded it; it does not by itself "
                  "establish which person, if any, started the process. Reading needs the python-evtx package "
                  "(pip install python-evtx); giving the token elevation type its text needs the pefile "
-                 "package (pip install pefile), and without it the reference is reported as stored.",
+                 "package (pip install pefile), and without it the reference is reported as stored."
+                 " On evtx_baseline_nextron_085_win7_x86 Target Account Name, Target Account Domain, Target Account "
+                 "SID and Target Logon ID were empty on all 565 rows, version 0 records of 4688, which carry none of "
+                 "those fields.",
         "paths": ("*/Windows/System32/winevt/Logs/Security.evtx",
                   "*/Windows/System32/en-US/msobjs.dll.mui"),
         "output_types": ["standard"],
@@ -152,6 +155,13 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 78 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 148 rows",
             "evtx_mitre_attack_4688_cc0": "Public sample logs, Windows builds not recorded | 1262 rows",
+            "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 565 rows",
+            "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 78 rows",
+            "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 45 rows",
+            "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 2,592 rows",
+            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 240 rows",
+            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 3,787 rows",
+            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 1,296 rows",
         },
     },
 }

@@ -242,6 +242,13 @@ __artifacts_v2__ = {
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 11 rows",
                            "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 6 rows",
                            "windows11_arm_defender_eicar_known_20261018": "Windows 11 build 26200 (ARM64), Defender platform 4.18.26090.9 | 6 rows",
+                           "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no records)",
+                           "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
                        },
     },
     "defenderProtectionChanges": {
@@ -266,10 +273,11 @@ __artifacts_v2__ = {
                  "which that page describes as the old and new antivirus configuration "
                  "values. Detail is Feature Name and Configuration on 5004, Changed Type "
                  "and Value on 5013, and Timestamp, Domain and User joined with a "
-                 "backslash, and SID on 1013, each as 'name: value'. No 5004, 5010 or 5012 record "
-                 "is on the registered Windows disk images, in the two public samples or in the "
-                 "windows11_arm_defender_eicar_known_20261018 log, so those branches are "
-                 "unexercised. That log carries two 5013 records, written by platforms "
+                 "backslash, and SID on 1013, each as 'name: value'. No 5010 or 5012 record "
+                 "is on the registered Windows disk images listed here, in the two public samples or in the "
+                 "windows11_arm_defender_eicar_known_20261018 log, so those two branches are unexercised on them; "
+                 "8 records of 5004 are on the evtx_baseline_nextron_085 win10_client, win11_client, "
+                 "win11_client_2023, win2022_0_20348_azure and win2022_evtx keys. That log carries two 5013 records, written by platforms "
                  "4.18.25070.5 and 4.18.26080.4 before its known-data session. Product "
                  "Version is "
                  "the Product Version field. Field names are those of the provider "
@@ -342,6 +350,13 @@ __artifacts_v2__ = {
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
                            "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 0 rows (the log holds only 1116 and 1117 records)",
                            "windows11_arm_defender_eicar_known_20261018": "Windows 11 build 26200 (ARM64), Defender platform 4.18.26090.9 | 1104 rows",
+                           "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no records)",
+                           "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 50 rows",
+                           "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 38 rows",
+                           "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 129 rows",
+                           "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 68 rows",
+                           "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 28 rows",
+                           "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 74 rows",
                        },
     },
     "defenderScans": {
@@ -458,7 +473,9 @@ __artifacts_v2__ = {
                  "names does not by itself establish that a person started the scan. "
                  "Reading needs the python-evtx package (pip install python-evtx); giving "
                  "references their text needs the pefile package (pip install pefile), and "
-                 "without it they are reported as stored.",
+                 "without it they are reported as stored."
+                 " Scan Time (h:m:s) was empty on the 2 rows of evtx_baseline_nextron_085_win10_client and the 2 of "
+                 "evtx_baseline_nextron_085_win2022_ad, 1000 and 1002 records that carry no Scan Time field.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Windows Defender%4Operational.evtx",
                   "*/Program Files/Windows Defender/en-US/MpEvMsg.dll.mui",
                   "*/ProgramData/Microsoft/Windows Defender/Platform/*/en-US/MpEvMsg.dll.mui"),
@@ -472,6 +489,13 @@ __artifacts_v2__ = {
                            "defender_evtx_attack_samples": "Defender Operational log only, Defender platform 4.18.1906.3 | 0 rows (the log holds only 1116 and 1117 records)",
                            "defender_evtx_to_mitre": "Defender Operational log only, Defender platform 4.18.2011.6 | 0 rows (the log holds only 1116 and 1117 records)",
                            "windows11_arm_defender_eicar_known_20261018": "Windows 11 build 26200 (ARM64), Defender platform 4.18.26090.9 | 100 rows",
+                           "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 0 rows (the matched logs hold no records)",
+                           "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 2 rows",
+                           "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 2 rows",
+                           "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 6 rows",
                        },
     },
 }
