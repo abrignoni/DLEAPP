@@ -54,23 +54,42 @@ __artifacts_v2__ = {
                        "report's identifier.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from the Report.wer files in the report folders under Microsoft\\Windows\\WER in "
                  "ProgramData or in a user profile's AppData\\Local, the two locations Velociraptor's "
                  "Windows.System.WindowsErrorReporting artifact reads (Zach Stanford, "
                  "https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/Windows.System.WindowsErrorReporting.yaml#L24-L25); "
-                 "Report Folder is the folder holding the file and identifies it, and every report on "
-                 "the tested images sat under ProgramData's ReportArchive except the one on "
-                 "szechuan_win10, which sat under its ReportQueue. No Microsoft documentation "
-                 "of the file's fields was found. The file holds one Key=Value pair per line, which "
-                 "that artifact also reads "
-                 "(https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/Windows.System.WindowsErrorReporting.yaml#L32-L34), "
-                 "and each column is the field of that name, as stored: Event Type is EventType, "
+                 "Report Folder is the folder holding the file and identifies it. On the tested images "
+                 "the reports sat under ProgramData's ReportArchive (all on lonewolf_win10, "
+                 "pc_mus_001_win11, hexordia_mvs2025_win11 and ou_ransomware_server2022), ProgramData's ReportQueue (the one on "
+                 "szechuan_win10, all 6 on alihadi_challenge3_win81, 8 of the 9 on "
+                 "szechuan_dc01_server2012r2 and 4 of the 5 on cfreds_leakage_win7) or a user profile's "
+                 "ReportArchive (1 on cfreds_leakage_win7) or "
+                 "ReportQueue (1 on szechuan_dc01_server2012r2). No Microsoft documentation "
+                 "of the file's fields was found. The file holds one Key=Value pair per line as UTF-16 "
+                 "text, which is how that artifact also reads it "
+                 "(https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/Windows.System.WindowsErrorReporting.yaml#L32-L34). "
+                 "Every report on the images of build 16299 and later (lonewolf_win10, szechuan_win10, "
+                 "pc_mus_001_win11, ou_ransomware_server2022 and hexordia_mvs2025_win11) starts with a "
+                 "UTF-16 byte order mark, and none on cfreds_leakage_win7 (build 7601), "
+                 "szechuan_dc01_server2012r2 or alihadi_challenge3_win81 (build 9600) does: those hold "
+                 "UTF-16LE text with no mark, a NUL in every odd byte. So the encoding is decided from "
+                 "the bytes: a byte order mark when there is one, else UTF-8 when the file holds no NUL "
+                 "byte, else UTF-16LE or UTF-16BE by which positions hold the NULs; no UTF-8 or UTF-16BE "
+                 "report was seen, so those two readings are unexercised. On those three "
+                 "images Event Time, Event Type, App Name, App Path, Report Description and Report ID "
+                 "on every row, and every Windows Error Reporting Loaded Modules row, matched a "
+                 "separate UTF-16LE decode of each file. "
+                 "Each column is the field of that name, as stored: Event Type is EventType, "
                  "Friendly Event Name is FriendlyEventName, App Name is AppName, App Path is AppPath, "
                  "Report Description is ReportDescription, which 5 of the 15 reports on lonewolf_win10, "
-                 "2 of the 31 on pc_mus_001_win11 and the one on szechuan_win10 carry, Report ID is "
+                 "2 of the 31 on pc_mus_001_win11, the one on szechuan_win10, 79 of the 133 on "
+                 "ou_ransomware_server2022, all 5 on cfreds_leakage_win7, 8 of the 9 on "
+                 "szechuan_dc01_server2012r2 and 5 of the 6 on alihadi_challenge3_win81 carry; no report "
+                 "on hexordia_mvs2025_win11 has the field, so Report Description is empty on all its "
+                 "rows. Report ID is "
                  "ReportIdentifier and "
                  "Integrator Report ID is IntegratorReportIdentifier. Problem Signature lists each "
                  "Sig[n] field's name and value in index order, as the file names them. Event Time "
@@ -99,7 +118,13 @@ __artifacts_v2__ = {
                  "programs under D:\\Magnet AXIOM, a folder no partition of the image holds, it is "
                  "da39a3ee5e6b4b0d3255bfef95601890afd80709, the SHA-1 of no bytes, which identifies no "
                  "program; 4 pc_mus_001_win11 reports (MoAppCrash and MoAppHang) carry no W: "
-                 "TargetAppId and leave it blank. For 14 of the 15 lonewolf_win10 reports, Amcache.hve "
+                 "TargetAppId and leave it blank. No report on cfreds_leakage_win7, "
+                 "szechuan_dc01_server2012r2 or alihadi_challenge3_win81 has a TargetAppId, so Target "
+                 "SHA-1 (first 30 MiB) is empty on all their rows, and UploadTime (UTC) is empty on all "
+                 "cfreds_leakage_win7 and szechuan_dc01_server2012r2 rows and 1 alihadi_challenge3_win81 "
+                 "row, whose reports have no UploadTime. Integrator Report ID is empty on every "
+                 "cfreds_leakage_win7 and alihadi_challenge3_win81 row, whose reports have no "
+                 "IntegratorReportIdentifier. For 14 of the 15 lonewolf_win10 reports, Amcache.hve "
                  "holds an entry for App Path whose FileId is 0000 followed by the same value, the "
                  "value the Amcache Application Files artifact reports as SHA-1. The Report ID of a "
                  "Windows Error Reporting Events or Application Crash and Hang Events row matched the "
@@ -116,6 +141,12 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 15 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 31 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 5 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 9 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 6 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 38 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 133 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (no Report.wer file)",
         },
     },
     "werLoadedModules": {
@@ -124,7 +155,7 @@ __artifacts_v2__ = {
                        "in the reported program, one row per module.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
         "notes": "One row per LoadedModule[n] field of each Report.wer (see Windows Error Reporting "
@@ -132,8 +163,14 @@ __artifacts_v2__ = {
                  "Module Path is the value as stored. That the module was loaded in the reported "
                  "program is what the field's name says, and no other record on the tested images was "
                  "compared with it. A report that lists no modules adds no rows: 4 of the 15 reports "
-                 "on lonewolf_win10 gave 732 rows, 22 of the 31 on pc_mus_001_win11 gave 2,272 and the "
-                 "one on szechuan_win10 gave 71, the most from one report being 233, 229 and 71. Event "
+                 "on lonewolf_win10 gave 732 rows, 22 of the 31 on pc_mus_001_win11 gave 2,272, the "
+                 "one on szechuan_win10 gave 71, 3 of the 38 on hexordia_mvs2025_win11 gave 416, 4 of "
+                 "the 133 on ou_ransomware_server2022 gave 656 and 1 of the 9 on "
+                 "szechuan_dc01_server2012r2 gave 90, the most from one report being 233, 229, 71, 266, "
+                 "256 and 90; no report on cfreds_leakage_win7 or alihadi_challenge3_win81 lists a "
+                 "module. On szechuan_dc01_server2012r2 all 90 rows come from one report, so Event Time "
+                 "(UTC), App Name and Report ID each held one value on every row there. Reports without "
+                 "a byte order mark are read as in Windows Error Reporting Reports. Event "
                  "Time (UTC) is EventTime read as a "
                  "FILETIME counted in UTC, as measured in the notes of Windows Error Reporting "
                  "Reports.",
@@ -145,6 +182,12 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 732 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 2272 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 71 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (its 5 Report.wer files list no module)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 90 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (its 6 Report.wer files list no module)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 416 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 656 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (no Report.wer file)",
         },
     },
     "werReportEvents": {
@@ -293,12 +336,27 @@ __artifacts_v2__ = {
 }
 
 
+def report_encoding(data):
+    """The codec a Report.wer's bytes are text in, decided from the bytes.
+
+    A byte order mark decides it. Without one, UTF-8 text of Key=Value lines holds no
+    NUL byte, while UTF-16 text of the same lines holds one in every character below
+    U+0100: in the odd positions for little-endian, in the even ones for big-endian.
+    The Report.wer files of builds 7601 and 9600 on the tested images are UTF-16LE with
+    no mark, and those of later builds carry one (see notes).
+    """
+    if data.startswith(b'\xef\xbb\xbf'):
+        return 'utf-8-sig'
+    if data.startswith((b'\xff\xfe', b'\xfe\xff')):
+        return 'utf-16'
+    if b'\x00' not in data:
+        return 'utf-8'
+    return 'utf-16-le' if data[1::2].count(0) >= data[0::2].count(0) else 'utf-16-be'
+
+
 def read_report(data):
     """The key and value pairs of a Report.wer, first occurrence of each key kept."""
-    if data.startswith((b'\xff\xfe', b'\xfe\xff')):
-        text = data.decode('utf-16', errors='replace')
-    else:
-        text = data.decode('utf-8-sig', errors='replace')
+    text = data.decode(report_encoding(data), errors='replace')
     fields = {}
     for line in re.split(r'\r\n|\r|\n', text):
         if '=' in line:
