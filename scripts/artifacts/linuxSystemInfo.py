@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "localtime), one row per value.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-28",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "System (Linux)",
         "notes": "Reads /etc/os-release, /usr/lib/os-release, /etc/lsb-release, /etc/debian_version, /etc/hostname, "
@@ -105,6 +105,7 @@ __artifacts_v2__ = {
             "honeynet_fc7_debian5": "Debian 5.0.7 i386 | 4 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
+            "rocky98_arm64_known": "Rocky Linux 9.8 aarch64 | 3 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_authlog": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_cron": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
