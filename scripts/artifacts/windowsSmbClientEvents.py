@@ -111,7 +111,9 @@ __artifacts_v2__ = {
                  "tested log (8,457 of 9,312 in the known data, 579 of 582 on lonewolf_win10 and every record of the "
                  "other three); 30812 and 30813 keep the interface name in a field named ServerName. Also not read "
                  "are other events that carry a server name, among them 30809, 30816, 30822 to 30825 and 30827. Not "
-                 "exercised on real data: 30804 to 30808, 30828, 30829 and version 0 of 30803. A row shows that the "
+                 "exercised on real data: 30828 and 30829. Of the images listed here, 30804 to 30808 occur only on "
+                 "ou_ransomware_server2022, each record version 2, and version 0 of 30803 only on "
+                 "szechuan_dc01_server2012r2 (the other listed images hold versions 2 to 4). A row shows that the "
                  "SMB client logged the event for that name, not that a share was opened or a file was read; 30800 "
                  "and 30803 are failures. For a log marked dirty, scripts/windows_evtx.py also reads the records of "
                  "intact chunks after the chunks its header counts, and the run log says how many records came from "
@@ -133,6 +135,11 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 1 row",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 6 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 162 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 2 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 1,913 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

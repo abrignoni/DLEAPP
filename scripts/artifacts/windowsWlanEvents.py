@@ -82,6 +82,7 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 0 rows (the matched logs hold no records)",
             "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 0 rows (the matched logs hold no records)",
             "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 0 rows (the matched logs hold no records)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 142 rows",
         },
     },
 }

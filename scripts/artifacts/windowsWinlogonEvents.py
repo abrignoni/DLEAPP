@@ -111,6 +111,15 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 6 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 7 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 7 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 126 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 126 rows",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 126 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 27 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 20 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 16 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 9 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 45 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
         },
     },
     "winlogonOperational": {
@@ -156,10 +165,11 @@ __artifacts_v2__ = {
                  "af_case2_win10, lonewolf_win10, pc_mus_001_win11 and szechuan_win10, 4 and 5 were likewise written "
                  "only for Sens and TermSrv, and on every tested log each row with 4 or 5 holds an account SID in "
                  "User SID; what the two numbers mark on those builds was not tested, and no tested Security log "
-                 "holds a 4800 or 4801 record to compare with. The event numbers seen were 0, 1, 2, 3, 4, 5, 12 and "
-                 "13 and, on the capture only, 14; what the numbers other than 4 and 5 mark is not established here. "
-                 "The subscribers seen were GPClient, Profiles, Sens, SessionEnv, TermSrv, TrustedInstaller and "
-                 "Wlansvc. Result (as stored) was 0 on 103 of the 104 rows of 2 and 1326 on one row of "
+                 "holds a 4800 or 4801 record to compare with. On the four public images and the capture the event "
+                 "numbers seen were 0, 1, 2, 3, 4, 5, 12 and 13 and, on the capture only, 14, and "
+                 "ou_ransomware_server2022 also has 8 and 9; what the numbers other than 4 and 5 mark is not established here. "
+                 "On the four public images and the capture the subscribers seen were GPClient, Profiles, Sens, "
+                 "SessionEnv, TermSrv, TrustedInstaller and Wlansvc; ou_ransomware_server2022 also has NTDS. Result (as stored) was 0 on 103 of the 104 rows of 2 and 1326 on one row of "
                  "af_case2_win10, which Microsoft's system error codes give as ERROR_LOGON_FAILURE, 'The user name or"
                  " password is incorrect.' "
                  "(https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/Debug/system-error-codes--1300-1699-.md?plain=1#L356-L364)."
@@ -183,7 +193,8 @@ __artifacts_v2__ = {
                  "header counts, and the run log says how many records came from there. A row records that Winlogon "
                  "notified a subscriber or ran an authentication; it does not by itself establish which person locked"
                  " or unlocked the workstation, and locks started another way (a key press or a timeout) were not "
-                 "compared. Reading needs the python-evtx package (pip install python-evtx).",
+                 "compared. Reading needs the python-evtx package (pip install python-evtx)."
+                 " On alihadi_threatsim_server2019 Result (as stored) is empty on all 14 rows, 811 and 812 records that carry Event and SubscriberName and no Win32Status.",
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-Winlogon%4Operational.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "lock",
@@ -202,6 +213,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 330 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 170 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 304 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched logs hold no records)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no records)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 720 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 2,513 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 14 rows",
         },
     },
 }

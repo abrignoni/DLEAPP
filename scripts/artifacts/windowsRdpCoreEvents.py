@@ -118,7 +118,8 @@ __artifacts_v2__ = {
                  "dirty is read past the chunks its header counts, and the run log says how many records came from "
                  "there; the tested log is marked dirty and 1 of the 7 rows, Record ID 119, came from there. Reading "
                  "needs the python-evtx package (pip install python-evtx). Not read: the provider's other events. "
-                 "The tested log holds 124 records of 24 other Event IDs.",
+                 "The tested log holds 124 records of 24 other Event IDs."
+                 " On szechuan_dc01_server2012r2 Client Timezone (as stored) is empty on all 1,636 rows: none of its records carries TimezoneBiasHour.",
         "paths": ('*/Windows/System32/winevt/Logs/'
                   'Microsoft-Windows-RemoteDesktopServices-RdpCoreTS%4Operational.evtx',),
         "output_types": ["standard"],
@@ -134,6 +135,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 147 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no records)",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no records)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 1,636 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 642 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

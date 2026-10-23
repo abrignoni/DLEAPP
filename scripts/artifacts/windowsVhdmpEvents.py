@@ -99,6 +99,9 @@ __artifacts_v2__ = {
                            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no records)",
                            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no records)",
                            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no records)",
+                           "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 199 rows",
+                           "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the matched logs hold no records)",
+                           "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
                        },
     },
 }

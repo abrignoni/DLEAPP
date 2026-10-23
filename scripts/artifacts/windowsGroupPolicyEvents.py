@@ -249,9 +249,13 @@ __artifacts_v2__ = {
                  "controller, computer and account details (5308, 5309 and 5310, 12 records each) and manual policy "
                  "processing (4004 and 4005, 3 and 1). The DescriptionString of 5312 held text on each of the 83 "
                  "tested records, and its GPOInfoList held a GPO element on 5 records of szechuan_win10. Of the other "
-                 "95 Event IDs, 5315 occurs on evtx_baseline_nextron_085_win7_x86 and evtx_baseline_nextron_085_win2022_ad "
-                 "and 4006, 6314, 7326 and 8006 on evtx_baseline_nextron_085_win2022_ad and on no other image listed here, "
-                 "and the remaining 90 occur on none of the images listed here. Event Time (UTC) is the record's TimeCreated SystemTime, which "
+                 "95 Event IDs, 5315 occurs on evtx_baseline_nextron_085_win7_x86, evtx_baseline_nextron_085_win2022_ad, "
+                 "szechuan_dc01_server2012r2, cfreds_leakage_win7 and ou_ransomware_server2022, 4006 and 8006 on "
+                 "evtx_baseline_nextron_085_win2022_ad, szechuan_dc01_server2012r2, cfreds_leakage_win7 and "
+                 "ou_ransomware_server2022, 4007 and 8007 on szechuan_dc01_server2012r2, cfreds_leakage_win7 and "
+                 "ou_ransomware_server2022, 6314 on evtx_baseline_nextron_085_win2022_ad and ou_ransomware_server2022, "
+                 "and 7326 on evtx_baseline_nextron_085_win2022_ad, each on no other image listed here, "
+                 "and the remaining 88 occur on none of the images listed here. Event Time (UTC) is the record's TimeCreated SystemTime, which "
                  "scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
                  "floating-point number, which can differ by microseconds ("
@@ -262,12 +266,14 @@ __artifacts_v2__ = {
                  "and three on szechuan_win10. Rows are in the order the file holds them, which was rising Record ID "
                  "on every tested log; in time order 3 rows are earlier than the row before them (1 each on "
                  "af_case2_win10, lonewolf_win10 and szechuan_win10). Every record of the tested logs rendered and "
-                 "is the provider's. A record python-evtx cannot render, or whose XML does not parse, is counted in "
+                 "is the provider's; the hexordia_mvs2025_win11 log holds one record of another provider, which is "
+                 "not reported. A record python-evtx cannot render, or whose XML does not parse, is counted in "
                  "the run log and not reported. A log marked dirty is read past the chunks its header counts, and "
                  "the run log says how many records came from there. Reading needs the python-evtx package (pip "
                  "install python-evtx); giving the references their text needs the pefile package (pip install "
                  "pefile), and without it they are reported as stored. Not read: the 36 entries these manifests send "
-                 "to the System log.",
+                 "to the System log."
+                 " On alihadi_threatsim_server2019 Account and Activity ID are empty on all 4 rows: its records of 5115, 5324 and 5325 carry no PrincipalSamName and no correlation activity ID.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-GroupPolicy%4Operational.evtx",
                   "*/Windows/System32/en-US/gpsvc.dll.mui"),
         "output_types": ["standard"],
@@ -286,6 +292,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 270 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 898 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 217 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 4,027 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 339 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 3,342 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 275 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 6,426 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 4 rows",
         },
     },
 }

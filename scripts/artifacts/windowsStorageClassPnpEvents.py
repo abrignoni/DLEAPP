@@ -103,8 +103,10 @@ __artifacts_v2__ = {
                  "manifest gives the event. Tested on the logs of four public images (af_case2_win10, build 17763; "
                  "lonewolf_win10, build 16299; pc_mus_001_win11, build 22621; szechuan_win10, build 19041), which "
                  "gave 933, 46, 610 and 2 rows in that order; the two captures of a Windows 11 build 26200 machine "
-                 "hold no such log. 8 of the 24 Event IDs occur: 502 and 507 on three images, 504 and 505 on two, "
-                 "and 500, 501, 509 and 512 on lonewolf_win10 alone. The other 16 Event IDs are unexercised. Event "
+                 "hold no such log. On those four images 8 of the 24 Event IDs occur: 502 and 507 on three, 504 and "
+                 "505 on two, and 500, 501, 509 and 512 on lonewolf_win10 alone. Of the other 16 Event IDs, 503, 510 "
+                 "and 523 occur on hexordia_mvs2025_win11, which also has 500, 501, 502 and 507, and the remaining 13 "
+                 "occur on none of the images listed here. Event "
                  "Time (UTC) is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the "
                  "FILETIME the record stores with integer arithmetic, counted in UTC and cut to whole microseconds, "
                  "in place of python-evtx 0.8.1's conversion through a floating-point number, which can differ by "
@@ -137,6 +139,9 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no records)",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 10 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no records)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 157 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the matched logs hold no records)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

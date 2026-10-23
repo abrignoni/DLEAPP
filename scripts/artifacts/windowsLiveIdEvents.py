@@ -133,7 +133,8 @@ __artifacts_v2__ = {
                  "dirty is read past the chunks its header counts, and the run log says how many records came from "
                  "there. Reading needs the python-evtx package (pip install python-evtx). Not read: the events these "
                  "manifests send to the provider's Analytic channel, and the 184 build 26100 entries that name no "
-                 "channel. What the function names and error codes stand for is not established here.",
+                 "channel. What the function names and error codes stand for is not established here."
+                 " On alihadi_challenge3_win81 Resource URI, Token Created (as stored), Token Expires (as stored), Request Status (as stored), Function Name, Error Code (as stored) and SOAP Body (as stored) are empty on both rows, 2024 records that carry Details, Operation and Status. On hexordia_mvs2025_win11 Resource URI, Token Created (as stored), Token Expires (as stored), Request Status (as stored) and Other Fields are empty on all 410 rows, records of 6113 and 6115 that carry only ErrorCode, FunctionName and Value.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-LiveId%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "user-check",
@@ -150,6 +151,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 279 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 147 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 95 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 410 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 2 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 525 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 202 rows",
         },
     },
 }

@@ -139,19 +139,26 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11, build 22621; szechuan_win10, build 19041) and of two captures of a Windows 11 "
                  "build 26200 machine, which gave 113, 72, 146, 48, 603 and 603 rows in that order; every row of the "
                  "first capture is a row of the second. The rows are of eleven Event IDs: 18, 20, 25, 27, 32 and 153 "
-                 "on every tested log, 30 on lonewolf_win10 and pc_mus_001_win11, 238 on pc_mus_001_win11, "
+                 "on every one of those six logs, 30 on lonewolf_win10 and pc_mus_001_win11, 238 on pc_mus_001_win11, "
                  "szechuan_win10 and the captures, 26 on pc_mus_001_win11 (1 row) and the captures (2 rows each), "
-                 "124 on pc_mus_001_win11 (4 rows) and 247 on the captures (64 rows each). Every 20 and 27 record is "
-                 "version 1, and the 238 records are version 0 on szechuan_win10 and version 1 on the others; each "
-                 "tested record's field names were the names the manifest lists for its event and version, in the "
-                 "manifest's order. Of the other 23 Event IDs, 156 occurs on evtx_baseline_nextron_085_win11_client_2023 "
-                 "(4 records); the remaining 22, and version 0 of 20 and of 27, are unexercised: they are "
+                 "124 on pc_mus_001_win11 (4 rows) and 247 on the captures (64 rows each). Every 20 and 27 record of "
+                 "those six logs is version 1, and the 238 records are version 0 on szechuan_win10 and version 1 on "
+                 "the others; each record's field names on those six logs were the names the manifest lists for its "
+                 "event and version, in the manifest's order. Version 0 of 20 and of 27 occurs on "
+                 "szechuan_dc01_server2012r2 and alihadi_challenge3_win81, whose 20 records carry LastShutdownGood and "
+                 "LastBootGood and whose 27 records carry BootType; no manifest of those builds was read. Of the other "
+                 "23 Event IDs, 156 occurs on evtx_baseline_nextron_085_win11_client_2023 "
+                 "(4 records); the remaining 22 are unexercised: they are "
                  "read by the field names the manifest lists, which no tested record confirms for them. What a Boot "
                  "Type (as stored) number stands for is not sourced here. It is 0 on 19, 4, 11, 7, 77 and 77 rows of "
-                 "27 in the order of the logs above and 2 on the other 9 rows of lonewolf_win10. Load Options is "
-                 "filled on every 27 row whose Boot Type (as stored) is 0 and blank on the 9 whose Boot Type (as "
-                 "stored) is 2. Last Boot Good is True on every row of 20; Last Shutdown Good is True on all of them "
-                 "but 1 row of pc_mus_001_win11 and 1 of each capture, where it is False. The rows come in groups: "
+                 "27 in the order of the logs above and 2 on the other 9 rows of lonewolf_win10. On those six logs Load "
+                 "Options is filled on every 27 row whose Boot Type (as stored) is 0 and blank on the 9 whose Boot "
+                 "Type (as stored) is 2; the version 0 records of 27 carry no LoadOptions, so Load Options is blank "
+                 "on every 27 row of szechuan_dc01_server2012r2 and alihadi_challenge3_win81. On those six logs Last "
+                 "Boot Good is True on every row of 20 and Last Shutdown Good is True on all of them but 1 row of "
+                 "pc_mus_001_win11 and 1 of each capture, where it is False. On ou_ransomware_server2022 Last "
+                 "Shutdown Good is False on 18 of the 32 rows of 20 and Last Boot Good on 1, and on "
+                 "hexordia_mvs2025_win11 Last Shutdown Good is False on 1 of 8. The rows come in groups: "
                  "rows less than five seconds apart, which were never more than 0.001 seconds apart, make 19, 13, "
                  "29, 7, 77 and 77 groups. 19, 4, 11, 7, 77 and 77 of them are within five seconds of a "
                  "Kernel-General 12 record (The operating system started, which the Windows System Power Events "
@@ -194,6 +201,14 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 24 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 33 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 29 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 603 rows",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 603 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 44 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no record this artifact reads)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 186 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 28 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 197 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
 }

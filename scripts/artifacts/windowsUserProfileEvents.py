@@ -68,7 +68,8 @@ __artifacts_v2__ = {
                  "counted in the run log and not reported; every record in this log rendered on the tested "
                  "images. Reading needs the python-evtx package (pip install python-evtx)."
                  " On evtx_baseline_nextron_085_win7_x86 Logon Type, Profile Location and Profile Type were empty on "
-                 "all 27 rows, records of 1, 3 and 5, which carry none of those fields.",
+                 "all 27 rows, records of 1, 3 and 5, which carry none of those fields."
+                 " On alihadi_threatsim_server2019 Hive File and HKU Key are empty on its one row, a record of 3, which carries only Session.",
         "paths": ("*/Windows/System32/winevt/Logs/"
                   "Microsoft-Windows-User Profile Service%4Operational.evtx",),
         "output_types": ["standard"],
@@ -85,6 +86,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 24 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 19 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 19 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 69 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 40 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 68 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 24 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 138 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
         },
     },
 }

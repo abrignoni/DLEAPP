@@ -445,10 +445,11 @@ __artifacts_v2__ = {
                  "(af_case2_win10, build 17763; pc_mus_001_win11, build 22621; szechuan_win10, build 19041), which "
                  "gave 6, 25 and 2 rows in that order; lonewolf_win10 (build 16299) holds no such log. The rows are "
                  "1 each of 768, 780, 782 and 796 and 2 of 775 (af_case2_win10), 25 of 810 (pc_mus_001_win11) and 2 "
-                 "of 4122 (szechuan_win10), each record version 0, and each tested record's field names were the "
-                 "names the manifest lists for its event, in the manifest's order. The other 127 events are "
-                 "unexercised: they are read by the field names the manifest lists, which no tested record confirms "
-                 "for them. On af_case2_win10 the 6 rows are for one volume, Volume Mount Point E:, in this order: "
+                 "of 4122 (szechuan_win10), each record version 0, and the field names of each of those records were the "
+                 "names the manifest lists for its event, in the manifest's order. Of the other 127 events, 774, 792, "
+                 "793, 817, 828, 829, 840, 878, 4103 and 4146 occur on hexordia_mvs2025_win11, whose field names were "
+                 "not compared with a manifest here; the remaining 117 are unexercised: they are read by the field "
+                 "names the manifest lists, which no tested record confirms for them. On af_case2_win10 the 6 rows are for one volume, Volume Mount Point E:, in this order: "
                  "796, then 775 twice, 108.9 and 111.0 seconds later (Protector Type (as stored) 0x00000008, then "
                  "0x00000003), then 780 and 768 at 125.2 seconds (Algorithm Type (as stored) 32772), then 782 at "
                  "320.9 seconds, whose Protector GUID is that of the 0x00000008 row. Identification GUID is all "
@@ -457,13 +458,14 @@ __artifacts_v2__ = {
                  "\\DosDevices\\E: on that image as disk signature 54aeb569 offset 65536: the first eight hexadecimal "
                  "digits of the Volume Name are that signature, and its last sixteen, read as eight bytes least "
                  "significant first, are 65536. The BitLocker Driver Events artifact reports 10 rows for E: within "
-                 "one second of the 768 row. User SID held one value on each tested log: one account SID (S-1-5-21 "
+                 "one second of the 768 row. User SID held one value on each of those three logs: one account SID (S-1-5-21 "
                  "and more) on the 6 rows of af_case2_win10 and S-1-5-18 on the 27 rows of the other two images. "
                  "Volume Mount Point, Volume Name, Identification GUID, Protector GUID, Protector Type (as stored) "
                  "and Algorithm Type (as stored) are blank on every row of pc_mus_001_win11 and szechuan_win10, "
                  "whose 810 and 4122 records carry none of those fields, and Event ID and Event held one value on "
-                 "each of those two logs. Error Code (as stored) is blank on every tested row: no tested event "
-                 "carries ErrorCode. Other Fields is blank on every row of af_case2_win10 and pc_mus_001_win11 and "
+                 "each of those two logs. Error Code (as stored) is blank on every row of the three logs: none of "
+                 "their events carries ErrorCode; on hexordia_mvs2025_win11 it is filled on the rows of 792, 829, 878 "
+                 "and 4103. Other Fields is blank on every row of af_case2_win10 and pc_mus_001_win11 and "
                  "held one value on szechuan_win10, the LocalizedText of 4122 (the %1 of its message). Computer held "
                  "one value on af_case2_win10 and on pc_mus_001_win11 and two on szechuan_win10. Rows are in the "
                  "order the log file holds its records, which was rising Record ID and time on every tested log. "
@@ -488,6 +490,7 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 2 rows",
             "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 2 rows",
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no records)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 69 rows",
         },
     },
     "bitLockerDriverEvents": {
@@ -549,19 +552,24 @@ __artifacts_v2__ = {
                  "conversion through a floating-point number, which can differ by microseconds ("
                  "https://github.com/williballenthin/python-evtx/blob/cab997af04b6caae68b306e5c2c40b3aa751454e/Evtx/BinaryParser.py#L105-L113). "
                  "Record ID is the record's EventRecordID and Computer the machine name the record stores. The "
-                 "record's user is not reported; it was S-1-5-18 on every tested record. Tested on the System logs "
+                 "record's user is not reported; it was S-1-5-18 on every record of the logs named next, and on 26 of "
+                 "the 58 records of hexordia_mvs2025_win11, whose other 32 store none. Tested on the System logs "
                  "of four public images (af_case2_win10, build 17763; lonewolf_win10, build 16299; pc_mus_001_win11, "
                  "build 22621; szechuan_win10, build 19041) and of two captures of a Windows 11 build 26200 machine, "
                  "which gave 10, 0, 0, 0, 130 and 130 rows in that order; every row of the first capture is a row of "
                  "the second. The 10 rows of af_case2_win10 are 1 of 24660, 2 of 24664, 4 of 24665, 2 of 24666 and 1 "
                  "of 24667; the 130 of each capture are 13 of 24660, 26 of 24664, 53 of 24665, 27 of 24666, 10 of "
                  "24667 and 1 of 24580. Each record is version 0 and carries the three fields the manifest lists for "
-                 "its event, ErrorCode, Volume and WritePhase. The other 132 events are unexercised, every event "
-                 "that carries VolumeGUID, OptionalGUID, Flags or a field without a column among them: Volume GUID, "
-                 "Optional GUID, Flags (as stored) and Other Fields are blank on every tested row. Error Code (as "
-                 "stored) held one value, 0x00000000, on every tested row, and so did Write Phase (as stored). "
-                 "Volume held one value on each tested log, a drive letter and a colon (E: on af_case2_win10), and "
-                 "Computer held one value on each. These records can come several at a time. On af_case2_win10 the "
+                 "its event, ErrorCode, Volume and WritePhase. Of the other 132 events, 24709 and 24711 occur on "
+                 "hexordia_mvs2025_win11 (19 rows each), whose field names were not compared with a manifest here: "
+                 "Volume GUID, Optional GUID and Flags (as stored) are filled on its 24711 rows, and Other Fields on "
+                 "its 24709 rows, which carry no ErrorCode, Volume or WritePhase. The remaining 130 are unexercised, "
+                 "every other event that carries VolumeGUID, OptionalGUID, Flags or a field without a column among "
+                 "them: Volume GUID, Optional GUID, Flags (as stored) and Other Fields are blank on every row of "
+                 "24580 and 24660 to 24667. Error Code (as stored) held one value, 0x00000000, on every tested row "
+                 "that has one, and so did Write Phase (as stored). "
+                 "Volume held one value on each tested log where it is filled, a drive letter and a colon (E: on af_case2_win10), and "
+                 "Computer held one value on each of those logs and two on hexordia_mvs2025_win11. These records can come several at a time. On af_case2_win10 the "
                  "10 rows are for E: and lie within 0.2 seconds, in this order: 24664, 24665, 24666, 24665, 24660, "
                  "24666, 24664, 24665, 24665, 24667; all 10 are within one second of the one row the BitLocker "
                  "Management Events artifact reports for encryption being started on E: (768). What a finalization "
@@ -592,6 +600,14 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no record of these events)",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 130 rows",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 130 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no record this artifact reads)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 58 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the matched logs hold no record this artifact reads)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
 }

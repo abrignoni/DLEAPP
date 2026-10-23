@@ -70,7 +70,8 @@ __artifacts_v2__ = {
                  "record's first three parameters, the three the message inserts, as stored. Service Name is the "
                  "fourth parameter, which the message does not insert: on all 547 tested rows it is the name of a "
                  "key under Services in the SYSTEM hive of the same input (see Windows Services). The start types "
-                 "the tested records store are auto start, demand start, disabled and system start; no source "
+                 "the records store are auto start, demand start, disabled, system start and, on "
+                 "cfreds_leakage_win7, hexordia_mvs2025_win11 and ou_ransomware_server2022, boot start; no source "
                  "listing these texts was found. User SID is the UserID of the record's Security element, which "
                  "Microsoft's event schema describes as identifying the user that logged the event, the SID of the "
                  "user in string form (Microsoft, 'Security (SystemPropertiesType) Element', "
@@ -100,7 +101,8 @@ __artifacts_v2__ = {
                  "entering a state; "
                  "https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Service%20Control%20Manager.xml#L426-L451) "
                  "are not read either: no tested log holds a 7035, and 7036 records are on the evtx_baseline_nextron_085 "
-                 "win7_x86, win2022_0_20348_azure, win2022_ad and win2022_evtx keys. "
+                 "win7_x86, win2022_0_20348_azure, win2022_ad and win2022_evtx keys and on szechuan_dc01_server2012r2, "
+                 "cfreds_leakage_win7, ou_ransomware_server2022 and alihadi_threatsim_server2019. "
                  "A record python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
                  "reported; every record of the tested logs rendered, among them the 72 TPM event 27 records of the "
                  "capture's log, which python-evtx renders only with the array value types scripts/windows_evtx.py "
@@ -123,6 +125,15 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 28 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 41 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 45 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 351 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 353 rows",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 353 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 18 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 70 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 217 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 2 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 434 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
     "serviceFailures": {
@@ -172,15 +183,17 @@ __artifacts_v2__ = {
                  "en-US folder on the volume the log was read from, as in 'The device is not ready. (%%21)'; the "
                  ".mui is named in the located-at line when it gave a reference its text, otherwise the reference is "
                  "reported as stored, and the run log says how many were given text or kept. All 49 references on "
-                 "the four public images were given text; the 11 on windows11_arm_known_20261001 are reported as "
-                 "stored, because that input holds the log without the .mui. Message carries the same text. "
+                 "the four public images were given text; the 11 on each of windows11_arm_known_20261001, "
+                 "windows11_arm_4688_known, windows11_arm_winlogon_known_20261004 and "
+                 "windows11_arm_ntfs_known_20261004 are reported as stored, because those inputs hold the log "
+                 "without the .mui. Message carries the same text. "
                  "Parameters the message does not insert are not reported: the fourth of 7031 and the first of 7032, "
-                 "each 1 on every tested record (8 and 1). The tested logs give 27, 5, 9 and 19 rows on "
+                 "each 1 on every record of the logs named next (8 and 1). Those logs give 27, 5, 9 and 19 rows on "
                  "af_case2_win10, lonewolf_win10, pc_mus_001_win11 and szechuan_win10 and 16 on "
                  "windows11_arm_known_20261001, the System log of a Windows 11 build 26200 ARM64 virtual machine "
                  "exported with wevtutil on 1 October 2026: 30 of 7000, 4 of 7001, 1 of 7009, 1 of 7022, 24 of 7023, "
-                 "1 of 7024, 8 of 7031, 1 of 7032, 2 of 7034 and 4 of 7043. No tested log holds a 7011, so that "
-                 "event was exercised only by a constructed record in the unit tests. On szechuan_win10 the 7009 row "
+                 "1 of 7024, 8 of 7031, 1 of 7032, 2 of 7034 and 4 of 7043. None of those logs holds a 7011; of the "
+                 "images listed here only hexordia_mvs2025_win11 (2 records) and ou_ransomware_server2022 (25) do. On szechuan_win10 the 7009 row "
                  "names a service that a 7045 record of the same log installed (see Windows Service Installations). "
                  "No tested failure record carries a UserID in its Security element, so no SID is reported. Event "
                  "Time (UTC) is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the "
@@ -192,14 +205,15 @@ __artifacts_v2__ = {
                  "held one value on every row of pc_mus_001_win11. A row records what the Service Control Manager "
                  "logged; it does not by itself establish why the service failed. Not read: the provider's other "
                  "events, among them 7026 (boot-start or system-start drivers that did not load, 118 records on the "
-                 "tested logs) and 7030 (a service marked interactive, 5 records); 7040 is in Service Start Type "
+                 "logs named above) and 7030 (a service marked interactive, 5 records); 7040 is in Service Start Type "
                  "Changes and 7045 in Windows Service Installations. A record python-evtx cannot render, or whose "
                  "XML does not parse, is counted in the run log and not reported; every record of the tested logs "
                  "rendered, among them the 72 TPM event 27 records of the capture's log, which python-evtx renders "
                  "only with the array value types scripts/windows_evtx.py adds. A log marked dirty is read "
                  "past the chunks its header counts, and the run log says how many records came from there. Reading "
                  "needs the python-evtx package (pip install python-evtx); giving the references their text needs "
-                 "the pefile package (pip install pefile), and without it they are reported as stored.",
+                 "the pefile package (pip install pefile), and without it they are reported as stored."
+                 " On cfreds_leakage_win7 Error is empty on its one row, a 7031, whose message inserts no error.",
         "paths": ('*/Windows/System32/winevt/Logs/System.evtx',
                   '*/Windows/System32/en-US/kernel32.dll.mui'),
         "output_types": ["standard"],
@@ -217,6 +231,15 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 3 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 2 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 11 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 16 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 16 rows",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 16 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 7 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 1 row",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 28 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 2 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 57 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
 }

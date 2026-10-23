@@ -309,9 +309,11 @@ __artifacts_v2__ = {
                  "in the table occur: version 0 of 3085 on all four images, and version 0 of 3033, version 2 of 3089 "
                  "and version 1 of 3099 on pc_mus_001_win11 alone. Of the other 130, version 0 of 3001 and of 3004 "
                  "occur on evtx_baseline_nextron_085_win7_x86, version 1 of 3004 on "
-                 "evtx_baseline_nextron_085_win11_client_2023, version 1 of 3010 on evtx_baseline_nextron_085_win2022_ad "
-                 "and evtx_baseline_nextron_085_win2022_evtx and version 0 of 3084 on "
-                 "evtx_baseline_nextron_085_win11_client, and the remaining 125 occur on none of the images listed here. Event Time (UTC) "
+                 "evtx_baseline_nextron_085_win11_client_2023, version 1 of 3010 on evtx_baseline_nextron_085_win2022_ad, "
+                 "evtx_baseline_nextron_085_win2022_evtx and ou_ransomware_server2022, version 0 of 3084 on "
+                 "evtx_baseline_nextron_085_win11_client and hexordia_mvs2025_win11, and version 3 of 3089 and version 0 "
+                 "of 3116 on hexordia_mvs2025_win11, and the remaining 123 occur on none of the images listed here. "
+                 "Event Time (UTC) "
                  "is the record's TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME "
                  "the record stores with integer arithmetic, counted in UTC and cut to whole microseconds, in place "
                  "of python-evtx 0.8.1's conversion through a floating-point number, which can differ by "
@@ -345,6 +347,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 6 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 31 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 19 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 1,315 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 78 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

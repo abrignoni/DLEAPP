@@ -91,6 +91,9 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 9 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 13 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 9 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 26 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 37 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
     "pnpDeviceConfiguration": {
@@ -135,11 +138,12 @@ __artifacts_v2__ = {
                  "device class the log names, not only storage. Not reported: the DriverInbox, "
                  "DriverSection, DriverRank, OutrankedDrivers and DeviceUpdated fields of 400, "
                  "the LowerFilters and UpperFilters fields of 410, and the log's other events "
-                 "(403, 411, 430, 440, 442 on the registered images). A "
+                 "(403, 411, 412, 430, 440, 442 on the registered images). A "
                  "record python-evtx cannot render, or whose XML does not parse, is "
                  "counted in the run log and not reported; every record in this log "
                  "rendered on the registered images. Reading needs the python-evtx package "
-                 "(pip install python-evtx).",
+                 "(pip install python-evtx)."
+                 " Parent Device Instance ID is empty on every row of alihadi_challenge3_win81 and szechuan_dc01_server2012r2, whose records carry no ParentDeviceInstanceId. Service is empty on every row of ou_ransomware_server2022, whose 410 records store ServiceName empty and whose 400 and 420 records carry none.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Kernel-PnP%4Configuration.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "plug",
@@ -154,6 +158,11 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 179 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 361 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 105 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 337 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 959 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 69 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 1,425 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

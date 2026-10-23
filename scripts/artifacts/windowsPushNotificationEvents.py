@@ -300,8 +300,9 @@ __artifacts_v2__ = {
                  "captures of a Windows 11 build 26200 machine hold no such log. 71 of the 132 Event IDs in the "
                  "table occur, 30 of them on all four images and 14 on one image only. Of the other 61, 1310 occurs on "
                  "evtx_baseline_nextron_085_win11_client_2023 and 3054 on evtx_baseline_nextron_085_win10_client, "
-                 "evtx_baseline_nextron_085_win11_client and evtx_baseline_nextron_085_win2022_0_20348_azure, and "
-                 "the remaining 59 occur on none of the images listed here. Event Time (UTC) is the record's TimeCreated SystemTime, which "
+                 "evtx_baseline_nextron_085_win11_client and evtx_baseline_nextron_085_win2022_0_20348_azure, 1259, "
+                 "1313 and 2002 on hexordia_mvs2025_win11, and "
+                 "the remaining 56 occur on none of the images listed here. Event Time (UTC) is the record's TimeCreated SystemTime, which "
                  "scripts/windows_evtx.py renders from the FILETIME the record stores with integer arithmetic, "
                  "counted in UTC and cut to whole microseconds, in place of python-evtx 0.8.1's conversion through a "
                  "floating-point number, which can differ by microseconds ("
@@ -318,7 +319,9 @@ __artifacts_v2__ = {
                  "many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not "
                  "read: the events these manifests send to the provider's Admin and Debug channels."
                  " Payload was empty on all 333 rows of evtx_baseline_nextron_085_win2022_0_20348_azure and all 146 of"
-                 " evtx_baseline_nextron_085_win2022_ad, whose records carry no Payload field.",
+                 " evtx_baseline_nextron_085_win2022_ad, all 2,034 of ou_ransomware_server2022 and all 12 of"
+                 " alihadi_threatsim_server2019, whose records carry no Payload field."
+                 " On alihadi_threatsim_server2019 Package and Process Name are empty on all 12 rows, whose records carry no PackageFullName or ProcessName.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-PushNotification-Platform%4Operational.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "bell",
@@ -335,6 +338,9 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 333 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 146 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 229 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 1,785 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 2,034 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 12 rows",
         },
     },
 }

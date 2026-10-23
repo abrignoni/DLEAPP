@@ -251,9 +251,10 @@ __artifacts_v2__ = {
                  "the two captures of a Windows 11 build 26200 machine hold no such log. 17 of the 95 Event IDs "
                  "occur: 39, 40, 41 and 42 on all four images, 69 and 70 on the three other than pc_mus_001_win11, "
                  "201, 210, 211 and 217 on pc_mus_001_win11 and szechuan_win10, and 5, 21, 36, 68, 79, 80 and 219 on "
-                 "one image each. Of the other 78, 56 and 65 occur on evtx_baseline_nextron_085_win10_client and 66 on "
-                 "evtx_baseline_nextron_085_win2022_0_20348_azure, evtx_baseline_nextron_085_win2022_ad and "
-                 "evtx_baseline_nextron_085_win2022_evtx, and the remaining 75 occur on none of the images listed here. "
+                 "one image each. Of the other 78, 56 and 65 occur on evtx_baseline_nextron_085_win10_client, 66 on "
+                 "evtx_baseline_nextron_085_win2022_0_20348_azure, evtx_baseline_nextron_085_win2022_ad, "
+                 "evtx_baseline_nextron_085_win2022_evtx and ou_ransomware_server2022, and 33 on hexordia_mvs2025_win11, "
+                 "and the remaining 74 occur on none of the images listed here. "
                  "Event Time (UTC) is the record's "
                  "TimeCreated SystemTime, which scripts/windows_evtx.py renders from the FILETIME the record stores "
                  "with integer arithmetic, counted in UTC and cut to whole microseconds, in place of python-evtx "
@@ -270,7 +271,8 @@ __artifacts_v2__ = {
                  "whose XML does not parse, is counted in the run log and not reported. A log marked dirty is read "
                  "past the chunks its header counts, and the run log says how many records came from there. Reading "
                  "needs the python-evtx package (pip install python-evtx). Not read: the events these manifests send "
-                 "to the provider's Analytic, Debug and Diagnostics channels and to the Application log.",
+                 "to the provider's Analytic, Debug and Diagnostics channels and to the Application log."
+                 " On alihadi_challenge3_win81 Package is empty on all 110 rows, records of 39, 40 and 41 that carry only AppContainerName.",
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-AppModel-Runtime%4Admin.evtx",),
         "output_types": ["standard"],
         "artifact_icon": "package",
@@ -287,6 +289,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 287 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 145 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 145 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 961 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 110 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 1,544 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }
