@@ -2,7 +2,9 @@
 
 The tables follow the version 8 schema in Chromium's favicon database source: one
 favicon_bitmaps row per stored size, last_updated set for icons fetched on a visit and
-last_requested for icons fetched on demand. Expected values are written out.
+last_requested for icons fetched on demand. _old_db follows the version 7 schema of the
+Chrome databases on cfreds_leakage_win7, which has no last_requested. Expected values are
+written out.
 """
 import pathlib
 import sqlite3
@@ -29,6 +31,19 @@ def _db():
     return db
 
 
+def _old_db():
+    db = sqlite3.connect(':memory:')
+    db.execute('CREATE TABLE favicon_bitmaps(id INTEGER PRIMARY KEY,icon_id INTEGER NOT NULL,'
+               'last_updated INTEGER DEFAULT 0,image_data BLOB,width INTEGER DEFAULT 0,'
+               'height INTEGER DEFAULT 0)')
+    db.executemany('INSERT INTO favicon_bitmaps (icon_id, last_updated, image_data, width, height) '
+                   'VALUES (?, ?, ?, ?, ?)', [
+                       (1, 100, b'small', 16, 16),
+                       (1, 250, b'large', 32, 32),
+                       (2, 0, None, 16, 16)])
+    return db
+
+
 class BitmapsTest(unittest.TestCase):
     def test_latest_times_sizes_and_largest_image(self):
         icons = fav._bitmaps(_db())  # pylint: disable=protected-access
@@ -38,6 +53,12 @@ class BitmapsTest(unittest.TestCase):
     def test_icon_without_image_data(self):
         icons = fav._bitmaps(_db())  # pylint: disable=protected-access
         self.assertEqual(icons[3], (0, 0, ['16x16'], None))
+
+
+    def test_version_7_schema_without_last_requested(self):
+        icons = fav._bitmaps(_old_db())  # pylint: disable=protected-access
+        self.assertEqual(icons[1], (250, 0, ['16x16', '32x32'], (1024, b'large')))
+        self.assertEqual(icons[2], (0, 0, ['16x16'], None))
 
 
 class LabelsTest(unittest.TestCase):

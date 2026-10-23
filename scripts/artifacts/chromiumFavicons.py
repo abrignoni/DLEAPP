@@ -12,7 +12,7 @@ the History database of the same profile lists the page URL.
 import sqlite3
 
 from scripts.chromium.browser_profiles import (enum_label, open_store, profile_stores,
-                                               table_columns, webkit_time)
+                                               select_list, table_columns, webkit_time)
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
 
 
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
                        "profile's History database lists the page URL.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads each Chromium-based browser profile's Favicons database, one row per "
@@ -85,8 +85,17 @@ __artifacts_v2__ = {
                  "a column the database carries from its version 9 "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/favicon/core/favicon_database.cc#L103, "
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/favicon/core/favicon_database.cc#L127); "
-                 "every database on the tested Windows images is version 8, as its meta table records, "
-                 "so Page URL Type was empty on every row there. On the public MacBook Pro logical "
+                 "every database on lonewolf_win10 and pc_mus_001_win11 is version 8, as its meta table "
+                 "records, so Page URL Type was empty on every row there. The two Chrome Default "
+                 "profiles on cfreds_leakage_win7 (one in each of two home folders) are version 7, whose "
+                 "favicon_bitmaps has no last_requested column: Chromium adds it in the upgrade to "
+                 "version 8 "
+                 "(https://github.com/chromium/chromium/blob/abb5172872b726072a64dfabaf45894c6ecf7369/components/history/core/browser/thumbnail_database.cc#L1191-L1194). "
+                 "A column the table lacks is read as blank, so Last Requested and Page URL Type are "
+                 "empty on all 96 cfreds_leakage_win7 rows (5 and 91, the icon_mapping row counts of "
+                 "the two databases); Last Updated was set on all 96, Icon Type was kFavicon (1) on "
+                 "all, every row had an Icon, Sizes held one value on every row, and In History was No "
+                 "on 1 and 5. On the public MacBook Pro logical "
                  "extraction (macOS 15.4 build 24E248, corpus key mvs2026_macbookpro_macos15), whose Chrome app "
                  "bundle holds framework versions 143.0.7499.42 and 143.0.7499.170, the Chrome Default "
                  "profile's database is version 9: of its 68 rows, Page URL Type was kRegular (0) on "
@@ -180,6 +189,10 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 700 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 641 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 96 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 400 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 40 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 build 24E248 | 68 rows",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
@@ -203,10 +216,17 @@ def _history_urls(store, label):
 
 
 def _bitmaps(db):
-    """{icon_id: (latest last_updated, latest last_requested, sizes, largest image)}."""
+    """{icon_id: (latest last_updated, latest last_requested, sizes, largest image)}.
+
+    A column the table lacks reads as NULL: version 7 databases have no
+    last_requested (see notes).
+    """
+    present = table_columns(db, 'favicon_bitmaps')
+    columns = select_list(present, ('last_updated', 'last_requested', 'width', 'height',
+                                    'image_data'))
     icons = {}
     for icon_id, updated, requested, width, height, image in db.execute(
-            'SELECT icon_id, last_updated, last_requested, width, height, image_data '
+            f'SELECT icon_id, {columns} '
             'FROM favicon_bitmaps ORDER BY icon_id, width, height, id'):
         latest_updated, latest_requested, sizes, largest = icons.get(icon_id, (0, 0, [], None))
         size = f'{width}x{height}'
