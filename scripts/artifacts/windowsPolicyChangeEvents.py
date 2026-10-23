@@ -223,7 +223,7 @@ __artifacts_v2__ = {
                        "names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
         "category": "Windows",
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
@@ -263,7 +263,12 @@ __artifacts_v2__ = {
                  "on the lonewolf_win10 row and on one af_case2_win10 row, both of which name the account MINWINPC$. "
                  "A row records a change of policy as this log recorded it and the account the record names; it does "
                  "not show who was using that account. A record python-evtx cannot render, or whose XML does not "
-                 "parse, is counted in the run log and not reported; every record of the six tested logs rendered. A "
+                 "parse, is counted in the run log and not reported; every record of the six tested logs rendered. On "
+                 "evtx_baseline_nextron_085_win11_client_2023 the one row comes from a record whose Min. Password Age "
+                 "and Max. Password Age strings do not decode as UTF-16, each starting with a high surrogate that no "
+                 "low surrogate follows. scripts/windows_evtx.py reads such a string with U+FFFD in place of each code "
+                 "unit that does not decode and keeps the other units, so both values in Changed Attributes start "
+                 "with the replacement character, and the run log counts the strings read this way. A "
                  "log marked dirty is read past the chunks its header counts, and the run log says how many records "
                  "came from there. The log is read once for Audit Policy Changes, Logon Right Changes and Domain "
                  "Policy Changes. Reading needs the python-evtx package (pip install python-evtx).",
