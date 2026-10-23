@@ -80,6 +80,18 @@ publisher's manifest'
 (https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/Debug/system-error-codes--12000-15999-.md?plain=1#L3526-L3536).
 EventRecord also keeps the RelatedActivityID of the record's Correlation element.
 
+EventRecord reads a record's EventData as its Data elements, each one a value, in
+order, and, when it has a Name, the field of that name; an element of EventData
+other than Data is not read. A record with no EventData has its UserData read as
+the first element inside it, whose name is user_data_name. Each element inside
+that one is a value and the field of its own name, holding the text the element
+holds directly, so an element that holds further elements gives only that text;
+when a name repeats, the field holds the last value and the values hold all of
+them. An element that holds no elements and has text is itself the one value and
+the field of its own name; Microsoft-Windows-WindowsUpdateClient event 25 stores
+errorCode that way on evtx_baseline_nextron_085_win7_x86. In UserData,
+attributes and any element after the first are not read.
+
 python-evtx 0.8.1 turns a FILETIME (the record's TimeCreated and any FILETIME
 value) into a datetime through a floating-point number, float(qword) * 1e-7
 (parse_filetime,
@@ -473,8 +485,13 @@ class EventRecord:
                 if name:
                     self.fields[name] = text
         elif user_data is not None and len(user_data):
-            self.user_data_name = user_data[0].tag.split('}')[-1]
-            for item in user_data[0]:
+            element = user_data[0]
+            self.user_data_name = element.tag.split('}')[-1]
+            if not len(element) and element.text is not None:
+                # An element that holds its value as its own text, with no elements inside.
+                self.values.append(element.text)
+                self.fields[self.user_data_name] = element.text
+            for item in element:
                 name = item.tag.split('}')[-1]
                 text = item.text or ''
                 self.values.append(text)
