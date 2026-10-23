@@ -69,6 +69,41 @@ class DirectiveTest(unittest.TestCase):
         for member in ('home/a/.ssh/config.bak', 'etc/ssh/ssh_config.bak', 'home/a/.ssh/known_hosts'):
             self.assertFalse(any(fnmatch.fnmatch('x/' + member, p) for p in client + server), member)
 
+    def test_windows_programdata_paths(self):
+        client = sshConfig.__artifacts_v2__['sshClientConfig']['paths']
+        server = sshConfig.__artifacts_v2__['sshServerConfig']['paths']
+        self.assertEqual(sum(fnmatch.fnmatchcase('x/ProgramData/ssh/ssh_config', p) for p in client), 1)
+        self.assertFalse(any(fnmatch.fnmatchcase('x/ProgramData/ssh/ssh_config', p) for p in server))
+        self.assertEqual(sum(fnmatch.fnmatchcase('x/ProgramData/ssh/sshd_config', p) for p in server), 1)
+        self.assertFalse(any(fnmatch.fnmatchcase('x/ProgramData/ssh/sshd_config', p) for p in client))
+        # The host keys, the logs and the other files Windows OpenSSH keeps beside its configuration are not read.
+        for name in ('ssh_host_rsa_key', 'ssh_host_ed25519_key', 'ssh_host_ecdsa_key', 'ssh_host_dsa_key',
+                     'ssh_host_rsa_key.pub', 'sshd.pid', 'logs/sshd.log', 'sshd_config_default', 'ssh_config.bak',
+                     'administrators_authorized_keys', 'ssh_known_hosts'):
+            self.assertFalse(any(fnmatch.fnmatchcase('x/ProgramData/ssh/' + name, p) for p in client + server), name)
+        self.assertEqual(sshConfig._scope('lba0/ProgramData/ssh/sshd_config'), 'System')  # pylint: disable=protected-access
+        self.assertEqual(sshConfig._scope('lba0/Users/a/.ssh/config'), 'User')  # pylint: disable=protected-access
+
+    def test_programdata_files_are_read_with_system_scope(self):
+        with tempfile.TemporaryDirectory() as root:
+            files = []
+            for rel, data in (('vol/ProgramData/ssh/ssh_config', b'Host made-up\r\n    User nobody\r\n'),
+                              ('vol/ProgramData/ssh/sshd_config', b'Port 2222\r\nMatch Group administrators\r\n'
+                                                                  b'  AuthorizedKeysFile x\r\n')):
+                path = os.path.join(root, *rel.split('/'))
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, 'wb') as handle:
+                    handle.write(data)
+                files.append(path)
+            with mock.patch.object(sshConfig, 'logfunc'):
+                _h, client, _s = sshConfig.sshClientConfig.__wrapped__(FakeContext(files[:1], root))
+                _h, server, _s = sshConfig.sshServerConfig.__wrapped__(FakeContext(files[1:], root))
+        self.assertEqual([r[1:5] for r in client], [('System', 'Host made-up', 'Host', 'made-up'),
+                                                    ('System', 'Host made-up', 'User', 'nobody')])
+        self.assertEqual([r[1:4] for r in server], [('', 'Port', '2222'), ('Match Group administrators', 'Match', 'Group administrators'),
+                                                    ('Match Group administrators', 'AuthorizedKeysFile', 'x')])
+        self.assertEqual({r[-1] for r in server}, {'vol/ProgramData/ssh/sshd_config'})
+
 
 class FakeContext:
     def __init__(self, paths, root):
