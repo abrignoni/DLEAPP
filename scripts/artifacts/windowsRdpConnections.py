@@ -40,7 +40,8 @@ __artifacts_v2__ = {
                  "TerminalServices-LocalSessionManager log on that image, which the Windows "
                  "Terminal Services Sessions artifact reads, recorded a session logon for "
                  "C137\\Administrator from the same address 2.6 seconds after the 1149. 1150 and "
-                 "1158 records are unexercised.",
+                 "1158 records are unexercised."
+                 " Domain is empty on every row of szechuan_dc01_server2012r2 and ou_ransomware_server2022: their 1149 records store Param2 empty.",
         "paths": ("*/Windows/System32/winevt/Logs/"
                   "Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx",),
         "output_types": ["standard"],
@@ -58,6 +59,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 39 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no records)",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no records)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 1,942 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 1,983 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

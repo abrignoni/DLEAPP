@@ -104,7 +104,7 @@ __artifacts_v2__ = {
                  "Version and Runspace ID were filled on every 400 and 403 row on the "
                  "registered images, on 2 of the 118 600 rows on af_case2_win10 and on none of "
                  "the 600 rows on the other three, and every Engine Version stored began "
-                 "with 5. Host Name held one value on every row of pc_mus_001_win11, "
+                 "with 5 except on szechuan_dc01_server2012r2, where each began with 4. Host Name held one value on every row of pc_mus_001_win11, "
                  "lonewolf_win10 and szechuan_win10. These records store no account: the user "
                  "SID in the record "
                  "was empty and the context block had no user field on every row on the "
@@ -145,6 +145,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 122 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 110 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 54 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 114 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no records)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 565 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 2,365 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
         },
     },
     "powershellPipelineExecution": {
@@ -194,7 +200,8 @@ __artifacts_v2__ = {
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run "
                  "log and not reported; every record in both logs rendered on the registered "
                  "images. The absence of these events does not establish that no command "
-                 "ran. Reading needs the python-evtx package (pip install python-evtx).",
+                 "ran. Reading needs the python-evtx package (pip install python-evtx)."
+                 " On hexordia_mvs2025_win11 Command Name and Command Type are empty on all 4 rows: the context text of its 800 records holds no CommandName or CommandType line.",
         "paths": ("*/Windows/System32/winevt/Logs/Windows PowerShell.evtx",
                   "*/Windows/System32/winevt/Logs/Microsoft-Windows-PowerShell%4Operational.evtx"),
         "output_types": ["standard"],
@@ -211,6 +218,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 95 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 52 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no records)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 4 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the matched logs hold no record this artifact reads)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
     "powershellScriptBlocks": {
@@ -287,6 +300,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 3 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 4 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 2 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 15 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 30 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
     "powershellConsoleEvents": {
@@ -345,6 +362,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 22 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 6 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 9 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 10 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 112 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 857 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

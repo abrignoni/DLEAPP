@@ -124,7 +124,8 @@ __artifacts_v2__ = {
                  "task, property and time counts, and the DeviceSetupManager Operational log. A record "
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and "
                  "not reported; every record in this log rendered on the tested images. Reading needs the "
-                 "python-evtx package (pip install python-evtx).",
+                 "python-evtx package (pip install python-evtx)."
+                 " Device Instance ID is empty on every row of szechuan_dc01_server2012r2, alihadi_challenge3_win81 and ou_ransomware_server2022, whose rows are all 112, an event this artifact reads no device instance ID from.",
         "paths": ("*/Windows/System32/winevt/Logs/"
                   "Microsoft-Windows-DeviceSetupManager%4Admin.evtx",),
         "output_types": ["standard"],
@@ -140,6 +141,11 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 46 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 37 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 15 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 89 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 153 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 70 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 814 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
 }

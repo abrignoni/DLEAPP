@@ -73,6 +73,9 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 262 rows",
             "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 100 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 68 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 57 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 338 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 3 rows",
         },
     },
     "taskSchedulerActions": {
@@ -125,6 +128,9 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 315 rows",
             "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 366 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 190 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 164 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 5,080 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
         },
     },
 }

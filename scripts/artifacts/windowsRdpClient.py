@@ -74,7 +74,8 @@ __artifacts_v2__ = {
                  "this log rendered on the registered images. A connection attempt does "
                  "not by itself establish that a session was established or who was at the "
                  "keyboard. Reading needs the python-evtx package (pip install "
-                 "python-evtx).",
+                 "python-evtx)."
+                 " Domain and Session ID are empty on every row of szechuan_dc01_server2012r2, hexordia_mvs2025_win11 and ou_ransomware_server2022, whose records carry no DomainName or SessionId. User Name Hash is empty on every row of ou_ransomware_server2022, which holds no 1029 record.",
         "paths": ("*/Windows/System32/winevt/Logs/"
                   "Microsoft-Windows-TerminalServices-RDPClient%4Operational.evtx",),
         "output_types": ["standard"],
@@ -91,6 +92,10 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no records)",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no records)",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no records)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 5 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 36 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 4 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

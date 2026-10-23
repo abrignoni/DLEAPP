@@ -124,6 +124,9 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 5 rows",
             "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 5 rows",
             "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 11 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 9 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 11 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 4 rows",
         },
     },
     "bootShutdownDelays": {
@@ -173,9 +176,11 @@ __artifacts_v2__ = {
                  "the logs of four public images (af_case2_win10, build 17763; lonewolf_win10, build 16299; "
                  "pc_mus_001_win11, build 22621; szechuan_win10, build 19041), which gave 10, 2, 33 and 6 rows in "
                  "that order: 42 of 101, 5 of 203, 2 of 110 and 1 each of 103 and 107, each version 1. No log of the "
-                 "images listed here held a 104, 105, 106, 109, 201 or 202 record, so those six events read as the "
-                 "manifest describes them; one 102 record is on evtx_baseline_nextron_085_win11_client_2023 and one "
-                 "108 record on evtx_baseline_nextron_085_win11_client, and no other listed image holds either. "
+                 "images listed here held a 104, 105 or 202 record, so those three events read as the manifest "
+                 "describes them; 106, 109 and 201 records (1, 5 and 1) are on cfreds_leakage_win7 and on no other "
+                 "listed image, 102 records on evtx_baseline_nextron_085_win11_client_2023 (1) and cfreds_leakage_win7 "
+                 "(1), and 108 records on evtx_baseline_nextron_085_win11_client (1) and cfreds_leakage_win7 (2), and "
+                 "no other listed image holds 102 or 108. "
                  "Incident Time (UTC) equals the Start Time (UTC) of a Boot and "
                  "Shutdown Performance row on every tested row: a 100 row for all 46 rows of 101, 103, 107 and 110 "
                  "and a 200 row for all 5 rows of 203. Total Time (ms) is not below Degradation Time (ms) on any of "
@@ -204,6 +209,9 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 3 rows",
             "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 14 rows",
             "evtx_baseline_nextron_085_win11_client_2023": "Windows 11 client, 2023 capture (per the asset name) | 33 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 19 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 31 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 3 rows",
         },
     },
 }

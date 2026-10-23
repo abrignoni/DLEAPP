@@ -140,7 +140,8 @@ __artifacts_v2__ = {
                  "parse, is counted in the run log and not reported. A log marked dirty is read past the chunks its "
                  "header counts, and the run log says how many records came from there. Reading needs the "
                  "python-evtx package (pip install python-evtx). Not read: the events these manifests send to the "
-                 "provider's BackUpKeySvc and Debug channels, and the files of the Protect folders.",
+                 "provider's BackUpKeySvc and Debug channels, and the files of the Protect folders."
+                 " On ou_ransomware_server2022 Master Key GUID is empty on all 2,029 rows, records of 12289 that carry CredKeyIdentifier, UserName and UserSid.",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 70 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 6 rows",
@@ -154,6 +155,11 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 57 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 46 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 13 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 5 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 364 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 3 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 2,029 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Crypto-DPAPI%4Operational.evtx",),
         "output_types": ["standard"],

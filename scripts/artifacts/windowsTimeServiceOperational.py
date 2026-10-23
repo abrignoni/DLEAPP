@@ -147,7 +147,8 @@ __artifacts_v2__ = {
                  "python-evtx cannot render, or whose XML does not parse, is counted in the run log and not "
                  "reported. A log marked dirty is read past the chunks its header counts, and the run log says how "
                  "many records came from there. Reading needs the python-evtx package (pip install python-evtx). Not "
-                 "read: the provider's events in the System log; Windows Time Service Events reports seven of them.",
+                 "read: the provider's events in the System log; Windows Time Service Events reports seven of them."
+                 " New Time (UTC), Old Time (UTC) and Time Source are empty on every row of alihadi_threatsim_server2019 (4 rows) and ou_ransomware_server2022 (446 rows): none of their records carries NewTime, OldTime or TimeSource.",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 44 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 57 rows",
@@ -161,6 +162,9 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 135 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 65 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 2,034 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 52 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 446 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 4 rows",
         },
         "paths": ("*/Windows/System32/winevt/Logs/Microsoft-Windows-Time-Service%4Operational.evtx",),
         "output_types": ["standard"],

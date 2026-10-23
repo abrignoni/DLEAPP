@@ -165,6 +165,7 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 130 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
             "evtx_mitre_attack_4688_cc0": "Public sample logs, Windows builds not recorded | 21 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
 }

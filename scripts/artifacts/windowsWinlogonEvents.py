@@ -111,6 +111,15 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 6 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 7 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 7 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 126 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 126 rows",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 126 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 27 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 20 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 16 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 9 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 45 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
         },
     },
     "winlogonOperational": {
@@ -183,7 +192,8 @@ __artifacts_v2__ = {
                  "header counts, and the run log says how many records came from there. A row records that Winlogon "
                  "notified a subscriber or ran an authentication; it does not by itself establish which person locked"
                  " or unlocked the workstation, and locks started another way (a key press or a timeout) were not "
-                 "compared. Reading needs the python-evtx package (pip install python-evtx).",
+                 "compared. Reading needs the python-evtx package (pip install python-evtx)."
+                 " On alihadi_threatsim_server2019 Result (as stored) is empty on all 14 rows, 811 and 812 records that carry Event and SubscriberName and no Win32Status.",
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-Winlogon%4Operational.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "lock",
@@ -202,6 +212,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 330 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 170 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 304 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched logs hold no records)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no records)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 720 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 2,513 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 14 rows",
         },
     },
 }

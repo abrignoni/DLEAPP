@@ -83,8 +83,10 @@ __artifacts_v2__ = {
                  "from 0 to 48 and a Service ID on each, and 254 rows of 41 ('An update was downloaded.'), each with "
                  "an Update Title, an Update ID in braces and a decimal Revision Number. Error Code (as stored) and "
                  "Other Fields were blank on every row of the four images. Of the other 12 Event IDs, version 0 of "
-                 "25, 30, 39 and 42 occurs on evtx_baseline_nextron_085_win7_x86 and version 1 of 31 on "
-                 "evtx_baseline_nextron_085_win2022_ad, and the remaining 7 are unexercised. 181 of the "
+                 "25, 30, 39 and 42 occurs on evtx_baseline_nextron_085_win7_x86, version 0 of 29, 30, 39 and 42 on "
+                 "cfreds_leakage_win7, version 1 of 25 on hexordia_mvs2025_win11 and ou_ransomware_server2022, and "
+                 "version 1 of 31 on evtx_baseline_nextron_085_win2022_ad and hexordia_mvs2025_win11, and the "
+                 "remaining 6 are unexercised. 181 of the "
                  "254 titles are 12 capital letters and digits, a hyphen and a package name (such as "
                  "9WZDNCRFJBMP-Microsoft.WindowsStore), and 21 hold a KB number in parentheses. Service ID held four "
                  "values over the 221 rows of 26: {8b24b027-1dee-babb-9a95-3517dfb9c552} on 83, "
@@ -133,6 +135,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 20 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 14 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 32 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched logs hold no records)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 67 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 255 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no records)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 898 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }

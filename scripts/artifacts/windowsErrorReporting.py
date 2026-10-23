@@ -188,7 +188,8 @@ __artifacts_v2__ = {
                  "and Record ID is the record's EventRecordID. Not reported: Bucket, BucketType, "
                  "Response, CabId, AnalysisSymbol, Rechecking and CabGuid."
                  " On evtx_baseline_nextron_085_win7_x86 Hashed Bucket was empty on all 49 rows: each of its records "
-                 "stores 21 unnamed strings, and Hashed bucket is the 22nd in the order above.",
+                 "stores 21 unnamed strings, and Hashed bucket is the 22nd in the order above."
+                 " On szechuan_dc01_server2012r2 Attached Files is empty on all 11 rows: its 1001 records store unnamed strings, and the one read as AttachedFiles is empty on each.",
         "paths": ('*/Windows/System32/winevt/Logs/Application.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "alert-triangle",
@@ -204,6 +205,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 15 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 16 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 11 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 11 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 5 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 446 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 12 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 1,040 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
     "appCrashHangEvents": {
@@ -275,6 +282,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 3 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no record of these events)",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 1 row",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no record this artifact reads)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 5 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 34 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no record this artifact reads)",
         },
     },
 }

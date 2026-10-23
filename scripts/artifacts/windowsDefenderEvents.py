@@ -249,6 +249,11 @@ __artifacts_v2__ = {
                            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
                            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 0 rows (the matched logs hold no record of these events)",
                            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 0 rows (the matched logs hold no record of these events)",
+                           "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no records)",
+                           "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (the matched logs hold no record this artifact reads)",
+                           "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+                           "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the matched logs hold no record this artifact reads)",
+                           "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
                        },
     },
     "defenderProtectionChanges": {
@@ -277,7 +282,7 @@ __artifacts_v2__ = {
                  "is on the registered Windows disk images listed here, in the two public samples or in the "
                  "windows11_arm_defender_eicar_known_20261018 log, so those two branches are unexercised on them; "
                  "8 records of 5004 are on the evtx_baseline_nextron_085 win10_client, win11_client, "
-                 "win11_client_2023, win2022_0_20348_azure and win2022_evtx keys. That log carries two 5013 records, written by platforms "
+                 "win11_client_2023, win2022_0_20348_azure and win2022_evtx keys and 3 on ou_ransomware_server2022. That log carries two 5013 records, written by platforms "
                  "4.18.25070.5 and 4.18.26080.4 before its known-data session. Product "
                  "Version is "
                  "the Product Version field. Field names are those of the provider "
@@ -357,6 +362,11 @@ __artifacts_v2__ = {
                            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 68 rows",
                            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 28 rows",
                            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 74 rows",
+                           "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no records)",
+                           "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 346 rows",
+                           "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 2 rows",
+                           "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 299 rows",
+                           "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
                        },
     },
     "defenderScans": {
@@ -496,6 +506,11 @@ __artifacts_v2__ = {
                            "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 0 rows (the matched logs hold no record of these events)",
                            "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 2 rows",
                            "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 6 rows",
+                           "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched logs hold no records)",
+                           "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (the matched logs hold no record this artifact reads)",
+                           "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+                           "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 260 rows",
+                           "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
                        },
     },
 }

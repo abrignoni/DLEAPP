@@ -172,7 +172,8 @@ __artifacts_v2__ = {
                  "every row, each value compared as this artifact reports it: as text, with white space at either "
                  "end removed. The four-image figures above do not include it. Reading needs the "
                  "python-evtx package (pip install python-evtx). Not read: the provider's other events. The four "
-                 "tested logs hold 14,592 records of 108 other Event IDs.",
+                 "tested logs hold 14,592 records of 108 other Event IDs."
+                 " On alihadi_challenge3_win81 (build 9600) Running for User SID is empty on all 654 rows: its records carry UserName and UserDomain and no UserSid.",
         "paths": ('*/Windows/System32/winevt/Logs/Microsoft-Windows-AppXDeploymentServer%4Operational.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "package",
@@ -188,6 +189,11 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 352 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 167 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 179 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched logs hold no record this artifact reads)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 1,004 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 654 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 326 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the matched logs hold no records)",
         },
     },
 }
