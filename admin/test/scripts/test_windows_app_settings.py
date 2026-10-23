@@ -1,4 +1,4 @@
-"""Packaged-app settings.dat: the value decoder, and the Phone Link and Notepad artifacts that use it.
+"""Packaged-app settings.dat: the value decoder, and the artifacts that use it.
 
 The hives are built here, cell by cell, the way the registry file format lays them out, and are
 read back through open_hive and python-registry exactly as a run reads a staged hive. Every name,
@@ -19,7 +19,8 @@ sys.path.insert(0, str(REPO_ROOT))
 # pylint: disable=wrong-import-position
 from scripts import registry_recovery as rr
 from scripts import windows_app_settings as was
-from scripts.artifacts import windowsNotepad, windowsPhoneLink
+from scripts.artifacts import (windowsApps, windowsNotepad, windowsPackagedAppAccounts,
+                               windowsPhoneLink)
 # pylint: enable=wrong-import-position
 
 UTC = datetime.timezone.utc
@@ -366,6 +367,220 @@ class NotepadSettingsTest(unittest.TestCase):
             _headers, rows, source = windowsNotepad.windowsNotepadSettings.__wrapped__(
                 _Context(root, [path]))
         self.assertEqual((rows, source), ([], ''))
+
+
+def packages(name):
+    return f'AppData/Local/Packages/{name}/Settings/settings.dat'
+
+
+STORE = packages('Microsoft.WindowsStore_8wekyb3d8bbwe')
+SKYPE = packages('Microsoft.SkypeApp_kzf8qxf38zg5c')
+ONEDRIVE = packages('microsoft.microsoftskydrive_8wekyb3d8bbwe')
+ONENOTE = packages('Microsoft.Office.OneNote_8wekyb3d8bbwe')
+OFFICE_KEYS = ('HKEY_CURRENT_USER', 'Software', 'Microsoft', 'Office', '16.0')
+
+
+def nested(names, stamp, values=(), subkeys=()):
+    """A chain of keys named by names, the values and subkeys on the innermost one."""
+    inner = spec(names[-1], stamp, values=values, subkeys=subkeys)
+    for name in reversed(names[:-1]):
+        inner = spec(name, stamp, subkeys=[inner])
+    return inner
+
+
+def store_hive(sign_in_name):
+    ticket = member('Token', 0x0C, utf16z('invented-ticket'))
+    return build_hive(T1, spec('LocalState', T1, values=[
+        ('HasUserSignedInBefore_StoreSetting', *setting(0x0B, b'\x01', T1)),
+        ('StorePreLaunch', *setting(0x0B, b'\x01', T1)),
+    ], subkeys=[
+        spec('Identity', T2, values=[('SignedOut', *setting(0x0C, utf16z('False'), T2))], subkeys=[
+            spec('CachedAccounts', T2, values=[
+                ('0000000000000ABC', *setting(0x0C, utf16z('0000000000000ABC'), T2))]),
+            spec('CachedIdentities', T2, values=[
+                ('DeviceToken', *setting(0x0C, utf16z('invented-device-token'), T2))], subkeys=[
+                spec('0000000000000ABC.Msa', T2, values=[
+                    ('FirstName', *setting(0x0C, utf16z('Example'), T3)),
+                    ('IsDefault', *setting(0x0B, b'\x01', T2)),
+                ], subkeys=[spec('Tickets', T2, values=[
+                    ('service::example', *setting(0x0D, ticket, T2))])])]),
+        ]),
+        spec('configuration', T1, subkeys=[spec('Service', T3, values=[
+            ('LastSignedInUserSignInName', *setting(0x0C, utf16z(sign_in_name), T3)),
+            ('LastSignedInUserTunerActivated', *setting(0x0B, b'\x00', T3)),
+        ])]),
+    ]))
+
+
+class PackagedAppAccountsTest(unittest.TestCase):
+    def test_account_values_of_each_app_and_nothing_else(self):
+        skype = build_hive(T1, spec('LocalState', T1, values=[
+            ('CachedCredentials', *setting(0x14, b'\x01\x02', T1))], subkeys=[
+            spec('SkypeHost', T2, values=[
+                ('LastSkypeName', *setting(0x0C, utf16z('example.name'), T2)),
+                ('IsUWPAppSignedIn', *setting(0x0B, b'\x01', T2)),
+                ('WnsChannelUrl', *setting(0x0C, utf16z('https://example.invalid/'), T2))]),
+            spec('0000000000000ABC', T1, values=[
+                ('MSASkypeName', *setting(0x0C, utf16z('example.name'), T1))]),
+        ]))
+        onedrive = build_hive(T1, spec('LocalState', T1, values=[
+            ('CameraBackupAccountEmailKey', *setting(0x0C, utf16z('someone@example.invalid'), T3)),
+            ('TelemetrySamplingSeedKey', *setting(0x04, struct.pack('<i', 5), T3))]))
+        onenote = build_hive(T1, spec('LocalState', T1, subkeys=[nested(
+            OFFICE_KEYS + ('Common', 'Identity'), T2,
+            values=[('ConnectedAccountCID', *setting(0x0C, utf16z('abc'), T2)),
+                    ('EnableWAM', *setting(0x05, struct.pack('<I', 1), T2))],
+            subkeys=[spec('Identities', T2, subkeys=[spec('abc_LiveId', T3, values=[
+                ('EmailAddress', *setting(0x0C, utf16z('someone@example.invalid'), T3)),
+                ('IdP', *setting(0x05, struct.pack('<I', 1), T3))])])])]))
+        with tempfile.TemporaryDirectory() as root:
+            files = [write(root, f'Users/alpha/{STORE}', store_hive('alpha@example.invalid')),
+                     write(root, f'Users/alpha/{SKYPE}', skype),
+                     write(root, f'Users/alpha/{ONEDRIVE}', onedrive),
+                     write(root, f'Users/alpha/{ONENOTE}', onenote)]
+            headers, rows, source = windowsPackagedAppAccounts.packagedAppAccounts.__wrapped__(
+                _Context(root, files))
+        names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        table = [dict(zip(names, r)) for r in rows]
+        self.assertEqual([(r['App'], r['Setting']) for r in table], [
+            ('Microsoft Store', 'HasUserSignedInBefore_StoreSetting'),
+            ('Microsoft Store', 'LastSignedInUserSignInName'),
+            ('Microsoft Store', 'SignedOut'),
+            ('Microsoft Store', '0000000000000ABC'),
+            ('Microsoft Store', 'FirstName'),
+            ('Microsoft Store', 'IsDefault'),
+            ('OneNote', 'ConnectedAccountCID'),
+            ('OneNote', 'EmailAddress'),
+            ('OneNote', 'IdP'),
+            ('Skype', 'MSASkypeName'),
+            ('Skype', 'IsUWPAppSignedIn'),
+            ('Skype', 'LastSkypeName'),
+            ('OneDrive', 'CameraBackupAccountEmailKey'),
+        ])
+        first = table[4]
+        self.assertEqual(first['Value'], 'Example')
+        self.assertEqual(first['Value Written'], T3)
+        self.assertEqual(first['Key Last Written'], T2)
+        self.assertEqual(first['Key'], 'LocalState\\Identity\\CachedIdentities\\0000000000000ABC.Msa')
+        self.assertEqual(table[1]['Value'], 'alpha@example.invalid')
+        self.assertEqual(table[-1]['Package'], 'microsoft.microsoftskydrive_8wekyb3d8bbwe')
+        self.assertEqual({r['User'] for r in table}, {'alpha'})
+        self.assertEqual(source.split('\n'), [files[0], files[3], files[1], files[2]])
+
+    def test_two_users_add_rows_and_a_decoy_package_adds_none(self):
+        with tempfile.TemporaryDirectory() as root:
+            files = [
+                write(root, f'Users/alpha/{STORE}', store_hive('alpha@example.invalid')),
+                write(root, f'Users/beta/{STORE}', store_hive('beta@example.invalid')),
+                write(root, 'Users/gamma/' + packages('Microsoft.WindowsStoreDecoy_x'),
+                      store_hive('decoy@example.invalid')),
+            ]
+            _h, single, _s = windowsPackagedAppAccounts.packagedAppAccounts.__wrapped__(
+                _Context(root, files[:1]))
+            _h, rows, _s = windowsPackagedAppAccounts.packagedAppAccounts.__wrapped__(
+                _Context(root, files + files[:1]))
+        self.assertEqual(len(rows), 2 * len(single))
+        self.assertEqual({(r[8], r[4]) for r in rows if r[3] == 'LastSignedInUserSignInName'},
+                         {('alpha', 'alpha@example.invalid'), ('beta', 'beta@example.invalid')})
+
+    def test_hive_without_account_values_gives_no_rows_and_still_names_the_file(self):
+        hive = build_hive(T1, spec('LocalState', T1, values=[
+            ('StorePreLaunch', *setting(0x0B, b'\x01', T1))]))
+        with tempfile.TemporaryDirectory() as root:
+            path = write(root, f'Users/alpha/{STORE}', hive)
+            _h, rows, source = windowsPackagedAppAccounts.packagedAppAccounts.__wrapped__(
+                _Context(root, [path]))
+        self.assertEqual((rows, source), ([], path))
+
+
+class OneNoteNotebookSettingsTest(unittest.TestCase):
+    def test_notebook_values_and_server_cache_entries(self):
+        url = 'https://example.invalid/notebooks/One/'
+        page = 'Page one\x00'.encode('utf-16-le')
+        sections = '{00000000-0000-0000-0000-000000000001}\x00Section A\x00\x00'.encode('utf-16-le')
+        general = nested(OFFICE_KEYS + ('OneNote', 'General'), T2, values=[
+            ('ActiveNotebook', *setting(0x0C, utf16z(url), T3)),
+            ('ShareCurrentPage', *setting(0x14, page, T2)),
+            ('ShareRecentSections', *setting(0x14, sections, T2)),
+            ('ShareQuickSection', *setting(0x0C, utf16z('Quick Notes'), T1)),
+            ('LastNavViewState', *setting(0x05, struct.pack('<I', 3), T1)),
+        ])
+        cache = nested(OFFICE_KEYS + ('Common', 'Internet', 'Server Cache'), T1, values=[
+            ('Count', *setting(0x05, struct.pack('<I', 1), T1))], subkeys=[
+            spec(url, T3, values=[('Expiration', *setting(0x07, struct.pack('<Q', 5), T3))],
+                 subkeys=[spec('Deeper', T1)])])
+        odd = nested(OFFICE_KEYS + ('OneNote', 'General'), T2, values=[
+            ('ShareCurrentPage', *setting(0x14, b'\x41\x00\x42', T2))])
+        with tempfile.TemporaryDirectory() as root:
+            path = write(root, f'Users/alpha/{ONENOTE}',
+                         build_hive(T1, spec('LocalState', T1, subkeys=[general])))
+            other = write(root, f'Users/beta/{ONENOTE}',
+                          build_hive(T1, spec('LocalState', T1, subkeys=[odd])))
+            headers, rows, source = windowsPackagedAppAccounts.oneNoteNotebookSettings.__wrapped__(
+                _Context(root, [path, other]))
+            third = write(root, f'Users/gamma/{ONENOTE}',
+                          build_hive(T1, spec('LocalState', T1, subkeys=[cache])))
+            _h, cache_rows, _s = windowsPackagedAppAccounts.oneNoteNotebookSettings.__wrapped__(
+                _Context(root, [third]))
+        names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        table = [dict(zip(names, r)) for r in rows]
+        self.assertEqual([(r['User'], r['Setting'], r['Value']) for r in table], [
+            ('alpha', 'ActiveNotebook', url),
+            ('alpha', 'ShareCurrentPage', 'Page one'),
+            ('alpha', 'ShareQuickSection', 'Quick Notes'),
+            ('alpha', 'ShareRecentSections',
+             '{00000000-0000-0000-0000-000000000001} | Section A'),
+            ('beta', 'ShareCurrentPage', '65, 0, 66'),
+        ])
+        self.assertEqual(table[0]['Value Written'], T3)
+        self.assertEqual(table[0]['Read As'], 'as stored')
+        self.assertEqual(table[1]['Read As'], windowsPackagedAppAccounts.UTF16_READ)
+        self.assertEqual(table[4]['Read As'], 'as stored')
+        self.assertEqual(source.split('\n'), [path, other])
+        self.assertEqual([(r[2], r[3], r[1]) for r in cache_rows],
+                         [('Server Cache entry', url, T3)])
+
+
+class WindowsAlarmsTest(unittest.TestCase):
+    def test_alarm_rows_keep_their_columns_and_add_the_value_written_time(self):
+        alarm = (member('Version', 0x05, struct.pack('<I', 1))
+                 + member('Name', 0x0C, utf16z('Example alarm'))
+                 + member('Hour', 0x05, struct.pack('<I', 7))
+                 + member('Minute', 0x05, struct.pack('<I', 5))
+                 + member('IsEnabled', 0x0B, b'\x01')
+                 + member('DaysOfWeek', 0x05, struct.pack('<I', 0))
+                 + member('SnoozeInterval', 0x05, struct.pack('<I', 10))
+                 + member('ScheduledYear', 0x05, struct.pack('<I', 2030))
+                 + member('ScheduledMonth', 0x05, struct.pack('<I', 1))
+                 + member('ScheduledDay', 0x05, struct.pack('<I', 2))
+                 + member('ScheduledHour', 0x05, struct.pack('<I', 7))
+                 + member('ScheduledMinute', 0x05, struct.pack('<I', 5))
+                 + member('__Created', 0x06, struct.pack('<q', ticks(T1)))
+                 + member('__Updated', 0x06, struct.pack('<q', ticks(T2))))
+        hive = build_hive(T1, spec('LocalState', T1, subkeys=[spec('Alarms', T3, values=[
+            ('{EXAMPLE}', *setting(0x0D, alarm, T3)),
+            ('Plain', *setting(0x0C, utf16z('not an alarm'), T3))])]))
+        alarms = 'AppData/Local/Packages/Microsoft.WindowsAlarms_8wekyb3d8bbwe/Settings/settings.dat'
+        with tempfile.TemporaryDirectory() as root:
+            path = write(root, f'Users/alpha/{alarms}', hive)
+            empty = write(root, f'Users/beta/{alarms}', build_hive(T1, spec('LocalState', T1)))
+            headers, rows, source = windowsApps.windowsAlarms.__wrapped__(
+                _Context(root, [path, empty]))
+        names = [h[0] if isinstance(h, tuple) else h for h in headers]
+        self.assertEqual(len(rows), 1)
+        row = dict(zip(names, rows[0]))
+        self.assertEqual(row['Next Scheduled Time (device local)'],
+                         datetime.datetime(2030, 1, 2, 7, 5))
+        self.assertEqual(row['Created Time (UTC)'], T1)
+        self.assertEqual(row['Updated Time (UTC)'], T2)
+        self.assertEqual(row['Value Written (UTC)'], T3)
+        self.assertEqual(row['Name'], 'Example alarm')
+        self.assertEqual(row['Alarm Time (device local)'], '07:05')
+        self.assertEqual(row['Enabled'], 'Yes')
+        self.assertEqual(row['Recurring'], 'No')
+        self.assertEqual(row['Record ID'], '{EXAMPLE}')
+        self.assertEqual(row['Source Format'], 'Packaged-app settings hive')
+        self.assertEqual(source.split('\n'), [path, empty])
 
 
 if __name__ == '__main__':
