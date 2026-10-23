@@ -106,7 +106,7 @@ sudo ln -s /Applications/DLEAPP.app/Contents/MacOS/dleapp /usr/local/bin/dleapp
 
 ## Requirements
 
-**Python 3.9 or above** (older versions of 3.x will also work with the exception of one or two modules)
+**Python 3.11 or above**
 
 ### Dependencies
 
