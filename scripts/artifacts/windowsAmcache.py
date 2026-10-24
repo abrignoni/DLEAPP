@@ -14,16 +14,25 @@ values with the SYSTEM hive's Enum keys, on the same images. The
 InventoryDeviceContainer entries are compared with the device entries that name
 them, and the InventoryDriverPackage values with the driver store folder and the
 INF file each names.
+
+Windows 11 build 26200 also keeps each of these inventories in an SQLite database
+beside the hive, named after the key (InventoryApplicationFile.db and so on), whose
+rows carry the key name as ItemKey and a LastModified FILETIME. Each artifact reads
+the hive and the database of the same folder, and reports an entry once when the
+hive's values all equal the database's, twice when they differ.
 """
 
-from datetime import timezone
+import os
+import re
+import sqlite3
+from datetime import datetime, timedelta, timezone
 
 try:
     from Registry import Registry
 except ImportError:
     Registry = None
 
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
 from scripts.windows_registry import open_hive
 
 # Amcache.hve records metadata about executables the system has seen, under
@@ -39,18 +48,23 @@ _DEVICE_PATH = "Root\\InventoryDevicePnp"
 _CONTAINER_PATH = "Root\\InventoryDeviceContainer"
 _PACKAGE_PATH = "Root\\InventoryDriverPackage"
 
+# Values the inventory databases store as signed 32-bit integers where the hive stores a DWORD.
+_UNSIGNED_32 = ('DriverTimeStamp',)
+_FILETIME_EPOCH = datetime(1601, 1, 1, tzinfo=timezone.utc)
+
 __artifacts_v2__ = {
     "amcacheApplicationFiles": {
         "name": "Amcache Application Files",
-        "description": "Files the system inventoried, from Amcache.hve InventoryApplicationFile: the file path, the "
+        "description": "Files the system inventoried, from Amcache.hve InventoryApplicationFile and the InventoryApplicationFile.db database beside it: the file path, the "
                        "SHA-1 Amcache records for it, publisher, product and version, size and link date where the "
                        "entry holds them, the entry's key name, and the time the entry was written.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-24",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one "
+        "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
+                 "both named in the report's located-at line. Each row is one "
                  "InventoryApplicationFile entry, a key Psmths's Amcache reference lists from Windows "
                  "10 build 14393 and describes as updated only when the Microsoft Compatibility "
                  "Appraiser task runs (Psmths, 'windows-forensic-artifacts', "
@@ -83,7 +97,7 @@ __artifacts_v2__ = {
                  "under InventoryApplication, the key the Amcache Applications artifact reports "
                  "(https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L75). "
                  "Key Last Write (UTC) is the entry's registry LastWrite time; it is not an execution "
-                 "time. Entry Key is the subkey's name as stored: on every entry of the five tested images it is a "
+                 "time. Entry Key is the subkey's name, or the database row's ItemKey, as stored: on every entry of the five tested images it is a "
                  "prefix, a vertical bar and 8 to 16 hexadecimal digits whose meaning was not established, and on "
                  "all 2,278 entries that hold a Name value the prefix is the first 16 characters of Name in lower "
                  "case. On windows11_arm_known_20261001, a capture made on 1 October 2026 of the hive of a Windows "
@@ -92,7 +106,8 @@ __artifacts_v2__ = {
                  "Date are blank and Entry Key is all the row carries of the file's name; SHA-1 is blank on 120 of "
                  "the 590, whose FileId is empty. Those 590 entries were last written from August to October 2026, "
                  "and no entry of the four other images has that shape. The files of that machine were not captured, "
-                 "so nothing on that image was compared with a file. An entry records that the file was inventoried; "
+                 "so nothing on that image was compared with a file, and neither were the databases beside the "
+                 "hive described below. An entry records that the file was inventoried; "
                  "this artifact does not treat "
                  "it as proof that the file ran or of who ran it. Reading the hive needs the "
                  "python-registry package. A dirty hive, one whose base block's two sequence numbers "
@@ -105,9 +120,51 @@ __artifacts_v2__ = {
                  "replay that would give a key an earlier last-written time than the hive already "
                  "holds, a check added here beyond the specification; the run log names each hive "
                  "replayed, with the sequence numbers applied, and each dirty hive read as it is, with "
-                 "the reason.",
+                 "the reason."
+                 " On the one Windows 11 build 26200 machine whose Amcache folder was captured with its "
+                 "databases, windows11_arm_amcache_inventorydb_known_20261024, an inventory keyed by the same "
+                 "names is also kept in InventoryApplicationFile.db, an SQLite database beside Amcache.hve, "
+                 "which is opened read-only and read when present: each row of its InventoryApplicationFile_<n> "
+                 "table is one entry, named by its ItemKey column, with the hive's value names as columns and a "
+                 "LastModified column. Database Row Modified (UTC) is LastModified read as a FILETIME; on that "
+                 "capture, from an ARM64 virtual machine, the newest LastModified of 15 of the 16 databases "
+                 "there that hold rows was within 15 ms of the database file's last-write time, and the other "
+                 "file was last written about three days after its newest row. Key Last Write (UTC) is filled on"
+                 " a row from the hive and Database Row Modified (UTC) on a row from the database whose "
+                 "LastModified is not 0, which every row of the tested databases had. A row from the database "
+                 "alone therefore has no Key Last Write (UTC), the first column, and the timeline, which places "
+                 "each row by its first column, gives it no time. A hive entry and the database row with the "
+                 "same key name give one row, with the database's values and both times, when every value the "
+                 "hive entry holds equals, compared as text, the database's value of the same name; otherwise "
+                 "each gives its own row, so one entry can appear twice with different values. On that image: "
+                 "3,226 hive entries, 2,136 database rows, 1,935 of them reported as one row. 1,637 of the 3,226"
+                 " hive entries hold only FileId and ProgramId; 879 of those have a database row and are "
+                 "reported with its path and details, and the other 758 keep File Path, Name, Publisher, Product"
+                 " Name, Version, Size (bytes) and Link Date blank. A uniquely named copy of a system "
+                 "executable, run once on that machine at a recorded time, was such a hive entry, last written "
+                 "0.8 s after the run; its database row, whose SHA-1 and Size equalled the copy's, was written "
+                 "0.7 s after the run and 0.1 s before the hive entry. On that image every hive key name (3,226)"
+                 " and every ItemKey (2,136) has the prefix, bar and hexadecimal shape described above, and on "
+                 "all 1,589 hive entries and 2,136 database rows that hold a Name value the prefix is the first "
+                 "16 characters of Name in lower case. Of the 2,136 entries in both stores, 201 disagree, mostly"
+                 " on Usn (184) and on the version values (153 on Version), and, comparing the numbers in the "
+                 "version text in order, the database's is higher on all 153. The hive's entries were last "
+                 "written from August 2025 to October 2026 and the database's rows from 30 July to 24 October "
+                 "2026. The database's Sha256 column was empty on all 2,136 rows and IsPeFile held 1 on all of "
+                 "them, so neither is reported. The folder's other databases are not read, as their hive keys "
+                 "are not: InventoryApplicationFramework, InventoryAcpiPhatHealthRecord, "
+                 "InventoryAcpiPhatVersionElement, InventoryDevicePci and InventoryDeviceSensor held no rows on "
+                 "that image, InventoryApplicationDriver and DriverPackageExtended were 0 bytes, "
+                 "InventoryDeviceInterface, InventoryDeviceMediaClass, InventoryDeviceUsbHubClass and "
+                 "InventoryMiscellaneousMemorySlotArrayInfo held one row each describing the hardware, and "
+                 "InventoryMiscellaneous, InventoryMiscellaneousUser, InventoryMiscellaneousUUPInfo, "
+                 "DeviceCensus (a binary Data column) and Mare hold values whose meaning was not sourced, and "
+                 "MareBackupApps held no rows in its data table. A folder holding only the database, or only the"
+                 " hive, is read as well. A -wal or -journal beside the database is staged with it, but the "
+                 "tested database had neither, so a database left with a hot journal is not exercised.",
         "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/appcompat/Programs/InventoryApplicationFile.db*'),
         "output_types": ["standard"],
         "artifact_icon": "hash",
         "sample_data": {
@@ -116,25 +173,27 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 292 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 98 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 2179 rows",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 3427 rows",
         },
     },
     "amcacheApplications": {
         "name": "Amcache Applications",
-        "description": "Applications Windows inventoried, from Amcache.hve InventoryApplication: name, version, "
+        "description": "Applications Windows inventoried, from Amcache.hve InventoryApplication and the InventoryApplication.db database beside it: name, version, "
                        "publisher, how the entry was sourced, install date as stored, install folder, uninstall "
                        "command and the Uninstall registry key or package the entry names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-24",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+        "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
+                 "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryApplication, a key Psmths's Amcache reference lists from Windows 10 build 14393, "
                  "describes as holding one subkey per installed program, named by its ProgramId, and describes as "
                  "updated only when the Microsoft Compatibility Appraiser task runs, so that software installed "
                  "since that task last ran may be missing (Psmths, 'windows-forensic-artifacts', "
                  "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L46-L49). "
-                 "Every column after the first is a value of the entry as stored, blank where the entry lacks it: "
+                 "Every column after the first two is a value of the entry as stored, blank where the entry lacks it: "
                  "Install Date (as stored) is InstallDate, Root Folder is RootDirPath, Store App Type is "
                  "StoreAppType, MSI Product Code is MsiProductCode, User SID is UserSid, Hidden ARP (as stored) is "
                  "HiddenArp, OS Version "
@@ -231,9 +290,33 @@ __artifacts_v2__ = {
                  "applied, following Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
                  "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
-                 "names each hive replayed.",
+                 "names each hive replayed."
+                 " On the one Windows 11 build 26200 machine whose Amcache folder was captured with its "
+                 "databases, windows11_arm_amcache_inventorydb_known_20261024, an inventory keyed by the same "
+                 "names is also kept in InventoryApplication.db, an SQLite database beside Amcache.hve, which is"
+                 " opened read-only and read when present: each row of its InventoryApplication_<n> table is one"
+                 " entry, named by its ItemKey column, with the hive's value names as columns and a LastModified"
+                 " column. Database Row Modified (UTC) is LastModified read as a FILETIME; on that capture, from"
+                 " an ARM64 virtual machine, the newest LastModified of 15 of the 16 databases there that hold "
+                 "rows was within 15 ms of the database file's last-write time, and the other file was last "
+                 "written about three days after its newest row. Key Last Write (UTC) is filled on a row from "
+                 "the hive and Database Row Modified (UTC) on a row from the database whose LastModified is not "
+                 "0, which every row of the tested databases had. A row from the database alone therefore has no"
+                 " Key Last Write (UTC), the first column, and the timeline, which places each row by its first "
+                 "column, gives it no time. A hive entry and the database row with the same key name give one "
+                 "row, with the database's values and both times, when every value the hive entry holds equals, "
+                 "compared as text, the database's value of the same name; otherwise each gives its own row, so "
+                 "one entry can appear twice with different values. On that image: 286 hive entries, 296 "
+                 "database rows, 222 of them reported as one row. OSVersionAtInstallTime is not a column of the "
+                 "database, so OS Version At Install is blank on its rows. Of the 234 entries in both stores, 12"
+                 " disagree, mostly on ProgramInstanceId (7); 52 entries are only in the hive and 62 only in the"
+                 " database. The hive's entries were last written on 30 July 2026 and the database's rows on 14 "
+                 "and 15 September 2026. A folder holding only the database, or only the hive, is read as well. "
+                 "A -wal or -journal beside the database is staged with it, but the tested database had neither,"
+                 " so a database left with a hot journal is not exercised.",
         "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/appcompat/Programs/InventoryApplication.db*'),
         "output_types": ["standard"],
         "artifact_icon": "package",
         "sample_data": {
@@ -242,19 +325,21 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 90 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 85 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 286 rows",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 360 rows",
         },
     },
     "amcacheShortcuts": {
         "name": "Amcache Shortcuts",
-        "description": "Shortcut (.lnk) paths Windows inventoried, from Amcache.hve InventoryApplicationShortcut, "
+        "description": "Shortcut (.lnk) paths Windows inventoried, from Amcache.hve InventoryApplicationShortcut and the InventoryApplicationShortcut.db database beside it, "
                        "with the time each entry was written and, where the entry holds them, the shortcut's target "
                        "path, AUMID and program ID.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-24",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+        "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
+                 "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryApplicationShortcut, a key Psmths's Amcache reference names among the hive's keys "
                  "without describing it (Psmths, 'windows-forensic-artifacts', "
                  "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L41-L44). "
@@ -299,9 +384,33 @@ __artifacts_v2__ = {
                  "registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
                  "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
-                 "names each hive replayed.",
+                 "names each hive replayed."
+                 " On the one Windows 11 build 26200 machine whose Amcache folder was captured with its "
+                 "databases, windows11_arm_amcache_inventorydb_known_20261024, an inventory keyed by the same "
+                 "names is also kept in InventoryApplicationShortcut.db, an SQLite database beside Amcache.hve, "
+                 "which is opened read-only and read when present: each row of its "
+                 "InventoryApplicationShortcut_<n> table is one entry, named by its ItemKey column, with the "
+                 "hive's value names as columns and a LastModified column. Database Row Modified (UTC) is "
+                 "LastModified read as a FILETIME; on that capture, from an ARM64 virtual machine, the newest "
+                 "LastModified of 15 of the 16 databases there that hold rows was within 15 ms of the database "
+                 "file's last-write time, and the other file was last written about three days after its newest "
+                 "row. Key Last Write (UTC) is filled on a row from the hive and Database Row Modified (UTC) on "
+                 "a row from the database whose LastModified is not 0, which every row of the tested databases "
+                 "had. A row from the database alone therefore has no Key Last Write (UTC), the first column, "
+                 "and the timeline, which places each row by its first column, gives it no time. A hive entry "
+                 "and the database row with the same key name give one row, with the database's values and both "
+                 "times, when every value the hive entry holds equals, compared as text, the database's value of"
+                 " the same name; otherwise each gives its own row, so one entry can appear twice with different"
+                 " values. On that image: 124 hive entries, 133 database rows, 24 of them reported as one row. "
+                 "Of the 124 entries in both stores, 100 disagree, all on Program ID (ShortcutProgramId) and one"
+                 " also on Target Path; 9 entries are only in the database. The hive's entries were last written"
+                 " on 30 July 2026 and the database's rows on 18 October 2026. A folder holding only the "
+                 "database, or only the hive, is read as well. A -wal or -journal beside the database is staged "
+                 "with it, but the tested database had neither, so a database left with a hot journal is not "
+                 "exercised.",
         "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/appcompat/Programs/InventoryApplicationShortcut.db*'),
         "output_types": ["standard"],
         "artifact_icon": "link",
         "sample_data": {
@@ -310,23 +419,25 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 97 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 35 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 124 rows",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 233 rows",
         },
     },
     "amcacheDrivers": {
         "name": "Amcache Drivers",
-        "description": "Driver files Windows inventoried, from Amcache.hve InventoryDriverBinary: the driver's path, "
+        "description": "Driver files Windows inventoried, from Amcache.hve InventoryDriverBinary and the InventoryDriverBinary.db database beside it: the driver's path, "
                        "the SHA-1 Amcache records for it, service, company, product and version, the in-box, signed "
                        "and kernel-mode values as stored, and the driver package name.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-24",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+        "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
+                 "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryDriverBinary, a key Psmths's Amcache reference names among the hive's keys without "
                  "describing it (Psmths, 'windows-forensic-artifacts', "
                  "https://github.com/Psmths/windows-forensic-artifacts/blob/a1cfae67e3b347b7f3336dece5c3527a11b73e00/execution/amcache.md#L41-L44). "
-                 "Driver Path is the subkey's name. The other columns are values of the entry as stored, blank where "
+                 "Driver Path is the subkey's name, or the database row's ItemKey. The other columns are values of the entry as stored, blank where "
                  "the entry lacks one: Driver Last Write (as stored) is DriverLastWriteTime, SHA-1 is DriverId "
                  "without its leading four zeroes (shown as stored when it does not have that shape), Driver Name is "
                  "DriverName, Company is DriverCompany, Driver Version is DriverVersion, In Box (as stored) is "
@@ -386,9 +497,38 @@ __artifacts_v2__ = {
                  "registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
                  "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
-                 "names each hive replayed.",
+                 "names each hive replayed."
+                 " On the one Windows 11 build 26200 machine whose Amcache folder was captured with its "
+                 "databases, windows11_arm_amcache_inventorydb_known_20261024, an inventory keyed by the same "
+                 "names is also kept in InventoryDriverBinary.db, an SQLite database beside Amcache.hve, which "
+                 "is opened read-only and read when present: each row of its InventoryDriverBinary_<n> table is "
+                 "one entry, named by its ItemKey column, with the hive's value names as columns and a "
+                 "LastModified column. Database Row Modified (UTC) is LastModified read as a FILETIME; on that "
+                 "capture, from an ARM64 virtual machine, the newest LastModified of 15 of the 16 databases "
+                 "there that hold rows was within 15 ms of the database file's last-write time, and the other "
+                 "file was last written about three days after its newest row. Key Last Write (UTC) is filled on"
+                 " a row from the hive and Database Row Modified (UTC) on a row from the database whose "
+                 "LastModified is not 0, which every row of the tested databases had. A row from the database "
+                 "alone therefore has no Key Last Write (UTC), the first column, and the timeline, which places "
+                 "each row by its first column, gives it no time. A hive entry and the database row with the "
+                 "same key name give one row, with the database's values and both times, when every value the "
+                 "hive entry holds equals, compared as text, the database's value of the same name; otherwise "
+                 "each gives its own row, so one entry can appear twice with different values. On that image: "
+                 "317 hive entries, 335 database rows, 74 of them reported as one row. The database's "
+                 "DriverTimeStamp column is negative on 161 of its 335 rows, consistent with the hive's DWORD "
+                 "written as a signed 32-bit integer; on a row from the database PE Timestamp (as stored) is "
+                 "that value converted back to the unsigned form the hive stores, not the value as stored, and "
+                 "it equalled the hive's on 78 of the 80 entries in both stores with the same Driver Version. Of"
+                 " the 297 entries in both stores, 223 disagree, mostly on DriverId, DriverLastWriteTime, "
+                 "DriverTimeStamp and DriverCheckSum (219 each), and on all 217 whose Driver Version differs the"
+                 " database holds the higher version; 20 entries are only in the hive and 38 only in the "
+                 "database. The hive's entries were last written on 30 July 2026 and the database's rows on 18 "
+                 "October 2026. A folder holding only the database, or only the hive, is read as well. A -wal or"
+                 " -journal beside the database is staged with it, but the tested database had neither, so a "
+                 "database left with a hot journal is not exercised.",
         "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/appcompat/Programs/InventoryDriverBinary.db*'),
         "output_types": ["standard"],
         "artifact_icon": "cpu",
         "sample_data": {
@@ -397,19 +537,21 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 351 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 371 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 317 rows",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 578 rows",
         },
     },
     "amcacheDevices": {
         "name": "Amcache Devices",
-        "description": "Plug and Play devices Windows inventoried, from Amcache.hve InventoryDevicePnp: the device "
+        "description": "Plug and Play devices Windows inventoried, from Amcache.hve InventoryDevicePnp and the InventoryDevicePnp.db database beside it: the device "
                        "instance, model, manufacturer, class, service and driver, hardware IDs, and the install "
                        "dates where the entry holds them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-24",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+        "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
+                 "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryDevicePnp. No description of this key's values that could be relied on was found: "
                  "Microsoft's page for the InventoryDevicePnpAdd diagnostic event lists fields of these names, but "
                  "its descriptions do not line up with the names (it describes Enumerator as the date of the driver "
@@ -418,7 +560,7 @@ __artifacts_v2__ = {
                  "https://learn.microsoft.com/en-us/windows/privacy/required-windows-diagnostic-data-events-and-fields-2004#microsoftwindowsinventorycoreinventorydevicepnpadd). "
                  "The statements here are measurements on af_case2_win10, lonewolf_win10 and szechuan_win10 (Windows "
                  "10 builds 17763, 16299 and 19041), whose keys hold 92, 131 and 201 entries, against the Enum key "
-                 "of the current control set in each image's SYSTEM hive. Device is the subkey's name. The other "
+                 "of the current control set in each image's SYSTEM hive. Device is the subkey's name, or the database row's ItemKey. The other "
                  "columns are values of the entry as stored, blank where the entry lacks one: Install Date (as "
                  "stored) is InstallDate, First Install Date (as stored) is FirstInstallDate, Bus Reported "
                  "Description is BusReportedDescription, Driver Name is DriverName, Driver SHA-1 is DriverId without "
@@ -474,9 +616,33 @@ __artifacts_v2__ = {
                  "following Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
                  "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
-                 "names each hive replayed.",
+                 "names each hive replayed."
+                 " On the one Windows 11 build 26200 machine whose Amcache folder was captured with its "
+                 "databases, windows11_arm_amcache_inventorydb_known_20261024, an inventory keyed by the same "
+                 "names is also kept in InventoryDevicePnp.db, an SQLite database beside Amcache.hve, which is "
+                 "opened read-only and read when present: each row of its InventoryDevicePnp_<n> table is one "
+                 "entry, named by its ItemKey column, with the hive's value names as columns and a LastModified "
+                 "column. Database Row Modified (UTC) is LastModified read as a FILETIME; on that capture, from "
+                 "an ARM64 virtual machine, the newest LastModified of 15 of the 16 databases there that hold "
+                 "rows was within 15 ms of the database file's last-write time, and the other file was last "
+                 "written about three days after its newest row. Key Last Write (UTC) is filled on a row from "
+                 "the hive and Database Row Modified (UTC) on a row from the database whose LastModified is not "
+                 "0, which every row of the tested databases had. A row from the database alone therefore has no"
+                 " Key Last Write (UTC), the first column, and the timeline, which places each row by its first "
+                 "column, gives it no time. A hive entry and the database row with the same key name give one "
+                 "row, with the database's values and both times, when every value the hive entry holds equals, "
+                 "compared as text, the database's value of the same name; otherwise each gives its own row, so "
+                 "one entry can appear twice with different values. On that image: 81 hive entries, 88 database "
+                 "rows, 21 of them reported as one row. Of the 77 entries in both stores, 56 disagree, mostly on"
+                 " DriverId (52), DriverPackageStrongName and DriverVerVersion (48 each) and InstallDate (11); 4"
+                 " entries are only in the hive and 11 only in the database. The hive's entries were last "
+                 "written on 30 July 2026 and the database's rows on 18 and 19 October 2026. A folder holding "
+                 "only the database, or only the hive, is read as well. A -wal or -journal beside the database "
+                 "is staged with it, but the tested database had neither, so a database left with a hot journal "
+                 "is not exercised.",
         "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/appcompat/Programs/InventoryDevicePnp.db*'),
         "output_types": ["standard"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -485,25 +651,27 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 131 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 201 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 81 rows",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 148 rows",
         },
     },
     "amcacheDeviceContainers": {
         "name": "Amcache Device Containers",
-        "description": "Device containers Windows inventoried, from Amcache.hve InventoryDeviceContainer: the "
+        "description": "Device containers Windows inventoried, from Amcache.hve InventoryDeviceContainer and the InventoryDeviceContainer.db database beside it: the "
                        "identifier the hive gives the container, its friendly name, model, manufacturer and "
                        "categories, and the connected, active, paired, networked and machine-container values as "
                        "stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-24",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
+        "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
+                 "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryDeviceContainer. Microsoft describes a container ID as the identification string "
                  "that groups the functional devices of one device installed in the computer, and calls each such "
                  "device instance the device container (Microsoft, 'Container ID', "
                  "https://github.com/MicrosoftDocs/windows-driver-docs/blob/6de78e042e0eaba466569c7f5ed65c250c644a0b/windows-driver-docs-pr/install/container-ids.md#L11-L13). "
-                 "Container ID is the subkey's name. The other columns are values of the entry as stored, blank "
+                 "Container ID is the subkey's name, or the database row's ItemKey. The other columns are values of the entry as stored, blank "
                  "where the entry lacks one: Friendly Name is FriendlyName, Model Name is ModelName, Model Number is "
                  "ModelNumber, Primary Category is PrimaryCategory, Machine Container (as stored) is "
                  "IsMachineContainer, Connected (as stored) is IsConnected, Active (as stored) is IsActive, Paired "
@@ -569,9 +737,32 @@ __artifacts_v2__ = {
                  "following Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
                  "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
-                 "names each hive replayed.",
+                 "names each hive replayed."
+                 " On the one Windows 11 build 26200 machine whose Amcache folder was captured with its "
+                 "databases, windows11_arm_amcache_inventorydb_known_20261024, an inventory keyed by the same "
+                 "names is also kept in InventoryDeviceContainer.db, an SQLite database beside Amcache.hve, "
+                 "which is opened read-only and read when present: each row of its InventoryDeviceContainer_<n> "
+                 "table is one entry, named by its ItemKey column, with the hive's value names as columns and a "
+                 "LastModified column. Database Row Modified (UTC) is LastModified read as a FILETIME; on that "
+                 "capture, from an ARM64 virtual machine, the newest LastModified of 15 of the 16 databases "
+                 "there that hold rows was within 15 ms of the database file's last-write time, and the other "
+                 "file was last written about three days after its newest row. Key Last Write (UTC) is filled on"
+                 " a row from the hive and Database Row Modified (UTC) on a row from the database whose "
+                 "LastModified is not 0, which every row of the tested databases had. A row from the database "
+                 "alone therefore has no Key Last Write (UTC), the first column, and the timeline, which places "
+                 "each row by its first column, gives it no time. A hive entry and the database row with the "
+                 "same key name give one row, with the database's values and both times, when every value the "
+                 "hive entry holds equals, compared as text, the database's value of the same name; otherwise "
+                 "each gives its own row, so one entry can appear twice with different values. On that image: 21"
+                 " hive entries, 21 database rows, 13 of them reported as one row. Of the 16 entries in both "
+                 "stores, 3 disagree; 5 entries are only in the hive and 5 only in the database. The hive's "
+                 "entries were last written on 30 July 2026 and the database's rows on 18 October 2026. A folder"
+                 " holding only the database, or only the hive, is read as well. A -wal or -journal beside the "
+                 "database is staged with it, but the tested database had neither, so a database left with a hot"
+                 " journal is not exercised.",
         "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/appcompat/Programs/InventoryDeviceContainer.db*'),
         "output_types": ["standard"],
         "artifact_icon": "box",
         "sample_data": {
@@ -580,20 +771,22 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 11 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 16 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 21 rows",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 29 rows",
         },
     },
     "amcacheDriverPackages": {
         "name": "Amcache Driver Packages",
-        "description": "Driver packages Windows inventoried, from Amcache.hve InventoryDriverPackage: the package's "
+        "description": "Driver packages Windows inventoried, from Amcache.hve InventoryDriverPackage and the InventoryDriverPackage.db database beside it: the package's "
                        "name, date, version, provider and device class, its directory, INF name, hardware IDs and "
                        ".sys file names, and the in-box and active values as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-24",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "Read from Amcache.hve, named in the report's located-at line. Each row is one subkey of "
-                 "Root\\InventoryDriverPackage. Driver Package is the subkey's name. The other columns are values of "
+        "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
+                 "both named in the report's located-at line. Each row is one entry of "
+                 "Root\\InventoryDriverPackage. Driver Package is the subkey's name, or the database row's ItemKey. The other columns are values of "
                  "the entry as stored, blank where the entry lacks one: Date (as stored) is Date, Class GUID is "
                  "ClassGuid, INF is Inf, Hardware IDs is Hwids, Files is SYSFILE, In Box (as stored) is DriverInBox, "
                  "Active (as stored) is IsActive, Submission ID is SubmissionId, and Version, Provider, Class and "
@@ -672,9 +865,34 @@ __artifacts_v2__ = {
                  "'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
                  "the Amcache Application Files notes give the cases in which they are not applied, and the run log "
-                 "names each hive replayed.",
+                 "names each hive replayed."
+                 " On the one Windows 11 build 26200 machine whose Amcache folder was captured with its "
+                 "databases, windows11_arm_amcache_inventorydb_known_20261024, an inventory keyed by the same "
+                 "names is also kept in InventoryDriverPackage.db, an SQLite database beside Amcache.hve, which "
+                 "is opened read-only and read when present: each row of its InventoryDriverPackage_<n> table is"
+                 " one entry, named by its ItemKey column, with the hive's value names as columns and a "
+                 "LastModified column. Database Row Modified (UTC) is LastModified read as a FILETIME; on that "
+                 "capture, from an ARM64 virtual machine, the newest LastModified of 15 of the 16 databases "
+                 "there that hold rows was within 15 ms of the database file's last-write time, and the other "
+                 "file was last written about three days after its newest row. Key Last Write (UTC) is filled on"
+                 " a row from the hive and Database Row Modified (UTC) on a row from the database whose "
+                 "LastModified is not 0, which every row of the tested databases had. A row from the database "
+                 "alone therefore has no Key Last Write (UTC), the first column, and the timeline, which places "
+                 "each row by its first column, gives it no time. A hive entry and the database row with the "
+                 "same key name give one row, with the database's values and both times, when every value the "
+                 "hive entry holds equals, compared as text, the database's value of the same name; otherwise "
+                 "each gives its own row, so one entry can appear twice with different values. On that image: 31"
+                 " hive entries, 12 database rows, 1 of them reported as one row. Only one key is in both "
+                 "stores, and the two agree. The hive's entries were last written from August 2025 to 29 July "
+                 "2026 and the database's rows from 2 September to 15 October 2026. The database's "
+                 "DriverPackageStrongName column, which the hive does not hold, held an empty string on all 12 "
+                 "rows and is not reported; Driver Package is the key name, as for the hive. A folder holding "
+                 "only the database, or only the hive, is read as well. A -wal or -journal beside the database "
+                 "is staged with it, but the tested database had neither, so a database left with a hot journal "
+                 "is not exercised.",
         "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/appcompat/Programs/InventoryDriverPackage.db*'),
         "output_types": ["standard"],
         "artifact_icon": "package",
         "sample_data": {
@@ -683,84 +901,16 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 9 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 4 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 31 rows",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 42 rows",
         },
     },
 }
-
-
-def _value(entry, name):
-    try:
-        return entry.value(name).value()
-    except Registry.RegistryValueNotFoundException:
-        return None
 
 
 def _sha1(file_id):
     if isinstance(file_id, str) and len(file_id) == 44 and file_id.startswith('0000'):
         return file_id[4:]
     return file_id or ''
-
-
-def _inventory_key(hive_path):
-    reg = open_hive(hive_path)
-    try:
-        return reg.open(_INVENTORY_PATH)
-    except Registry.RegistryKeyNotFoundException:
-        return None
-
-
-def file_row(entry):
-    written = entry.timestamp()
-    if written is not None and written.tzinfo is None:
-        written = written.replace(tzinfo=timezone.utc)
-    size = _value(entry, 'Size')
-    return (written,
-            _value(entry, 'LowerCaseLongPath') or '',
-            _sha1(_value(entry, 'FileId')),
-            _value(entry, 'Name') or '',
-            _value(entry, 'Publisher') or '',
-            _value(entry, 'ProductName') or '',
-            _value(entry, 'Version') or '',
-            '' if size is None else size,
-            _value(entry, 'LinkDate') or '',
-            _value(entry, 'ProgramId') or '',
-            entry.name())
-
-
-@artifact_processor
-def amcacheApplicationFiles(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'File Path', 'SHA-1',
-                    'Name', 'Publisher', 'Product Name', 'Version', 'Size (bytes)',
-                    'Link Date', 'Program ID', 'Entry Key')
-    data_list = []
-    sources = []
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_headers, data_list, ''
-
-    for source in [str(f) for f in context.get_files_found()
-                   if str(f).lower().endswith('amcache.hve')]:
-        relative_source = context.get_relative_path(source)
-        rows_here = 0
-        try:
-            inventory = _inventory_key(source)
-            if inventory is None:
-                continue
-            for entry in inventory.subkeys():
-                data_list.append(file_row(entry))
-                rows_here += 1
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            logfunc(f'Amcache: could not read {relative_source}: {exc}')
-        if rows_here:
-            sources.append(source)
-
-    return data_headers, data_list, "\n".join(sources)
-
-
-def _stored(entry, name):
-    """The value as stored, or '' when the entry has no such value (a stored 0 stays 0)."""
-    value = _value(entry, name)
-    return '' if value is None else value
 
 
 def _written(entry):
@@ -770,156 +920,280 @@ def _written(entry):
     return written
 
 
-def application_row(entry):
-    return (_written(entry), _stored(entry, 'InstallDate'), _stored(entry, 'Name'),
-            _stored(entry, 'Version'), _stored(entry, 'Publisher'), _stored(entry, 'Source'),
-            _stored(entry, 'StoreAppType'), _stored(entry, 'RootDirPath'),
-            _stored(entry, 'UninstallString'), _stored(entry, 'RegistryKeyPath'),
-            _stored(entry, 'PackageFullName'), _stored(entry, 'MsiProductCode'),
-            _stored(entry, 'UserSid'), _stored(entry, 'HiddenArp'),
-            _stored(entry, 'OSVersionAtInstallTime'), _stored(entry, 'ProgramId'))
+def _filetime(value):
+    """A FILETIME integer as a UTC datetime, or None when it is empty, 0 or out of range."""
+    if not isinstance(value, int) or value <= 0:
+        return None
+    try:
+        return _FILETIME_EPOCH + timedelta(microseconds=value // 10)
+    except OverflowError:
+        return None
 
 
-def shortcut_row(entry):
-    return (_written(entry), _stored(entry, 'ShortcutPath'), _stored(entry, 'ShortcutTargetPath'),
-            _stored(entry, 'ShortcutAumid'), _stored(entry, 'ShortcutProgramId'))
+class _Record:
+    """One inventory entry, from a hive subkey or a database row: its key name, its values by name,
+    and when it was written."""
+
+    __slots__ = ('key', 'values', 'written')
+
+    def __init__(self, key, values, written):
+        self.key = key
+        self.values = values
+        self.written = written
 
 
-def driver_row(entry):
-    return (_written(entry), _stored(entry, 'DriverLastWriteTime'), entry.name(),
-            _sha1(_value(entry, 'DriverId')), _stored(entry, 'DriverName'),
-            _stored(entry, 'Service'), _stored(entry, 'DriverCompany'), _stored(entry, 'Product'),
-            _stored(entry, 'DriverVersion'), _stored(entry, 'DriverInBox'),
-            _stored(entry, 'DriverSigned'), _stored(entry, 'DriverIsKernelMode'),
-            _stored(entry, 'Inf'), _stored(entry, 'DriverPackageStrongName'),
-            _stored(entry, 'DriverTimeStamp'))
+def _stored(record, name):
+    """The value as stored, or '' when the entry has no such value (a stored 0 stays 0)."""
+    value = record.values.get(name)
+    return '' if value is None else value
 
 
-def device_row(entry):
-    return (_written(entry), _stored(entry, 'InstallDate'), _stored(entry, 'FirstInstallDate'),
-            entry.name(), _stored(entry, 'Model'), _stored(entry, 'Description'),
-            _stored(entry, 'Manufacturer'), _stored(entry, 'Class'), _stored(entry, 'Enumerator'),
-            _stored(entry, 'BusReportedDescription'), _stored(entry, 'Service'),
-            _stored(entry, 'DriverName'), _sha1(_value(entry, 'DriverId')),
-            _stored(entry, 'ParentId'), _stored(entry, 'ContainerId'), _stored(entry, 'HWID'),
-            _stored(entry, 'Inf'))
+def _hive_record(entry):
+    """A hive subkey as a record; its unnamed default value is left out."""
+    values = {value.name(): value.value() for value in entry.values() if value.name() != '(default)'}
+    return _Record(entry.name(), values, _written(entry))
 
 
-def container_row(entry):
-    return (_written(entry), entry.name(), _stored(entry, 'FriendlyName'), _stored(entry, 'ModelName'),
-            _stored(entry, 'ModelNumber'), _stored(entry, 'Manufacturer'),
-            _stored(entry, 'PrimaryCategory'), _stored(entry, 'Categories'),
-            _stored(entry, 'IsMachineContainer'), _stored(entry, 'IsConnected'),
-            _stored(entry, 'IsActive'), _stored(entry, 'IsPaired'), _stored(entry, 'IsNetworked'),
-            _stored(entry, 'DiscoveryMethod'), _stored(entry, 'State'), _stored(entry, 'ModelId'),
-            _stored(entry, 'Icon'))
+def _hive_records(source, key_path):
+    """The subkeys of key_path in the hive at source as records, [] when the key is absent."""
+    reg = open_hive(source)
+    try:
+        key = reg.open(key_path)
+    except Registry.RegistryKeyNotFoundException:
+        return []
+    return [_hive_record(entry) for entry in key.subkeys()]
 
 
-def package_row(entry):
-    return (_written(entry), _stored(entry, 'Date'), entry.name(), _stored(entry, 'Version'),
-            _stored(entry, 'Provider'), _stored(entry, 'Class'), _stored(entry, 'ClassGuid'),
-            _stored(entry, 'Directory'), _stored(entry, 'Inf'), _stored(entry, 'Hwids'),
-            _stored(entry, 'SYSFILE'), _stored(entry, 'DriverInBox'), _stored(entry, 'IsActive'),
-            _stored(entry, 'SubmissionId'))
+def _database_records(source, table_base):
+    """The rows of the database's table_base_<n> tables as records, None when it cannot be opened."""
+    db = open_sqlite_db_readonly(source)
+    if db is None:
+        return None
+    try:
+        tables = [name for (name,) in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+                  if re.fullmatch(re.escape(table_base) + r'_\d+', name)]
+        records = []
+        for table in sorted(tables):
+            cursor = db.execute(f'SELECT * FROM "{table}"')
+            columns = [column[0] for column in cursor.description]
+            for row in cursor.fetchall():
+                values = dict(zip(columns, row))
+                key = values.pop('ItemKey', None)
+                written = _filetime(values.pop('LastModified', None))
+                for name in _UNSIGNED_32:
+                    if isinstance(values.get(name), int) and values[name] < 0:
+                        values[name] &= 0xFFFFFFFF
+                records.append(_Record(key, values, written))
+        return records
+    finally:
+        db.close()
+
+
+def _comparable(value):
+    return '' if value is None else str(value).strip()
+
+
+def _agrees(hive_record, database_record):
+    """True when every value the hive entry holds equals the database row's value of that name."""
+    return all(_comparable(value) == _comparable(database_record.values.get(name))
+               for name, value in hive_record.values.items())
+
+
+def file_row(record):
+    size = record.values.get('Size')
+    return (_stored(record, 'LowerCaseLongPath'),
+            _sha1(record.values.get('FileId')),
+            _stored(record, 'Name'),
+            _stored(record, 'Publisher'),
+            _stored(record, 'ProductName'),
+            _stored(record, 'Version'),
+            '' if size is None else size,
+            _stored(record, 'LinkDate'),
+            _stored(record, 'ProgramId'),
+            record.key)
+
+
+def application_row(record):
+    return (_stored(record, 'InstallDate'), _stored(record, 'Name'),
+            _stored(record, 'Version'), _stored(record, 'Publisher'), _stored(record, 'Source'),
+            _stored(record, 'StoreAppType'), _stored(record, 'RootDirPath'),
+            _stored(record, 'UninstallString'), _stored(record, 'RegistryKeyPath'),
+            _stored(record, 'PackageFullName'), _stored(record, 'MsiProductCode'),
+            _stored(record, 'UserSid'), _stored(record, 'HiddenArp'),
+            _stored(record, 'OSVersionAtInstallTime'), _stored(record, 'ProgramId'))
+
+
+def shortcut_row(record):
+    return (_stored(record, 'ShortcutPath'), _stored(record, 'ShortcutTargetPath'),
+            _stored(record, 'ShortcutAumid'), _stored(record, 'ShortcutProgramId'))
+
+
+def driver_row(record):
+    return (_stored(record, 'DriverLastWriteTime'), record.key,
+            _sha1(record.values.get('DriverId')), _stored(record, 'DriverName'),
+            _stored(record, 'Service'), _stored(record, 'DriverCompany'), _stored(record, 'Product'),
+            _stored(record, 'DriverVersion'), _stored(record, 'DriverInBox'),
+            _stored(record, 'DriverSigned'), _stored(record, 'DriverIsKernelMode'),
+            _stored(record, 'Inf'), _stored(record, 'DriverPackageStrongName'),
+            _stored(record, 'DriverTimeStamp'))
+
+
+def device_row(record):
+    return (_stored(record, 'InstallDate'), _stored(record, 'FirstInstallDate'),
+            record.key, _stored(record, 'Model'), _stored(record, 'Description'),
+            _stored(record, 'Manufacturer'), _stored(record, 'Class'), _stored(record, 'Enumerator'),
+            _stored(record, 'BusReportedDescription'), _stored(record, 'Service'),
+            _stored(record, 'DriverName'), _sha1(record.values.get('DriverId')),
+            _stored(record, 'ParentId'), _stored(record, 'ContainerId'), _stored(record, 'HWID'),
+            _stored(record, 'Inf'))
+
+
+def container_row(record):
+    return (record.key, _stored(record, 'FriendlyName'), _stored(record, 'ModelName'),
+            _stored(record, 'ModelNumber'), _stored(record, 'Manufacturer'),
+            _stored(record, 'PrimaryCategory'), _stored(record, 'Categories'),
+            _stored(record, 'IsMachineContainer'), _stored(record, 'IsConnected'),
+            _stored(record, 'IsActive'), _stored(record, 'IsPaired'), _stored(record, 'IsNetworked'),
+            _stored(record, 'DiscoveryMethod'), _stored(record, 'State'), _stored(record, 'ModelId'),
+            _stored(record, 'Icon'))
+
+
+def package_row(record):
+    return (_stored(record, 'Date'), record.key, _stored(record, 'Version'),
+            _stored(record, 'Provider'), _stored(record, 'Class'), _stored(record, 'ClassGuid'),
+            _stored(record, 'Directory'), _stored(record, 'Inf'), _stored(record, 'Hwids'),
+            _stored(record, 'SYSFILE'), _stored(record, 'DriverInBox'), _stored(record, 'IsActive'),
+            _stored(record, 'SubmissionId'))
 
 
 def _inventory_rows(context, key_path, row_of):
-    """One row per subkey of key_path in each Amcache.hve found, and the hives read."""
+    """The rows for one inventory, from each folder's Amcache.hve and the database named after the key.
+
+    A hive entry and the database row with the same key name give one row, with the database's values,
+    when every value the entry holds equals the row's; otherwise each gives its own row. The two
+    datetime columns say which store a row came from.
+    """
+    table_base = key_path.rsplit('\\', 1)[-1]
+    database_name = f'{table_base}.db'.lower()
+    folders = {}
+    for found in context.get_files_found():
+        found = str(found)
+        name = os.path.basename(found).lower()
+        if name == 'amcache.hve':
+            folders.setdefault(os.path.dirname(found), {})['hive'] = found
+        elif name == database_name:
+            folders.setdefault(os.path.dirname(found), {})['database'] = found
+
     data_list = []
     sources = []
-    for source in [str(f) for f in context.get_files_found()
-                   if str(f).lower().endswith('amcache.hve')]:
-        relative_source = context.get_relative_path(source)
-        try:
-            reg = open_hive(source)
+    for folder in folders:
+        hive_source = folders[folder].get('hive')
+        database_source = folders[folder].get('database')
+        hive_records = []
+        database_records = []
+        if hive_source:
+            if Registry is None:
+                logfunc('Amcache: the python-registry package is not installed')
+            else:
+                try:
+                    hive_records = _hive_records(hive_source, key_path)
+                    sources.append(hive_source)
+                except Exception as exc:  # pylint: disable=broad-exception-caught
+                    logfunc(f'Amcache: could not read {context.get_relative_path(hive_source)}: {exc}')
+        if database_source:
             try:
-                key = reg.open(key_path)
-            except Registry.RegistryKeyNotFoundException:
-                key = None
-            if key is not None:
-                for entry in key.subkeys():
-                    data_list.append(row_of(entry))
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            logfunc(f'Amcache: could not read {relative_source}: {exc}')
-            continue
-        sources.append(source)
+                records = _database_records(database_source, table_base)
+            except sqlite3.Error as exc:
+                records = None
+                logfunc(f'Amcache: could not read {context.get_relative_path(database_source)}: {exc}')
+            if records is not None:
+                database_records = records
+                sources.append(database_source)
+
+        by_key = {record.key: record for record in database_records}
+        merged = set()
+        for hive_record in hive_records:
+            database_record = by_key.get(hive_record.key)
+            if database_record is not None and _agrees(hive_record, database_record):
+                data_list.append((hive_record.written, database_record.written) + row_of(database_record))
+                merged.add(hive_record.key)
+            else:
+                data_list.append((hive_record.written, None) + row_of(hive_record))
+        for database_record in database_records:
+            if database_record.key not in merged:
+                data_list.append((None, database_record.written) + row_of(database_record))
+        if database_source:
+            logfunc(f'Amcache {table_base}: {len(hive_records)} hive entries, {len(database_records)} '
+                    f'database rows, {len(merged)} reported as one row')
     return data_list, "\n".join(sources)
+
+
+_TIMES = (('Key Last Write (UTC)', 'datetime'), ('Database Row Modified (UTC)', 'datetime'))
+
+
+@artifact_processor
+def amcacheApplicationFiles(context):
+    data_headers = _TIMES + ('File Path', 'SHA-1', 'Name', 'Publisher', 'Product Name', 'Version',
+                             'Size (bytes)', 'Link Date', 'Program ID', 'Entry Key')
+    data_list, sources = _inventory_rows(context, _INVENTORY_PATH, file_row)
+    return data_headers, data_list, sources
 
 
 @artifact_processor
 def amcacheApplications(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Install Date (as stored)', 'Name',
-                    'Version', 'Publisher', 'Source', 'Store App Type', 'Root Folder',
-                    'Uninstall String', 'Registry Key Path', 'Package Full Name',
-                    'MSI Product Code', 'User SID', 'Hidden ARP (as stored)',
-                    'OS Version At Install', 'Program ID')
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_headers, [], ''
+    data_headers = _TIMES + ('Install Date (as stored)', 'Name',
+                             'Version', 'Publisher', 'Source', 'Store App Type', 'Root Folder',
+                             'Uninstall String', 'Registry Key Path', 'Package Full Name',
+                             'MSI Product Code', 'User SID', 'Hidden ARP (as stored)',
+                             'OS Version At Install', 'Program ID')
     data_list, sources = _inventory_rows(context, _APPLICATION_PATH, application_row)
     return data_headers, data_list, sources
 
 
 @artifact_processor
 def amcacheShortcuts(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Shortcut Path', 'Target Path', 'AUMID',
-                    'Program ID')
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_headers, [], ''
+    data_headers = _TIMES + ('Shortcut Path', 'Target Path', 'AUMID', 'Program ID')
     data_list, sources = _inventory_rows(context, _SHORTCUT_PATH, shortcut_row)
     return data_headers, data_list, sources
 
 
 @artifact_processor
 def amcacheDrivers(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Driver Last Write (as stored)',
-                    'Driver Path', 'SHA-1', 'Driver Name', 'Service', 'Company', 'Product',
-                    'Driver Version', 'In Box (as stored)', 'Signed (as stored)',
-                    'Kernel Mode (as stored)', 'INF', 'Driver Package',
-                    'PE Timestamp (as stored)')
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_headers, [], ''
+    data_headers = _TIMES + ('Driver Last Write (as stored)',
+                             'Driver Path', 'SHA-1', 'Driver Name', 'Service', 'Company', 'Product',
+                             'Driver Version', 'In Box (as stored)', 'Signed (as stored)',
+                             'Kernel Mode (as stored)', 'INF', 'Driver Package',
+                             'PE Timestamp (as stored)')
     data_list, sources = _inventory_rows(context, _DRIVER_PATH, driver_row)
     return data_headers, data_list, sources
 
 
 @artifact_processor
 def amcacheDevices(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Install Date (as stored)',
-                    'First Install Date (as stored)', 'Device', 'Model', 'Description',
-                    'Manufacturer', 'Class', 'Enumerator', 'Bus Reported Description', 'Service',
-                    'Driver Name', 'Driver SHA-1', 'Parent ID', 'Container ID', 'Hardware IDs',
-                    'INF')
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_headers, [], ''
+    data_headers = _TIMES + ('Install Date (as stored)',
+                             'First Install Date (as stored)', 'Device', 'Model', 'Description',
+                             'Manufacturer', 'Class', 'Enumerator', 'Bus Reported Description', 'Service',
+                             'Driver Name', 'Driver SHA-1', 'Parent ID', 'Container ID', 'Hardware IDs',
+                             'INF')
     data_list, sources = _inventory_rows(context, _DEVICE_PATH, device_row)
     return data_headers, data_list, sources
 
 
 @artifact_processor
 def amcacheDeviceContainers(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Container ID', 'Friendly Name', 'Model Name',
-                    'Model Number', 'Manufacturer', 'Primary Category', 'Categories',
-                    'Machine Container (as stored)', 'Connected (as stored)', 'Active (as stored)',
-                    'Paired (as stored)', 'Networked (as stored)', 'Discovery Method',
-                    'State (as stored)', 'Model ID', 'Icon')
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_headers, [], ''
+    data_headers = _TIMES + ('Container ID', 'Friendly Name', 'Model Name',
+                             'Model Number', 'Manufacturer', 'Primary Category', 'Categories',
+                             'Machine Container (as stored)', 'Connected (as stored)', 'Active (as stored)',
+                             'Paired (as stored)', 'Networked (as stored)', 'Discovery Method',
+                             'State (as stored)', 'Model ID', 'Icon')
     data_list, sources = _inventory_rows(context, _CONTAINER_PATH, container_row)
     return data_headers, data_list, sources
 
 
 @artifact_processor
 def amcacheDriverPackages(context):
-    data_headers = (('Key Last Write (UTC)', 'datetime'), 'Date (as stored)', 'Driver Package', 'Version',
-                    'Provider', 'Class', 'Class GUID', 'Directory', 'INF', 'Hardware IDs', 'Files',
-                    'In Box (as stored)', 'Active (as stored)', 'Submission ID')
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_headers, [], ''
+    data_headers = _TIMES + ('Date (as stored)', 'Driver Package', 'Version',
+                             'Provider', 'Class', 'Class GUID', 'Directory', 'INF', 'Hardware IDs', 'Files',
+                             'In Box (as stored)', 'Active (as stored)', 'Submission ID')
     data_list, sources = _inventory_rows(context, _PACKAGE_PATH, package_row)
     return data_headers, data_list, sources
