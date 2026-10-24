@@ -27,11 +27,11 @@ SEPARATED = 0x05  # TAGFLD_HEADER fLongValue | fSeparated
 class FakePage:
     """A table page as the reader sees one: tag 0 is the page header, data tags follow."""
 
-    def __init__(self, tags, next_page=0, page_flags=LEAF, common=b''):
+    def __init__(self, tags, next_page=0, page_flags=LEAF, common=b'', objid=1):
         self.tags = [(0, common)] + tags
         self.firstDataTag = 1  # pylint: disable=invalid-name
         self.tagCount = len(self.tags)  # pylint: disable=invalid-name
-        self.record = {'PageFlags': page_flags, 'NextPageNumber': next_page}
+        self.record = {'PageFlags': page_flags, 'NextPageNumber': next_page, 'FatherDataPage': objid}
 
     def getTag(self, index):  # pylint: disable=invalid-name
         return self.tags[index]
@@ -126,6 +126,49 @@ class TableRowsTest(unittest.TestCase):
 LID = 5
 STORED = struct.pack('<I', LID)
 KEY = struct.pack('>I', LID)
+
+
+class LeafChainTest(unittest.TestCase):
+    def test_the_walk_stops_where_the_chain_leads_into_another_object(self):
+        database = FakeDatabase({
+            1: FakePage([tag(b'a')], next_page=2),
+            2: FakePage([tag(b'b')], next_page=3),
+            3: FakePage([tag(b'from another tree')], next_page=4, objid=15),
+            4: FakePage([tag(b'also foreign')], objid=15),
+        })
+        walk = ese_rows.TableRows(database, 't')
+        self.assertEqual([r['value'] for r in walk], ['a', 'b'])
+        self.assertEqual(walk.left_tree, (3, 15, 1))
+        self.assertIn('led to page 3, which belongs to object 15', walk.summary())
+
+    def test_a_chain_inside_one_object_is_read_to_its_end(self):
+        walk = ese_rows.TableRows(two_pages(), 't')
+        self.assertEqual([r['value'] for r in walk], ['a', 'c', 'd', 'e'])
+        self.assertIsNone(walk.left_tree)
+
+
+class SmallPageTagStateTest(unittest.TestCase):
+    """itagState on a 4 KiB page: the tag count in the low 12 bits, the reserved-tag count above."""
+
+    @staticmethod
+    def page(state):
+        data = bytearray(4096)
+        struct.pack_into('<H', data, 34, state)          # itagState, PGHDR offset 34
+        header = {'Version': 0x620, 'FileFormatRevision': 0x14, 'PageSize': 4096}
+        return impacket_ese.ESENT_PAGE(header, bytes(data))
+
+    def test_a_legacy_page_keeps_its_count_and_one_reserved_tag(self):
+        page = self.page(0x0005)
+        self.assertEqual((page.tagCount, page.firstDataTag), (5, 1))
+
+    def test_a_page_with_one_reserved_tag_is_not_read_as_thousands_of_tags(self):
+        page = self.page(0x1007)
+        self.assertEqual((page.tagCount, page.firstDataTag), (7, 1))
+        self.assertEqual(list(page.iterDataTagNums()), list(range(1, 7)))
+
+    def test_lines_start_after_two_reserved_tags(self):
+        page = self.page(0x2004)
+        self.assertEqual((page.tagCount, page.tagReserved, page.firstDataTag), (4, 2, 2))
 
 
 def root(size, flags=None):
