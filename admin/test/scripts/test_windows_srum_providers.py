@@ -88,6 +88,38 @@ class Providers(unittest.TestCase):
         self.assertIsInstance(data[0][9], str)
         self.assertEqual(located, SOURCE)
 
+    def test_sdp_tables(self):
+        big = 4649015153352099455
+        cases = [
+            (srum.srumSdpCpu, '{DC3D3B50-BB90-5066-FA4E-A5F90DD8B677}',
+             {'ProcessorTime': 92}, ('Processor Time (as stored)',), (92,)),
+            (srum.srumSdpPhysicalDisk, '{841A7317-3805-518B-C2EA-AD224CB4AF84}',
+             {'SizeInBytes': 53687091200}, ('Size In Bytes (as stored)',), ('53687091200',)),
+            (srum.srumSdpVolume, '{17F4D97B-F26A-5E79-3A82-90040A47D13D}',
+             {'Total': 104853504, 'Used': 34467840}, ('Total (as stored)', 'Used (as stored)'),
+             ('104853504', '34467840')),
+            (srum.srumSdpNetwork, '{EEE2F477-0659-5C47-EF03-6D6BEFD441B3}',
+             {'BytesInBound': 0, 'BytesOutBound': big, 'BytesTotal': None},
+             ('Bytes In Bound (as stored)', 'Bytes Out Bound (as stored)', 'Bytes Total (as stored)'),
+             ('0', str(big), '')),
+        ]
+        rel = 'Windows/System32/sru/SRUDB.dat'
+        for function, guid, values, value_headers, expected in cases:
+            with self.subTest(function.__name__):
+                row = {'TimeStamp': ole(STAMP), 'AppId': 7, 'UserId': 2, **values}
+                (headers, data, located), asked = self.run_artifact(function, [row])
+                self.assertEqual(asked, [guid])
+                self.assertEqual(headers, (('Timestamp (UTC)', 'datetime'), 'AppId Entry') + value_headers
+                                 + ('Source File',))
+                self.assertEqual(data, [(STAMP, 'Contoso.App_1.0_x64__abc') + expected + (rel,)])
+                self.assertEqual(located, SOURCE)
+
+    def test_the_logs_beside_srudb_are_not_read_as_databases(self):
+        context = mock.Mock()
+        context.get_files_found.return_value = [SOURCE, '/staged/Windows/System32/sru/SRU0102A.log',
+                                                '/staged/Windows/System32/sru/SRU.log']
+        self.assertEqual(srum._srudb_sources(context), [SOURCE])  # pylint: disable=protected-access
+
     def test_no_rows_names_no_file(self):
         (_, data, located), _ = self.run_artifact(srum.srumEnergyUsage, [])
         self.assertEqual((data, located), ([], ''))
@@ -99,6 +131,42 @@ class Providers(unittest.TestCase):
             _, data, located = srum.srumWpnNotifications.__wrapped__(context)
         self.assertEqual((data, located), ([], ''))
         self.assertEqual(log.call_count, 1)
+
+
+class Replay(unittest.TestCase):
+    """srum._open: replayed once per file, read as stored when the replay is refused."""
+
+    def setUp(self):
+        srum._REPLAYED.clear()  # pylint: disable=protected-access
+        self.stat = mock.Mock(st_size=10, st_mtime_ns=20)
+
+    def open_twice(self, replay_result):
+        logged = []
+        with mock.patch.object(srum.os, 'stat', return_value=self.stat), \
+             mock.patch.object(srum.ese_recovery, 'replayed_database', return_value=replay_result) as replay, \
+             mock.patch.object(srum.ese_rows, 'ESEDatabase') as database, \
+             mock.patch.object(srum, 'logfunc', side_effect=logged.append):
+            srum._open(SOURCE, 'SRUM A', 'sru/SRUDB.dat')  # pylint: disable=protected-access
+            srum._open(SOURCE, 'SRUM B', 'sru/SRUDB.dat')  # pylint: disable=protected-access
+        return replay, database, logged
+
+    def test_a_refused_replay_reads_the_file_as_stored_and_says_why(self):
+        replay, database, logged = self.open_twice((None, 'not replayed: a SetExternalHeader record'))
+        self.assertEqual(replay.call_count, 1)
+        self.assertEqual(database.call_args_list, [mock.call(SOURCE), mock.call(SOURCE)])
+        self.assertEqual(logged, ['SRUM A: sru/SRUDB.dat, not replayed: a SetExternalHeader record; read as stored',
+                                  'SRUM B: sru/SRUDB.dat, not replayed: a SetExternalHeader record; read as stored'])
+
+    def test_a_replayed_file_is_read_from_the_replayed_bytes(self):
+        replay, database, logged = self.open_twice((b'replayed', 'replayed 3 change(s) from SRU.log'))
+        self.assertEqual(replay.call_count, 1)
+        self.assertEqual(database.call_args_list, [mock.call(SOURCE, data=b'replayed')] * 2)
+        self.assertEqual(logged[0], 'SRUM A: sru/SRUDB.dat, replayed 3 change(s) from SRU.log')
+
+    def test_a_clean_file_is_read_as_stored_without_a_log_line(self):
+        _replay, database, logged = self.open_twice((b'as stored', 'not replayed: the header records clean shutdown'))
+        self.assertEqual(database.call_args_list, [mock.call(SOURCE), mock.call(SOURCE)])
+        self.assertEqual(logged, [])
 
 
 if __name__ == '__main__':
