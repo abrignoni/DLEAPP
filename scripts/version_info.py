@@ -5,7 +5,7 @@ Leave blank if not available
 """
 
 leapp_name = 'DLEAPP'
-dleapp_version = '2026.4.4'
+dleapp_version = '2026.4.5-dev'
 
 dleapp_contributors = [
     ['Alexis Brignoni', 'https://abrignoni.com', '@AlexisBrignoni', 'https://github.com/abrignoni'],
