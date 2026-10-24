@@ -1,0 +1,132 @@
+"""Exercise the TeleGuard CLI with real report writers and media check-ins.
+
+All evidence here is authored by the adjacent fixture generator. Subprocesses
+isolate DLEAPP's report/context globals from the rest of unittest discovery.
+"""
+from contextlib import closing
+import csv
+import json
+import os
+from pathlib import Path
+import sqlite3
+import subprocess
+import sys
+import tempfile
+import unittest
+import zipfile
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT))
+from admin.test.scripts import make_teleguard_desktop_fixture as fixture  # pylint: disable=wrong-import-position
+
+EXPECTED = {'teleguardMessages': 24, 'teleguardChatOverview': 4,
+            'teleguardContacts': 12, 'teleguardMediaReferences': 4,
+            'teleguardMediaFiles': 6}
+
+
+class TeleGuardReportTest(unittest.TestCase):
+    """Full CLI output, per-profile media identity and negative controls."""
+
+    def run_cli(self, archive, output):
+        output.mkdir()
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / 'dleapp.py'), '-t', 'zip', '-i',
+             str(archive), '-o', str(output), '-m', str(REPO_ROOT / 'teleguard.dlprofile')],
+            cwd=REPO_ROOT, env=dict(os.environ, TZ='UTC'),
+            capture_output=True, text=True, timeout=60, check=False)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        reports = list(output.glob('DLEAPP_Output_*'))
+        self.assertEqual(len(reports), 1, result.stdout + result.stderr)
+        return reports[0]
+
+    def test_real_outputs_scale_and_media_keep_profile_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tree = fixture.build(root / 'extraction')
+            double_archive = root / 'double.zip'
+            fixture.pack(tree, double_archive)
+            single_archive = root / 'single.zip'
+            with zipfile.ZipFile(double_archive) as source, \
+                    zipfile.ZipFile(single_archive, 'w') as output:
+                for item in source.infolist():
+                    self.assertNotIn('\\', item.filename)
+                    if '/profile-one/' in item.filename:
+                        output.writestr(item, source.read(item))
+            single = self.run_cli(single_archive, root / 'single-output')
+            double = self.run_cli(double_archive, root / 'double-output')
+            for report, factor in ((single, 1), (double, 2)):
+                manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
+                artifacts = manifest['artifacts']['TeleGuard Windows']
+                counts = {a['artifact_key']: a['record_count'] for a in artifacts}
+                self.assertEqual(counts, {key: value // 2 * factor for key, value in EXPECTED.items()})
+                with closing(sqlite3.connect(report / '_lava_artifacts.db')) as db:
+                    db.row_factory = sqlite3.Row
+                    for artifact in artifacts:
+                        table = artifact['tablename']
+                        self.assertEqual(db.execute('SELECT COUNT(*) FROM "' + table + '"').fetchone()[0],
+                                         artifact['record_count'])
+                        tsv = report / '_TSV Exports' / (artifact['name'] + '.tsv')
+                        with tsv.open(encoding='utf-8-sig', newline='') as handle:
+                            rows = list(csv.reader(handle, delimiter='\t'))
+                        self.assertEqual(len(rows) - 1, artifact['record_count'])
+                        self.assertEqual(rows[0], list(artifact['column_map'].values()))
+                        html = report / '_HTML' / (artifact['name'].replace(' ', '_') + '.html')
+                        self.assertTrue(html.is_file())
+                        self.assertNotIn(str(report / 'data'), html.read_text(encoding='utf-8'))
+                        for source in artifact['source_path'].splitlines():
+                            self.assertFalse(Path(source).is_absolute())
+                    messages = next(a for a in artifacts if a['artifact_key'] == 'teleguardMessages')
+                    view = messages['data_views']['conversation']
+                    self.assertEqual(view['conversationDiscriminatorColumn'], 'conversation_id')
+                    self.assertEqual(view['directionSentValue'], 'Outgoing')
+                    self.assertEqual(db.execute('SELECT COUNT(DISTINCT conversation_id) '
+                                                'FROM teleguardmessages').fetchone()[0], 2 * factor)
+                    for row in db.execute('SELECT * FROM teleguardmessages WHERE media IS NOT NULL'):
+                        for reference_id in json.loads(row['media']):
+                            item = db.execute('SELECT i.* FROM _lava_media_references r '
+                                              'JOIN _lava_media_items i ON i.id=r.media_item_id '
+                                              'WHERE r.id=?', (reference_id,)).fetchone()
+                            self.assertIsNotNone(item)
+                            self.assertEqual(Path(item['source_path']).parent,
+                                             Path(row['source_file']).parent)
+                            media = report / item['extraction_path']
+                            expected = fixture.PDF if media.suffix == '.pdf' else (
+                                fixture.JPEG_SECOND if '/profile-two/' in row['source_file']
+                                else fixture.JPEG)
+                            self.assertEqual(media.read_bytes(), expected)
+                    for item in db.execute('SELECT * FROM _lava_media_items'):
+                        self.assertTrue((report / item['extraction_path']).is_file())
+                        self.assertFalse(Path(item['source_path']).is_absolute())
+                    # Recognized unreferenced files and both embedded-avatar types survive.
+                    self.assertEqual(db.execute("SELECT COUNT(*) FROM teleguardmediafiles "
+                                                "WHERE reference_status='Unreferenced'").fetchone()[0], factor)
+                    types = {row[0] for row in db.execute(
+                        'SELECT type FROM _lava_media_items WHERE is_embedded=1')}
+                    self.assertEqual(types, {'image/jpeg', 'image/png'})
+                    localized = db.execute("SELECT message,content_as_stored FROM teleguardmessages "
+                                           "WHERE message_id='a4'").fetchone()
+                    self.assertEqual(localized['message'], 'Viola')
+                    self.assertEqual(json.loads(localized['content_as_stored'])['en'], 'Violet')
+                with closing(sqlite3.connect(report / '_Timeline' / 'tl.db')) as db:
+                    timeline = dict(db.execute('SELECT activity,COUNT(*) FROM data GROUP BY activity'))
+                self.assertEqual(timeline, {a['name']: a['record_count'] for a in artifacts
+                                            if a['artifact_key'] != 'teleguardMediaFiles'})
+
+    def test_foreign_database_and_absent_app_produce_no_teleguard_rows(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            store = root / 'foreign.sqlite'
+            with closing(sqlite3.connect(store)) as db:
+                with db:
+                    db.execute('CREATE TABLE unrelated(id TEXT)')
+            archive = root / 'negative.zip'
+            with zipfile.ZipFile(archive, 'w') as output:
+                output.write(store, 'unrelated_app/teleguard_database.db')
+                output.writestr('unrelated_app/photo.jpg', fixture.JPEG)
+            report = self.run_cli(archive, root / 'negative-output')
+            manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
+            self.assertEqual(manifest.get('artifacts', {}).get('TeleGuard Windows', []), [])
+
+
+if __name__ == '__main__':
+    unittest.main()
