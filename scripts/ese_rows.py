@@ -270,6 +270,7 @@ class TableRows:
         self._tree = None
         self._chunk = None
         self.cut_short = None
+        self.left_tree = None
 
     def __iter__(self):
         database = self.database
@@ -286,18 +287,25 @@ class TableRows:
                   for name, column in cursor['TableData']['Columns'].items()
                   if column['Record']['Identifier'] > 255 and self._wanted(name)}
         flags_always = _flags_always_present(database) if tagged else False
+        # The tree the table's first leaf belongs to; its leaf chain must stay in it.
+        objid = cursor['CurrentPageData'].record['FatherDataPage']
         visited = 0
         while True:
             page = cursor['CurrentPageData']
             cursor['CurrentTag'] += 1
             if cursor['CurrentTag'] >= page.tagCount or not page.record['PageFlags'] & impacket_ese.FLAGS_LEAF:
-                if page.record['NextPageNumber'] == 0:
+                number = page.record['NextPageNumber']
+                if number == 0:
                     return
                 try:
-                    cursor['CurrentPageData'] = database.getPage(page.record['NextPageNumber'])
+                    following = database.getPage(number)
                 except PageOutOfRange as exc:
                     self.cut_short = str(exc)
                     return
+                if following.record['FatherDataPage'] != objid:
+                    self.left_tree = (number, following.record['FatherDataPage'], objid)
+                    return
+                cursor['CurrentPageData'] = following
                 cursor['CurrentTag'] = cursor['CurrentPageData'].firstDataTag - 1
                 continue
             visited += 1
@@ -368,6 +376,10 @@ class TableRows:
                          f'assembled and are blank ({"; ".join(self.long_value_errors)})')
         if self.cut_short:
             parts.append(f'{self.cut_short}, so the rest of the table was not read')
+        if self.left_tree:
+            number, other, own = self.left_tree
+            parts.append(f'the leaf chain led to page {number}, which belongs to object {other} and not to the '
+                         f"table's object {own}, so the walk stopped there")
         if self.capped:
             parts.append(f'the walk stopped after {self.cap:,} records')
         return f'{self.table_name}: ' + '; '.join(parts) if parts else ''

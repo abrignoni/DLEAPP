@@ -13,6 +13,17 @@ here (see _ese_decompress_value and the compressed-tag branch); other
 compression schemes still return None. The change is additive, so a column that
 was never compressed decodes exactly as before.
 
+A second change: a page's itagState is split into its tag count (the low 12 bits)
+and its reserved-tag count (itagState shifted right by 12, 0 meaning 1) on 4 and
+8 KiB pages as well, not only on the large pages upstream splits it for, as ESE's
+own InitItagState does for every page (microsoft/Extensible-Storage-Engine
+7030fe7407615160e54d152e4ef704eede2fdd7e, dev/ese/src/inc/cpage.hxx#L1543-L1555,
+with ITAG_MIC_FREE_MASK and SHF_CTAG_RESERVED at #L1006-L1008). ESE writes a
+reserved-tag count into a page from database version 1568.270.560
+(JET_efvReservedTags, dev/ese/src/ese/sysver.cxx#L97), and upstream then reads
+0x1007 as 4,103 tags and fails on the catalog page. A page without one stores only
+its tag count, which on a small page is below 4,096, so it reads exactly as before.
+
 Not tracked in scripts/vendor/vendored.json, because it is adapted rather than a
 verbatim copy: the check_vendored gate requires the body to match upstream byte
 for byte. To update, re-adapt from the impacket source at the tag above.
@@ -1219,7 +1230,9 @@ class ESENT_PAGE:
         if data is not None:
             self.record = ESENT_PAGE_HEADER(self.__DBHeader['Version'], self.__DBHeader['FileFormatRevision'], self.__DBHeader['PageSize'], data)
             self.tagCount = self.record['FirstAvailablePageTag']
-            if self.__DBHeader['Version'] == 0x620 and self.__DBHeader['FileFormatRevision'] >= 0x11 and self.__DBHeader['PageSize'] > 8192:
+            # DLEAPP: split the count and the reserved-tag count on small pages too (see the module docstring).
+            if (self.__DBHeader['Version'] == 0x620 and self.__DBHeader['FileFormatRevision'] >= 0x11) \
+                    or self.__DBHeader['PageSize'] <= 8192:
                 self.tagReserved = (self.record['FirstAvailablePageTag'] >> FIRST_AVAILABLE_PAGE_TAG_RESERVED_SHIFT) or 1
                 self.tagCount = self.record['FirstAvailablePageTag'] & FIRST_AVAILABLE_PAGE_TAG_MASK
             self.firstDataTag = min(self.tagReserved, self.tagCount)
