@@ -108,6 +108,7 @@ FIXED_HIDDEN_IMPORTS = (
     "ijson",
     "mailbox",
     "mammoth",
+    "msgpack",  # imported by the zip seeker only when it opens a CLBX zip
     "openpyxl",
     "pefile",
     "pillow_heif",

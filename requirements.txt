@@ -19,6 +19,8 @@ bencoding
 Brotli
 ijson
 mammoth
+# The zip seeker reads a CLBX zip's file times from its metadata.msgpack.
+msgpack==1.2.3
 openpyxl
 packaging>=24.0
 pillow-heif
