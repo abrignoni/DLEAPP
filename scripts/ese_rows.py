@@ -7,15 +7,25 @@ database read from an image has no version store in use:
 https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248
 https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/ese/node.cxx#L1049-L1079
 
-TableRows walks a table the way getNextRow does, page by page and tag by tag, skips the
-flagged nodes and counts them, and skips and counts a record the reader cannot convert,
-so one bad record does not end the table. The vendored reader itself is left unchanged
-(scripts/vendor/README.md).
+TableRows reads a table page by page and tag by tag, skips the flagged nodes and counts
+them, and skips and counts a record the reader cannot convert, so one bad record does not
+end the table. The vendored reader itself is left unchanged (scripts/vendor/README.md).
+
+getNextRow finds the table's first leaf and follows each leaf's NextPageNumber. In a
+database shut down dirty that chain can be stale: it can lead into a page another object
+has reused, cutting the table short, while the table's tree still names the pages after
+it. TableRows instead walks the tree from the table's root page, branch by branch in key
+order, and reads each leaf page the tree names. The tree can be stale too: a leaf added by
+a split whose parent page was never flushed is on the chain but named by no branch. So
+after each leaf TableRows also follows NextPageNumber through the pages of the table's own
+object that the tree does not name, and stops at a page it has read or one of another
+object. Every page is read once, and a page of another object is never read as the
+table's.
 
 The vendored reader's getPage reads until it has a whole page, so a page past the end of a
 file cut short (a partial copy) makes it wait forever. ESEDatabase is the vendored reader
-with a getPage that raises PageOutOfRange there instead, and TableRows stops a table at
-such a page and says so, keeping the records read before it.
+with a getPage that raises PageOutOfRange there instead, and TableRows passes over such a
+page and says so, keeping the records on the pages it could read.
 
 A tagged column value too long for its record is stored apart in the table's long value
 tree, and the record keeps only its long value ID, flagged fLongValue (0x01) and fSeparated
@@ -270,14 +280,17 @@ class TableRows:
         self._tree = None
         self._chunk = None
         self.cut_short = None
+        self.past_end = 0
         self.left_tree = None
+        self.foreign = 0
+        self.unnamed_pages = 0
 
     def __iter__(self):
         database = self.database
         try:
             cursor = database.openTable(self.table_name)
         except PageOutOfRange as exc:
-            self.found, self.cut_short = True, str(exc)
+            self.found, self.cut_short, self.past_end = True, str(exc), 1
             return
         self.found = cursor is not None
         if cursor is None:
@@ -287,51 +300,106 @@ class TableRows:
                   for name, column in cursor['TableData']['Columns'].items()
                   if column['Record']['Identifier'] > 255 and self._wanted(name)}
         flags_always = _flags_always_present(database) if tagged else False
-        # The tree the table's first leaf belongs to; its leaf chain must stay in it.
-        objid = cursor['CurrentPageData'].record['FatherDataPage']
         visited = 0
-        while True:
-            page = cursor['CurrentPageData']
-            cursor['CurrentTag'] += 1
-            if cursor['CurrentTag'] >= page.tagCount or not page.record['PageFlags'] & impacket_ese.FLAGS_LEAF:
-                number = page.record['NextPageNumber']
-                if number == 0:
-                    return
-                try:
-                    following = database.getPage(number)
-                except PageOutOfRange as exc:
-                    self.cut_short = str(exc)
-                    return
-                if following.record['FatherDataPage'] != objid:
-                    self.left_tree = (number, following.record['FatherDataPage'], objid)
-                    return
-                cursor['CurrentPageData'] = following
-                cursor['CurrentTag'] = cursor['CurrentPageData'].firstDataTag - 1
-                continue
-            visited += 1
-            if visited > self.cap:
-                self.capped = True
-                return
-            flags, data = page.getTag(cursor['CurrentTag'])
+        for page in self._pages(cursor['FatherDataPageNumber']):
             for special in (impacket_ese.FLAGS_SPACE_TREE, impacket_ese.FLAGS_INDEX,
                             impacket_ese.FLAGS_LONG_VALUE):
                 if page.record['PageFlags'] & special:
                     raise ValueError(f'{self.table_name}: a table walk reached a page with flags '
                                      f'{page.record["PageFlags"]:#x}')
-            if flags & impacket_ese.TAG_DEFUNCT:
-                self.deleted += 1
+            for number in page.iterDataTagNums():
+                visited += 1
+                if visited > self.cap:
+                    self.capped = True
+                    return
+                flags, data = page.getTag(number)
+                if flags & impacket_ese.TAG_DEFUNCT:
+                    self.deleted += 1
+                    continue
+                try:
+                    entry = impacket_ese.ESENT_LEAF_ENTRY(flags, data)
+                    record = to_record(cursor, entry['EntryData'])
+                except Exception as exc:  # pylint: disable=broad-exception-caught
+                    self.unreadable += 1
+                    if len(self.errors) < 3:
+                        self.errors.append(f'{type(exc).__name__}: {exc}')
+                    continue
+                if tagged:
+                    self._read_separated(entry['EntryData'], record, tagged, flags_always)
+                yield record
+
+    def _page(self, number):
+        """The page, or None when it lies past the end of the file (counted)."""
+        try:
+            return self.database.getPage(number)
+        except PageOutOfRange as exc:
+            self.past_end += 1
+            self.cut_short = self.cut_short or str(exc)
+            return None
+
+    def _named_leaves(self, number, objid, named, seen, page=None):
+        """Append to `named`, in key order, the leaf pages the tree under `number` names.
+
+        A page whose branch says its children are leaves (fPageParentOfLeaf) is not read
+        here; the leaves are read once, by _pages. A page of another object is not followed."""
+        if number in seen:
+            return
+        seen.add(number)
+        page = page or self._page(number)
+        if page is None:
+            return
+        if page.record['FatherDataPage'] != objid:
+            self.foreign += 1
+            self.left_tree = self.left_tree or (number, page.record['FatherDataPage'], objid)
+            return
+        flags = page.record['PageFlags']
+        if flags & impacket_ese.FLAGS_LEAF:
+            named.append(number)
+            return
+        for tag_number in page.iterDataTagNums():
+            tag_flags, data = page.getTag(tag_number)
+            if tag_flags & impacket_ese.TAG_DEFUNCT:
                 continue
-            try:
-                entry = impacket_ese.ESENT_LEAF_ENTRY(flags, data)
-                record = to_record(cursor, entry['EntryData'])
-            except Exception as exc:  # pylint: disable=broad-exception-caught
-                self.unreadable += 1
-                if len(self.errors) < 3:
-                    self.errors.append(f'{type(exc).__name__}: {exc}')
+            child = impacket_ese.ESENT_BRANCH_ENTRY(tag_flags, data)['ChildPageNumber']
+            if flags & impacket_ese.FLAGS_PARENT:
+                if child not in seen:
+                    seen.add(child)
+                    named.append(child)
+            else:
+                self._named_leaves(child, objid, named, seen)
+
+    def _pages(self, root):
+        """The table's leaf pages: those its tree names, in key order, each followed by the
+        pages of the table's object its leaf chain reaches that the tree does not name."""
+        root_page = self._page(root)
+        if root_page is None:
+            return
+        objid = root_page.record['FatherDataPage']
+        named = []
+        self._named_leaves(root, objid, named, set(), root_page)
+        read = set(named)
+        for number in named:
+            page = root_page if number == root else self._page(number)
+            if page is None:
                 continue
-            if tagged:
-                self._read_separated(entry['EntryData'], record, tagged, flags_always)
-            yield record
+            if page.record['FatherDataPage'] != objid:
+                self.foreign += 1
+                self.left_tree = self.left_tree or (number, page.record['FatherDataPage'], objid)
+                continue
+            while page is not None:
+                if page.record['PageFlags'] & impacket_ese.FLAGS_LEAF:
+                    yield page
+                following = page.record['NextPageNumber']
+                page = None
+                if following and following not in read:
+                    read.add(following)
+                    page = self._page(following)
+                    if page is not None and page.record['FatherDataPage'] != objid:
+                        self.foreign += 1
+                        self.left_tree = self.left_tree or (following, page.record['FatherDataPage'], objid)
+                        page = None
+                    elif page is not None:
+                        self.unnamed_pages += 1
 
     def _wanted(self, name):
         wanted = self.long_value_columns
@@ -374,12 +442,18 @@ class TableRows:
         if self.long_values_blank:
             parts.append(f'{self.long_values_blank} value(s) stored apart from their record could not be '
                          f'assembled and are blank ({"; ".join(self.long_value_errors)})')
-        if self.cut_short:
-            parts.append(f'{self.cut_short}, so the rest of the table was not read')
-        if self.left_tree:
+        if self.unnamed_pages:
+            parts.append(f'{self.unnamed_pages} page(s) on the leaf chain that the table\'s tree does not name '
+                         'were read')
+        if self.past_end:
+            parts.append(f'{self.past_end} page(s) the table\'s tree or leaf chain leads to lie past the end of the file '
+                         'and were not read '
+                         f'(first: {self.cut_short})')
+        if self.foreign:
             number, other, own = self.left_tree
-            parts.append(f'the leaf chain led to page {number}, which belongs to object {other} and not to the '
-                         f"table's object {own}, so the walk stopped there")
+            parts.append(f'{self.foreign} page(s) the table\'s tree or leaf chain leads to belong to another object '
+                         'and were not read '
+                         f"(first: page {number}, of object {other} and not the table's object {own})")
         if self.capped:
             parts.append(f'the walk stopped after {self.cap:,} records')
         return f'{self.table_name}: ' + '; '.join(parts) if parts else ''
