@@ -437,6 +437,79 @@ def mft_index(path):
     return _INDEX_CACHE[key]
 
 
+_RENAME_OLD_NAME = 0x00001000
+_ROOT_KEY = (ROOT_RECORD, ROOT_RECORD)        # the root's record and sequence numbers are both 5
+
+
+def rewound_parent_paths(index, records):
+    """The parent path of each USN record as it was when the record was written, in the records'
+    order: '' for the root, None when it cannot be resolved.
+
+    The journal is "rewound": the state starts as the directories the $MFT holds (the volume at the
+    end of the journal), keyed by record and sequence number, and the records are walked from the
+    last to the first. A RENAME_OLD_NAME record gives the name and parent its file had before that
+    rename, and the last record of a file the state does not hold (a record since freed and
+    reused) gives its name and parent at that time. Each record's parent reference is resolved
+    against the state as it stands at that point of the walk. Technique by Yogesh Khatri,
+    usnjrnl_rewind (https://cybercx.com.au/blog/ntfs-usnjrnl-rewind/), as MFTECmd implements it
+    (EricZimmerman/MFTECmd MFTECmd/UsnRewind.cs). ``index`` is an MftIndex and is not changed.
+    A record whose reference is wider than 64 bits, or whose parent's chain reaches a directory
+    the state does not hold, or loops, gets None.
+    """
+    state = {}
+    for number, (sequence, in_use, names) in index.directories.items():
+        ranked = sorted(names, key=lambda item: item[1] == _NAMESPACE_DOS)
+        if not ranked:
+            continue
+        # a freed record's sequence number was incremented when it was freed
+        # (concepts/file_record.html), so its last occupant had the one before
+        occupant = sequence if in_use else (sequence - 1) & 0xFFFF
+        state[(number, occupant)] = (ranked[0][2], split_reference(ranked[0][0]))
+
+    cache, used, missing = {}, set(), set()
+
+    def changed(key):
+        if key in used or key in missing:
+            cache.clear()
+            used.clear()
+            missing.clear()
+
+    def resolve(parent):
+        if parent in cache:
+            return cache[parent]
+        names, seen, key = [], set(), parent
+        while key != _ROOT_KEY:
+            if key in seen or key not in state:
+                missing.add(key)
+                cache[parent] = None
+                return None
+            seen.add(key)
+            used.add(key)
+            name, key = state[key]
+            names.append(name)
+        used.add(_ROOT_KEY)
+        path = '/'.join(reversed(names))
+        cache[parent] = path
+        return path
+
+    paths = [None] * len(records)
+    for position in range(len(records) - 1, -1, -1):
+        record = records[position]
+        if record.file_reference >> 64 or record.parent_reference >> 64:
+            continue
+        key = split_reference(record.file_reference)
+        parent = split_reference(record.parent_reference)
+        if record.reason & _RENAME_OLD_NAME:
+            if state.get(key) != (record.name, parent):
+                state[key] = (record.name, parent)
+                changed(key)
+        elif key not in state:
+            state[key] = (record.name, parent)
+            changed(key)
+        paths[position] = resolve(parent)
+    return paths
+
+
 # ---- $Secure:$SDS -------------------------------------------------------------
 #
 # files/secure.html: the stream is a run of entries, each a 20-byte header (hash

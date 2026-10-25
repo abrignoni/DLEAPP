@@ -114,6 +114,71 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(index.path_of_name(((3 << 48) | 40, 1, 'file.txt', ())), 'live/file.txt')
 
 
+def _ref(number, sequence):
+    return (sequence << 48) | number
+
+
+def _rec(name, file_ref, parent_ref, reason=0x100):
+    """A USN record with only what the rewind reads."""
+    return wn.UsnRecord(0, 2, (file_ref, parent_ref, 0, 0, reason, 0, 0, 0, name))
+
+
+class RewindTest(unittest.TestCase):
+    """Parent paths as they were when each record was written. The rename, move and reused-record cases
+    follow what happened on the authored test volume (windows11_arm_usn_rewind_known_20261025); the
+    freed directory and the wide reference are synthetic."""
+
+    def setUp(self):
+        root = _ref(5, 5)
+        self.index = wn.MftIndex(io.BytesIO(b''))
+        # the volume at the end of the journal: \A, \D\B2 (renamed from \A\B, then moved), \fill in
+        # record 44, which \X held before, and a freed directory \old in record 45
+        self.index.directories = {
+            5: (5, True, [(root, 3, '.')]),
+            40: (1, True, [(root, 1, 'A')]),
+            41: (1, True, [(_ref(43, 1), 1, 'B2'), (_ref(43, 1), 2, 'B2~1')]),
+            43: (1, True, [(root, 1, 'D')]),
+            44: (2, True, [(root, 1, 'fill')]),
+            45: (3, False, [(root, 1, 'old')]),
+        }
+
+    def test_each_record_gets_the_parent_it_had_when_written(self):
+        root, a, b, d, x = _ref(5, 5), _ref(40, 1), _ref(41, 1), _ref(43, 1), _ref(44, 1)
+        records = [
+            _rec('B', b, a),                         # 0 \A\B made
+            _rec('f1.txt', _ref(50, 1), b),          # 1 written in \A\B
+            _rec('B', b, a, 0x1000),                 # 2 rename: old name
+            _rec('B2', b, a, 0x2000),                # 3 rename: new name
+            _rec('D', d, root),                      # 4
+            _rec('B2', b, a, 0x1000),                # 5 move: old name and parent
+            _rec('B2', b, d, 0x2000),                # 6 move: new parent
+            _rec('X', x, root),                      # 7 \X, whose record \fill reuses later
+            _rec('x.txt', _ref(51, 1), x),           # 8 written in \X
+            _rec('X', x, root, 0x200),               # 9 \X deleted
+            _rec('in-old.txt', _ref(52, 1), _ref(45, 2)),   # 10 in the freed \old
+            _rec('wide', 1 << 70, a),                # 11 a reference wider than 64 bits
+        ]
+        paths = wn.rewound_parent_paths(self.index, records)
+        self.assertEqual(paths[1], 'A/B')
+        self.assertEqual(paths[3], 'A')
+        self.assertEqual(paths[5], 'A')
+        self.assertEqual(paths[6], 'D')
+        self.assertEqual(paths[8], 'X')                            # the $MFT alone cannot name it
+        self.assertIsNone(self.index.directory_path(x))
+        self.assertEqual(paths[10], 'old')                         # sequence 3, freed: last occupant 2
+        self.assertIsNone(paths[11])
+        self.assertEqual(paths[0], 'A')
+        self.assertEqual(paths[4], '')                             # the root
+        self.assertEqual(self.index.directory_path(b), 'D/B2')     # the shared index is not changed
+
+    def test_an_unknown_parent_or_a_loop_gives_none(self):
+        self.index.directories[60] = (1, True, [(_ref(61, 1), 1, 'p')])
+        self.index.directories[61] = (1, True, [(_ref(60, 1), 1, 'q')])
+        paths = wn.rewound_parent_paths(self.index, [_rec('a', _ref(70, 1), _ref(99, 1)),
+                                                     _rec('b', _ref(71, 1), _ref(60, 1))])
+        self.assertEqual(paths, [None, None])
+
+
 class UsnTest(unittest.TestCase):
     def test_records_zeros_range_records_and_junk(self):
         first = usn_v2('report.docx', (3 << 48) | 1234, (5 << 48) | 5, 4096, NEW_YEAR_2021,

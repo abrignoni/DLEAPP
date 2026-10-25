@@ -4,7 +4,8 @@ Author: @AlexisBrignoni, Claude.
 
 The record layout, reason flags and source flags follow Microsoft's
 USN_RECORD_V2 and USN_RECORD_V3 documentation; see scripts/windows_ntfs.py for
-the citations. Parent paths come from the $MFT of the same volume.
+the citations. Parent paths come from the $MFT of the same volume, and, for the
+rewound column, from the journal's own records.
 """
 
 __artifacts_v2__ = {
@@ -12,10 +13,10 @@ __artifacts_v2__ = {
         "name": "USN Journal",
         "description": "Records of the NTFS change journal ($Extend/$UsnJrnl:$J): the time, file "
                        "name and reason flags of each, and the parent directory's path where the "
-                       "same volume's $MFT resolves it.",
+                       "same volume's $MFT resolves it, now and as rebuilt for the time of the record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "File System (Windows)",
         "notes": "One row per USN_RECORD_V2 or USN_RECORD_V3 in each $Extend/$UsnJrnl:$J stream "
@@ -32,8 +33,7 @@ __artifacts_v2__ = {
                  "Parent Record and Parent Sequence, are the low 48 and top 16 bits of the "
                  "record's file references. Parent Path is the directory the parent reference "
                  "names, from the volume's root (/), resolved against the $MFT of the same volume as it was when the image "
-                 "was taken: a directory renamed or moved since the record was written is shown "
-                 "where it is now, and the path is blank when that $MFT was not found, when the "
+                 "was taken: a directory renamed or moved since the record was written is shown where it is now (Parent Path (Rewound), below, gives where it was), and the path is blank when that $MFT was not found, when the "
                  "parent's record has since been reused (its sequence number no longer matches, "
                  "allowing for the one increment NTFS makes when it frees a record), or when the "
                  "chain does not reach the root. Version 4 records, which describe changed "
@@ -64,7 +64,26 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11 and on none of the other three. Parent Path is blank on "
                  "44,318, 89,164, 73,804 and 10,461 rows. Version 3 records are read by the same code "
                  "with the wider references and have not been run against a journal holding "
-                 "them.",
+                 "them."
+                 " Parent Path (Rewound) is the parent directory's path as it was when the record was written, "
+                 "rebuilt by rewinding the journal, the technique of Yogesh Khatri's usnjrnl_rewind "
+                 "(https://cybercx.com.au/blog/ntfs-usnjrnl-rewind/) as MFTECmd implements it "
+                 "(EricZimmerman/MFTECmd, MFTECmd/UsnRewind.cs at commit "
+                 "7c6a73909ff3cfac5da62afdcd0fca762e863447): starting from the directories of the same volume's "
+                 "$MFT, the records are walked from the last to the first, a record with RENAME_OLD_NAME restores "
+                 "the name and parent its file had before that rename, and the last record of a file the $MFT does"
+                 " not hold gives that file's name and parent at that time. It is a reconstruction, not a stored "
+                 "value. It is blank when that $MFT was not found, when a reference is wider than 64 bits, or when the chain reaches a directory that neither the $MFT nor a later record names, or loops. The rewind assumes the journal holds every rename, move, creation and deletion of a directory made between its first record and the moment the $MFT describes. Two cases break that and are not tested here: a change that was never written to the journal (for example, made while journaling was off), and a $MFT copied at a different moment from the $J, as in a collection from a running system, after which rows can resolve wrong, whatever their age. On windows11_arm_usn_rewind_known_20261025, a test volume with "
+                 "authored creates, renames, a directory move, a grandparent rename and two deleted directories "
+                 "whose records NTFS reused, it equalled the parent each file or directory the script made had at the time, on all 652 of their records (50 of them for the items outside the fill directory); that volume holds no directory deleted and left free, so that "
+                 "case is not exercised. On the four images it was blank on no row, gave a path on every row where"
+                 " Parent Path is blank (44,318, 89,164, 73,804 and 10,461), each through a directory that one of the journal's own records names, and differed from "
+                 "Parent Path on 2,479, 3,097, 968 and 0 of the rows where both hold a value. The records of each "
+                 "of those journals were in USN order, which the walk relies on. MFTECmd 2026.10.4, run with -m on the "
+                 "same $J and $MFT, named the same parent directory as this column on every row of the known volume "
+                 "and the four images (654, 380,893, 312,959, 352,849 and 43,463 rows; MFTECmd writes the path with a "
+                 "leading dot and backslashes, which the comparison read as this column's slashes), while Parent Path "
+                 "was blank or differed from it on 21, 46,797, 92,261, 74,772 and 10,461 of them.",
         "paths": ('*/$Extend/$UsnJrnl:$J', '*/$MFT'),
         "output_types": "standard",
         "sample_data": {
@@ -72,6 +91,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 312959 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 352849 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 43,463 rows",
+            "windows11_arm_usn_rewind_known_20261025": "Windows 11 25H2 build 26200 (NTFS test volume) | 654 rows",
         },
         "artifact_icon": "history",
     }
@@ -81,7 +101,8 @@ import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_ntfs import (FILE_ATTRIBUTES, USN_REASONS, USN_SOURCES, decode_flags,
-                                  filetime, iter_usn, mft_index, split_reference)
+                                  filetime, iter_usn, mft_index, rewound_parent_paths,
+                                  split_reference)
 
 _LABEL = 'USN Journal'
 _V3_WIDE = 1 << 64
@@ -103,7 +124,7 @@ def _member(context, infos, path):
 @artifact_processor
 def windowsUsnJournal(context):
     data_headers = (('Timestamp', 'datetime'), 'File Name', 'Reasons', 'Parent Path',
-                    'File Attributes', 'Source Info', 'USN', 'File Record', 'File Sequence',
+                    'Parent Path (Rewound)', 'File Attributes', 'Source Info', 'USN', 'File Record', 'File Sequence',
                     'Parent Record', 'Parent Sequence', 'Reasons (Hex)', 'Record Version',
                     'Source File')
     results = context.create_artifact_result(headers=data_headers)
@@ -133,7 +154,9 @@ def windowsUsnJournal(context):
             continue
         counts, rows = {}, 0
         relative = context.get_relative_path(path)
-        for record in iter_usn(data, counts):
+        records = list(iter_usn(data, counts))
+        rewound = rewound_parent_paths(index, records) if index is not None else [None] * len(records)
+        for record, then in zip(records, rewound):
             file_record, file_sequence = _reference(record.file_reference)
             parent_record, parent_sequence = _reference(record.parent_reference)
             parent = ''
@@ -142,6 +165,7 @@ def windowsUsnJournal(context):
                 parent = '' if found is None else '/' + found
             results.add_row((filetime(record.timestamp), record.name,
                              decode_flags(record.reason, USN_REASONS), parent,
+                             '' if then is None else '/' + then,
                              decode_flags(record.attributes, FILE_ATTRIBUTES),
                              decode_flags(record.source_info, USN_SOURCES), record.usn,
                              file_record, file_sequence, parent_record, parent_sequence,
