@@ -30,7 +30,7 @@ __artifacts_v2__ = {
                        "fields, and preserved payload content.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "Windows System",
         "notes": "Modernized from WLEAPP. Timestamps are interpreted as Unix "
@@ -40,7 +40,12 @@ __artifacts_v2__ = {
                  "tested build 16299 image and is reported blank there, and is "
                  "present on the tested build 17763, 19041 and 22621 images. The schema "
                  "is probed and any absent column is reported blank rather than "
-                 "failing the read.",
+                 "failing the read."
+                 " The database is opened read-only with its -wal when one is staged beside it, so rows that exist"
+                 " only in the -wal are read: 41 of the 344 rows of pc_mus_001_win11, and 9 of the 18 rows of one "
+                 "of the four files of szechuan_win10. The Activity table's ClipboardPayload column is not read: on every tested image whose table has the column it held NULL, except 5 rows of hexordia_mvs2025_win11 that held an empty JSON list, and the build 16299 image has no such column, so no reading of it could be tested. Of the file's other tables, ActivityOperation is reported "
+                 "by the ActivitiesCache Operations artifact. Activity_PackageId, whose columns are ActivityId, Platform, PackageName and ExpirationTime where present (the build 16299 image has no such table), is not read; Applications is taken from the activity's"
+                 " own AppId. The remaining tables (Asset, or ActivityAssetCache on the build 16299 and 17763 images, DataEncryptionKeys, AppSettings, Metadata and ManualSequence) are not read.",
         "paths": (
             "*/AppData/Local/ConnectedDevicesPlatform/*/ActivitiesCache.db*",
         ),
@@ -53,6 +58,52 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 (build 22621) | 344 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 122 rows",
             "windows11_arm_parallels": "Windows build 26200 | 5 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 194 rows",
+        },
+    },
+    "activitiesCacheOperations": {
+        "name": "ActivitiesCache Operations",
+        "description": "Rows of the ActivityOperation table of the Windows Connected Devices Platform "
+                       "ActivitiesCache.db, with their times, operation order and type as stored, whether "
+                       "the same Id is in the Activity table, and the activity fields they carry.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-25",
+        "last_update_date": "2026-10-25",
+        "requirements": "none",
+        "category": "Windows System",
+        "notes": "Each row is one row of the ActivityOperation table of ActivitiesCache.db, read read-only "
+                 "together with its -wal when one is staged beside it. Eric Zimmerman's WxTCmd reads the same "
+                 "table (EricZimmerman/WxTCmd, WxTCmd/Classes/ActivitiesCache.cs, commit "
+                 "805740701c1b7f339d2a96c89c04d0325acd9fc9) and reads OperationOrder and OperationType as integers"
+                 " without naming their values; Operation Order and Operation Type (as stored) are those columns "
+                 "as stored. Operation Type held 1 on all 72 rows of pc_mus_001_win11 and 1, 2 and 3 on 13, 3 and "
+                 "1 of the 17 rows of hexordia_mvs2025_win11. In Activity Table is Yes when the Activity table, "
+                 "which the ActivitiesCache artifact reports, holds a row with the same Id, No otherwise, and blank when the file has no Activity table. It "
+                 "was No on all 72 rows of pc_mus_001_win11 and on 13 of the 17 of hexordia_mvs2025_win11, so those rows appear in no other DLEAPP artifact. All 17 rows of hexordia_mvs2025_win11 and 3 of the 72 of pc_mus_001_win11 exist only in the -wal. Start Time, End Time, Created Time, Last Modified, Last "
+                 "Modified on Client and Expiration Time are read as Unix seconds in UTC, as the ActivitiesCache "
+                 "artifact reads the Activity table's time columns. On both images none of Start "
+                 "Time, Created Time, Last Modified or Last Modified on Client is earlier than the oldest Start "
+                 "Time of that image's Activity rows, and on hexordia_mvs2025_win11 the newest Last Modified, 24 "
+                 "November 2024, is later than the newest Last Modified of its Activity rows, 19 November 2024. "
+                 "Operation Expiration Time is shown as stored: read as Unix seconds, 54 of the 72 values of pc_mus_001_win11 fall in 2023, and the other 18 and all 17 of hexordia_mvs2025_win11 fall in the years 6105 to 6107, so the column holds values of more than one shape and its unit is not established. Applications, Display Text, App Display "
+                 "Name, Payload Preview, Payload and App ID JSON are derived from AppId and Payload as in the "
+                 "ActivitiesCache artifact, and Activity Type is ActivityType as stored. The table's "
+                 "ClipboardPayload column is not read: it held NULL on every row of both images. On hexordia_mvs2025_win11 End Time (UTC), Display Text and "
+                 "App Display Name held no value on any of the 17 rows: EndTime was 0 on every row and no Payload "
+                 "there is JSON. WxTCmd's class comment (ActivityOperationEntry.cs line 5 at the same commit) describes the table as activities waiting to be uploaded. No Microsoft documentation of the table was read here, so a row is reported as stored and is "
+                 "not read as a record that anything was uploaded, opened or seen.",
+        "paths": (
+            "*/AppData/Local/ConnectedDevicesPlatform/*/ActivitiesCache.db*",
+        ),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "activity",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 (build 22621) | 72 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 17 rows",
+            "af_case2_win10": "Windows 10 1809 (build 17763) | 0 rows (the table is empty)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the table is empty in all four files)",
+            "lonewolf_win10": "Windows 10 1709 (build 16299) | 0 rows (the table is empty)",
+            "windows11_arm_parallels": "Windows build 26200 | 0 rows (the table is empty in the database file; no -wal was in the extraction)",
         },
     },
     "windowsNotifications": {
@@ -392,6 +443,91 @@ def activitiesCache(context):
                 record[11] or "",
                 _yes_no(record[12]),
                 _yes_no(record[13]),
+                preview,
+                payload,
+                raw_app_id,
+                relative_source,
+            ))
+    return data_headers, rows, "\n".join(sources)
+
+
+@artifact_processor
+def activitiesCacheOperations(context):
+    data_headers = (
+        ("Start Time (UTC)", "datetime"),
+        ("End Time (UTC)", "datetime"),
+        ("Created Time (UTC)", "datetime"),
+        ("Last Modified (UTC)", "datetime"),
+        ("Last Modified on Client (UTC)", "datetime"),
+        ("Expiration Time (UTC)", "datetime"),
+        "Operation Expiration Time (as stored)",
+        "Operation Order",
+        "Operation Type (as stored)",
+        "In Activity Table",
+        "App Activity ID",
+        "Applications",
+        "Display Text",
+        "App Display Name",
+        "Activity Type",
+        "Payload Preview",
+        "Payload",
+        "App ID JSON",
+        "Source File",
+    )
+    rows = []
+    sources = []
+    for file_found in map(str, context.get_files_found()):
+        if os.path.basename(file_found).lower() != "activitiescache.db":
+            continue
+        database = open_sqlite_db_readonly(file_found)
+        if database is None:
+            continue
+        try:
+            columns = _table_columns(database, "ActivityOperation")
+            if not columns:
+                logfunc(f"ActivitiesCache Operations: no ActivityOperation table in '{file_found}'")
+                database.close()
+                continue
+            select_list = ", ".join(
+                _column_or_null(columns, name, "o") for name in (
+                    "StartTime", "EndTime", "CreatedTime", "LastModifiedTime",
+                    "LastModifiedOnClient", "ExpirationTime", "OperationExpirationTime",
+                    "OperationOrder", "OperationType", "AppActivityId", "AppId", "Payload",
+                    "ActivityType",
+                )
+            )
+            in_activity = ("EXISTS (SELECT 1 FROM Activity a WHERE a.Id = o.Id)"
+                           if _table_columns(database, "Activity") else "NULL")
+            records = database.execute(
+                f"SELECT {select_list}, {in_activity} FROM ActivityOperation o "
+                "ORDER BY o.StartTime DESC"
+            ).fetchall()
+        except Exception as exception:  # pylint: disable=broad-exception-caught
+            logfunc(f"ActivitiesCache Operations: could not read '{file_found}': {exception}")
+            database.close()
+            continue
+        database.close()
+        sources.append(file_found)
+        relative_source = context.get_relative_path(file_found)
+        for record in records:
+            applications, raw_app_id = _application_ids(record[10])
+            display_text, app_display_name, preview, payload = _activity_payload(record[11])
+            rows.append((
+                _utc_from_unix_seconds(record[0]),
+                _utc_from_unix_seconds(record[1]),
+                _utc_from_unix_seconds(record[2]),
+                _utc_from_unix_seconds(record[3]),
+                _utc_from_unix_seconds(record[4]),
+                _utc_from_unix_seconds(record[5]),
+                "" if record[6] is None else record[6],
+                "" if record[7] is None else record[7],
+                "" if record[8] is None else record[8],
+                _yes_no(record[13]),
+                record[9] or "",
+                applications,
+                display_text,
+                app_display_name,
+                record[12],
                 preview,
                 payload,
                 raw_app_id,
