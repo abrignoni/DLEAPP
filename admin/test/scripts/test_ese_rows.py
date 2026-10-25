@@ -49,15 +49,17 @@ class FakeDatabase:
     def __init__(self, pages, first=1):
         self.pages = pages
         self.first = first
+        self.read = []
 
     def openTable(self, name):  # pylint: disable=invalid-name
         if name == 'missing':
             return None
         page = self.pages[self.first]
         return {'CurrentPageData': page, 'CurrentTag': page.firstDataTag - 1,
-                'TableData': {'Columns': {}}}
+                'FatherDataPageNumber': self.first, 'TableData': {'Columns': {}}}
 
     def getPage(self, number):  # pylint: disable=invalid-name
+        self.read.append(number)
         return self.pages[number]
 
     def mountDB(self):  # pylint: disable=invalid-name
@@ -74,10 +76,13 @@ class FakeDatabase:
 
 
 def two_pages():
+    """A table whose root, page 3, names two leaves."""
     return FakeDatabase({
+        3: FakePage([(0, struct.pack('<HI', 0, 1)), (0, struct.pack('<HI', 0, 2))],
+                    page_flags=impacket_ese.FLAGS_PARENT),
         1: FakePage([tag(b'a'), tag(b'b', DELETED), tag(b'c')], next_page=2),
         2: FakePage([tag(b'd'), tag(b'bad record'), tag(b'e')]),
-    })
+    }, first=3)
 
 
 class TableRowsTest(unittest.TestCase):
@@ -139,12 +144,99 @@ class LeafChainTest(unittest.TestCase):
         walk = ese_rows.TableRows(database, 't')
         self.assertEqual([r['value'] for r in walk], ['a', 'b'])
         self.assertEqual(walk.left_tree, (3, 15, 1))
-        self.assertIn('led to page 3, which belongs to object 15', walk.summary())
+        self.assertEqual(walk.summary(), "t: 1 page(s) on the leaf chain that the table's tree does not name were "
+                                         "read; 1 page(s) the table's tree or leaf chain leads to belong to another "
+                                         'object and were not read '
+                                         "(first: page 3, of object 15 and not the table's object 1)")
 
     def test_a_chain_inside_one_object_is_read_to_its_end(self):
         walk = ese_rows.TableRows(two_pages(), 't')
         self.assertEqual([r['value'] for r in walk], ['a', 'c', 'd', 'e'])
         self.assertIsNone(walk.left_tree)
+
+
+PARENT = impacket_ese.FLAGS_PARENT
+
+
+def tree_branch(child, flags=0):
+    """A branch node with no key, naming its child page."""
+    return (flags, struct.pack('<HI', 0, child))
+
+
+class TreeWalkTest(unittest.TestCase):
+    """The table is read from its root page down, and its leaf chain only adds pages the
+    tree does not name."""
+
+    def test_the_tree_names_the_leaves_a_stale_chain_skips(self):
+        # Leaf 2's chain leads into page 9, reused by another object; the root still names 3 and 4.
+        database = FakeDatabase({
+            1: FakePage([tree_branch(2), tree_branch(3), tree_branch(4)], page_flags=PARENT),
+            2: FakePage([tag(b'a')], next_page=9),
+            3: FakePage([tag(b'b')], next_page=4),
+            4: FakePage([tag(b'c')]),
+            9: FakePage([tag(b'from another tree')], objid=15),
+        })
+        walk = ese_rows.TableRows(database, 't')
+        self.assertEqual([r['value'] for r in walk], ['a', 'b', 'c'])
+        self.assertEqual((walk.foreign, walk.left_tree, walk.unnamed_pages), (1, (9, 15, 1), 0))
+        self.assertEqual(sorted(database.read), [1, 2, 3, 4, 9])
+
+    def test_a_leaf_on_the_chain_that_no_branch_names_is_read_after_the_leaf_that_leads_to_it(self):
+        # A split added page 5 after page 3, and its parent was not flushed.
+        database = FakeDatabase({
+            1: FakePage([tree_branch(2), tree_branch(3)], page_flags=PARENT),
+            2: FakePage([tag(b'a')], next_page=3),
+            3: FakePage([tag(b'b')], next_page=5),
+            5: FakePage([tag(b'c')]),
+        })
+        walk = ese_rows.TableRows(database, 't')
+        self.assertEqual([r['value'] for r in walk], ['a', 'b', 'c'])
+        self.assertEqual(walk.unnamed_pages, 1)
+        self.assertIn("1 page(s) on the leaf chain that the table's tree does not name were read", walk.summary())
+
+    def test_each_page_is_read_once_and_the_chain_stops_at_a_page_already_read(self):
+        database = FakeDatabase({
+            1: FakePage([tree_branch(6), tree_branch(7, DELETED), tree_branch(8)], page_flags=0),
+            6: FakePage([tree_branch(2), tree_branch(3)], page_flags=PARENT),
+            8: FakePage([tree_branch(4)], page_flags=PARENT),
+            2: FakePage([tag(b'a')], next_page=3),
+            3: FakePage([tag(b'b')], next_page=2),  # a chain pointing back is not followed
+            4: FakePage([tag(b'c'), tag(b'd', DELETED)]),
+        })
+        walk = ese_rows.TableRows(database, 't')
+        self.assertEqual([r['value'] for r in walk], ['a', 'b', 'c'])
+        self.assertEqual(sorted(database.read), [1, 2, 3, 4, 6, 8])  # 7 is a deleted branch
+        self.assertEqual((walk.deleted, walk.unnamed_pages, walk.summary().count('page(s)')), (1, 0, 0))
+
+    def test_a_branch_naming_a_page_of_another_object_is_not_followed(self):
+        database = FakeDatabase({
+            1: FakePage([tree_branch(6), tree_branch(8)], page_flags=0),
+            6: FakePage([tree_branch(2)], page_flags=PARENT),
+            8: FakePage([tree_branch(4)], page_flags=PARENT, objid=15),
+            2: FakePage([tag(b'a')]),
+            4: FakePage([tag(b'not this table')], objid=15),
+        })
+        walk = ese_rows.TableRows(database, 't')
+        self.assertEqual([r['value'] for r in walk], ['a'])
+        self.assertEqual((walk.foreign, walk.left_tree), (1, (8, 15, 1)))
+        self.assertNotIn(4, database.read)
+
+    def test_a_leaf_page_past_the_end_is_passed_over_and_the_rest_is_read(self):
+        pages = {
+            1: FakePage([tree_branch(2), tree_branch(30), tree_branch(4)], page_flags=PARENT),
+            2: FakePage([tag(b'a')], next_page=30),
+            4: FakePage([tag(b'c')]),
+        }
+        database = FakeDatabase(pages)
+
+        def get_page(number):
+            if number in pages:
+                return pages[number]
+            raise ese_rows.PageOutOfRange(f'page {number} lies past the end of the file')
+        database.getPage = get_page
+        walk = ese_rows.TableRows(database, 't')
+        self.assertEqual([r['value'] for r in walk], ['a', 'c'])
+        self.assertEqual(walk.past_end, 1)
 
 
 class SmallPageTagStateTest(unittest.TestCase):
@@ -529,16 +621,24 @@ class CutShortTest(unittest.TestCase):
         database.openTable = mock.Mock(side_effect=ese_rows.PageOutOfRange('page 9 lies past the end of the file'))
         walk = ese_rows.TableRows(database, 'Container_3')
         self.assertEqual((list(walk), walk.found), ([], True))
-        self.assertEqual(walk.summary(), 'Container_3: page 9 lies past the end of the file, so the rest of the '
-                                         'table was not read')
+        self.assertEqual(walk.summary(), "Container_3: 1 page(s) the table's tree or leaf chain leads to lie past the "
+                                         'end of the file and were not read (first: page 9 lies past the end of the '
+                                         'file)')
 
     def test_the_records_before_a_page_past_the_end_are_kept(self):
-        database = FakeDatabase({1: FakePage([tag(b'a'), tag(b'b', DELETED), tag(b'c')], next_page=7)})
-        database.getPage = mock.Mock(side_effect=ese_rows.PageOutOfRange('page 7 lies past the end of the file'))
+        page = FakePage([tag(b'a'), tag(b'b', DELETED), tag(b'c')], next_page=7)
+        database = FakeDatabase({1: page})
+
+        def get_page(number):
+            if number == 1:
+                return page
+            raise ese_rows.PageOutOfRange(f'page {number} lies past the end of the file')
+        database.getPage = get_page
         walk = ese_rows.TableRows(database, 'T')
         self.assertEqual([r['value'] for r in walk], ['a', 'c'])
-        self.assertEqual(walk.summary(), 'T: 1 record(s) ESE marks deleted (fNDDeleted) were not read; page 7 lies '
-                                         'past the end of the file, so the rest of the table was not read')
+        self.assertEqual(walk.summary(), 'T: 1 record(s) ESE marks deleted (fNDDeleted) were not read; 1 page(s) the '
+                                         "table's tree or leaf chain leads to lie past the end of the file and were "
+                                         'not read (first: page 7 lies past the end of the file)')
 
 
 class CallerTest(unittest.TestCase):
