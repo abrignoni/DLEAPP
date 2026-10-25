@@ -79,7 +79,11 @@ __artifacts_v2__ = {
                  "case is not exercised. On the four images it was blank on no row, gave a path on every row where"
                  " Parent Path is blank (44,318, 89,164, 73,804 and 10,461), each through a directory that one of the journal's own records names, and differed from "
                  "Parent Path on 2,479, 3,097, 968 and 0 of the rows where both hold a value. The records of each "
-                 "of those journals were in USN order, which the walk relies on.",
+                 "of those journals were in USN order, which the walk relies on. MFTECmd 2026.10.4, run with -m on the "
+                 "same $J and $MFT, named the same parent directory as this column on every row of the known volume "
+                 "and the four images (654, 380,893, 312,959, 352,849 and 43,463 rows; MFTECmd writes the path with a "
+                 "leading dot and backslashes, which the comparison read as this column's slashes), while Parent Path "
+                 "was blank or differed from it on 21, 46,797, 92,261, 74,772 and 10,461 of them.",
         "paths": ('*/$Extend/$UsnJrnl:$J', '*/$MFT'),
         "output_types": "standard",
         "sample_data": {
