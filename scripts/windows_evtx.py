@@ -90,7 +90,19 @@ when a name repeats, the field holds the last value and the values hold all of
 them. An element that holds no elements and has text is itself the one value and
 the field of its own name; Microsoft-Windows-WindowsUpdateClient event 25 stores
 errorCode that way on evtx_baseline_nextron_085_win7_x86. In UserData,
-attributes and any element after the first are not read.
+attributes and any element after the first are not read. EventRecord also keeps
+each Data element of EventData as a (Name, text) pair, in order, the Name ''
+where the element has none, as data_pairs.
+
+EventRecord keeps a record's RenderingInfo element as rendering: its Culture
+attribute and the text of its Message, Level, Opcode, Task, Channel and Provider
+elements, and its Keyword elements joined with ', ' as Keywords, each '' when
+absent; rendering is empty when the record has no RenderingInfo. Microsoft's
+schema gives these as the rendered message strings of the event and of its
+level, opcode, task, channel, provider and keywords, with the culture they were
+rendered in, and says only events collected by the Windows Event Collector
+service carry the element (RenderingInfoType,
+https://learn.microsoft.com/en-us/windows/win32/wes/eventschema-renderingtype-complextype).
 
 python-evtx 0.8.1 turns a FILETIME (the record's TimeCreated and any FILETIME
 value) into a datetime through a floating-point number, float(qword) * 1e-7
@@ -427,7 +439,8 @@ class EventRecord:
 
     __slots__ = ('provider', 'event_id', 'version', 'level', 'time', 'record_id',
                  'computer', 'user_sid', 'process_id', 'channel', 'activity_id', 'fields',
-                 'values', 'user_data_name', 'source', 'related_activity_id', 'processing_error')
+                 'values', 'user_data_name', 'source', 'related_activity_id', 'processing_error',
+                 'data_pairs', 'rendering')
 
     def __init__(self, root, source=''):
         self.source = source
@@ -469,6 +482,16 @@ class EventRecord:
         self.values = []
         self.user_data_name = ''
         self.processing_error = {}
+        self.data_pairs = []
+        self.rendering = {}
+        rendering = root.find('{*}RenderingInfo')
+        if rendering is not None:
+            self.rendering['Culture'] = rendering.get('Culture') or ''
+            for name in ('Message', 'Level', 'Opcode', 'Task', 'Channel', 'Provider'):
+                element = rendering.find('{*}' + name)
+                self.rendering[name] = (element.text or '') if element is not None else ''
+            self.rendering['Keywords'] = ', '.join(
+                item.text for item in rendering.findall('{*}Keywords/{*}Keyword') if item.text)
         event_data = root.find('{*}EventData')
         user_data = root.find('{*}UserData')
         processing_error = root.find('{*}ProcessingErrorData')
@@ -482,6 +505,7 @@ class EventRecord:
                 text = item.text or ''
                 self.values.append(text)
                 name = item.get('Name')
+                self.data_pairs.append((name or '', text))
                 if name:
                     self.fields[name] = text
         elif user_data is not None and len(user_data):
