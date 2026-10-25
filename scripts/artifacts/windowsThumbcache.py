@@ -48,7 +48,7 @@ __artifacts_v2__ = {
                        "the Windows Search index where the item was indexed.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (Windows.edb correlation uses the vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the thumbcache_*.db files in a user's Explorer folder, "
@@ -92,10 +92,14 @@ __artifacts_v2__ = {
                  "piece stored compressed, which is not decompressed) leaves the Correlated Path or "
                  "Correlated Name it would give blank although the index holds the item, and the run "
                  "log counts it and names the reason. None of these values was stored apart on the "
-                 "tested images. In a Windows.edb cut short, such as a partial copy, the index is read "
-                 "up to the first of its pages that lies past the end of "
-                 "the file, and the run log names that page; only Correlated Path and Correlated Name "
-                 "depend on it. With lonewolf_win10's thumbnail caches beside copies of its "
+                 "tested images. The index table is read from its root page down, through every leaf "
+                 "page its tree names and any page of the table its leaf chain reaches that the tree "
+                 "does not name; a page another object owns is not read. On lonewolf_win10 the tree "
+                 "names 50 index records the leaf chain does not reach, and none of them gave a "
+                 "Correlated Path. In a Windows.edb cut short, such as a partial copy, a page of the "
+                 "index that lies past the end of the file is passed over and the pages that remain "
+                 "are read, and the run log counts the pages passed over; only Correlated Path and "
+                 "Correlated Name depend on it. With lonewolf_win10's thumbnail caches beside copies of its "
                  "Windows.edb cut to 90, 75, 50 and 25 percent of its length, all 52 rows were "
                  "reported each time, and 40, 40, 40 and 38 of them carried a Correlated Path, "
                  "against 40 with the whole file. A "

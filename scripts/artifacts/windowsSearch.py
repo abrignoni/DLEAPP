@@ -61,12 +61,20 @@ __artifacts_v2__ = {
                        "created and accessed times the index recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SystemIndex_PropertyStore table in Windows.edb, the "
                  "Windows Search index. Each row is one indexed item, keyed by Work "
-                 "ID. Item Name, Item Path and Item URL are the "
+                 "ID. The table is read from its root page down, through every leaf "
+                 "page its tree names, and also through any page of the table that "
+                 "the leaf chain from one of those pages reaches and the tree does "
+                 "not name; a page that another object owns is not read. On "
+                 "lonewolf_win10, whose Windows.edb header records a dirty shutdown, "
+                 "the leaf chain from the table's first page reaches a page another "
+                 "object owns after 822 records, and the tree names the pages "
+                 "holding all 872; dissect.esedb 3.18 read the same 872 Work IDs. "
+                 "Item Name, Item Path and Item URL are the "
                  "System_ItemNameDisplay, System_ItemPathDisplay and System_ItemUrl "
                  "properties as stored; Item Path is the display path and Item URL "
                  "is the stored locator (for a file it is a file: URL of the same "
@@ -81,12 +89,12 @@ __artifacts_v2__ = {
                  "other non-file items store a placeholder of eight 0x2A bytes in "
                  "this property rather than a byte count, and that placeholder is "
                  "reported blank (present on 473 of the 587 rows on af_case2_win10, "
-                 "439 of 822 on lonewolf_win10 and 1,491 of 1,641 on szechuan_win10, "
+                 "439 of 872 on lonewolf_win10 and 1,491 of 1,641 on szechuan_win10, "
                  "every one of them an item whose Type is File folder or that stores "
                  "no type). Type and Kind are System_ItemTypeText and System_KindText "
                  "as stored, blank where the index holds none. Item Name, Item Path "
                  "and Gather Time were filled on every row of the three tested "
-                 "indexes, and Kind on 518 of 587, 632 of 822 and 1,505 of 1,641. "
+                 "indexes, and Kind on 518 of 587, 654 of 872 and 1,505 of 1,641. "
                  "Each property is read from the column the index's own schema names "
                  "for it: the table names each column <number>-<property> and the "
                  "number is assigned per index (System_ItemPathDisplay is 4445 on "
@@ -122,11 +130,12 @@ __artifacts_v2__ = {
                  "kept in the record is not decompressed) is left blank although the "
                  "index holds a value, and the run log counts it and names the reason. "
                  "None of the properties this artifact reports was stored apart on the "
-                 "tested images. In a Windows.edb cut short, such as a partial copy, the "
-                 "table is read up to the first of its pages "
-                 "that lies past the end of the file, and the run log names that page. "
-                 "Copies of szechuan_win10's file cut to 90, 75 and 50 percent of its "
-                 "length still gave all 1,641 rows, and one cut to 25 percent gave 571. "
+                 "tested images. In a Windows.edb cut short, such as a partial copy, a "
+                 "page of the table that lies past the end of the file is passed over "
+                 "and the pages that remain are read, and the run log counts the pages "
+                 "passed over. Copies of szechuan_win10's file cut to 90, 75 and 50 "
+                 "percent of its length still gave all 1,641 rows, and one cut to 25 "
+                 "percent gave 590. "
                  "The transaction logs beside Windows.edb "
                  "are not replayed.",
         "paths": ("*/[Ss]earch/[Dd]ata/[Aa]pplications/[Ww]indows/"
@@ -135,7 +144,7 @@ __artifacts_v2__ = {
         "artifact_icon": "search",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 587 rows",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 822 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 872 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 1,641 rows",
         },

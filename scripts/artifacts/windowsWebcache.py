@@ -39,7 +39,7 @@ __artifacts_v2__ = {
                        "WebCacheV01.dat, with the access time and access count.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the WebCacheV01.dat History containers: the container "
@@ -76,9 +76,9 @@ __artifacts_v2__ = {
                  "History containers on the tested "
                  "images stored 7 URLs apart, all on lonewolf_win10 and 519 to 922 "
                  "characters long, and every one was assembled. In a WebCacheV01.dat cut "
-                 "short, such as a partial copy, each container is read up to the first "
-                 "of its pages that lies past the end "
-                 "of the file, and the run log names the container and that page. Copies "
+                 "short, such as a partial copy, a page of a container that lies past the "
+                 "end of the file is passed over and the pages that remain are read, and "
+                 "the run log names the container and counts the pages passed over. Copies "
                  "of af_case2_win10's file cut to 90, 75, 50 and 25 percent of its "
                  "length gave 42, 41, 35 and 12 of the 42 rows the whole file gives. A "
                  "WebCacheV01.dat with no Containers table gives this artifact no "
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
                        "with the source URL, cached file name, size and times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the WebCacheV01.dat Content containers (container Name "
@@ -143,9 +143,9 @@ __artifacts_v2__ = {
                  "long, and 102 on szechuan_win10, 511 to 2,342 characters long, and "
                  "every one was assembled; no other value this artifact reports was "
                  "stored apart. In a WebCacheV01.dat cut short, such as a partial copy, "
-                 "each container is read up to the first of "
-                 "its pages that lies past the end of the file, and the run log names "
-                 "the container and that page. Copies of af_case2_win10's file cut to "
+                 "a page of a container that lies past the end of the file is passed "
+                 "over and the pages that remain are read, and the run log names the "
+                 "container and counts the pages passed over. Copies of af_case2_win10's file cut to "
                  "90, 75, 50 and 25 percent of its length gave 50, 50, 48 and 0 of the "
                  "50 rows the whole file gives. A "
                  "WebCacheV01.dat with no Containers table gives this artifact no "
