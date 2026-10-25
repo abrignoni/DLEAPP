@@ -14,16 +14,17 @@ ConnectStartTime are Windows FILETIMEs, matching the Velociraptor artifact's
 winfiletime handling of those columns.
 """
 
+import os
 import struct
 import binascii
 from datetime import datetime, timedelta, timezone
 
 try:
     from scripts.vendor import impacket_ese
-    from scripts import ese_rows
+    from scripts import ese_recovery, ese_rows
 except ImportError:
     impacket_ese = None
-    ese_rows = None
+    ese_recovery = ese_rows = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 
@@ -40,6 +41,12 @@ _EXECUTION = "{5C8CF1C7-7257-4F13-B223-970EF5939312}"
 # SOFTWARE\Microsoft\Windows NT\CurrentVersion\SRUM\Extensions on the tested images.
 _WPN = "{D10CA2FE-6FCF-4F6D-848E-B2E99266FA86}"        # WPN SRUM Provider
 _ENERGY_USAGE = "{FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}"  # Energy Usage Provider
+# Named SDP Cpu, Physical Disk, Volume and Network Provider (sdprov.dll) in the same key on
+# ou_ransomware_server2022 and alihadi_threatsim_server2019.
+_SDP_CPU = "{DC3D3B50-BB90-5066-FA4E-A5F90DD8B677}"
+_SDP_PHYSICAL_DISK = "{841A7317-3805-518B-C2EA-AD224CB4AF84}"
+_SDP_VOLUME = "{17F4D97B-F26A-5E79-3A82-90040A47D13D}"
+_SDP_NETWORK = "{EEE2F477-0659-5C47-EF03-6D6BEFD441B3}"
 
 _IDMAP = "SruDbIdMapTable"
 _SRUDB = "srudb.dat"
@@ -52,7 +59,7 @@ __artifacts_v2__ = {
                        "application, user SID, network interface and snapshot time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Network Usage table "
@@ -102,12 +109,25 @@ __artifacts_v2__ = {
                  "SRUDB.dat that does "
                  "not carry this provider table "
                  "gives this artifact no rows for that file, and the file is named in "
-                 "the run log. The .jfm "
-                 "and .log transaction logs beside SRUDB.dat are not replayed. GUID "
+                 "the run log. "
+                 "A SRUDB.dat whose header records a dirty shutdown is first brought up to date in memory from the"
+                 " transaction logs beside it, by the replay in scripts/ese_recovery that the User Access Logging "
+                 "artifacts also use; the replay refuses any log record it cannot reproduce exactly, and the file "
+                 "is then read as stored, with the reason in the run log. On windows11_arm_srum_live_20261024, a "
+                 "SRUDB.dat copied from a Volume Shadow Copy of a running Windows 11 build 26200 machine, the "
+                 "header records a dirty shutdown, the replay refused at a SetExternalHeader record, which it does"
+                 " not redo, and the file was read as stored. Its newest log held 122 Insert records whose dbtime is"
+                 " above that of the page they change. ESE's own recovery of a copy (esentutl /r, run on Windows 11"
+                 " build 26200) rolled back a transaction still open at the capture and marked deleted the 72"
+                 " Application Resource Usage entries it had inserted, all stamped in the minute the copy was taken;"
+                 " 56 of them are on the pages and are reported by that artifact, and 16 were only in the log. Every"
+                 " other table read the same after that recovery as it reads here. "
+                 "Every other tested SRUDB.dat records a clean shutdown. "
+                 "GUID "
                  "names: Velocidex, Windows.Forensics.SRUM, https://github.com/"
                  "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
                  "Forensics/SRUM.yaml",
-        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
         "output_types": ["standard"],
         "artifact_icon": "download",
         "sample_data": {
@@ -115,6 +135,10 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 57 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 2471 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 217 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 9 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 0 rows (no such table)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 8862 rows",
         },
     },
     "srumApplicationResourceUsage": {
@@ -125,14 +149,17 @@ __artifacts_v2__ = {
                        "snapshot time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Application Resource Usage table "
                  "{D10CA2FE-6FCF-4F6D-848E-B2E99266FA89}. Foreground and Background "
                  "Bytes Read and Bytes Written are disk byte counts for the snapshot "
                  "as stored. Foreground and Background Cycle Time are CPU cycle "
-                 "counts as stored; their unit is not converted. Read from "
+                 "counts as stored; their unit is not converted. On the two server images, "
+                 "ou_ransomware_server2022 and alihadi_threatsim_server2019, Foreground Bytes Read, Foreground "
+                 "Bytes Written, Background Bytes Read and Background Bytes Written held 0 on all 73,965 and all 490 "
+                 "rows, while Foreground Cycle Time took 71,106 and 489 distinct values. Read from "
                  "SRUDB.dat, named in Source File, with the ESE reader adapted from "
                  "impacket in scripts/vendor. Each row is one entry in this SRUM "
                  "provider table. Timestamp (UTC) is the entry's TimeStamp column "
@@ -169,14 +196,31 @@ __artifacts_v2__ = {
                  "names the table and that page; an id whose SruDbIdMapTable record was "
                  "not read is not resolved. Copies of lonewolf_win10's file cut to "
                  "90, 75, 50 and 25 percent of its length gave 10,546, 8,784, 5,920 and "
-                 "0 of the 15,055 rows the whole file gives. A SRUDB.dat that does "
+                 "0 of the 15,055 rows the whole file gives. On windows11_arm_srum_live_20261024 the last leaf page of "
+                 "this table links to a page owned by another object; the walk stops there, as the run log says, "
+                 "and the 47,728 rows it reads are the rows dissect.esedb 3.18 reads from the table. Of those, ESE's own "
+                 "recovery of a copy keeps 47,672 and marks the other 56 deleted, rolling back the transaction that "
+                 "inserted them; they are reported here as stored. A SRUDB.dat that does "
                  "not carry this provider table "
                  "gives this artifact no rows for that file, and the file is named in "
-                 "the run log. The .jfm and .log transaction "
-                 "logs beside SRUDB.dat are not replayed. GUID names: Velocidex, "
+                 "the run log. "
+                 "A SRUDB.dat whose header records a dirty shutdown is first brought up to date in memory from the"
+                 " transaction logs beside it, by the replay in scripts/ese_recovery that the User Access Logging "
+                 "artifacts also use; the replay refuses any log record it cannot reproduce exactly, and the file "
+                 "is then read as stored, with the reason in the run log. On windows11_arm_srum_live_20261024, a "
+                 "SRUDB.dat copied from a Volume Shadow Copy of a running Windows 11 build 26200 machine, the "
+                 "header records a dirty shutdown, the replay refused at a SetExternalHeader record, which it does"
+                 " not redo, and the file was read as stored. Its newest log held 122 Insert records whose dbtime is"
+                 " above that of the page they change. ESE's own recovery of a copy (esentutl /r, run on Windows 11"
+                 " build 26200) rolled back a transaction still open at the capture and marked deleted the 72"
+                 " Application Resource Usage entries it had inserted, all stamped in the minute the copy was taken;"
+                 " 56 of them are on the pages and are reported by that artifact, and 16 were only in the log. Every"
+                 " other table read the same after that recovery as it reads here. "
+                 "Every other tested SRUDB.dat records a clean shutdown. "
+                 "GUID names: Velocidex, "
                  "Windows.Forensics.SRUM, https://github.com/Velocidex/velociraptor/"
                  "blob/master/artifacts/definitions/Windows/Forensics/SRUM.yaml",
-        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
         "output_types": ["standard"],
         "artifact_icon": "activity",
         "sample_data": {
@@ -184,6 +228,10 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 1458 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 15055 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 766 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 54 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 73965 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 490 rows",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 47728 rows",
         },
     },
     "srumNetworkConnections": {
@@ -193,7 +241,7 @@ __artifacts_v2__ = {
                        "connection start time and the connected-time counter.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Network Connections table "
@@ -203,7 +251,7 @@ __artifacts_v2__ = {
                  "the connected-time counter as stored; its unit is not converted. "
                  "Interface LUID and L2 Profile ID are the network interface and "
                  "profile identifiers as stored. The application and user ids are 1 "
-                 "and 2 on every row of the four tested images, and SruDbIdMapTable "
+                 "and 2 on every row of the eight tested images, and SruDbIdMapTable "
                  "holds no IdBlob for either, so no application or user is surfaced "
                  "here. "
                  "Read from SRUDB.dat, named in Source File, "
@@ -230,12 +278,25 @@ __artifacts_v2__ = {
                  "its length gave 201, 159, 159 and 159 of the 201 rows the whole file "
                  "gives. A SRUDB.dat that does not carry this provider table "
                  "gives this artifact no rows for that file, and the file is named in "
-                 "the run log. The .jfm "
-                 "and .log transaction logs beside SRUDB.dat are not replayed. GUID "
+                 "the run log. "
+                 "A SRUDB.dat whose header records a dirty shutdown is first brought up to date in memory from the"
+                 " transaction logs beside it, by the replay in scripts/ese_recovery that the User Access Logging "
+                 "artifacts also use; the replay refuses any log record it cannot reproduce exactly, and the file "
+                 "is then read as stored, with the reason in the run log. On windows11_arm_srum_live_20261024, a "
+                 "SRUDB.dat copied from a Volume Shadow Copy of a running Windows 11 build 26200 machine, the "
+                 "header records a dirty shutdown, the replay refused at a SetExternalHeader record, which it does"
+                 " not redo, and the file was read as stored. Its newest log held 122 Insert records whose dbtime is"
+                 " above that of the page they change. ESE's own recovery of a copy (esentutl /r, run on Windows 11"
+                 " build 26200) rolled back a transaction still open at the capture and marked deleted the 72"
+                 " Application Resource Usage entries it had inserted, all stamped in the minute the copy was taken;"
+                 " 56 of them are on the pages and are reported by that artifact, and 16 were only in the log. Every"
+                 " other table read the same after that recovery as it reads here. "
+                 "Every other tested SRUDB.dat records a clean shutdown. "
+                 "GUID "
                  "names: Velocidex, Windows.Forensics.SRUM, https://github.com/"
                  "Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/"
                  "Forensics/SRUM.yaml",
-        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
         "output_types": ["standard"],
         "artifact_icon": "globe",
         "sample_data": {
@@ -243,6 +304,10 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 10 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 201 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 10 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 2 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 1347 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 9 rows",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 707 rows",
         },
     },
     "srumExecutionStats": {
@@ -252,7 +317,7 @@ __artifacts_v2__ = {
                        "the application, user SID, end time and duration.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SRUM Execution Stats table "
@@ -301,13 +366,25 @@ __artifacts_v2__ = {
                  "lonewolf_win10's file cut to 90, 75, 50 and 25 percent of its length gave "
                  "4,276, 1,612, 0 and 0 of the 12,332 rows the whole file gives. "
                  "A SRUDB.dat that does not carry this provider table gives this artifact "
-                 "no rows for that file, and the file is named in the run log. The .jfm "
-                 "and .log transaction logs beside "
-                 "SRUDB.dat are not replayed. GUID names: Velocidex, "
+                 "no rows for that file, and the file is named in the run log. "
+                 "A SRUDB.dat whose header records a dirty shutdown is first brought up to date in memory from the"
+                 " transaction logs beside it, by the replay in scripts/ese_recovery that the User Access Logging "
+                 "artifacts also use; the replay refuses any log record it cannot reproduce exactly, and the file "
+                 "is then read as stored, with the reason in the run log. On windows11_arm_srum_live_20261024, a "
+                 "SRUDB.dat copied from a Volume Shadow Copy of a running Windows 11 build 26200 machine, the "
+                 "header records a dirty shutdown, the replay refused at a SetExternalHeader record, which it does"
+                 " not redo, and the file was read as stored. Its newest log held 122 Insert records whose dbtime is"
+                 " above that of the page they change. ESE's own recovery of a copy (esentutl /r, run on Windows 11"
+                 " build 26200) rolled back a transaction still open at the capture and marked deleted the 72"
+                 " Application Resource Usage entries it had inserted, all stamped in the minute the copy was taken;"
+                 " 56 of them are on the pages and are reported by that artifact, and 16 were only in the log. Every"
+                 " other table read the same after that recovery as it reads here. "
+                 "Every other tested SRUDB.dat records a clean shutdown. "
+                 "GUID names: Velocidex, "
                  "Windows.Forensics.SRUM, "
                  "https://github.com/Velocidex/velociraptor/blob/master/artifacts/"
                  "definitions/Windows/Forensics/SRUM.yaml",
-        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
         "output_types": ["standard"],
         "artifact_icon": "clock",
         "sample_data": {
@@ -315,6 +392,10 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 2777 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 12332 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 1,488 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 0 rows (no such table)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 20842 rows",
         },
     },
     "srumWpnNotifications": {
@@ -324,11 +405,12 @@ __artifacts_v2__ = {
                        "and the entry's recorded time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-13",
-        "last_update_date": "2026-10-13",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
-        "notes": "Rows from the SRUM table {D10CA2FE-6FCF-4F6D-848E-B2E99266FA86}. On the four tested "
-                 "images the key of that GUID under SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\"
+        "notes": "Rows from the SRUM table {D10CA2FE-6FCF-4F6D-848E-B2E99266FA86}. On the six images "
+                 "whose SOFTWARE hive was read (af_case2_win10, lonewolf_win10, pc_mus_001_win11, szechuan_win10, "
+                 "ou_ransomware_server2022 and alihadi_threatsim_server2019) the key of that GUID under SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\"
                  "Extensions is named WPN SRUM Provider with the DLL wpnsruprov.dll. Each row is one entry of "
                  "the table. Application and User SID are resolved from SruDbIdMapTable and are blank when the "
                  "entry's id is absent from the map or maps to an entry with no IdBlob. Notification Type, Payload Size and Network Type are the "
@@ -339,12 +421,12 @@ __artifacts_v2__ = {
                  "lonewolf_win10 and pc_mus_001_win11 and three values on szechuan_win10. "
                  "Read from SRUDB.dat, named in Source File, with the ESE reader adapted from impacket in "
                  "scripts/vendor, the same way as the SRUM Network Usage artifact, whose notes say how "
-                 "deleted records, values stored apart and a file cut short are handled; the .jfm and .log "
-                 "transaction logs beside SRUDB.dat are not replayed. Timestamp (UTC) is the entry's "
+                 "deleted records, values stored apart, a file cut short and a file in dirty shutdown are handled. "
+                 "Timestamp (UTC) is the entry's "
                  "TimeStamp column decoded as an OLE automation date (days since 1899-12-30). "
                  "A row is an entry SRUM recorded for an application; it does not show that a notification "
                  "was displayed or read.",
-        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
         "output_types": ["standard"],
         "artifact_icon": "bell",
         "sample_data": {
@@ -352,6 +434,10 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 13 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 90 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 11 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 0 rows (no such table)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 6 rows",
         },
     },
     "srumEnergyUsage": {
@@ -360,12 +446,15 @@ __artifacts_v2__ = {
                        "SRUDB.dat: the event time, state transition, charge level and battery capacities.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-13",
-        "last_update_date": "2026-10-13",
+        "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
-        "notes": "Rows from the SRUM table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}. On the four tested "
-                 "images the key of that GUID under SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\"
-                 "Extensions is named Energy Usage Provider with the DLL energyprov.dll. Each row is one entry "
+        "notes": "Rows from the SRUM table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}. On af_case2_win10, "
+                 "lonewolf_win10, pc_mus_001_win11 and szechuan_win10 the key of that GUID under "
+                 "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\Extensions is named Energy Usage "
+                 "Provider with the DLL energyprov.dll; the SOFTWARE hives of ou_ransomware_server2022 and "
+                 "alihadi_threatsim_server2019 carry no such key, and that of windows11_arm_srum_live_20261024 was "
+                 "not read. Each row is one entry "
                  "of the table. Event Time (UTC) is the EventTimestamp column read as a Windows FILETIME: on "
                  "lonewolf_win10 and pc_mus_001_win11 that reading puts every value at or before the row's own "
                  "Timestamp (UTC), or after it by less than a tenth of a second, with a median gap under one "
@@ -389,11 +478,11 @@ __artifacts_v2__ = {
                  "entries are keyed by short codes and not by application. "
                  "Read from SRUDB.dat, named in Source File, with the ESE reader adapted from impacket in "
                  "scripts/vendor, the same way as the SRUM Network Usage artifact, whose notes say how "
-                 "deleted records, values stored apart and a file cut short are handled; the .jfm and .log "
-                 "transaction logs beside SRUDB.dat are not replayed. Timestamp (UTC) is the entry's "
+                 "deleted records, values stored apart, a file cut short and a file in dirty shutdown are handled. "
+                 "Timestamp (UTC) is the entry's "
                  "TimeStamp column decoded as an OLE automation date (days since 1899-12-30). "
                  "A row is a battery state SRUM recorded, not a user action.",
-        "paths": ("*/Windows/System32/sru/SRUDB.dat",),
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
         "output_types": ["standard"],
         "artifact_icon": "battery-charging",
         "sample_data": {
@@ -401,6 +490,194 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (the table is empty)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 289 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the table is empty)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 0 rows (no such table)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 1188 rows",
+        },
+    },
+    "srumSdpCpu": {
+        "name": "SRUM SDP Cpu",
+        "description": "Entries of the SDP Cpu Provider table in SRUDB.dat, as found on Windows Server images: the entry time, the SruDbIdMapTable value its AppId names and its ProcessorTime value as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-24",
+        "last_update_date": "2026-10-24",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the SRUM table {DC3D3B50-BB90-5066-FA4E-A5F90DD8B677}. On ou_ransomware_server2022 and"
+                 " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
+                 "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Cpu Provider with the DLL sdprov.dll. Each row is"
+                 " one entry of the table. AppId Entry is the SruDbIdMapTable value the row's AppId names, decoded"
+                 " as text as for the Application column of the other SRUM artifacts; it is blank when the id is "
+                 "absent from the map or maps to an entry with no IdBlob. The table's UserId held 2 on every row of both tested images, and that id "
+                 "maps to an entry with no IdBlob, so no user is shown. The value columns are the table's columns "
+                 "of those names as stored (64-bit integers, ESE column type LongLong); no source for their "
+                 "meaning or unit was read, so they are not converted, and what the provider measures is not "
+                 "established. Timestamp (UTC) is the entry's TimeStamp column decoded as an OLE automation date "
+                 "(days since 1899-12-30). Read from SRUDB.dat, named in Source File, with the ESE reader adapted "
+                 "from impacket in scripts/vendor, the same way as the SRUM Network Usage artifact, whose notes "
+                 "say how deleted records, values stored apart, a file cut short and a file in dirty shutdown are "
+                 "handled. The table is present on the two server images tested, Windows Server 2022 "
+                 "(ou_ransomware_server2022) and Windows Server 2019 (alihadi_threatsim_server2019), and on none "
+                 "of the six Windows 10, 11 and 8.1 SRUDB.dat files tested; a SRUDB.dat without it gives this "
+                 "artifact no rows. Eric Zimmerman's SrumECmd reads the same table (EricZimmerman/Srum, "
+                 "SrumData/Srum.cs, commit 46fb4e9611c33fdc96236e79d0075db9090bd91c), naming it after its columns "
+                 "and describing what the providers measure as not documented. A row is a value the provider "
+                 "recorded, not a user action. AppId Entry held Total on every row of both images. "
+                 "ProcessorTime held integers from 0 to 92 on ou_ransomware_server2022 (3,005 rows, 24 September "
+                 "2023 to 9 February 2024) and 0 to 83 on alihadi_threatsim_server2019 (21 rows, 21 August 2021 to"
+                 " 17 June 2022).",
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
+        "output_types": ["standard"],
+        "artifact_icon": "cpu",
+        "sample_data": {
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 3005 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 21 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no such table)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no such table)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no such table)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no such table)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 0 rows (no such table)",
+        },
+    },
+    "srumSdpPhysicalDisk": {
+        "name": "SRUM SDP Physical Disk",
+        "description": "Entries of the SDP Physical Disk Provider table in SRUDB.dat, as found on Windows Server images: the entry time, the SruDbIdMapTable value its AppId names and its SizeInBytes value as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-24",
+        "last_update_date": "2026-10-24",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the SRUM table {841A7317-3805-518B-C2EA-AD224CB4AF84}. On ou_ransomware_server2022 and"
+                 " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
+                 "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Physical Disk Provider with the DLL sdprov.dll. "
+                 "Each row is one entry of the table. AppId Entry is the SruDbIdMapTable value the row's AppId "
+                 "names, decoded as text as for the Application column of the other SRUM artifacts; it is blank "
+                 "when the id is absent from the map or maps to an entry with no IdBlob. The table's UserId held 2 on every row of both tested "
+                 "images, and that id maps to an entry with no IdBlob, so no user is shown. The value columns are "
+                 "the table's columns of those names as stored (64-bit integers, ESE column type LongLong); no "
+                 "source for their meaning or unit was read, so they are not converted, and what the provider "
+                 "measures is not established. Timestamp (UTC) is the entry's TimeStamp column decoded as an OLE "
+                 "automation date (days since 1899-12-30). Read from SRUDB.dat, named in Source File, with the ESE"
+                 " reader adapted from impacket in scripts/vendor, the same way as the SRUM Network Usage "
+                 "artifact, whose notes say how deleted records, values stored apart, a file cut short and a file "
+                 "in dirty shutdown are handled. The table is present on the two server images tested, Windows "
+                 "Server 2022 (ou_ransomware_server2022) and Windows Server 2019 (alihadi_threatsim_server2019), "
+                 "and on none of the six Windows 10, 11 and 8.1 SRUDB.dat files tested; a SRUDB.dat without it "
+                 "gives this artifact no rows. Eric Zimmerman's SrumECmd reads the same table (EricZimmerman/Srum,"
+                 " SrumData/Srum.cs, commit 46fb4e9611c33fdc96236e79d0075db9090bd91c), naming it after its columns"
+                 " and describing what the providers measure as not documented. A row is a value the provider "
+                 "recorded, not a user action. AppId Entry held a GUID followed by a tab and 0 on every row. "
+                 "Size In Bytes (as stored) held one value on all 3,005 rows of ou_ransomware_server2022 (53,687,091,200, which "
+                 "is 50 times 2 to the 30th) and two values on the 21 rows of alihadi_threatsim_server2019 (40 and"
+                 " 60 times 2 to the 30th).",
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
+        "output_types": ["standard"],
+        "artifact_icon": "hard-drive",
+        "sample_data": {
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 3005 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 21 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no such table)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no such table)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no such table)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no such table)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 0 rows (no such table)",
+        },
+    },
+    "srumSdpVolume": {
+        "name": "SRUM SDP Volume",
+        "description": "Entries of the SDP Volume Provider table in SRUDB.dat, as found on Windows Server images: the entry time, the SruDbIdMapTable value its AppId names and its Total and Used values as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-24",
+        "last_update_date": "2026-10-24",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the SRUM table {17F4D97B-F26A-5E79-3A82-90040A47D13D}. On ou_ransomware_server2022 and"
+                 " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
+                 "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Volume Provider with the DLL sdprov.dll. Each row"
+                 " is one entry of the table. AppId Entry is the SruDbIdMapTable value the row's AppId names, "
+                 "decoded as text as for the Application column of the other SRUM artifacts; it is blank when the "
+                 "id is absent from the map or maps to an entry with no IdBlob. The table's UserId held 2 on every row of both tested images, and "
+                 "that id maps to an entry with no IdBlob, so no user is shown. The value columns are the table's "
+                 "columns of those names as stored (64-bit integers, ESE column type LongLong); no source for "
+                 "their meaning or unit was read, so they are not converted, and what the provider measures is not"
+                 " established. Timestamp (UTC) is the entry's TimeStamp column decoded as an OLE automation date "
+                 "(days since 1899-12-30). Read from SRUDB.dat, named in Source File, with the ESE reader adapted "
+                 "from impacket in scripts/vendor, the same way as the SRUM Network Usage artifact, whose notes "
+                 "say how deleted records, values stored apart, a file cut short and a file in dirty shutdown are "
+                 "handled. The table is present on the two server images tested, Windows Server 2022 "
+                 "(ou_ransomware_server2022) and Windows Server 2019 (alihadi_threatsim_server2019), and on none "
+                 "of the six Windows 10, 11 and 8.1 SRUDB.dat files tested; a SRUDB.dat without it gives this "
+                 "artifact no rows. Eric Zimmerman's SrumECmd reads the same table (EricZimmerman/Srum, "
+                 "SrumData/Srum.cs, commit 46fb4e9611c33fdc96236e79d0075db9090bd91c), naming it after its columns "
+                 "and describing what the providers measure as not documented. A row is a value the provider "
+                 "recorded, not a user action. AppId Entry held tab-separated text beginning with a GUID-shaped "
+                 "value, with a drive letter (C) in one entry and the label System Reserved in another on each "
+                 "image, and on ou_ransomware_server2022 a third entry with neither; the fields are shown as stored and not split. Used was not larger than Total on any of "
+                 "the 9,015 and 42 rows. Total held three values on ou_ransomware_server2022 and two on "
+                 "alihadi_threatsim_server2019, one per AppId.",
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
+        "output_types": ["standard"],
+        "artifact_icon": "database",
+        "sample_data": {
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 9015 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 42 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no such table)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no such table)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no such table)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no such table)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 0 rows (no such table)",
+        },
+    },
+    "srumSdpNetwork": {
+        "name": "SRUM SDP Network",
+        "description": "Entries of the SDP Network Provider table in SRUDB.dat, as found on Windows Server images: the entry time, the SruDbIdMapTable value its AppId names and its BytesInBound, BytesOutBound and BytesTotal values as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-24",
+        "last_update_date": "2026-10-24",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the SRUM table {EEE2F477-0659-5C47-EF03-6D6BEFD441B3}. On ou_ransomware_server2022 and"
+                 " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
+                 "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Network Provider with the DLL sdprov.dll. Each "
+                 "row is one entry of the table. AppId Entry is the SruDbIdMapTable value the row's AppId names, "
+                 "decoded as text as for the Application column of the other SRUM artifacts; it is blank when the "
+                 "id is absent from the map or maps to an entry with no IdBlob. The table's UserId held 2 on every row of both tested images, and "
+                 "that id maps to an entry with no IdBlob, so no user is shown. The value columns are the table's "
+                 "columns of those names as stored (64-bit integers, ESE column type LongLong); no source for "
+                 "their meaning or unit was read, so they are not converted, and what the provider measures is not"
+                 " established. Timestamp (UTC) is the entry's TimeStamp column decoded as an OLE automation date "
+                 "(days since 1899-12-30). Read from SRUDB.dat, named in Source File, with the ESE reader adapted "
+                 "from impacket in scripts/vendor, the same way as the SRUM Network Usage artifact, whose notes "
+                 "say how deleted records, values stored apart, a file cut short and a file in dirty shutdown are "
+                 "handled. The table is present on the two server images tested, Windows Server 2022 "
+                 "(ou_ransomware_server2022) and Windows Server 2019 (alihadi_threatsim_server2019), and on none "
+                 "of the six Windows 10, 11 and 8.1 SRUDB.dat files tested; a SRUDB.dat without it gives this "
+                 "artifact no rows. Eric Zimmerman's SrumECmd reads the same table (EricZimmerman/Srum, "
+                 "SrumData/Srum.cs, commit 46fb4e9611c33fdc96236e79d0075db9090bd91c), naming it after its columns "
+                 "and describing what the providers measure as not documented. A row is a value the provider "
+                 "recorded, not a user action. AppId Entry held a GUID in braces, a network adapter description "
+                 "and a number, separated by backslashes, as stored. The values do not behave as byte counts: "
+                 "BytesTotal equalled BytesInBound plus BytesOutBound on 2 of the 3,004 rows of "
+                 "ou_ransomware_server2022 and none of the 21 of alihadi_threatsim_server2019, was smaller than "
+                 "one of the two on 371 and 9 rows, and the values exceed 4.6 times 10 to the 18th. dissect.esedb "
+                 "3.18 read the same values on every row of the four SDP tables on both images, so they are as "
+                 "stored and not a decoding error here. They are shown as text.",
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
+        "output_types": ["standard"],
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 3004 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 21 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no such table)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no such table)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no such table)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no such table)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 0 rows (no such table)",
         },
     },
 }
@@ -494,7 +771,7 @@ def _filetime_datetime(value):
 
 def _srudb_sources(context):
     return [str(f) for f in context.get_files_found()
-            if str(f).lower().endswith(_SRUDB)]
+            if os.path.basename(str(f)).lower() == _SRUDB]
 
 
 def _cell(value):
@@ -502,9 +779,34 @@ def _cell(value):
     return "" if value is None else value
 
 
+# What each SRUDB.dat read as, by path, size and modification time: (the replayed bytes, or None
+# for the file as stored, and the replay's summary). The artifacts read the same file, so it is
+# replayed once.
+_REPLAYED = {}
+
+
+def _open(source, label, relative_source):
+    """SRUDB.dat as ESE's recovery would leave it: a file in dirty shutdown is replayed in memory
+    from the logs beside it (scripts/ese_recovery); when that is refused it is read as stored and
+    the reason is logged. The files are only read."""
+    stat = os.stat(source)
+    key = (source, stat.st_size, stat.st_mtime_ns)
+    if key not in _REPLAYED:
+        try:
+            data, summary = ese_recovery.replayed_database(source)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            data, summary = None, f'not replayed: {type(exc).__name__}: {exc}'
+        replayed = data is not None and summary.startswith('replayed')
+        _REPLAYED[key] = (data if replayed else None, summary)
+    data, summary = _REPLAYED[key]
+    if data is not None or 'clean shutdown' not in summary:
+        logfunc(f"{label}: {relative_source}, {summary}" + ('' if data is not None else '; read as stored'))
+    return ese_rows.ESEDatabase(source, data=data) if data is not None else ese_rows.ESEDatabase(source)
+
+
 def _read_table(source, guid, row_builder, label, relative_source):
     """Open SRUDB.dat, build the id map, and build a row per entry of one table."""
-    database = ese_rows.ESEDatabase(source)
+    database = _open(source, label, relative_source)
     try:
         database.mountDB()
         idmap = _build_idmap(database, label, relative_source)
@@ -659,4 +961,59 @@ def srumEnergyUsage(context):
                 _text(row.get('ConfigurationHash')))
 
     return _run(context, _ENERGY_USAGE, headers, build, "SRUM Energy Usage")
+
+
+@artifact_processor
+def srumSdpCpu(context):
+    headers = (('Timestamp (UTC)', 'datetime'), 'AppId Entry', 'Processor Time (as stored)',
+               'Source File')
+
+    def build(row, idmap):
+        return (_ole_datetime(row.get('TimeStamp')),
+                idmap.get(row.get('AppId'), ''),
+                _cell(row.get('ProcessorTime')))
+
+    return _run(context, _SDP_CPU, headers, build, "SRUM SDP Cpu")
+
+
+@artifact_processor
+def srumSdpPhysicalDisk(context):
+    headers = (('Timestamp (UTC)', 'datetime'), 'AppId Entry', 'Size In Bytes (as stored)',
+               'Source File')
+
+    def build(row, idmap):
+        return (_ole_datetime(row.get('TimeStamp')),
+                idmap.get(row.get('AppId'), ''),
+                _text(row.get('SizeInBytes')))
+
+    return _run(context, _SDP_PHYSICAL_DISK, headers, build, "SRUM SDP Physical Disk")
+
+
+@artifact_processor
+def srumSdpVolume(context):
+    headers = (('Timestamp (UTC)', 'datetime'), 'AppId Entry', 'Total (as stored)', 'Used (as stored)',
+               'Source File')
+
+    def build(row, idmap):
+        return (_ole_datetime(row.get('TimeStamp')),
+                idmap.get(row.get('AppId'), ''),
+                _text(row.get('Total')),
+                _text(row.get('Used')))
+
+    return _run(context, _SDP_VOLUME, headers, build, "SRUM SDP Volume")
+
+
+@artifact_processor
+def srumSdpNetwork(context):
+    headers = (('Timestamp (UTC)', 'datetime'), 'AppId Entry', 'Bytes In Bound (as stored)',
+               'Bytes Out Bound (as stored)', 'Bytes Total (as stored)', 'Source File')
+
+    def build(row, idmap):
+        return (_ole_datetime(row.get('TimeStamp')),
+                idmap.get(row.get('AppId'), ''),
+                _text(row.get('BytesInBound')),
+                _text(row.get('BytesOutBound')),
+                _text(row.get('BytesTotal')))
+
+    return _run(context, _SDP_NETWORK, headers, build, "SRUM SDP Network")
 

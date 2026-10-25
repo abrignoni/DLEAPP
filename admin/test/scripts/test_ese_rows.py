@@ -596,7 +596,7 @@ class LongValueColumnsTest(unittest.TestCase):
             [{'Url', 'Filename'}])
 
     def test_srum_reads_only_the_id_blob(self):
-        with mock.patch.object(ese_rows, 'ESEDatabase', return_value=two_pages()):
+        with mock.patch.object(windowsSrum, '_open', return_value=two_pages()):
             passed = self.columns_passed(lambda: windowsSrum._read_table(  # pylint: disable=protected-access
                 'SRUDB.dat', 'T', lambda row, idmap: row, 'SRUM', 'p'))
         self.assertEqual(passed, [{'IdBlob'}, ()])
