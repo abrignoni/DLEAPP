@@ -77,9 +77,9 @@ __artifacts_v2__ = {
                  "805740701c1b7f339d2a96c89c04d0325acd9fc9) and reads OperationOrder and OperationType as integers"
                  " without naming their values; Operation Order and Operation Type (as stored) are those columns "
                  "as stored. Operation Type held 1 on all 72 rows of pc_mus_001_win11 and 1, 2 and 3 on 13, 3 and "
-                 "1 of the 17 rows of hexordia_mvs2025_win11. In Activity Table is Yes when the Activity table, "
+                 "1 of the 17 rows of hexordia_mvs2025_win11. Id In Activity Table is Yes when the Activity table, "
                  "which the ActivitiesCache artifact reports, holds a row with the same Id, No otherwise, and blank when the file has no Activity table. It "
-                 "was No on all 72 rows of pc_mus_001_win11 and on 13 of the 17 of hexordia_mvs2025_win11, so those rows appear in no other DLEAPP artifact. All 17 rows of hexordia_mvs2025_win11 and 3 of the 72 of pc_mus_001_win11 exist only in the -wal. Start Time, End Time, Created Time, Last Modified, Last "
+                 "was No on all 72 rows of pc_mus_001_win11 and on 13 of the 17 of hexordia_mvs2025_win11, By content, 24 of those 72 rows of pc_mus_001_win11 share an AppActivityId with an Activity row and 6 others share AppId and StartTime with one, so 42 of them, and all 13 of hexordia_mvs2025_win11, match no Activity row by Id, AppActivityId or AppId and StartTime. All 17 rows of hexordia_mvs2025_win11 and 3 of the 72 of pc_mus_001_win11 exist only in the -wal. Start Time, End Time, Created Time, Last Modified, Last "
                  "Modified on Client and Expiration Time are read as Unix seconds in UTC, as the ActivitiesCache "
                  "artifact reads the Activity table's time columns. On both images none of Start "
                  "Time, Created Time, Last Modified or Last Modified on Client is earlier than the oldest Start "
@@ -463,7 +463,7 @@ def activitiesCacheOperations(context):
         "Operation Expiration Time (as stored)",
         "Operation Order",
         "Operation Type (as stored)",
-        "In Activity Table",
+        "Id In Activity Table",
         "App Activity ID",
         "Applications",
         "Display Text",

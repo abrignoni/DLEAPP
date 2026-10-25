@@ -110,8 +110,8 @@ class TestWindowsSystem(unittest.TestCase):
         index = {name if isinstance(name, str) else name[0]: i for i, name in enumerate(headers)}
         by_order = {row[index["Operation Order"]]: row for row in rows}
         only_here, also_in_activity = by_order[7], by_order[8]
-        self.assertEqual(only_here[index["In Activity Table"]], "No")
-        self.assertEqual(also_in_activity[index["In Activity Table"]], "Yes")
+        self.assertEqual(only_here[index["Id In Activity Table"]], "No")
+        self.assertEqual(also_in_activity[index["Id In Activity Table"]], "Yes")
         self.assertEqual(only_here[index["Operation Type (as stored)"]], 1)
         self.assertEqual(only_here[index["Operation Expiration Time (as stored)"]], 133000000000)
         self.assertEqual(also_in_activity[index["Operation Expiration Time (as stored)"]], "")
