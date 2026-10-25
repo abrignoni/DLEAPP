@@ -80,6 +80,53 @@ class TestWindowsSystem(unittest.TestCase):
         self.assertEqual(rows[0][6], "test.application")
         self.assertEqual(rows[0][16], "Tk9OLUpTT04=")
 
+    def _operations_database(self, with_operations=True):
+        database_path = self.tmp_path / "ActivitiesCache.db"
+        with sqlite3.connect(database_path) as database:
+            database.execute("CREATE TABLE Activity (Id GUID, StartTime, AppId, Payload, ActivityType)")
+            database.execute("INSERT INTO Activity VALUES (x'01', 10, '[]', '{}', 5)")
+            if with_operations:
+                database.execute(
+                    "CREATE TABLE ActivityOperation (OperationOrder INTEGER, Id GUID, OperationType INT, "
+                    "AppId TEXT, AppActivityId TEXT, ActivityType INT, LastModifiedTime, ExpirationTime, "
+                    "Payload BLOB, CreatedTime, OperationExpirationTime, StartTime, EndTime, LastModifiedOnClient)"
+                )
+                database.execute(
+                    "INSERT INTO ActivityOperation VALUES (7, x'02', 1, '[{\"application\":\"only.op\"}]', "
+                    "'op-activity', 6, 30, 40, '{\"displayText\":\"Shown\"}', 20, 133000000000, 25, 35, 31)"
+                )
+                database.execute(
+                    "INSERT INTO ActivityOperation VALUES (8, x'01', 3, '[]', '', 5, 12, 0, 'not json', 11, "
+                    "NULL, 10, 0, 12)"
+                )
+        database.close()
+        return database_path
+
+    def test_operations_say_whether_the_id_is_in_the_activity_table(self):
+        headers, rows, source = windowsSystem.activitiesCacheOperations.__wrapped__(
+            _Context([self._operations_database()])
+        )
+        self.assertEqual(headers[0], ("Start Time (UTC)", "datetime"))
+        index = {name if isinstance(name, str) else name[0]: i for i, name in enumerate(headers)}
+        by_order = {row[index["Operation Order"]]: row for row in rows}
+        only_here, also_in_activity = by_order[7], by_order[8]
+        self.assertEqual(only_here[index["Id In Activity Table"]], "No")
+        self.assertEqual(also_in_activity[index["Id In Activity Table"]], "Yes")
+        self.assertEqual(only_here[index["Operation Type (as stored)"]], 1)
+        self.assertEqual(only_here[index["Operation Expiration Time (as stored)"]], 133000000000)
+        self.assertEqual(also_in_activity[index["Operation Expiration Time (as stored)"]], "")
+        self.assertEqual(only_here[index["Created Time (UTC)"]], datetime(1970, 1, 1, 0, 0, 20, tzinfo=timezone.utc))
+        self.assertEqual(only_here[index["Applications"]], "only.op")
+        self.assertEqual(only_here[index["Display Text"]], "Shown")
+        self.assertEqual(also_in_activity[index["End Time (UTC)"]], "")
+        self.assertTrue(source.endswith("ActivitiesCache.db"))
+
+    def test_a_file_without_the_operation_table_gives_no_rows_and_is_not_named(self):
+        _, rows, source = windowsSystem.activitiesCacheOperations.__wrapped__(
+            _Context([self._operations_database(with_operations=False)])
+        )
+        self.assertEqual((rows, source), ([], ""))
+
     def test_notifications_include_handler_and_payload_hash(self):
         database_path = self.tmp_path / "wpndatabase.db"
         with sqlite3.connect(database_path) as database:
