@@ -172,17 +172,28 @@ __artifacts_v2__ = {
                  "description columns as stored. Match Type is the type column, an AutocompleteMatchType "
                  "value, shown as stored with the name the enum gives it; the header says these values "
                  "are stored in ShortcutsDatabase and cannot be renumbered "
-                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/autocomplete_match_type.h#L16-L17). Transition is the "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/autocomplete_match_type.h#L16-L17). The names are those of "
+                 "the current enum. The writer's version 1 migration rewrote stored types 9 to 12 as 13 "
+                 "to 16 (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L390-L397), so in a "
+                 "database with no meta table, which has not run it, values 9 to 12 are named by the "
+                 "value they migrate to and marked as pre-migration numbering; no tested database was "
+                 "at that version. The migration from the first table version filled transition with 1 "
+                 "and type with 2 on every existing row "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L379-L383), so on a database "
+                 "upgraded from it those two values can be the upgrade's default. Transition is the "
                  "transition column, a ui::PageTransition value: the name is that of its low byte, the "
-                 "core value, and any higher qualifier bits are shown in hex "
+                 "core value, and any higher qualifier bits are shown in hex as the unsigned 32-bit value; "
+                 "no tested row carried one, so that branch is unexercised "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/ui/base/page_transition_types.h#L113). Keyword is the keyword column as stored. The "
                  "writer binds all three (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L45-L47). "
                  "On pc_mus_001_win11 the pairs were 7 (SEARCH_HISTORY) with 5 (GENERATED) on 51 rows, "
                  "1 (HISTORY_URL) with 1 (TYPED) on 4 and 1 (HISTORY_URL) with 0 (LINK) on 1; on "
                  "lonewolf_win10 7 (SEARCH_HISTORY) with 5 (GENERATED) on 89 and 1 (HISTORY_URL) with 1 "
                  "(TYPED) on 14; no qualifier bits were set. Keyword was blank on 5 rows of "
-                 "pc_mus_001_win11 and 14 of lonewolf_win10. A database whose table lacks one of these "
-                 "columns reports it blank. "
+                 "pc_mus_001_win11 and 14 of lonewolf_win10. Chromium's first table version lacked these "
+                 "columns (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L312-L313); a database "
+                 "whose table lacks one of them reports it blank. No tested database lacked one, so that "
+                 "branch is unexercised. "
                  "Hits held one value, 1, on every row of pc_mus_001_win11 "
                  "and ran from 1 to 4 on lonewolf_win10. A database left with a rollback journal that "
                  "SQLite treats as hot cannot be opened read only, because replaying the journal writes to "
@@ -317,11 +328,33 @@ def _named(value, names):
 def _transition(value):
     if not isinstance(value, int):
         return value if value is not None else ''
+    value &= 0xFFFFFFFF  # stored as a signed 32-bit int; a qualifier can set the sign bit
     core = value & 0xFF
     text = _named(core, _TRANSITIONS)
     if value != core:
-        text += f', qualifiers 0x{value & ~0xFF:08X}'
+        text += f', qualifiers 0x{value & 0xFFFFFF00:08X}'
     return text
+
+
+def _match_type(value, version):
+    """A database with no meta table (version 0) predates the version 1 migration, which
+    rewrote stored types 9 to 12 as 13 to 16; name those by the value they migrate to."""
+    if version == 0 and isinstance(value, int) and 9 <= value <= 12:
+        name = _MATCH_TYPES[value + 4]
+        return f'{value} ({name}, pre-migration numbering)'
+    return _named(value, _MATCH_TYPES)
+
+
+def _shortcuts_version(db):
+    """The meta table's version, or 0 when the database has no meta table."""
+    try:
+        row = db.execute("SELECT value FROM meta WHERE key = 'version'").fetchone()
+    except sqlite3.Error:
+        return 0
+    try:
+        return int(row[0]) if row else 0
+    except (TypeError, ValueError):
+        return 0
 
 
 @artifact_processor
@@ -370,6 +403,7 @@ def chromiumShortcuts(context):
             present = table_columns(db, 'omni_box_shortcuts')
             if not present:
                 continue
+            version = _shortcuts_version(db)
             columns = select_list(present, ('last_access_time', 'text', 'fill_into_edit', 'url',
                                             'contents', 'description', 'number_of_hits', 'type',
                                             'transition', 'keyword'))
@@ -385,7 +419,7 @@ def chromiumShortcuts(context):
         for (last_access, text, fill_into_edit, url, contents, description, hits, match_type,
              transition, keyword) in rows:
             data_list.append((webkit_time(last_access), text, fill_into_edit, url, contents,
-                              description, hits, _named(match_type, _MATCH_TYPES),
+                              description, hits, _match_type(match_type, version),
                               _transition(transition), keyword) + row_tail(store))
     data_headers = (('Last Access Time', 'datetime'), 'Input Text', 'Fill Into Edit', 'URL',
                     'Contents', 'Description', 'Hits', 'Match Type', 'Transition', 'Keyword',
