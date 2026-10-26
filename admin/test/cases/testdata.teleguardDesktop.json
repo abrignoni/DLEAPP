@@ -18,7 +18,8 @@
       "teleguardMessages": {
         "search_patterns": [
           "*/[Tt]eleguard_database.db*",
-          "*/[Tt]eleguard_desktop/*"
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
         ],
         "file_count": 14,
         "expected_output": {
@@ -29,7 +30,8 @@
       "teleguardChatOverview": {
         "search_patterns": [
           "*/[Tt]eleguard_database.db*",
-          "*/[Tt]eleguard_desktop/*"
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
         ],
         "file_count": 14,
         "expected_output": {
@@ -40,7 +42,8 @@
       "teleguardContacts": {
         "search_patterns": [
           "*/[Tt]eleguard_database.db*",
-          "*/[Tt]eleguard_desktop/*"
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
         ],
         "file_count": 14,
         "expected_output": {
@@ -51,7 +54,8 @@
       "teleguardMediaReferences": {
         "search_patterns": [
           "*/[Tt]eleguard_database.db*",
-          "*/[Tt]eleguard_desktop/*"
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
         ],
         "file_count": 14,
         "expected_output": {
@@ -62,7 +66,8 @@
       "teleguardMediaFiles": {
         "search_patterns": [
           "*/[Tt]eleguard_database.db*",
-          "*/[Tt]eleguard_desktop/*"
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
         ],
         "file_count": 14,
         "expected_output": {

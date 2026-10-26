@@ -29,9 +29,15 @@ class TeleGuardReportTest(unittest.TestCase):
 
     def run_cli(self, archive, output):
         output.mkdir()
+        # Keep this test's profile in its TemporaryDirectory.
+        profile_path = output.parent / (output.name + '.dlprofile')
+        profile_path.write_text(
+            json.dumps({'leapp': 'dleapp', 'format_version': 1,
+                        'plugins': sorted(EXPECTED)}),
+            encoding='utf-8')
         result = subprocess.run(
             [sys.executable, str(REPO_ROOT / 'dleapp.py'), '-t', 'zip', '-i',
-             str(archive), '-o', str(output), '-m', str(REPO_ROOT / 'teleguard.dlprofile')],
+             str(archive), '-o', str(output), '-m', str(profile_path)],
             cwd=REPO_ROOT, env=dict(os.environ, TZ='UTC'),
             capture_output=True, text=True, timeout=60, check=False)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -111,6 +117,44 @@ class TeleGuardReportTest(unittest.TestCase):
                     timeline = dict(db.execute('SELECT activity,COUNT(*) FROM data GROUP BY activity'))
                 self.assertEqual(timeline, {a['name']: a['record_count'] for a in artifacts
                                             if a['artifact_key'] != 'teleguardMediaFiles'})
+
+    def test_roaming_teleguard_media_stay_with_the_source_store(self):
+        """The Windows app-data folder stages media without joining other trees."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tree = fixture.build(root / 'extraction')
+            for profile in ('profile-one', 'profile-two'):
+                old = tree / 'AppData' / 'Roaming' / profile / 'teleguard_desktop'
+                old.rename(old.with_name('TeleGuard'))
+            app = tree / 'AppData' / 'Roaming' / 'profile-one' / 'TeleGuard'
+            (app / 'example_photo.jpeg').unlink()
+            outside = tree / 'AppData' / 'Local' / 'Temp' / 'TeleGuard' / 'images'
+            outside.mkdir(parents=True)
+            (outside / 'example_photo.jpeg').write_bytes(fixture.JPEG)
+            (outside / 'outside_only.png').write_bytes(fixture.PNG)
+            archive = root / 'roaming.zip'
+            fixture.pack(tree, archive)
+            report = self.run_cli(archive, root / 'roaming-output')
+            manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
+            artifacts = manifest['artifacts']['TeleGuard Windows']
+            self.assertEqual({a['artifact_key']: a['record_count'] for a in artifacts},
+                             dict(EXPECTED, teleguardMediaFiles=5))
+            with closing(sqlite3.connect(report / '_lava_artifacts.db')) as db:
+                references = db.execute(
+                    'SELECT source_file,reference_status,media FROM teleguardmediareferences '
+                    "WHERE media_file_name='example_photo.jpeg'").fetchall()
+                self.assertEqual(len(references), 2)
+                for source, status, media in references:
+                    self.assertIn('/TeleGuard/', source)
+                    if '/profile-one/' in source:
+                        self.assertEqual(status, 'Missing')
+                        self.assertFalse(media)
+                    else:
+                        self.assertEqual(status, 'Matched')
+                        self.assertTrue(media)
+                sources = [row[0] for row in db.execute('SELECT source_file FROM teleguardmediafiles')]
+                self.assertEqual(len(sources), 5)
+                self.assertTrue(all('/Roaming/' in source for source in sources))
 
     def test_foreign_database_and_absent_app_produce_no_teleguard_rows(self):
         with tempfile.TemporaryDirectory() as temporary:

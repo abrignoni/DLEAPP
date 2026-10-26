@@ -333,7 +333,7 @@ class StoreTest(unittest.TestCase):
             self.assertEqual(rows[0][headers.index('Message')], 'older')
             self.assertEqual(rows[0][headers.index('Client Time')], '')
             self.assertEqual(rows[0][headers.index('Source File')],
-                             str(pathlib.Path('teleguard_desktop') / STORE))
+                             (pathlib.Path('teleguard_desktop') / STORE).as_posix())
             _headers, contacts, _notes = self.parse('teleguardContacts', staged, root)
             self.assertEqual(len(contacts), 1)
             self.assertEqual(contacts[0][_headers.index('Personal ID')], None)
@@ -708,7 +708,10 @@ class StoreTest(unittest.TestCase):
         files, root = self.keep(self.basic())
         relative_files = [os.path.relpath(path) for path in files]
         relative_root = pathlib.Path(os.path.relpath(root))
-        headers, rows, _ = self.parse('teleguardMessages', relative_files, relative_root)
+        with patch.object(tg_helper, 'open_sqlite_db_readonly',
+                          wraps=tg_helper.open_sqlite_db_readonly) as opened:
+            headers, rows, _ = self.parse('teleguardMessages', relative_files, relative_root)
+        opened.assert_called_once_with(os.path.abspath(relative_files[0]))
         self.assertEqual(len(rows), 6)
         self.assertEqual(rows[0][headers.index('Source File')],
                          'AppData/teleguard_desktop/teleguard_database.db')

@@ -17,32 +17,20 @@ __artifacts_v2__ = {
         'name': 'TeleGuard Windows Messages',
         'description': 'Stored TeleGuard Windows message records with source-scoped conversations, text, timestamps, state fields and local attachment references.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-23',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
         'requirements': 'none', 'category': 'TeleGuard Windows',
-        'notes': 'Reads the supplied messages/contacts/service layout in teleguard_database.db. '
-                 'The field mapping was supplied from local examination; public regression data is independently authored. '
-                 'No client-version range is asserted. Timestamp, Client Time and Forwarded Time are Unix milliseconds '
-                 'converted to UTC with their fractional precision; null, malformed and out-of-range values are blank, '
-                 'and zero is the Unix epoch. Direction compares sender with the unique service user row serverId; '
-                 'Direction is blank when either id is missing. A stored status is not interpreted as a read action. '
-                 'Names resolve only within this database. Conversation ID includes Source File to distinguish source instances. '
-                 'For localized content, Message prefers de, then en, then the first string; Content (as stored) preserves '
-                 'the original language map. Message and Content (as stored) are identical for ordinary unlocalized text. '
-                 'Metadata (as stored) is the unchanged metadata field. Media File Names contains stored names from mediaFiles '
-                 'and files; Media is blank when no unique readable file resolves within the database directory tree. '
-                 'Media Status distinguishes matched, missing, ambiguous and invalid references. A file from another store '
-                 'is never used to fill a missing attachment. Client Time, Forwarded Time, Media File Names, Media Status, '
-                 'Media Type, Media Durations, Quoted Text, Quoted Message ID, Quoted Message Type, Quote Author, Reply Type, '
-                 'Call Type, Call Participants, Call Result, Content Expired, Client Version and Parent Message ID may be '
-                 'blank when the source field is absent. Undocumented state fields are reported as stored. '
-                 'Sender ID, Recipient ID and Chat ID retain the stored identifiers independently of display names. '
-                 'Parent Message ID and Quoted Message ID may be identical for a quoted parent; their source fields '
-                 'are messages.parentId and metadata.messageId respectively. '
-                 'Account keys from service are not reported; raw message metadata is retained. '
-                 'No decryption, deleted-page recovery or parsing of teleguard_temp.db drafts, channels, posts, sipcalls '
-                 'or application logs is implemented; their layouts require separate validation.',
-        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*'),
-        'output_types': 'standard', 'artifact_icon': 'comments', 'sample_data': {},
+        'notes': 'Times are Unix milliseconds in UTC; zero is the epoch and null or invalid values are '
+                 'blank. Direction compares sender with the unique service user serverId; missing ids leave '
+                 'it blank. Conversation ID includes Source File. Localized Message prefers de, en, then the '
+                 'first string; raw content and metadata are retained. Media resolves only within this '
+                 "database's tree; unresolved references remain in Media Status. State codes and Media "
+                 'Durations remain as stored; duration units are unverified. Media Durations is blank when '
+                 'absent. No decryption, deleted-record '
+                 'recovery, teleguard_temp.db drafts, channels, posts, SIP-call tables or app logs. '
+                 'In the 4.0.6.2 sample, Call Participants and Parent Message ID were empty.',
+        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
+        'output_types': 'standard', 'artifact_icon': 'comments',
+        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 64822 rows'},
         'data_views': {'conversation': {
             'conversationDiscriminatorColumn': 'Conversation ID',
             'conversationLabelColumn': 'Conversation', 'textColumn': 'Message',
@@ -53,78 +41,70 @@ __artifacts_v2__ = {
         'name': 'TeleGuard Windows Chat Overview',
         'description': 'Per-source summaries of stored TeleGuard conversations with message counts, direction counts, distinct authors and first and last valid message times.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-23',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
         'requirements': 'none', 'category': 'TeleGuard Windows',
-        'notes': 'Aggregates messages by stored chatId within each database. First Message and Last Message '
-                 'use the smallest and largest valid createDate, interpreted as Unix milliseconds in UTC. '
-                 'Direction counts use the same account comparison as Messages; Direction Unknown also includes '
-                 'a missing or unusable local account. Outgoing, Incoming and Direction Unknown are zero when '
-                 'no message belongs to that direction. Participants counts distinct nonempty stored sender ids, '
-                 'not a group membership list. Messages By Type retains the stored codes. Conversation and Chat Type '
-                 'resolve through the local contacts row; Chat Type can be blank. Conversation ID includes '
-                 'Source File to distinguish databases. It is a summary of available records, not complete chat history. '
-                 'The public fixture uses independent synthetic stores; the revised implementation needs local '
-                 'confirmation against any private source before evidential use.',
-        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*'),
-        'output_types': 'standard', 'artifact_icon': 'comments', 'sample_data': {},
+        'notes': 'One row per stored chatId per database. First Message and Last Message use the minimum and '
+                 'maximum valid createDate (Unix milliseconds, UTC). Direction counts compare sender with '
+                 'the unique service user serverId; missing ids count as Direction Unknown. Participants '
+                 'counts distinct nonempty sender ids, not group membership. Messages By Type and Chat Type '
+                 'retain stored codes. Conversation ID includes Source File. Counts cover parsed records '
+                 'only.',
+        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
+        'output_types': 'standard', 'artifact_icon': 'comments',
+        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 198 rows'},
     },
     'teleguardContacts': {
         'name': 'TeleGuard Windows Contacts',
         'description': 'Stored TeleGuard contact records with ids, display names, embedded avatars, recorded activity fields and message-reference counts.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-23',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
         'requirements': 'none', 'category': 'TeleGuard Windows',
-        'notes': 'Reads contacts in each main database. Last Activity and Last Visit convert the correspondingly '
-                 'named fields from Unix milliseconds to UTC; their application-level meaning is not established. '
-                 'Last Activity, Last Visit, Avatar, Personal ID, Options and Info may be blank. Avatar bytes are '
-                 'checked in as embedded media and typed from their signatures. Messages In This Chat, Messages Sent '
-                 'and Messages Received count chatId, sender and receiver references in this same store; zero '
-                 'means no references in the parsed message records, not that the contact was unused. '
-                 'Contact Type, Options (as stored) and Info (as stored) retain source values without enum interpretation '
-                 'or secret filtering. Source File attributes contacts to their database. Account keys in the '
-                 'service row are not included. Public regression data is independently authored.',
-        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*'),
-        'output_types': 'standard', 'artifact_icon': 'user', 'sample_data': {},
+        'notes': 'Last Activity and Last Visit are stored Unix milliseconds in UTC; their application '
+                 'meaning is unverified. Null or invalid times are blank; zero is the epoch. The three '
+                 'message counts count chatId, sender and receiver references in this database. Avatar uses '
+                 'the stored blob, typed by signature. Contact Type, Options and Info remain as stored. '
+                 'Source File identifies the database. Account keys are not reported. '
+                 'Personal ID was empty in the 4.0.6.2 sample.',
+        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
+        'output_types': 'standard', 'artifact_icon': 'user',
+        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 200 rows'},
     },
     'teleguardMediaReferences': {
         'name': 'TeleGuard Windows Media References',
         'description': 'Attachment references stored in TeleGuard message metadata, with parent-message context and explicit local-file resolution status.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-23',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
         'requirements': 'none', 'category': 'TeleGuard Windows',
-        'notes': 'One row per mediaFiles entry or additional files id-to-name entry; Reference Field identifies '
-                 'the source structure. Files are resolved by a unique basename inside this database directory '
-                 'tree, excluding nested database instances. Reference Status is Matched, Missing, Ambiguous or '
-                 'Invalid reference or Unreadable; missing content never removes its reference row. Media is blank when the '
-                 'reference cannot be resolved or the file cannot be read. Media Type, Duration, Aspect Ratio, '
-                 'Blur Hash, Cache Name, Thumbnail Cache Name and Order may be blank because files-map references '
-                 'do not contain all mediaFiles fields. Cache Name and Thumbnail Cache Name may be identical '
-                 'when the stored names coincide. Timestamp is the parent createDate in Unix milliseconds UTC; '
-                 'this is not a playback timestamp. Conversation ID includes Source File to distinguish stores. '
-                 'Duration and other undocumented fields retain their raw units and values. '
-                 'Local unreferenced recognized media is listed separately in Media Files.',
-        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*'),
-        'output_types': 'standard', 'artifact_icon': 'image', 'sample_data': {},
+        'notes': 'One row per mediaFiles entry or additional files id-to-name entry. Resolution uses only '
+                 "this database's tree. Reference Status distinguishes Matched, Missing, Ambiguous, Invalid "
+                 'reference and Unreadable; unresolved Media is blank and the reference is retained. '
+                 'Timestamp is the parent createDate (Unix milliseconds, UTC). Duration, Aspect Ratio and '
+                 'Order remain as stored; units are unverified. Duration is blank when absent. '
+                 'Cache Name and Thumbnail Cache Name are identical when the stored names are the same. '
+                 'Conversation ID includes Source File. Files '
+                 "outside the database's tree are not joined. In the 4.0.6.2 sample, "
+                 'Reference Field was uniform (mediaFiles) and Reference Status was uniformly Missing.',
+        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
+        'output_types': 'standard', 'artifact_icon': 'image',
+        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 1394 rows'},
     },
     'teleguardMediaFiles': {
         'name': 'TeleGuard Windows Media Files',
         'description': 'Local files referenced by TeleGuard messages and recognized unreferenced images, audio, video or PDF files within each database instance.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-23',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
         'requirements': 'none', 'category': 'TeleGuard Windows',
-        'notes': 'One row per staged candidate file inside the main database directory tree, excluding nested '
-                 'stores, databases, sidecars and logs. Referenced files are included regardless of recognized '
-                 'type; otherwise only signature-recognized image, audio, video and PDF files are included. '
-                 'MIME Type may be blank when no type signature is recognized. Stored Name References counts '
-                 'metadata references to the basename, and can be zero for an Unreferenced file. Ambiguous '
-                 'references identifies multiple local files with that basename and is not a message-to-file join. '
-                 'Database Source is uniform for a single-store extraction and distinguishes the owning database '
-                 'when several stores are present. Source File identifies the actual candidate '
-                 'file, so both distinguish source instances at different levels. Media may be blank when a file '
-                 'is unreadable. No file-presence or reference status establishes that content was viewed. '
-                 'No event time is inferred from file timestamps; this artifact has no timeline output.',
-        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*'),
-        'output_types': ['html', 'tsv', 'lava'], 'artifact_icon': 'photo', 'sample_data': {},
+        'notes': "Files come only from this database's tree, excluding databases, sidecars and logs. Named "
+                 'files are included regardless of type; unreferenced files require an image, audio, video '
+                 'or PDF signature. Stored Name References counts metadata references to the basename; '
+                 'Ambiguous references indicates multiple local candidates, not a resolved join. Database '
+                 'Source identifies the database; Source File identifies the file. Database Source is '
+                 'constant for a single database. Unreadable Media is '
+                 'blank. File presence does not establish viewing. No timestamp is inferred or added to the '
+                 'timeline.',
+        'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
+        'output_types': ['html', 'tsv', 'lava'], 'artifact_icon': 'photo',
+        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 1 row'},
     },
 }
 

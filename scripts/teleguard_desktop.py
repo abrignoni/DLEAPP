@@ -59,7 +59,10 @@ def columns(db, table):
 
 def open_db(path, label, required=('messages',)):
     """Open through the read-only helper and validate identity/content fields."""
-    db = open_sqlite_db_readonly(path)
+    # The Windows SQLite helper adds an extended-length prefix. Resolve relative
+    # staging paths before that prefix is added; keep the seeker's original
+    # spelling in databases() for source attribution and portable baselines.
+    db = open_sqlite_db_readonly(os.path.abspath(path))
     if db is None:
         logfunc(f'{label}: could not open the staged database')
         return None
