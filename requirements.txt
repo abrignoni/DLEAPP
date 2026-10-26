@@ -4,12 +4,6 @@
 # line comes before the bare requirement of the same name, so these lines stay
 # at the top. The PyYAML wheels are built without libyaml; DLEAPP reads YAML
 # with the pure-Python BaseLoader.
-whl_files/brotli-1.2.0-cp315-cp315-win_amd64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "AMD64"
-whl_files/brotli-1.2.0-cp311-cp311-win_arm64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "ARM64"
-whl_files/brotli-1.2.0-cp312-cp312-win_arm64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "ARM64"
-whl_files/brotli-1.2.0-cp313-cp313-win_arm64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "ARM64"
-whl_files/brotli-1.2.0-cp314-cp314-win_arm64.whl; python_version == "3.14" and platform_system == "Windows" and platform_machine == "ARM64"
-whl_files/brotli-1.2.0-cp315-cp315-win_arm64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "ARM64"
 whl_files/pyyaml-6.0.3-cp315-cp315-win_amd64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "AMD64"
 whl_files/pyyaml-6.0.3-cp311-cp311-win_arm64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "ARM64"
 whl_files/pyyaml-6.0.3-cp315-cp315-win_arm64.whl; python_version == "3.15" and platform_system == "Windows" and platform_machine == "ARM64"
