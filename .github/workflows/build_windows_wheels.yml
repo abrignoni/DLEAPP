@@ -8,7 +8,6 @@ name: Build Windows wheels
 # line for each. Same workflow as iLEAPP's, with this core's packages.
 #
 # Gaps covered, measured against PyPI on 2026-10-19:
-#   Brotli 1.2.0: no cp315 x64 wheel, and no ARM64 wheel on any version.
 #   PyYAML 6.0.3: no cp315 wheel, x64 or ARM64, and no ARM64 wheel for 3.11.
 # setup-python offers Windows ARM64 builds of Python from 3.11 only.
 
@@ -30,72 +29,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Brotli
-            version: 1.2.0
-            runner: windows-latest
-            arch: x64
-            python: '3.15'
-            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
-            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
-            check: |
-              import brotli
-              data = bytes(range(256)) * 64
-              assert brotli.decompress(brotli.compress(data)) == data
-          - name: Brotli
-            version: 1.2.0
-            runner: windows-11-arm
-            arch: arm64
-            python: '3.11'
-            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
-            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
-            check: |
-              import brotli
-              data = bytes(range(256)) * 64
-              assert brotli.decompress(brotli.compress(data)) == data
-          - name: Brotli
-            version: 1.2.0
-            runner: windows-11-arm
-            arch: arm64
-            python: '3.12'
-            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
-            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
-            check: |
-              import brotli
-              data = bytes(range(256)) * 64
-              assert brotli.decompress(brotli.compress(data)) == data
-          - name: Brotli
-            version: 1.2.0
-            runner: windows-11-arm
-            arch: arm64
-            python: '3.13'
-            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
-            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
-            check: |
-              import brotli
-              data = bytes(range(256)) * 64
-              assert brotli.decompress(brotli.compress(data)) == data
-          - name: Brotli
-            version: 1.2.0
-            runner: windows-11-arm
-            arch: arm64
-            python: '3.14'
-            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
-            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
-            check: |
-              import brotli
-              data = bytes(range(256)) * 64
-              assert brotli.decompress(brotli.compress(data)) == data
-          - name: Brotli
-            version: 1.2.0
-            runner: windows-11-arm
-            arch: arm64
-            python: '3.15'
-            sdist: https://files.pythonhosted.org/packages/f7/16/c92ca344d646e71a43b8bb353f0a6490d7f6e06210f8554c8f874e454285/brotli-1.2.0.tar.gz
-            sha256: e310f77e41941c13340a95976fe66a8a95b01e783d430eeaf7a2f87e0a57dd0a
-            check: |
-              import brotli
-              data = bytes(range(256)) * 64
-              assert brotli.decompress(brotli.compress(data)) == data
           - name: PyYAML
             version: 6.0.3
             runner: windows-latest
