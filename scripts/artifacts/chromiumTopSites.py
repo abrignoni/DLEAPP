@@ -128,11 +128,12 @@ __artifacts_v2__ = {
         "name": "Chromium Omnibox Shortcuts",
         "description": "Rows of the omni_box_shortcuts table from the Shortcuts databases of Google "
                        "Chrome, Microsoft Edge, Brave, Vivaldi, Opera and Chromium profiles: the stored "
-                       "input text, the URL and suggestion text stored with it, its hit count and last "
-                       "access time.",
+                       "input text, the URL and the fill_into_edit, contents and description text stored "
+                       "with it, its hit count, match type, transition and keyword, and its last access "
+                       "time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-26",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the omni_box_shortcuts table of each Chromium-based browser profile's Shortcuts "
@@ -168,7 +169,33 @@ __artifacts_v2__ = {
                  "one to its hits "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_backend.cc#L322-L404). "
                  "Fill Into Edit, URL, Contents and Description are the fill_into_edit, url, contents and "
-                 "description columns as stored. Hits held one value, 1, on every row of pc_mus_001_win11 "
+                 "description columns as stored. Match Type is the type column, an AutocompleteMatchType "
+                 "value, shown as stored with the name the enum gives it; the header says these values "
+                 "are stored in ShortcutsDatabase and cannot be renumbered "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/autocomplete_match_type.h#L16-L17). The names are those of "
+                 "the current enum. The writer's version 1 migration rewrote stored types 9 to 12 as 13 "
+                 "to 16 (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L390-L397), so in a "
+                 "database with no meta table, or whose meta table carries no readable version, "
+                 "neither of which has run it, values 9 to 12 are named by the "
+                 "value they migrate to and marked as pre-migration numbering; no tested database was "
+                 "at that version. The migration from the first table version filled transition with 1 "
+                 "and type with 2 on every existing row "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L379-L383), so on a database "
+                 "upgraded from it those two values can be the upgrade's default. Transition is the "
+                 "transition column, a ui::PageTransition value: the name is that of its low byte, the "
+                 "core value, and any higher qualifier bits are shown in hex as the unsigned 32-bit value; "
+                 "no tested row carried one, so that branch is unexercised "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/ui/base/page_transition_types.h#L113). Keyword is the keyword column as stored. The "
+                 "writer binds all three (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L45-L47). "
+                 "On pc_mus_001_win11 the pairs were 7 (SEARCH_HISTORY) with 5 (GENERATED) on 51 rows, "
+                 "1 (HISTORY_URL) with 1 (TYPED) on 4 and 1 (HISTORY_URL) with 0 (LINK) on 1; on "
+                 "lonewolf_win10 7 (SEARCH_HISTORY) with 5 (GENERATED) on 89 and 1 (HISTORY_URL) with 1 "
+                 "(TYPED) on 14; no qualifier bits were set. Keyword was blank on 5 rows of "
+                 "pc_mus_001_win11 and 14 of lonewolf_win10. Chromium's first table version lacked these "
+                 "columns (https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/omnibox/browser/shortcuts_database.cc#L312-L313); a database "
+                 "whose table lacks one of them reports it blank. No tested database lacked one, so that "
+                 "branch is unexercised. "
+                 "Hits held one value, 1, on every row of pc_mus_001_win11 "
                  "and ran from 1 to 4 on lonewolf_win10. A database left with a rollback journal that "
                  "SQLite treats as hot cannot be opened read only, because replaying the journal writes to "
                  "the database; such a database is read as found, with the journal ignored, and the run "
@@ -261,9 +288,74 @@ __artifacts_v2__ = {
 
 import sqlite3
 
-from scripts.chromium.browser_profiles import (open_store, profile_stores,
-                                               row_tail, table_columns, webkit_time)
+from scripts.chromium.browser_profiles import (open_store, profile_stores, row_tail,
+                                               select_list, table_columns, webkit_time)
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
+
+
+# Chromium at 33f34ef179f55596f6c2fc8a55878b7ccf6276e4.
+# ui/base/page_transition_types.h: the core transition is the low byte of the stored value.
+_TRANSITIONS = {
+    0: 'LINK', 1: 'TYPED', 2: 'AUTO_BOOKMARK', 3: 'AUTO_SUBFRAME', 4: 'MANUAL_SUBFRAME',
+    5: 'GENERATED', 6: 'AUTO_TOPLEVEL', 7: 'FORM_SUBMIT', 8: 'RELOAD', 9: 'KEYWORD',
+    10: 'KEYWORD_GENERATED',
+}
+# components/omnibox/browser/autocomplete_match_type.h
+_MATCH_TYPES = {
+    0: 'URL_WHAT_YOU_TYPED', 1: 'HISTORY_URL', 2: 'HISTORY_TITLE', 3: 'HISTORY_BODY',
+    4: 'HISTORY_KEYWORD', 5: 'NAVSUGGEST', 6: 'SEARCH_WHAT_YOU_TYPED', 7: 'SEARCH_HISTORY',
+    8: 'SEARCH_SUGGEST', 9: 'SEARCH_SUGGEST_ENTITY', 10: 'SEARCH_SUGGEST_TAIL',
+    11: 'SEARCH_SUGGEST_PERSONALIZED', 12: 'SEARCH_SUGGEST_PROFILE', 13: 'SEARCH_OTHER_ENGINE',
+    14: 'EXTENSION_APP_DEPRECATED', 15: 'CONTACT_DEPRECATED', 16: 'BOOKMARK_TITLE',
+    17: 'NAVSUGGEST_PERSONALIZED', 18: 'CALCULATOR', 19: 'CLIPBOARD_URL', 20: 'VOICE_SUGGEST',
+    21: 'PHYSICAL_WEB_DEPRECATED', 22: 'PHYSICAL_WEB_OVERFLOW_DEPRECATED',
+    23: 'TAB_SEARCH_DEPRECATED', 24: 'DOCUMENT_SUGGESTION', 25: 'PEDAL', 26: 'CLIPBOARD_TEXT',
+    27: 'CLIPBOARD_IMAGE', 28: 'TILE_SUGGESTION', 29: 'TILE_NAVSUGGEST', 30: 'OPEN_TAB',
+    31: 'HISTORY_CLUSTER', 32: 'NULL_RESULT_MESSAGE', 33: 'STARTER_PACK',
+    34: 'TILE_MOST_VISITED_SITE', 35: 'TILE_REPEATABLE_QUERY', 36: 'HISTORY_EMBEDDINGS',
+    37: 'FEATURED_ENTERPRISE_SEARCH', 38: 'HISTORY_EMBEDDINGS_ANSWER', 39: 'TAB_GROUP',
+    40: 'CROSS_DEVICE_TAB',
+}
+
+
+def _named(value, names):
+    """The stored integer with the enum name the cited source gives it."""
+    if not isinstance(value, int):
+        return value if value is not None else ''
+    name = names.get(value)
+    return f'{value} ({name})' if name else str(value)
+
+
+def _transition(value):
+    if not isinstance(value, int):
+        return value if value is not None else ''
+    value &= 0xFFFFFFFF  # stored as a signed 32-bit int; a qualifier can set the sign bit
+    core = value & 0xFF
+    text = _named(core, _TRANSITIONS)
+    if value != core:
+        text += f', qualifiers 0x{value & 0xFFFFFF00:08X}'
+    return text
+
+
+def _match_type(value, version):
+    """A database with no meta table (version 0) predates the version 1 migration, which
+    rewrote stored types 9 to 12 as 13 to 16; name those by the value they migrate to."""
+    if version == 0 and isinstance(value, int) and 9 <= value <= 12:
+        name = _MATCH_TYPES[value + 4]
+        return f'{value} ({name}, pre-migration numbering)'
+    return _named(value, _MATCH_TYPES)
+
+
+def _shortcuts_version(db):
+    """The meta table's version, or 0 when the database has no meta table."""
+    try:
+        row = db.execute("SELECT value FROM meta WHERE key = 'version'").fetchone()
+    except sqlite3.Error:
+        return 0
+    try:
+        return int(row[0]) if row else 0
+    except (TypeError, ValueError):
+        return 0
 
 
 @artifact_processor
@@ -309,11 +401,15 @@ def chromiumShortcuts(context):
         if db is None:
             continue
         try:
-            if not table_columns(db, 'omni_box_shortcuts'):
+            present = table_columns(db, 'omni_box_shortcuts')
+            if not present:
                 continue
-            rows = db.execute('''
-                SELECT last_access_time, text, fill_into_edit, url, contents, description,
-                       number_of_hits
+            version = _shortcuts_version(db)
+            columns = select_list(present, ('last_access_time', 'text', 'fill_into_edit', 'url',
+                                            'contents', 'description', 'number_of_hits', 'type',
+                                            'transition', 'keyword'))
+            rows = db.execute(f'''
+                SELECT {columns}
                 FROM omni_box_shortcuts ORDER BY last_access_time, id''').fetchall()
         except sqlite3.Error as ex:
             logfunc(f'Chromium Omnibox Shortcuts: could not read {store.relative}: {ex}')
@@ -321,10 +417,12 @@ def chromiumShortcuts(context):
         finally:
             db.close()
         sources.append(store.path)
-        for last_access, text, fill_into_edit, url, contents, description, hits in rows:
+        for (last_access, text, fill_into_edit, url, contents, description, hits, match_type,
+             transition, keyword) in rows:
             data_list.append((webkit_time(last_access), text, fill_into_edit, url, contents,
-                              description, hits) + row_tail(store))
+                              description, hits, _match_type(match_type, version),
+                              _transition(transition), keyword) + row_tail(store))
     data_headers = (('Last Access Time', 'datetime'), 'Input Text', 'Fill Into Edit', 'URL',
-                    'Contents', 'Description', 'Hits', 'Browser', 'Profile', 'User',
-                    'Source File')
+                    'Contents', 'Description', 'Hits', 'Match Type', 'Transition', 'Keyword',
+                    'Browser', 'Profile', 'User', 'Source File')
     return data_headers, data_list, '\n'.join(sources)
