@@ -17,20 +17,23 @@ __artifacts_v2__ = {
         'name': 'TeleGuard Windows Messages',
         'description': 'Stored TeleGuard Windows message records with source-scoped conversations, text, timestamps, state fields and local attachment references.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
         'notes': 'Times are Unix milliseconds in UTC; zero is the epoch and null or invalid values are '
                  'blank. Direction compares sender with the unique service user serverId; missing ids leave '
                  'it blank. Conversation ID includes Source File. Localized Message prefers de, en, then the '
-                 'first string; raw content and metadata are retained. Media resolves only within this '
-                 "database's tree; unresolved references remain in Media Status. State codes and Media "
-                 'Durations remain as stored; duration units are unverified. Media Durations is blank when '
-                 'absent. No decryption, deleted-record '
-                 'recovery, teleguard_temp.db drafts, channels, posts, SIP-call tables or app logs. '
-                 'In the 4.0.6.2 sample, Call Participants and Parent Message ID were empty.',
+                 'first string; raw content and metadata are retained. Media searches the database tree and '
+                 'attributable same-user TeleGuard temp images/downloads. Stored name, cacheName and '
+                 'thumbnailCacheName are candidates; a unique match may be a thumbnail, while multiple files '
+                 'stay Ambiguous. State codes and Media Durations remain as stored; duration units are '
+                 'unverified and Media Durations is blank when absent. No decryption, deleted-record '
+                 'recovery, drafts, channels, posts, SIP-call tables or app logs. Call Participants and '
+                 'Parent Message ID were empty in the private 4.0.6.2 sample. Content Expired copies '
+                 'metadata.isContentExpired; a blank is unknown, not false, and the flag does not suppress '
+                 'local media.',
         'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
         'output_types': 'standard', 'artifact_icon': 'comments',
-        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 64822 rows'},
+        'sample_data': {},
         'data_views': {'conversation': {
             'conversationDiscriminatorColumn': 'Conversation ID',
             'conversationLabelColumn': 'Conversation', 'textColumn': 'Message',
@@ -41,23 +44,24 @@ __artifacts_v2__ = {
         'name': 'TeleGuard Windows Chat Overview',
         'description': 'Per-source summaries of stored TeleGuard conversations with message counts, direction counts, distinct authors and first and last valid message times.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
         'notes': 'One row per stored chatId per database. First Message and Last Message use the minimum and '
                  'maximum valid createDate (Unix milliseconds, UTC). Direction counts compare sender with '
                  'the unique service user serverId; missing ids count as Direction Unknown. Participants '
                  'counts distinct nonempty sender ids, not group membership. Messages By Type and Chat Type '
                  'retain stored codes. Conversation ID includes Source File. Counts cover parsed records '
-                 'only.',
+                 'only. Checked on a private TeleGuard Windows 4.0.6.2 install: 64,822 messages, '
+                 '198 chats, 200 contacts, 1,394 media references.',
         'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
         'output_types': 'standard', 'artifact_icon': 'comments',
-        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 198 rows'},
+        'sample_data': {},
     },
     'teleguardContacts': {
         'name': 'TeleGuard Windows Contacts',
         'description': 'Stored TeleGuard contact records with ids, display names, embedded avatars, recorded activity fields and message-reference counts.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
         'notes': 'Last Activity and Last Visit are stored Unix milliseconds in UTC; their application '
                  'meaning is unverified. Null or invalid times are blank; zero is the epoch. The three '
@@ -67,44 +71,48 @@ __artifacts_v2__ = {
                  'Personal ID was empty in the 4.0.6.2 sample.',
         'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
         'output_types': 'standard', 'artifact_icon': 'user',
-        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 200 rows'},
+        'sample_data': {},
     },
     'teleguardMediaReferences': {
         'name': 'TeleGuard Windows Media References',
         'description': 'Attachment references stored in TeleGuard message metadata, with parent-message context and explicit local-file resolution status.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
-        'notes': 'One row per mediaFiles entry or additional files id-to-name entry. Resolution uses only '
-                 "this database's tree. Reference Status distinguishes Matched, Missing, Ambiguous, Invalid "
-                 'reference and Unreadable; unresolved Media is blank and the reference is retained. '
-                 'Timestamp is the parent createDate (Unix milliseconds, UTC). Duration, Aspect Ratio and '
-                 'Order remain as stored; units are unverified. Duration is blank when absent. '
-                 'Cache Name and Thumbnail Cache Name are identical when the stored names are the same. '
-                 'Conversation ID includes Source File. Files '
-                 "outside the database's tree are not joined. In the 4.0.6.2 sample, "
-                 'Reference Field was uniform (mediaFiles) and Reference Status was uniformly Missing.',
+        'notes': 'One row per mediaFiles or additional files entry; quotedMediaFiles stays in parent raw '
+                 'Metadata. Search covers the database tree plus same-profile '
+                 'AppData/Local/Temp/TeleGuard/images and Downloads/TeleGuard for a sole main DB at '
+                 'AppData/Roaming/TeleGuard. Filename aliases form one candidate set: a unique match may be '
+                 'a thumbnail; multiple files stay Ambiguous and unresolved Media is blank. Timestamp is '
+                 'parent createDate (Unix milliseconds, UTC). Duration, Aspect Ratio and Order remain as '
+                 'stored with unverified units; Duration is blank when absent. Cache Name and Thumbnail '
+                 'Cache Name may be identical. Content Expired copies parent isContentExpired, blank if '
+                 'absent/null, without a withdrawal interpretation or file suppression. Content Expired '
+                 'Field Present can be uniformly Yes or No and distinguishes absent keys from explicit null. '
+                 'Conversation ID includes Source File. Reference Field is uniformly mediaFiles when no '
+                 'additional files entries exist.',
         'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
         'output_types': 'standard', 'artifact_icon': 'image',
-        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 1394 rows'},
+        'sample_data': {},
     },
     'teleguardMediaFiles': {
         'name': 'TeleGuard Windows Media Files',
         'description': 'Local files referenced by TeleGuard messages and recognized unreferenced images, audio, video or PDF files within each database instance.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-26',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
-        'notes': "Files come only from this database's tree, excluding databases, sidecars and logs. Named "
-                 'files are included regardless of type; unreferenced files require an image, audio, video '
-                 'or PDF signature. Stored Name References counts metadata references to the basename; '
-                 'Ambiguous references indicates multiple local candidates, not a resolved join. Database '
-                 'Source identifies the database; Source File identifies the file. Database Source is '
-                 'constant for a single database. Unreadable Media is '
-                 'blank. File presence does not establish viewing. No timestamp is inferred or added to the '
-                 'timeline.',
+        'notes': 'Inventory covers the database tree plus same-profile AppData/Local/Temp/TeleGuard/images '
+                 'and Downloads/TeleGuard when a sole main database at AppData/Roaming/TeleGuard owns that '
+                 'profile. Databases, sidecars and logs are excluded. Named files are listed regardless of '
+                 'type; unreferenced files require an image, audio, video or PDF signature. Stored Name '
+                 'References counts references naming each basename, with aliases deduplicated per '
+                 'reference. Referenced means named, not necessarily uniquely linked; Ambiguous references '
+                 'marks duplicate basenames. Database Source identifies the owning database and is constant '
+                 'for one database; Source File identifies the candidate. Unreadable Media is blank. '
+                 'Presence does not establish viewing. No event time or timeline output.',
         'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
         'output_types': ['html', 'tsv', 'lava'], 'artifact_icon': 'photo',
-        'sample_data': {'teleguard_windows_private_01': 'TeleGuard Windows 4.0.6.2 | 1 row'},
+        'sample_data': {},
     },
 }
 
@@ -161,7 +169,7 @@ def _references(index, entries, checked):
     refs, statuses = [], collections.Counter()
     for entry in entries:
         name = entry.get('name')
-        path, status = tg.resolve_media(index, name)
+        path, status = tg.resolve_media(index, *tg.attachment_names(entry))
         if path:
             if path not in checked:
                 checked[path] = check_media_file(path, name)
@@ -283,7 +291,7 @@ def _media_reference_records(context, db, path, relative):
     for row in tg.message_rows(db):
         for entry in tg.attachment_entries(row['metadata_json']):
             name = entry.get('name')
-            candidate, status = tg.resolve_media(index, name)
+            candidate, status = tg.resolve_media(index, *tg.attachment_names(entry))
             media = None
             if candidate:
                 if candidate not in checked:
@@ -297,7 +305,9 @@ def _media_reference_records(context, db, path, relative):
                    entry.get('id'), entry.get('mediaType'), entry.get('duration'),
                    entry.get('aspectRatio'), entry.get('blurHash'), entry.get('cacheName'),
                    entry.get('thumbnailCacheName'), entry.get('order'), row['id'],
-                   tg.conversation_id(relative, row['chatId']), entry['reference_field'], status, relative)
+                   tg.conversation_id(relative, row['chatId']), entry['reference_field'], status,
+                   row['metadata_json'].get('isContentExpired'),
+                   'Yes' if 'isContentExpired' in row['metadata_json'] else 'No', relative)
 
 
 @artifact_processor
@@ -306,7 +316,8 @@ def teleguardMediaReferences(context):
                     'Media File Name', 'Media ID', 'Media Type', 'Duration (as stored)',
                     'Aspect Ratio (as stored)', 'Blur Hash (as stored)', 'Cache Name',
                     'Thumbnail Cache Name', 'Order (as stored)', 'Message ID', 'Conversation ID',
-                    'Reference Field', 'Reference Status', 'Source File')
+                    'Reference Field', 'Reference Status', 'Content Expired (as stored)',
+                    'Content Expired Field Present', 'Source File')
     rows, sources = _collect(context, 'TeleGuard Media References', partial(_media_reference_records, context))
     return data_headers, rows, sources
 

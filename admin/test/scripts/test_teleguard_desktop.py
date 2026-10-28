@@ -40,7 +40,7 @@ BASE_TIME = 1748847600000
 BASE_STAMP = '2025-06-02 07:00:00'
 
 from admin.test.scripts.make_teleguard_desktop_fixture import (  # pylint: disable=wrong-import-position
-    JPEG, JPEG_SECOND, PNG)
+    JPEG, JPEG_SECOND, PNG, build_external)
 
 
 def write_store(directory, messages, contacts, account=None,
@@ -507,6 +507,34 @@ class StoreTest(unittest.TestCase):
             self.assertEqual(row[names.index('Media')],
                              [expected[row[names.index('Source File')]]])
 
+    def test_parent_expiry_value_and_presence_are_not_media_resolution_states(self):
+        root = self.temporary_root()
+        states = ({'isContentExpired': True}, {'isContentExpired': False},
+                  {'isContentExpired': None}, {})
+        messages = []
+        for number, state in enumerate(states):
+            metadata = dict(state, mediaFiles=[{'name': 'photo.jpg'}, {'name': 'missing.jpg'}])
+            messages.append(self.message(str(number), json.dumps(metadata)))
+        store = write_store(root, messages, [])
+        media = root / 'photo.jpg'
+        media.write_bytes(JPEG)
+        headers, rows, _ = self.parse('teleguardMediaReferences', [store, str(media)], root)
+        self.assertEqual(len(rows), 8)
+        for row in rows:
+            state = states[int(row[headers.index('Message ID')])]
+            self.assertIs(row[headers.index('Content Expired (as stored)')], state.get('isContentExpired'))
+            self.assertEqual(row[headers.index('Content Expired Field Present')],
+                             'Yes' if 'isContentExpired' in state else 'No')
+            if row[headers.index('Media File Name')] == 'photo.jpg':
+                self.assertEqual(row[headers.index('Reference Status')], 'Matched')
+                self.assertTrue(row[headers.index('Media')])
+            else:
+                self.assertEqual(row[headers.index('Reference Status')], 'Missing')
+                self.assertIsNone(row[headers.index('Media')])
+        headers, rows, _ = self.parse('teleguardMediaFiles', [store, str(media)], root)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][headers.index('Stored Name References')], 4)
+
     def test_ambiguous_media_is_reported_without_a_first_hit_join(self):
         root = self.temporary_root()
         app = root / 'teleguard_desktop'
@@ -541,6 +569,57 @@ class StoreTest(unittest.TestCase):
                                      [parent, child, str(media)], root)
         self.assertIsNone(rows[0][headers.index('Media')])
         self.assertEqual(rows[0][headers.index('Reference Status')], 'Missing')
+
+    def test_shared_media_is_unassigned_when_a_profile_has_two_main_stores(self):
+        root = self.temporary_root()
+        build_external(root)
+        saved = root / 'Users' / 'profile-one' / 'AppData' / 'Roaming' / 'TeleGuard' / 'saved'
+        saved.mkdir()
+        write_store(saved, [], [])
+        files = [str(path) for path in root.rglob('*') if path.is_file()]
+        headers, rows, _ = self.parse('teleguardMediaReferences', files, root)
+        selected = [row for row in rows if row[headers.index('Media File Name')] == 'cache.jpg']
+        self.assertEqual(len(selected), 2)
+        for row in selected:
+            expected = 'Missing' if '/profile-one/' in row[headers.index('Source File')] else 'Matched'
+            self.assertEqual(row[headers.index('Reference Status')], expected)
+        headers, rows, _ = self.parse('teleguardMediaFiles', files, root)
+        own = [row for row in rows if '/profile-one/' in row[headers.index('Database Source')]]
+        self.assertEqual(len(own), 1)
+        self.assertEqual(own[0][headers.index('File Name')], 'avatar.png')
+
+    def test_external_media_keeps_identical_users_in_separate_extractions_apart(self):
+        root = self.temporary_root()
+        build_external(root / 'first')
+        build_external(root / 'second')
+        files = [str(path) for path in root.rglob('*') if path.is_file()]
+        with patch.object(teleguardDesktop, 'check_in_media',
+                          side_effect=lambda path, **_kwargs: str(path)):
+            headers, rows, _ = teleguardDesktop.teleguardMediaReferences.__wrapped__(Context(files, root))
+        names = [head[0] if isinstance(head, tuple) else head for head in headers]
+        matched = [row for row in rows if row[names.index('Reference Status')] == 'Matched']
+        self.assertEqual(len(matched), 24)
+        for row in matched:
+            source = row[names.index('Source File')].split('/')
+            media = pathlib.Path(row[names.index('Media')]).relative_to(root).parts
+            self.assertEqual(tuple(source[:3]), media[:3])
+
+    def test_external_cache_symlink_cannot_claim_another_profiles_file(self):
+        root = self.temporary_root()
+        build_external(root)
+        first = root / 'Users' / 'profile-one' / 'AppData' / 'Local' / 'Temp' / 'TeleGuard' / 'images'
+        second = root / 'Users' / 'profile-two' / 'AppData' / 'Local' / 'Temp' / 'TeleGuard' / 'images'
+        (first / 'cache.jpg').unlink()
+        try:
+            (first / 'cache.jpg').symlink_to(second / 'cache.jpg')
+        except (NotImplementedError, OSError):
+            self.skipTest('Creating symlinks is unavailable')
+        files = [str(path) for path in root.rglob('*') if path.is_file()]
+        headers, rows, _ = self.parse('teleguardMediaReferences', files, root)
+        selected = [row for row in rows if row[headers.index('Media File Name')] == 'cache.jpg'
+                    and '/profile-one/' in row[headers.index('Source File')]]
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0][headers.index('Reference Status')], 'Missing')
 
     def test_unknown_account_is_unknown_in_both_messages_and_summary(self):
         root = self.temporary_root()

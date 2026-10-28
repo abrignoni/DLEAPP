@@ -78,5 +78,85 @@
     },
     "os_name": "Windows",
     "os_version": "Not asserted; synthetic SQLite layout generated on Linux"
+  },
+  "case2": {
+    "description": "Independently authored Windows profiles with one main database and a separate draft database each. External temp images, thumbnails, avatars and Downloads media exercise profile ownership, filename aliases, ambiguous candidates, missing files, an invalid name and a 12-entry attachment array. A third profile without a database and non-media directories are decoys. No private case content. Parent-message expiry values true, false, explicit null and absent are authored controls; existing media remains linkable regardless of the value.",
+    "maker": "@ForensikITGmbH",
+    "make_data": {
+      "input_data_path": "teleguard_external_synthetic.zip",
+      "os": "Linux-6.18.55-x86_64-with-glibc2.39",
+      "timestamp": "2026-10-28T01:54:46.083980",
+      "last_commit": {
+        "hash": "de26f660ba9969cff102a572acf7e4865322d89a",
+        "author_name": "Forensik.IT GmbH",
+        "author_email": "336857309+ForensikITGmbH@users.noreply.github.com",
+        "date": "2026-10-26T10:37:26+01:00",
+        "message": "Add files via upload"
+      }
+    },
+    "artifacts": {
+      "teleguardMessages": {
+        "search_patterns": [
+          "*/[Tt]eleguard_database.db*",
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
+        ],
+        "file_count": 31,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "teleguardChatOverview": {
+        "search_patterns": [
+          "*/[Tt]eleguard_database.db*",
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
+        ],
+        "file_count": 31,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "teleguardContacts": {
+        "search_patterns": [
+          "*/[Tt]eleguard_database.db*",
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
+        ],
+        "file_count": 31,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "teleguardMediaReferences": {
+        "search_patterns": [
+          "*/[Tt]eleguard_database.db*",
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
+        ],
+        "file_count": 31,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "teleguardMediaFiles": {
+        "search_patterns": [
+          "*/[Tt]eleguard_database.db*",
+          "*/[Tt]eleguard_desktop/*",
+          "*/[Tt]eleGuard/*"
+        ],
+        "file_count": 31,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "os_name": "Windows",
+    "os_version": "Not asserted; independently authored SQLite layout"
   }
 }

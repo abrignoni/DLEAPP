@@ -4,21 +4,21 @@
     "artifact_name": "TeleGuard Windows Media References",
     "function_name": "teleguardMediaReferences",
     "case_number": "case1",
-    "number_of_columns": 19,
+    "number_of_columns": 21,
     "number_of_rows": 4,
-    "total_data_size_bytes": 1212,
+    "total_data_size_bytes": 1236,
     "media_checkins": 4,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/teleguardDesktop/testdata.teleguardDesktop.teleguardMediaReferences.case1.zip",
-    "start_time": "2026-10-23T04:56:17.083282+00:00",
-    "end_time": "2026-10-23T04:56:17.099526+00:00",
-    "run_time_seconds": 0.004220485687255859,
+    "start_time": "2026-10-28T05:16:05.021927+00:00",
+    "end_time": "2026-10-28T05:16:05.034623+00:00",
+    "run_time_seconds": 0.004046440124511719,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-10-23T04:56:17.089167",
-      "message": "File not yet committed to git"
+      "hash": "de26f660ba9969cff102a572acf7e4865322d89a",
+      "author_name": "Forensik.IT GmbH",
+      "author_email": "336857309+ForensikITGmbH@users.noreply.github.com",
+      "date": "2026-10-26T10:37:26+01:00",
+      "message": "Add files via upload"
     }
   },
   "headers": [
@@ -40,6 +40,8 @@
     "Conversation ID",
     "Reference Field",
     "Reference Status",
+    "Content Expired (as stored)",
+    "Content Expired Field Present",
     "Source File"
   ],
   "data": [
@@ -62,6 +64,8 @@
       "extraction/AppData/Roaming/profile-one/teleguard_desktop/teleguard_database.db :: 11",
       "mediaFiles",
       "Matched",
+      null,
+      "No",
       "extraction/AppData/Roaming/profile-one/teleguard_desktop/teleguard_database.db"
     ],
     [
@@ -83,6 +87,8 @@
       "extraction/AppData/Roaming/profile-one/teleguard_desktop/teleguard_database.db :: 10",
       "files",
       "Matched",
+      null,
+      "No",
       "extraction/AppData/Roaming/profile-one/teleguard_desktop/teleguard_database.db"
     ],
     [
@@ -104,6 +110,8 @@
       "extraction/AppData/Roaming/profile-two/teleguard_desktop/teleguard_database.db :: 11",
       "mediaFiles",
       "Matched",
+      null,
+      "No",
       "extraction/AppData/Roaming/profile-two/teleguard_desktop/teleguard_database.db"
     ],
     [
@@ -125,6 +133,8 @@
       "extraction/AppData/Roaming/profile-two/teleguard_desktop/teleguard_database.db :: 10",
       "files",
       "Matched",
+      null,
+      "No",
       "extraction/AppData/Roaming/profile-two/teleguard_desktop/teleguard_database.db"
     ]
   ]

@@ -243,10 +243,20 @@ def attachment_entries(metadata):
     return result
 
 
+def attachment_names(entry):
+    """Distinct stored filenames for one reference, preserving field order."""
+    result, seen = [], set()
+    for field in ('name', 'cacheName', 'thumbnailCacheName'):
+        name = entry.get(field)
+        if isinstance(name, str) and name and name.casefold() not in seen:
+            result.append(name)
+            seen.add(name.casefold())
+    return result
+
+
 def media_names(metadata):
-    """All stored string names, including mixed mediaFiles/files references."""
-    return [entry['name'] for entry in attachment_entries(metadata)
-            if isinstance(entry.get('name'), str) and entry['name']]
+    """Stored filenames, counting an alias only once per attachment reference."""
+    return [name for entry in attachment_entries(metadata) for name in attachment_names(entry)]
 
 
 def conversation_id(relative, chat_id):
@@ -263,19 +273,51 @@ def contained(path, root):
         return False
 
 
+def media_profile(database, stores):
+    """Profile whose shared cache has exactly one staged main-store owner.
+
+    Only the observed AppData/Roaming/TeleGuard location establishes a profile.
+    A draft database is not a main store; another main-store copy in the same
+    profile makes the shared cache unattributable, so it is left unassigned.
+    """
+    root = os.path.abspath(os.path.dirname(database))
+    if tuple(part.casefold() for part in root.replace('\\', '/').split('/')[-3:]) != (
+            'appdata', 'roaming', 'teleguard'):
+        return None
+    profile = os.path.dirname(os.path.dirname(os.path.dirname(root)))
+    if sum(contained(path, profile) for path, _ in stores) != 1:
+        return None
+    return profile
+
+
+def profile_media_path(path, profile):
+    """Only the two observed media folders inside the same source profile."""
+    if profile is None or not contained(path, profile):
+        return False
+    parts = tuple(part.casefold() for part in
+                  os.path.relpath(path, profile).replace('\\', '/').split('/'))
+    roots = (('appdata', 'local', 'temp', 'teleguard', 'images'),
+             ('downloads', 'teleguard'))
+    return any(len(parts) > len(root) and parts[:len(root)] == root for root in roots)
+
+
 def media_index(context, database):
-    """Name -> candidates within this store's tree, excluding nested stores.
+    """Name -> candidates in this store and its attributable profile media.
 
     Equal basenames remain ambiguous. A first-hit join is never made.
     """
     root = os.path.dirname(database)
-    other_roots = {os.path.dirname(path) for path, _ in databases(context)
+    stores = databases(context)
+    profile = media_profile(database, stores)
+    other_roots = {os.path.dirname(path) for path, _ in stores
                    if os.path.normcase(os.path.dirname(path)) != os.path.normcase(root)}
     index, seen = {}, set()
     for item in context.get_files_found():
         path = readable_path(item)
         key = os.path.normcase(os.path.abspath(path))
-        if key in seen or not os.path.isfile(path) or not contained(path, root):
+        if key in seen or not os.path.isfile(path):
+            continue
+        if not contained(path, root) and not profile_media_path(path, profile):
             continue
         seen.add(key)
         if any(contained(other, root) and contained(path, other) for other in other_roots):
@@ -288,11 +330,14 @@ def media_index(context, database):
     return {name: tuple(sorted(paths)) for name, paths in index.items()}
 
 
-def resolve_media(index, name):
-    """Return a unique local file or the reason it cannot be attached."""
-    if not isinstance(name, str) or not name or name in ('.', '..') or '/' in name or '\\' in name:
+def resolve_media(index, *names):
+    """Use the union of valid stored filenames; never prefer an original or thumb."""
+    names = [value for value in names
+             if isinstance(value, str) and value and value not in ('.', '..')
+             and '/' not in value and '\\' not in value]
+    if not names:
         return None, 'Invalid reference'
-    candidates = index.get(name.casefold(), ())
+    candidates = sorted({path for value in names for path in index.get(value.casefold(), ())})
     if len(candidates) == 1:
         return candidates[0], 'Matched'
     return None, 'Ambiguous' if candidates else 'Missing'

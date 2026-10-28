@@ -17,6 +17,7 @@ empty log, a `-wal` sidecar and the client's own `teleguard_temp.db`.
 """
 
 import base64
+from contextlib import closing
 import json
 import os
 import pathlib
@@ -168,6 +169,69 @@ def build(root):
     return root
 
 
+def build_external(root):
+    """Authored Windows profiles with external caches, aliases and decoy trees."""
+    entries = [
+        {'name': 'download.jpg', 'aspectRatio': 1.5, 'blurHash': '000000', 'order': 0},
+        {'name': 'cache.jpg', 'duration': 3.5},
+        {'name': 'duplicate.jpg'},
+        {'name': 'missing.jpg'},
+        {'name': 'original.jpg', 'cacheName': 'cache-alias.jpg',
+         'thumbnailCacheName': 'cache-alias.jpg'},
+        {'name': 'second-original.jpg', 'thumbnailCacheName': 'thumb-alias.jpg'},
+        {'name': 'download.jpg', 'cacheName': 'cache.jpg'},
+        {'name': 'foreign-only.jpg'},
+        {'name': 'outside.jpg'},
+        {'name': '../invalid.jpg'},
+        {'name': 'late.jpg'},
+        {'name': 'last-missing.jpg'},
+    ]
+    for profile in ('profile-one', 'profile-two'):
+        user = root / 'Users' / profile
+        app = user / 'AppData' / 'Roaming' / 'TeleGuard'
+        app.mkdir(parents=True)
+        second = profile == 'profile-two'
+        path = write_store(app, second=second)
+        metadata = {'mediaFiles': entries}
+        if not second:
+            metadata['isContentExpired'] = True
+        with closing(sqlite3.connect(str(path))) as db:
+            with db:
+                db.execute('UPDATE messages SET metadata=? WHERE id=?',
+                           (json.dumps(metadata), 'a5'))
+                db.execute('UPDATE messages SET metadata=? WHERE id=?',
+                           (json.dumps({'files': {'f-1': 'example_document.pdf'},
+                                        'mediaType': 'FILE', 'isContentExpired': False if second else None}),
+                            'a7'))
+        (app / 'avatar.png').write_bytes(PNG_SECOND if second else PNG)
+        with closing(sqlite3.connect(str(app / 'teleguard_temp.db'))) as db:
+            with db:
+                db.execute('CREATE TABLE draft(text TEXT)')
+                db.execute('INSERT INTO draft VALUES (?)', ('Authored draft, not a main store',))
+        files = {
+            'AppData/Local/Temp/TeleGuard/images/cache.jpg': JPEG,
+            'AppData/Local/Temp/TeleGuard/images/duplicate.jpg': JPEG,
+            'AppData/Local/Temp/TeleGuard/images/thumb/duplicate.jpg': JPEG_SECOND,
+            'AppData/Local/Temp/TeleGuard/images/cache-alias.jpg': JPEG,
+            'AppData/Local/Temp/TeleGuard/images/thumb-alias.jpg': JPEG,
+            'AppData/Local/Temp/TeleGuard/images/avatars/unreferenced.png': PNG,
+            'Downloads/TeleGuard/download.jpg': JPEG,
+            'Downloads/TeleGuard/late.jpg': JPEG,
+            'Downloads/TeleGuard/example_document.pdf': PDF,
+            'Downloads/TeleGuard/unreferenced.png': PNG,
+            'AppData/Local/Temp/TeleGuard/video/thumb/outside.jpg': JPEG,
+            'Documents/TeleGuard/outside.jpg': JPEG,
+        }
+        for relative, data in files.items():
+            destination = user / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(JPEG_SECOND if second and data == JPEG else data)
+    foreign = root / 'Users' / 'no-database' / 'Downloads' / 'TeleGuard' / 'foreign-only.jpg'
+    foreign.parent.mkdir(parents=True)
+    foreign.write_bytes(JPEG)
+    return root
+
+
 def pack(root, archive):
     """Zip the fixture tree, keeping the tree's own top folder."""
     with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as packed:
@@ -185,11 +249,13 @@ def main():
                        help='folder the fixture tree is written into')
     parser.add_argument('--archive', default='teleguard_synthetic.zip',
                        help='archive the tree is packed into')
+    parser.add_argument('--external', action='store_true',
+                       help='use Windows profile caches, filename aliases and decoy directories')
     args = parser.parse_args()
     root = pathlib.Path(args.tree) / 'extraction'
     if root.exists():
         raise SystemExit(f'{root} exists, remove it first')
-    build(root)
+    (build_external if args.external else build)(root)
     pack(root, args.archive)
     print(args.archive, os.path.getsize(args.archive))
 
