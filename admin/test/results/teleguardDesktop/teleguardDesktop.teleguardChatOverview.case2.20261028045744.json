@@ -1,0 +1,101 @@
+{
+  "metadata": {
+    "module_name": "teleguardDesktop",
+    "artifact_name": "TeleGuard Windows Chat Overview",
+    "function_name": "teleguardChatOverview",
+    "case_number": "case2",
+    "number_of_columns": 13,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 962,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/teleguardDesktop/testdata.teleguardDesktop.teleguardChatOverview.case2.zip",
+    "start_time": "2026-10-28T05:16:04.804421+00:00",
+    "end_time": "2026-10-28T05:16:04.812661+00:00",
+    "run_time_seconds": 0.0011980533599853516,
+    "last_commit": {
+      "hash": "de26f660ba9969cff102a572acf7e4865322d89a",
+      "author_name": "Forensik.IT GmbH",
+      "author_email": "336857309+ForensikITGmbH@users.noreply.github.com",
+      "date": "2026-10-26T10:37:26+01:00",
+      "message": "Add files via upload"
+    }
+  },
+  "headers": [
+    "First Message",
+    "Last Message",
+    "Conversation",
+    "Conversation ID",
+    "Chat ID",
+    "Chat Type",
+    "Messages Total",
+    "Outgoing",
+    "Incoming",
+    "Direction Unknown",
+    "Participants",
+    "Messages By Type",
+    "Source File"
+  ],
+  "data": [
+    [
+      1704446100,
+      1704446820,
+      "10",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db :: 10",
+      "10",
+      null,
+      9,
+      5,
+      3,
+      1,
+      3,
+      "CALL: 1, FILE: 1, FORWARD: 1, SERVICE: 1, TEXT: 4, WIDGET: 1",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db"
+    ],
+    [
+      1704446340,
+      1704446460,
+      "Example Group",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db :: 11",
+      "11",
+      "GROUP",
+      3,
+      2,
+      1,
+      0,
+      2,
+      "MEDIA: 1, QUOTE: 1, TEXT: 1",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db"
+    ],
+    [
+      1704446100,
+      1704446820,
+      "10",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db :: 10",
+      "10",
+      null,
+      9,
+      5,
+      3,
+      1,
+      3,
+      "CALL: 1, FILE: 1, FORWARD: 1, SERVICE: 1, TEXT: 4, WIDGET: 1",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db"
+    ],
+    [
+      1704446340,
+      1704446460,
+      "Example Group",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db :: 11",
+      "11",
+      "GROUP",
+      3,
+      2,
+      1,
+      0,
+      2,
+      "MEDIA: 1, QUOTE: 1, TEXT: 1",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db"
+    ]
+  ]
+}
