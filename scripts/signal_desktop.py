@@ -17,8 +17,15 @@ the attachments decrypt the same way once the key is in hand, so a profile from
 any desktop OS is read given its key. What differs is recovering that key from
 ``encryptedKey``:
 
-* macOS and Linux use the safeStorage password scheme this module implements
-  (see ``unwrap_encrypted_key``), so supplying that credential unwraps the key.
+* macOS and Linux use Chromium's safeStorage password scheme, implemented
+  here (see ``unwrap_encrypted_key``), but with different parameters. macOS
+  derives the wrapping key with 1003 iterations from the Keychain credential.
+  Linux uses 1 iteration and the prefix ``v11`` for a key wrapped with the
+  libsecret/kwallet secret, which has to be supplied. With no keyring, Signal
+  does not wrap the key at all: it keeps ``key`` in the clear (``getSQLKey`` in
+  Signal Desktop v8.33.0 ``app/main.main.ts``), which needs nothing supplied.
+  The Linux unwrap follows Chromium's ``os_crypt_linux.cc`` and has been
+  exercised only on keys built to that source, not on a Linux Signal profile.
 * Windows uses DPAPI, which this module does NOT implement. A current Windows
   profile therefore needs the already-unwrapped 64-character database key
   supplied directly, recovered out of band (for example from the DPAPI master
@@ -38,8 +45,11 @@ that cannot work. Supply the credential (or the key) instead.
 The unwrap follows Chromium's safeStorage scheme, which Signal inherits from
 Electron::
 
-    KEK  = PBKDF2-HMAC-SHA1(credential, salt="saltysalt", 1003 iterations, 16 bytes)
-    key  = AES-128-CBC-decrypt(KEK, iv=b" " * 16, encryptedKey without its "v10" prefix)
+    KEK  = PBKDF2-HMAC-SHA1(password, salt="saltysalt", iterations, 16 bytes)
+    key  = AES-128-CBC-decrypt(KEK, iv=b" " * 16, encryptedKey without its prefix)
+
+    macOS            prefix "v10", 1003 iterations, the Keychain credential
+    Linux, keyring   prefix "v11", 1 iteration, the libsecret/kwallet secret
 
 The result is the 64 character hex string Signal passes to
 ``PRAGMA key = "x'...'"``.
@@ -58,9 +68,11 @@ from datetime import datetime, timezone
 
 from scripts.ilapfuncs import get_sqlite_db_path
 
-_SAFE_STORAGE_PREFIX = b"v10"
 _SAFE_STORAGE_SALT = b"saltysalt"
-_SAFE_STORAGE_ITERATIONS = 1003
+# (prefix, PBKDF2 iterations) for each platform's safeStorage, macOS first.
+_MACOS_SCHEME = (b"v10", 1003)
+_LINUX_KEYRING_SCHEME = (b"v11", 1)
+_SAFE_STORAGE_SCHEMES = (_MACOS_SCHEME, _LINUX_KEYRING_SCHEME)
 _SAFE_STORAGE_KEY_LENGTH = 16
 _SAFE_STORAGE_IV = b" " * 16
 
@@ -92,32 +104,44 @@ def crypto_available():
     return importlib.util.find_spec("Crypto.Cipher.AES") is not None
 
 
-def unwrap_encrypted_key(encrypted_key_hex, credential):
+def unwrap_encrypted_key(encrypted_key_hex, credential, schemes=_SAFE_STORAGE_SCHEMES):
     """Unwrap a safeStorage-wrapped Signal database key.
+
+    Each (prefix, iterations) scheme whose prefix the blob carries is tried in
+    turn; a wrong one fails the padding or key-shape check, so trying them all
+    is safe.
 
     Args:
         encrypted_key_hex: the ``encryptedKey`` value from config.json.
         credential: the OS credential store password, as a string.
+        schemes: the (prefix, iterations) pairs to try.
 
     Returns:
         The database key as a hex string, or None if the input does not unwrap.
     """
-    from Crypto.Cipher import AES
-    from Crypto.Hash import SHA1
-    from Crypto.Protocol.KDF import PBKDF2
-
     try:
         blob = bytes.fromhex(encrypted_key_hex)
     except (TypeError, ValueError):
         return None
-    if not blob.startswith(_SAFE_STORAGE_PREFIX):
-        return None
-    blob = blob[len(_SAFE_STORAGE_PREFIX):]
+    for prefix, iterations in schemes:
+        if blob.startswith(prefix):
+            key = _unwrap_with(blob[len(prefix):], credential, iterations)
+            if key:
+                return key
+    return None
+
+
+def _unwrap_with(blob, password, iterations):
+    """AES-128-CBC unwrap of a prefix-stripped blob; the key hex string or None."""
+    from Crypto.Cipher import AES
+    from Crypto.Hash import SHA1
+    from Crypto.Protocol.KDF import PBKDF2
+
     if not blob or len(blob) % 16:
         return None
 
-    kek = PBKDF2(credential, _SAFE_STORAGE_SALT, dkLen=_SAFE_STORAGE_KEY_LENGTH,
-                 count=_SAFE_STORAGE_ITERATIONS, hmac_hash_module=SHA1)
+    kek = PBKDF2(password, _SAFE_STORAGE_SALT, dkLen=_SAFE_STORAGE_KEY_LENGTH,
+                 count=iterations, hmac_hash_module=SHA1)
     plaintext = AES.new(kek, AES.MODE_CBC, _SAFE_STORAGE_IV).decrypt(blob)
 
     # Strip PKCS#7 padding ourselves: a wrong credential usually yields an
@@ -240,9 +264,10 @@ def resolve_database_key(files_found, log=None):
             wrapped = config["encryptedKey"]
             break
 
+    if wrapped and not crypto_available():
+        return None, "PyCryptodome is not installed, so encryptedKey cannot be unwrapped"
+
     if wrapped and secrets:
-        if not crypto_available():
-            return None, "PyCryptodome is not installed, so encryptedKey cannot be unwrapped"
         # The secret is the safeStorage credential itself (or a raw key, which
         # section 1 already handled). Anything that unwraps encryptedKey wins.
         for path, text in secrets:
@@ -257,11 +282,11 @@ def resolve_database_key(files_found, log=None):
     if wrapped:
         return None, ("config.json holds an encryptedKey, wrapped by the OS and not part of the "
                       "profile. On macOS, supply the password from the Keychain item 'Signal Safe "
-                      "Storage' and it is unwrapped here. On Windows the wrapping depends on DPAPI, "
-                      "which is not unwrapped here: supply the already-recovered 64-character "
-                      "database key instead. Provide the value via --signal-key, the Signal key "
-                      "button in the GUI, or a file named signal_password.txt placed inside the "
-                      "extraction")
+                      "Storage', and on Linux the libsecret or kwallet secret Signal stored, and it "
+                      "is unwrapped here. On Windows the wrapping depends on DPAPI, which is not "
+                      "unwrapped here: supply the already-recovered 64-character database key "
+                      "instead. Provide the value via --signal-key, the Signal key button in the "
+                      "GUI, or a file named signal_password.txt placed inside the extraction")
 
     if configs:
         return None, "config.json carries neither a plaintext key nor an encryptedKey"
