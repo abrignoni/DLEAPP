@@ -1161,9 +1161,9 @@ def open_signal_key_dialog():
         "encryptedKey. Older profiles store the key in the clear and need nothing "
         "here.\n\n"
         "Paste one of, captured from the running host:\n"
-        "  •  the 64-character database key, or\n"
-        "  •  the 'Signal Safe Storage' credential (macOS login Keychain, or "
-        "Windows Credential Manager).\n\n"
+        "  •  the 64-character database key (the only option for a Windows "
+        "profile), or\n"
+        "  •  the 'Signal Safe Storage' password (macOS login Keychain).\n\n"
         "A macOS account login password will not work: on current macOS the login "
         "keychain is not encrypted with it."
     )

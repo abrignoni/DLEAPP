@@ -256,12 +256,12 @@ def resolve_database_key(files_found, log=None):
 
     if wrapped:
         return None, ("config.json holds an encryptedKey, wrapped by the OS and not part of the "
-                      "profile. On macOS or Linux, supply the safeStorage password (the macOS "
-                      "Keychain item 'Signal Safe Storage', or the Linux libsecret/kwallet secret) "
-                      "and it is unwrapped here. On Windows the key is wrapped with DPAPI, which is "
-                      "not unwrapped here: supply the already-recovered 64-character database key "
-                      "instead. Provide the value via --signal-key, the Signal key button in the "
-                      "GUI, or a file named signal_safe_storage.txt beside the extraction")
+                      "profile. On macOS, supply the password from the Keychain item 'Signal Safe "
+                      "Storage' and it is unwrapped here. On Windows the wrapping depends on DPAPI, "
+                      "which is not unwrapped here: supply the already-recovered 64-character "
+                      "database key instead. Provide the value via --signal-key, the Signal key "
+                      "button in the GUI, or a file named signal_password.txt placed inside the "
+                      "extraction")
 
     if configs:
         return None, "config.json carries neither a plaintext key nor an encryptedKey"

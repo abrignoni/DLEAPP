@@ -9,9 +9,9 @@ __artifacts_v2__ = {
                        "device record.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-17",
-        "requirements": "PyCryptodome; the Signal database credential for the "
-                        "account fields",
+        "last_update_date": "2026-10-28",
+        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS) or "
+                        "the 64-character database key, for the account fields",
         "category": "Signal (Desktop)",
         "notes": "Key material is reported as present or absent, never printed: "
                  "the store also holds the account password, master key, "
