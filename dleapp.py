@@ -331,9 +331,9 @@ def main():
                         help=("Credential for a current Signal Desktop profile, needed because "
                               "Signal encrypts its database and attachments (older profiles store "
                               "the key in the clear and need nothing). Accepts the 'Signal Safe "
-                              "Storage' credential from the OS credential store (macOS login "
-                              "Keychain, or the Windows Credential Manager), the 64 character "
-                              "database key itself, or the path to a file holding either. A macOS "
+                              "Storage' password from the macOS login Keychain, the 64 character "
+                              "database key itself (the only option for a Windows profile, whose "
+                              "key DLEAPP does not unwrap), or the path to a file holding either. A macOS "
                               "account login password will not work. Give the flag with no value "
                               "to be prompted without the secret reaching your shell history."))
     parser.add_argument('--threema-password', dest='threema_password', required=False, nargs='?',

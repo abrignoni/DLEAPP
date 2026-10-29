@@ -1,17 +1,25 @@
 __artifacts_v2__ = {
     "signalMessages": {
         "name": "Signal Messages",
-        "description": "Messages from the Signal Desktop database. Signal keeps "
-                       "them in a SQLCipher database whose key is wrapped with "
-                       "the OS credential store, so the credential has to be "
-                       "supplied with --signal-key, the Signal key field in the "
-                       "GUI, or a file beside the extraction. Attachments that "
-                       "decrypt are embedded against their message.",
+        "description": "Messages from the Signal Desktop database, a SQLCipher "
+                       "database. Older builds hold its key in the clear in "
+                       "config.json and need nothing supplied. Current builds "
+                       "wrap the key with the operating system's credential "
+                       "store. On macOS, supply the password from the Keychain "
+                       "item 'Signal Safe Storage' and the key is unwrapped here. "
+                       "On Windows the wrapping depends on DPAPI, which is not "
+                       "unwrapped here, so supply the already-recovered "
+                       "64-character database key instead. Either goes in with "
+                       "--signal-key, the Signal key dialog in the GUI, or a file "
+                       "named signal_password.txt, signal-keychain.txt or "
+                       "signal_db_key.txt placed inside the extraction. "
+                       "Attachments that decrypt are embedded against their "
+                       "message.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-17",
-        "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (macOS)",
+        "last_update_date": "2026-10-28",
+        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS) or the 64-character database key",
+        "category": "Signal (Desktop)",
         "notes": "Message bodies come from the messages table. A row with an "
                  "empty body is not necessarily an empty message: it may be a "
                  "view-once message that was opened, a message whose body was "
@@ -57,9 +65,9 @@ __artifacts_v2__ = {
                        "recorded one, its SHA-256.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-17",
-        "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (macOS)",
+        "last_update_date": "2026-10-28",
+        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS) or the 64-character database key",
+        "category": "Signal (Desktop)",
         "notes": "The stored plaintext is longer than the recorded size, so it "
                  "is truncated to the size the database records. The Verified "
                  "column reports whether the recovered bytes matched the "
@@ -93,9 +101,9 @@ __artifacts_v2__ = {
                        "account that sent each one and the message it targets.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-17",
-        "requirements": "PyCryptodome; the Signal database credential",
-        "category": "Signal (macOS)",
+        "last_update_date": "2026-10-28",
+        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS) or the 64-character database key",
+        "category": "Signal (Desktop)",
         "notes": "A reaction is stored separately from the message it targets, "
                  "so it survives here even where the message body is empty." " db.sqlite-wal is staged with the database and the frames up to its last "
                  "commit marker are decrypted over it, so that records committed only to the write-ahead log "
