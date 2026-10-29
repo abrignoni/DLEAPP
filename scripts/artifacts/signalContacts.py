@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-28",
-        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS) or the 64-character database key",
+        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Signal (Desktop)",
         "notes": "A conversation exists here once Signal has learned of the "
                  "account, which includes accounts that were never messaged "
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-28",
-        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS) or the 64-character database key",
+        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Signal (Desktop)",
         "notes": "Signal Desktop records calls it observed. A call placed or "
                  "answered on a phone linked to the same account may not appear "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-28",
-        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS) or the 64-character database key",
+        "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Signal (Desktop)",
         "notes": "These records show cryptographic contact at the protocol "
                  "level, which can name accounts that no longer appear in any "

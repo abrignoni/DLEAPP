@@ -1150,7 +1150,7 @@ def open_signal_key_dialog():
     dialog.title('Signal Desktop key')
     dialog.configure(bg=theme_bgcolor)
     dialog.resizable(False, False)
-    width, height = 470, 310
+    width, height = 470, 330
     main_window.update_idletasks()
     pos_x = main_window.winfo_x() + (main_window.winfo_width() - width) // 2
     pos_y = main_window.winfo_y() + (main_window.winfo_height() - height) // 2
@@ -1163,7 +1163,8 @@ def open_signal_key_dialog():
         "Paste one of, captured from the running host:\n"
         "  •  the 64-character database key (the only option for a Windows "
         "profile), or\n"
-        "  •  the 'Signal Safe Storage' password (macOS login Keychain).\n\n"
+        "  •  the 'Signal Safe Storage' password (macOS login Keychain), or\n"
+        "  •  the libsecret or kwallet secret Signal stored (Linux).\n\n"
         "A macOS account login password will not work: on current macOS the login "
         "keychain is not encrypted with it."
     )
