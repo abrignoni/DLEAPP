@@ -26,7 +26,6 @@ from scripts.windows_registry import open_hive
 
 _UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 _FILETIME_EPOCH_TICKS = 116444736000000000
-_TICKS_PER_SECOND = 10_000_000
 _PROFILE_LIST = r"Microsoft\Windows NT\CurrentVersion\ProfileList"
 
 __artifacts_v2__ = {
@@ -37,7 +36,7 @@ __artifacts_v2__ = {
                        "metadata file, with the user whose Recycle Bin held it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-29",
         "requirements": "python-registry (only to resolve the user name; the $I files are read without it)",
         "category": "Windows",
         "notes": "Rows from the $I metadata files under $Recycle.Bin, named in "
@@ -56,9 +55,7 @@ __artifacts_v2__ = {
                  "version 1 (Windows Vista and later) stores the path as a "
                  "fixed-length string, version 2 (Windows 10 and later) prefixes "
                  "it with a character count. Source File is the $I metadata file; "
-                 "the paired $R file (the same name with $R in place of $I, in "
-                 "the same directory) holds the deleted content and is not parsed "
-                 "here. A $I file records that an item was sent to the Recycle "
+                 "the paired $R file (the same name with $R in place of $I, in the same directory) holds the deleted content and is not parsed here; when it is a folder, Recycle Bin Folder Contents lists the files inside it. A $I file records that an item was sent to the Recycle "
                  "Bin; it does not record who sent it there, and the item may "
                  "since have been restored or its $R content purged while the $I "
                  "remained. A dirty hive, one whose base block's two sequence "
@@ -86,6 +83,48 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 5 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no $I files present)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 2 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 1 row",
+        },
+    },
+    "recycleBinFolderContents": {
+        "name": "Recycle Bin Folder Contents",
+        "description": "Files inside a folder sent to the Recycle Bin: each file's path inside the $R folder, the "
+                       "folder's original path and deletion time from its $I file, and the file's size.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-29",
+        "last_update_date": "2026-10-29",
+        "requirements": "none",
+        "category": "Windows",
+        "notes": "One row per file inside a $R folder under $Recycle.Bin, named in the report's located-at line. The "
+                 "format documentation describes a $R item only as holding the deleted content; on lonewolf_win10 two "
+                 "$R items are folders, each with a $I file of the same name, which the existing Recycle Bin artifact "
+                 "reports. Path in Folder is the file's path below the $R folder, its separators given as backslashes."
+                 " Folder Original Path and Deleted (UTC) are the original path and the deletion FILETIME stored in "
+                 "the $I file of the same name with $I in place of $R in the same folder, read as the Recycle Bin "
+                 "artifact reads them "
+                 "(https://github.com/libyal/dtformats/blob/4917c9bffc631503c9dbe77dddf14023a572bcef/documentation/Windows%20Recycle.Bin%20file%20formats.asciidoc);"
+                 " Original Path joins Folder Original Path and Path in Folder. All three are blank when there is no "
+                 "such $I file, or when it cannot be read or is not a recognised $I file. Size (bytes) is the size of "
+                 "the file as staged. $R Folder is the folder's name and User SID the name of the folder above it. "
+                 "Only files are listed: a folder inside a $R folder gives no row of its own, and an empty one none at"
+                 " all. A $R file that is not a folder is not listed here and is not matched by this artifact's paths,"
+                 " so this artifact does not copy its content into the report. There the two folders, of its five $R "
+                 "items, hold 243 files, each one level down, and every row's original path, size and deletion time "
+                 "equal those RBCmd 2026.10.1 reports for the same Recycle Bin folder, to the whole second it writes; "
+                 "the other images tested hold no $R folder. A row records that the file was inside a folder sent to "
+                 "the Recycle Bin when the image was made; it does not show who deleted it.",
+        "paths": ('*/$[Rr]ecycle.[Bb]in/*/$[Rr]*/*',
+                  '*/$[Rr]ecycle.[Bb]in/*/$[Ii]*'),
+        "output_types": ["standard"],
+        "artifact_icon": "folder",
+        "sample_data": {
+            "lonewolf_win10": "Windows 10 Education build 16299 | 243 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the matched files held nothing this artifact reports)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (the matched files held nothing this artifact reports)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the matched files held nothing this artifact reports)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no file matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no file matches the declared paths)",
         },
     },
 }
@@ -95,8 +134,9 @@ def _utc_from_filetime(value):
     if value in (None, "", 0):
         return ""
     try:
-        seconds = (int(value) - _FILETIME_EPOCH_TICKS) / _TICKS_PER_SECOND
-        return _UNIX_EPOCH + timedelta(seconds=seconds)
+        # Whole 100-nanosecond intervals cut to microseconds; a float division rounds to the nearest
+        # microsecond and can read one microsecond later than the cut value on FILETIMEs of this century.
+        return _UNIX_EPOCH + timedelta(microseconds=(int(value) - _FILETIME_EPOCH_TICKS) // 10)
     except (OverflowError, TypeError, ValueError):
         return ""
 
@@ -173,4 +213,58 @@ def recycleBin(context):
                           users.get(sid, ''), sid, relative_source))
         sources.append(source)
 
+    return data_headers, data_list, "\n".join(sources)
+
+
+def _recycle_parts(path):
+    """(SID folder, $R name, path inside the $R folder) of a file inside a $R folder, or None."""
+    parts = path.replace('\\', '/').split('/')
+    lowered = [part.lower() for part in parts]
+    if '$recycle.bin' not in lowered:
+        return None
+    index = len(lowered) - 1 - lowered[::-1].index('$recycle.bin')
+    rest = parts[index + 1:]
+    if len(rest) < 3 or not rest[1].lower().startswith('$r'):
+        return None
+    return '/'.join(parts[:index + 2]), rest[1], rest[2:]
+
+
+@artifact_processor
+def recycleBinFolderContents(context):
+    data_headers = (('Deleted (UTC)', 'datetime'), 'Original Path', 'Path in Folder', 'Size (bytes)',
+                    'Folder Original Path', '$R Folder', 'User SID')
+    files = [str(f) for f in context.get_files_found()]
+    i_files = {}
+    for source in files:
+        name = os.path.basename(source)
+        if name.lower().startswith('$i') and os.path.isfile(source):
+            i_files[(os.path.dirname(source), name[2:].lower())] = source
+    data_list = []
+    sources = []
+    parsed_i = {}
+    for source in files:
+        parts = _recycle_parts(source)
+        if parts is None or not os.path.isfile(source):
+            continue
+        sid_folder, r_name, inside = parts
+        i_source = i_files.get((sid_folder, r_name[2:].lower()))
+        if i_source and i_source not in parsed_i:
+            try:
+                with open(i_source, 'rb') as handle:
+                    parsed_i[i_source] = _parse_i_file(handle.read())
+            except OSError as exc:
+                logfunc(f'Recycle Bin Folder Contents: could not read {context.get_relative_path(i_source)}: {exc}')
+                parsed_i[i_source] = None
+            if parsed_i[i_source] is None:
+                logfunc(f'Recycle Bin Folder Contents: {context.get_relative_path(i_source)} is not a recognised '
+                        '$I file')
+            elif i_source not in sources:
+                sources.append(i_source)
+        parsed = parsed_i.get(i_source) if i_source else None
+        deleted, folder_path = (_utc_from_filetime(parsed[1]), parsed[2]) if parsed else ('', '')
+        inside_path = '\\'.join(inside)
+        original = f"{folder_path.rstrip(chr(92))}\\{inside_path}" if folder_path else ''
+        data_list.append((deleted, original, inside_path, os.path.getsize(source), folder_path, r_name,
+                          os.path.basename(sid_folder)))
+        sources.append(source)
     return data_headers, data_list, "\n".join(sources)
