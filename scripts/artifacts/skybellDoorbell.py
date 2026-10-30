@@ -15,8 +15,8 @@ __artifacts_v2__ = {
         "category": "Skybell (Video Doorbell)",
         "notes": "Reads the numbered files 0 to 9 of the doorbell's logs/system and logs/debug folders, which "
                  "the doorbell keeps as two separate logs; the same message can appear in both, each time "
-                 "with its own time. A logs folder is read only when one of its files, reboot.txt and restart.txt "
-                 "included, holds the word skybell, in any case; a raw NAND image of the doorbell holds it "
+                 "with its own time. A logs folder is read only when one of its numbered files, or its reboot.txt "
+                 "or restart.txt, holds the word skybell, in any case; a raw NAND image of the doorbell holds it "
                  "on a UBI volume, which qnxprobe reads. Each line reported starts with the time as the "
                  "doorbell writes it, YYYY/MM/DD-hh:mm:ss, then a Unix time in seconds and microseconds in "
                  "brackets. Time (UTC) is that Unix time and Time as Recorded the time before it; the two "
