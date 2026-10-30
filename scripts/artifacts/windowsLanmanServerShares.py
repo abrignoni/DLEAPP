@@ -38,11 +38,15 @@ __artifacts_v2__ = {
                  " in ControlSet001 and ControlSet002, giving 4 rows. On ou_ransomware_server2022 ControlSet001 holds 3 values"
                  " and ControlSet002 a Shares key with none, giving 3 rows, so Control Set, Current Control Set and Key hold "
                  "one value on all 3 rows there. On szechuan_dc01_server2012r2 ControlSet001 and ControlSet002 hold 3 values "
-                 "each, giving 6 rows. On each of the three images Key Last Written (UTC) holds one value on every row, "
-                 "because the two Shares keys carry the same last-written time where both hold values. On those 13 rows "
+                 "each, giving 6 rows. On cfreds_hacking_case_winxp ControlSet001 and ControlSet002 hold 1 value each, "
+                 "giving 2 rows. On each of the four images with rows Key Last Written "
+                 "(UTC) holds one value on every row, "
+                 "because the two Shares keys carry the same last-written time where both hold values. On the 13 rows of "
+                 "the three server images "
                  "ShareName equals Value Name, every value holds the eight fields once each, and python-registry returns two "
                  "empty strings for its terminating nulls, Type is 0, MaxUses is 4294967295 and CATimeout is 0 on every row, "
-                 "Other Fields is blank and Security Value is Yes on every row. The nine client images tested hold a Shares "
+                 "Other Fields is blank and Security Value is Yes on every row; on the 2 rows of cfreds_hacking_case_winxp "
+                 "Security Value is No. The nine other client images tested hold a Shares "
                  "key with no values and give no rows. Those counts were checked against a separate count of the values in "
                  "each staged SYSTEM hive read with python-registry. A run over a tree holding the SYSTEM hives of "
                  "alihadi_threatsim_server2019 and szechuan_dc01_server2012r2 on two volumes, and a copy of a third SYSTEM "
@@ -70,6 +74,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the Shares key holds no values)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (the Shares key holds no values)",
             "windows11_arm_known_20261010": "Windows 11 build 26200 | 0 rows (the Shares key holds no values)",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 2 rows",
         },
     },
 }

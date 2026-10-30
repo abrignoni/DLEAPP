@@ -95,6 +95,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 122289 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 142987 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 102,293 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 12179 rows",
         },
         "artifact_icon": "files",
     }

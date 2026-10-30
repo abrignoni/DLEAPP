@@ -105,10 +105,10 @@ __artifacts_v2__ = {
                  " A file whose every LF byte follows a CR byte, whose extra data does not end with the terminal block"
                  " at the end of the file, and which does once the CR byte before each LF is removed (the change a "
                  "copy in text mode, such as an ASCII mode FTP transfer, makes to a binary file) is named in the run "
-                 "log as such and not reported. Each of the 211 shell links these two artifacts read in the corpus "
+                 "log as such and not reported. Each of the 211 shell links these two artifacts read across the registered corpus images on 2026-10-30 "
                  "ends with the terminal block at the end of the file, and none was in that state; each of the 55 that"
                  " hold an LF byte, copied with a CR byte added before each LF for the test, was found by this check. "
-                 "In the corpus none of the 211 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
+                 "On those images none of the 211 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
                  " is a column; Windows Jump Lists reports both.",
         "paths": ("*/Microsoft/Windows/[Rr]ecent/*.[Ll][Nn][Kk]", "*/Documents and Settings/*/[Rr]ecent/*.[Ll][Nn][Kk]"),
         "output_types": ["standard"],
@@ -119,6 +119,8 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 38 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 19 rows",
             "cfreds_hacking_case_winxp": "Windows XP build 2600 | 8 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 17 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 35 rows",
         },
     },
     "windowsLnkOfficeRecent": {
@@ -156,10 +158,10 @@ __artifacts_v2__ = {
                  " A file whose every LF byte follows a CR byte, whose extra data does not end with the terminal block"
                  " at the end of the file, and which does once the CR byte before each LF is removed (the change a "
                  "copy in text mode, such as an ASCII mode FTP transfer, makes to a binary file) is named in the run "
-                 "log as such and not reported. Each of the 211 shell links these two artifacts read in the corpus "
+                 "log as such and not reported. Each of the 211 shell links these two artifacts read across the registered corpus images on 2026-10-30 "
                  "ends with the terminal block at the end of the file, and none was in that state; each of the 55 that"
                  " hold an LF byte, copied with a CR byte added before each LF for the test, was found by this check. "
-                 "In the corpus none of the 211 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
+                 "On those images none of the 211 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
                  " is a column; Windows Jump Lists reports both.",
         "paths": ("*/Microsoft/Office/[Rr]ecent/*.[Ll][Nn][Kk]",),
         "output_types": ["standard"],
