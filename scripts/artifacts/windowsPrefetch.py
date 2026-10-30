@@ -48,7 +48,7 @@ __artifacts_v2__ = {
                        "the first volume the file records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
         "notes": "One row per prefetch file. Executable is the name stored in the "
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
                  "first is shown on this row. Prefetch File is the .pf file name. A "
                  "prefetch file records that Windows prepared an executable to run, "
                  "with up to eight of the most recent run times and a total run count. "
-                 "It is evidence that the program ran, not who ran it. A version 30 or 31 .pf file is MAM Xpress-Huffman compressed; it is decompressed in memory with an original implementation of the MS-XCA LZ77+Huffman algorithm and the SCCA structure is then parsed. A version 17, 23 or 26 file holds the SCCA structure as it is and is parsed directly. A .pf that is neither MAM Xpress-Huffman nor SCCA, or whose SCCA version is none of 17, 23, 26, 30 and 31, is skipped with a note in the run log. On the version 17, 23 and 26 test files of Eric Zimmerman's Prefetch library (EricZimmerman/Prefetch at commit 841212266356a9121a1c34ee538cbce2bb2b9cf3, MIT, https://github.com/EricZimmerman/Prefetch/tree/841212266356a9121a1c34ee538cbce2bb2b9cf3/Prefetch.Test), the executable, run count, first run time, first volume's device path, serial and creation time, loaded-file count and named loaded file matched the 80 values its TestVersion17, TestVersion23 and TestVersion26 tests assert for those fields, and the 26 values its TestVersion30 test asserts for them matched as well; the tests' other assertions (header hash, file size, file references, directory names, second volumes) cover fields this artifact does not report. All 95 files on cfreds_leakage_win7 are version 23 and all 71 on alihadi_challenge3_win81 are version 26, and PECmd 2026.10.3 gave the same executable, run count, run times in order, first volume's device path, serial and creation time, and loaded files in order for every one of them, to the whole second PECmd writes. On alihadi_challenge3_win81 Run Count equals the number of run times stored on all 68 rows where it is 8 or less. Times are Windows FILETIMEs shown in UTC, cut to whole microseconds; a 0 or out-of-range value is blank. Format: original MS-XCA "
+                 "It is evidence that the program ran, not who ran it. A version 30 or 31 .pf file is MAM Xpress-Huffman compressed; it is decompressed in memory with an original implementation of the MS-XCA LZ77+Huffman algorithm and the SCCA structure is then parsed. A version 17, 23 or 26 file holds the SCCA structure as it is and is parsed directly. A .pf that is neither MAM Xpress-Huffman nor SCCA, or whose SCCA version is none of 17, 23, 26, 30 and 31, is skipped with a note in the run log. On the version 17, 23 and 26 test files of Eric Zimmerman's Prefetch library (EricZimmerman/Prefetch at commit 841212266356a9121a1c34ee538cbce2bb2b9cf3, MIT, https://github.com/EricZimmerman/Prefetch/tree/841212266356a9121a1c34ee538cbce2bb2b9cf3/Prefetch.Test), the executable, run count, first run time, first volume's device path, serial and creation time, loaded-file count and named loaded file matched the 80 values its TestVersion17, TestVersion23 and TestVersion26 tests assert for those fields, and the 26 values its TestVersion30 test asserts for them matched as well; the tests' other assertions (header hash, file size, file references, directory names, second volumes) cover fields this artifact does not report. All 81 files on cfreds_hacking_case_winxp are version 17, and PECmd 2026.10.3 gave the same executable, run count, run time, first volume's device path, serial and creation time, and loaded files in order for every one of them, to the microsecond. All 95 files on cfreds_leakage_win7 are version 23 and all 71 on alihadi_challenge3_win81 are version 26, and PECmd 2026.10.3 gave the same executable, run count, run times in order, first volume's device path, serial and creation time, and loaded files in order for every one of them, to the whole second PECmd writes. On alihadi_challenge3_win81 Run Count equals the number of run times stored on all 68 rows where it is 8 or less. Times are Windows FILETIMEs shown in UTC, cut to whole microseconds; a 0 or out-of-range value is blank. Format: original MS-XCA "
                  "implementation, https://learn.microsoft.com/en-us/openspecs/"
                  "windows_protocols/ms-xca/a8b7cb0a-92a6-4187-a23b-5e14273b96f8; "
                  "SCCA fields from libyal libscca, "
@@ -101,6 +101,7 @@ __artifacts_v2__ = {
             "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 371 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 95 rows",
             "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 71 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 81 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (no file matches the declared paths)",
         },
     },
@@ -110,7 +111,7 @@ __artifacts_v2__ = {
                        "the .pf prefetch files: one row per referenced file.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
         "notes": "One row per file referenced by a prefetch file, so an executable "
@@ -127,7 +128,7 @@ __artifacts_v2__ = {
                  "what the program referenced when it was prepared to run, which "
                  "includes its own image, its DLLs and data files it opened. A "
                  "prefetch file records that Windows prepared an executable to run. "
-                 "It is evidence that the program ran, not who ran it. A version 30 or 31 .pf file is MAM Xpress-Huffman compressed; it is decompressed in memory with an original implementation of the MS-XCA LZ77+Huffman algorithm and the SCCA structure is then parsed; a version 17, 23 or 26 file holds the SCCA structure as it is. A .pf that is neither MAM Xpress-Huffman nor SCCA, or whose SCCA version is none of 17, 23, 26, 30 and 31, is skipped with a note in the run log. On cfreds_leakage_win7 (version 23) and alihadi_challenge3_win81 (version 26) the loaded files of every prefetch file equal PECmd 2026.10.3's, in order. Format: original MS-XCA implementation, https://"
+                 "It is evidence that the program ran, not who ran it. A version 30 or 31 .pf file is MAM Xpress-Huffman compressed; it is decompressed in memory with an original implementation of the MS-XCA LZ77+Huffman algorithm and the SCCA structure is then parsed; a version 17, 23 or 26 file holds the SCCA structure as it is. A .pf that is neither MAM Xpress-Huffman nor SCCA, or whose SCCA version is none of 17, 23, 26, 30 and 31, is skipped with a note in the run log. On cfreds_hacking_case_winxp (version 17), cfreds_leakage_win7 (version 23) and alihadi_challenge3_win81 (version 26) the loaded files of every prefetch file equal PECmd 2026.10.3's, in order. Format: original MS-XCA implementation, https://"
                  "learn.microsoft.com/en-us/openspecs/windows_protocols/ms-xca/"
                  "a8b7cb0a-92a6-4187-a23b-5e14273b96f8; SCCA fields from libyal libscca, "
                  "https://github.com/libyal/libscca/blob/d9ea0ceac5a971fa2856caf4fc6745f3b36cd9d9/documentation/Windows%20Prefetch%20File%20(PF)%20format.asciidoc; "
@@ -144,6 +145,7 @@ __artifacts_v2__ = {
             "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 52128 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 11655 rows",
             "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 3648 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 3997 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (no file matches the declared paths)",
         },
     },
