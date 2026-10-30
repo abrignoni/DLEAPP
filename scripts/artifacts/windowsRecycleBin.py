@@ -129,7 +129,7 @@ __artifacts_v2__ = {
     },
     "recycleBinInfo2": {
         "name": "Recycle Bin (INFO2)",
-        "description": "Files sent to the Recycle Bin of Windows XP and earlier: each entry's original path, "
+        "description": "Files sent to the Recycle Bin on Windows that keeps a RECYCLER folder: each entry's original path, "
                        "deletion time, index and drive number from the INFO2 file under RECYCLER, with the "
                        "user whose folder held it.",
         "author": "@AlexisBrignoni, Claude",
@@ -158,13 +158,14 @@ __artifacts_v2__ = {
                  "entry marks a file since restored or emptied is not established here. Tested on "
                  "cfreds_hacking_case_winxp: one INFO2 with 4 entries of 800 bytes, its header's second value 4; "
                  "the UTF-16 and ASCII names were equal on all 4; Drive Number was 2 on all 4, each path beginning "
-                 "C:; each entry had exactly one Recycled File, named D, c and its index, whose size was below "
+                 "C:; all 4 were in one SID folder, so User and User SID held one value each; each entry had exactly one Recycled File, named D, c and its index, whose size was below "
                  "Size by less than 512, Size being a whole multiple of 512 on all 4. RBCmd 2026.10.1 read the same "
                  "file and gave the same index, drive number, size, original name and deletion time, to the "
                  "microsecond, for all 4, and reported none of them as removed.",
         "paths": ('*/[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Rr]/*/[Ii][Nn][Ff][Oo]2',
                   '*/[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Rr]/*/[Dd]*',
-                  '*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/[Ss][Yy][Ss][Tt][Ee][Mm]32/[Cc][Oo][Nn][Ff][Ii][Gg]/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee]'),
+                  '*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/[Ss][Yy][Ss][Tt][Ee][Mm]32/[Cc][Oo][Nn][Ff][Ii][Gg]/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee]',
+                  '*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/[Ss][Yy][Ss][Tt][Ee][Mm]32/[Cc][Oo][Nn][Ff][Ii][Gg]/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
         "artifact_icon": "trash-2",
         "sample_data": {
