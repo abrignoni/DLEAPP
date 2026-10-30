@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     "macosQuickLookThumbnails": {
         "name": "QuickLook Thumbnails",
-        "description": 'Thumbnails in the QuickLook cache, rendered, with the file ID, size and modification '
+        "description": 'Thumbnails in the QuickLook cache, rendered where the bitmap layout is decoded, with the '
+                       'file ID, size and modification '
                        "date recorded for each file, its generator, and the cache's last hit time and hit count.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-27",
@@ -88,9 +89,9 @@ __artifacts_v2__ = {
             'value on every row of dleapp_macos_bigsur; what it encodes is not established. The '
             'second cache under private/var/folders/zz holds no row on dleapp_macos_bigsur or on '
             'adams_macbookpro_macos26. The '
-            'provider_files and missing_remote_thumbnails tables, which record iCloud Drive items '
-            'by item ID without a thumbnail, are not reported, and a cache that has the older '
-            'files table instead of basic_files is logged and not read; no public image carries '
+            'provider_files and missing_remote_thumbnails tables, which record file-provider items '
+            'by item ID without a thumbnail, are not reported. A cache that has the older files '
+            'table instead of basic_files is logged and not read; neither image run here carries '
             'one. A row that more than one copy of a cache holds with the same values is reported '
             'once, and Source File lists every copy.'
         )
