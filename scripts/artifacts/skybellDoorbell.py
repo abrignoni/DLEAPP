@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Skybell (Video Doorbell)",
         "notes": "Reads the numbered files 0 to 9 of the doorbell's logs/system and logs/debug folders, which "
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
                  "reboot_cycles, whose meaning is not established; tinyvenc.log; and the .enc files beside "
                  "the settings, which are OpenSSL encrypted ('Salted__') and not decrypted.",
         "sample_data": {},
-        "paths": ('*/logs/system/*', '*/logs/debug/*', '*/logs/reboot.txt', '*/logs/restart.txt'),
+        "paths": ('*/logs/system/[0-9]', '*/logs/debug/[0-9]', '*/logs/reboot.txt', '*/logs/restart.txt'),
         "output_types": "standard",
     },
     "skybellDoorbellRestarts": {
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
                        "wrote into its own logs, with when each combination was first and last written.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Skybell (Video Doorbell)",
         "notes": "Reads the same files as Skybell Doorbell Device Log. The doorbell writes, with no time of "
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
                  "Skybell Doorbell Device Log). An empty value is reported as stored, empty; the pairs were "
                  "field mapped from a private sample.",
         "sample_data": {},
-        "paths": ('*/logs/system/*', '*/logs/debug/*', '*/logs/reboot.txt', '*/logs/restart.txt'),
+        "paths": ('*/logs/system/[0-9]', '*/logs/debug/[0-9]', '*/logs/reboot.txt', '*/logs/restart.txt'),
         "output_types": "standard",
     },
     "skybellDoorbellSettings": {
