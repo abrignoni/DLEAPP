@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "date recorded for each file, its generator, and the cache's last hit time and hit count.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-27",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
         "notes": (
@@ -27,8 +27,9 @@ __artifacts_v2__ = {
             'itself evidence that the file was opened. One row is reported per thumbnail, joined '
             "to the basic_files row whose fileId is the thumbnail's file_id with the top bit of "
             'the 64-bit value cleared, which finds a basic_files row for 24 of the 24 thumbnails '
-            'on dleapp_macos_bigsur; a basic_files row that no thumbnail names gets a row of its '
-            'own, 3 there. On dleapp_macos_bigsur neither the tables of index.sqlite nor its '
+            'on dleapp_macos_bigsur and 134 of the 134 on adams_macbookpro_macos26; a basic_files '
+            'row that no thumbnail names gets a row of its own, 3 on dleapp_macos_bigsur and none '
+            'on adams_macbookpro_macos26. On dleapp_macos_bigsur neither the tables of index.sqlite nor its '
             "version archives hold a file's name or path. File ID is basic_files.fileId: on "
             'dleapp_macos_bigsur all 15 are the inode number of a file on the Data volume, found '
             'by walking the image, and 2 of the 12 thumbnailed files are now in the iCloud Drive '
@@ -38,32 +39,55 @@ __artifacts_v2__ = {
             "resolves to; Arsenal Recon read the date and size values of the older layout's files "
             "table as the file's last modified date and its size in bytes. Generator is the "
             "archive's g, the bundle identifier of a qlgenerator on every row of "
-            "dleapp_macos_bigsur, and Version (as stored) is its v, 928.1 on the PDF generator's "
-            "rows there and 928.2 on the image generator's; what v versions is not established. "
+            "dleapp_macos_bigsur and on 1 of the 134 on adams_macbookpro_macos26, where the other "
+            '133 name a com.apple.quicklook.thumbnail extension (Audiovisual, Font, Image, Office '
+            "or Text). Version (as stored) is its v: 928.1 on the PDF generator's rows of "
+            "dleapp_macos_bigsur and 928.2 on the image generator's, and on "
+            "adams_macbookpro_macos26 1018.3.2 on the PDF generator's row and 1 on every extension "
+            "row; what v versions is not established. "
             'Last Hit is thumbnails.last_hit_date read as seconds since 2001-01-01 in UTC on this '
             'evidence: on dleapp_macos_bigsur the latest, 2021-02-19 19:28:21, is the '
             "modification time of that cache's index.sqlite-wal to the second, and every Last Hit "
-            'falls after the File Modified of its file. What a hit is, and so what Last Hit and '
+            'falls after the File Modified of its file; on adams_macbookpro_macos26 all 134 fall on '
+            'or after the File Modified of their file and before the acquisition start its '
+            'acquisition log records. What a hit is, and so what Last Hit and '
             'Hit Count (as stored) record, is not established. Thumbnail is the bitmap at '
             'bitmapdata_location, bitmapdata_length bytes long, in thumbnails.data, which Mari '
             'DeGrazia describes as a raw bitmap that needs those values and the width and height '
             "to be read (Reference: Mari DeGrazia, 'Quicklook thumbnails.data parser', "
             'http://az4n6.blogspot.com/2016/10/quicklook-thumbnailsdata-parser.html), written out '
-            'as a PNG. It is read only when bitspercomponent is 8, bitsperpixel 32 and bitmapinfo '
-            '0x2002, which is kCGImageByteOrder32Little with kCGImageAlphaPremultipliedFirst in '
-            "Apple's CoreGraphics CGImage.h: blue, green, red and alpha bytes, with colour "
-            'premultiplied by alpha, which is divided back out; a bitmap of any other layout, or '
-            'one that does not fit its stated size or thumbnails.data, is not rendered and the '
-            'run log counts it. All 24 on dleapp_macos_bigsur are that layout; for the 12 '
-            'thumbnails 64 pixels wide, the red and blue channels as decoded correlate with the '
-            'image the File ID resolves to better than with the two swapped on 11, and equally on '
-            'the 12th, whose source has the same red and blue value in every pixel. Thumbnail '
+            'as a PNG. Its layout is read from the bitspercomponent, bitsperpixel, bytesperrow and '
+            'bitmapinfo columns of thumbnails, which dleapp_macos_bigsur has, or from the '
+            'QLTBitmapFormat keyed archive in the bitmapFormat column (its w, h, bpc, bpp, bpr and '
+            'i), which replaces those columns on adams_macbookpro_macos26. bitmapinfo and i are read '
+            "as a CGBitmapInfo value using Apple's CoreGraphics CGImage.h: the CGImageAlphaInfo in "
+            'the low five bits, the component type in bit 8 and the byte order in bits 12 to 14. '
+            'Integer layouts of 8 bits per component in 32-bit pixels and 16 bits per component in '
+            '64-bit pixels are rendered, with colour premultiplied by alpha divided back out; a float '
+            'layout, any other layout, and a bitmap that does not fit its stated size or '
+            'thumbnails.data are not rendered and the run log counts them, and the row is still '
+            'reported. All 24 on dleapp_macos_bigsur are 0x2002, kCGImageByteOrder32Little with '
+            'kCGImageAlphaPremultipliedFirst: blue, green, red and alpha bytes. For the 12 thumbnails '
+            '64 pixels wide there, the red and blue channels as decoded correlate with the image the '
+            'File ID resolves to better than with the two swapped on 11, and equally on the 12th, '
+            'whose source has the same red and blue value in every pixel. On '
+            'adams_macbookpro_macos26, 131 of the 134 are 0x2002, one is 0x1 '
+            '(kCGImageAlphaPremultipliedLast: red, green, blue and alpha) at 8 bits per component, '
+            'one is 0x1 at 16 bits per component, read most significant byte first, and one is '
+            '0x1101, half-float components, which is not rendered. Every rendered 8-bit thumbnail on '
+            "both images matched Pillow's raw decoder for its layout (BGRa for 0x2002, RGBa for 0x1) "
+            'within one level per channel, and the 16-bit one matched an independent decode within '
+            'one level per channel. The colour space the archive names (cs) is not applied, and '
+            'values are written to the PNG without colour conversion; on adams_macbookpro_macos26 cs '
+            'is the integer 15 on 132 rows, 16 on one and an embedded colour profile on one, and what '
+            'the integers stand for is not established. Thumbnail '
             'Size (as stored) is thumbnails.size, 16 or 64 on dleapp_macos_bigsur, where each '
             "thumbnailed file has one of each, and Width and Height are the bitmap's size in "
             'pixels, the same as each other on every row of dleapp_macos_bigsur, where every '
             'thumbnail is square. Volume ID (as stored) is basic_files.fsid, which holds one '
             'value on every row of dleapp_macos_bigsur; what it encodes is not established. The '
-            'second cache on dleapp_macos_bigsur, under private/var/folders/zz, holds no row. The '
+            'second cache under private/var/folders/zz holds no row on dleapp_macos_bigsur or on '
+            'adams_macbookpro_macos26. The '
             'provider_files and missing_remote_thumbnails tables, which record iCloud Drive items '
             'by item ID without a thumbnail, are not reported, and a cache that has the older '
             'files table instead of basic_files is logged and not read; no public image carries '
@@ -81,6 +105,7 @@ __artifacts_v2__ = {
         "artifact_icon": "image",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 27 rows",
+            "adams_macbookpro_macos26": "macOS 26.2 build 25C56 | 134 rows",
         },
     },
     "macosQuickLookCloudThumbnails": {
@@ -144,8 +169,12 @@ _MAC_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
 _UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 # thumbnails.file_id is basic_files.fileId with the top bit of the 64-bit value set.
 _ID_MASK = (1 << 63) - 1
-# CGBitmapInfo: premultiplied alpha first (2) in 32-bit little-endian words (2 << 12).
-_BGRA_PREMULTIPLIED = 0x2002
+# CGImage.h: CGImageAlphaInfo in the low five bits of the bitmap info, the component type in
+# bit 8 (float when set), the byte order in bits 12 to 14 and the pixel format in bits 16 to 19.
+# Component positions for each alpha value read here; X is an ignored byte.
+_ALPHA_ORDER = {1: 'RGBA', 2: 'ARGB', 3: 'RGBA', 4: 'ARGB', 5: 'RGBX', 6: 'XRGB'}
+_PREMULTIPLIED = {1, 2}
+_ORDER_DEFAULT, _ORDER_16_LITTLE, _ORDER_32_LITTLE, _ORDER_16_BIG, _ORDER_32_BIG = 0, 0x1000, 0x2000, 0x3000, 0x4000
 
 
 def _databases(context, name):
@@ -177,18 +206,30 @@ def _select(path, table, columns):
     return ', '.join(column if column in present else f'NULL AS {column}' for column in columns)
 
 
-def _version(blob):
-    """The QLThumbnailVersion archive of a basic_files row as {key: value}, or None."""
+def _archive_values(blob):
+    """The root object of a keyed archive (QLThumbnailVersion, QLTBitmapFormat or an NSDictionary)
+    as {key: value}, dates as UTC datetimes; {} when unreadable."""
     try:
-        archive = plistlib.loads(blob)
+        archive = plistlib.loads(bytes(blob))
         objects = archive['$objects']
         root = objects[archive['$top']['root'].data]
     except (plistlib.InvalidFileException, KeyError, IndexError, TypeError, AttributeError, ValueError):
-        return None
+        return {}
+    if not isinstance(root, dict):
+        return {}
+    if 'NS.keys' in root and 'NS.objects' in root:
+        # An NSDictionary root: resolve its keys and values.
+        keys = [objects[k.data] if isinstance(k, plistlib.UID) and k.data < len(objects) else k
+                for k in root['NS.keys']]
+        root = dict(zip(keys, root['NS.objects']))
     values = {}
     for key, value in root.items():
+        if key == '$class':
+            continue
         if isinstance(value, plistlib.UID):
             value = objects[value.data] if value.data < len(objects) else None
+        if value == '$null':
+            value = None
         if isinstance(value, dict) and 'NS.time' in value:
             value = _time(_MAC_EPOCH, value['NS.time'])
         values[key] = value
@@ -207,26 +248,57 @@ def _png(width, height, rgba):
             + chunk(b'IEND', b''))
 
 
-def _render(data, row):
-    """PNG bytes of one thumbnail's bitmap, or the reason it is not rendered."""
-    width, height, per_row = row['width'], row['height'], row['bytesperrow']
-    location, length = row['bitmapdata_location'], row['bitmapdata_length']
-    if (row['bitspercomponent'], row['bitsperpixel'], row['bitmapinfo']) != (8, 32, _BGRA_PREMULTIPLIED):
-        return None, 'a bitmap layout other than 8-bit BGRA with premultiplied alpha'
-    if not all(isinstance(v, int) and v > 0 for v in (width, height, per_row, length)) or \
-            not isinstance(location, int) or location < 0:
+def _render(data, layout, location, length):
+    """PNG bytes of one thumbnail's bitmap, or None and the reason it is not rendered.
+
+    layout holds w, h, bpc, bpp, bpr and i (the CGBitmapInfo value)."""
+    width, height, per_row = layout.get('w'), layout.get('h'), layout.get('bpr')
+    bpc, bpp, info = layout.get('bpc'), layout.get('bpp'), layout.get('i')
+    if not all(isinstance(v, int) and not isinstance(v, bool) for v in (bpc, bpp, info)):
+        return None, 'no bitmap layout'
+    alpha, order = info & 0x1F, info & 0x7000
+    if info & 0x100 or info & 0xF0000 or alpha not in _ALPHA_ORDER:
+        return None, f'a bitmap layout not decoded here (bitmap info {info:#x})'
+    if (bpc, bpp) == (8, 32) and order in (_ORDER_DEFAULT, _ORDER_32_BIG, _ORDER_32_LITTLE):
+        step = 1
+    elif (bpc, bpp) == (16, 64) and order in (_ORDER_DEFAULT, _ORDER_16_BIG, _ORDER_16_LITTLE):
+        step = 2
+    else:
+        return None, f'a bitmap layout not decoded here ({bpc} bits per component, {bpp} per pixel, ' \
+                     f'bitmap info {info:#x})'
+    if not all(isinstance(v, int) and not isinstance(v, bool) and v > 0 for v in (width, height, per_row, length)) \
+            or not isinstance(location, int) or location < 0:
         return None, 'no bitmap size or location'
-    if per_row < width * 4 or length < per_row * (height - 1) + width * 4 or location + length > len(data):
+    pixel = 4 * step
+    if per_row < width * pixel or length < per_row * (height - 1) + width * pixel or location + length > len(data):
         return None, 'a bitmap that does not fit its stated size or thumbnails.data'
+    names = _ALPHA_ORDER[alpha]
+    if step == 1 and order == _ORDER_32_LITTLE:
+        names = names[::-1]
+    # Byte offset of the most significant byte of each component within a pixel.
+    high = 0 if step == 1 or order != _ORDER_16_LITTLE else 1
+    offset = {name: index * step + high for index, name in enumerate(names)}
+    red_at, green_at, blue_at = offset['R'], offset['G'], offset['B']
+    alpha_at = offset.get('A')
     pixels = bytearray()
     for y in range(height):
         start = location + y * per_row
-        for x in range(width):
-            blue, green, red, alpha = data[start + x * 4:start + x * 4 + 4]
-            if 0 < alpha < 255:
-                red, green, blue = (min(255, (c * 255 + alpha // 2) // alpha) for c in (red, green, blue))
-            pixels += bytes((red, green, blue, alpha))
+        row = data[start:start + width * pixel]
+        for x in range(0, width * pixel, pixel):
+            red, green, blue = row[x + red_at], row[x + green_at], row[x + blue_at]
+            value = 255 if alpha_at is None else row[x + alpha_at]
+            if alpha in _PREMULTIPLIED and 0 < value < 255:
+                red, green, blue = (min(255, (c * 255 + value // 2) // value) for c in (red, green, blue))
+            pixels += bytes((red, green, blue, value))
     return _png(width, height, bytes(pixels)), None
+
+
+def _layout(row):
+    """The bitmap layout of a thumbnails row, from bitmapFormat or, in the older table, its columns."""
+    if row['bitmapFormat'] is not None:
+        return _archive_values(row['bitmapFormat'])
+    return {'w': row['width'], 'h': row['height'], 'bpc': row['bitspercomponent'], 'bpp': row['bitsperpixel'],
+            'bpr': row['bytesperrow'], 'i': row['bitmapinfo']}
 
 
 @artifact_processor
@@ -248,10 +320,11 @@ def macosQuickLookThumbnails(context):
                 data = handle.read()
         files = {}
         for row in get_sqlite_db_records(path, 'SELECT fileId, fsid, version FROM basic_files'):
-            version = _version(row['version']) or {}
+            version = _archive_values(row['version'])
             files[row['fileId']] = (row['fsid'], version)
-        columns = ('file_id', 'size', 'hit_count', 'last_hit_date', 'width', 'height', 'bitspercomponent',
-                   'bitsperpixel', 'bytesperrow', 'bitmapinfo', 'bitmapdata_location', 'bitmapdata_length')
+        columns = ('file_id', 'size', 'hit_count', 'last_hit_date', 'width', 'height', 'bitmapFormat',
+                   'bitspercomponent', 'bitsperpixel', 'bytesperrow', 'bitmapinfo', 'bitmapdata_location',
+                   'bitmapdata_length')
         thumbs = get_sqlite_db_records(path, f'SELECT {_select(path, "thumbnails", columns)} FROM thumbnails '
                                              'ORDER BY last_hit_date, file_id, size')
         skipped, seen = {}, set()
@@ -259,7 +332,7 @@ def macosQuickLookThumbnails(context):
             file_id = row['file_id'] & _ID_MASK if isinstance(row['file_id'], int) else row['file_id']
             seen.add(file_id)
             fsid, version = files.get(file_id, ('', {}))
-            image, reason = _render(data, row)
+            image, reason = _render(data, _layout(row), row['bitmapdata_location'], row['bitmapdata_length'])
             media = ''
             if image:
                 size = row['size']
