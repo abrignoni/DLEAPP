@@ -34,6 +34,7 @@ _WAKE = ('Microsoft-Windows-Power-Troubleshooter', '1')
 _SLEEP = ('Microsoft-Windows-Kernel-Power', '42')
 _SHUTDOWN = ('Microsoft-Windows-Kernel-Power', '109')
 _BOOT = ('Microsoft-Windows-Kernel-General', '12')
+_SOURCE_CHANGE = ('Microsoft-Windows-Kernel-Power', '105')
 
 # (provider, event id) -> (the provider's DLL in System32, its GUID, the fields its
 # manifest maps to names). The GUIDs are the providers' own, as their manifests
@@ -63,11 +64,20 @@ _POWER_EVENTS = {
     ('Microsoft-Windows-Kernel-General', '13'): 'The operating system is shutting down',
     ('Microsoft-Windows-Kernel-Power', '41'): 'The system rebooted without cleanly shutting down first',
     ('Microsoft-Windows-Kernel-Power', '42'): 'The system is entering sleep',
+    _SOURCE_CHANGE: 'Power source change',
     ('Microsoft-Windows-Kernel-Power', '107'): 'The system has resumed from sleep',
     ('Microsoft-Windows-Kernel-Power', '109'): 'The kernel power manager initiated a shutdown',
     _WAKE: 'The system has returned from a low power state',
     ('User32', '1074'): 'A process initiated a shutdown or restart',
 }
+
+# The Kernel-Power 105 fields shown in Detail, by the names its manifest gives them, in template order.
+# The manifest gives the two capacities as UInt32 and no unit.
+_SOURCE_DETAIL = (
+    ('AcOnline', 'AC Online'),
+    ('RemainingCapacity', 'Remaining Capacity (as stored)'),
+    ('FullChargeCapacity', 'Full Charge Capacity (as stored)'),
+)
 
 # The Power-Troubleshooter 1 fields shown in Detail, by the names its manifest
 # gives them, in template order.
@@ -83,14 +93,15 @@ __artifacts_v2__ = {
         "name": "Windows System Power Events",
         "description": "System power events from the System event log: "
                        "boot, clean and unexpected shutdown, operating system "
-                       "start and stop, dirty reboot, sleep and resume, return "
+                       "start and stop, dirty reboot, sleep and resume, power source "
+                       "change with the capacities it stores, return "
                        "from a low power state with the sleep and wake times it "
                        "records, the sleep reason, shutdown action and reason, and "
                        "wake source, and a process "
                        "initiating a shutdown or restart.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-29",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is one "
@@ -102,11 +113,10 @@ __artifacts_v2__ = {
                  "started) and 13 (operating system shutting down); Kernel-Power "
                  "41 (rebooted without cleanly shutting down first, which its message says could "
                  "be caused if the system stopped responding, crashed, or lost power "
-                 "unexpectedly), 42 (entering sleep), 107 (resumed from sleep) and 109 "
-                 "(kernel initiated a shutdown); Power-Troubleshooter 1 (returned from a "
+                 "unexpectedly), 42 (entering sleep), 105 (power source change), 107 (resumed from sleep) and 109 (kernel initiated a shutdown); Power-Troubleshooter 1 (returned from a "
                  "low power state); and User32 1074 (a process initiated a shutdown or "
-                 "restart). The Event column is the description for that "
-                 "provider and Event ID. Event Time (UTC) is the record's "
+                 "restart). The Event column is the description for that provider and Event ID. The Kernel-Power provider's event metadata, as read with Get-WinEvent -ListProvider on a Windows 11 build 26200 machine "
+                 "and as published for build 22621.819 (https://github.com/nasbench/EVTX-ETW-Resources/blob/065476ce28fa290d088214b94ba698ee3558fe06/ETWProvidersManifests/Windows11/22H2/W11_22H2_Pro_20221115_22621.819/WEPExplorer/Microsoft-Windows-Kernel-Power.xml#L3603-L3634), gives event 105 the message 'Power source change.' in two versions: version 0 with an AcOnline Boolean, and version 1 adding RemainingCapacity and FullChargeCapacity as UInt32 values with no unit stated; Eric Zimmerman's EvtxECmd map for the event reads the same three fields (https://github.com/EricZimmerman/evtx/blob/fbf2f66736669689bfb95f735f7eca86d29d9800/evtx/Maps/System_Microsoft-Windows-Kernel-Power_105.map). On hexordia_mvs2025_win11, pc_mus_001_win11 and the Windows 11 build 26200 captures (windows11_arm_4688_known, windows11_arm_known_20261001, windows11_arm_winlogon_known_20261004 and windows11_arm_ntfs_known_20261004, four captures of one machine whose System logs hold the same 105 records) the System log holds 20, 13 and 52 records of event 105, all version 1 with both capacities; Remaining Capacity was at most Full Charge Capacity on every one, Full Charge Capacity, and Remaining Capacity with it, was 0 on 7, 5 and 8 of them, and AC Online was the same as on the 105 record before it on 6, 5 and 8. A 105 row records that the kernel logged a power source change; it does not show who connected or disconnected a power source. Event Time (UTC) is the record's "
                  "TimeCreated SystemTime, stored in UTC. On af_case2_win10, lonewolf_win10, "
                  "pc_mus_001_win11 and szechuan_win10 the time of a 107 record was not the time the system "
                  "resumed: each of the 96 was logged 0.4 to "
@@ -129,8 +139,7 @@ __artifacts_v2__ = {
                  "lonewolf_win10 rows was logged within 3.3 seconds after its Wake Time (the rows whose "
                  "Wake Source Type is 6 and 0 were logged 87 minutes and 12.8 hours after). Detail holds "
                  "the process, "
-                 "action, reason and user a 1074 event stores in its parameters; for a 42 event its "
-                 "Reason, which the 42 message shows as Sleep Reason; for a 109 event its Shutdown "
+                 "action, reason and user a 1074 event stores in its parameters; for a 42 event its Reason, which the 42 message shows as Sleep Reason; for a 105 event its AcOnline as python-evtx renders the stored Boolean, and its RemainingCapacity and FullChargeCapacity numbers as stored, labelled AC Online, Remaining Capacity (as stored) and Full Charge Capacity (as stored); for a 109 event its Shutdown "
                  "Action Type, Shutdown Event Code and Shutdown Reason, the ShutdownActionType, "
                  "ShutdownEventCode and ShutdownReason fields, all three on every build although the "
                  "109 message on builds 16299, 17763 and 19041 shows only the reason; and for a "
@@ -253,11 +262,11 @@ __artifacts_v2__ = {
         "output_types": ["standard"],
         "artifact_icon": "power",
         "sample_data": {
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 243 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 256 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 121 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 119 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 41 rows",
-            "windows11_arm_4688_known": "Windows 11 build 26200 | 463 rows",
+            "windows11_arm_4688_known": "Windows 11 build 26200 | 515 rows",
             "evtx_baseline_nextron_085_win7_x86": "Windows 7 x86 (per the asset name) | 40 rows",
             "evtx_baseline_nextron_085_win10_client": "Windows 10 client (per the asset name) | 34 rows",
             "evtx_baseline_nextron_085_win11_client": "Windows 11 client (per the asset name) | 17 rows",
@@ -265,12 +274,12 @@ __artifacts_v2__ = {
             "evtx_baseline_nextron_085_win2022_0_20348_azure": "Windows Server 2022 build 20348 on Azure (per the asset name) | 18 rows",
             "evtx_baseline_nextron_085_win2022_ad": "Windows Server 2022 domain controller (per the asset name) | 26 rows",
             "evtx_baseline_nextron_085_win2022_evtx": "Windows Server 2022 (per the asset name) | 26 rows",
-            "windows11_arm_known_20261001": "Windows 11 build 26200 | 463 rows",
-            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 463 rows",
-            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 463 rows",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 515 rows",
+            "windows11_arm_winlogon_known_20261004": "Windows 11 build 26200 | 515 rows",
+            "windows11_arm_ntfs_known_20261004": "Windows 11 build 26200 | 515 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 75 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 40 rows",
-            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 104 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 124 rows",
             "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 41 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 158 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 2 rows",
@@ -462,6 +471,8 @@ def _power_row(found, named):
         detail = f"Sleep Reason: {named['Reason']}"  # the label the 42 message gives %3
     elif kind == _SHUTDOWN:
         detail = _field_detail(fields, named, _SHUTDOWN_DETAIL)
+    elif kind == _SOURCE_CHANGE:
+        detail = _field_detail(fields, {}, _SOURCE_DETAIL)
     elif kind == _WAKE:
         sleep_time = utc_from_system_time(fields.get('SleepTime'))
         wake_time = utc_from_system_time(fields.get('WakeTime'))
