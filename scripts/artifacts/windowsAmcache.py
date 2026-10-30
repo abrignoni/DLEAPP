@@ -47,6 +47,11 @@ _DRIVER_PATH = "Root\\InventoryDriverBinary"
 _DEVICE_PATH = "Root\\InventoryDevicePnp"
 _CONTAINER_PATH = "Root\\InventoryDeviceContainer"
 _PACKAGE_PATH = "Root\\InventoryDriverPackage"
+# The layout Windows 8 wrote, which Windows 8.1 and Server 2012 R2 hives in the corpus also hold: Root\File\<volume>\<file> and
+# Root\Programs\<program>, each value named by a hexadecimal number.
+_OLD_FILE_PATH = "Root\\File"
+_OLD_PROGRAMS_PATH = "Root\\Programs"
+_UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 # Values the inventory databases store as signed 32-bit integers where the hive stores a DWORD.
 _UNSIGNED_32 = ('DriverTimeStamp',)
@@ -160,9 +165,9 @@ __artifacts_v2__ = {
                  "MareBackupApps held no rows in its data table. A folder holding only the database, or only the"
                  " hive, is read as well. A -wal or -journal beside the database is staged with it, but the "
                  "tested database had neither, so a database left with a hot journal is not exercised.",
-        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
-                  '*/Windows/appcompat/Programs/InventoryApplicationFile.db*'),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/InventoryApplicationFile.db*'),
         "output_types": ["standard"],
         "artifact_icon": "hash",
         "sample_data": {
@@ -312,9 +317,9 @@ __artifacts_v2__ = {
                  "and 15 September 2026. A folder holding only the database, or only the hive, is read as well. "
                  "A -wal or -journal beside the database is staged with it, but the tested database had neither,"
                  " so a database left with a hot journal is not exercised.",
-        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
-                  '*/Windows/appcompat/Programs/InventoryApplication.db*'),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/InventoryApplication.db*'),
         "output_types": ["standard"],
         "artifact_icon": "package",
         "sample_data": {
@@ -406,9 +411,9 @@ __artifacts_v2__ = {
                  "database, or only the hive, is read as well. A -wal or -journal beside the database is staged "
                  "with it, but the tested database had neither, so a database left with a hot journal is not "
                  "exercised.",
-        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
-                  '*/Windows/appcompat/Programs/InventoryApplicationShortcut.db*'),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/InventoryApplicationShortcut.db*'),
         "output_types": ["standard"],
         "artifact_icon": "link",
         "sample_data": {
@@ -524,9 +529,9 @@ __artifacts_v2__ = {
                  "October 2026. A folder holding only the database, or only the hive, is read as well. A -wal or"
                  " -journal beside the database is staged with it, but the tested database had neither, so a "
                  "database left with a hot journal is not exercised.",
-        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
-                  '*/Windows/appcompat/Programs/InventoryDriverBinary.db*'),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/InventoryDriverBinary.db*'),
         "output_types": ["standard"],
         "artifact_icon": "cpu",
         "sample_data": {
@@ -638,9 +643,9 @@ __artifacts_v2__ = {
                  "only the database, or only the hive, is read as well. A -wal or -journal beside the database "
                  "is staged with it, but the tested database had neither, so a database left with a hot journal "
                  "is not exercised.",
-        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
-                  '*/Windows/appcompat/Programs/InventoryDevicePnp.db*'),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/InventoryDevicePnp.db*'),
         "output_types": ["standard"],
         "artifact_icon": "hard-drive",
         "sample_data": {
@@ -758,9 +763,9 @@ __artifacts_v2__ = {
                  " holding only the database, or only the hive, is read as well. A -wal or -journal beside the "
                  "database is staged with it, but the tested database had neither, so a database left with a hot"
                  " journal is not exercised.",
-        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
-                  '*/Windows/appcompat/Programs/InventoryDeviceContainer.db*'),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/InventoryDeviceContainer.db*'),
         "output_types": ["standard"],
         "artifact_icon": "box",
         "sample_data": {
@@ -888,9 +893,9 @@ __artifacts_v2__ = {
                  "only the database, or only the hive, is read as well. A -wal or -journal beside the database "
                  "is staged with it, but the tested database had neither, so a database left with a hot journal "
                  "is not exercised.",
-        "paths": ('*/Windows/appcompat/Programs/Amcache.hve',
-                  '*/Windows/appcompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
-                  '*/Windows/appcompat/Programs/InventoryDriverPackage.db*'),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/InventoryDriverPackage.db*'),
         "output_types": ["standard"],
         "artifact_icon": "package",
         "sample_data": {
@@ -900,6 +905,165 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 4 rows",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 31 rows",
             "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 42 rows",
+        },
+    },
+    "amcacheOldFormatFiles": {
+        "name": "Amcache Files (Windows 8 Format)",
+        "description": "Files recorded under Amcache.hve's Root\\File key, the layout Windows 8 used: the path, "
+                       "SHA-1, size, product and company names, version and description, the times stored for the "
+                       "file, its program ID and the program it names.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-29",
+        "last_update_date": "2026-10-29",
+        "requirements": "python-registry",
+        "category": "Windows",
+        "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of a "
+                 "Root\\File\\<volume key> subkey, the layout the hive used on Windows 8, read from any hive that holds "
+                 "it; AmcacheParser reads it from Root\\File and Root\\Programs "
+                 "(https://github.com/EricZimmerman/AmcacheParser/blob/4706a080461d9506edbd6327bc58fc558978606d/Amcache/AmcacheOld.cs#L150-L151)."
+                 " The value names are hexadecimal numbers for which no Microsoft documentation was found; each column"
+                 " names the value it reads, and its label follows two public readers, which agree on what each "
+                 "reported value is but not always on its name: Eric Zimmerman's AmcacheParser (AmcacheOld.cs at "
+                 "commit 4706a080461d9506edbd6327bc58fc558978606d, file values "
+                 "https://github.com/EricZimmerman/AmcacheParser/blob/4706a080461d9506edbd6327bc58fc558978606d/Amcache/AmcacheOld.cs#L14-L37"
+                 " and "
+                 "https://github.com/EricZimmerman/AmcacheParser/blob/4706a080461d9506edbd6327bc58fc558978606d/Amcache/AmcacheOld.cs#L345-L433,"
+                 " program values "
+                 "https://github.com/EricZimmerman/AmcacheParser/blob/4706a080461d9506edbd6327bc58fc558978606d/Amcache/AmcacheOld.cs#L197-L276)"
+                 " and Volatility 3's amcache plugin "
+                 "(https://github.com/volatilityfoundation/volatility3/blob/77ff0b1932d77527f850c8ced01d85805ea7bf97/volatility3/framework/plugins/windows/registry/amcache.py#L28-L62)."
+                 " Both readers name values 0, 1, 6, 11, 12, 15, 100 and 101 as reported here; for f they say link "
+                 "date (AmcacheParser) and compile time (Volatility 3), and for 17 last-modified store (AmcacheParser)"
+                 " and a second last-modified time (Volatility 3); File Version (value 5) and File Description (value "
+                 "c) are named by AmcacheParser only. Values 11, 12 and 17 are FILETIMEs and value f seconds since "
+                 "1970, shown in UTC as both readers read them; the readers call 11 and 17 last-modified times and 12 "
+                 "a creation time without saying what they were taken from, so the columns carry the value names. "
+                 "SHA-1 is value 101 with its leading four zeroes removed when it is 44 characters long and starts "
+                 "with them, as every tested value was; AmcacheParser removes the first four characters of any value. "
+                 "Program Name is value 0 of the Root\\Programs subkey whose name is the Program ID, blank when there "
+                 "is none. Volume Key and File Key are the two subkeys' names. Values 2, 3, 4, 7, 8, 9, a, b, d, 10 "
+                 "and 16 are not reported, and neither are the Root\\Generic and Root\\Orphan keys the tested hives also"
+                 " hold. On alihadi_challenge3_win81 (Windows 8.1) and szechuan_dc01_server2012r2 (Windows Server 2012"
+                 " R2) every row equals AmcacheParser 2026.10.1's reading of the same hive, read without its "
+                 "transaction logs, in every column, times to the whole second it writes (77 and 136 rows). On the "
+                 "second image each subkey stores only values 15, 17, 100 and 101, and 16 on 5 of them. lonewolf_win10"
+                 " holds Root\\File with no subkeys; the other Windows 10, 11 and Server 2019 and 2022 images hold no "
+                 "Root\\File key. A row shows that Windows recorded the file in this hive; it does not show that the "
+                 "file ran or who ran it. Reading the hive needs the python-registry package. A dirty hive, one whose "
+                 "base block's two sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
+                 "transaction logs that continue its sequence are applied, following Maxim Suhanov's 'Windows registry"
+                 " file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728,"
+                 " "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749)."
+                 " When no log in the format Windows 8.1 and later write applies, a log in the older format used "
+                 "before Windows 8.1 is applied instead: the first of .LOG1 and .LOG2 whose base block is valid and "
+                 "holds the hive's last-written time has the pages its dirty vector marks written where the vector "
+                 "places them "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L620-L677,"
+                 " "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L742)."
+                 " On the 16 hives of cfreds_leakage_win7 that carry such a log as .LOG1, each copied, made dirty and "
+                 "given overwritten bytes in every page its log marks for the test, this rebuilt each hive byte for "
+                 "byte, as rla 2026.10.1 did; none of the 54 dirty hives in the 17 corpus images surveyed carries one."
+                 " A lone .LOG beside a hive is not read. A replay that would give a key an earlier last-written time "
+                 "than the hive already holds is not applied, a check added here beyond the specification; the run log"
+                 " names each hive replayed, with the sequence numbers applied, and each dirty hive read as it is, "
+                 "with the reason.",
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+        "output_types": ["standard"],
+        "artifact_icon": "file",
+        "sample_data": {
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 77 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 136 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (the key holds no subkeys)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the hive holds no Root\\File key)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (the hive holds no Root\\File key)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the hive holds no Root\\File key)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (the hive holds no Root\\File key)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the hive holds no Root\\File key)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the hive holds no Root\\File key)",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (the hive holds no Root\\File key)",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 0 rows (the hive holds no Root\\File key)",
+        },
+    },
+    "amcacheOldFormatPrograms": {
+        "name": "Amcache Programs (Windows 8 Format)",
+        "description": "Programs recorded under Amcache.hve's Root\\Programs key, the layout Windows 8 used: the "
+                       "name, version, publisher and the other values each entry stores, and the files it lists.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-29",
+        "last_update_date": "2026-10-29",
+        "requirements": "python-registry",
+        "category": "Windows",
+        "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of Root\\Programs, "
+                 "the layout the hive used on Windows 8, read from any hive that holds it. The value names are "
+                 "hexadecimal numbers for which no Microsoft documentation was found; each column names the value it "
+                 "reads, and its label follows two public readers, which agree on what each reported value is but not "
+                 "always on its name: Eric Zimmerman's AmcacheParser (AmcacheOld.cs at commit "
+                 "4706a080461d9506edbd6327bc58fc558978606d, file values "
+                 "https://github.com/EricZimmerman/AmcacheParser/blob/4706a080461d9506edbd6327bc58fc558978606d/Amcache/AmcacheOld.cs#L14-L37"
+                 " and "
+                 "https://github.com/EricZimmerman/AmcacheParser/blob/4706a080461d9506edbd6327bc58fc558978606d/Amcache/AmcacheOld.cs#L345-L433,"
+                 " program values "
+                 "https://github.com/EricZimmerman/AmcacheParser/blob/4706a080461d9506edbd6327bc58fc558978606d/Amcache/AmcacheOld.cs#L197-L276)"
+                 " and Volatility 3's amcache plugin "
+                 "(https://github.com/volatilityfoundation/volatility3/blob/77ff0b1932d77527f850c8ced01d85805ea7bf97/volatility3/framework/plugins/windows/registry/amcache.py#L28-L62)."
+                 " Both readers name values 0, 1 and 2 as reported here. Values a and b are seconds since 1970, shown "
+                 "in UTC as AmcacheParser reads them; it calls them install dates a and b and Volatility 3 calls a the"
+                 " install time, so the columns carry the value names; b is 0, and so blank, on every tested entry. "
+                 "Language (value 3), Value 6, Uninstall Key (value 7) and Paths (value d) are named by AmcacheParser "
+                 "only (language code, install source, uninstall registry key, paths list); values f, 10, 11 and 12 "
+                 "are given different names by the two readers and are shown under their value names. Values 7, d, 11 "
+                 "and 12 can hold several strings, listed one per line. Files is the Files value, one entry per line, "
+                 "and File Count the number of non-empty entries in it. Program Key is the subkey's name, which the "
+                 "Program ID of Amcache Files (Windows 8 Format) refers to. Values 5, 13 and any other value are not "
+                 "reported. On alihadi_challenge3_win81 and szechuan_dc01_server2012r2 every row equals AmcacheParser "
+                 "2026.10.1's reading of the same hive in every column it also reports, the list values once "
+                 "AmcacheParser's spaces between items are read as line breaks, times to the whole second it writes (1"
+                 " and 3 rows). File Count has no counterpart there; it equals the number of file entries "
+                 "AmcacheParser links to the program on three of the four, and on one program on "
+                 "szechuan_dc01_server2012r2 the Files value lists 133 entries where AmcacheParser links 132. "
+                 "lonewolf_win10 holds Root\\Programs with no subkeys; the other Windows 10, 11 and Server 2019 and "
+                 "2022 images hold no Root\\Programs key. A row shows that Windows recorded the program in this hive; "
+                 "it does not show that it ran or who installed it. Reading the hive needs the python-registry "
+                 "package. A dirty hive, one whose base block's two sequence numbers differ, is read after the entries"
+                 " in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, following Maxim "
+                 "Suhanov's 'Windows registry file format specification' "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728,"
+                 " "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749)."
+                 " When no log in the format Windows 8.1 and later write applies, a log in the older format used "
+                 "before Windows 8.1 is applied instead: the first of .LOG1 and .LOG2 whose base block is valid and "
+                 "holds the hive's last-written time has the pages its dirty vector marks written where the vector "
+                 "places them "
+                 "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L620-L677,"
+                 " "
+                 "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L742)."
+                 " On the 16 hives of cfreds_leakage_win7 that carry such a log as .LOG1, each copied, made dirty and "
+                 "given overwritten bytes in every page its log marks for the test, this rebuilt each hive byte for "
+                 "byte, as rla 2026.10.1 did; none of the 54 dirty hives in the 17 corpus images surveyed carries one."
+                 " A lone .LOG beside a hive is not read. A replay that would give a key an earlier last-written time "
+                 "than the hive already holds is not applied, a check added here beyond the specification; the run log"
+                 " names each hive replayed, with the sequence numbers applied, and each dirty hive read as it is, "
+                 "with the reason.",
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/Amcache.hve',
+                  '*/Windows/[Aa]pp[Cc]ompat/Programs/[Aa][Mm][Cc][Aa][Cc][Hh][Ee].[Hh][Vv][Ee].[Ll][Oo][Gg][12]'),
+        "output_types": ["standard"],
+        "artifact_icon": "package",
+        "sample_data": {
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 1 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 3 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (the key holds no subkeys)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the hive holds no Root\\Programs key)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (the hive holds no Root\\Programs key)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the hive holds no Root\\Programs key)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (the hive holds no Root\\Programs key)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (the hive holds no Root\\Programs key)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (the hive holds no Root\\Programs key)",
+            "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (the hive holds no Root\\Programs key)",
+            "windows11_arm_amcache_inventorydb_known_20261024": "Windows 11 25H2 build 26200 | 0 rows (the hive holds no Root\\Programs key)",
         },
     },
 }
@@ -1194,4 +1358,113 @@ def amcacheDriverPackages(context):
                              'Provider', 'Class', 'Class GUID', 'Directory', 'INF', 'Hardware IDs', 'Files',
                              'In Box (as stored)', 'Active (as stored)', 'Submission ID')
     data_list, sources = _inventory_rows(context, _PACKAGE_PATH, package_row)
+    return data_headers, data_list, sources
+
+
+def _unix_time(value):
+    """Seconds since 1970 as a UTC datetime, or None when the value is not a positive integer or out of range."""
+    if not isinstance(value, int) or value <= 0:
+        return None
+    try:
+        return _UNIX_EPOCH + timedelta(seconds=value)
+    except OverflowError:
+        return None
+
+
+def _joined(value):
+    """A REG_MULTI_SZ list as one line per item; any other value as stored."""
+    if isinstance(value, list):
+        return '\n'.join(str(item) for item in value if item != '')
+    return '' if value is None else value
+
+
+def _old_format(context, read):
+    """read(hive) for each Amcache.hve, with the sources read; '' sources when nothing was read."""
+    data_list, sources = [], []
+    if Registry is None:
+        logfunc('Amcache: the python-registry package is not installed')
+        return data_list, ''
+    for found in context.get_files_found():
+        found = str(found)
+        if os.path.basename(found).lower() != 'amcache.hve':
+            continue
+        try:
+            reg = open_hive(found, context)
+            rows = read(reg)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logfunc(f'Amcache: could not read {context.get_relative_path(found)}: {exc}')
+            continue
+        if rows is None:
+            continue
+        data_list.extend(rows)
+        sources.append(found)
+    return data_list, "\n".join(sources)
+
+
+def _subkeys(reg, path):
+    try:
+        return list(reg.open(path).subkeys())
+    except Registry.RegistryKeyNotFoundException:
+        return None
+
+
+def old_file_rows(reg):
+    """Rows for Root\\File\\<volume>\\<file>, None when the hive has no Root\\File key."""
+    volumes = _subkeys(reg, _OLD_FILE_PATH)
+    if volumes is None:
+        return None
+    names = {}
+    for program in _subkeys(reg, _OLD_PROGRAMS_PATH) or []:
+        record = _hive_record(program)
+        names[record.key] = _stored(record, '0')
+    rows = []
+    for volume in volumes:
+        for entry in volume.subkeys():
+            record = _hive_record(entry)
+            program_id = _stored(record, '100')
+            rows.append((record.written, _filetime(record.values.get('11')), _filetime(record.values.get('12')),
+                         _filetime(record.values.get('17')), _unix_time(record.values.get('f')),
+                         _stored(record, '15'), _sha1(record.values.get('101')), _stored(record, '6'),
+                         _stored(record, '0'), _stored(record, '1'), _stored(record, '5'), _stored(record, 'c'),
+                         program_id, names.get(program_id, ''), volume.name(), record.key))
+    return rows
+
+
+def old_program_rows(reg):
+    """Rows for Root\\Programs\\<program>, None when the hive has no Root\\Programs key."""
+    programs = _subkeys(reg, _OLD_PROGRAMS_PATH)
+    if programs is None:
+        return None
+    rows = []
+    for program in programs:
+        record = _hive_record(program)
+        files = record.values.get('Files')
+        rows.append((record.written, _unix_time(record.values.get('a')), _unix_time(record.values.get('b')),
+                     _stored(record, '0'), _stored(record, '1'), _stored(record, '2'), _stored(record, '3'),
+                     _stored(record, '6'), _joined(record.values.get('7')), _joined(record.values.get('d')),
+                     _stored(record, 'f'), _stored(record, '10'), _joined(record.values.get('11')),
+                     _joined(record.values.get('12')), len([item for item in files if item != '']) if isinstance(files, list) else '',
+                     _joined(files), record.key))
+    return rows
+
+
+@artifact_processor
+def amcacheOldFormatFiles(context):
+    data_headers = (('Key Last Write (UTC)', 'datetime'), ('Last Modified, value 11 (UTC)', 'datetime'),
+                    ('Created, value 12 (UTC)', 'datetime'), ('Last Modified 2, value 17 (UTC)', 'datetime'),
+                    ('Link Date, value f (UTC)', 'datetime'), 'Full Path (value 15)', 'SHA-1 (value 101)',
+                    'File Size (value 6)', 'Product Name (value 0)', 'Company (value 1)',
+                    'File Version (value 5)', 'File Description (value c)', 'Program ID (value 100)',
+                    'Program Name', 'Volume Key', 'File Key')
+    data_list, sources = _old_format(context, old_file_rows)
+    return data_headers, data_list, sources
+
+
+@artifact_processor
+def amcacheOldFormatPrograms(context):
+    data_headers = (('Key Last Write (UTC)', 'datetime'), ('Value a (UTC)', 'datetime'),
+                    ('Value b (UTC)', 'datetime'), 'Name (value 0)', 'Version (value 1)', 'Publisher (value 2)',
+                    'Language (value 3)', 'Value 6', 'Uninstall Key (value 7)', 'Paths (value d)', 'Value f',
+                    'Value 10', 'Value 11', 'Value 12', 'File Count', 'Files', 'Program Key')
+    data_list, sources = _old_format(context, old_program_rows)
     return data_headers, data_list, sources
