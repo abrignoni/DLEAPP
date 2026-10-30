@@ -27,9 +27,14 @@ __artifacts_v2__ = {
                  "with UBR after a dot when present; where CurrentBuild does not hold a number, as on "
                  "cfreds_hacking_case_winxp, where it holds a placeholder saying the data is obsolete, Build "
                  "is CurrentBuildNumber instead, and Registry Value names the value read. On the 12 other "
-                 "corpus images checked CurrentBuild and CurrentBuildNumber are equal. InstallDate is read "
-                 "as seconds since 1970 and InstallTime as a FILETIME; on the four tested images they "
-                 "agreed to within a second. What event they record is not established: "
+                 "corpus images whose SOFTWARE hive was read for this check (af_case2_win10, "
+                 "alihadi_challenge3_win81, alihadi_threatsim_server2019, cfreds_leakage_win7, "
+                 "hexordia_mvs2025_win11, lonewolf_win10, ou_ransomware_server2022, pc_mus_001_win11, "
+                 "szechuan_dc01_server2012r2, szechuan_win10, windows11_arm_known_20261001 and "
+                 "windows11_arm_known_20261010) CurrentBuild and CurrentBuildNumber are equal. InstallDate is read "
+                 "as seconds since 1970 and InstallTime as a FILETIME; on pc_mus_001_win11, af_case2_win10, "
+                 "lonewolf_win10 and szechuan_win10 they agreed to within a second, and "
+                 "cfreds_hacking_case_winxp has no InstallTime value. What event they record is not established: "
                  "on pc_mus_001_win11 the user's FeatureUsage KeyCreationTime is 51 hours earlier than"
                  " InstallDate, and on lonewolf_win10 the OneDrive ClientFirstSignInTimestamp is 2.4 "
                  "hours earlier. Default Password is the Winlogon DefaultPassword value, which "
@@ -169,7 +174,7 @@ def _software_rows(reg):
         rows.append((prop, _text(value_of(cv, name)), _CURRENT_VERSION + '\\' + name, cv))
     build, ubr = value_of(cv, 'CurrentBuild'), value_of(cv, 'UBR')
     build_value = 'CurrentBuild'
-    # Windows XP keeps a placeholder in CurrentBuild and the build number in CurrentBuildNumber
+    # cfreds_hacking_case_winxp keeps a placeholder in CurrentBuild and the build number in CurrentBuildNumber
     number = value_of(cv, 'CurrentBuildNumber')
     if build is not None and not str(build).isdigit() and number is not None:
         build, build_value = number, 'CurrentBuildNumber'

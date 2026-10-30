@@ -1,5 +1,5 @@
 """Pin the Build row of windowsSystemInfo in scripts/artifacts/windowsSystemInfo.py: CurrentBuild with UBR,
-or CurrentBuildNumber where CurrentBuild holds no number, as Windows XP's does. Every value here is made up."""
+or CurrentBuildNumber where CurrentBuild holds no number, as cfreds_hacking_case_winxp's does. Every value here is made up."""
 import pathlib
 import sys
 import unittest
