@@ -136,6 +136,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 1 row",
             "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
             "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 4 rows",
         },
     },
 }

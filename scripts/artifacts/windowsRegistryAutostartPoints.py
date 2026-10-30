@@ -103,6 +103,7 @@ __artifacts_v2__ = {
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 72 rows",
             "windows11_arm_known_20261010": "Windows 11 build 26200 | 77 rows",
             "windows11_arm_parallels": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 36 rows",
         },
     },
 }

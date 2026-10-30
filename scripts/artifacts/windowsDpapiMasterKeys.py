@@ -95,6 +95,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 9 rows",
             "windows11_arm_4688_known": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 1 row",
         },
         "paths": ("*/AppData/Roaming/Microsoft/Protect/*", "*/Windows/System32/Microsoft/Protect/*"),
         "output_types": ["standard"],

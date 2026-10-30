@@ -36,6 +36,7 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (every address line in the file is commented out)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (every address line in the file is commented out)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (every address line in the file is commented out)",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 1 row",
         },
     },
     "macosHostsFile": {

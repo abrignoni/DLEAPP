@@ -119,6 +119,8 @@ __artifacts_v2__ = {
             "lonewolf_win10": "Windows 10 Education build 16299 | 38 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 19 rows",
             "cfreds_hacking_case_winxp": "Windows XP build 2600 | 8 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 17 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 35 rows",
         },
     },
     "windowsLnkOfficeRecent": {

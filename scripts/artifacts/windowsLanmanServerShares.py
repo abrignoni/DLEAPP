@@ -70,6 +70,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the Shares key holds no values)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 0 rows (the Shares key holds no values)",
             "windows11_arm_known_20261010": "Windows 11 build 26200 | 0 rows (the Shares key holds no values)",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 2 rows",
         },
     },
 }
