@@ -79,6 +79,7 @@ class MobileBluetoothTest(unittest.TestCase):
         ])
         headers, rows, source = artifact.macosBluetoothOtherLE.__wrapped__(Context(self.root, self._files()))
         self.assertEqual(headers[-2:], ('Record State', 'Read From'))
+        self.assertTrue(all(len(r) == len(headers) for r in rows))
         by_state = {(r[2], r[-2]): r for r in rows}
         self.assertEqual(sorted(by_state), [('u-1', 'Current'), ('u-2', 'Not in current state')])
         self.assertEqual(by_state[('u-1', 'Current')][0], 30)

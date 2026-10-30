@@ -11,9 +11,10 @@ __artifacts_v2__ = {
         "category": "Connected Devices (macOS)",
         "notes": "Reads /Library/Bluetooth/com.apple.MobileBluetooth.ledevices.paired.db, the "
                  "database iLEAPP's Bluetooth Paired LE artifact reads on iOS. On "
-                 "adams_macbookpro_macos26 (macOS 26.2) /Library/Preferences/com.apple.bluetooth.plist "
-                 "holds settings and no DeviceCache, so Bluetooth Devices has no rows there and this "
-                 "table is where its paired devices are listed. Last Seen Time and Last Connection "
+                 "adams_macbookpro_macos26 (macOS 26.2) the Bluetooth preferences file is "
+                 "/Library/Preferences/com.apple.bluetooth.plist, spelled in lowercase, which holds "
+                 "settings and no DeviceCache; Bluetooth Devices matches no file there, and this table "
+                 "is where paired devices were found. Last Seen Time and Last Connection "
                  "Time are the LastSeenTime and LastConnectionTime integers as stored; on that image "
                  "they run from tens to tens of thousands, far below any Unix or Mac absolute time, "
                  "and their unit and starting point are not established. Name Origin is the "
@@ -23,9 +24,10 @@ __artifacts_v2__ = {
                  "for a row of the database as SQLite reads it with its -wal, and Not in current "
                  "state for a device (by Uuid) that an earlier state in the write-ahead log holds and "
                  "the current state does not; such a row shows the newest earlier state holding it, "
-                 "and Read From names the log states it was read in. Earlier versions of a current "
-                 "row are counted in the run log and not listed. Reading the log does not establish "
-                 "when or why a row left the current state.",
+                 "and Read From names the log states it was read in. No row of adams_macbookpro_macos26 "
+                 "was read from the log for this table. Earlier versions of a current row are "
+                 "counted in the run log and not listed. Reading the log does not establish when or "
+                 "why a row left the current state.",
         "paths": ('*/Library/Bluetooth/com.apple.MobileBluetooth.ledevices.paired.db*',),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
@@ -46,16 +48,18 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Connected Devices (macOS)",
         "notes": "Reads /Library/Bluetooth/com.apple.MobileBluetooth.ledevices.other.db, the "
-                 "database iLEAPP's Bluetooth Other LE artifact reads on iOS. A row records a "
-                 "device the Bluetooth stack kept a record of; it does not by itself establish a "
-                 "pairing, a connection or a timed encounter. Last Seen Time and Last Connection "
+                 "database iLEAPP's Bluetooth Other LE artifact reads on iOS. A row is a device record "
+                 "in this table; it does not by itself establish a pairing, a connection or a timed "
+                 "encounter. Last Seen Time and Last Connection "
                  "Time are the LastSeenTime and LastConnectionTime integers as stored; on "
                  "adams_macbookpro_macos26 (macOS 26.2) they run from 0 to tens of thousands, far "
                  "below any Unix or Mac absolute time, and their unit and starting point are not "
                  "established. Name Origin is the NameOrigin integer as stored; its meaning is not "
-                 "established. ResolvedAddress was empty, and GATTServiceChangeConfig, Tags and "
-                 "iCloudIdentifier each held one value on every row of that image; Resolved Address "
-                 "is reported and the other three are not. Record State and Read From are as in "
+                 "established. Tags and iCloud Identifier are the Tags and iCloudIdentifier values as "
+                 "stored. On that image ResolvedAddress was null, Tags null and iCloudIdentifier empty "
+                 "on every current row, and all three held values on the four rows read from the log. "
+                 "GATTServiceChangeConfig held one value on every row read and is not reported. "
+                 "Record State and Read From are as in "
                  "Bluetooth Paired LE Devices: Current for a row SQLite reads with the -wal, Not in "
                  "current state for a device (by Uuid) only an earlier log state holds, shown as the "
                  "newest earlier state holding it. On that image the log held 147 committed "
@@ -159,7 +163,7 @@ def _databases(context, name):
 _PAIRED_COLUMNS = ('Uuid', 'Name', 'NameOrigin', 'Address', 'ResolvedAddress', 'LastSeenTime',
                    'LastConnectionTime', 'iCloudIdentifier')
 _OTHER_COLUMNS = ('Uuid', 'Name', 'NameOrigin', 'Address', 'ResolvedAddress', 'LastSeenTime',
-                  'LastConnectionTime')
+                  'LastConnectionTime', 'Tags', 'iCloudIdentifier')
 
 
 def _report(context, name, table, columns, label):
@@ -191,11 +195,12 @@ def macosBluetoothPairedLE(context):
 @artifact_processor
 def macosBluetoothOtherLE(context):
     data_headers = ('Last Seen Time (as stored)', 'Last Connection Time (as stored)', 'UUID', 'Name',
-                    'Name Origin (as stored)', 'Address', 'Resolved Address', 'Record State',
-                    'Read From')
+                    'Name Origin (as stored)', 'Address', 'Resolved Address', 'Tags (as stored)',
+                    'iCloud Identifier (as stored)', 'Record State', 'Read From')
     found, read = _report(context, 'com.apple.MobileBluetooth.ledevices.other.db', 'OtherDevices',
                           _OTHER_COLUMNS, 'Bluetooth Other LE Devices')
     data_list = []
-    for state, (uuid, name, origin, address, resolved, seen, connected), where in found:
-        data_list.append((seen, connected, uuid, name, origin, address, resolved, state, where))
+    for state, (uuid, name, origin, address, resolved, seen, connected, tags, icloud), where in found:
+        data_list.append((seen, connected, uuid, name, origin, address, resolved, tags, icloud, state,
+                          where))
     return data_headers, data_list, '\n'.join(read)
