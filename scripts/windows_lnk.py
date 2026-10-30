@@ -230,6 +230,12 @@ def parse_lnk(data):
             c = li + cnrloff
             netoff = struct.unpack_from("<I", data, c + 8)[0]
             out["network_path"] = _cstr(data, c + netoff) if netoff else ""
+            # With the share name offset above 20 the header carries an offset to the share name
+            # as UTF-16 at byte 20 (liblnk format, same commit as above, lines 367-369).
+            if netoff > 20 and c + 24 <= len(data):
+                net_uni = struct.unpack_from("<I", data, c + 20)[0]
+                if net_uni:
+                    out["network_path"] = _cstr(data, c + net_uni, True) or out["network_path"]
             if out["network_path"] and not (li_flags & 0x1):
                 out["network_target"] = (out["network_path"].rstrip("\\") + "\\" + suffix
                                          if suffix else out["network_path"])
