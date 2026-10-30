@@ -105,9 +105,15 @@ class RecentFoldersTest(unittest.TestCase):
         old_profile = 'root/p2/Documents and Settings/u/Application Data/Microsoft/Office/Recent/c.lnk'
         self.assertTrue(any(fnmatch.fnmatchcase(windows_link, p) for p in recent))
         self.assertFalse(any(fnmatch.fnmatchcase(windows_link, p) for p in office))
+        xp_link = 'root/p1/Documents and Settings/u/Recent/d.lnk'
+        self.assertTrue(any(fnmatch.fnmatchcase(xp_link, p) for p in recent))
+        self.assertFalse(any(fnmatch.fnmatchcase(xp_link, p) for p in office))
+        self.assertFalse(windowsLnk._office_recent(xp_link[len('root/'):]))  # pylint: disable=protected-access
         for member in (office_link, old_profile):
             self.assertTrue(any(fnmatch.fnmatchcase(member, p) for p in office), member)
-            self.assertFalse(any(fnmatch.fnmatchcase(member, p) for p in recent), member)
+            # the XP Recent pattern's wildcard reaches the Office folder; the artifact leaves it
+            self.assertTrue(windowsLnk._office_recent(member[len('root/'):]), member)  # pylint: disable=protected-access
+        self.assertFalse(any(fnmatch.fnmatchcase(office_link, p) for p in recent))
         self.assertFalse(any(fnmatch.fnmatchcase('root/p2/Users/u/AppData/Roaming/Microsoft/Office/Recent/index.dat',
                                                  p) for p in office))
 

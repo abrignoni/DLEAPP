@@ -45,7 +45,7 @@ __artifacts_v2__ = {
                        "NTFS object IDs of the target and its volume.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-10-30",
         "requirements": "olefile (for automatic destinations)",
         "category": "Windows",
         "notes": "Rows from the shell links inside a user's jump list files, read from the files "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
                  "application's task and pinned shell links, read by scanning for shell-link "
                  "headers; a jump list entry that is not a shell link (a plain task command, for "
                  "example) is not surfaced. Target Path is the local path stored in the link, or "
-                 "the network path, or a shell path rebuilt from the link's target id list. Target"
+                 "for a target on a share the share name and the path below it, or a shell path rebuilt from the link's target id list. Target"
                  " Created, Target Modified and Target Accessed (UTC) are the link header's "
                  "CreationTime, WriteTime and AccessTime, which [MS-SHLLINK] gives as the "
                  "creation, write and access times of the link target in UTC "
@@ -82,8 +82,8 @@ __artifacts_v2__ = {
                  "none is stored). Drive Type, Drive Serial and Volume Label are the volume the "
                  "target lived on, from the link's VolumeID; Drive Type is named from the Windows "
                  "GetDriveType constants and the other two are as stored; all three are blank for "
-                 "a network or virtual target. Network Path is the UNC path when the target is on "
-                 "a share, blank otherwise. Arguments is any command line stored in the link, present for an application launch entry and blank for a plain file link. Icon Location is the link's ICON_LOCATION string, which [MS-SHLLINK] gives as 'the location of the icon to be used when displaying a shell link item in an icon view' (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-shllink/17b69472-0f34-4bcf-b290-eccdb8de224b), and Icon Location (Environment Block) the TargetUnicode path in its IconEnvironmentDataBlock, or its TargetAnsi path when the Unicode one is empty, which [MS-SHLLINK] gives as 'the path to an icon' encoded using environment variables (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-shllink/9e6b7dfe-2ca2-4875-a0c9-8d75ee4f9b65); each is blank when the link stores none. Over the ten corpus images with jump lists, Icon Location is filled on 112 of the 166 custom entries and 3 of the 347 automatic ones, and Icon Location (Environment Block) on 67 and 3 of them; every entry with the environment block also has an Icon Location, and on every one of them the two differ. Machine"
+                 "a network or virtual target. Network Path is the UNC name of the share when the "
+                 "target is on a share, blank otherwise. Arguments is any command line stored in the link, present for an application launch entry and blank for a plain file link. Icon Location is the link's ICON_LOCATION string, which [MS-SHLLINK] gives as 'the location of the icon to be used when displaying a shell link item in an icon view' (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-shllink/17b69472-0f34-4bcf-b290-eccdb8de224b), and Icon Location (Environment Block) the TargetUnicode path in its IconEnvironmentDataBlock, or its TargetAnsi path when the Unicode one is empty, which [MS-SHLLINK] gives as 'the path to an icon' encoded using environment variables (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-shllink/9e6b7dfe-2ca2-4875-a0c9-8d75ee4f9b65); each is blank when the link stores none. Over the ten corpus images with jump lists, Icon Location is filled on 112 of the 166 custom entries and 3 of the 347 automatic ones, and Icon Location (Environment Block) on 67 and 3 of them; every entry with the environment block also has an Icon Location, and on every one of them the two differ. Machine"
                  " ID is the TrackerDataBlock's MachineID, which [MS-SHLLINK] gives as 'the "
                  "NetBIOS name of the machine where the link target was last known to reside' "
                  "(https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/df8e3748-fba5-4524-968a-f72be06d71fc);"

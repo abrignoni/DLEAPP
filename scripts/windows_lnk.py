@@ -157,7 +157,7 @@ def parse_lnk(data):
     out["target_accessed"] = _filetime(atime)
     out["target_modified"] = _filetime(wtime)
     out["target_size"] = struct.unpack_from("<I", data, 52)[0]
-    for key in ("local_path", "network_path", "shell_path", "drive_type",
+    for key in ("local_path", "network_path", "network_target", "shell_path", "drive_type",
                 "drive_serial", "volume_label", "arguments", "name",
                 "relative_path", "working_dir", "icon_location", "icon_environment", "machine_id",
                 "droid_volume", "droid_file", "birth_droid_volume", "birth_droid_file"):
@@ -196,11 +196,18 @@ def parse_lnk(data):
         suffix = _cstr(data, li + cpsoff) if cpsoff else ""
         if cps_uni:
             suffix = _cstr(data, li + cps_uni, True) or suffix
-        out["local_path"] = base + suffix
+        # The full name is the local path plus the common path, or the network share name plus
+        # the common path; the share name need not end in a separator (libyal liblnk, "Windows
+        # Shortcut File (LNK) format" at f80bdb225cb847916f6d163da9127919969c299d, lines 283-290).
+        if li_flags & 0x1:
+            out["local_path"] = base + suffix
         if (li_flags & 0x2) and cnrloff and li + cnrloff + 12 <= len(data):
             c = li + cnrloff
             netoff = struct.unpack_from("<I", data, c + 8)[0]
             out["network_path"] = _cstr(data, c + netoff) if netoff else ""
+            if out["network_path"] and not (li_flags & 0x1):
+                out["network_target"] = (out["network_path"].rstrip("\\") + "\\" + suffix
+                                         if suffix else out["network_path"])
         pos = li + li_size
 
     unicode_str = bool(flags & 0x80)
@@ -277,9 +284,10 @@ def tracker_columns(parsed):
 
 
 def target_path(parsed):
-    """The best available target locator: local path, else network path, else
-    the shell path rebuilt from the target id list."""
-    return parsed.get("local_path") or parsed.get("network_path") or parsed.get("shell_path") or ""
+    """The best available target locator: local path, else the share and the path below
+    it, else the shell path rebuilt from the target id list."""
+    return (parsed.get("local_path") or parsed.get("network_target") or parsed.get("network_path")
+            or parsed.get("shell_path") or "")
 
 
 # DestList entry layout, per libyal dtformats "Jump lists format", which
