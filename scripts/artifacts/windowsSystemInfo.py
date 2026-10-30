@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "SOFTWARE and SYSTEM hives.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-30",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Reads the SOFTWARE hive's Microsoft\\Windows NT\\CurrentVersion and Winlogon keys and "
@@ -23,9 +23,18 @@ __artifacts_v2__ = {
                  " key holding the value was last written, which is not necessarily when that value "
                  "was set. Product Name is reported as stored: pc_mus_001_win11 has CurrentBuild "
                  "22621, which Microsoft lists as Windows 11 version 22H2, and a ProductName beginning"
-                 " Windows 10, so Build is the value that identifies the release. InstallDate is read "
-                 "as seconds since 1970 and InstallTime as a FILETIME; on the four tested images they "
-                 "agreed to within a second. What event they record is not established: "
+                 " Windows 10, so Build is the value that identifies the release. Build is CurrentBuild, "
+                 "with UBR after a dot when present; where CurrentBuild does not hold a number, as on "
+                 "cfreds_hacking_case_winxp, where it holds a placeholder saying the data is obsolete, Build "
+                 "is CurrentBuildNumber instead, and Registry Value names the value read. On the 12 other "
+                 "corpus images whose SOFTWARE hive was read for this check (af_case2_win10, "
+                 "alihadi_challenge3_win81, alihadi_threatsim_server2019, cfreds_leakage_win7, "
+                 "hexordia_mvs2025_win11, lonewolf_win10, ou_ransomware_server2022, pc_mus_001_win11, "
+                 "szechuan_dc01_server2012r2, szechuan_win10, windows11_arm_known_20261001 and "
+                 "windows11_arm_known_20261010) CurrentBuild and CurrentBuildNumber are equal. InstallDate is read "
+                 "as seconds since 1970 and InstallTime as a FILETIME; on pc_mus_001_win11, af_case2_win10, "
+                 "lonewolf_win10 and szechuan_win10 they agreed to within a second, and "
+                 "cfreds_hacking_case_winxp has no InstallTime value. What event they record is not established: "
                  "on pc_mus_001_win11 the user's FeatureUsage KeyCreationTime is 51 hours earlier than"
                  " InstallDate, and on lonewolf_win10 the OneDrive ClientFirstSignInTimestamp is 2.4 "
                  "hours earlier. Default Password is the Winlogon DefaultPassword value, which "
@@ -67,6 +76,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 21 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 16 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 18 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 12 rows",
         },
     },
     "windowsNetworkInterfaces": {
@@ -163,9 +173,14 @@ def _software_rows(reg):
                        ('Display Version', 'DisplayVersion'), ('Release Id', 'ReleaseId')):
         rows.append((prop, _text(value_of(cv, name)), _CURRENT_VERSION + '\\' + name, cv))
     build, ubr = value_of(cv, 'CurrentBuild'), value_of(cv, 'UBR')
+    build_value = 'CurrentBuild'
+    # cfreds_hacking_case_winxp keeps a placeholder in CurrentBuild and the build number in CurrentBuildNumber
+    number = value_of(cv, 'CurrentBuildNumber')
+    if build is not None and not str(build).isdigit() and number is not None:
+        build, build_value = number, 'CurrentBuildNumber'
     if build is not None:
         rows.append(('Build', f'{build}.{ubr}' if ubr is not None else str(build),
-                     _CURRENT_VERSION + '\\CurrentBuild, UBR', cv))
+                     _CURRENT_VERSION + '\\' + build_value + ', UBR', cv))
     rows.append(('Install Date (UTC)', _stamp(unix_utc(value_of(cv, 'InstallDate'))),
                  _CURRENT_VERSION + '\\InstallDate', cv))
     rows.append(('Install Time (UTC)', _stamp(filetime_utc(value_of(cv, 'InstallTime'))),
