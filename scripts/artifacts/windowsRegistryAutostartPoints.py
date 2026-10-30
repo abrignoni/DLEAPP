@@ -7,24 +7,30 @@ __artifacts_v2__ = {
     "windowsRegistryAutostartPoints": {
         "name": "Registry Autostart Points",
         "description": "Registry values that name programs or DLLs Windows loads at boot or logon, beyond the Run "
-                       "keys: Winlogon Userinit and Shell, AppInit_DLLs, Active Setup StubPath, Netsh helper DLLs, "
+                       "keys: Winlogon Userinit and Shell, Winlogon Notify DLLs, AppInit_DLLs, Active Setup StubPath, Netsh helper DLLs, "
                        "BootExecute, the LSA package lists, print monitors and time providers.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
-        "last_update_date": "2026-10-10",
+        "last_update_date": "2026-10-30",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "One row for each value read at eight kinds of registry location where Windows is told what "
+        "notes": "One row for each value read at nine kinds of registry location where Windows is told what "
                  "to load at boot or logon, with the last-written time of the key holding it. A default "
                  "installation has values in most of them, so a row is an entry to compare with what the "
                  "system should hold and is not by itself a finding; the Run keys are a separate artifact. "
                  "From the SOFTWARE hive, each also under WOW6432Node: (1) Winlogon, the Userinit and Shell "
                  "values of Microsoft\\Windows NT\\CurrentVersion\\Winlogon, which MITRE ATT&CK describes as "
                  "pointing to userinit.exe, the program executed when a user logs on, and to explorer.exe, the "
-                 "system shell (T1547.004, https://attack.mitre.org/techniques/T1547/004/); the "
-                 "Winlogon\\Notify key that page also names is not read: none of the five Windows 10 and 11 SOFTWARE "
-                 "hives tested holds it, and the cfreds_hacking_case_winxp hive holds it with 9 subkeys this artifact "
-                 "does not report. (2) AppInit_DLLs, LoadAppInit_DLLs and RequireSignedAppInit_DLLs of "
+                 "system shell (T1547.004, https://attack.mitre.org/techniques/T1547/004/). "
+                 "(1b) Winlogon Notify, the DllName value of each subkey of Winlogon\\Notify, which that page says "
+                 "points to notification package DLLs that handle Winlogon events; Microsoft's registry entries for "
+                 "Winlogon notification packages give DllName as the name of the DLL that implements the package "
+                 "(https://learn.microsoft.com/en-us/windows/win32/secauthn/registry-entries). The same page lists "
+                 "the names of the functions that handle each event (Logon, Logoff, Lock and the rest) and the "
+                 "Asynchronous, Impersonate and SmartCardLogonNotify flags; those are not reported, and a subkey "
+                 "without DllName gives no row. Of the 13 corpus SOFTWARE hives read for this check, from Windows XP "
+                 "to 11 and Windows Server 2012 R2 to 2022, only cfreds_hacking_case_winxp's holds the key, and each "
+                 "of its 9 subkeys gives a row. (2) AppInit_DLLs, LoadAppInit_DLLs and RequireSignedAppInit_DLLs of "
                  "Microsoft\\Windows NT\\CurrentVersion\\Windows: DLLs named in AppInit_DLLs are loaded by "
                  "user32.dll into every process that loads user32.dll (T1546.010, "
                  "https://attack.mitre.org/techniques/T1546/010/), LoadAppInit_DLLs enables that with 1 and "
@@ -52,10 +58,10 @@ __artifacts_v2__ = {
                  "NTUSER.DAT: the Userinit and Shell values of Software\\Microsoft\\Windows "
                  "NT\\CurrentVersion\\Winlogon, the per-user key T1547.004 names. Value names are matched "
                  "without case. Key Last Written (UTC) is the last-written time of the key that holds the "
-                 "value, the subkey for Active Setup, Print Monitors and Time Providers; it changes when any "
+                 "value, the subkey for Winlogon Notify, Active Setup, Print Monitors and Time Providers; it changes when any "
                  "value of that key is written, so it is not established as the time the reported value was "
                  "set. Location is the kind, with (Wow6432Node) or (OSConfig) appended. Entry is the subkey "
-                 "name for the three kinds read per subkey, and Entry Label is that subkey's unnamed value, as "
+                 "name for the four kinds read per subkey, and Entry Label is that subkey's unnamed value, as "
                  "stored, which Active Setup components use for a name. Value is the value name and Data its "
                  "data as stored: a string unchanged, the strings of a multi-string joined with ' | ' without "
                  "the empty strings that end the list, a number as a number, binary data as hexadecimal. Scope "
@@ -105,7 +111,7 @@ __artifacts_v2__ = {
             "windows11_arm_known_20261001": "Windows 11 build 26200 | 72 rows",
             "windows11_arm_known_20261010": "Windows 11 build 26200 | 77 rows",
             "windows11_arm_parallels": "Windows 11 build 26200 | 0 rows (no member matches the declared paths)",
-            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 36 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 45 rows",
         },
     },
 }
@@ -131,6 +137,8 @@ _APPINIT = ('appinit_dlls', 'loadappinit_dlls', 'requiresignedappinit_dlls')
 _SOFTWARE_POINTS = (
     ('Winlogon', _WINLOGON, ('userinit', 'shell'), False),
     ('Winlogon (Wow6432Node)', 'WOW6432Node\\' + _WINLOGON, ('userinit', 'shell'), False),
+    ('Winlogon Notify', _WINLOGON + '\\Notify', ('dllname',), True),
+    ('Winlogon Notify (Wow6432Node)', 'WOW6432Node\\' + _WINLOGON + '\\Notify', ('dllname',), True),
     ('AppInit_DLLs', _WINDOWS, _APPINIT, False),
     ('AppInit_DLLs (Wow6432Node)', 'WOW6432Node\\' + _WINDOWS, _APPINIT, False),
     ('Active Setup', _ACTIVE_SETUP, ('stubpath',), True),

@@ -134,6 +134,13 @@ class Points(unittest.TestCase):
              'ControlSet002\\Services\\W32Time\\TimeProviders\\NtpClient')])
         self.assertEqual({row[0] for row in rows}, {W1, W2})
 
+    def test_winlogon_notify_reads_dllname_of_each_package(self):
+        hive = _Hive({WINLOGON + '\\Notify': _Key(subkeys=[
+            _Key('madeup', {'DllName': 'madeup.dll', 'Logon': 'WLEventLogon', 'Asynchronous': 0}, written=T2),
+            _Key('nodll', {'Logoff': 'WLEventLogoff'})])})
+        self.assertEqual(ap.point_rows(hive, ap._SOFTWARE_POINTS), [  # pylint: disable=protected-access
+            (W2, 'Winlogon Notify', 'madeup', '', 'DllName', 'madeup.dll', WINLOGON + '\\Notify\\madeup')])
+
     def test_a_hive_without_the_keys(self):
         self.assertEqual(ap.point_rows(_Hive({}), ap._SOFTWARE_POINTS), [])  # pylint: disable=protected-access
 
