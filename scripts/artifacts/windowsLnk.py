@@ -57,7 +57,7 @@ __artifacts_v2__ = {
                  "Windows GetDriveType constants and Drive Serial and Volume Label are "
                  "as stored; all three are blank for a network or virtual target. "
                  "Network Path is the UNC name of the share when the target is on a network share, "
-                 "blank for a local target. Arguments is any command line stored in the "
+                 "blank for a local target. The share name is read from its UTF-16 copy when the link stores one (libyal liblnk, 'Windows Shortcut File (LNK) format' at f80bdb225cb847916f6d163da9127919969c299d, lines 367-369), and from its other copy otherwise; on a test link Windows 11 made to a share named in Cyrillic and Chinese characters, the other copy held question marks and the UTF-16 copy the name, as LECmd also reads it. None of the 23 network links on the five corpus images read for this check (cfreds_hacking_case_winxp, cfreds_leakage_win7, ou_ransomware_server2022, alihadi_challenge3_win81, hexordia_mvs2025_win11) stores the UTF-16 copy. Arguments is any command line stored in the "
                  "link, blank for a plain file shortcut. Machine ID is the "
                  "TrackerDataBlock's MachineID, which [MS-SHLLINK] gives as 'the NetBIOS"
                  " name of the machine where the link target was last known to reside' "

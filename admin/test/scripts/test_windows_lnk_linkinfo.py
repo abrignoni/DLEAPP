@@ -23,7 +23,7 @@ def header(flags):
             + struct.pack('<IIIH', 0, 0, 1, 0) + b'\x00' * 10)
 
 
-def link_info(share=None, local_base=None, suffix=''):
+def link_info(share=None, local_base=None, suffix='', share_unicode=None):
     """A LinkInfo with a 0x1C byte header, then the VolumeID, local base path, network link and suffix."""
     body = b''
     flags = voloff = lbpoff = cnrloff = 0
@@ -37,7 +37,12 @@ def link_info(share=None, local_base=None, suffix=''):
         flags |= COMMON_NETWORK_RELATIVE_LINK
         cnrloff = 0x1C + len(body)
         name = share.encode('latin-1') + b'\x00'
-        body += struct.pack('<IIIII', 0x14 + len(name), 0, 0x14, 0, 0) + name
+        if share_unicode is None:
+            body += struct.pack('<IIIII', 0x14 + len(name), 0, 0x14, 0, 0) + name
+        else:
+            wide = share_unicode.encode('utf-16-le') + b'\x00\x00' if share_unicode else b''
+            uni_off = 0x1C + len(name) if wide else 0
+            body += struct.pack('<IIIIIII', 0x1C + len(name) + len(wide), 0, 0x1C, 0, 0, uni_off, 0) + name + wide
     cpsoff = 0x1C + len(body)
     body += suffix.encode('latin-1') + b'\x00'
     size = 0x1C + len(body)
@@ -68,6 +73,19 @@ class LinkInfoTargetTest(unittest.TestCase):
         self.assertEqual(parsed['local_path'], 'C:\\Users\\u\\doc.txt')
         self.assertEqual(target_path(parsed), 'C:\\Users\\u\\doc.txt')
         self.assertEqual(parsed['network_path'], '')
+
+    def test_a_unicode_share_name_is_read_when_the_header_has_its_offset(self):
+        parsed = parse_lnk(link(share='\\\\server\\??', share_unicode='\\\\server\\\u0434\u043e\u043a', suffix='a.txt'))
+        self.assertEqual(parsed['network_path'], '\\\\server\\\u0434\u043e\u043a')
+        self.assertEqual(target_path(parsed), '\\\\server\\\u0434\u043e\u043a\\a.txt')
+
+    def test_a_zero_unicode_offset_keeps_the_ansi_share_name(self):
+        parsed = parse_lnk(link(share='\\\\server\\share', share_unicode=''))
+        self.assertEqual(parsed['network_path'], '\\\\server\\share')
+
+    def test_a_0x14_header_reads_no_unicode_offset(self):
+        parsed = parse_lnk(link(share='\\\\server\\share', suffix='x'))
+        self.assertEqual(parsed['network_path'], '\\\\server\\share')
 
 
 if __name__ == '__main__':
