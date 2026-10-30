@@ -127,6 +127,51 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no file matches the declared paths)",
         },
     },
+    "recycleBinInfo2": {
+        "name": "Recycle Bin (INFO2)",
+        "description": "Files sent to the Recycle Bin on Windows that keeps a RECYCLER folder: each entry's original path, "
+                       "deletion time, index and drive number from the INFO2 file under RECYCLER, with the "
+                       "user whose folder held it.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-30",
+        "last_update_date": "2026-10-30",
+        "requirements": "python-registry (only to resolve the user name; INFO2 is read without it)",
+        "category": "Windows",
+        "notes": "Rows from the INFO2 files in the per-user folders under RECYCLER, the folder name matched "
+                 "in any letter case, named in Source File. Each row is one file entry. The layout is libyal "
+                 "dtformats' 'Windows Recycler file formats' "
+                 "(https://github.com/libyal/dtformats/blob/308ce8c38df2eb95a71b6e832b3f9803f0c4b169/documentation/Windows%20Recycler%20file%20formats.asciidoc#L90-L131): "
+                 "a 20-byte header whose fourth value is the entry size, 800 bytes on Windows 2000 and later and "
+                 "280 on Windows Me, then entries of that size. A file whose entry size is neither, or whose "
+                 "length past the header is not a whole number of entries, is named in the run log and not "
+                 "read. Deleted (UTC) is the entry's deletion FILETIME at offset 268, cut to whole "
+                 "microseconds. Original Path is the UTF-16 name at offset 280, or in a 280-byte entry the "
+                 "ASCII name at offset 0 read as Latin-1, since the code page is not stored; no tested file "
+                 "has 280-byte entries. Index is the value the format document calls the index within the INFO2 "
+                 "file, and Drive Number (as stored) the value it calls the drive number. Size (as stored) is "
+                 "the value at offset 276, which the document marks as unknown, possibly the original file size. "
+                 "Recycled File is the file in the same folder named D, a letter, the entry's index and the "
+                 "original name's extension, when exactly one such file is there; that naming is not in the "
+                 "cited document. User SID is the name of the INFO2 file's parent folder, and User is that SID "
+                 "resolved through the SOFTWARE hive ProfileList as in Recycle Bin. A row records an entry the "
+                 "INFO2 held when the image was made; it does not record who sent the file there, and whether an "
+                 "entry marks a file since restored or emptied is not established here. Tested on "
+                 "cfreds_hacking_case_winxp: one INFO2 with 4 entries of 800 bytes, its header's second value 4; "
+                 "the UTF-16 and ASCII names were equal on all 4; Drive Number was 2 on all 4, each path beginning "
+                 "C:; all 4 were in one SID folder, so User and User SID held one value each; each entry had exactly one Recycled File, named D, c and its index, whose size was below "
+                 "Size by less than 512, Size being a whole multiple of 512 on all 4. RBCmd 2026.10.1 read the same "
+                 "file and gave the same index, drive number, size, original name and deletion time, to the "
+                 "microsecond, for all 4, and reported none of them as removed.",
+        "paths": ('*/[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Rr]/*/[Ii][Nn][Ff][Oo]2',
+                  '*/[Rr][Ee][Cc][Yy][Cc][Ll][Ee][Rr]/*/[Dd]*',
+                  '*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/[Ss][Yy][Ss][Tt][Ee][Mm]32/[Cc][Oo][Nn][Ff][Ii][Gg]/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee]',
+                  '*/[Ww][Ii][Nn][Dd][Oo][Ww][Ss]/[Ss][Yy][Ss][Tt][Ee][Mm]32/[Cc][Oo][Nn][Ff][Ii][Gg]/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
+        "output_types": ["standard"],
+        "artifact_icon": "trash-2",
+        "sample_data": {
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 4 rows",
+        },
+    },
 }
 
 
@@ -267,4 +312,79 @@ def recycleBinFolderContents(context):
         data_list.append((deleted, original, inside_path, os.path.getsize(source), folder_path, r_name,
                           os.path.basename(sid_folder)))
         sources.append(source)
+    return data_headers, data_list, "\n".join(sources)
+
+
+_INFO2_ENTRY_SIZES = (280, 800)
+
+
+def parse_info2(data):
+    """(entry size, header entry count, [(index, drive, deletion FILETIME, size, name)]) or None
+    for a file whose header or length does not fit the layout."""
+    if len(data) < 20:
+        return None
+    _, count, _, entry_size, _ = struct.unpack_from("<IIIII", data, 0)
+    if entry_size not in _INFO2_ENTRY_SIZES or (len(data) - 20) % entry_size:
+        return None
+    entries = []
+    for offset in range(20, len(data), entry_size):
+        entry = data[offset:offset + entry_size]
+        index, drive, filetime, size = struct.unpack_from("<IIQI", entry, 260)
+        if entry_size > 280:
+            name = entry[280:800].decode("utf-16-le", "replace").split("\x00", 1)[0]
+        else:
+            name = entry[:260].split(b"\x00", 1)[0].decode("latin-1")
+        entries.append((index, drive, filetime, size, name))
+    return entry_size, count, entries
+
+
+def _recycled_file(folder_files, index, name):
+    """The one file in the folder named D, a letter, the index and the name's extension, or ''."""
+    extension = os.path.splitext(name.replace("\\", "/"))[1].lower()
+    wanted = [f for f in folder_files
+              if len(f) > 2 and f[0] in "Dd" and f[1].isalpha()
+              and os.path.splitext(f)[0][2:] == str(index) and os.path.splitext(f)[1].lower() == extension]
+    return wanted[0] if len(wanted) == 1 else ''
+
+
+@artifact_processor
+def recycleBinInfo2(context):
+    data_headers = (('Deleted (UTC)', 'datetime'), 'Original Path', 'Size (as stored)', 'Index',
+                    'Drive Number (as stored)', 'Recycled File', 'User', 'User SID', 'Source File')
+    data_list = []
+    sources = []
+    files = [str(f) for f in context.get_files_found()]
+
+    users = {}
+    if Registry is not None:
+        for source in files:
+            if os.path.basename(source).upper() == 'SOFTWARE':
+                users.update(_profile_users(source))
+
+    by_folder = {}
+    for source in files:
+        if os.path.isfile(source):
+            by_folder.setdefault(os.path.dirname(source), []).append(os.path.basename(source))
+
+    for source in files:
+        if os.path.basename(source).upper() != 'INFO2' or not os.path.isfile(source):
+            continue
+        relative_source = context.get_relative_path(source)
+        try:
+            with open(source, 'rb') as handle:
+                parsed = parse_info2(handle.read())
+        except OSError as exc:
+            logfunc(f'Recycle Bin (INFO2): could not read {relative_source}: {exc}')
+            continue
+        if parsed is None:
+            logfunc(f'Recycle Bin (INFO2): {relative_source} does not fit the INFO2 layout and was not read')
+            continue
+        _entry_size, _count, entries = parsed
+        sid = os.path.basename(os.path.dirname(source))
+        siblings = by_folder.get(os.path.dirname(source), [])
+        for index, drive, filetime, size, name in entries:
+            data_list.append((_utc_from_filetime(filetime), name, size, index, drive,
+                              _recycled_file(siblings, index, name), users.get(sid, ''), sid, relative_source))
+        sources.append(source)
+
     return data_headers, data_list, "\n".join(sources)
