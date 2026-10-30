@@ -36,10 +36,10 @@ __artifacts_v2__ = {
                        "metadata file, with the user whose Recycle Bin held it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-10-30",
         "requirements": "python-registry (only to resolve the user name; the $I files are read without it)",
         "category": "Windows",
-        "notes": "Rows from the $I metadata files under $Recycle.Bin, named in "
+        "notes": "Rows from the $I metadata files under $Recycle.Bin, the folder name matched in any letter case, named in "
                  "Source File. Each row is one item recorded as sent to the "
                  "Recycle Bin. Deleted (UTC) is the Windows FILETIME the $I "
                  "stores at offset 16. Original Path is the item's original "
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
                  "formats, https://github.com/libyal/dtformats/blob/"
                  "4917c9bffc631503c9dbe77dddf14023a572bcef/documentation/"
                  "Windows%20Recycle.Bin%20file%20formats.asciidoc",
-        "paths": ('*/$[Rr]ecycle.[Bb]in/*/$[Ii]*',
+        "paths": ('*/$[Rr][Ee][Cc][Yy][Cc][Ll][Ee].[Bb][Ii][Nn]/*/$[Ii]*',
                   '*/Windows/System32/config/SOFTWARE',
                   '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]'),
         "output_types": ["standard"],
@@ -93,10 +93,10 @@ __artifacts_v2__ = {
                        "folder's original path and deletion time from its $I file, and the file's size.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-29",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
-        "notes": "One row per file inside a $R folder under $Recycle.Bin, named in the report's located-at line. The "
+        "notes": "One row per file inside a $R folder under $Recycle.Bin, the folder name matched in any letter case, named in the report's located-at line. The "
                  "format documentation describes a $R item only as holding the deleted content; on lonewolf_win10 two "
                  "$R items are folders, each with a $I file of the same name, which the existing Recycle Bin artifact "
                  "reports. Path in Folder is the file's path below the $R folder, its separators given as backslashes."
@@ -114,8 +114,8 @@ __artifacts_v2__ = {
                  "equal those RBCmd 2026.10.1 reports for the same Recycle Bin folder, to the whole second it writes; "
                  "the other images tested hold no $R folder. A row records that the file was inside a folder sent to "
                  "the Recycle Bin when the image was made; it does not show who deleted it.",
-        "paths": ('*/$[Rr]ecycle.[Bb]in/*/$[Rr]*/*',
-                  '*/$[Rr]ecycle.[Bb]in/*/$[Ii]*'),
+        "paths": ('*/$[Rr][Ee][Cc][Yy][Cc][Ll][Ee].[Bb][Ii][Nn]/*/$[Rr]*/*',
+                  '*/$[Rr][Ee][Cc][Yy][Cc][Ll][Ee].[Bb][Ii][Nn]/*/$[Ii]*'),
         "output_types": ["standard"],
         "artifact_icon": "folder",
         "sample_data": {
