@@ -67,7 +67,7 @@ __artifacts_v2__ = {
                  "domain or workgroup, server, share, Microsoft Windows Network and Entire Network kinds, "
                  "https://github.com/libyal/libfwsi/blob/3887868add54619ec322ac100ab1f06979e042b8/documentation/Windows%20Shell%20Item%20format.asciidoc#L476-L533) "
                  "shows its location, a server without its leading backslashes and a share by the last part of its "
-                 "UNC path; an item type the parser does not decode to a "
+                 "UNC path, or (network location) when the stored string is empty or not printable; an item type the parser does not decode to a "
                  "name is shown as <shell item 0xNN>. On five corpus images 102 rows showed a network item that "
                  "way before these kinds were read; 101 now show names, and the one left, on "
                  "cfreds_hacking_case_winxp, is a 0x4e item, which libfwsi describes separately and which is not read. A short (8.3) name such as "
@@ -164,8 +164,8 @@ def _printable(text):
 # Network location shell items, per libyal libfwsi "Windows Shell Item format" at
 # 3887868add54619ec322ac100ab1f06979e042b8, lines 476-533: the class type is 0x40 after a mask of 0x70, its
 # low bits give the kind (1 domain or workgroup, 2 server, 3 share, 6 Microsoft Windows
-# Network, 7 Entire Network; the others are marked unknown there and not read), and the
-# location, an ASCII string, starts at offset 5.
+# Network, 7 Entire Network; the others are either highlighted as unconfirmed or marked
+# unknown there, and are not read), and the location, an ASCII string, starts at offset 5.
 _NETWORK_KINDS = (0x1, 0x2, 0x3, 0x6, 0x7)
 
 
