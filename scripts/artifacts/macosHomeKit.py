@@ -16,16 +16,17 @@ __artifacts_v2__ = {
         "category": "HomeKit (macOS)",
         "notes": "Reads datastore.sqlite in a Library/HomeKit folder and reports one row per row of its record table. "
                  "Record Modified (UTC) and Record Created (UTC) are the RecordMtime and RecordCtime dates inside the "
-                 "row's record blob, an NSKeyedArchiver property list the backing store keeps for the CloudKit record;"
-                 " both decoded on every row of dleapp_macos_bigsur. Type is the record.type column, the model type "
-                 "name (for example HMDHomeModel, HMDRoomModel, HMDUserModel, HMDDeviceModel, HMDActionSetModel). UUID"
-                 " and Parent UUID are the record.uuid and record.parent_uuid columns, which build the entity tree; a "
-                 "top-level record has no parent. Name and Details come from the row's data blob, an NSKeyedArchiver "
+                 "row's record blob, an NSKeyedArchiver property list, the record blob kept beside each row; both "
+                 "decoded on every row of dleapp_macos_bigsur. Type is the record.type column, the model type name "
+                 "(for example HMDHomeModel, HMDRoomModel, HMDUserModel, HMDDeviceModel, HMDActionSetModel). UUID and "
+                 "Parent UUID are the record.uuid and record.parent_uuid columns, which build the entity tree; a top-"
+                 "level record has no parent. Name and Details come from the row's data blob, an NSKeyedArchiver "
                  "property list whose root is a dictionary of the model's fields: Name is that dictionary's name field"
                  " when it is text (blank when the model has none, such as the setting-constraint records), and "
-                 "Details is the dictionary's fields as JSON, name included, with the internal _t, _u, _P and _V keys "
-                 "dropped (they repeat the Type, UUID and Parent UUID columns), nested property lists shown as a "
-                 "marker rather than decoded, and any remaining bytes shown as a length. Details is where the "
+                 "Details is the dictionary's fields as JSON, name included, with the internal _t, _u and _P keys "
+                 "dropped (they repeat the Type, UUID and Parent UUID columns on every row of dleapp_macos_bigsur) and"
+                 " _V dropped too (a short text value whose meaning is not established), nested property lists shown "
+                 "as a marker rather than decoded, and any remaining bytes shown as a length. Details is where the "
                  "examiner-relevant values sit: the home owner's user ID (ownerUserID, an email-shaped value on "
                  "dleapp_macos_bigsur), a device or accessory name, an accessory manufacturer, model, serial number "
                  "and firmware version, a user's privilege, and an action set's type. The data blob is read only when "
@@ -41,39 +42,41 @@ __artifacts_v2__ = {
                  "ZACCOUNTHANDLE (the prefixedURI inside the HMD.URI of that keyed archive) for a user; ZMANUFACTURER,"
                  " ZMODEL, ZSERIALNUMBER and ZFIRMWAREVERSION for an accessory; ZTYPE for an action set. The other "
                  "columns of those tables, among them keys, pairing identities, passwords and access codes, are not "
-                 "read. Record Modified (UTC) and Record Created (UTC) have no value on these rows, as core.sqlite "
-                 "holds no record blob. core-cloudkit.sqlite, core-cloudkit-shared.sqlite, core-local.sqlite and the "
-                 "eventstore files are not read; on iOS the CloudKit store held a second home whose text fields were "
-                 "mostly strings mixing letters and punctuation, and what that record is has not been established. The"
-                 " companion datastore3.sqlite (record_v2 table) stores its models in a different encoding that is not"
-                 " an NSKeyedArchiver archive and is not read here; on dleapp_macos_bigsur it held 108 record_v2 rows "
-                 "(setting, setting-constraint, user-data, access-control and cloud-state model types) that this "
-                 "artifact does not report, and on the images where datastore.sqlite is empty it held only "
-                 "HMBCloudDatabaseStateModel and HMBCloudZoneStateModel records (5 rows and 15 rows), no home "
-                 "entities. Validated on dleapp_macos_bigsur (macOS 11), where the record table has 232 rows from one "
-                 "home: 1 HMDHomeModel, 1 HMDRoomModel, 1 HMDUserModel, 2 HMDDeviceModel, 1 "
-                 "HMDAppleMediaAccessoryModel, 4 HMDActionSetModel, and settings, constraints, device capabilities, "
-                 "application data, account and cloud bookkeeping records making up the rest, 25 distinct type values "
-                 "in all. Name was filled on 52 rows and blank on the 155 setting-constraint rows and other nameless "
-                 "models; Record Modified and Record Created carried a value on all 232 rows; all 232 rows come from "
-                 "one user, so User holds one value there. magnet2021_macos_bigsur and mvs2026_macbookpro_macos15 hold"
-                 " a datastore.sqlite whose record table is empty, and evidencelocker_macos14 has no HomeKit "
-                 "datastore, so all three report no rows; dleapp_macos_bigsur and magnet2021_macos_bigsur have no "
-                 "core.sqlite, and on mvs2026_macbookpro_macos15 core.sqlite held no home, user, room, accessory or "
-                 "action set. On adams_macbookpro_macos26 (macOS 26.2) datastore.sqlite held no records and "
-                 "core.sqlite held 7 such rows: 1 MKFHome, 1 MKFUser, 1 MKFRoom and 4 MKFActionSet, the only rows from"
-                 " core.sqlite on the tested images; why that image kept them only there is not established. No tested"
-                 " image held an accessory in core.sqlite, so that row shape is checked only by a synthetic test. When"
-                 " a logical extraction holds the same database at its own path and again under System/Volumes/Data or"
-                 " System/Volumes/Update/mnt1 with identical bytes it is read once, and when the copies differ a row "
-                 "both hold is reported once with both files in Source File.",
+                 "reported. Record Modified (UTC) and Record Created (UTC) have no value on these rows, as core.sqlite"
+                 " holds no record blob. The date columns those tables carry (ZCREATIONDATE, ZWRITERTIMESTAMP, "
+                 "ZLASTEXECUTIONDATE) are not read. core-cloudkit.sqlite, core-cloudkit-shared.sqlite, core-"
+                 "local.sqlite and the eventstore files are not read; on three iOS images the ZMKFCKHOME table of "
+                 "core-cloudkit.sqlite held two rows, one of them with text fields that were mostly strings mixing "
+                 "letters and punctuation; what that row is has not been established. The companion datastore3.sqlite "
+                 "(record_v2 table) stores its models in a different encoding that is not an NSKeyedArchiver archive "
+                 "and is not read here; on dleapp_macos_bigsur it held 108 record_v2 rows (setting, setting-"
+                 "constraint, user-data, access-control and cloud-state model types) that this artifact does not "
+                 "report, and on the images where datastore.sqlite is empty it held only HMBCloudDatabaseStateModel "
+                 "and HMBCloudZoneStateModel records (5 rows and 15 rows), no home entities. Validated on "
+                 "dleapp_macos_bigsur (macOS 11), where the record table has 232 rows from one home: 1 HMDHomeModel, 1"
+                 " HMDRoomModel, 1 HMDUserModel, 2 HMDDeviceModel, 1 HMDAppleMediaAccessoryModel, 4 HMDActionSetModel,"
+                 " and settings, constraints, device capabilities, application data, account and cloud bookkeeping "
+                 "records making up the rest, 25 distinct type values in all. Name was filled on 52 rows and blank on "
+                 "the 155 setting-constraint rows and other nameless models; Record Modified and Record Created "
+                 "carried a value on all 232 rows; all 232 rows come from one user, so User holds one value there. "
+                 "magnet2021_macos_bigsur and mvs2026_macbookpro_macos15 hold a datastore.sqlite whose record table is"
+                 " empty, and the run found no HomeKit datastore or core.sqlite on evidencelocker_macos14, so all "
+                 "three report no rows; the run found no core.sqlite on dleapp_macos_bigsur or "
+                 "magnet2021_macos_bigsur, and on mvs2026_macbookpro_macos15 core.sqlite held no home, user, room, "
+                 "accessory or action set. On adams_macbookpro_macos26 (macOS 26.2) datastore.sqlite held no records "
+                 "and core.sqlite held 7 such rows: 1 MKFHome, 1 MKFUser, 1 MKFRoom and 4 MKFActionSet, the only rows "
+                 "from core.sqlite on the tested images; why that image kept them only there is not established. No "
+                 "tested image held an accessory in core.sqlite, so that row shape is checked only by a synthetic "
+                 "test. When a logical extraction holds the same database at its own path and again under "
+                 "System/Volumes/Data or System/Volumes/Update/mnt1 with identical bytes it is read once, and when the"
+                 " copies differ a row both hold is reported once with both files in Source File.",
         "paths": ("*/Library/HomeKit/datastore.sqlite*", "*/Library/HomeKit/core.sqlite*"),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "home",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 232 rows",
             "magnet2021_macos_bigsur": "macOS 11.2.1 (Magnet 2021 CTF) | 0 rows (record table empty)",
-            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no HomeKit datastore)",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no HomeKit datastore found)",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (record table empty; no home in core.sqlite)",
             "adams_macbookpro_macos26": "macOS 26.2 | 7 rows (core.sqlite; datastore.sqlite record table empty)",
         },
@@ -159,7 +162,7 @@ def _rows(path):
 
 
 # Core Data tables of core.sqlite read for rows no datastore.sqlite record carries, with the columns
-# put into Details. Keys, passwords and access codes in the same tables are never read.
+# put into Details. Keys, passwords and access codes in the same tables are never reported.
 _CORE_TABLES = (
     ('ZMKFHOME', ('ZNAME',), ()),
     ('ZMKFUSER', (), ('ZUSERID', 'ZPRIVILEGE', 'ZREMOTEACCESSALLOWED')),
