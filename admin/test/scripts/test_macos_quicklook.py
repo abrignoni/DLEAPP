@@ -126,7 +126,7 @@ class ArtifactTest(unittest.TestCase):
 
     def test_thumbnails_joined_to_their_files_and_rendered(self):
         # A 2 x 2 bitmap, stored B, G, R, A with the colour premultiplied by alpha, then 8 bytes
-        # of padding, and a second bitmap whose layout is not read.
+        # of padding, and a second bitmap whose layout (alpha only, 0x2007) is not read.
         bitmap = bytes((0, 0, 255, 255, 255, 0, 0, 255, 0, 128, 0, 255, 32, 32, 64, 128))
         data = bytes(8) + bitmap + bytes(8) + bytes(16)
         row = (THUMBS.split(' (')[0].replace('CREATE TABLE', 'INSERT INTO') +
@@ -138,7 +138,7 @@ class ArtifactTest(unittest.TestCase):
                   (FILE_B, FSID, b'not a plist'),
                   (FILE_C, FSID, version(FILE_C, 'com.apple.qlgenerator.pdf', 607052949.0, 846528))),
                  (row, (decorated(FILE_A), 64.0, 3, 635455701.06487, 2, 2, 8, 32, 8, 0x2002, 8, 16),
-                  (decorated(FILE_B), 16.0, 1, 635455527.366853, 2, 2, 8, 32, 8, 0x2001, 32, 16),
+                  (decorated(FILE_B), 16.0, 1, 635455527.366853, 2, 2, 8, 32, 8, 0x2007, 32, 16),
                   # A thumbnail whose file has no basic_files row, and one past the end of the data.
                   (decorated(99), 16.0, 1, 635455600.0, 2, 2, 8, 32, 8, 0x2002, 40, 16))]
         for root in ('', 'System/Volumes/Data/'):
@@ -171,7 +171,7 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(sorted(self.logged), sorted(
             f'QuickLook Thumbnails: 1 thumbnail(s) in {r}{CACHE}index.sqlite not rendered: {reason}'
             for r in ('', 'System/Volumes/Data/')
-            for reason in ('a bitmap layout other than 8-bit BGRA with premultiplied alpha',
+            for reason in ('a bitmap layout not decoded here (bitmap info 0x2007)',
                            'a bitmap that does not fit its stated size or thumbnails.data')))
 
     def test_older_layout_and_empty_caches(self):
