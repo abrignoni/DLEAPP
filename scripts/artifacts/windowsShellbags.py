@@ -52,7 +52,7 @@ __artifacts_v2__ = {
                        "folder's registry last-write time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-30",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from UsrClass.dat and NTUSER.DAT, named in Source File. Each "
@@ -63,8 +63,14 @@ __artifacts_v2__ = {
                  "shows its long name from the shell item's 0xBEEF0004 block or its "
                  "short (8.3) name when no long name is stored, and a root shows a "
                  "known shell-folder name where the GUID is documented or the raw "
-                 "{GUID} otherwise; an item type the parser does not decode to a "
-                 "name is shown as <shell item 0xNN>. A short (8.3) name such as "
+                 "{GUID} otherwise; a network location item (libfwsi class 0x40 under a mask of 0x70, the "
+                 "domain or workgroup, server, share, Microsoft Windows Network and Entire Network kinds, "
+                 "https://github.com/libyal/libfwsi/blob/3887868add54619ec322ac100ab1f06979e042b8/documentation/Windows%20Shell%20Item%20format.asciidoc#L476-L533) "
+                 "shows its location, a server without its leading backslashes and a share by the last part of its "
+                 "UNC path, or (network location) when the stored string is empty or not printable; an item type the parser does not decode to a "
+                 "name is shown as <shell item 0xNN>. On five corpus images 102 rows showed a network item that "
+                 "way before these kinds were read; 101 now show names, and the one left, on "
+                 "cfreds_hacking_case_winxp, is a 0x4e item, which libfwsi describes separately and which is not read. A short (8.3) name such as "
                  "ANDROI~1 is shown as stored. Registry Last Write (UTC) is the BagMRU node key's own "
                  "last-write time, which Windows updates when that folder's child "
                  "list changes, so it approximates when the folder was last browsed "
@@ -155,6 +161,28 @@ def _printable(text):
     return text if text and all(ch == "\t" or ord(ch) >= 0x20 for ch in text) else ""
 
 
+# Network location shell items, per libyal libfwsi "Windows Shell Item format" at
+# 3887868add54619ec322ac100ab1f06979e042b8, lines 476-533: the class type is 0x40 after a mask of 0x70, its
+# low bits give the kind (1 domain or workgroup, 2 server, 3 share, 6 Microsoft Windows
+# Network, 7 Entire Network; the others are either highlighted as unconfirmed or marked
+# unknown there, and are not read), and the location, an ASCII string, starts at offset 5.
+_NETWORK_KINDS = (0x1, 0x2, 0x3, 0x6, 0x7)
+
+
+def _network_item_name(data):
+    """The display name of a network location shell item, or None when the item is not one
+    of the documented kinds. A server shows its name without the leading backslashes and a
+    share the last part of its UNC path, so a chain reads network, workgroup, server, share."""
+    if len(data) < 6 or data[2] & 0x70 != 0x40 or data[2] & 0x0F not in _NETWORK_KINDS:
+        return None
+    location = _printable(data[5:].split(b"\x00")[0].decode("ascii", "replace"))
+    if data[2] & 0x0F == 0x2:
+        return location.lstrip("\\")
+    if data[2] & 0x0F == 0x3:
+        return location.rstrip("\\").rsplit("\\", 1)[-1]
+    return location
+
+
 def _shell_item(data):
     """Return (display_name, item_modified) for one shell item."""
     if len(data) < 3:
@@ -174,6 +202,9 @@ def _shell_item(data):
         if not name:
             name = _printable(data[14:].split(b"\x00")[0].decode("ascii", "replace"))
         return (name or "(file entry)"), modified
+    network = _network_item_name(data)
+    if network is not None:
+        return (network or "(network location)"), ""
     # Any other type (delegate/property folders, etc.): use a long name if the
     # item carries a 0xBEEF0004 block, otherwise a neutral label. Nothing guessed.
     return (_beef_longname(data) or "<shell item 0x%02x>" % item_type), ""

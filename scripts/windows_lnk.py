@@ -90,6 +90,28 @@ def _printable(text):
     return text if text and all(ch == "\t" or ord(ch) >= 0x20 for ch in text) else ""
 
 
+# Network location shell items, per libyal libfwsi "Windows Shell Item format" at
+# 3887868add54619ec322ac100ab1f06979e042b8, lines 476-533: the class type is 0x40 after a mask of 0x70, its
+# low bits give the kind (1 domain or workgroup, 2 server, 3 share, 6 Microsoft Windows
+# Network, 7 Entire Network; the others are either highlighted as unconfirmed or marked
+# unknown there, and are not read), and the location, an ASCII string, starts at offset 5.
+_NETWORK_KINDS = (0x1, 0x2, 0x3, 0x6, 0x7)
+
+
+def _network_item_name(data):
+    """The display name of a network location shell item, or None when the item is not one
+    of the documented kinds. A server shows its name without the leading backslashes and a
+    share the last part of its UNC path, so a chain reads network, workgroup, server, share."""
+    if len(data) < 6 or data[2] & 0x70 != 0x40 or data[2] & 0x0F not in _NETWORK_KINDS:
+        return None
+    location = _printable(data[5:].split(b"\x00")[0].decode("ascii", "replace"))
+    if data[2] & 0x0F == 0x2:
+        return location.lstrip("\\")
+    if data[2] & 0x0F == 0x3:
+        return location.rstrip("\\").rsplit("\\", 1)[-1]
+    return location
+
+
 def _shell_item_name(data):
     """Display name for one Windows Shell Item (libfwsi), or "" when the parser
     decodes no name. Shared shape with windowsShellbags.py's _shell_item."""
@@ -107,6 +129,9 @@ def _shell_item_name(data):
         if not name:
             name = _printable(data[14:].split(b"\x00")[0].decode("ascii", "replace"))
         return name or ""
+    network = _network_item_name(data)
+    if network is not None:
+        return network
     return _beef_longname(data) or ""
 
 
