@@ -101,7 +101,7 @@ __artifacts_v2__ = {
                        "initiating a shutdown or restart.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
-        "last_update_date": "2026-10-29",
+        "last_update_date": "2026-10-30",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is one "
@@ -168,7 +168,7 @@ __artifacts_v2__ = {
                  "of the four registered disk images every boot record in the System log names one build (17763 on "
                  "af_case2_win10, 16299 on lonewolf_win10, 22621 on pc_mus_001_win11, 19041 on szechuan_win10) and none of "
                  "these events comes before the first boot record, so every one of these fields was "
-                 "named; on windows11_arm_4688_known every boot record names 26100. Sleep Reason was System Idle "
+                 "named; on windows11_arm_4688_known every boot record names 26100, while the capture's own README records Environment.OSVersion 10.0.26200.0, the build its sample_data entry gives. Sleep Reason was System Idle "
                  "(7) on both af_case2_win10 rows; System Idle (7) on "
                  "18, Hibernate from Sleep - Fixed Timeout (6) on eight, Button or Lid (0) on six and "
                  "Application API (4) on one lonewolf_win10 row; and System Idle (7) on 29, Hibernate "

@@ -74,5 +74,13 @@ class FolderContentsTest(unittest.TestCase):
         self.assertEqual(rb._utc_from_filetime(DELETED + 7).microsecond, 890625)  # pylint: disable=protected-access
 
 
+class PathCaseTest(unittest.TestCase):
+    def test_the_folder_name_matches_in_any_case(self):
+        import fnmatch  # pylint: disable=import-outside-toplevel
+        patterns = rb.__artifacts_v2__['recycleBin']['paths'][:1]
+        for folder in ('$Recycle.Bin', '$RECYCLE.BIN', '$recycle.bin'):
+            self.assertTrue(any(fnmatch.fnmatchcase(f'root/E/{folder}/S-1-5-21-1/$IAB12CD', p) for p in patterns), folder)
+
+
 if __name__ == '__main__':
     unittest.main()
