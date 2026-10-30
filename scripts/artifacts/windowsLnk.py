@@ -78,7 +78,7 @@ __artifacts_v2__ = {
                  "(https://github.com/libyal/liblnk/blob/f80bdb225cb847916f6d163da9127919969c299d/documentation/Windows%20Shortcut%20File%20(LNK)%20format.asciidoc#L656-L674)."
                  " They are blank when the link carries no TrackerDataBlock; 58 of the "
                  "91 rows of the four Windows 10 and 11 images, and 4 of the 8 on cfreds_hacking_case_winxp, carry one. Checked with The Sleuth Kit 4.15.0 on the "
-                 "four public images: on each of the 49 rows whose Drive Serial is that "
+                 "four Windows 10 and 11 images: on each of the 49 rows whose Drive Serial is that "
                  "of an NTFS volume in the image, Droid Volume ID and Birth Droid Volume"
                  " ID equal that volume's $Volume object ID, and on each of the 44 of "
                  "those whose Target Path The Sleuth Kit found by name in that volume, "

@@ -8,7 +8,7 @@ liblnk's documentation, and reuses the Windows Shell Item decoding shared with
 the ShellBags parser for the LinkTargetIDList.
 
 `parse_lnk(data)` returns a dict of the fields an examiner acts on: the target's
-recorded created/modified/accessed times, the local path (or network path, or a
+recorded created/modified/accessed times, the local path (or the share and the path below it, or a
 shell path rebuilt from the target id list), target size, the volume the target
 lived on (drive type, serial, label), command-line arguments, the icon location string and
 icon environment path, and the tracker block's machine
