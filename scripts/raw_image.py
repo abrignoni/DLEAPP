@@ -47,12 +47,17 @@ and a label rides along as a suffix. Artifact patterns begin with ``*`` and
 ``*`` crosses ``/`` in fnmatch, so the prefix costs them nothing, and it is what
 the report's source path shows for each file.
 
-A pattern matches a member of an NTFS, ReFS, exFAT or FAT volume whatever the
-case of its letters, because those filesystems look names up that way: Windows XP
-stores ``WINDOWS/system32`` where the artifact patterns say ``Windows/System32``,
-and on Windows, where ``os.path.normcase`` lowers both sides, it already matched.
-Every other volume, APFS, HFS+, ext4, XFS, Btrfs, F2FS, QNX and the rest, is
-matched exactly as before, so two names there that differ only in case stay two.
+A pattern matches a member of an NTFS, ReFS, exFAT or FAT volume read from a disk
+image whatever the case of its letters, because those filesystems look names up that
+way by default. An NTFS directory marked case sensitive can hold two names that differ
+only in case, and a pattern then matches both. The Windows XP image in the corpus
+(cfreds_hacking_case_winxp) stores ``WINDOWS/system32`` where the artifact patterns
+say ``Windows/System32``; on Windows, where ``os.path.normcase`` lowers both sides,
+it already matched. Logical evidence (AD1, L01) is matched exactly. Every other
+volume, APFS, HFS+, ext4, XFS, Btrfs, F2FS, QNX and the rest, is matched exactly as
+before, so a pattern must match a name there in its stored case. An APFS or HFS+
+volume can be case insensitive too (qnxprobe reports it); the seeker does not fold
+those.
 
 An NTFS alternate data stream is a member too, named ``<file>:<stream>`` as
 Windows names it (``.../Downloads/setup.exe:Zone.Identifier``,
@@ -1372,7 +1377,7 @@ def _spanned_groups(raid, image_name):
     return out
 
 
-# The filesystems that look a name up whatever the case of its letters, by qnxprobe's kind.
+# The filesystems that look a name up whatever the case of its letters by default, by qnxprobe's kind.
 _CASE_FOLDING_KINDS = frozenset({'ntfs', 'refs', 'exfat', 'fat12', 'fat16', 'fat32'})
 
 

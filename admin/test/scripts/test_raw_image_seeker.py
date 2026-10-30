@@ -487,7 +487,7 @@ class RawImageSeekerTest(unittest.TestCase):
                 self.assertTrue(os.path.isfile(path))
 
     def test_a_pattern_matches_an_ntfs_fat_or_exfat_name_whatever_its_case(self):
-        """Those filesystems look names up whatever their case, so the pattern does too."""
+        """Those filesystems look names up whatever their case by default, so the pattern does too."""
         for image, pattern, member in ((self.ntfs, '*/ADS.TXT', 'lba0/ads.txt'),
                                        (self.fat32, '*/A.Bin', 'lba0/a.bin'),
                                        (self.exfat, '*/c.BIN', 'lba0/c.bin')):
@@ -500,7 +500,8 @@ class RawImageSeekerTest(unittest.TestCase):
 
     @unittest.skipIf(os.path.normcase('A') == 'a', 'normcase folds every name on this platform')
     def test_a_pattern_matches_an_apfs_name_only_in_its_own_case(self):
-        """APFS here is case-sensitive, so a name that differs in case is another name."""
+        """The seeker matches an APFS name exactly whatever the volume's own rule, so a pattern in
+        another case finds nothing."""
         seeker = self._seeker(self.apfs)
         self.assertEqual(seeker.search('*/qnxprobe/small.txt'), [])
         found = seeker.search('*/QNXPROBE/small.txt')

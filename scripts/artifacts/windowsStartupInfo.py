@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                        "named for.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
         "notes": "Read from the XML files in Windows\\System32\\WDI\\LogFiles\\StartupInfo named <user "
@@ -58,7 +58,8 @@ __artifacts_v2__ = {
                  "parts of the file name. The files record no time zone. StartTime and ParentStartTime are "
                  "written as year/month/day:hour:minute:second with seven decimal places, and are reported "
                  "as UTC, truncated to microseconds, because they line up with UTC event records on the "
-                 "tested images, which are set to Pacific and Eastern time: on every file that lists "
+                 "four images first tested (af_case2_win10, lonewolf_win10, pc_mus_001_win11, "
+                 "szechuan_win10), which are set to Pacific and Eastern time: on every file that lists "
                  "processes, StartTime minus StartedInTraceSec fell 0.1 to 1.6 seconds after the StartTime "
                  "of the latest Kernel-General 12 (boot) record before it in the System log, and Interval "
                  "Start (UTC), which is StartTime minus StartedInTraceSec plus IntervalStartMs for each "
@@ -75,12 +76,14 @@ __artifacts_v2__ = {
                  "seconds into the trace, long after its interval ended, so a row is not always a process "
                  "started within 90 seconds of a logon. On af_case2_win10 (build 17763) and lonewolf_win10 "
                  "(build 16299) Program held a cut-off string, C:\\Devic or C:\\Devi, on every row, and the "
-                 "program path is at the start of Command Line on each of those rows; on pc_mus_001_win11 "
-                 "and szechuan_win10 it held a full path on every row. Parent Start Time (UTC) was at or "
+                 "program path is at the start of Command Line on each of those rows; on "
+                 "alihadi_challenge3_win81 (build 9600), pc_mus_001_win11 and szechuan_win10 it held a full "
+                 "path on every row. Parent Start Time (UTC) was at or "
                  "before Start Time (UTC) on every row. User SID held one value on every row of "
                  "af_case2_win10, lonewolf_win10 and pc_mus_001_win11, and Parent Program held "
                  "explorer.exe on every row of af_case2_win10. A file with no Process element adds no "
-                 "rows; lonewolf_win10 and szechuan_win10 each carry one. Not reported: the "
+                 "rows; lonewolf_win10 and szechuan_win10 each carry one and alihadi_challenge3_win81 "
+                 "carries two. Not reported: the "
                  "ReadAheadAnalysisTime and RurLegacyResourceAttribution elements each file carries. A "
                  "file that does not parse as XML, or whose root is not StartupData, is named in the run "
                  "log and skipped; every file on the tested images parsed.",
