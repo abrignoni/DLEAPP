@@ -1,6 +1,6 @@
 """Pin the InventoryApplicationFile, InventoryApplication, InventoryApplicationShortcut, InventoryDriverBinary,
-InventoryDevicePnp, InventoryDeviceContainer and InventoryDriverPackage readers in
-scripts/artifacts/windowsAmcache.py.
+InventoryDevicePnp, InventoryDeviceContainer and InventoryDriverPackage readers, and the Windows 8 format
+Root\\File and Root\\Programs readers, in scripts/artifacts/windowsAmcache.py.
 
 The hive is stood in for by small objects that answer the python-registry calls the readers make; the expected rows
 are written out.
@@ -624,6 +624,55 @@ class HiveAndDatabaseTest(unittest.TestCase):
         self.assertEqual([(r[0], r[1], r[2]) for r in rows], [(None, LATER_UTC, 'c:\\a.exe')])
         self.assertEqual(source, database_path)
         self.assertEqual(len(logged), 1)
+
+
+UTC = datetime.timezone.utc
+
+
+class OldFormatTest(unittest.TestCase):
+    """Root\\File\\<volume>\\<file> and Root\\Programs\\<program>, values named by hexadecimal numbers."""
+
+    def hive(self, programs=True):
+        file_entry = _Key({'15': 'c:\\tools\\a.exe', '101': '0000' + 'ab' * 20, '6': 4096, '0': 'Product',
+                           '1': 'Company', '5': '1.2.3', 'c': 'Description', '100': 'prog1',
+                           '11': 130000000000000000, '12': 130000000010000000, '17': 130000000020000000,
+                           'f': 1400000000, 'd': 7}, name='1a2b00000c3d')
+        bare = _Key({'15': 'c:\\b.exe', '17': 0}, name='5')
+        volume = _Key(subkeys=[file_entry, bare], name='{volume-guid}')
+        program = _Key({'0': 'Program Name', '1': '9.0', '2': 'Vendor', '3': '1033', '6': 'Msi',
+                        '7': ['HKLM\\Uninstall\\x', ''], 'a': 1600000000, 'b': 0, 'd': ['c:\\one', 'c:\\two'],
+                        'f': 'pc', '10': 'pk', '11': ['{m1}'], '12': ['{m2}'], '13': 1,
+                        'Files': ['{volume-guid}\\1a2b00000c3d', '{volume-guid}\\5', '', '']}, name='prog1')
+        keys = {'Root\\File': _Key(subkeys=[volume])}
+        if programs:
+            keys['Root\\Programs'] = _Key(subkeys=[program])
+        return _Hive(keys)
+
+    def test_file_rows(self):
+        rows = amcache.old_file_rows(self.hive())
+        epoch = datetime.datetime(1601, 1, 1, tzinfo=UTC)
+        self.assertEqual(rows[0], (
+            WRITTEN_UTC, epoch + datetime.timedelta(microseconds=13000000000000000),
+            epoch + datetime.timedelta(microseconds=13000000001000000),
+            epoch + datetime.timedelta(microseconds=13000000002000000),
+            datetime.datetime(2014, 5, 13, 16, 53, 20, tzinfo=UTC), 'c:\\tools\\a.exe', 'ab' * 20, 4096,
+            'Product', 'Company', '1.2.3', 'Description', 'prog1', 'Program Name', '{volume-guid}', '1a2b00000c3d'))
+        # A 0 FILETIME is blank; values the subkey does not hold are blank; no program means no name.
+        self.assertEqual(rows[1], (WRITTEN_UTC, None, None, None, None, 'c:\\b.exe', '', '', '', '', '', '', '',
+                                   '', '{volume-guid}', '5'))
+
+    def test_a_program_id_without_a_programs_key_gives_no_name(self):
+        self.assertEqual(amcache.old_file_rows(self.hive(programs=False))[0][13], '')
+
+    def test_program_rows(self):
+        self.assertEqual(amcache.old_program_rows(self.hive()), [(
+            WRITTEN_UTC, datetime.datetime(2020, 9, 13, 12, 26, 40, tzinfo=UTC), None, 'Program Name', '9.0',
+            'Vendor', '1033', 'Msi', 'HKLM\\Uninstall\\x', 'c:\\one\nc:\\two', 'pc', 'pk', '{m1}', '{m2}', 2,
+            '{volume-guid}\\1a2b00000c3d\n{volume-guid}\\5', 'prog1')])
+
+    def test_a_hive_without_the_keys_gives_none(self):
+        self.assertIsNone(amcache.old_file_rows(_Hive({})))
+        self.assertIsNone(amcache.old_program_rows(_Hive({})))
 
 
 if __name__ == '__main__':
