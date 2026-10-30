@@ -88,6 +88,21 @@ class MobileBluetoothTest(unittest.TestCase):
         self.assertTrue(removed[-1].startswith('com.apple.MobileBluetooth.ledevices.other.db-wal, committed'))
         self.assertEqual(source, db)
 
+    def test_a_device_in_the_database_file_removed_by_a_log_commit_names_the_file(self):
+        db = os.path.join(self.root, 'Library', 'Bluetooth',
+                          'com.apple.MobileBluetooth.ledevices.other.db')
+        write_live(db, 'OtherDevices', [
+            [row('OtherDevices', 'u-4', 'Watch', 40)],
+            ['PRAGMA wal_checkpoint(TRUNCATE)'],
+            [row('OtherDevices', 'u-5', 'Lamp', 50)],
+            ["DELETE FROM OtherDevices WHERE Uuid = 'u-4'"],
+        ])
+        _, rows, _ = artifact.macosBluetoothOtherLE.__wrapped__(Context(self.root, self._files()))
+        removed = [r for r in rows if r[-2] == 'Not in current state']
+        self.assertEqual([r[2] for r in removed], ['u-4'])
+        self.assertEqual(removed[0][-1], 'com.apple.MobileBluetooth.ledevices.other.db without its -wal, through '
+                                         'com.apple.MobileBluetooth.ledevices.other.db-wal committed state 1')
+
     def test_paired_rows_carry_the_icloud_identifier(self):
         db = os.path.join(self.root, 'Library', 'Bluetooth',
                           'com.apple.MobileBluetooth.ledevices.paired.db')

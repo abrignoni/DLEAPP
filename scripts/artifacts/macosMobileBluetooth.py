@@ -16,15 +16,19 @@ __artifacts_v2__ = {
                  "settings and no DeviceCache; Bluetooth Devices matches no file there, and this table "
                  "is where paired devices were found. Last Seen Time and Last Connection "
                  "Time are the LastSeenTime and LastConnectionTime integers as stored; on that image "
-                 "they run from tens to tens of thousands, far below any Unix or Mac absolute time, "
+                 "Last Connection Time runs from tens to about a thousand and Last Seen Time from about "
+                 "ten thousand to about a hundred thousand, far below any Unix or Mac absolute time, "
                  "and their unit and starting point are not established. Name Origin is the "
                  "NameOrigin integer as stored; its meaning is not established. iCloud Identifier is "
                  "the iCloudIdentifier value as stored. GATTServiceChangeConfig and Tags held one "
                  "value on every row of that image and are not reported. Record State is Current "
                  "for a row of the database as SQLite reads it with its -wal, and Not in current "
-                 "state for a device (by Uuid) that an earlier state in the write-ahead log holds and "
-                 "the current state does not; such a row shows the newest earlier state holding it, "
-                 "and Read From names the log states it was read in. No row of adams_macbookpro_macos26 "
+                 "state for a device (by Uuid) that an earlier state holds and the current state does "
+                 "not: the database file without the log, a committed state of the log, or a "
+                 "left-over commit of the previous log generation. Such a row shows the newest "
+                 "earlier state holding it, and Read From names the first and last states holding "
+                 "it: the database file without its -wal, the log's committed states counted from "
+                 "its first commit, or a left-over commit of the previous log generation. No row of adams_macbookpro_macos26 "
                  "was read from the log for this table. Earlier versions of a current row are "
                  "counted in the run log and not listed. Reading the log does not establish when or "
                  "why a row left the current state.",
@@ -61,7 +65,7 @@ __artifacts_v2__ = {
                  "GATTServiceChangeConfig held one value on every row read and is not reported. "
                  "Record State and Read From are as in "
                  "Bluetooth Paired LE Devices: Current for a row SQLite reads with the -wal, Not in "
-                 "current state for a device (by Uuid) only an earlier log state holds, shown as the "
+                 "current state for a device (by Uuid) only an earlier state holds, shown as the "
                  "newest earlier state holding it. On that image the log held 147 committed "
                  "transactions and 4 devices no longer in the current state. Earlier versions of a "
                  "current row are counted in the run log and not listed. Reading the log does not "
@@ -90,18 +94,21 @@ STATE_NOT_IN_CURRENT = 'Not in current state'
 
 
 def _read_from(name, item):
-    """Where in the write-ahead log a row was read, in words."""
+    """Where a row was read, in words: the database file without its log, or states of the write-ahead log."""
     parts = []
     if item.first_state is not None:
         first, last = item.first_state, item.last_state
-        states = f'state {first}' if first == last else f'states {first} to {last}'
-        parts.append(f'{name}-wal, committed {states}')
+        if first == 0:
+            # State 0 is the database file before any log frame (sqlite_wal.WalStates.states).
+            text = f'{name} without its -wal'
+            parts.append(text if last == 0 else f'{text}, through {name}-wal committed state {last}')
+        else:
+            states = f'state {first}' if first == last else f'states {first} to {last}'
+            parts.append(f'{name}-wal, committed {states}')
     if item.earlier_generation:
         first, last = item.earlier_generation
         commits = f'commit {first}' if first == last else f'commits {first} to {last}'
         parts.append(f'{name}-wal, previous log generation, left-over {commits}')
-    if not parts:
-        parts.append(f'{name}-wal, frames after the last commit')
     return '; '.join(parts)
 
 
