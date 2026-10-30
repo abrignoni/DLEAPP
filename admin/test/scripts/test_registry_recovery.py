@@ -71,6 +71,34 @@ def key_hive(primary, secondary, stamp, name=b'Run'):
     return base_block(primary, secondary, 0, 8192) + key_page(0, stamp, name) + key_page(4096, 1)
 
 
+
+def stamped(block, stamp):
+    """block with its last-written timestamp set and its checksum made right again."""
+    block = bytearray(block)
+    struct.pack_into('<Q', block, 12, stamp)
+    struct.pack_into('<I', block, 508, rr.xor32(block))
+    return bytes(block)
+
+
+def old_log(sequence, dirty, hive_bins_size=8192, stamp=0, file_type=1, drop=0):
+    """An old-format log: a 512-byte base block, a DIRT vector, then the 512-byte pages it marks.
+
+    dirty maps a 512-byte page index within the hive bins data to the page's bytes.
+    """
+    bitmap = bytearray(hive_bins_size // 512 // 8)
+    for index in dirty:
+        bitmap[index // 8] |= 1 << (index % 8)
+    vector = b'DIRT' + bytes(bitmap)
+    vector += b'\x00' * (-len(vector) % 512)
+    pages = b''.join(dirty[index] for index in sorted(dirty))
+    data = stamped(base_block(sequence, sequence, file_type, hive_bins_size, size=512), stamp) + vector + pages
+    return data[:len(data) - drop]
+
+
+def sector(fill):
+    return bytes([fill]) * 512
+
+
 class Marvin32Test(unittest.TestCase):
     def test_symcrypt_known_answer(self):
         # SymCrypt's self-test: its default seed, the message 'abc', and the eight result bytes.
@@ -164,11 +192,7 @@ class RecoverTest(unittest.TestCase):
         self.assertEqual(summary['reasons'], {'H.LOG2': 'does not continue the sequence of the log applied before it'})
         self.assertEqual(data[4096:8192], page(1))
 
-    def test_old_format_logs_and_a_hive_with_a_bad_checksum_are_not_replayed(self):
-        primary = hive(50, 49)
-        _data, summary = rr.recover(primary, [('H.LOG1', log(50, [], file_type=1))])
-        self.assertEqual(summary['state'], 'dirty, not recovered')
-        self.assertEqual(summary['reasons'], {'H.LOG1': 'file type 1, not the format this replay reads'})
+    def test_a_hive_with_a_bad_checksum_is_not_replayed(self):
         broken = bytearray(hive(50, 50))
         broken[508] ^= 0xFF
         data, summary = rr.recover(bytes(broken), [('H.LOG1', log(50, [entry(50, [(0, page(1))])]))])
@@ -204,6 +228,75 @@ class RecoverTest(unittest.TestCase):
         self.assertEqual((data, summary['state']), (b'not a hive', 'not a hive'))
         as_log = log(3, [])
         self.assertEqual(rr.recover(as_log, [])[1]['state'], 'not a hive')
+
+
+class OldFormatTest(unittest.TestCase):
+    def test_marked_pages_are_written_where_the_vector_places_them(self):
+        primary = hive(50, 49)
+        data, summary = rr.recover(primary, [('H.LOG1', old_log(50, {1: sector(7), 9: sector(8)}))])
+        self.assertEqual(summary['state'], 'recovered')
+        self.assertEqual((summary['format'], summary['applied'], summary['entries'], summary['pages']),
+                         ('old', [('H.LOG1', 50, 50)], 1, 2))
+        self.assertEqual(data[4096 + 512:4096 + 1024], sector(7))
+        self.assertEqual(data[4096 + 9 * 512:4096 + 10 * 512], sector(8))
+        expected = bytearray(primary)
+        expected[4096 + 512:4096 + 1024] = sector(7)
+        expected[4096 + 9 * 512:4096 + 10 * 512] = sector(8)
+        self.assertEqual(data[4096:], bytes(expected[4096:]))
+        header = rr.base_block(data)
+        self.assertEqual((header['primary'], header['secondary'], header['checksum_ok']), (50, 50, True))
+
+    def test_bits_count_from_the_least_significant_bit_of_each_byte(self):
+        # Page 10 is bit 2 of the second byte; page 2, bit 2 of the first, stays as the hive holds it.
+        data, _summary = rr.recover(hive(5, 4), [('H.LOG1', old_log(5, {10: sector(3)}))])
+        self.assertEqual(data[4096 + 10 * 512:4096 + 11 * 512], sector(3))
+        self.assertEqual(data[4096 + 2 * 512:4096 + 3 * 512], bytes(512))
+
+    def test_a_log_with_another_last_written_time_is_passed_over_for_the_next(self):
+        primary = stamped(hive(5, 4), 1_000)
+        logs = [('H.LOG1', old_log(5, {1: sector(1)}, stamp=999)),
+                ('H.LOG2', old_log(5, {1: sector(2)}, stamp=1_000))]
+        data, summary = rr.recover(primary, logs)
+        self.assertEqual((summary['state'], summary['applied']), ('recovered', [('H.LOG2', 5, 5)]))
+        self.assertEqual(data[4096 + 512:4096 + 1024], sector(2))
+        self.assertEqual(summary['reasons'], {'H.LOG1': "last-written timestamp is not the hive's"})
+
+    def test_the_first_log_is_tried_first(self):
+        logs = [('H.LOG2', old_log(5, {1: sector(2)})), ('H.LOG1', old_log(5, {1: sector(1)}))]
+        data, summary = rr.recover(hive(5, 4), logs)
+        self.assertEqual(summary['applied'], [('H.LOG1', 5, 5)])
+        self.assertEqual(data[4096 + 512:4096 + 1024], sector(1))
+
+    def test_logs_that_cannot_be_applied_leave_the_hive_as_it_is(self):
+        primary = hive(5, 4)
+        bad_bin = sector(9)
+        cases = {
+            'mid-update': (old_log(5, {1: sector(1)})[:4] + struct.pack('<II', 6, 5)
+                           + old_log(5, {1: sector(1)})[12:], 'base block not valid'),
+            'short': (old_log(5, {1: sector(1), 2: sector(2)}, drop=1), 'fewer dirty pages than its dirty vector marks'),
+            'no vector': (base_block(5, 5, 1, 8192, size=512) + sector(0), 'no dirty vector'),
+            'bad bin': (old_log(5, {8: bad_bin}), 'a hive bin up to the last dirty page fails its checks'),
+            'win2000': (old_log(5, {1: sector(1)}, file_type=2), None),
+        }
+        for label, (data, reason) in cases.items():
+            result, summary = rr.recover(primary, [('H.LOG1', data)])
+            self.assertEqual((result, summary['state']), (primary, 'dirty, not recovered'), label)
+            if reason:
+                self.assertEqual(summary['reasons'], {'H.LOG1': reason}, label)
+
+    def test_a_new_format_log_that_applies_is_used_before_an_old_one(self):
+        logs = [('H.LOG1', log(5, [entry(5, [(0, page(6))])])), ('H.LOG2', old_log(5, {1: sector(1)}))]
+        data, summary = rr.recover(hive(5, 4), logs)
+        self.assertEqual((summary['format'], summary['applied']), ('new', [('H.LOG1', 5, 5)]))
+        self.assertEqual(data[4096:8192], page(6))
+
+    def test_an_old_log_that_would_set_a_key_back_is_not_applied(self):
+        primary = key_hive(9, 8, stamp=2_000)
+        stale = key_page(0, 1_000)
+        dirty = {index: stale[512 * index:512 * (index + 1)] for index in range(8)}
+        data, summary = rr.recover(primary, [('SYSTEM.LOG1', old_log(9, dirty))])
+        self.assertEqual((data, summary['state'], summary['applied']), (primary, 'dirty, not recovered', []))
+        self.assertIn('would give 1 key an earlier last-written time', summary['reasons']['hive'])
 
 
 class OpenHiveTest(unittest.TestCase):
@@ -261,6 +354,13 @@ class OpenHiveTest(unittest.TestCase):
         self._open(path)
         self.assertEqual(self.logs, ['Registry: SAM was dirty; replayed 1 transaction log entry, '
                                      'sequence 3 to 3, from SAM.LOG1.'])
+
+    def test_an_old_format_replay_is_named_with_its_pages(self):
+        path = self._write('SAM', hive(3, 2))
+        self._write('SAM.LOG1', old_log(3, {1: sector(7)}))
+        self.assertEqual(self._open(path)[4096 + 512:4096 + 1024], sector(7))
+        self.assertEqual(self.logs, ['Registry: SAM was dirty; wrote the 1 dirty page of SAM.LOG1, a log in '
+                                     'the older format, sequence 3.'])
 
     def test_a_clean_hive_is_read_as_it_is_without_a_log_line(self):
         primary = hive(8, 8)
