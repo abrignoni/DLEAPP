@@ -11,7 +11,7 @@ target was last known to reside and the NTFS object identifiers of the target
 and its volume.
 """
 
-from scripts.windows_lnk import parse_lnk, target_path, tracker_columns
+from scripts.windows_lnk import parse_lnk, target_path, text_mode_damaged, tracker_columns
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 _LNK = ".lnk"
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                        "object IDs of the target and its volume.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-29",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in a user's Recent folder "
@@ -98,7 +98,15 @@ __artifacts_v2__ = {
                  "Microsoft [MS-SHLLINK], "
                  "https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/16cb4ca1-9339-4d0c-a68d-bf1d6cc0f943"
                  " ; and libyal liblnk, Windows Shortcut File format, "
-                 "https://github.com/libyal/liblnk/blob/f80bdb225cb847916f6d163da9127919969c299d/documentation/Windows%20Shortcut%20File%20(LNK)%20format.asciidoc",
+                 "https://github.com/libyal/liblnk/blob/f80bdb225cb847916f6d163da9127919969c299d/documentation/Windows%20Shortcut%20File%20(LNK)%20format.asciidoc"
+                 " A file whose every LF byte follows a CR byte, whose extra data does not end with the terminal block"
+                 " at the end of the file, and which does once the CR byte before each LF is removed (the change a "
+                 "copy in text mode, such as an ASCII mode FTP transfer, makes to a binary file) is named in the run "
+                 "log as such and not reported. Each of the 203 shell links these two artifacts read in the corpus "
+                 "ends with the terminal block at the end of the file, and none was in that state; each of the 54 that"
+                 " hold an LF byte, copied with a CR byte added before each LF for the test, was found by this check. "
+                 "In the corpus none of the 203 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
+                 " is a column; Windows Jump Lists reports both.",
         "paths": ("*/Microsoft/Windows/[Rr]ecent/*.[Ll][Nn][Kk]",),
         "output_types": ["standard"],
         "artifact_icon": "link",
@@ -115,7 +123,7 @@ __artifacts_v2__ = {
                        "path, recorded timestamps, size and volume, and the link's tracker block.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-17",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-29",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in a user's Microsoft Office Recent folder "
@@ -140,7 +148,15 @@ __artifacts_v2__ = {
                  "Birth Droid File ID equal Droid Volume ID and Droid File ID on all 14. On lonewolf_win10 Drive "
                  "Type, Drive Serial, Machine ID, Droid Volume ID and Birth Droid Volume ID each held one value on "
                  "all 8 rows, and Volume Label and Network Path were blank on all 8; on hexordia_mvs2025_win11 "
-                 "Network Path was blank on its one row.",
+                 "Network Path was blank on its one row."
+                 " A file whose every LF byte follows a CR byte, whose extra data does not end with the terminal block"
+                 " at the end of the file, and which does once the CR byte before each LF is removed (the change a "
+                 "copy in text mode, such as an ASCII mode FTP transfer, makes to a binary file) is named in the run "
+                 "log as such and not reported. Each of the 203 shell links these two artifacts read in the corpus "
+                 "ends with the terminal block at the end of the file, and none was in that state; each of the 54 that"
+                 " hold an LF byte, copied with a CR byte added before each LF for the test, was found by this check. "
+                 "In the corpus none of the 203 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
+                 " is a column; Windows Jump Lists reports both.",
         "paths": ("*/Microsoft/Office/[Rr]ecent/*.[Ll][Nn][Kk]",),
         "output_types": ["standard"],
         "artifact_icon": "link",
@@ -165,14 +181,21 @@ def _link_rows(context, label):
     data_list = []
     sources = []
     not_links = 0
+    damaged = 0
     for source in sorted(str(f) for f in context.get_files_found()
                          if str(f).lower().endswith(_LNK)):
         relative_source = context.get_relative_path(source)
         try:
             with open(source, 'rb') as handle:
-                parsed = parse_lnk(handle.read())
+                data = handle.read()
+            parsed = parse_lnk(data)
         except OSError as exc:
             logfunc(f'{label}: could not read {relative_source}: {exc}')
+            continue
+        if text_mode_damaged(data):
+            damaged += 1
+            logfunc(f'{label}: {relative_source} reads as a whole shell link only with the CR byte before each LF '
+                    'removed, as a copy in text mode leaves a binary file, and was not reported')
             continue
         if parsed.get('error'):
             not_links += 1
@@ -193,6 +216,9 @@ def _link_rows(context, label):
         sources.append(source)
     if not_links:
         logfunc(f'{label}: {not_links} file(s) named .lnk did not read as a shell link and were not reported')
+    if damaged:
+        logfunc(f'{label}: {damaged} file(s) named .lnk read as a whole shell link only with the CR byte before '
+                'each LF removed, the state a copy in text mode leaves, and were not reported')
     return data_list, sources
 
 

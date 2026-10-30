@@ -45,7 +45,7 @@ __artifacts_v2__ = {
                        "NTFS object IDs of the target and its volume.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-10-29",
         "requirements": "olefile (for automatic destinations)",
         "category": "Windows",
         "notes": "Rows from the shell links inside a user's jump list files, read from the files "
@@ -83,8 +83,7 @@ __artifacts_v2__ = {
                  "target lived on, from the link's VolumeID; Drive Type is named from the Windows "
                  "GetDriveType constants and the other two are as stored; all three are blank for "
                  "a network or virtual target. Network Path is the UNC path when the target is on "
-                 "a share, blank otherwise. Arguments is any command line stored in the link, "
-                 "present for an application launch entry and blank for a plain file link. Machine"
+                 "a share, blank otherwise. Arguments is any command line stored in the link, present for an application launch entry and blank for a plain file link. Icon Location is the link's ICON_LOCATION string, which [MS-SHLLINK] gives as 'the location of the icon to be used when displaying a shell link item in an icon view' (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-shllink/17b69472-0f34-4bcf-b290-eccdb8de224b), and Icon Location (Environment Block) the TargetUnicode path in its IconEnvironmentDataBlock, or its TargetAnsi path when the Unicode one is empty, which [MS-SHLLINK] gives as 'the path to an icon' encoded using environment variables (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-shllink/9e6b7dfe-2ca2-4875-a0c9-8d75ee4f9b65); each is blank when the link stores none. Over the ten corpus images with jump lists, Icon Location is filled on 112 of the 166 custom entries and 3 of the 347 automatic ones, and Icon Location (Environment Block) on 67 and 3 of them; every entry with the environment block also has an Icon Location, and on every one of them the two differ. Machine"
                  " ID is the TrackerDataBlock's MachineID, which [MS-SHLLINK] gives as 'the "
                  "NetBIOS name of the machine where the link target was last known to reside' "
                  "(https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/df8e3748-fba5-4524-968a-f72be06d71fc);"
@@ -163,6 +162,7 @@ def _row(parsed, list_type, app_id, destlist=None):
             parsed.get('target_size', ''), parsed.get('drive_type', ''),
             parsed.get('drive_serial', ''), parsed.get('volume_label', ''),
             parsed.get('network_path', ''), parsed.get('arguments', ''),
+            parsed.get('icon_location', ''), parsed.get('icon_environment', ''),
             parsed.get('machine_id', '')) + tracker_columns(parsed)
 
 
@@ -237,7 +237,8 @@ def windowsJumpLists(context):
                     ('Target Accessed (UTC)', 'datetime'),
                     'List Type', 'App ID', 'Target Path', 'Target Size (bytes)',
                     'Drive Type', 'Drive Serial', 'Volume Label', 'Network Path',
-                    'Arguments', 'Machine ID', 'Droid Volume ID', 'Droid File ID',
+                    'Arguments', 'Icon Location', 'Icon Location (Environment Block)',
+                    'Machine ID', 'Droid Volume ID', 'Droid File ID',
                     ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
                     'Birth Droid Volume ID', 'Birth Droid File ID', 'Source File')
     data_list = []
