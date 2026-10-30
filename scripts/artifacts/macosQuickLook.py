@@ -38,7 +38,13 @@ __artifacts_v2__ = {
             'archive in basic_files.version, and on dleapp_macos_bigsur all 15 equal, to the '
             'second and to the byte, the modification time and size of the file the File ID '
             "resolves to; Arsenal Recon read the date and size values of the older layout's files "
-            "table as the file's last modified date and its size in bytes. Generator is the "
+            "table as the file's last modified date and its size in bytes. Extension (e) is the "
+            "archive's e, which every archive on adams_macbookpro_macos26 carries and none on "
+            'dleapp_macos_bigsur. On adams_macbookpro_macos26, 30 of the 134 File IDs are the '
+            'inode number of a file whose size and modification time equal s and m, 29 on the '
+            "System volume and 1 on the Data volume, and on all 30 e is that file's name "
+            'extension, letter for letter; the other 104 name no such file in the image, so '
+            'whether e matches their names is not established. Generator is the '
             "archive's g, the bundle identifier of a qlgenerator on every row of "
             "dleapp_macos_bigsur and on 1 of the 134 on adams_macbookpro_macos26, where the other "
             '133 name a com.apple.quicklook.thumbnail extension (Audiovisual, Font, Image, Office '
@@ -86,7 +92,9 @@ __artifacts_v2__ = {
             "thumbnailed file has one of each, and Width and Height are the bitmap's size in "
             'pixels, the same as each other on every row of dleapp_macos_bigsur, where every '
             'thumbnail is square. Volume ID (as stored) is basic_files.fsid, which holds one '
-            'value on every row of dleapp_macos_bigsur; what it encodes is not established. The '
+            'value on every row of dleapp_macos_bigsur and three on adams_macbookpro_macos26, '
+            'where the 30 File IDs that resolve all carry the same one; what it encodes is not '
+            'established. The '
             'second cache under private/var/folders/zz holds no row on dleapp_macos_bigsur or on '
             'adams_macbookpro_macos26. The '
             'provider_files and missing_remote_thumbnails tables, which record file-provider items '
@@ -305,7 +313,7 @@ def _layout(row):
 @artifact_processor
 def macosQuickLookThumbnails(context):
     data_headers = (('Last Hit (UTC)', 'datetime'), ('File Modified (UTC)', 'datetime'),
-                    ('Thumbnail', 'media'), 'File ID', 'File Size', 'Generator',
+                    ('Thumbnail', 'media'), 'File ID', 'Extension (e)', 'File Size', 'Generator',
                     'Version (as stored)', 'Thumbnail Size (as stored)', 'Width', 'Height',
                     'Hit Count (as stored)', 'Volume ID (as stored)', 'Source File')
     records, read = [], []
@@ -343,13 +351,15 @@ def macosQuickLookThumbnails(context):
             else:
                 skipped[reason] = skipped.get(reason, 0) + 1
             records.append(((_time(_MAC_EPOCH, row['last_hit_date']), _blank(version.get('m')), media,
-                             file_id, _blank(version.get('s')), _blank(version.get('g')),
+                             file_id, _blank(version.get('e')), _blank(version.get('s')),
+                             _blank(version.get('g')),
                              _blank(version.get('v')), _blank(row['size']), _blank(row['width']),
                              _blank(row['height']), _blank(row['hit_count']), _blank(fsid)), relative))
         # A file QuickLook versioned without a thumbnail still gets a row.
         for file_id, (fsid, version) in sorted(files.items()):
             if file_id not in seen:
-                records.append((('', _blank(version.get('m')), '', file_id, _blank(version.get('s')),
+                records.append((('', _blank(version.get('m')), '', file_id, _blank(version.get('e')),
+                                 _blank(version.get('s')),
                                  _blank(version.get('g')), _blank(version.get('v')), '', '', '', '',
                                  _blank(fsid)), relative))
         for reason, count in skipped.items():
