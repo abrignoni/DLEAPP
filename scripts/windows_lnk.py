@@ -10,7 +10,8 @@ the ShellBags parser for the LinkTargetIDList.
 `parse_lnk(data)` returns a dict of the fields an examiner acts on: the target's
 recorded created/modified/accessed times, the local path (or network path, or a
 shell path rebuilt from the target id list), target size, the volume the target
-lived on (drive type, serial, label), command-line arguments, and the tracker block's machine
+lived on (drive type, serial, label), command-line arguments, the icon location string and
+icon environment path, and the tracker block's machine
 name and droid identifiers. It is also used by the Jump Lists
 parser, whose destination streams are themselves shell links.
 
@@ -158,7 +159,7 @@ def parse_lnk(data):
     out["target_size"] = struct.unpack_from("<I", data, 52)[0]
     for key in ("local_path", "network_path", "shell_path", "drive_type",
                 "drive_serial", "volume_label", "arguments", "name",
-                "relative_path", "working_dir", "machine_id",
+                "relative_path", "working_dir", "icon_location", "icon_environment", "machine_id",
                 "droid_volume", "droid_file", "birth_droid_volume", "birth_droid_file"):
         out[key] = ""
 
@@ -212,22 +213,43 @@ def parse_lnk(data):
         nbytes = count * 2 if unicode_str else count
         chunk = data[pos:pos + nbytes]
         text = chunk.decode("utf-16-le" if unicode_str else "latin-1", "replace")
-        if key != "icon":
-            out[key] = text
+        out["icon_location" if key == "icon" else key] = text
         pos += nbytes
 
-    while pos + 8 <= len(data):                        # ExtraData blocks
+    out["ends_cleanly"] = False
+    while pos + 4 <= len(data):                        # ExtraData blocks
         block_size = struct.unpack_from("<I", data, pos)[0]
-        if block_size < 4 or pos + block_size > len(data):
+        if block_size < 4:
+            # TerminalBlock: a BlockSize below 4 ends the extra data ([MS-SHLLINK] 2.5).
+            out["ends_cleanly"] = pos + 4 == len(data)
+            break
+        if pos + 8 > len(data) or pos + block_size > len(data):
             break
         signature = struct.unpack_from("<I", data, pos + 4)[0]
         if signature == 0xA0000003 and block_size >= 0x60:   # TrackerDataBlock
             out["machine_id"] = data[pos + 16:pos + 32].split(b"\x00")[0].decode("latin-1", "replace")
             for index, key in enumerate(("droid_volume", "droid_file", "birth_droid_volume", "birth_droid_file")):
                 out[key] = _guid(data[pos + 32 + index * 16:pos + 48 + index * 16])
+        elif signature == 0xA0000007 and block_size >= 0x314:  # IconEnvironmentDataBlock
+            # TargetAnsi (260 bytes) then TargetUnicode (520 bytes); the Unicode one when it is set.
+            unicode_target = data[pos + 268:pos + 788].decode("utf-16-le", "replace").split("\x00")[0]
+            ansi_target = data[pos + 8:pos + 268].split(b"\x00")[0].decode("latin-1", "replace")
+            out["icon_environment"] = unicode_target or ansi_target
         pos += block_size
 
     return out
+
+
+def text_mode_damaged(data):
+    """Whether a file looks like a shell link that a copy in text mode (such as an ASCII mode FTP transfer)
+    changed: every LF byte follows a CR byte, its extra data does not end with the terminal block at the
+    end of the file, and with the CR byte before each LF removed it does."""
+    if b"\n" not in data or data.count(b"\n") != data.count(b"\r\n"):
+        return False
+    if parse_lnk(data).get("ends_cleanly"):
+        return False
+    undone = parse_lnk(data.replace(b"\r\n", b"\n"))
+    return not undone.get("error") and bool(undone.get("ends_cleanly"))
 
 
 def uuid_v1_parts(text):
