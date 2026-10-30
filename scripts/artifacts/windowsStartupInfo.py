@@ -89,6 +89,7 @@ __artifacts_v2__ = {
         "artifact_icon": "play",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 20 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 15 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 33 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 127 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 40 rows",
