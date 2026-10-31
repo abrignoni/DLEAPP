@@ -1,4 +1,4 @@
-"""cimprobe: a read-only reader for the Windows WMI CIM repository.
+"""cimreader: a read-only reader for the Windows WMI CIM repository.
 
 One file, pure Python, standard library only. It opens the repository Windows keeps
 in ``C:\\Windows\\System32\\wbem\\Repository`` (``OBJECTS.DATA``, ``INDEX.BTR`` and
@@ -8,7 +8,7 @@ definitions. Its first use is listing WMI event subscriptions (``__EventFilter``
 the ``__EventConsumer`` subclasses and ``__FilterToConsumerBinding``), a common
 persistence mechanism.
 
-    with cimprobe.open_repository("Repository") as repo:
+    with cimreader.open_repository("Repository") as repo:
         for inst in repo.instances("root\\subscription", "__FilterToConsumerBinding"):
             print(inst.properties)
 
@@ -1273,9 +1273,9 @@ def _dump(obj):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        prog="cimprobe",
+        prog="cimreader",
         description="Read a Windows WMI CIM repository (OBJECTS.DATA, INDEX.BTR, MAPPING*.MAP), read-only.")
-    ap.add_argument("--version", action="version", version="cimprobe " + __version__)
+    ap.add_argument("--version", action="version", version="cimreader " + __version__)
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     def add(name, help_):
@@ -1323,7 +1323,7 @@ def main(argv=None):
                 for k in keys:
                     print(k)
     except CimError as exc:
-        sys.stderr.write("cimprobe: %s\n" % exc)
+        sys.stderr.write("cimreader: %s\n" % exc)
         return 1
     return 0
 
