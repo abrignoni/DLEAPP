@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "module_name": "anyDesk",
+    "artifact_name": "AnyDesk Connections",
+    "function_name": "anyDeskConnections",
+    "case_number": "case2",
+    "number_of_columns": 8,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 481,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/anyDesk/testdata.anyDesk.anyDeskConnections.case2.zip",
+    "start_time": "2026-10-31T03:40:42.190256+00:00",
+    "end_time": "2026-10-31T03:40:42.216584+00:00",
+    "run_time_seconds": 0.00013899803161621094,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T23:40:42.212440",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp (UTC)",
+    "Time (as stored)",
+    "Direction",
+    "Status",
+    "Remote ID",
+    "Second ID Field",
+    "Line",
+    "Source File"
+  ],
+  "data": [
+    [
+      "",
+      "2026-10-30, 23:13",
+      "Outgoing",
+      "REJECTED",
+      "1000000001",
+      "1000000001",
+      1,
+      "linux_root/etc/anydesk/connection_trace.txt"
+    ],
+    [
+      "",
+      "2026-10-30, 23:19",
+      "Outgoing",
+      "REJECTED",
+      "1000000001",
+      "1000000001",
+      2,
+      "linux_root/etc/anydesk/connection_trace.txt"
+    ],
+    [
+      "",
+      "2026-10-30, 23:22",
+      "Outgoing",
+      "REJECTED",
+      "1000000001",
+      "1000000001",
+      3,
+      "linux_root/etc/anydesk/connection_trace.txt"
+    ],
+    [
+      "",
+      "2026-10-30, 23:25",
+      "Outgoing",
+      "User",
+      "1000000001",
+      "1000000001",
+      4,
+      "linux_root/etc/anydesk/connection_trace.txt"
+    ],
+    [
+      "",
+      "2026-10-30, 23:31",
+      "Outgoing",
+      "REJECTED",
+      "1000000001",
+      "1000000001",
+      5,
+      "linux_root/etc/anydesk/connection_trace.txt"
+    ]
+  ]
+}
