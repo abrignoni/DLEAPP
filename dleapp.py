@@ -253,6 +253,17 @@ def create_casedata(path):
     print()
     return
 
+def profile_plugins_not_found(profile_plugins, available_plugins):
+    """Names a profile lists that match no available artifact, sorted.
+
+    Profiles select artifacts by exact name. A name that was later changed, even only in
+    case, selected nothing and said nothing, so a profile could run fewer artifacts than it
+    lists without the examiner knowing.
+    """
+    available = {plugin.name for plugin in available_plugins}
+    return sorted(name for name in profile_plugins if name not in available)
+
+
 def main():
     parser = argparse.ArgumentParser(description='DLEAPP: Desktop, Logs, Events, and Protobuf Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'raw'], required=False, action="store",
@@ -471,6 +482,10 @@ def main():
             return
         selected_plugins = [selected_plugin for selected_plugin in available_plugins
                             if selected_plugin.name in profile_plugins]
+        unknown = profile_plugins_not_found(profile_plugins, available_plugins)
+        if unknown:
+            print(f"Warning: the profile names {len(unknown)} artifact(s) this version "
+                  f"does not have, which will not run: {', '.join(unknown)}")
 
     input_path = args.input_path
     wrap_text = args.wrap_text
