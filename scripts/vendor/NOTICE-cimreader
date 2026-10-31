@@ -1,4 +1,4 @@
-cimprobe
+cimreader
 Copyright 2026 Alexis Brignoni
 
 This product includes software derived from python-cim, part of Mandiant's flare-wmi
@@ -6,6 +6,6 @@ This product includes software derived from python-cim, part of Mandiant's flare
 Version 2.0. python-cim was written by Willi Ballenthin, with contributions from
 davidpany and fhouse. Copyright in python-cim remains with its authors.
 
-cimprobe.py is a modified port of python-cim/cim/cim.py and python-cim/cim/objects.py
+cimreader.py is a modified port of python-cim/cim/cim.py and python-cim/cim/objects.py
 at flare-wmi commit b0a5a094ff9ca7d7a1c4fc711dc00c74dec4b6b1 (2018-07-23). The
-changes are described at the top of cimprobe.py and in README.md.
+changes are described at the top of cimreader.py and in README.md.

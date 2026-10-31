@@ -2,12 +2,12 @@
 
 Every namespace, class, name, query, command line and SID here is written for the
 fixture; nothing comes from a real machine. The files are laid out the way the vendored
-reader (scripts/vendor/cimprobe.py) reads them: a MAPPING*.MAP file whose highest version
+reader (scripts/vendor/cimreader.py) reads them: a MAPPING*.MAP file whose highest version
 holds the active data and index mappings (an older, wrong generation sits beside it), an
 INDEX.BTR with a root page and two leaves, and an OBJECTS.DATA whose physical pages are in
 the reverse of their logical order. The class definition and instance layouts are the
-ones cimprobe's own synthetic tests write (github.com/abrignoni/cimprobe,
-tests/test_cimprobe.py), which known data from Windows 11 matched.
+ones cimreader's own synthetic tests write (github.com/abrignoni/cimreader,
+tests/test_cimreader.py), which known data from Windows 11 matched.
 
 What the fixture holds, so the expected rows can be read off it:
 - root\\subscription: three filters (one bound to a command line consumer, one to a script

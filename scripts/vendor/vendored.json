@@ -106,17 +106,17 @@
       "note": "Copied verbatim below its banner. Fix upstream and re-vendor; edits here are reverted by the next sync."
     },
     {
-      "path": "scripts/vendor/cimprobe.py",
-      "name": "cimprobe",
+      "path": "scripts/vendor/cimreader.py",
+      "name": "cimreader",
       "version": "0.1.0",
-      "upstream": "https://github.com/abrignoni/cimprobe",
-      "upstream_file": "cimprobe.py",
-      "commit": "059077f99e81a09a0a18b772dfbdd6e8b867a2e2",
-      "commit_date": "2026-10-31T10:52:47-04:00",
-      "sha256": "0f4b296476e8b128322c7b3c2ed213cc333bf370d39cd354fc663e57528b5aa0",
+      "upstream": "https://github.com/abrignoni/cimreader",
+      "upstream_file": "cimreader.py",
+      "commit": "4ac4c85198ac59c8243eb3465be93dd00280bcfc",
+      "commit_date": "2026-10-31T15:40:04-04:00",
+      "sha256": "1bce77467bec7f78bf59511e24b7afa5ed49f7dbf6c97a2078e32534e94ed5e4",
       "licence": "Apache-2.0",
-      "licence_file": "scripts/vendor/LICENSE-cimprobe",
-      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync. NOTICE-cimprobe beside it carries the Apache-2.0 notice python-cim's port requires."
+      "licence_file": "scripts/vendor/LICENSE-cimreader",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync. NOTICE-cimreader beside it carries the Apache-2.0 notice python-cim's port requires."
     }
   ]
 }

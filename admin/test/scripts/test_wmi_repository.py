@@ -17,7 +17,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 # pylint: disable=protected-access
 from scripts.artifacts import windowsWmiRepository as wmi  # pylint: disable=wrong-import-position
-from scripts.vendor import cimprobe  # pylint: disable=wrong-import-position
+from scripts.vendor import cimreader  # pylint: disable=wrong-import-position
 
 
 def _fixture_module():
@@ -76,8 +76,8 @@ class Fixture(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             for name, data in files.items():
                 pathlib.Path(tmp, name).write_bytes(data)
-            with cimprobe.open_repository(tmp) as repo:
-                result = cimprobe.subscriptions(repo, ('root\\subscription', 'root\\default'))
+            with cimreader.open_repository(tmp) as repo:
+                result = cimreader.subscriptions(repo, ('root\\subscription', 'root\\default'))
         self.assertEqual(result['errors'], [])
         rows = result['namespaces']['root\\subscription']
         kinds = sorted(r['kind'] for r in rows)
