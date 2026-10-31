@@ -1,0 +1,103 @@
+{
+  "metadata": {
+    "module_name": "anyDesk",
+    "artifact_name": "AnyDesk File Transfers",
+    "function_name": "anyDeskFileTransfers",
+    "case_number": "case1",
+    "number_of_columns": 9,
+    "number_of_rows": 6,
+    "total_data_size_bytes": 925,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/anyDesk/testdata.anyDesk.anyDeskFileTransfers.case1.zip",
+    "start_time": "2026-10-31T03:40:42.378875+00:00",
+    "end_time": "2026-10-31T03:40:42.405869+00:00",
+    "run_time_seconds": 0.00035500526428222656,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-30T23:40:42.401488",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp (UTC)",
+    "Time (as stored)",
+    "Mode",
+    "Event",
+    "Direction",
+    "File Name",
+    "Size (as stored)",
+    "Line",
+    "Source File"
+  ],
+  "data": [
+    [
+      1793417280,
+      "2026-10-31, 03:28",
+      "File Manager",
+      "start",
+      "download",
+      "kd_upload_to_windows.txt",
+      "~0 B out of 16.29 KiB",
+      1,
+      "windows_c/ProgramData/AnyDesk/file_transfer_trace.txt"
+    ],
+    [
+      1793417280,
+      "2026-10-31, 03:28",
+      "File Manager",
+      "finish",
+      "download",
+      "kd_upload_to_windows.txt",
+      "~16.29 KiB out of 16.29 KiB",
+      2,
+      "windows_c/ProgramData/AnyDesk/file_transfer_trace.txt"
+    ],
+    [
+      1793417340,
+      "2026-10-31, 03:29",
+      "File Manager",
+      "start",
+      "download",
+      "kd_upload_to_windows.txt",
+      "~0 B out of 16.29 KiB",
+      3,
+      "windows_c/ProgramData/AnyDesk/file_transfer_trace.txt"
+    ],
+    [
+      1793417340,
+      "2026-10-31, 03:29",
+      "File Manager",
+      "finish",
+      "download",
+      "kd_upload_to_windows.txt",
+      "~16.29 KiB out of 16.29 KiB",
+      4,
+      "windows_c/ProgramData/AnyDesk/file_transfer_trace.txt"
+    ],
+    [
+      1793417340,
+      "2026-10-31, 03:29",
+      "File Manager",
+      "start",
+      "upload",
+      "kd_download_to_ubuntu.txt",
+      "~0 B out of 30.54 KiB",
+      5,
+      "windows_c/ProgramData/AnyDesk/file_transfer_trace.txt"
+    ],
+    [
+      1793417340,
+      "2026-10-31, 03:29",
+      "File Manager",
+      "finish",
+      "upload",
+      "kd_download_to_ubuntu.txt",
+      "~30.54 KiB out of 30.54 KiB",
+      6,
+      "windows_c/ProgramData/AnyDesk/file_transfer_trace.txt"
+    ]
+  ]
+}
