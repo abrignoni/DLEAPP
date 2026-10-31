@@ -1,0 +1,50 @@
+{
+  "case1": {
+    "description": "Synthetic WMI CIM repository written by admin/test/scripts/make_wmi_repository_fixture.py: in root\\subscription three filters, a CommandLineEventConsumer, an ActiveScriptEventConsumer whose script spans four data pages, a consumer of a class derived from __EventConsumer that no binding names, and three bindings, one naming a consumer that is not in the repository; in root\\default a filter, a LogFileEventConsumer and their binding. Every value is authored for the fixture. No case data.",
+    "maker": "@AlexisBrignoni",
+    "make_data": {
+      "input_data_path": "wmi_synthetic.zip",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-10-31T11:07:46.736392",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-10-31T11:07:46.721416",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "wmiRepositoryEventFilters": {
+        "search_patterns": [
+          "*/[Ww][Bb][Ee][Mm]/[Rr][Ee][Pp][Oo][Ss][Ii][Tt][Oo][Rr][Yy]/*"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "wmiRepositoryEventConsumers": {
+        "search_patterns": [
+          "*/[Ww][Bb][Ee][Mm]/[Rr][Ee][Pp][Oo][Ss][Ii][Tt][Oo][Rr][Yy]/*"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "wmiRepositoryFilterToConsumerBindings": {
+        "search_patterns": [
+          "*/[Ww][Bb][Ee][Mm]/[Rr][Ee][Pp][Oo][Ss][Ii][Tt][Oo][Rr][Yy]/*"
+        ],
+        "file_count": 4,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}
