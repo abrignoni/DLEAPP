@@ -10,8 +10,11 @@ __artifacts_v2__ = {
         'paths': ('*/Library/Application Support/Firefox/Profiles/*/permissions.sqlite*',
                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/permissions.sqlite*',
                   '*/.mozilla/firefox/*/permissions.sqlite*',
+                  '*/.config/mozilla/firefox/*/permissions.sqlite*',
                   '*/Desktop/*Firefox*/*/permissions.sqlite*'),
-        'output_types': 'standard', 'sample_data': {},
+        'output_types': 'standard', 'sample_data': {
+            'ubuntu2604_arm64_firefox_xdg_known_20261031': 'Firefox 146.0 and 159.0 on Ubuntu 26.04 (aarch64) | 1 row',
+        },
         'notes': 'Reads moz_perms when present, even if empty; otherwise reads legacy moz_hosts. The legacy table may remain after migration and is not combined with the modern table. Dates use Unix milliseconds; zero and absent dates remain blank. Capability and expiry codes are reported as stored because meanings can depend on permission type. A stored permission does not establish that a person accepted a prompt, visited an origin, or used the permitted feature. Origin attributes remain attached to the origin. moz_origin_interactions is excluded: its timestamps can be initialized by migration and are not permission-change times. WAL files are included. Profiles remain distinct, and a copy under System/Volumes/Data whose database, and WAL where present, are byte-identical to the copy at the same path outside it is not read again. User is blank when paths do not name the account. Public tests are synthetic; private corpus details are not published.'
                  " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
                  ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
@@ -24,7 +27,8 @@ __artifacts_v2__ = {
                  'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L59-L96;'
                  ' '
                  'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/locales/en-US/chrome/mozapps/profile/profileSelection.properties#L55-L56.'
-                 ' References: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/extensions/permissions/PermissionManager.cpp#L94; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/extensions/permissions/PermissionManager.cpp#L1575-L1595.',
+                 ' References: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/extensions/permissions/PermissionManager.cpp#L94; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/extensions/permissions/PermissionManager.cpp#L1575-L1595.'
+                 ' Linux rows were read from .mozilla/firefox in known data (ubuntu2604_arm64_firefox_xdg_known_20261031). The .config/mozilla/firefox location, where Firefox 159 created its profile in that data, is matched too. That store and the second Firefox 159 profile under .mozilla/firefox held no permission rows.',
     },
     'firefoxExtensions': {
         'name': 'Firefox Extensions',
@@ -35,8 +39,11 @@ __artifacts_v2__ = {
         'paths': ('*/Library/Application Support/Firefox/Profiles/*/extensions.json',
                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/extensions.json',
                   '*/.mozilla/firefox/*/extensions.json',
+                  '*/.config/mozilla/firefox/*/extensions.json',
                   '*/Desktop/*Firefox*/*/extensions.json'),
-        'output_types': 'standard', 'sample_data': {},
+        'output_types': 'standard', 'sample_data': {
+            'ubuntu2604_arm64_firefox_xdg_known_20261031': 'Firefox 146.0 and 159.0 on Ubuntu 26.04 (aarch64) | 19 rows',
+        },
         'notes': 'One row per addons entry with type extension. Includes browser-supplied extensions; Location is retained to distinguish installation locations. Dates are stored Unix milliseconds and can be derived from package modification times; they do not establish a manual installation. A missing update date is left blank rather than copied from installation time. Active and disabled flags are stored states, not execution events. User Permissions and Optional Permissions preserve the respective JSON objects; optional permissions are not described as granted. The name comes from defaultLocale, without selecting the examiner computer locale. Install Path is a stored evidence value, not a path resolved on the examiner computer. Themes and other non-extension entries, package contents, and permission-change history are excluded. Profiles remain distinct, and a copy of a file under System/Volumes/Data that is byte-identical to the file at the same path outside it is not read again. User is blank when source paths do not identify an account. Public tests are synthetic; private corpus details are not published.'
                  " A profile copied out by Firefox's Refresh is read too: Firefox puts a copy of the old"
                  ' profile folder, under its own name, made unique if taken, inside a Desktop folder named from the '
@@ -49,7 +56,8 @@ __artifacts_v2__ = {
                  'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/xre/ProfileReset.cpp#L59-L96;'
                  ' '
                  'https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/locales/en-US/chrome/mozapps/profile/profileSelection.properties#L55-L56.'
-                 ' References: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/mozapps/extensions/internal/XPIDatabase.sys.mjs#L1622-L1627; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/mozapps/extensions/internal/XPIDatabase.sys.mjs#L3350-L3361.',
+                 ' References: https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/mozapps/extensions/internal/XPIDatabase.sys.mjs#L1622-L1627; https://github.com/mozilla-firefox/firefox/blob/3682546ac2c02610537306ca16849de2c24aea45/toolkit/mozapps/extensions/internal/XPIDatabase.sys.mjs#L3350-L3361.'
+                 ' Linux rows were read from both .mozilla/firefox and .config/mozilla/firefox in known data (ubuntu2604_arm64_firefox_xdg_known_20261031). In that data Firefox 159, run in an empty home, created its profile under .config/mozilla/firefox; in a home where Firefox 146 had already created .mozilla/firefox, Firefox 159 kept that folder and created its own new profile there too. Firefox 159 uses .mozilla when that folder exists or MOZ_LEGACY_HOME is set, and otherwise XDG_CONFIG_HOME or .config (https://github.com/mozilla-firefox/firefox/blob/9a2dc53c369c7ae5172018b35988e1d2ffeff402/toolkit/xre/nsXREDirProvider.cpp#L1471-L1500).',
     },
 }
 
