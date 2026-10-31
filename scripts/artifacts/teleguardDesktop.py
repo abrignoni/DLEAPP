@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         'name': 'TeleGuard Windows Messages',
         'description': 'Stored TeleGuard Windows message records with source-scoped conversations, text, timestamps, state fields and local attachment references.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-31',
         'requirements': 'none', 'category': 'TeleGuard Windows',
         'notes': 'Times are Unix milliseconds in UTC; zero is the epoch and null or invalid values are '
                  'blank. Direction compares sender with the unique service user serverId; missing ids leave '
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                  'metadata.isContentExpired; a blank is unknown, not false, and the flag does not suppress '
                  'local media.',
         'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
-        'output_types': 'standard', 'artifact_icon': 'comments',
+        'output_types': 'standard', 'artifact_icon': 'messages',
         'sample_data': {},
         'data_views': {'conversation': {
             'conversationDiscriminatorColumn': 'Conversation ID',
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         'name': 'TeleGuard Windows Chat Overview',
         'description': 'Per-source summaries of stored TeleGuard conversations with message counts, direction counts, distinct authors and first and last valid message times.',
         'author': '@ForensikITGmbH',
-        'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
+        'creation_date': '2026-10-23', 'last_update_date': '2026-10-31',
         'requirements': 'none', 'category': 'TeleGuard Windows',
         'notes': 'One row per stored chatId per database. First Message and Last Message use the minimum and '
                  'maximum valid createDate (Unix milliseconds, UTC). Direction counts compare sender with '
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
                  'only. Checked on a private TeleGuard Windows 4.0.6.2 install: 64,822 messages, '
                  '198 chats, 200 contacts, 1,394 media references.',
         'paths': ('*/[Tt]eleguard_database.db*', '*/[Tt]eleguard_desktop/*', '*/[Tt]eleGuard/*'),
-        'output_types': 'standard', 'artifact_icon': 'comments',
+        'output_types': 'standard', 'artifact_icon': 'messages',
         'sample_data': {},
     },
     'teleguardContacts': {
