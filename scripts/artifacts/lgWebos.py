@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "destination, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "LG webOS TV",
         "notes": "Reads var/luna/data/downloadhistory.db, table DownloadHistory, one row per ticket in ticket "
@@ -26,13 +26,14 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ('*/var/luna/data/downloadhistory.db*',),
         "output_types": "standard",
+        "artifact_icon": "download",
     },
     "lgWebosSystemPreferences": {
         "name": "LG webOS System Preferences",
         "description": "Key and value pairs in an LG webOS TV's system preferences database, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "LG webOS TV",
         "notes": "Reads var/luna/preferences/systemprefs.db, table Preferences, one row per key in key order, "
@@ -42,6 +43,7 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ('*/var/luna/preferences/systemprefs.db*',),
         "output_types": "standard",
+        "artifact_icon": "settings",
     },
     "lgWebosLocalStorage": {
         "name": "LG webOS Web App Local Storage",
@@ -49,7 +51,7 @@ __artifacts_v2__ = {
                        "key.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "LG webOS TV",
         "notes": "Reads the .localstorage files in the Local Storage folders under var/lib/wam and under "
@@ -72,6 +74,7 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ('*/var/lib/wam/*/Local Storage/*.localstorage*', '*/webbrowser/chrome/*/Local Storage/*.localstorage*'),
         "output_types": "standard",
+        "artifact_icon": "database",
     },
     "lgWebosInstalledApps": {
         "name": "LG webOS Installed Apps",
@@ -79,7 +82,7 @@ __artifacts_v2__ = {
                        "title, version and vendor as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "LG webOS TV",
         "notes": "Reads the appinfo.json directly inside each folder of usr/palm/applications under cryptofs/apps "
@@ -96,6 +99,7 @@ __artifacts_v2__ = {
         "paths": ('*/cryptofs/apps/usr/palm/applications/*/appinfo.json',
                   '*/system/apps/usr/palm/applications/*/appinfo.json'),
         "output_types": "standard",
+        "artifact_icon": "apps",
     },
 }
 

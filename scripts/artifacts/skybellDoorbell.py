@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "records.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Skybell (Video Doorbell)",
         "notes": "Reads the numbered files 0 to 9 of the doorbell's logs/system and logs/debug folders, which "
@@ -36,13 +36,14 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ('*/logs/system/[0-9]', '*/logs/debug/[0-9]', '*/logs/reboot.txt', '*/logs/restart.txt'),
         "output_types": "standard",
+        "artifact_icon": "file-text",
     },
     "skybellDoorbellRestarts": {
         "name": "Skybell Doorbell Restarts",
         "description": "Lines of a Skybell doorbell's reboot.txt and restart.txt logs, times as recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Skybell (Video Doorbell)",
         "notes": "Reads logs/reboot.txt and logs/restart.txt, each line 'YYYY/MM/DD-hh:mm:ss <message>', and "
@@ -56,6 +57,7 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ('*/logs/reboot.txt', '*/logs/restart.txt'),
         "output_types": "standard",
+        "artifact_icon": "refresh",
     },
     "skybellDoorbellIdentity": {
         "name": "Skybell Doorbell Identity",
@@ -63,7 +65,7 @@ __artifacts_v2__ = {
                        "wrote into its own logs, with when each combination was first and last written.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Skybell (Video Doorbell)",
         "notes": "Reads the same files as Skybell Doorbell Device Log. The doorbell writes, with no time of "
@@ -83,6 +85,7 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ('*/logs/system/[0-9]', '*/logs/debug/[0-9]', '*/logs/reboot.txt', '*/logs/restart.txt'),
         "output_types": "standard",
+        "artifact_icon": "id",
     },
     "skybellDoorbellSettings": {
         "name": "Skybell Doorbell Settings",
@@ -90,7 +93,7 @@ __artifacts_v2__ = {
                        "media_settings.json, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Skybell (Video Doorbell)",
         "notes": "Reads settings.json, system_settings.json and media_settings.json from a folder whose "
@@ -109,6 +112,7 @@ __artifacts_v2__ = {
                   '*/system_backup.json', '*/media_backup.json', '*/settings.crc', '*/system_settings.crc',
                   '*/media_settings.crc', '*/backup.crc', '*/system_backup.crc', '*/media_backup.crc'),
         "output_types": "standard",
+        "artifact_icon": "settings",
     },
 }
 
