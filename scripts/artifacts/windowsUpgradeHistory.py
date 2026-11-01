@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "time in the key's name.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
-        "last_update_date": "2026-10-10",
+        "last_update_date": "2026-11-01",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "One row for each subkey of the SYSTEM hive's Setup key whose name has the form Source OS "
@@ -42,7 +42,8 @@ __artifacts_v2__ = {
                  "Windows was installed beyond that. More than one key in a hive, a key without the install "
                  "values and a hive that cannot be read were tested with constructed input only. Source File is "
                  "the hive. Reading the hive requires the python-registry package; a dirty hive is read after "
-                 "its transaction logs are applied, and the run log names each.",
+                 "its transaction logs are applied when they can be, and as it is otherwise, and the run log "
+                 "says which. On pc_mus_001_win11 the hive was read as it is.",
         "paths": ('*/Windows/System32/config/SYSTEM',
                   '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
         "output_types": ["html", "tsv", "lava"],
@@ -59,7 +60,7 @@ __artifacts_v2__ = {
     "windowsDeviceMigration": {
         "name": "Device Migration",
         "description": "Device instances under the DeviceMigration\\Devices keys of the SYSTEM hive, the one under "
-                       "Setup\\Upgrade\\PnP and the one in each control set: one row per instance, with its "
+                       "Setup\\Upgrade\\PnP and the one in each control set: one row per instance in each key, with its "
                        "stored Present and LastPresentDate values and whether an instance with the same ID is a "
                        "key under Enum in the current control set.",
         "author": "@AlexisBrignoni, Claude",
@@ -69,8 +70,8 @@ __artifacts_v2__ = {
         "category": "Windows",
         "notes": "One row for each key three levels below a DeviceMigration\\Devices key (enumerator, device, "
                  "instance, the levels of the Enum key), read from Setup\\Upgrade\\PnP\\CurrentControlSet\\Control"
-                 "\\DeviceMigration\\Devices and from Control\\DeviceMigration\\Devices in every ControlSet key; "
-                 "Key names which. The subkeys below an instance (Interfaces, Properties, Driver, Device, "
+                 "\\DeviceMigration\\Devices and from Control\\DeviceMigration\\Devices in every ControlSet key. "
+                 "Key holds the full path of the instance key, so it says which copy a row came from. The subkeys below an instance (Interfaces, Properties, Driver, Device, "
                  "Instance) and the Classes and Locations keys beside Devices are not read. No Microsoft "
                  "description of these keys or their values was found, so nothing here rests on one. Published "
                  "research describes the Setup\\Upgrade copy as written by Windows Setup during a feature update, "
@@ -88,8 +89,8 @@ __artifacts_v2__ = {
                  "gives an empty cell and is counted in the run log. The ControlSet001 copy held 7 instances, "
                  "all with Present 0 and all also in the Setup\\Upgrade copy, six of them with the same values; "
                  "both copies are reported, 150 rows in all, and Last Present Date (UTC) was filled on 20 of "
-                 "them, the rows with Present 0.Present (as stored) is the DWORD as stored. In Current Enum is yes "
-                 "when Enum in the control set the Select key names as Current has a key with the same "
+                 "them, the rows with Present 0. Present (as stored) is the DWORD as stored. In Current Enum is yes "
+                 "when Enum in the control set the Select key names as Current (ControlSet001 when it has no Current value) has a key with the same "
                  "enumerator, device and instance names, compared without case, and no otherwise. On the image "
                  "7 of the 13 Present 0 instances in the Setup\\Upgrade copy, of the DISPLAY, HDAUDIO and SWD "
                  "enumerators, were not under Enum, and the 6 others were; 2 instances with Present 1 were not "
@@ -103,14 +104,16 @@ __artifacts_v2__ = {
                  "CompatibleIds, LocationPaths and Duplicate values are not shown. Not tested: USB storage "
                  "devices (the image has none in these keys, though the research above reports them), a system "
                  "upgraded more than once, the hive in Windows.old and a hive that cannot be read; more than one "
-                 "control set and a value of another type were tested with constructed input only. A system "
-                 "with no feature update has no such key: af_case2_win10, lonewolf_win10, szechuan_win10 and the "
-                 "two Windows 11 build 26200 captures have none and give no row. Source File is the hive. "
+                 "control set and a LastPresentDate of another length were tested with constructed input only. The five other "
+                 "tested extractions, af_case2_win10, lonewolf_win10, szechuan_win10 and the two Windows 11 build "
+                 "26200 captures, have no Setup\\Upgrade key and no DeviceMigration key and give no row; the "
+                 "research above reports the key is created by a feature update. Source File is the hive. "
                  "Reading the hive requires the python-registry package; a dirty hive is read after its "
-                 "transaction logs are applied, and the run log names each.",
+                 "transaction logs are applied when they can be, and as it is otherwise, and the run log says "
+                 "which. On pc_mus_001_win11 the hive was read as it is.",
         "paths": ('*/Windows/System32/config/SYSTEM',
                   '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
-        "output_types": ["html", "tsv", "timeline", "lava"],
+        "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "cpu",
         "sample_data": {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no DeviceMigration key)",
