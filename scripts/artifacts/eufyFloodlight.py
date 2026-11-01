@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "and last frames record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Eufy (Floodlight Camera)",
         "notes": "Reads the .dat files in the camera's Camera00 folder, one row per recording file, in name "
@@ -57,13 +57,14 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ("*/Camera00/*.dat",),
         "output_types": "standard",
+        "artifact_icon": "video",
     },
     "eufyFloodlightLog": {
         "name": "Eufy Floodlight Log Events",
         "description": "Selected events from a eufy floodlight camera's own daily log files.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-29",
-        "last_update_date": "2026-09-29",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Eufy (Floodlight Camera)",
         "notes": "Reads the camera's log folder, files named sec.YYYY-MM-DD.log, on the same volume as its "
@@ -95,6 +96,7 @@ __artifacts_v2__ = {
         "sample_data": {},
         "paths": ("*/log/sec.*.log",),
         "output_types": "standard",
+        "artifact_icon": "file-text",
     },
 }
 
