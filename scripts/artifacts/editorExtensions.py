@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "name": "Code Editor Extensions",
         "description": "Extensions listed in the extensions.json file of Visual Studio Code and of editors "
                        "built on its code, such as VSCodium, with the time each was last installed or updated, "
-                       "its version, and whether it came from the extension gallery or a VSIX file.",
+                       "its version, and its stored install source.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
@@ -21,23 +21,26 @@ __artifacts_v2__ = {
                  "(https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/environment/common/environmentService.ts#L131-L147). "
                  "Each entry holds an identifier, a location, a relative location, a version and optional metadata "
                  "(https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/common/extensionsProfileScannerService.ts#L23-L29, "
-                 "https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/common/extensionManagement.ts#L280-L291). "
-                 "An entry is reported only when it passes the check the editor applies before using it "
-                 "(https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/common/extensionsProfileScannerService.ts#L393-L401); "
-                 "entries that fail it, and files whose top level is not a list, are counted in the run log. "
+                 "https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/common/extensionManagement.ts#L270-L292). "
+                 "An entry is reported only when it passes a check modelled on the one the editor applies "
+                 "(https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/common/extensionsProfileScannerService.ts#L393-L401), which is looser on the location object and "
+                 "ignores the uuid; entries that fail it, and files whose top level is not a list, are counted in the run log. "
                  "Installed (UTC) is metadata.installedTimestamp, Unix time in milliseconds, which the install step "
                  "sets to the time of that install "
                  "(https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/node/extensionManagementService.ts#L1084-L1092). "
                  "On ubuntu2604_arm64_editorext_known_20261101 every Installed (UTC) value fell between the logged "
                  "start and end of the command that wrote it, and updating an extension replaced its value with the "
                  "time of the update, so the column is the latest install or update, not the first install. "
-                 "Source is gallery or vsix as stored (vsix when the extension was installed from a file); on that "
+                 "Source is metadata.source as stored. The editor's code names gallery, vsix and resource "
+                 "(https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/common/extensionManagement.ts#L268), and the install step "
+                 "writes vsix when the extension was installed from a file "
+                 "(https://github.com/microsoft/vscode/blob/8fb60541db0e1a371ea40157e0f58951ae4a485d/src/vs/platform/extensionManagement/node/extensionManagementService.ts#L1091); on that "
                  "image the extension installed from a VSIX file read vsix and the others gallery. Pinned held true "
                  "on every row of that image: the editor records true when a given version is installed, the "
                  "VSIX install also recorded true, and the update kept it. In the step copies of the file, the "
                  "extension installed from the gallery without a version had no pinned key, and Pinned is blank "
                  "where the key is absent. Updated held true after the update. On rows installed from a VSIX file, "
-                 "Updated, Pre-release Version, Publisher Display Name and Target Platform are blank, as those keys "
+                 "Updated, Pre-release, Publisher Display Name and Target Platform are blank, as those keys "
                  "were absent. Target Platform is as stored: Visual Studio Code wrote undefined and VSCodium "
                  "universal for the same extension. Extension ID is the identifier as stored, which on that image "
                  "was lowercase where the extension's own package.json spells it with capitals. The folder holding "
@@ -68,8 +71,8 @@ __artifacts_v2__ = {
     "editorExtensionsObsolete": {
         "name": "Code Editor Extensions Marked for Removal",
         "description": "Extension folders named in the .obsolete file of Visual Studio Code and of editors built "
-                       "on its code, which the editor writes when an extension is uninstalled or replaced by "
-                       "another version, with the extension ID and version read from the folder's package.json "
+                       "on its code, which the editor wrote on the tested data when an extension was uninstalled "
+                       "and when one was replaced by another version, with the extension ID and version read from the folder's package.json "
                        "when the folder is in the extraction.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-01",
@@ -88,7 +91,8 @@ __artifacts_v2__ = {
                  "when that pass runs was not tested, as no editor window was opened. Extension ID (package.json) "
                  "is the publisher and name in the package.json of that folder, in the same extensions folder, "
                  "joined with a dot, and Version (package.json) its version; both are blank when that package.json "
-                 "is not in the extraction, which is counted in the run log. On that image the uninstall was made "
+                 "is not in the extraction, which is counted in the run log, and when the file has no publisher, "
+                 "name or version. On that image the uninstall was made "
                  "with each editor's command line, and all four listed folders were still present. Source File is "
                  "as in Code Editor Extensions.",
         "paths": ('*/extensions/.obsolete',),
@@ -209,7 +213,7 @@ def extension_rows(data, problems):
 @artifact_processor
 def editorExtensions(context):
     data_headers = (('Installed (UTC)', 'datetime'), 'Extension ID', 'Version', 'Source', 'Pinned', 'Updated',
-                    'Pre-release Version', 'Publisher Display Name', 'Target Platform', 'Extension Folder',
+                    'Pre-release', 'Publisher Display Name', 'Target Platform', 'Extension Folder',
                     'Source File')
     data_list, read, problems = [], [], Counter()
     for path in sorted(str(p) for p in context.get_files_found() if not os.path.isdir(p)):
