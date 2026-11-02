@@ -8,11 +8,11 @@ __artifacts_v2__ = {
         "name": "iCloud Drive Items",
         "description": "Items in each user's iCloud Drive client database (CloudDocs client.db): "
                        "file name, the path rebuilt from the parent entries it stores, the stored "
-                       "item type and size, zone and app library, with the stored birth, "
-                       "modification and last used times.",
+                       "item type and size, zone and app library, the device name the item's version names, "
+                       "with the stored birth, modification and last used times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-11-02",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
         "notes": "Reads each user's client.db under ~/Library/Application "
@@ -38,8 +38,15 @@ __artifacts_v2__ = {
                  "version_mtime is 0 on 27 of the 42 items, so Version Modified is blank "
                  "on those rows, Trash Put-Back Path is empty on every row, and the Users/ and "
                  "System/Volumes/Data/Users/ copies hold a byte-identical client.db with "
-                 "different -wal files, and both are read; each of the 42 items is in both and is reported once, with both files in Source File. server.db "
-                 "is not read. All rows on each image come from one user, so User holds "
+                 "different -wal files, and both are read; each of the 42 items is in both and is reported once, with both files in Source File. "
+                 "Version Device is the name in the devices table of the server.db beside client.db whose key "
+                 "equals the item's version_device as stored; the stored number is shown when no such row or "
+                 "file is there. Apple documents neither column, so that the named device wrote the version is "
+                 "what the column name says, not something a source establishes. Every non-null version_device "
+                 "on the tested images resolved to a name: 23 of 72 rows on dleapp_macos_bigsur (3 device names), "
+                 "10 of 42 on mvs2026_macbookpro_macos15 (2) and 4 of 30 on magnet2021_macos_bigsur (2); Version "
+                 "Device held no value on the other rows, whose version_device is null. Nothing else in server.db "
+                 "is read: its server_items held no file name that client_items lacks on dleapp_macos_bigsur. All rows on each image come from one user, so User holds "
                  "one value there. When a logical extraction holds the same file under "
                  "Users/ and under System/Volumes/Data/Users/, a second copy whose database and "
                  "-wal file are both byte-identical to the first is not read again, and is "
@@ -52,8 +59,10 @@ __artifacts_v2__ = {
                            "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 72 rows",
                            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 30 rows",
                            "mvs2026_macbookpro_macos15": "macOS 15.4 | 42 rows",
+                           "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no member matches the declared paths)",
                        },
-        "paths": ('*/Library/Application Support/CloudDocs/session/db/client.db*',),
+        "paths": ('*/Library/Application Support/CloudDocs/session/db/client.db*',
+                  '*/Library/Application Support/CloudDocs/session/db/server.db*'),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "cloud",
     }
@@ -69,7 +78,8 @@ from scripts.macos_plists import fold_view_rows, unique_sources, user_from_path
 _LABEL = 'iCloud Drive Items'
 _ITEM_COLUMNS = ('item_id', 'item_parent_id', 'item_filename', 'item_type', 'version_size',
                  'version_mtime', 'item_birthtime', 'item_lastusedtime', 'zone_rowid',
-                 'app_library_rowid', 'item_trash_put_back_path', 'item_user_visible')
+                 'app_library_rowid', 'item_trash_put_back_path', 'item_user_visible',
+                 'version_device')
 
 
 def _text(value):
@@ -107,24 +117,34 @@ def _path(item_id, items):
     return '/'.join(reversed(names))
 
 
+def _devices(path):
+    """{key: name} of the devices table in the server.db beside a client.db; {} when there is none."""
+    server = os.path.join(os.path.dirname(path), 'server.db')
+    if not os.path.isfile(server) or not does_table_exist_in_db(server, 'devices'):
+        return {}
+    return {row[0]: row[1] for row in get_sqlite_db_records(server, 'SELECT key, name FROM devices')}
+
+
 def _rows(path):
+    devices = _devices(path)
     zones = {row[0]: row[1] for row in _select(path, 'client_zones', ('rowid', 'zone_name'))}
     libraries = {row[0]: row[1] for row in _select(
         path, 'app_libraries', ('rowid', 'app_library_name'))}
     records = _select(path, 'client_items', _ITEM_COLUMNS)
     items = {row[0]: (row[1], row[2]) for row in records if row[0] is not None}
     for (item_id, _parent, name, item_type, size, mtime, birth, last_used, zone, library,
-         put_back, visible) in records:
+         put_back, visible, device) in records:
         yield (_unix_utc(birth), _unix_utc(mtime), _unix_utc(last_used), _text(name),
                _path(item_id, items), _text(item_type), _text(size), _text(zones.get(zone, zone)),
-               _text(libraries.get(library, library)), _text(put_back), _text(visible))
+               _text(libraries.get(library, library)), _text(devices.get(device, device)),
+               _text(put_back), _text(visible))
 
 
 @artifact_processor
 def macosICloudDriveItems(context):
     data_headers = (('Item Birth Time (UTC)', 'datetime'), ('Version Modified (UTC)', 'datetime'),
                     ('Last Used (UTC)', 'datetime'), 'File Name', 'Path', 'Item Type (as stored)',
-                    'Size (bytes, as stored)', 'Zone', 'App Library',
+                    'Size (bytes, as stored)', 'Zone', 'App Library', 'Version Device',
                     'Trash Put-Back Path (as stored)', 'User Visible (as stored)', 'User',
                     'Source File')
     data_list = []
