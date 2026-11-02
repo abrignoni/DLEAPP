@@ -129,6 +129,57 @@ class CbsEventsTest(unittest.TestCase):
         self.assertEqual(problems, {'TrustedInstaller runs whose UTC lines give more than one offset': 1})
 
 
+
+class CbsChecksTest(unittest.TestCase):
+    def test_sfp_runs_and_a_store_scan(self):
+        text = _cbs(('2026-01-05 10:00:00', 'CBS', TI),
+                    ('2026-01-05 10:00:01', 'CBS', 'TiWorker: Client requests SFP repair object.'),
+                    ('2026-01-05 10:00:01', 'CBS', 'Universal Time is: 2026-01-05 15:00:01.500'),
+                    ('2026-01-05 10:00:02', 'CSI', '00000008 [SR] Verifying 100 components'),
+                    ('2026-01-05 10:00:02', 'CSI', '00000009 [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:03', 'CSI', '0000000a [SR] Verify complete'),
+                    ('2026-01-05 10:00:04', 'CSI', '0000000b [SR] Verifying 14 components'),
+                    ('2026-01-05 10:00:04', 'CSI', '0000000c [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000d [SR] Repairing 2 components'),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000e [SR] Repair complete'),
+                    ('2026-01-05 10:00:06', 'DEPLOY', '[Pnp] Corrupt file: C:\\made\\up.sys'),
+                    ('2026-01-05 10:00:06', 'DEPLOY', '[Pnp] Repaired file: C:\\made\\up.sys'),
+                    ('2026-01-05 10:05:00', 'CBS', 'TiWorker: Client requests SFP repair object.'),
+                    ('2026-01-05 10:10:00', 'CBS', 'Exec: Session processing started. Client: Manual, Session(DISM '
+                                                   'Package Manager Provider Store Corruption Detect/Repair): 7_7'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Checking System Update Readiness.'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Operation: Detect only '),
+                    ('2026-01-05 10:12:00', 'CBS', 'Operation result: 0x0'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Detected Corruption:\t816'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Repaired Corruption:\t0'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Operation Time: 112 seconds.'))
+        problems = Counter()
+        runs, scans = cbs.cbs_checks(text, problems)
+        self.assertEqual([(r['local'], r['offset'], r['last'], r['transactions'], r['verified'], r['repairs'],
+                           r['repaired'], r['corrupt_files'], r['repaired_files']) for r in runs], [
+            ('2026-01-05 10:00:01', -300, '2026-01-05 10:00:06', 2, 114, 1, 2, ['C:\\made\\up.sys'],
+             ['C:\\made\\up.sys']),
+            ('2026-01-05 10:05:00', -300, '2026-01-05 10:05:00', 0, 0, 0, 0, [], []),
+        ])
+        self.assertEqual(scans, [{'local': '2026-01-05 10:12:00', 'offset': -300, 'started': '2026-01-05 10:10:00',
+                                  'session': '7_7', 'operation': 'Detect only', 'result': '0x0', 'detected': '816',
+                                  'repaired': '0', 'seconds': '112'}])
+        self.assertEqual(problems, Counter())
+
+    def test_sr_lines_with_no_request_before_them_get_a_run_of_their_own_and_are_counted(self):
+        text = _cbs(('2026-01-05 10:00:00', 'CBS', TI),
+                    ('2026-01-05 10:00:02', 'CSI', '00000009 [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:03', 'CSI', '0000000a [SR] Verifying 1 components'),
+                    ('2026-01-05 10:00:04', 'CBS', TI),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000b [SR] Beginning Verify and Repair transaction'))
+        problems = Counter()
+        runs, scans = cbs.cbs_checks(text, problems)
+        self.assertEqual([(r['local'], r['transactions'], r['verified']) for r in runs],
+                         [('2026-01-05 10:00:02', 1, 1), ('2026-01-05 10:00:05', 1, 0)])
+        self.assertEqual(scans, [])
+        self.assertEqual(problems, {'runs of [SR] or [Pnp] lines with no SFP repair object request before them': 2})
+
+
 def _dism(*lines):
     return '\ufeff' + ''.join(f'{local}, {level:<22}DISM   {message}\r\n' for local, level, message in lines)
 
@@ -139,6 +190,8 @@ class DismSessionsTest(unittest.TestCase):
             ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
             ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Host machine information: OS Version=10.0.26100, Running '
                                             'architecture=amd64, Number of processors=8'),
+            ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Instance information: Parent process=C:\\made-up.exe, Parent '
+                                            'process PID=9999'),
             ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Executing command line: dism.exe /online /get-features'),
             ('2024-08-30 15:53:16', 'Info', 'DISM Manager: PID=7624 TID=7616 Image session successfully loaded - '
                                             'CDISMManager::CreateImageSession'),
@@ -165,6 +218,19 @@ class DismSessionsTest(unittest.TestCase):
             ('2024-08-30 15:53:18', '', 'DismApi.dll', '', '', '200', ''),
         ])
         self.assertEqual(problems, {'sessions with no ending line, reported with a blank end time': 1})
+
+    def test_overlapping_dism_exe_sessions_are_counted_and_the_earlier_left_open(self):
+        text = _dism(('2026-10-12 15:08:12', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
+                     ('2026-10-12 15:08:14', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
+                     ('2026-10-12 15:08:20', 'Info', 'DISM.EXE: Image session has been closed. Reboot required=yes.'),
+                     ('2026-10-12 15:08:21', 'Info', 'DISM.EXE: <----- Ending Dism.exe session ----->'))
+        problems = Counter()
+        sessions = cbs.dism_sessions(text, problems)
+        self.assertEqual([(s['start'], s['end'], s['reboot']) for s in sessions],
+                         [('2026-10-12 15:08:12', '', ''), ('2026-10-12 15:08:14', '2026-10-12 15:08:21', 'yes')])
+        self.assertEqual(problems, {'Dism.exe sessions that started before the one before them ended, the earlier '
+                                    'reported with no end time': 1,
+                                    'sessions with no ending line, reported with a blank end time': 1})
 
     def test_a_log_with_no_session_gives_no_rows(self):
         self.assertEqual(cbs.dism_sessions(_dism(('2024-08-30 15:53:16', 'Info', 'DISM.EXE: nothing')), Counter()),
