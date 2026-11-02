@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "name": "iCloud Drive Items",
         "description": "Items in each user's iCloud Drive client database (CloudDocs client.db): "
                        "file name, the path rebuilt from the parent entries it stores, the stored "
-                       "item type and size, zone and app library, the device name the item's version names, "
+                       "item type and size, zone and app library, the device name the server.db devices table "
+                       "gives for the item's version_device, "
                        "with the stored birth, modification and last used times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
@@ -41,7 +42,8 @@ __artifacts_v2__ = {
                  "different -wal files, and both are read; each of the 42 items is in both and is reported once, with both files in Source File. "
                  "Version Device is the name in the devices table of the server.db beside client.db whose key "
                  "equals the item's version_device as stored; the stored number is shown when no such row or "
-                 "file is there. Apple documents neither column, so that the named device wrote the version is "
+                 "file is there, and no tested image exercised that case. This module cites no Apple "
+                 "documentation for either column, so that the named device wrote the version is "
                  "what the column name says, not something a source establishes. Every non-null version_device "
                  "on the tested images resolved to a name: 23 of 72 rows on dleapp_macos_bigsur (3 device names), "
                  "10 of 42 on mvs2026_macbookpro_macos15 (2) and 4 of 30 on magnet2021_macos_bigsur (2); Version "
