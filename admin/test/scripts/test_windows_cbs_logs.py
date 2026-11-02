@@ -129,6 +129,57 @@ class CbsEventsTest(unittest.TestCase):
         self.assertEqual(problems, {'TrustedInstaller runs whose UTC lines give more than one offset': 1})
 
 
+
+class CbsChecksTest(unittest.TestCase):
+    def test_sfp_runs_and_a_store_scan(self):
+        text = _cbs(('2026-01-05 10:00:00', 'CBS', TI),
+                    ('2026-01-05 10:00:01', 'CBS', 'TiWorker: Client requests SFP repair object.'),
+                    ('2026-01-05 10:00:01', 'CBS', 'Universal Time is: 2026-01-05 15:00:01.500'),
+                    ('2026-01-05 10:00:02', 'CSI', '00000008 [SR] Verifying 100 components'),
+                    ('2026-01-05 10:00:02', 'CSI', '00000009 [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:03', 'CSI', '0000000a [SR] Verify complete'),
+                    ('2026-01-05 10:00:04', 'CSI', '0000000b [SR] Verifying 14 components'),
+                    ('2026-01-05 10:00:04', 'CSI', '0000000c [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000d [SR] Repairing 2 components'),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000e [SR] Repair complete'),
+                    ('2026-01-05 10:00:06', 'DEPLOY', '[Pnp] Corrupt file: C:\\made\\up.sys'),
+                    ('2026-01-05 10:00:06', 'DEPLOY', '[Pnp] Repaired file: C:\\made\\up.sys'),
+                    ('2026-01-05 10:05:00', 'CBS', 'TiWorker: Client requests SFP repair object.'),
+                    ('2026-01-05 10:10:00', 'CBS', 'Exec: Session processing started. Client: Manual, Session(DISM '
+                                                   'Package Manager Provider Store Corruption Detect/Repair): 7_7'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Checking System Update Readiness.'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Operation: Detect only '),
+                    ('2026-01-05 10:12:00', 'CBS', 'Operation result: 0x0'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Detected Corruption:\t816'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Repaired Corruption:\t0'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Operation Time: 112 seconds.'))
+        problems = Counter()
+        runs, scans = cbs.cbs_checks(text, problems)
+        self.assertEqual([(r['local'], r['offset'], r['last'], r['transactions'], r['verified'], r['repairs'],
+                           r['repaired'], r['corrupt_files'], r['repaired_files']) for r in runs], [
+            ('2026-01-05 10:00:01', -300, '2026-01-05 10:00:06', 2, 114, 1, 2, ['C:\\made\\up.sys'],
+             ['C:\\made\\up.sys']),
+            ('2026-01-05 10:05:00', -300, '2026-01-05 10:05:00', 0, 0, 0, 0, [], []),
+        ])
+        self.assertEqual(scans, [{'local': '2026-01-05 10:12:00', 'offset': -300, 'started': '2026-01-05 10:10:00',
+                                  'session': '7_7', 'operation': 'Detect only', 'result': '0x0', 'detected': '816',
+                                  'repaired': '0', 'seconds': '112'}])
+        self.assertEqual(problems, Counter())
+
+    def test_sr_lines_with_no_request_before_them_get_a_run_of_their_own_and_are_counted(self):
+        text = _cbs(('2026-01-05 10:00:00', 'CBS', TI),
+                    ('2026-01-05 10:00:02', 'CSI', '00000009 [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:03', 'CSI', '0000000a [SR] Verifying 1 components'),
+                    ('2026-01-05 10:00:04', 'CBS', TI),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000b [SR] Beginning Verify and Repair transaction'))
+        problems = Counter()
+        runs, scans = cbs.cbs_checks(text, problems)
+        self.assertEqual([(r['local'], r['transactions'], r['verified']) for r in runs],
+                         [('2026-01-05 10:00:02', 1, 1), ('2026-01-05 10:00:05', 1, 0)])
+        self.assertEqual(scans, [])
+        self.assertEqual(problems, {'runs of [SR] or [Pnp] lines with no SFP repair object request before them': 2})
+
+
 def _dism(*lines):
     return '\ufeff' + ''.join(f'{local}, {level:<22}DISM   {message}\r\n' for local, level, message in lines)
 
