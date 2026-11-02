@@ -2,8 +2,9 @@
 
 The MSZIP cabinets are written here, one block per 32 KiB as the tested CbsPersist cabs hold them. The LZX cabinets
 in admin/test/data/cab were made by makecab.exe on Windows 11 from made-up inputs that cab_fixture_inputs.py rebuilds
-from fixed seeds, so each decode is compared byte for byte with the file makecab was given. Each LZX fixture fails
-under one of the readings of the format the module docstring rejects.
+from fixed seeds, so each decode is compared byte for byte with the file makecab was given. Four of the five LZX
+fixtures fail under at least one of the readings the module docstring rejects; random_odd.w16.cab, an uncompressed
+block, passes under all of them and pins the uncompressed block path.
 """
 import pathlib
 import struct

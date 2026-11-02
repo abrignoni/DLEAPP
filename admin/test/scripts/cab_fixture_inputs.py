@@ -1,8 +1,8 @@
 """The made-up inputs behind admin/test/data/cab/*.cab, rebuilt from fixed seeds.
 
 Each cab was made on Windows 11 build 26200 (ARM64) by makecab.exe from the file one of these functions writes, with
-"makecab /D CompressionType=LZX /D CompressionMemory=<window bits> <input> <cab>"; the window bits are in the cab's
-name. test_cab_reader.py decodes each cab and compares it byte for byte with the input rebuilt here.
+"makecab /D CompressionType=LZX /D CompressionMemory=<window bits> <input> <cab>", the window bits being the ones in
+the cab's name (each cab's CFFOLDER records LZX and that window). test_cab_reader.py decodes each cab and compares it byte for byte with the input rebuilt here.
 """
 import random
 import struct
@@ -30,10 +30,10 @@ def aligned_records():
 def e8_frame_ends():
     """Four frames of repeated text with E8 bytes placed near frame ends, each followed by an operand in the range
     that gets translated: 11 bytes before the end of frame 1 (translated), 8 bytes before the end of frame 2 (not
-    translated) and 22 bytes before the end of frame 3."""
+    translated), and 22 and 10 bytes before the end of frame 3 (the first translated, the second not)."""
     line = b'2026-01-01 00:00:00, Info                  CBS    made-up line for the E8 fixture\r\n'
     out = bytearray((line * (4 * FRAME // len(line) + 1))[:4 * FRAME])
-    for frame, back, operand in ((1, 11, 1000), (2, 8, 2000), (3, 22, 3000)):
+    for frame, back, operand in ((1, 11, 1000), (2, 8, 2000), (3, 22, 3000), (3, 10, 4000)):
         at = frame * FRAME - back
         out[at] = 0xE8
         out[at + 1:at + 5] = struct.pack('<i', operand)

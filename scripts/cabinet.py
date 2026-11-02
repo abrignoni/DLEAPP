@@ -7,16 +7,20 @@ The cabinet layout (CFHEADER, CFFOLDER, CFFILE, CFDATA) follows the Microsoft Ca
 (https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69):
 each CFDATA block is "CK" and a deflate stream whose history is the 32 KiB of output before it.
 
-LZX follows the LZX section of the same cabinet document, with three points where Windows' own makecab.exe
+LZX follows the LZX section of the same cabinet document, with four points where Windows' own makecab.exe
 (Windows 11 build 26200) writes differently from that text, each settled by decoding makecab output back to the
-input it was made from (admin/test/scripts/test_cab_reader.py):
+input it was made from, and each pinned by a fixture in admin/test/scripts/test_cab_reader.py:
 
-- a path length coded 0 to 16 in a pretree is (previous length - code) mod 17;
-- in an aligned offset block, a position slot with 3 footer bits takes them from the aligned offset tree;
-- E8 call translation leaves the last 10 bytes of each 32 KiB frame alone.
+- a path length coded 0 to 16 in a pretree is (previous length - code) mod 17, where the text gives plus;
+- in an aligned offset block the aligned offset tree comes before the main tree, where the text's block table
+  lists it after the main tree;
+- in an aligned offset block, a position slot with 3 footer bits takes them from the aligned offset tree, as the
+  text's prose says and its decoding pseudocode (extra > 3) does not;
+- E8 call translation leaves the last 10 bytes of each 32 KiB frame alone, where the text says 6.
 
 The window size, 2^15 to 2^21 bytes, is given by the folder's compression type. A 2 MiB window has 50 position
-slots: from slot 36 on each slot spans 2^17 positions, and slots 36 to 49 reach 2^21.
+slots: from slot 36 on each slot spans 2^17 positions, and slots 36 to 49 reach 2^21. The text's window table
+says 42; its own slot table and the makecab output give 50.
 
 Only a cabinet with one folder and one file is read. Every block's recorded uncompressed size (MSZIP) or the
 file's recorded size (both) is checked, and a mismatch raises CabError.
