@@ -3,8 +3,9 @@
 A WLAN profile stores its pre-shared key in <sharedKey><keyMaterial>. When
 <protected> is true the key material is a DPAPI blob protected in the LocalSystem
 (SYSTEM) context. Recovering it offline needs, from the same image, the SYSTEM and
-SECURITY registry hives and the SYSTEM DPAPI master keys; scripts/windows_dpapi.py
-runs that chain with PyCryptodome and python-registry.
+SECURITY registry hives and the SYSTEM DPAPI master keys; the vendored dpapiprobe
+library (scripts/vendor/dpapiprobe) runs that chain with PyCryptodome and
+python-registry.
 """
 
 __artifacts_v2__ = {
@@ -18,7 +19,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-02",
         "requirements": "none",
         "category": "Windows Network",
-        "notes": "Reads each WLAN profile under ProgramData\\Microsoft\\Wlansvc\\Profiles\\Interfaces, and any copy under Wlansvc\\MigrationData\\Profiles\\Interfaces, and recovers the pre-shared key from the profile's sharedKey/keyMaterial. When sharedKey/protected is true the key material is a DPAPI blob; on every image run its master key was one of the SYSTEM (S-1-5-18) master keys, opened with the DPAPI_SYSTEM secret. It is decrypted offline by scripts/windows_dpapi.py (PyCryptodome and python-registry) from four inputs that must all be in the same extraction: the boot key from the SYSTEM hive, the DPAPI_SYSTEM LSA secret from the SECURITY hive, the SYSTEM DPAPI master keys under Windows\\System32\\Microsoft\\Protect\\S-1-5-18, and the profile. All seven images run had the hives and the S-1-5-18 master keys. The hives and master key files are opened read only. Key is the recovered key material decoded as UTF-8 and cut at the first NUL byte (on the three images the recovered material was the passphrase followed by one NUL byte); on the tested images it was ASCII. Key Status says how it was obtained: 'recovered' is decrypted from a protected blob; 'stored unprotected' is a profile whose protected flag is false, where keyMaterial is the key as stored (not seen on any image run); 'no keyMaterial in profile' is a profile with no sharedKey/keyMaterial (Microsoft documents sharedKey as optional and only necessary when WEP, PSK or SAE keys are included, so 802.1X profiles and open networks without WEP need not store one; not seen on any image run); 'decrypt failed' is key material that is not a decodable blob, or a protected blob whose master key file was not in the extraction or did not open (not seen on any image run); and 'hives or master keys not available' (or 'hives did not yield the decryption inputs') is an extraction that cannot supply the decryption inputs, where a protected key is left blank, which is not evidence that no key is stored (not seen on any image run). SSID, Authentication, Encryption, Key Type and Connection Mode are the profile's SSIDConfig name, authentication, encryption, sharedKey keyType and connectionMode as stored, surrounding whitespace trimmed. Interface is the GUID-named folder under Interfaces the profile sits in. Source File names the profile each row came from; a live profile and its MigrationData copy are separate rows with their own paths, so one network can appear twice with the same key, as it did on pc_mus_001_win11. Tested on seven Windows images; three had a profile and each decrypted the protected key (authentication WPA2PSK on two, WPA3SAE on one), pc_mus_001_win11 holding it twice (live and migration) and the others once. The DPAPI chain (boot key, DPAPI_SYSTEM secret, SYSTEM master keys, blob) was also checked with a value known in advance, protected under the SYSTEM account on a test system, and recovered it unchanged; that check covers the DPAPI chain, not the WLAN profile parsing. The master key each blob named was decrypted on one Windows 10 and two Windows 11 images. Not covered: profiles with no sharedKey (802.1X, and open networks without WEP) have no stored key to recover. No other LEAPP core reads this profile.",
+        "notes": "Reads each WLAN profile under ProgramData\\Microsoft\\Wlansvc\\Profiles\\Interfaces, and any copy under Wlansvc\\MigrationData\\Profiles\\Interfaces, and recovers the pre-shared key from the profile's sharedKey/keyMaterial. When sharedKey/protected is true the key material is a DPAPI blob; on every image run its master key was one of the SYSTEM (S-1-5-18) master keys, opened with the DPAPI_SYSTEM secret. It is decrypted offline by the vendored dpapiprobe library (scripts/vendor/dpapiprobe, PyCryptodome and python-registry) from four inputs that must all be in the same extraction: the boot key from the SYSTEM hive, the DPAPI_SYSTEM LSA secret from the SECURITY hive, the SYSTEM DPAPI master keys under Windows\\System32\\Microsoft\\Protect\\S-1-5-18, and the profile. All seven images run had the hives and the S-1-5-18 master keys. The hives and master key files are opened read only. Key is the recovered key material decoded as UTF-8 and cut at the first NUL byte (on the three images the recovered material was the passphrase followed by one NUL byte); on the tested images it was ASCII. Key Status says how it was obtained: 'recovered' is decrypted from a protected blob; 'stored unprotected' is a profile whose protected flag is false, where keyMaterial is the key as stored (not seen on any image run); 'no keyMaterial in profile' is a profile with no sharedKey/keyMaterial (Microsoft documents sharedKey as optional and only necessary when WEP, PSK or SAE keys are included, so 802.1X profiles and open networks without WEP need not store one; not seen on any image run); 'decrypt failed' is key material that is not a decodable blob, or a protected blob whose master key file was not in the extraction or did not open (not seen on any image run); and 'hives or master keys not available' (or 'hives did not yield the decryption inputs') is an extraction that cannot supply the decryption inputs, where a protected key is left blank, which is not evidence that no key is stored (not seen on any image run). SSID, Authentication, Encryption, Key Type and Connection Mode are the profile's SSIDConfig name, authentication, encryption, sharedKey keyType and connectionMode as stored, surrounding whitespace trimmed. Interface is the GUID-named folder under Interfaces the profile sits in. Source File names the profile each row came from; a live profile and its MigrationData copy are separate rows with their own paths, so one network can appear twice with the same key, as it did on pc_mus_001_win11. Tested on seven Windows images; three had a profile and each decrypted the protected key (authentication WPA2PSK on two, WPA3SAE on one), pc_mus_001_win11 holding it twice (live and migration) and the others once. The DPAPI chain (boot key, DPAPI_SYSTEM secret, SYSTEM master keys, blob) was also checked with a value known in advance, protected under the SYSTEM account on a test system, and recovered it unchanged; that check covers the DPAPI chain, not the WLAN profile parsing. The master key each blob named was decrypted on one Windows 10 and two Windows 11 images. Not covered: profiles with no sharedKey (802.1X, and open networks without WEP) have no stored key to recover. No other LEAPP core reads this profile.",
         "paths": (
             '*/ProgramData/Microsoft/Wlansvc/Profiles/Interfaces/*/*.xml',
             '*/ProgramData/Microsoft/Wlansvc/MigrationData/Profiles/Interfaces/*/*.xml',
@@ -48,7 +49,7 @@ import struct
 from xml.etree import ElementTree
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts import windows_dpapi
+from scripts.vendor import dpapiprobe
 
 _LABEL = 'Windows Wi-Fi Keys'
 _NS = '{http://www.microsoft.com/networking/WLAN/profile/v1}'
@@ -64,9 +65,9 @@ class _Vault:
     """Decrypts the SYSTEM master keys of an image once, and opens blobs against them."""
 
     def __init__(self, system_hive, security_hive, mk_files):
-        bootkey = windows_dpapi.get_bootkey(system_hive)
-        dpapi_system = windows_dpapi.get_dpapi_system(security_hive, bootkey)
-        self._candidates = [dpapi_system[24:44], dpapi_system[4:24]]  # SYSTEM user key, then machine key
+        bootkey = dpapiprobe.get_bootkey(system_hive)
+        dpapi_system = dpapiprobe.get_dpapi_system(security_hive, bootkey)
+        self._candidates = dpapiprobe.system_master_key_candidates(dpapi_system)
         self._mk_files = mk_files  # {guid: path}
         self._keys = {}
 
@@ -76,15 +77,15 @@ class _Vault:
             self._keys[guid] = None
             if path:
                 with open(path, 'rb') as handle:
-                    self._keys[guid] = windows_dpapi.decrypt_master_key(handle.read(), self._candidates)
+                    self._keys[guid] = dpapiprobe.decrypt_master_key(handle.read(), self._candidates)
         return self._keys[guid]
 
     def decrypt(self, key_material):
         raw = binascii.unhexlify(key_material)
-        master_key = self._master_key(windows_dpapi.parse_blob_mkguid(raw))
+        master_key = self._master_key(dpapiprobe.DpapiBlob(raw).mk_guid)
         if master_key is None:
             return None
-        return windows_dpapi.decrypt_blob(raw, master_key)
+        return dpapiprobe.decrypt_blob(raw, master_key)
 
 
 @artifact_processor
