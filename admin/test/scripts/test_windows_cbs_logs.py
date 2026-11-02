@@ -190,6 +190,8 @@ class DismSessionsTest(unittest.TestCase):
             ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
             ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Host machine information: OS Version=10.0.26100, Running '
                                             'architecture=amd64, Number of processors=8'),
+            ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Instance information: Parent process=C:\\made-up.exe, Parent '
+                                            'process PID=9999'),
             ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Executing command line: dism.exe /online /get-features'),
             ('2024-08-30 15:53:16', 'Info', 'DISM Manager: PID=7624 TID=7616 Image session successfully loaded - '
                                             'CDISMManager::CreateImageSession'),
@@ -216,6 +218,19 @@ class DismSessionsTest(unittest.TestCase):
             ('2024-08-30 15:53:18', '', 'DismApi.dll', '', '', '200', ''),
         ])
         self.assertEqual(problems, {'sessions with no ending line, reported with a blank end time': 1})
+
+    def test_overlapping_dism_exe_sessions_are_counted_and_the_earlier_left_open(self):
+        text = _dism(('2026-10-12 15:08:12', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
+                     ('2026-10-12 15:08:14', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
+                     ('2026-10-12 15:08:20', 'Info', 'DISM.EXE: Image session has been closed. Reboot required=yes.'),
+                     ('2026-10-12 15:08:21', 'Info', 'DISM.EXE: <----- Ending Dism.exe session ----->'))
+        problems = Counter()
+        sessions = cbs.dism_sessions(text, problems)
+        self.assertEqual([(s['start'], s['end'], s['reboot']) for s in sessions],
+                         [('2026-10-12 15:08:12', '', ''), ('2026-10-12 15:08:14', '2026-10-12 15:08:21', 'yes')])
+        self.assertEqual(problems, {'Dism.exe sessions that started before the one before them ended, the earlier '
+                                    'reported with no end time': 1,
+                                    'sessions with no ending line, reported with a blank end time': 1})
 
     def test_a_log_with_no_session_gives_no_rows(self):
         self.assertEqual(cbs.dism_sessions(_dism(('2024-08-30 15:53:16', 'Info', 'DISM.EXE: nothing')), Counter()),
