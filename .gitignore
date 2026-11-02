@@ -122,6 +122,7 @@ samples.json
 *.gz
 !admin/**/*.zip
 !admin/**/*.gz
+!admin/**/*.cab
 
 # Personal Claude Code context, not shared with the team
 CLAUDE.local.md

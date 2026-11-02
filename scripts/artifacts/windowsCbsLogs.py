@@ -15,6 +15,7 @@ import struct
 import zlib
 from collections import Counter
 
+from scripts.cabinet import cab_member
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 __artifacts_v2__ = {
@@ -33,22 +34,22 @@ __artifacts_v2__ = {
                  "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors). "
                  "Each line the artifact reads begins with a local time, a level and a component; other lines are not "
                  "read: continuation lines, CSIPERF lines, and lines that carry a time and a level but no component. A "
-                 "cab is read when it holds one folder and one file compressed with MSZIP: the cab layout follows the "
-                 "Microsoft Cabinet File Format (https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)) "
-                 "and each MSZIP block is a CK signature and a deflate stream whose history carries over from the block "
-                 "before, per [MS-MCI] "
-                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69). "
-                 "Every block's recorded uncompressed size and the file's recorded size are checked, and a cab that fails "
-                 "is named in the run log and not read. The six cabs on the corpus images were all MSZIP with one folder "
-                 "and one file, and all of them passed. The cab on windows11_arm_cbs_known_20261101 (Windows 11 build "
-                 "26200) is compressed with LZX (type 3), which this reader does not decode: it is named in the run log "
-                 "and its lines are not read, so on that key the older CBS history the cab holds is not reported. Times: "
-                 "each line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: "
-                 "<time>' in the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after "
-                 "it, most often 18, and 9 times before the first start of a file), and the UTC columns come from that "
-                 "line: a TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to "
-                 "the next, and each row takes the offset of the last UTC line before it in its run, or of the run's "
-                 "first UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
+                 "cab is read by scripts/cabinet.py when it holds one folder and one file, compressed with MSZIP or LZX: "
+                 "the cab layout follows the Microsoft Cabinet File Format "
+                 "(https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)), MSZIP follows [MS-MCI] "
+                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69), "
+                 "and LZX follows the LZX section of the cabinet document except at four points where Windows' own "
+                 "makecab.exe writes differently, which that module names; its tests decode makecab output back to the "
+                 "input it was made from. The recorded sizes are checked, and a cab that fails is named in the run log "
+                 "and not read. The six cabs on the corpus images were MSZIP and the one on "
+                 "windows11_arm_cbs_known_20261101 (Windows 11 build 26200) was LZX with a 2 MiB window; all seven were "
+                 "read, and the LZX one decoded to the same bytes as bsdtar 3.5.3 (libarchive 3.7.4) gave. Times: each "
+                 "line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: <time>' in "
+                 "the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after it, most "
+                 "often 18, and 9 times before the first start of a file), and the UTC columns come from that line: a "
+                 "TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to the "
+                 "next, and each row takes the offset of the last UTC line before it in its run, or of the run's first "
+                 "UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
                  "cfreds_leakage_win7, the only Windows 7 image tested, writes no UTC line and no TrustedInstaller start "
                  "line at all. One run on alihadi_threatsim_server2019 held UTC lines with three offsets; the run log "
                  "counts such runs. Not read: the 'Appl:' applicability lines and the package state lines (the Windows "
@@ -65,7 +66,7 @@ __artifacts_v2__ = {
                  "applied, and none did when the time was read as UTC. Of the other 7, 6 name a boot earlier than the "
                  "first kernel boot event the image holds, and 1 on szechuan_win10 had no kernel boot event within 17 "
                  "minutes. On lonewolf_win10 one boot was named at UTC-07:00 and later at UTC-04:00, and both give the "
-                 "same UTC time. Start Time (UTC) and UTC Offset (from the log) were blank on 12 of the 420 tested rows "
+                 "same UTC time. Start Time (UTC) and UTC Offset (from the log) were blank on 12 of the 443 tested rows "
                  "(7 on lonewolf_win10, 3 on hexordia_mvs2025_win11, 1 on szechuan_win10 and 1 on "
                  "windows11_arm_cbs_known_20261101), and on all 12 the run had no Servicing Stack line either. UTC Offset "
                  "(from the log) held one value on all rows of pc_mus_001_win11, szechuan_dc01_server2012r2, "
@@ -88,7 +89,7 @@ __artifacts_v2__ = {
             "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (only Windows\\Panther\\cbs.log, which holds no TrustedInstaller start line)",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 246 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 6 rows",
-            "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 8 rows",
+            "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 31 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -109,22 +110,22 @@ __artifacts_v2__ = {
                  "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors). "
                  "Each line the artifact reads begins with a local time, a level and a component; other lines are not "
                  "read: continuation lines, CSIPERF lines, and lines that carry a time and a level but no component. A "
-                 "cab is read when it holds one folder and one file compressed with MSZIP: the cab layout follows the "
-                 "Microsoft Cabinet File Format (https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)) "
-                 "and each MSZIP block is a CK signature and a deflate stream whose history carries over from the block "
-                 "before, per [MS-MCI] "
-                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69). "
-                 "Every block's recorded uncompressed size and the file's recorded size are checked, and a cab that fails "
-                 "is named in the run log and not read. The six cabs on the corpus images were all MSZIP with one folder "
-                 "and one file, and all of them passed. The cab on windows11_arm_cbs_known_20261101 (Windows 11 build "
-                 "26200) is compressed with LZX (type 3), which this reader does not decode: it is named in the run log "
-                 "and its lines are not read, so on that key the older CBS history the cab holds is not reported. Times: "
-                 "each line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: "
-                 "<time>' in the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after "
-                 "it, most often 18, and 9 times before the first start of a file), and the UTC columns come from that "
-                 "line: a TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to "
-                 "the next, and each row takes the offset of the last UTC line before it in its run, or of the run's "
-                 "first UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
+                 "cab is read by scripts/cabinet.py when it holds one folder and one file, compressed with MSZIP or LZX: "
+                 "the cab layout follows the Microsoft Cabinet File Format "
+                 "(https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)), MSZIP follows [MS-MCI] "
+                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69), "
+                 "and LZX follows the LZX section of the cabinet document except at four points where Windows' own "
+                 "makecab.exe writes differently, which that module names; its tests decode makecab output back to the "
+                 "input it was made from. The recorded sizes are checked, and a cab that fails is named in the run log "
+                 "and not read. The six cabs on the corpus images were MSZIP and the one on "
+                 "windows11_arm_cbs_known_20261101 (Windows 11 build 26200) was LZX with a 2 MiB window; all seven were "
+                 "read, and the LZX one decoded to the same bytes as bsdtar 3.5.3 (libarchive 3.7.4) gave. Times: each "
+                 "line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: <time>' in "
+                 "the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after it, most "
+                 "often 18, and 9 times before the first start of a file), and the UTC columns come from that line: a "
+                 "TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to the "
+                 "next, and each row takes the offset of the last UTC line before it in its run, or of the run's first "
+                 "UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
                  "cfreds_leakage_win7, the only Windows 7 image tested, writes no UTC line and no TrustedInstaller start "
                  "line at all. One run on alihadi_threatsim_server2019 held UTC lines with three offsets; the run log "
                  "counts such runs. Not read: the 'Appl:' applicability lines and the package state lines (the Windows "
@@ -135,7 +136,7 @@ __artifacts_v2__ = {
                  "Logs\\WindowsUpdate and Logs\\CBS. One row per 'Session: <ID> initialized by client <client>' line of "
                  "the CBS component, with the client as the line names it (the text after it from ', external staging "
                  "directory' on, and a trailing period, are dropped). The Session ID is reported as stored; what its two "
-                 "numbers are is not established here. 2,533 rows on the tested images, naming 19 clients, of which "
+                 "numbers are is not established here. 2,688 rows on the tested images, naming 19 clients, of which "
                  "WindowsUpdateAgent was the most common (1,605 rows). Session Start (UTC) and UTC Offset (from the log) "
                  "are empty on all 30 rows of cfreds_leakage_win7, whose logs write no UTC line. UTC Offset (from the "
                  "log) held one value on all rows of pc_mus_001_win11 and szechuan_dc01_server2012r2, and four on "
@@ -156,7 +157,7 @@ __artifacts_v2__ = {
             "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (only Windows\\Panther\\cbs.log, which holds no session line)",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 707 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 27 rows",
-            "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 58 rows",
+            "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 213 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -178,22 +179,22 @@ __artifacts_v2__ = {
                  "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors). "
                  "Each line the artifact reads begins with a local time, a level and a component; other lines are not "
                  "read: continuation lines, CSIPERF lines, and lines that carry a time and a level but no component. A "
-                 "cab is read when it holds one folder and one file compressed with MSZIP: the cab layout follows the "
-                 "Microsoft Cabinet File Format (https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)) "
-                 "and each MSZIP block is a CK signature and a deflate stream whose history carries over from the block "
-                 "before, per [MS-MCI] "
-                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69). "
-                 "Every block's recorded uncompressed size and the file's recorded size are checked, and a cab that fails "
-                 "is named in the run log and not read. The six cabs on the corpus images were all MSZIP with one folder "
-                 "and one file, and all of them passed. The cab on windows11_arm_cbs_known_20261101 (Windows 11 build "
-                 "26200) is compressed with LZX (type 3), which this reader does not decode: it is named in the run log "
-                 "and its lines are not read, so on that key the older CBS history the cab holds is not reported. Times: "
-                 "each line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: "
-                 "<time>' in the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after "
-                 "it, most often 18, and 9 times before the first start of a file), and the UTC columns come from that "
-                 "line: a TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to "
-                 "the next, and each row takes the offset of the last UTC line before it in its run, or of the run's "
-                 "first UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
+                 "cab is read by scripts/cabinet.py when it holds one folder and one file, compressed with MSZIP or LZX: "
+                 "the cab layout follows the Microsoft Cabinet File Format "
+                 "(https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)), MSZIP follows [MS-MCI] "
+                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69), "
+                 "and LZX follows the LZX section of the cabinet document except at four points where Windows' own "
+                 "makecab.exe writes differently, which that module names; its tests decode makecab output back to the "
+                 "input it was made from. The recorded sizes are checked, and a cab that fails is named in the run log "
+                 "and not read. The six cabs on the corpus images were MSZIP and the one on "
+                 "windows11_arm_cbs_known_20261101 (Windows 11 build 26200) was LZX with a 2 MiB window; all seven were "
+                 "read, and the LZX one decoded to the same bytes as bsdtar 3.5.3 (libarchive 3.7.4) gave. Times: each "
+                 "line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: <time>' in "
+                 "the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after it, most "
+                 "often 18, and 9 times before the first start of a file), and the UTC columns come from that line: a "
+                 "TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to the "
+                 "next, and each row takes the offset of the last UTC line before it in its run, or of the run's first "
+                 "UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
                  "cfreds_leakage_win7, the only Windows 7 image tested, writes no UTC line and no TrustedInstaller start "
                  "line at all. One run on alihadi_threatsim_server2019 held UTC lines with three offsets; the run log "
                  "counts such runs. Not read: the 'Appl:' applicability lines and the package state lines (the Windows "
@@ -219,12 +220,14 @@ __artifacts_v2__ = {
                  "and repaired them. On that row the '[SR] Repairing' line names 0 components while a '[Pnp] Repaired "
                  "file' line names the file, so Components Repaired held 0 and Files Reported Repaired held one path. The "
                  "lines do not name the command that started a run; on the known data only /scannow wrote a repair pass. "
-                 "A run that finds a file it cannot repair was not produced. Corpus images: hexordia_mvs2025_win11 gave 3 "
-                 "rows, one with 46 transactions and two from its CbsPersist cab with no [SR] line after the request "
-                 "(Verify Transactions 0), and lonewolf_win10 gave 1 row with 4 transactions. On those 4 rows each "
+                 "A run that finds a file it cannot repair was not produced. The CbsPersist cab of "
+                 "windows11_arm_cbs_known_20261101 gave a third row on that key, with 46 transactions, from before the "
+                 "sfc runs. Corpus images: hexordia_mvs2025_win11 gave 3 rows, one with 46 transactions and two from its "
+                 "CbsPersist cab with no [SR] line after the request (Verify Transactions 0), and lonewolf_win10 gave 1 "
+                 "row with 4 transactions. On those 4 rows and on the cab row of windows11_arm_cbs_known_20261101 each "
                  "transaction verified one component, so Verify Transactions and Components Verified are identical, "
-                 "Repair Passes held 0 on all 4 rows, Components Repaired held 0 on all 4 rows, and Files Reported "
-                 "Corrupt and Files Reported Repaired were empty on all 4. What started those runs is not established.",
+                 "Repair Passes held 0 on all 5 rows, Components Repaired held 0 on all 5 rows, and Files Reported "
+                 "Corrupt and Files Reported Repaired were empty on all 5. What started those runs is not established.",
         "paths": ('*/Windows/Logs/CBS/CBS.log', '*/Windows/Logs/CBS/CbsPersist_*.log',
                   '*/Windows/Logs/CBS/CbsPersist_*.cab', '*/Windows/Panther/cbs.log'),
         "output_types": ["html", "tsv", "lava"],
@@ -240,7 +243,7 @@ __artifacts_v2__ = {
             "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (only Windows\\Panther\\cbs.log, which holds no SFP repair object request)",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows",
-            "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 2 rows",
+            "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 3 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -261,22 +264,22 @@ __artifacts_v2__ = {
                  "(https://learn.microsoft.com/en-us/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors). "
                  "Each line the artifact reads begins with a local time, a level and a component; other lines are not "
                  "read: continuation lines, CSIPERF lines, and lines that carry a time and a level but no component. A "
-                 "cab is read when it holds one folder and one file compressed with MSZIP: the cab layout follows the "
-                 "Microsoft Cabinet File Format (https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)) "
-                 "and each MSZIP block is a CK signature and a deflate stream whose history carries over from the block "
-                 "before, per [MS-MCI] "
-                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69). "
-                 "Every block's recorded uncompressed size and the file's recorded size are checked, and a cab that fails "
-                 "is named in the run log and not read. The six cabs on the corpus images were all MSZIP with one folder "
-                 "and one file, and all of them passed. The cab on windows11_arm_cbs_known_20261101 (Windows 11 build "
-                 "26200) is compressed with LZX (type 3), which this reader does not decode: it is named in the run log "
-                 "and its lines are not read, so on that key the older CBS history the cab holds is not reported. Times: "
-                 "each line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: "
-                 "<time>' in the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after "
-                 "it, most often 18, and 9 times before the first start of a file), and the UTC columns come from that "
-                 "line: a TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to "
-                 "the next, and each row takes the offset of the last UTC line before it in its run, or of the run's "
-                 "first UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
+                 "cab is read by scripts/cabinet.py when it holds one folder and one file, compressed with MSZIP or LZX: "
+                 "the cab layout follows the Microsoft Cabinet File Format "
+                 "(https://learn.microsoft.com/en-us/previous-versions/bb417343(v=msdn.10)), MSZIP follows [MS-MCI] "
+                 "(https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-mci/3048c471-f739-4d30-bcb3-a962cfe84a69), "
+                 "and LZX follows the LZX section of the cabinet document except at four points where Windows' own "
+                 "makecab.exe writes differently, which that module names; its tests decode makecab output back to the "
+                 "input it was made from. The recorded sizes are checked, and a cab that fails is named in the run log "
+                 "and not read. The six cabs on the corpus images were MSZIP and the one on "
+                 "windows11_arm_cbs_known_20261101 (Windows 11 build 26200) was LZX with a 2 MiB window; all seven were "
+                 "read, and the LZX one decoded to the same bytes as bsdtar 3.5.3 (libarchive 3.7.4) gave. Times: each "
+                 "line's time is local and carries no zone. The CBS logs also write a line 'Universal Time is: <time>' in "
+                 "the lines after a TrustedInstaller start (on the tested images 12 to 29 timed lines after it, most "
+                 "often 18, and 9 times before the first start of a file), and the UTC columns come from that line: a "
+                 "TrustedInstaller run is the lines from one 'TI: --- Initializing Trusted Installer ---' line to the "
+                 "next, and each row takes the offset of the last UTC line before it in its run, or of the run's first "
+                 "UTC line when none comes before it. A run with no UTC line leaves the UTC columns blank, and "
                  "cfreds_leakage_win7, the only Windows 7 image tested, writes no UTC line and no TrustedInstaller start "
                  "line at all. One run on alihadi_threatsim_server2019 held UTC lines with three offsets; the run log "
                  "counts such runs. Not read: the 'Appl:' applicability lines and the package state lines (the Windows "
@@ -401,61 +404,12 @@ _EXECUTING = re.compile(r'DISM\.EXE: Executing command line: (.*)')
 _PARENT = re.compile(r'DismApi\.dll: Parent process command line: (.*?)(?: - DismInitializeInternal)?$')
 _REBOOT = re.compile(r'Image session has been closed\. Reboot required=(\S+?)\.?$')
 
-_MSZIP = 1
-
-
-class CabError(ValueError):
-    """A cab this reader does not read: not a cab, more than one folder or file, or not MSZIP."""
-
-
-def mszip_cab_member(data):
-    """The name and bytes of the one file in a cabinet whose one folder is MSZIP compressed.
-
-    Layout per [MS-CAB] (CFHEADER, CFFOLDER, CFFILE, CFDATA) and MSZIP per [MS-MCI]: each CFDATA
-    block is "CK" and a deflate stream whose history is the previous 32 KiB of output. Every block's
-    recorded uncompressed size and the file's recorded size are checked; a mismatch raises.
-    """
-    if data[:4] != b'MSCF':
-        raise CabError('not a cabinet (no MSCF signature)')
-    coff_files, = struct.unpack_from('<I', data, 16)
-    folders, files, flags = struct.unpack_from('<HHH', data, 26)
-    if folders != 1 or files != 1:
-        raise CabError(f'{folders} folders and {files} files, where one of each is read')
-    offset, per_data = 36, 0
-    if flags & 4:
-        reserve_header, _, per_data = struct.unpack_from('<HBB', data, 36)
-        offset += 4 + reserve_header
-    first_data, blocks, compression = struct.unpack_from('<IHH', data, offset)
-    if compression & 0xf != _MSZIP:
-        raise CabError(f'compression type {compression & 0xf}, where only MSZIP (1) is read')
-    size, _, _, _, _, _ = struct.unpack_from('<IIHHHH', data, coff_files)
-    name_at = coff_files + 16
-    name = data[name_at:data.index(b'\0', name_at)].decode('latin-1')
-    out, position = bytearray(), first_data
-    for _ in range(blocks):
-        _, packed, unpacked = struct.unpack_from('<IHH', data, position)
-        position += 8 + per_data
-        block = data[position:position + packed]
-        position += packed
-        if block[:2] != b'CK':
-            raise CabError('an MSZIP block without its CK signature')
-        history = bytes(out[-32768:])
-        inflater = zlib.decompressobj(-15, zdict=history) if history else zlib.decompressobj(-15)
-        chunk = inflater.decompress(block[2:]) + inflater.flush()
-        if len(chunk) != unpacked:
-            raise CabError(f'a block gave {len(chunk)} bytes where the cab records {unpacked}')
-        out += chunk
-    if len(out) != size:
-        raise CabError(f'{len(out)} bytes where the cab records {size} for {name}')
-    return name, bytes(out)
-
-
 def log_text(path):
     """The text of a log, or of the log a CbsPersist cab holds, and what was replaced on decoding."""
     with open(path, 'rb') as handle:
         data = handle.read()
     if path.lower().endswith('.cab'):
-        _, data = mszip_cab_member(data)
+        _, data = cab_member(data)
     text = data.decode('utf-8-sig', errors='replace')
     return text, text.count('\ufffd')
 
@@ -657,7 +611,7 @@ def _read_logs(context, label, parse):
         problems = Counter()
         try:
             text, replaced = log_text(source)
-        except (OSError, CabError, zlib.error, struct.error) as exc:
+        except (OSError, ValueError, zlib.error, struct.error) as exc:
             logfunc(f'{label}: could not read {relative}: {exc}')
             continue
         if replaced:

@@ -1,14 +1,12 @@
 """Pin the CBS and DISM log readers (scripts/artifacts/windowsCbsLogs.py).
 
 The log lines are shaped like those of the tested CBS.log and dism.log files; the times, IDs, clients and command
-lines are made up. The cabinets are written here, one MSZIP block per 32 KiB as the tested CbsPersist cabs hold them.
+lines are made up. The cabinet reader is pinned in test_cab_reader.py.
 """
 import datetime
 import pathlib
-import struct
 import sys
 import unittest
-import zlib
 from collections import Counter
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -19,47 +17,6 @@ from scripts.artifacts import windowsCbsLogs as cbs
 # pylint: enable=wrong-import-position
 
 UTC = datetime.timezone.utc
-
-
-def _cab(payload, name='CbsPersist_20240101000000.log', compression=1, block=32768, recorded=None):
-    """A one-folder, one-file cabinet holding payload, MSZIP blocks carrying the previous 32 KiB as history."""
-    blocks, done = [], 0
-    while done < len(payload):
-        chunk = payload[done:done + block]
-        history = payload[max(0, done - 32768):done]
-        packer = zlib.compressobj(9, zlib.DEFLATED, -15, zdict=history) if history else \
-            zlib.compressobj(9, zlib.DEFLATED, -15)
-        blocks.append((b'CK' + packer.compress(chunk) + packer.flush(), len(chunk)))
-        done += len(chunk)
-    file_entry = struct.pack('<IIHHHH', len(payload) if recorded is None else recorded, 0, 0, 0, 0, 0x20) + \
-        name.encode() + b'\0'
-    folder_at, files_at = 36, 36 + 8
-    data_at = files_at + len(file_entry)
-    data = b''.join(struct.pack('<IHH', 0, len(packed), size) + packed for packed, size in blocks)
-    total = data_at + len(data)
-    header = b'MSCF' + struct.pack('<IIIIIBBHHHHH', 0, total, 0, files_at, 0, 3, 1, 1, 1, 0, 0, 0)
-    folder = struct.pack('<IHH', data_at, len(blocks), compression)
-    assert len(header) == folder_at
-    return header + folder + file_entry + data
-
-
-class MszipCabTest(unittest.TestCase):
-    def test_a_cab_of_several_blocks_gives_its_file_back(self):
-        payload = ''.join(f'2024-01-01 00:00:{n % 60:02d}, Info                  CBS    line {n}\r\n'
-                          for n in range(6000)).encode('utf-8')
-        name, data = cbs.mszip_cab_member(_cab(payload))
-        self.assertEqual((name, data), ('CbsPersist_20240101000000.log', payload))
-        self.assertGreater(len(payload), 3 * 32768)
-
-    def test_a_recorded_size_that_does_not_match_raises(self):
-        with self.assertRaises(cbs.CabError):
-            cbs.mszip_cab_member(_cab(b'x' * 1000, recorded=999))
-
-    def test_a_cab_that_is_not_mszip_raises(self):
-        with self.assertRaises(cbs.CabError):
-            cbs.mszip_cab_member(_cab(b'x' * 1000, compression=3))
-        with self.assertRaises(cbs.CabError):
-            cbs.mszip_cab_member(b'PK\x03\x04' + b'\0' * 60)
 
 
 def _cbs(*lines):
