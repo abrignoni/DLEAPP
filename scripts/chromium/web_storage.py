@@ -16,7 +16,7 @@ Used by scripts/artifacts/chromiumWebStorage.py. Sources, chromium
 * The Service Worker database keeps one "REG:<storage key>\\x00<registration id>"
   record per registration, a ServiceWorkerRegistrationData message:
   components/services/storage/service_worker/service_worker_database.cc,
-  lines 50 to 90, and service_worker_database.proto, lines 239 to 271.
+  lines 50 to 90, and service_worker_database.proto, lines 26 and 239 to 279.
 """
 
 import hashlib
