@@ -4,16 +4,16 @@ Two pieces, both read as Chromium writes them, at chromium
 33f34ef179f55596f6c2fc8a55878b7ccf6276e4 and at the 65.0.3325.181 tag:
 
 * The entry key. Chrome 65 keys are the request URL, preceded by
-  "<upload id>/" for an upload (net/http/http_cache.cc, lines 569-583 at
+  "<upload id>/" for an upload (net/http/http_cache.cc, lines 570-583 at
   65.0.3325.181). Current keys are "<credential>/<upload id>/", then, when the
   cache is split by site, "_dk_" with an "s_" or "cn_" marker, the isolation key
   and a space, then the URL (http_cache.cc, lines 825-893); Chromium recovers
-  the URL after the rightmost space of a double key (lines 783-818).
+  the URL after the rightmost space of a double key (lines 783-819).
 * Stream 0, the pickled HttpResponseInfo: flags, extra flags when flag bit 31
   is set, the request time, the response time, the original response time when
   extra flag RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME is set, then the raw
-  headers as a pickled string (net/http/http_response_info.cc, lines 166-209;
-  lines 129-158 at 65.0.3325.181). Times are base::Time internal values,
+  headers as a pickled string (net/http/http_response_info.cc, lines 168-209;
+  lines 130-158 at 65.0.3325.181). Times are base::Time internal values,
   microseconds since 1601-01-01 UTC.
 """
 
@@ -72,7 +72,7 @@ def parse_response_info(stream0):
             extra_flags, = struct.unpack_from('<i', stream0, offset)
             offset += 4
         # RESPONSE_INFO_MINIMUM_VERSION and RESPONSE_INFO_VERSION are both 3
-        # (http_response_info.cc lines 48-51; the same at 65.0.3325.181), and
+        # (http_response_info.cc lines 48-51; lines 46-49 at 65.0.3325.181), and
         # InitFromPickle refuses any other version.
         if flags & _RESPONSE_INFO_VERSION_MASK != 3:
             return None

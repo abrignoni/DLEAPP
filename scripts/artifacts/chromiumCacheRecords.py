@@ -10,7 +10,73 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Chromium Browsers",
-        "notes": "NOTES_CACHE",
+        "notes": "One row per entry of the HTTP disk cache of a Chromium-based browser profile on Windows, "
+                 "read from the blockfile cache (an index file with data_0 to data_3 and f_ files) in the "
+                 "profile's Cache/Cache_Data folder or, on the older tested builds, its Cache folder. Every "
+                 "entry the index reaches through its hash chains is read; an entry whose state is not "
+                 "ENTRY_NORMAL (evicted or doomed) is not reported "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/blockfile/disk_format.h#L117-L144). "
+                 "Created is the entry's creation_time and Last Used the last_used of its rankings node, "
+                 "base::Time values, microseconds since 1601-01-01 UTC "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/blockfile/disk_format.h#L154-L162). "
+                 "Reuse Count is the entry's reuse_count as stored, which disk_format.h describes as how often "
+                 "the entry is used. On windows11_arm_chromium_cache_known_20261103, where Chrome 157 and Edge "
+                 "156 each loaded three URLs twice 60 seconds apart, Created fell 0.01 to 0.14 seconds after "
+                 "each logged first load of those URLs began and Last Used 0.007 to 0.018 seconds after each "
+                 "second load began; Reuse Count held 1 on the entries loaded twice and 0 on those loaded "
+                 "once, whose Last Used equalled Created. On no tested row was Last Used earlier than Created. "
+                 "Response Time and Request Time are the response_time and request_time of the entry's "
+                 "HttpResponseInfo, read as Chromium writes it: a pickle of flags, extra flags when flag bit "
+                 "31 is set, the request time, the response time, an original response time when extra flag "
+                 "bit 2 is set, then the raw headers "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_response_info.cc#L168-L209, "
+                 "and "
+                 "https://github.com/chromium/chromium/blob/65.0.3325.181/net/http/http_response_info.cc#L130-L158 "
+                 "for Chrome 65). On the known data Request Time fell 0.01 to 0.24 seconds and Response Time "
+                 "0.10 to 0.28 seconds after each first load began, and neither changed when the second load "
+                 "was served from the cache. A response info whose version is not 3, the only version Chromium "
+                 "reads "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_response_info.cc#L48-L51), "
+                 "or whose pickle is shorter than its header states, leaves Response Time, Request Time, HTTP "
+                 "Status and Content Type blank: 286 of the 42,146 tested entries: 244 held no response info "
+                 "(3 of them quicserverinfo entries), 41 were quicserverinfo entries whose stored data is not "
+                 "a response info of version 3, and 1 on lonewolf_win10 was 4 bytes shorter than its header "
+                 "states. On the other 41,860 the times, status line and headers equal what DLEAPP's other "
+                 "cache reader takes from the same bytes. HTTP Status is the code in the stored status line "
+                 "and Content Type the media type of the content-type header, both as stored. Body Size "
+                 "(bytes) is the size stored for the body stream. URL is the entry key's URL: Chrome 65 keys "
+                 "are the URL, preceded by an upload id for an upload "
+                 "(https://github.com/chromium/chromium/blob/65.0.3325.181/net/http/http_cache.cc#L570-L583); "
+                 "current keys carry a credential and upload id prefix and, when the cache is split by site, "
+                 "an isolation key after _dk_, and the URL is the text after the key's rightmost space, as "
+                 "Chromium reads it "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_cache.cc#L783-L893). "
+                 "Isolation Key is that isolation key, with its s_ or cn_ marker kept, and Key Prefix the text "
+                 "before it, both as stored; 236 tested keys began with Range_, whose writer is not "
+                 "established, and a key that names no resource URL, such as a quicserverinfo entry, is kept "
+                 "whole in Key Prefix with URL blank. Host is the URL's host. Cached Media is the body of an "
+                 "image, video or audio entry, with its Content-Encoding (gzip, deflate, br, zstd) undone; "
+                 "Chromium also zstd-compresses some bodies on disk, marked by extra flag bit 4 "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_response_info.cc#L140-L157), "
+                 "which is undone first, a branch no tested entry exercised (exercised on a constructed body "
+                 "only). A body Chromium evicted is absent, and a body that does not decode is shown as "
+                 "stored. Every image, video and audio entry with a stored body on the tested images was "
+                 "shown: 14,214 rows, 13,984 of them images. Browser, Profile and User come from the path, as "
+                 "in the other Chromium artifacts, and separate every cache folder on the tested images; the "
+                 "folder is in the source list of the report. Tested: "
+                 "windows11_arm_chromium_cache_known_20261103 (Chrome 157.0.8103.39 and Edge 156.0.4314.58, 14 "
+                 "rows), cfreds_leakage_win7 (2,345), hexordia_mvs2025_win11 (5,273), lonewolf_win10 (Chrome "
+                 "65.0.3325.181, 12,962), ou_ransomware_server2022 (2,893) and pc_mus_001_win11 (Chrome "
+                 "108.0.5359.125 and Edge 108.0.1462.54, 18,673); on pc_mus_001_win11 the Guest Profile and "
+                 "System Profile caches held no entry. Isolation Key had no value on any row of "
+                 "cfreds_leakage_win7 or lonewolf_win10, whose keys are not split by site. Not read: the "
+                 "server IP address, certificate and other fields stored after the headers in the response "
+                 "info; the Media Cache and Application Cache folders, which the older tested builds kept "
+                 "beside Cache (the Application Cache keys are numbers that its own Index database maps to "
+                 "URLs); GPUCache and Code Cache, which hold compiled shaders and scripts rather than HTTP "
+                 "responses; No_Vary_Search; the simple cache format that Chromium uses on macOS and Linux and "
+                 "Electron apps use; Opera, whose cache sits outside the user data folder these paths name; "
+                 "and WebView2 or Electron app caches.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Cache/*',
             '*/AppData/Local/Chromium/User Data/*/Cache/*',
@@ -20,7 +86,16 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "database",
-        "sample_data": {},
+        "sample_data": {
+            "windows11_arm_chromium_cache_known_20261103": "Windows 11 build 26200 (ARM64), Chrome 157.0.8103.39 and Edge 156.0.4314.58 | 14 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 2345 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 5273 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 12962 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 2893 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 18673 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+        },
     },
 }
 
@@ -28,14 +103,13 @@ import os
 from urllib.parse import urlsplit
 
 from scripts.chromium import blockfile_cache
-from scripts.chromium.browser_profiles import row_tail
 from scripts.chromium.http_cache import parse_response_info, split_key, stored_body
 from scripts.chromium.simple_cache import base_time_to_datetime
 from scripts.chromium.web_storage import profile_folders
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
 
-# The cache folder inside a profile: Cache_Data inside Cache from Chrome 91, Cache
-# itself before.
+# The cache folder inside a profile: Cache_Data inside Cache on the newer tested
+# builds, Cache itself on the older ones.
 _CACHE_FOLDERS = ('Cache/Cache_Data', 'Cache')
 _MEDIA_TYPES = ('image/', 'video/', 'audio/')
 
@@ -87,7 +161,7 @@ def chromiumCacheRecords(context):
                                   base_time_to_datetime(request_time), url, _host(url), status,
                                   content_type, entry.body_size,
                                   _media(entry, store.path, content_type, headers, extra_flags), entry.reuse_count,
-                                  isolation, prefix) + row_tail(store))
+                                  isolation, prefix, store.browser, store.profile, store.user))
                 rows += 1
             if rows:
                 sources.append(index)
@@ -96,5 +170,5 @@ def chromiumCacheRecords(context):
     data_headers = (('Last Used', 'datetime'), ('Created', 'datetime'), ('Response Time', 'datetime'),
                     ('Request Time', 'datetime'), 'URL', 'Host', 'HTTP Status', 'Content Type',
                     'Body Size (bytes)', ('Cached Media', 'media'), 'Reuse Count', 'Isolation Key',
-                    'Key Prefix', 'Browser', 'Profile', 'User', 'Source File')
+                    'Key Prefix', 'Browser', 'Profile', 'User')
     return data_headers, data_list, '\n'.join(sources)
