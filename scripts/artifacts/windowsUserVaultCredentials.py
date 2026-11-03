@@ -13,14 +13,16 @@ __artifacts_v2__ = {
     "windowsUserVaultCredentials": {
         "name": "Windows User Vault Web Credentials",
         "description": "Saved web logins from a user's Windows Vault (the Internet Explorer / Web "
-                       "Credentials schema), decrypted with the user DPAPI key recovered from the "
-                       "account's ARSO (TBAL) secret: the resource (URL), user name and password.",
+                       "Credentials schema), decrypted with the user DPAPI key, recovered either from "
+                       "the account's ARSO (TBAL) secret with the boot key alone or from a cleartext "
+                       "account password supplied with --windows-user-password: the resource (URL), "
+                       "user name and password.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-02",
         "last_update_date": "2026-11-02",
         "requirements": "none",
         "category": "Windows Registry",
-        "notes": "Decrypts the saved web logins in a user's Windows Vault (Users\\<u>\\AppData\\Local\\Microsoft\\Vault\\<GUID>\\, a Policy.vpol holding the vault's AES keys wrapped in a DPAPI blob and one or more *.vcrd credential records). Opening a record needs the user's DPAPI master key: this module recovers it with the boot key alone from the account's Automatic Restart Sign-On (TBAL) secret (the TBAL SHA-1 password hash, salted with the account SID, opens the user master keys), then decrypts the vpol AES keys and, with them, the vcrd attributes; the vendored dpapiprobe library (scripts/vendor/dpapiprobe, PyCryptodome and python-registry) runs the chain. Last Written is the record's own FILETIME (UTC). Resource is the saved resource, typically the login URL; Username and Password are the stored credential, decoded as UTF-16LE. Vault Schema is the record's schema friendly name (Internet Explorer for web logins). Account is the Windows user folder the vault belongs to. Status is 'recovered' when the record decrypted, 'locked (user key not recovered)' when no vault policy key decrypted the record (this release recovers that key only from a TBAL/ARSO secret, so a missing ARSO secret or the account's master keys being absent from the extraction are two reasons it can happen), and 'decrypted, no web credential in this schema' for a record whose schema this module does not map to fields. The hives and master key files are opened read only. The vcrd attribute layout and the Internet Explorer / Web Credentials schema were read from a real record and follow impacket's documented structures; they are validated on one record on one image (af_case2_win10, user IEUser: a web login with a URL, user name and password recovered through that account's TBAL key), with no independent reference implementation to cross-check against and only that one record available. Key source: this release recovers the user key only from a TBAL/ARSO secret, so it decrypts a vault only where the account has one; recovering a vault from a supplied or cracked account password is a planned addition. Not covered: vault schemas other than Internet Explorer / Web Credentials, the user Credential Manager files, and vaults whose account key cannot be recovered here. Resource, Username and Password are the decrypted credential's own values.",
+        "notes": "Decrypts the saved web logins in a user's Windows Vault (Users\\<u>\\AppData\\Local\\Microsoft\\Vault\\<GUID>\\, a Policy.vpol holding the vault's AES keys wrapped in a DPAPI blob and one or more *.vcrd credential records). Opening a record needs the user's DPAPI master key: this module recovers it with the boot key alone from the account's Automatic Restart Sign-On (TBAL) secret (the TBAL SHA-1 password hash, salted with the account SID, opens the user master keys), or from a cleartext account password supplied with --windows-user-password; then decrypts the vpol AES keys and, with them, the vcrd attributes; the vendored dpapiprobe library (scripts/vendor/dpapiprobe, PyCryptodome and python-registry) runs the chain. Last Written is the record's own FILETIME (UTC). Resource is the saved resource, typically the login URL; Username and Password are the stored credential, decoded as UTF-16LE. Vault Schema is the record's schema friendly name (Internet Explorer for web logins). Account is the Windows user folder the vault belongs to. Status is 'recovered' when the record decrypted, 'locked (user key not recovered)' when no vault policy key decrypted the record (the user key is recovered from a TBAL/ARSO secret or a password supplied with --windows-user-password, so neither being available, or the account's master keys being absent from the extraction, are reasons it can happen), and 'decrypted, no web credential in this schema' for a record whose schema this module does not map to fields. The hives and master key files are opened read only. The vcrd attribute layout and the Internet Explorer / Web Credentials schema were read from a real record and follow impacket's documented structures; they are validated on one record on one image (af_case2_win10, user IEUser: a web login with a URL, user name and password recovered through that account's TBAL key), with no independent reference implementation to cross-check against and only that one record available. Key source: the user key is recovered from the account's TBAL/ARSO secret (boot key alone) or from a cleartext account password supplied with --windows-user-password; the SAM NT hash alone does not open Windows 10 user master keys, so a known or cracked password is needed when there is no ARSO secret. Only af_case2_win10 was exercised here (its account has both a TBAL secret and a known password; both paths recover the same web login). Not covered: vault schemas other than Internet Explorer / Web Credentials, the user Credential Manager files, and vaults whose account key cannot be recovered here. Resource, Username and Password are the decrypted credential's own values.",
         "paths": (
             '*/Windows/System32/config/SYSTEM',
             '*/Windows/System32/config/SECURITY',
@@ -38,6 +40,7 @@ __artifacts_v2__ = {
 
 from datetime import datetime, timedelta, timezone
 
+from scripts.context import Context
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.vendor import dpapiprobe
 
@@ -95,13 +98,15 @@ def _tbal_hashes(system_hive, security_hive):
     return hashes
 
 
-def _unlocked_pool(user_mks, sha1_hashes):
-    """A MasterKeyPool of the user master keys that the TBAL hashes open."""
+def _unlocked_pool(user_mks, sha1_hashes, password):
+    """A MasterKeyPool of the user master keys opened by the TBAL hashes or the password."""
     pool = dpapiprobe.MasterKeyPool()
     candidates = []
     for sid, paths in user_mks.items():
         for sha1 in sha1_hashes:
             candidates.extend(dpapiprobe.user_master_key_candidates(sid, sha1_hash=sha1))
+        if password:
+            candidates.extend(dpapiprobe.user_master_key_candidates(sid, password=password))
         for path in paths:
             pool.add_file(path)
     if candidates:
@@ -144,7 +149,8 @@ def windowsUserVaultCredentials(context):
     for hives in installs.values():
         if hives.get('SYSTEM') and hives.get('SECURITY'):
             sha1_hashes.extend(_tbal_hashes(hives['SYSTEM'], hives['SECURITY']))
-    pool = _unlocked_pool(user_mks, sha1_hashes)
+    password = Context.get_app_secret('windows_user_password')
+    pool = _unlocked_pool(user_mks, sha1_hashes, password)
 
     sources = []
     for vault_dir in sorted(vaults):
