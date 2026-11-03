@@ -361,6 +361,12 @@ def main():
                               "Desktop, for when it was recovered by other means. Accepts the key "
                               "itself or a path to a file holding it. Prefer --threema-password. "
                               "An already-decrypted threema.sqlite needs neither."))
+    parser.add_argument('--windows-user-password', dest='windows_user_password', required=False,
+                        nargs='?', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        help=("Cleartext password of a Windows user account, used to recover that "
+                              "account's DPAPI master keys and decrypt its user Vault. Accepts the "
+                              "password itself or a path to a file holding it. Give the flag with "
+                              "no value to be prompted without it reaching your shell history."))
 
 
     # Check if no arguments were provided
@@ -498,6 +504,9 @@ def main():
         Context.set_app_secret('threema', resolve_supplied_secret(args.threema_key, 'Threema key'))
         Context.set_app_secret('threema_password',
                                resolve_supplied_secret(args.threema_password, 'Threema password'))
+        Context.set_app_secret('windows_user_password',
+                               resolve_supplied_secret(args.windows_user_password,
+                                                       'Windows user password'))
     except argparse.ArgumentError as secret_error:
         print(secret_error)
         return
