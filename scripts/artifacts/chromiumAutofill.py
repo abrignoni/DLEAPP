@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "stored value, stored count and the created and last used times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the autofill table of each Web Data database in a Chromium-based browser profile: "
@@ -44,8 +44,9 @@ __artifacts_v2__ = {
                  "one home folder, and User held one value on every row of pc_mus_001_win11, whose Chrome "
                  "and Edge profiles sit in one home folder. Tested: Chrome 108.0.5359.125 (21 rows from "
                  "profiles Default and Profile 2) and Microsoft Edge 108.0.1462.54 (0 rows) on "
-                 "pc_mus_001_win11, and Chrome 65.0.3325.181 on lonewolf_win10. Not read: the autofill "
-                 "address, credit card and IBAN tables of Web Data. No member of af_case2_win10, szechuan_win10 or "
+                 "pc_mus_001_win11, and Chrome 65.0.3325.181 on lonewolf_win10. The address tables of Web Data "
+                 "are read by Chromium Autofill Addresses; its credit card and IBAN tables are not read. No "
+                 "member of af_case2_win10, szechuan_win10 or "
                  "dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
                  "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
@@ -124,12 +125,157 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
+    "chromiumAutofillAddresses": {
+        "name": "Chromium Autofill Addresses",
+        "description": "Addresses and contact details saved for autofill in the Web Data databases of "
+                       "Google Chrome, Microsoft Edge, Brave, Vivaldi, Opera and Chromium profiles: name, "
+                       "organization, street, city, state, postal code, country, email and phone, with "
+                       "the last used and modified times and the use count.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-03",
+        "last_update_date": "2026-11-03",
+        "requirements": "none",
+        "category": "Chromium Browsers",
+        "notes": "Reads the saved autofill addresses of each Web Data database in a Chromium-based browser "
+                 "profile, one row per address, from whichever of three table layouts the database holds. Up "
+                 "to schema version 112 an address is a row of autofill_profiles, with its names, emails and "
+                 "phones in autofill_profile_names, autofill_profile_emails and autofill_profile_phones under "
+                 "the same guid. Version 113 moved addresses saved on the device to local_addresses and "
+                 "version 114 dropped the autofill_profiles tables; account addresses sat in contact_info from "
+                 "version 107 "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L975, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1009-L1050). "
+                 "In both, the values are rows of a type token table (local_addresses_type_tokens, "
+                 "contact_info_type_tokens) holding a field type and a value. Version 134 merged the two into "
+                 "addresses and address_type_tokens, with a record_type column "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1094-L1105). "
+                 "A layout is read when its tables exist, whatever the version number says. Last Used and "
+                 "Modified are use_date and date_modified, seconds since 1970-01-01 UTC: Chromium writes them "
+                 "with base::Time::ToTimeT "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L379-L396) "
+                 "and read the autofill_profiles columns with FromTimeT "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L166-L181). "
+                 "A zero is shown blank. Use Count is use_count as stored. On "
+                 "windows11_arm_chromium_autofill_known_20261103 Last Used and Modified were equal on every "
+                 "row and fell 1 to 4 seconds before the time logged after each save, and Use Count held 1 on "
+                 "all 7 rows. No saved address was filled into a form there, so a fill was not exercised. Full "
+                 "Name, Organization, Street Address, City, State, Postal Code, Country, Email and Phone are "
+                 "the values of field types NAME_FULL (7), COMPANY_NAME (60), ADDRESS_HOME_STREET_ADDRESS "
+                 "(77), ADDRESS_HOME_CITY (33), ADDRESS_HOME_STATE (34), ADDRESS_HOME_ZIP (35), "
+                 "ADDRESS_HOME_COUNTRY (36), EMAIL_ADDRESS (9) and PHONE_HOME_WHOLE_NUMBER (14), as numbered "
+                 "in Chromium's field_types.h "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L141-L231). "
+                 "field_types.h says the list is not modified except in step with the Autofill server "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L22-L26) "
+                 "and lists retired numbers as deprecated "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L159-L161), "
+                 "so one map reads every schema version. Country is the stored country code "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L171-L175). "
+                 "autofill_profiles keeps the same values in named columns, mapped to the same field types as "
+                 "Chromium reads them "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L166-L181, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L190-L206, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L304-L307, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L321-L324); "
+                 "honorific_prefix is named NAME_HONORIFIC_PREFIX from its column name, since the current "
+                 "source no longer reads it. Other Values lists every other non-empty stored value with its "
+                 "field type name, or 'type <n>' for a number this artifact does not name, so every stored "
+                 "value is reported; on the known data it held the name parts Chromium split from the full "
+                 "name and, on the Chromium 120 rows, field type 117 on both and the street name, house number "
+                 "and street location on one, which field_types.h marks deprecated "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L327). "
+                 "Where an autofill_profiles side table holds more than one row for a guid, the values are "
+                 "joined with '; ' in rowid order; that case was exercised on a constructed database only. A "
+                 "value stored as a BLOB is reported by its length and not decoded; the Microsoft Edge 86 "
+                 "snapshot database on ou_ransomware_server2022 (schema 88) declares these columns BLOB, and "
+                 "no tested row held one. Record Type is record_type of the addresses table, named from "
+                 "AutofillProfile::RecordType "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/data_model/addresses/autofill_profile.h#L57-L100); "
+                 "for local_addresses it is kLocalOrSyncable (0) and for contact_info one of the account "
+                 "types, the tables Chromium keeps those record types in "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L340-L352); "
+                 "autofill_profiles has no record type, and Record Type is blank for its rows. Record Type "
+                 "held kLocalOrSyncable (0) on every tested addresses and local_addresses row; no tested image "
+                 "held an account address (kAccount needs a signed-in browser, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/data_model/addresses/autofill_profile.h#L66-L70), "
+                 "and the contact_info branch was exercised on a constructed database only. Label is label as "
+                 "stored and held no value on any tested row. Table names the table the row came from. Tested: "
+                 "windows11_arm_chromium_autofill_known_20261103, fictional addresses saved through each "
+                 "browser's settings on Windows 11 build 26200 (ARM64), 7 rows: 2 from Chromium 110.0.5481.0 "
+                 "(autofill_profiles, schema 108), 2 from Chromium 120.0.6099.0 (local_addresses, schema 120), "
+                 "2 from Google Chrome 157.0.8103.39 (addresses, schema 160) and 1 from Microsoft Edge "
+                 "156.0.4314.58 (addresses, schema 158); every saved field type was reported in its column; "
+                 "the per-save logs in the zip record field types, and the README beside it describes the "
+                 "values. Edge kept one of the two addresses saved in it; the one without a street address is "
+                 "absent, and why is not established. On hexordia_mvs2025_win11 (Microsoft Edge, schema 135) 3 "
+                 "rows held Country on all 3, Email on 2 and Phone on 1; Full Name, Organization, Street "
+                 "Address, City, State, Postal Code and Other Values had no value on any of them, and Country "
+                 "held one value on all 3. The Web Data databases of cfreds_leakage_win7, lonewolf_win10, "
+                 "ou_ransomware_server2022, pc_mus_001_win11, ubuntu2604_arm64_chromium and "
+                 "mvs2026_macbookpro_macos15 (schema versions 60 to 154) were read without error and held no "
+                 "address. Not read: server_addresses and server_address_metadata, server address tables that "
+                 "version 121 dropped "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1072-L1077), "
+                 "which held no rows on any tested image; autofill_profile_addresses, which holds structured "
+                 "street parts of autofill_profiles addresses; autofill_profile_birthdates; the "
+                 "verification_status and observations columns of the type token tables; language_code, which "
+                 "held no value on any tested row; initial_creator_id, which held a value on every tested "
+                 "addresses and local_addresses row; the use_date2 and use_date3 columns that version 132 "
+                 "added and version 145 dropped, which held no value on any tested row; Microsoft Edge's own "
+                 "tables (autofill_profile_edge_extended and the other autofill_edge_ tables), for which no "
+                 "published schema was found; the autofill_ai_, plus_addresses and loyalty_cards tables, empty "
+                 "in every tested database that has them; and the payment card, IBAN and bank account tables. "
+                 "The user data folders read are the same as for Chromium Autofill Entries, and WebView2 or "
+                 "Electron app profiles are not read.",
+        "paths": (
+            '*/AppData/Local/Google/Chrome/User Data/*/Web Data*',
+            '*/Library/Application Support/Google/Chrome/*/Web Data*',
+            '*/.config/google-chrome/*/Web Data*',
+            '*/AppData/Local/Chromium/User Data/*/Web Data*',
+            '*/Library/Application Support/Chromium/*/Web Data*',
+            '*/.config/chromium/*/Web Data*',
+            '*/snap/chromium/common/chromium/*/Web Data*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Web Data*',
+            '*/webbrowser/chrome/*/Web Data*',
+            '*/AppData/Local/Microsoft/Edge/User Data/*/Web Data*',
+            '*/Library/Application Support/Microsoft Edge/*/Web Data*',
+            '*/.config/microsoft-edge/*/Web Data*',
+            '*/AppData/Local/BraveSoftware/Brave-Browser/User Data/*/Web Data*',
+            '*/Library/Application Support/BraveSoftware/Brave-Browser/*/Web Data*',
+            '*/.config/BraveSoftware/Brave-Browser/*/Web Data*',
+            '*/AppData/Local/Vivaldi/User Data/*/Web Data*',
+            '*/Library/Application Support/Vivaldi/*/Web Data*',
+            '*/.config/vivaldi/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera Stable/*/Web Data*',
+            '*/Library/Application Support/com.operasoftware.Opera/*/Web Data*',
+            '*/.config/opera/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera Stable/Web Data*',
+            '*/Library/Application Support/com.operasoftware.Opera/Web Data*',
+            '*/.config/opera/Web Data*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "windows11_arm_chromium_autofill_known_20261103": "Windows 11 build 26200 (ARM64), Chrome 157.0.8103.39, Edge 156.0.4314.58, Chromium 110.0.5481.0 and 120.0.6099.0 | 7 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 3 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (the matched files held nothing this artifact reports)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (the matched files held nothing this artifact reports)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (the matched files held nothing this artifact reports)",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (the matched files held nothing this artifact reports)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (the matched files held nothing this artifact reports)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
+        },
+    },
 }
 
 import sqlite3
 
-from scripts.chromium.browser_profiles import (open_store, profile_stores,
-                                               row_tail, table_columns, unix_time)
+from scripts.chromium.browser_profiles import (enum_label, open_store, profile_stores,
+                                               row_tail, select_list, table_columns,
+                                               unix_time)
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 
@@ -163,3 +309,187 @@ def chromiumAutofill(context):
     data_headers = (('Created', 'datetime'), ('Last Used', 'datetime'), 'Field Name', 'Value',
                     'Count', 'Browser', 'Profile', 'User', 'Source File')
     return data_headers, data_list, '\n'.join(sources)
+
+
+# FieldType values as Chromium stores them in the type column of addresses,
+# local_addresses_type_tokens and contact_info_type_tokens: components/autofill/core/
+# browser/field_types.h, chromium 33f34ef179f55596f6c2fc8a55878b7ccf6276e4. Retired
+# values are marked deprecated there and not given to another field (lines 159-161,
+# 177-178, 192-194), so one map reads every schema version; 117 is one, which older
+# releases still wrote (line 327). Only the values an address can hold are named; any
+# other value is reported as "type <n>".
+_FIELD_TYPES = {
+    3: 'NAME_FIRST', 4: 'NAME_MIDDLE', 5: 'NAME_LAST', 6: 'NAME_MIDDLE_INITIAL',
+    7: 'NAME_FULL', 8: 'NAME_SUFFIX', 9: 'EMAIL_ADDRESS', 10: 'PHONE_HOME_NUMBER',
+    11: 'PHONE_HOME_CITY_CODE', 12: 'PHONE_HOME_COUNTRY_CODE',
+    13: 'PHONE_HOME_CITY_AND_NUMBER', 14: 'PHONE_HOME_WHOLE_NUMBER',
+    30: 'ADDRESS_HOME_LINE1', 31: 'ADDRESS_HOME_LINE2', 32: 'ADDRESS_HOME_APT_NUM',
+    33: 'ADDRESS_HOME_CITY', 34: 'ADDRESS_HOME_STATE', 35: 'ADDRESS_HOME_ZIP',
+    36: 'ADDRESS_HOME_COUNTRY', 60: 'COMPANY_NAME', 77: 'ADDRESS_HOME_STREET_ADDRESS',
+    79: 'ADDRESS_HOME_SORTING_CODE', 81: 'ADDRESS_HOME_DEPENDENT_LOCALITY',
+    83: 'ADDRESS_HOME_LINE3', 103: 'ADDRESS_HOME_STREET_NAME',
+    104: 'ADDRESS_HOME_HOUSE_NUMBER', 105: 'ADDRESS_HOME_SUBPREMISE',
+    106: 'ADDRESS_HOME_OTHER_SUBUNIT', 107: 'NAME_LAST_FIRST', 108: 'NAME_LAST_CONJUNCTION',
+    109: 'NAME_LAST_SECOND', 110: 'NAME_HONORIFIC_PREFIX', 114: 'ADDRESS_HOME_ADDRESS',
+    115: 'ADDRESS_HOME_ADDRESS_WITH_NAME', 116: 'ADDRESS_HOME_FLOOR',
+    117: 'NAME_FULL_WITH_HONORIFIC_PREFIX (deprecated)',
+    121: 'PHONE_HOME_CITY_CODE_WITH_TRUNK_PREFIX',
+    122: 'PHONE_HOME_CITY_AND_NUMBER_WITHOUT_TRUNK_PREFIX', 123: 'PHONE_HOME_NUMBER_PREFIX',
+    124: 'PHONE_HOME_NUMBER_SUFFIX', 133: 'DELIVERY_INSTRUCTIONS', 135: 'ADDRESS_HOME_OVERFLOW',
+    136: 'ADDRESS_HOME_LANDMARK', 140: 'ADDRESS_HOME_OVERFLOW_AND_LANDMARK',
+    141: 'ADDRESS_HOME_ADMIN_LEVEL2', 142: 'ADDRESS_HOME_STREET_LOCATION',
+    143: 'ADDRESS_HOME_BETWEEN_STREETS', 144: 'ADDRESS_HOME_BETWEEN_STREETS_OR_LANDMARK',
+    145: 'ADDRESS_HOME_STREET_LOCATION_AND_LOCALITY',
+    146: 'ADDRESS_HOME_STREET_LOCATION_AND_LANDMARK',
+    150: 'ADDRESS_HOME_DEPENDENT_LOCALITY_AND_LANDMARK', 151: 'ADDRESS_HOME_BETWEEN_STREETS_1',
+    152: 'ADDRESS_HOME_BETWEEN_STREETS_2', 153: 'ADDRESS_HOME_HOUSE_NUMBER_AND_APT',
+    156: 'ADDRESS_HOME_APT', 157: 'ADDRESS_HOME_APT_TYPE', 163: 'ALTERNATIVE_FULL_NAME',
+    164: 'ALTERNATIVE_GIVEN_NAME', 165: 'ALTERNATIVE_FAMILY_NAME', 201: 'ADDRESS_HOME_ZIP_PREFIX',
+    202: 'ADDRESS_HOME_ZIP_SUFFIX', 207: 'ADDRESS_HOME_ZIP_AND_CITY',
+}
+
+# The field types given a column of their own, in column order.
+_SHOWN_TYPES = (7, 60, 77, 33, 34, 35, 36, 9, 14)
+
+# AutofillProfile::RecordType, components/autofill/core/browser/data_model/addresses/
+# autofill_profile.h lines 57-100, chromium 33f34ef179f55596f6c2fc8a55878b7ccf6276e4.
+_RECORD_TYPES = {0: 'kLocalOrSyncable', 1: 'kAccount', 2: 'kAccountHome', 3: 'kAccountWork',
+                 4: 'kAccountNameEmail'}
+
+# The tables of each address layout: metadata table, type token table, and the record
+# type its rows have. local_addresses holds kLocalOrSyncable profiles and contact_info
+# the account ones (GetLegacyProfileMetadataTable, address_autofill_table.cc lines
+# 340-352, same commit); addresses carries the record type in a column of its own.
+_TOKEN_LAYOUTS = (
+    ('addresses', 'address_type_tokens', None),
+    ('local_addresses', 'local_addresses_type_tokens', 'kLocalOrSyncable (0)'),
+    ('contact_info', 'contact_info_type_tokens', 'kAccount or kAccountHome or kAccountWork'),
+)
+
+# The legacy autofill_profiles layout: profile column and the field type it holds
+# (AddLegacyAutofillProfileDetailsFromStatement, address_autofill_table.cc lines
+# 166-181), and the side tables read by guid with their columns and field types.
+_LEGACY_PROFILE_COLUMNS = (
+    ('company_name', 60), ('street_address', 77), ('dependent_locality', 81), ('city', 33),
+    ('state', 34), ('zipcode', 35), ('sorting_code', 79), ('country_code', 36),
+)
+_LEGACY_SIDE_TABLES = (
+    ('autofill_profile_names', (('full_name', 7), ('first_name', 3), ('middle_name', 4),
+                                ('last_name', 5), ('honorific_prefix', 110),
+                                ('first_last_name', 107), ('conjunction_last_name', 108),
+                                ('second_last_name', 109))),
+    ('autofill_profile_emails', (('email', 9),)),
+    ('autofill_profile_phones', (('number', 14),)),
+)
+
+
+def _value(value):
+    """A stored value as text. A BLOB is reported by its length, not decoded."""
+    if value is None:
+        return ''
+    if isinstance(value, bytes):
+        return f'[{len(value)} bytes, not decoded]' if value else ''
+    return str(value)
+
+
+def _field_name(field_type):
+    return _FIELD_TYPES.get(field_type, f'type {field_type}')
+
+
+def _address_row(store, use_date, modified, use_count, record_type, label, fields, table):
+    """One report row from a profile's field values, {field type: [values]}.
+
+    Values of a field type given no column of its own go to Other Values, so every
+    stored value is reported somewhere.
+    """
+    shown = tuple('; '.join(fields.get(field_type, [])) for field_type in _SHOWN_TYPES)
+    other = '; '.join(f'{_field_name(field_type)}: {value}'
+                      for field_type in sorted(fields) if field_type not in _SHOWN_TYPES
+                      for value in fields[field_type])
+    return ((unix_time(use_date), unix_time(modified), use_count) + shown
+            + (other, record_type, _value(label), table) + row_tail(store))
+
+
+def _token_addresses(db, store, meta_table, token_table, record_type):
+    present = table_columns(db, meta_table)
+    if not present or not table_columns(db, token_table):
+        return []
+    tokens = {}
+    for guid, field_type, value in db.execute(
+            f'SELECT guid, type, value FROM "{token_table}" ORDER BY guid, type'):
+        text = _value(value)
+        if text:
+            tokens.setdefault(guid, {}).setdefault(field_type, []).append(text)
+    columns = select_list(present, ('guid', 'use_date', 'date_modified', 'use_count',
+                                    'record_type', 'label'))
+    rows = []
+    for guid, use_date, modified, use_count, stored_type, label in db.execute(
+            f'SELECT {columns} FROM "{meta_table}" ORDER BY use_date, guid'):
+        kind = record_type if record_type is not None else enum_label(_RECORD_TYPES, stored_type)
+        rows.append(_address_row(store, use_date, modified, use_count, kind, label,
+                                 tokens.get(guid, {}), meta_table))
+    return rows
+
+
+def _legacy_addresses(db, store):
+    present = table_columns(db, 'autofill_profiles')
+    if not present:
+        return []
+    side = {}
+    for table, columns in _LEGACY_SIDE_TABLES:
+        side_present = table_columns(db, table)
+        if not side_present:
+            continue
+        wanted = [(column, field_type) for column, field_type in columns
+                  if column in side_present]
+        if not wanted:
+            continue
+        query = (f'SELECT guid, {", ".join(column for column, _ in wanted)} '
+                 f'FROM "{table}" ORDER BY rowid')
+        for record in db.execute(query):
+            fields = side.setdefault(record[0], {})
+            for (_column, field_type), value in zip(wanted, record[1:]):
+                text = _value(value)
+                if text:
+                    fields.setdefault(field_type, []).append(text)
+    profile_columns = [column for column, _ in _LEGACY_PROFILE_COLUMNS]
+    columns = select_list(present, ['guid', 'use_date', 'date_modified', 'use_count', 'label']
+                          + profile_columns)
+    rows = []
+    for record in db.execute(f'SELECT {columns} FROM autofill_profiles ORDER BY use_date, guid'):
+        guid, use_date, modified, use_count, label = record[:5]
+        fields = {field_type: list(values) for field_type, values in side.get(guid, {}).items()}
+        for (_column, field_type), value in zip(_LEGACY_PROFILE_COLUMNS, record[5:]):
+            text = _value(value)
+            if text:
+                fields.setdefault(field_type, []).append(text)
+        rows.append(_address_row(store, use_date, modified, use_count, '', label, fields,
+                                 'autofill_profiles'))
+    return rows
+
+
+@artifact_processor
+def chromiumAutofillAddresses(context):
+    data_list = []
+    sources = []
+    for store in profile_stores(context, {'Web Data'}, 'Chromium Autofill Addresses'):
+        db = open_store(store, 'Chromium Autofill Addresses')
+        if db is None:
+            continue
+        try:
+            rows = _legacy_addresses(db, store)
+            for meta_table, token_table, record_type in _TOKEN_LAYOUTS:
+                rows.extend(_token_addresses(db, store, meta_table, token_table, record_type))
+        except sqlite3.Error as ex:
+            logfunc(f'Chromium Autofill Addresses: could not read {store.relative}: {ex}')
+            continue
+        finally:
+            db.close()
+        sources.append(store.path)
+        data_list.extend(rows)
+    data_headers = (('Last Used', 'datetime'), ('Modified', 'datetime'), 'Use Count', 'Full Name',
+                    'Organization', 'Street Address', 'City', 'State', 'Postal Code', 'Country',
+                    'Email', ('Phone', 'phonenumber'), 'Other Values', 'Record Type', 'Label',
+                    'Table', 'Browser', 'Profile', 'User', 'Source File')
+    return data_headers, data_list, '\n'.join(sources)
+
