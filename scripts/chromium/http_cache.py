@@ -28,7 +28,7 @@ _RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME = 1 << 2
 RESPONSE_EXTRA_INFO_HAS_ZSTD_UNCOMPRESSED_BODY_SIZE = 1 << 4
 _RESPONSE_INFO_VERSION_MASK = 0xFF
 # Any text ahead of the numbered part is kept as stored: a "Range_" marker seen on
-# corpus keys has no writer at the commits read.
+# corpus keys has no writer in the http_cache sources read.
 _NUMBERED_PREFIX = re.compile(r'^(?:[A-Za-z]+_)?(?:\d+/){1,2}|^[A-Za-z]+_(?=_dk_|https?:)')
 _DOUBLE_KEY = '_dk_'
 _URL_OR_DOUBLE_KEY = re.compile(r'^(?:_dk_|[A-Za-z][A-Za-z0-9+.-]*://)')
