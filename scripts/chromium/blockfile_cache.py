@@ -33,7 +33,7 @@ class BlockfileEntry:
         "address", "source", "key", "url", "key_prefix", "created",
         "last_used", "request_time", "response_time", "status_code",
         "status_line", "headers", "body_size", "body_source",
-        "body_address", "cache_dir",
+        "body_address", "cache_dir", "reuse_count", "response_info",
     )
 
     def __init__(self):
@@ -53,6 +53,8 @@ class BlockfileEntry:
         self.body_source = ""
         self.body_address = 0
         self.cache_dir = ""
+        self.reuse_count = 0
+        self.response_info = b""
 
     @property
     def content_type(self):
@@ -126,6 +128,7 @@ def _entry(cache_dir, address):
         return None, 0
     try:
         next_address = struct.unpack_from("<I", raw, 4)[0]
+        reuse_count = struct.unpack_from("<i", raw, 12)[0]
         state = struct.unpack_from("<i", raw, 20)[0]
         created = struct.unpack_from("<Q", raw, 24)[0]
         key_length, long_key = struct.unpack_from("<iI", raw, 32)
@@ -156,6 +159,8 @@ def _entry(cache_dir, address):
         item.last_used = base_time_to_datetime(struct.unpack_from("<Q", ranking)[0])
 
     stream0, _ = _read_address(cache_dir, data_addresses[0], data_sizes[0])
+    item.reuse_count = reuse_count
+    item.response_info = stream0
     (request_time, response_time, item.status_line,
      item.headers) = parse_response_info(stream0)
     item.request_time = base_time_to_datetime(request_time)
