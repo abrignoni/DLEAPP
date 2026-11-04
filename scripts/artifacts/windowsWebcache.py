@@ -14,6 +14,8 @@ little-endian Windows FILETIMEs.
 """
 
 import binascii
+import re
+import struct
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qsl, urlsplit
@@ -32,6 +34,9 @@ _WEBCACHE = "webcachev01.dat"
 # A container walk stops after visiting this many records, so a corrupt page's
 # forward pointer cannot loop forever.
 _ROW_CAP = 5_000_000
+# The large columns whose values ESE may store apart from the record, read from
+# the long value tree by default.
+_LONG_VALUE_COLUMNS = frozenset({"Url", "Filename"})
 
 __artifacts_v2__ = {
     "webcacheHistory": {
@@ -231,6 +236,73 @@ __artifacts_v2__ = {
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no WebCacheV01.dat)",
         },
     },
+    "webcacheDownloads": {
+        "name": "WebCache Downloads",
+        "description": "Files downloaded with Internet Explorer and legacy Edge, from the iedownload "
+                       "containers of WebCacheV01.dat, with the download URL, the path the file was saved "
+                       "to, its size and the record's access time.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-03",
+        "last_update_date": "2026-11-03",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the WebCacheV01.dat containers named iedownload. Read from WebCacheV01.dat, "
+                 "named in Source File, with the ESE reader adapted from impacket in scripts/vendor. "
+                 "Each row is one entry in an iedownload Container_<id> table. Accessed (UTC) is the "
+                 "entry's AccessedTime column, a little-endian Windows FILETIME; a 0 or out-of-range "
+                 "value is shown blank. The other columns come from the entry's ResponseHeaders value, "
+                 "which on these entries is a binary record, not HTTP headers. No published "
+                 "description of that record was found (libyal esedb-kb lists the column only as "
+                 "large binary data), so what is read from it rests on the six entries on the tested "
+                 "images, compared with a second record of the same download on each. The record "
+                 "starts with a 32-bit value that was 140 on the Windows 10 entries, whose cache "
+                 "path is in the legacy Edge package folder, and 137 on the Windows 7 and Server "
+                 "2012 R2 entries; it is followed by fixed fields and then by "
+                 "NUL-terminated UTF-16LE strings, which began at byte 344 when the first value was "
+                 "140 and at byte 336 when it was 137. A record whose first value is neither, or that "
+                 "is shorter than its string area's start, gives a row with only Accessed (UTC) and "
+                 "Source File, and the run log counts it. File Size (bytes) is the 64-bit "
+                 "little-endian value at byte 72 (0x48); on all six tested entries it equalled the "
+                 "size in the $MFT of the file at Saved To, or, for two files no longer at that path, "
+                 "of a file of the same name elsewhere on the volume. A second 64-bit value at byte 80 "
+                 "equalled it on four entries and was smaller on two, and is not shown, since what it "
+                 "counts is not established. Download URL is the second-to-last string and Saved To "
+                 "the last, as stored. On the one tested entry whose saved file kept a Zone.Identifier "
+                 "stream, Download URL equalled that stream's HostUrl. Saved To matched the $MFT path "
+                 "of the saved file on four entries; on the other two the file had since been moved, "
+                 "so Saved To is where the file was saved, not proof it is still there. Both are left "
+                 "blank, and the run log counts the entry, unless the last string starts with a drive "
+                 "letter and colon or with two backslashes and the second-to-last string starts with a "
+                 "URL scheme followed by a colon. Other Values lists the strings before those two, in "
+                 "the order stored, separated by \" | \"; a string that is not printable text is "
+                 "shown as a byte count instead. On the tested entries they held, in varying number "
+                 "and order, a web address, a media type, a path in the browser's cache folder and, "
+                 "on some entries, a publisher name and a SmartScreen result; they are not given "
+                 "separate columns because their positions differ between entries. A record ESE marks "
+                 "deleted (its fNDDeleted node flag, "
+                 "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
+                 "is not read, and a record the ESE reader cannot convert is skipped; both are counted "
+                 "in the run log. The iedownload containers on the tested images held one record ESE "
+                 "marks deleted, on lonewolf_win10, and none the reader could not convert. A "
+                 "ResponseHeaders value ESE stores apart from its record is read from the table's long "
+                 "value tree; one that cannot be assembled is left blank and counted in the run log. "
+                 "Four of the six tested values were stored apart, and every one was assembled. An "
+                 "entry records a download through these components, not who was at the keyboard. "
+                 "The .jfm and .log transaction logs beside WebCacheV01.dat are not "
+                 "replayed. Format of the database: libyal esedb-kb, MSIE web cache, "
+                 "https://github.com/libyal/esedb-kb/blob/main/documentation/MSIE%20web%20cache.asciidoc",
+        "paths": ("*/AppData/Local/Microsoft/Windows/WebCache/WebCacheV01.dat",),
+        "output_types": ["standard"],
+        "artifact_icon": "download",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 1 row",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 2 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 1 row",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no iedownload container holds an entry)",
+        },
+    },
 }
 
 
@@ -259,6 +331,18 @@ def _text(value):
                 continue
         return value.decode("latin-1", "replace").rstrip("\x00")
     return str(value).rstrip("\x00")
+
+
+def _raw(value):
+    """The bytes of a binary column; impacket returns a separated value as ASCII hex."""
+    if value is None:
+        return b""
+    if isinstance(value, (bytes, bytearray)):
+        try:
+            return binascii.unhexlify(value)
+        except (binascii.Error, ValueError):
+            return bytes(value)
+    return b""
 
 
 def _filetime_datetime(value):
@@ -290,7 +374,8 @@ def _containers(database, label="", relative_source=""):
 
 
 def _read_container(database, table_names, container_id, name, directory,
-                    row_builder, rows, label, relative_source=""):
+                    row_builder, rows, label, relative_source="",
+                    long_value_columns=_LONG_VALUE_COLUMNS):
     """Append a built row per entry of one Container_<id> table.
 
     A record ESE marks deleted is not read, and a record the ESE reader cannot
@@ -300,7 +385,7 @@ def _read_container(database, table_names, container_id, name, directory,
     table = "Container_%s" % container_id
     if table not in table_names:
         return 0
-    walk = ese_rows.TableRows(database, table, cap=_ROW_CAP, long_value_columns={"Url", "Filename"})
+    walk = ese_rows.TableRows(database, table, cap=_ROW_CAP, long_value_columns=long_value_columns)
     for row in walk:
         built = row_builder(_norm_row(row), name, directory)
         if built is not None:
@@ -315,7 +400,8 @@ def _table_names(database):
             for t in database._ESENT_DB__tables.keys()}  # pylint: disable=protected-access
 
 
-def _run(context, headers, select, row_builder, label, with_source=True):
+def _run(context, headers, select, row_builder, label, with_source=True,
+         long_value_columns=_LONG_VALUE_COLUMNS):
     data_list = []
     sources = []
     if impacket_ese is None:
@@ -346,7 +432,8 @@ def _run(context, headers, select, row_builder, label, with_source=True):
                             continue
                         _read_container(database, table_names, container_id,
                                         name, directory, row_builder, rows,
-                                        label, relative_source)
+                                        label, relative_source,
+                                        long_value_columns)
                 for row in rows:
                     data_list.append(row + (relative_source,) if with_source else row)
                     rows_here += 1
@@ -469,4 +556,70 @@ def webcacheLocationParameters(context):
     result = _run(context, headers, lambda name: True, build, "WebCache Location Parameters", with_source=False)
     for problem, count in sorted(problems.items()):
         logfunc(f"WebCache Location Parameters: {count} {problem}")
+    return result
+
+
+# The first 32-bit value of an iedownload ResponseHeaders record, and the byte at
+# which its strings began on the tested entries (see the webcacheDownloads notes).
+_DOWNLOAD_STRING_START = {137: 336, 140: 344}
+_DOWNLOAD_SIZE_OFFSET = 72
+_SAVED_PATH_START = re.compile(r"^(?:[A-Za-z]:|\\\\)")
+_URL_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
+
+
+def download_record(blob, problems):
+    """The fields read from one iedownload ResponseHeaders record, or None for an unknown shape.
+
+    Returns a dict with url, saved_to, size and other; url and saved_to are blank when the last
+    two strings do not have the shapes the notes describe. Every shape not decoded is counted in
+    problems.
+    """
+    if not blob or len(blob) < 4:
+        problems['records with no ResponseHeaders value, only the access time shown'] += 1
+        return None
+    first = struct.unpack_from('<I', blob, 0)[0]
+    start = _DOWNLOAD_STRING_START.get(first)
+    if start is None or len(blob) < start:
+        problems['records whose first value is not 137 or 140 or that end before their strings, '
+                 'only the access time shown'] += 1
+        return None
+    size = struct.unpack_from('<Q', blob, _DOWNLOAD_SIZE_OFFSET)[0]
+    area = blob[start:]
+    if len(area) % 2:
+        area = area[:-1]
+    strings = [text for text in area.decode('utf-16-le', 'replace').split('\x00') if text]
+    url = saved_to = ''
+    middle = strings
+    if (len(strings) >= 2 and _SAVED_PATH_START.match(strings[-1])
+            and _URL_SCHEME.match(strings[-2])):
+        url, saved_to = strings[-2], strings[-1]
+        middle = strings[:-2]
+    else:
+        problems['records whose last two strings are not a URL and a saved path, both left blank'] += 1
+    other = ' | '.join(text if text.isprintable() and '\ufffd' not in text
+                       else f'({len(text.encode("utf-16-le"))} bytes that are not text, not shown)'
+                       for text in middle)
+    return {'url': url, 'saved_to': saved_to, 'size': size, 'other': other}
+
+
+@artifact_processor
+def webcacheDownloads(context):
+    headers = (('Accessed (UTC)', 'datetime'), 'Download URL', 'Saved To', 'File Size (bytes)',
+               'Other Values', 'Source File')
+    problems = Counter()
+
+    def is_download(name):
+        return name == "iedownload"
+
+    def build(row, _name, _directory):
+        found = download_record(_raw(row.get('ResponseHeaders')), problems)
+        if found is None:
+            return (_filetime_datetime(row.get('AccessedTime')), '', '', '', '')
+        return (_filetime_datetime(row.get('AccessedTime')), found['url'], found['saved_to'],
+                found['size'], found['other'])
+
+    result = _run(context, headers, is_download, build, "WebCache Downloads",
+                  long_value_columns=frozenset({"ResponseHeaders"}))
+    for problem, count in sorted(problems.items()):
+        logfunc(f"WebCache Downloads: {count} {problem}")
     return result
