@@ -41,6 +41,7 @@ _EXECUTION = "{5C8CF1C7-7257-4F13-B223-970EF5939312}"
 # SOFTWARE\Microsoft\Windows NT\CurrentVersion\SRUM\Extensions on the tested images.
 _WPN = "{D10CA2FE-6FCF-4F6D-848E-B2E99266FA86}"        # WPN SRUM Provider
 _ENERGY_USAGE = "{FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}"  # Energy Usage Provider
+_ENERGY_USAGE_LT = _ENERGY_USAGE + "LT"  # its long-term table
 # Named SDP Cpu, Physical Disk, Volume and Network Provider (sdprov.dll) in the same key on
 # ou_ransomware_server2022 and alihadi_threatsim_server2019.
 _SDP_CPU = "{DC3D3B50-BB90-5066-FA4E-A5F90DD8B677}"
@@ -479,8 +480,8 @@ __artifacts_v2__ = {
                  "value on all 289 rows, and on pc_mus_001_win11 Full Charged Capacity equalled Designed "
                  "Capacity on all 494 rows. The table's AppId and UserId held 1 and 2 on "
                  "every row and are not shown. On af_case2_win10 and szechuan_win10 the table is "
-                 "empty. Not read: the long-term table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}LT (1 and 7 "
-                 "rows on the two images), and three other provider tables, named in the same registry key on "
+                 "empty. The long-term table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}LT is read by SRUM Energy "
+                 "Usage (Long Term). Not read: three other provider tables, named in the same registry key on "
                  "the images that carry them, Energy Estimation Provider {DA73FB89-2BEA-4DDC-86B8-6E048C6DA477} and Tagged "
                  "Energy Provider {B6D82AF1-F780-4E17-8077-6CB9AD8A6FC4}, whose payload columns are binary, with no layout "
                  "read here, and vfuprov {7ACBBAA3-D029-4BE4-9A7A-0885927F1D8F}, whose "
@@ -503,6 +504,60 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 0 rows (no such table)",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (no such table)",
             "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 1188 rows",
+        },
+    },
+    "srumEnergyUsageLongTerm": {
+        "name": "SRUM Energy Usage (Long Term)",
+        "description": "Time the device spent active and in connected standby, on battery and on AC, per period "
+                       "recorded by SRUM in the long-term table of the Energy Usage Provider in SRUDB.dat, with the "
+                       "battery's capacities.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-04",
+        "last_update_date": "2026-11-04",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Rows from the SRUM table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}LT, the long-term table of the "
+                 "provider SRUM Energy Usage reads. Each row is one entry of the table. Timestamp (UTC) is the "
+                 "TimeStamp column decoded as an OLE automation date (days since 1899-12-30), as in the other SRUM "
+                 "artifacts. No Microsoft documentation of the columns was found; they are read against Windows' own "
+                 "battery report, made with powercfg /batteryreport on the known data (corpus key "
+                 "windows11_arm_srum_lt_known_20261104, a copy of SRUDB.dat taken on Windows 11 build 26200 right "
+                 "after the report). The report's Usage history, described as the history of system usage on AC and "
+                 "battery, gives a Battery duration and an AC duration, each Active and Connected Standby, and its XML "
+                 "names them ActiveDcTime, CsDcTime, ActiveAcTime and CsAcTime, as the table does. Battery Active, "
+                 "Battery Connected Standby, AC Active and AC Connected Standby are those four columns as stored, in "
+                 "seconds: the report splits the table's periods into weeks, and its weekly battery active times on "
+                 "the known data (23,877, 18,019, 12,871 and 4,366 seconds) matched four table rows (23,945, 18,025, "
+                 "12,873 and 4,367) to within 68 seconds. What period a row covers was not established; the rows "
+                 "cover irregular spans, and a span can be longer than the time since the row before. Designed "
+                 "Capacity and Full Charged Capacity are DesignedCapacity and FullChargedCapacity as stored; the "
+                 "report gave the same battery's design capacity, 100000 in the table, as 100,000 mWh. Active "
+                 "Energy and Connected Standby Energy are ActiveEnergy and CsEnergy as stored; their unit was not "
+                 "established, and the report's energy fields read 0 for every week it covered. Cycle Count, Battery "
+                 "Count, Battery Charge Limited and Configuration Hash are the columns of those names as stored, "
+                 "Configuration Hash as text; Battery Count and Battery Charge Limited are blank where the file has "
+                 "no such column (lonewolf_win10) or the entry holds no value (pc_mus_001_win11). ActiveDischargeTime "
+                 "and CsDischargeTime are not shown: they equalled ActiveDcTime and CsDcTime on all 27 tested rows "
+                 "(the known data and four corpus files). AppId and UserId held 1 and 2 on every tested row and are "
+                 "not shown. On af_case2_win10 and szechuan_win10 the table is empty. Read from SRUDB.dat, named in "
+                 "Source File, with the ESE reader adapted from impacket in scripts/vendor, the same way as the SRUM "
+                 "Network Usage artifact, whose notes say how deleted records, values stored apart, a file cut short "
+                 "and a file in dirty shutdown are handled. A row records the device's power state over a period, "
+                 "not what anyone did.",
+        "paths": ("*/Windows/System32/sru/SRUDB.dat", "*/Windows/System32/sru/*.log"),
+        "output_types": ["standard"],
+        "artifact_icon": "battery",
+        "sample_data": {
+            "windows11_arm_srum_lt_known_20261104": "Windows 11 build 26200 (ARM64), with powercfg battery report | 7 rows",
+            "windows11_arm_srum_live_20261024": "Windows 11 25H2 (build 26200), live capture | 6 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 7 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 6 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 1 row",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (the table is empty)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the table is empty)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise (build 9600) | 0 rows (no such table)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard (build 20348) | 0 rows (no such table)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard (build 17763) | 0 rows (no such table)",
         },
     },
     "srumSdpCpu": {
@@ -970,6 +1025,31 @@ def srumEnergyUsage(context):
                 _text(row.get('ConfigurationHash')))
 
     return _run(context, _ENERGY_USAGE, headers, build, "SRUM Energy Usage")
+
+
+@artifact_processor
+def srumEnergyUsageLongTerm(context):
+    headers = (('Timestamp (UTC)', 'datetime'), 'Battery Active (seconds)', 'Battery Connected Standby (seconds)',
+               'AC Active (seconds)', 'AC Connected Standby (seconds)', 'Active Energy (as stored)',
+               'Connected Standby Energy (as stored)', 'Designed Capacity (mWh)', 'Full Charged Capacity (mWh)',
+               'Cycle Count', 'Battery Count', 'Battery Charge Limited', 'Configuration Hash', 'Source File')
+
+    def build(row, _idmap):
+        return (_ole_datetime(row.get('TimeStamp')),
+                _cell(row.get('ActiveDcTime')),
+                _cell(row.get('CsDcTime')),
+                _cell(row.get('ActiveAcTime')),
+                _cell(row.get('CsAcTime')),
+                _cell(row.get('ActiveEnergy')),
+                _cell(row.get('CsEnergy')),
+                _cell(row.get('DesignedCapacity')),
+                _cell(row.get('FullChargedCapacity')),
+                _cell(row.get('CycleCount')),
+                _cell(row.get('BatteryCount')),
+                _cell(row.get('BatteryChargeLimited')),
+                _text(row.get('ConfigurationHash')))
+
+    return _run(context, _ENERGY_USAGE_LT, headers, build, "SRUM Energy Usage (Long Term)")
 
 
 @artifact_processor
