@@ -3,7 +3,8 @@
 Code brought in from other repositories so the tool can read disk images,
 acquisitions and databases without asking the examiner to install anything.
 qnxprobe.py, ewfprobe.py, cimreader.py and the ccl_segb package are copied verbatim;
-impacket_ese.py is adapted, as its own section below explains.
+impacket_ese.py is adapted, as its own section below explains. The CCL LevelDB,
+IndexedDB and V8 readers in scripts/ccl are covered in the last section.
 
 ## qnxprobe.py
 
@@ -110,3 +111,43 @@ fails when either differs. It runs in CI, so a local edit or a stale copy after 
 upstream release is caught rather than noticed later. Pass `--upstream <path>`
 (or `--upstream qnxprobe=<path>`) to compare against a checkout instead of
 fetching, and `--offline` to check the hashes alone.
+
+## scripts/ccl (CCL Forensics LevelDB, IndexedDB and V8 readers)
+
+| | |
+| --- | --- |
+| upstream | https://github.com/cclgroupltd/ccl_chromium_reader and https://github.com/cclgroupltd/ccl_simplesnappy |
+| licence | MIT, kept here as LICENSE-ccl_chromium_reader and LICENSE-ccl_simplesnappy |
+
+These files live in `scripts/ccl`, where the Chromium, Discord, Slack, Wire, Roblox,
+WhatsApp Web and webOS readers import them. Two are verbatim copies and are recorded in
+vendored.json:
+
+- `ccl_v8_value_deserializer.py`: ccl_chromium_reader 3be9221 (2024-06-12), also the
+  newest version of that file upstream on 2026-11-03.
+- `ccl_simplesnappy.py`: ccl_simplesnappy 2161c40 (2024-07-29). That commit carried no
+  LICENSE file; the MIT text kept here is the repository's later one, and the file's
+  own header holds the same licence.
+
+Three are not verbatim and are not in vendored.json, because vendored.json records
+only copies whose body equals upstream. Each is listed with the upstream version it is
+closest to, measured on 2026-11-03 by comparing every upstream version of the file:
+
+- `ccl_leveldb.py`: closest to ccl_chromium_reader 3be9221 (2024-06-12). Local change:
+  DLEAPP 051660d bounds the open file handles (a reader closes each .log and .ldb file
+  after checking it and reopens it to read). Upstream has since added 8b18a0e,
+  a321210 and 6e5dbe5 (log offsets, and reading past damaged or zero-filled log
+  blocks), which this copy does not have.
+- `ccl_chromium_indexeddb.py`: closest to ccl_chromium_reader 1947980 (2024-07-26).
+  Local changes: the imports are flattened to `from . import ...` for this folder,
+  and a value that fails to deserialize is retried with a fresh Blink deserializer
+  and then skipped, without an error, when the caller passes no
+  `bad_deserializer_data_handler` (upstream raises). Upstream has since added
+  snappy-compressed V8 values (3b104d5), which this copy does not have.
+- `ccl_blink_value_deserializer.py`: closest to ccl_chromium_reader 3be9221. Local
+  change: a host object tag the reader does not implement returns a placeholder
+  holding the remaining bytes where upstream raises NotImplementedError. Upstream has
+  since added NativeFileHandle (5525167).
+
+Beside them, `wire_assets.py` is this repository's own code, and `indexeddb_to_json.py` is an
+in-memory adaptation of Spyder Forensics' IndexedDBtoJSON.py helper, as its header says.
