@@ -134,18 +134,24 @@ def _dos_datetime(value):
 
 
 def _beef_longname(data):
-    """The UTF-16 long name inside a file entry's 0xBEEF0004 extension block."""
+    """The UTF-16 long name inside a file entry's 0xBEEF0004 extension block, read from the long name
+    offset at byte 16 of the block (libyal libfwsi "Windows Shell Item format" at
+    996128afc64961dbfddf17b176ceff21c499b7d3, "File entry extension block (0xbeef0004)"). The name's
+    position moves with the block version, so it is never walked to from fixed offsets."""
     idx = data.find(b"\x04\x00\xef\xbe")
     if idx < 4:
         return None
-    version = struct.unpack_from("<H", data, idx - 2)[0]
-    pos = idx + 4 + 8 + 2   # signature, created+accessed DOS, unknown
-    if version >= 7:
-        pos += 16           # file reference + unknown
-    if version < 3:
+    start = idx - 4
+    size, version = struct.unpack_from("<HH", data, start)
+    end = min(start + size, len(data))
+    if version < 3 or end - start < 20:
         return None
+    offset = struct.unpack_from("<H", data, start + 16)[0]
+    if not 20 <= offset < end - start:
+        return None
+    pos = start + offset
     chars = []
-    while pos + 1 < len(data):
+    while pos + 1 < end:
         pair = data[pos:pos + 2]
         if pair == b"\x00\x00":
             break
