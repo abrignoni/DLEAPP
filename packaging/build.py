@@ -114,7 +114,6 @@ FIXED_HIDDEN_IMPORTS = (
     "pillow_heif",
     "plistlib",
     "pypdf",
-    "Registry",
     "requests",
     "simplekml",
     "struct",

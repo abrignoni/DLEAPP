@@ -67,8 +67,8 @@ only, so this adds no dependency.
 Reads Windows registry hives (regf) offline, and replays their `.LOG1` and `.LOG2`
 transaction logs in memory. Its log replay was copied from `scripts/registry_recovery.py`,
 which now imports it from here. The registry artifacts read hives with it, through the
-python-registry shaped `Registry` in `scripts/windows_registry.py`; the vendored dpapiprobe
-still reads the SYSTEM and SECURITY hives with python-registry. Standard library
+python-registry shaped `Registry` in `scripts/windows_registry.py`, and the vendored dpapiprobe
+reads the SYSTEM and SECURITY hives with it. Standard library
 only, so this adds no dependency. The upstream window, `regfprobe_gui.py`, is not copied.
 
 ## impacket_ese.py

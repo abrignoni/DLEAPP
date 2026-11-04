@@ -22,7 +22,7 @@ __artifacts_v2__ = {
                        "artifact.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-02",
-        "last_update_date": "2026-11-02",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Decrypts the password_value column of the logins table of each Windows Chromium "
@@ -40,8 +40,7 @@ __artifacts_v2__ = {
                  "NT hash alone did not open the user master key on the Windows 11 image tested "
                  "(the SHA-1 candidate did), and the library documents the same for Windows 10 and "
                  "later, so a known or cracked password is needed when there is no ARSO secret. "
-                 "The vendored dpapiprobe library (scripts/vendor/dpapiprobe, PyCryptodome and "
-                 "python-registry) runs the chain. Password is the decrypted value, decoded as "
+                 "The vendored dpapiprobe library (scripts/vendor/dpapiprobe, with PyCryptodome; it reads the hives with the vendored regfprobe) runs the chain. Password is the decrypted value, decoded as "
                  "UTF-8 with undecodable bytes replaced. Scheme is the stored value's format: "
                  "'v10' for the AES-GCM scheme above, 'dpapi' for a per-value DPAPI blob, the "
                  "format Chromium wrote before the v10 scheme (os_crypt_win.cc still decrypts "

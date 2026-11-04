@@ -373,7 +373,7 @@ class TestBundleContents(unittest.TestCase):
         hidden = self.driver.hidden_imports()
         self.assertTrue(expected <= set(hidden))
         # The old specs' list, pefile among it: only the Defender artifacts reach it.
-        for name in ('pefile', 'Registry', 'requests', 'pillow_heif', 'xml.etree.ElementTree'):
+        for name in ('pefile', 'requests', 'pillow_heif', 'xml.etree.ElementTree'):
             self.assertIn(name, hidden)
 
     @unittest.skipIf(sys.version_info < (3, 14), 'compression.zstd exists from Python 3.14')
