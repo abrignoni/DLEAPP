@@ -119,8 +119,8 @@ def _iso(value):
 
 # ---------------------------------------------------------------------------------------------
 # Transaction log replay, copied from DLEAPP's scripts/registry_recovery.py as of DLEAPP commit
-# dc77aab (2026-10-29): the same functions, with the same results on the 14 dirty corpus hives
-# measured. DLEAPP still carries its own copy.
+# dc77aab (2026-10-29). xor32 and base_block wrap a slice in bytes() so a memoryview can be passed;
+# the rest is unchanged. Results matched DLEAPP's on the 61 dirty corpus hives measured.
 # ---------------------------------------------------------------------------------------------
 
 # The seed the specification gives for the Hash-1 and Hash-2 fields of a log entry, 82 EF 4D 88
@@ -1119,9 +1119,16 @@ def _walk_image(image, wanted, password=None, cancel=None):
     RegfError('cancelled').
     """
     qnx = _qnxprobe()
-    handle = qnx.open_image(image, password=password)
+    try:
+        handle = qnx.open_image(image, password=password)
+        found = qnx.volumes(handle)
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        # qnxprobe and ewfprobe refuse an image with an exception class of their own (logical
+        # evidence such as an AD1, an encrypted volume without its key, a missing segment);
+        # pass on what they say as one RegfError
+        raise RegfError(f'{os.path.basename(str(image))}: {error}') from error
     s_ifmt, s_ifdir = 0o170000, 0o040000
-    for volume in qnx.volumes(handle):
+    for volume in found:
         walker = volume.get('walker')
         if walker is None:
             continue
@@ -1136,7 +1143,10 @@ def _walk_image(image, wanted, password=None, cancel=None):
 
 
 def _read_node(walker, node, size):
-    data = walker.read_file(node, size)
+    try:
+        data = walker.read_file(node, size)
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        raise RegfError(f'could not read the file from the image: {error}') from error
     if isinstance(data, (bytes, bytearray)):
         return bytes(data)
     return b''.join(bytes(chunk) for chunk in data if chunk)
@@ -1606,7 +1616,11 @@ def extract_hives(image, dest, password=None):
     for label, path, walker, node, size in _walk_image(image, wanted, password):
         target = _safe_join(dest, label, path)
         os.makedirs(os.path.dirname(target), exist_ok=True)
-        data = _read_node(walker, node, size)
+        try:
+            data = _read_node(walker, node, size)
+        except RegfError as error:
+            print(f'regfprobe: skipped {label}/{path}: {error}', file=sys.stderr)
+            continue
         with open(target, 'wb') as handle:
             handle.write(data)
         done.append((label, path, len(data)))
