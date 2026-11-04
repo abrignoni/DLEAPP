@@ -24,6 +24,17 @@ reserved-tag count into a page from database version 1568.270.560
 0x1007 as 4,103 tags and fails on the catalog page. A page without one stores only
 its tag count, which on a small page is below 4,096, so it reads exactly as before.
 
+A third change: a fixed-size column whose bit is set in the record's fixed-column null
+bitmap is returned as None, as ESE's own retrieval does
+(dev/ese/src/ese/fldext.cxx#L379-L389 at the commit above), where upstream slices the
+column's bytes out of the record whatever the bitmap says. The bitmap is the last
+(fixed columns in the record + 7) / 8 bytes before the end of the fixed data, and a set
+bit means NULL (dev/ese/src/inc/rec.hxx#L4-L11 and #L522-L531). The bytes of a NULL fixed
+column are not a value: in a record ESE reorganised they are its fill byte '*', 0x2A
+(chRECFill, dev/ese/src/inc/daedef.hxx#L1056), which upstream returned as 42 for a Bit
+column and as 0x2A2A... for a wider one. A column whose bit is clear reads exactly as
+before.
+
 Not tracked in scripts/vendor/vendored.json, because it is adapted rather than a
 verbatim copy: the check_vendored gate requires the body to match upstream byte
 for byte. To update, re-adapt from the impacket source at the tag above.
@@ -1618,6 +1629,10 @@ class ESENT_DB:
 
         dataDefinitionHeader = ESENT_DATA_DEFINITION_HEADER(tag)
         #dataDefinitionHeader.dump()
+        # The fixed-column null bitmap ends where the fixed data ends (see the module
+        # docstring); bit (identifier - 1) set means the fixed column is NULL.
+        fixedNullBitmapEnd = dataDefinitionHeader['VariableSizeOffset']
+        fixedNullBitmap = tag[fixedNullBitmapEnd - (dataDefinitionHeader['LastFixedSize'] + 7) // 8:fixedNullBitmapEnd]
         variableDataBytesProcessed = (dataDefinitionHeader['LastVariableDataType'] - 127) * 2
         prevItemLen = 0
         tagLen = len(tag)
@@ -1634,7 +1649,12 @@ class ESENT_DB:
             #columnRecord.dump()
             if columnRecord['Identifier'] <= dataDefinitionHeader['LastFixedSize']:
                 # Fixed Size column data type, still available data
-                record[column] = tag[fixedSizeOffset:][:columnRecord['SpaceUsage']]
+                nullIndex = columnRecord['Identifier'] - 1
+                if (nullIndex // 8 < len(fixedNullBitmap)
+                        and fixedNullBitmap[nullIndex // 8] & (1 << (nullIndex % 8))):
+                    record[column] = None
+                else:
+                    record[column] = tag[fixedSizeOffset:][:columnRecord['SpaceUsage']]
                 fixedSizeOffset += columnRecord['SpaceUsage']
 
             elif 127 < columnRecord['Identifier'] <= dataDefinitionHeader['LastVariableDataType']:

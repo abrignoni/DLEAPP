@@ -226,7 +226,7 @@ __artifacts_v2__ = {
                        "description and the members the database links to each group.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-17",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Windows",
         "notes": 'Reads the same database the same way as Active Directory Accounts, whose notes give the attribute '
@@ -260,12 +260,12 @@ __artifacts_v2__ = {
                  'and DSInternals (Michael Grafnetter, MIT) reads members through the link_table index it describes as the '
                  'index of valid links '
                  '(https://github.com/MichaelGrafnetter/DSInternals/blob/f54c3c3075bb6c3637623f775c93ed3a339b5ec6/Src/DSInternals.DataStore/LinkResolver.cs#L15-L20, '
-                 '#L76). No code from either is used. The data agrees: on the tested databases link_deltime holds the '
-                 'value 0x2A2A2A2A2A2A2A2A, which is out of range for a DSTIME, on every member link except 4 on '
+                 '#L76). No code from either is used. The data agrees: on the tested databases link_deltime is NULL '
+                 "(its bit is set in the record's fixed-column null bitmap) on every member link except 4 on "
                  "ou_ransomware_server2022, from one account to four groups, and for each of those 4 the server's own "
                  'Security log holds a member removed record (4729 or 4757) naming the same member SID and group SID 0.4 '
-                 "to 1.4 seconds after the link's deletion time (see Windows Account Management). link_deactivetime held "
-                 'that same value on every member link and is not read; what a value there would mean is not established. '
+                 "to 1.4 seconds after the link's deletion time (see Windows Account Management). link_deactivetime was "
+                 'NULL on every member link and is not read; what a value there would mean is not established. '
                  'The tested databases hold 28, 25 and 25 member links (alihadi_threatsim_server2019, '
                  'ou_ransomware_server2022, szechuan_dc01_server2012r2), 28, 21 and 25 of them with no deletion time, and '
                  '5 on each database to objects without an sAMAccountName. Removed Members was filled on 4 rows of '
