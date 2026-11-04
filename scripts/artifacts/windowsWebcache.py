@@ -238,9 +238,10 @@ __artifacts_v2__ = {
     },
     "webcacheDownloads": {
         "name": "WebCache Downloads",
-        "description": "Files downloaded with Internet Explorer and legacy Edge, from the iedownload "
-                       "containers of WebCacheV01.dat, with the download URL, the path the file was saved "
-                       "to, its size and the record's access time.",
+        "description": "Download entries from the iedownload containers of WebCacheV01.dat, the "
+                       "Internet Explorer web cache, which on the tested Windows 10 images also held "
+                       "legacy Edge downloads; with the download URL, the path the file was saved to, its "
+                       "size and the record's access time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
@@ -259,8 +260,8 @@ __artifacts_v2__ = {
                  "path is in the legacy Edge package folder, and 137 on the Windows 7 and Server "
                  "2012 R2 entries; it is followed by fixed fields and then by "
                  "NUL-terminated UTF-16LE strings, which began at byte 344 when the first value was "
-                 "140 and at byte 336 when it was 137. A record whose first value is neither, or that "
-                 "is shorter than its string area's start, gives a row with only Accessed (UTC) and "
+                 "140 and at byte 336 when it was 137. A record with no ResponseHeaders value, or whose "
+                 "first value is neither, or that is shorter than its string area's start, gives a row with only Accessed (UTC) and "
                  "Source File, and the run log counts it. File Size (bytes) is the 64-bit "
                  "little-endian value at byte 72 (0x48); on all six tested entries it equalled the "
                  "size in the $MFT of the file at Saved To, or, for two files no longer at that path, "
@@ -269,16 +270,19 @@ __artifacts_v2__ = {
                  "counts is not established. Download URL is the second-to-last string and Saved To "
                  "the last, as stored. On the one tested entry whose saved file kept a Zone.Identifier "
                  "stream, Download URL equalled that stream's HostUrl. Saved To matched the $MFT path "
-                 "of the saved file on four entries; on the other two the file had since been moved, "
-                 "so Saved To is where the file was saved, not proof it is still there. Both are left "
+                 "of the saved file on four entries; on the other two no file was at that path and a "
+                 "file of the same name and size was elsewhere on the volume, so Saved To is where "
+                 "the record says the file was saved, not proof it is still there. Both are left "
                  "blank, and the run log counts the entry, unless the last string starts with a drive "
                  "letter and colon or with two backslashes and the second-to-last string starts with a "
                  "URL scheme followed by a colon. Other Values lists the strings before those two, in "
                  "the order stored, separated by \" | \"; a string that is not printable text is "
-                 "shown as a byte count instead. On the tested entries they held, in varying number "
-                 "and order, a web address, a media type, a path in the browser's cache folder and, "
-                 "on some entries, a publisher name and a SmartScreen result; they are not given "
-                 "separate columns because their positions differ between entries. A record ESE marks "
+                 "shown as a byte count instead. On the tested entries they held a web address, a "
+                 "media type and a path in the browser's cache folder, in varying number and order. "
+                 "Some entries held further strings: short and long texts, one long string that "
+                 "names SmartScreen, and on the Windows 7 entries one value that is not text. What "
+                 "those further strings mean is not established. They are not given separate "
+                 "columns because their positions differ between entries. A record ESE marks "
                  "deleted (its fNDDeleted node flag, "
                  "https://github.com/microsoft/Extensible-Storage-Engine/blob/7030fe7407615160e54d152e4ef704eede2fdd7e/dev/ese/src/inc/node.hxx#L248) "
                  "is not read, and a record the ESE reader cannot convert is skipped; both are counted "
@@ -290,7 +294,8 @@ __artifacts_v2__ = {
                  "entry records a download through these components, not who was at the keyboard. "
                  "The .jfm and .log transaction logs beside WebCacheV01.dat are not "
                  "replayed. Format of the database: libyal esedb-kb, MSIE web cache, "
-                 "https://github.com/libyal/esedb-kb/blob/main/documentation/MSIE%20web%20cache.asciidoc",
+                 "https://github.com/libyal/esedb-kb/blob/f5b15f463086eec63c88e2daf5028fefde9a17da/"
+                 "documentation/MSIE%20web%20cache.asciidoc",
         "paths": ("*/AppData/Local/Microsoft/Windows/WebCache/WebCacheV01.dat",),
         "output_types": ["standard"],
         "artifact_icon": "download",
@@ -300,7 +305,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 2 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 1 row",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no iedownload container holds an entry)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no iedownload container)",
         },
     },
 }
