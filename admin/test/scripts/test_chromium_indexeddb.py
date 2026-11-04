@@ -24,7 +24,14 @@ OTHER_STORE = idb.IndexedDb.make_prefix(1, 2, 1)
 
 
 def _db(records):
-    return SimpleNamespace(_fetched_records=[SimpleNamespace(key=k, seq=q, state=s) for k, q, s in records])
+    return SimpleNamespace(_fetched_records=[SimpleNamespace(key=k, user_key=k, seq=q, state=s)
+                                             for k, q, s in records])
+
+
+def _ldb(key, seq, live):
+    """A record as read from an .ldb table file: the raw key ends in the sequence and type."""
+    raw = key + ((seq << 8) | (1 if live else 0)).to_bytes(8, 'little')
+    return SimpleNamespace(key=raw, user_key=key, seq=seq, state=LIVE if live else DELETED)
 
 
 class CountTest(unittest.TestCase):
@@ -37,6 +44,13 @@ class CountTest(unittest.TestCase):
             (OTHER_STORE + b'x', 7, LIVE)]))
         self.assertEqual(art._store_counts(states, 1, 1), (2, 1, 1))  # pylint: disable=protected-access
         self.assertEqual(art._store_counts(states, 1, 2), (1, 0, 0))  # pylint: disable=protected-access
+
+    def test_table_file_versions_merge_on_the_user_key(self):
+        db = SimpleNamespace(_fetched_records=[
+            _ldb(DATA + b'a', 1, True), _ldb(DATA + b'a', 4, False),
+            _ldb(DATA + b'b', 2, True), _ldb(DATA + b'b', 3, True)])
+        states = art._newest_states(db)  # pylint: disable=protected-access
+        self.assertEqual(art._store_counts(states, 1, 1), (1, 1, 0))  # pylint: disable=protected-access
 
     def test_deleted_external_entry_not_counted(self):
         states = art._newest_states(_db([(EXTERNAL + b'c', 1, LIVE), (EXTERNAL + b'c', 2, DELETED)]))  # pylint: disable=protected-access

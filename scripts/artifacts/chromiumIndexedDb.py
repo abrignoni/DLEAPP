@@ -111,12 +111,18 @@ _is_origin_folder.folder_label = 'IndexedDB'
 
 
 def _newest_states(db):
-    """{key: live?} for the newest LevelDB record of every key the database holds."""
+    """{user key: live?} for the newest LevelDB record of every key the database holds.
+
+    Keyed on the user key: a record read from an .ldb table file carries an 8-byte
+    sequence and type trailer on its raw key, so the raw keys of two versions of one
+    key differ (ccl_leveldb.Record.user_key).
+    """
     newest = {}
     for record in db._fetched_records:  # pylint: disable=protected-access
-        current = newest.get(record.key)
+        key = record.user_key
+        current = newest.get(key)
         if current is None or record.seq > current[0]:
-            newest[record.key] = (record.seq, record.state == ccl_leveldb.KeyState.Live)
+            newest[key] = (record.seq, record.state == ccl_leveldb.KeyState.Live)
     return {key: live for key, (_seq, live) in newest.items()}
 
 
