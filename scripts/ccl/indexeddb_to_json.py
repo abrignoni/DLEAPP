@@ -28,7 +28,9 @@ import pathlib
 import re
 from collections.abc import Mapping
 
-from . import ccl_chromium_indexeddb
+from scripts.ilapfuncs import logfunc
+
+from scripts.vendor.ccl import ccl_chromium_indexeddb
 
 UNDEFINED_PATTERN = re.compile(r"<Undefined>")
 IDBKEY_RE = re.compile(r"^<IdbKey (.+)>$", re.DOTALL)
@@ -135,7 +137,11 @@ def export_indexeddb_to_data(ldb_path, log=None):
             output_data.setdefault(obj_store.name, [])
 
             record_count = 0
-            for record in obj_store.iterate_records():
+            skipped = []
+            # A value the reader cannot deserialize is skipped and counted, and the count
+            # is always reported: the reader raises on one when given no handler.
+            for record in obj_store.iterate_records(
+                    bad_deserializer_data_handler=lambda key, _raw, bucket=skipped: bucket.append(key)):
                 record_count += 1
                 output_data[obj_store.name].append({
                     "db_name": db.name,
@@ -146,6 +152,9 @@ def export_indexeddb_to_data(ldb_path, log=None):
                 })
             if record_count:
                 _log(f"    {obj_store.name}: {record_count} record(s)")
+            if skipped:
+                logfunc(f"IndexedDB {pathlib.Path(ldb_path).name}: {db.name}/{obj_store.name}: {len(skipped)} record(s) "
+                        f"whose value could not be deserialized were skipped")
 
     return output_data
 

@@ -22,7 +22,7 @@ Used by scripts/artifacts/chromiumWebStorage.py. Sources, chromium
 import hashlib
 import os
 
-from scripts.ccl import ccl_leveldb
+from scripts.vendor.ccl import ccl_leveldb
 
 CHROMIUM_COMMIT = '33f34ef179f55596f6c2fc8a55878b7ccf6276e4'
 

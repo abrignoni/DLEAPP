@@ -13,8 +13,8 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.artifacts import chromiumIndexedDb as art  # pylint: disable=wrong-import-position
-from scripts.ccl import ccl_chromium_indexeddb as idb  # pylint: disable=wrong-import-position
-from scripts.ccl import ccl_leveldb  # pylint: disable=wrong-import-position
+from scripts.vendor.ccl import ccl_chromium_indexeddb as idb  # pylint: disable=wrong-import-position
+from scripts.vendor.ccl import ccl_leveldb  # pylint: disable=wrong-import-position
 
 LIVE = ccl_leveldb.KeyState.Live
 DELETED = ccl_leveldb.KeyState.Deleted

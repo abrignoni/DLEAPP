@@ -4,7 +4,7 @@ Code brought in from other repositories so the tool can read disk images,
 acquisitions and databases without asking the examiner to install anything.
 qnxprobe.py, ewfprobe.py, cimreader.py and the ccl_segb package are copied verbatim;
 impacket_ese.py is adapted, as its own section below explains. The CCL LevelDB,
-IndexedDB and V8 readers in scripts/ccl are covered in the last section.
+IndexedDB and V8 readers in ccl/ are covered in the last section.
 
 ## qnxprobe.py
 
@@ -112,42 +112,44 @@ upstream release is caught rather than noticed later. Pass `--upstream <path>`
 (or `--upstream qnxprobe=<path>`) to compare against a checkout instead of
 fetching, and `--offline` to check the hashes alone.
 
-## scripts/ccl (CCL Forensics LevelDB, IndexedDB and V8 readers)
+## ccl/ (CCL Forensics LevelDB, IndexedDB and V8 readers)
 
 | | |
 | --- | --- |
 | upstream | https://github.com/cclgroupltd/ccl_chromium_reader and https://github.com/cclgroupltd/ccl_simplesnappy |
 | licence | MIT, kept here as LICENSE-ccl_chromium_reader and LICENSE-ccl_simplesnappy |
 
-These files live in `scripts/ccl`, where the Chromium, Discord, Slack, Wire, Roblox,
-WhatsApp Web and webOS readers import them. Two are verbatim copies and are recorded in
-vendored.json:
+The Chromium, Discord, Slack, Wire, Roblox, WhatsApp Web and webOS readers import these
+from `scripts.vendor.ccl`. Upstream keeps them in a package
+(`ccl_chromium_reader`, with `storage_formats` and `serialization_formats` subfolders)
+whose `__init__` imports modules DLEAPP does not use and a `zstd` package it does not
+depend on, so they are kept here as one flat folder with an `__init__.py` of this
+repository's.
 
-- `ccl_v8_value_deserializer.py`: ccl_chromium_reader 3be9221 (2024-06-12), also the
-  newest version of that file upstream on 2026-11-03.
+Verbatim copies, recorded in vendored.json:
+
+- `ccl_v8_value_deserializer.py`: ccl_chromium_reader 3be9221 (2024-06-12), unchanged
+  upstream since.
+- `ccl_blink_value_deserializer.py`, `common.py` and `profile_folder_protocols.py`:
+  ccl_chromium_reader ad37443 (2026-10-28).
 - `ccl_simplesnappy.py`: ccl_simplesnappy 2161c40 (2024-07-29). That commit carried no
   LICENSE file; the MIT text kept here is the repository's later one, and the file's
   own header holds the same licence.
 
-Three are not verbatim and are not in vendored.json, because vendored.json records
-only copies whose body equals upstream. Each is listed with the upstream version it is
-closest to, measured on 2026-11-03 by comparing every upstream version of the file:
+Copies with local changes, not in vendored.json because it records only copies whose
+body equals upstream:
 
-- `ccl_leveldb.py`: closest to ccl_chromium_reader 3be9221 (2024-06-12). Local change:
-  DLEAPP 051660d bounds the open file handles (a reader closes each .log and .ldb file
-  after checking it and reopens it to read). Upstream has since added 8b18a0e,
-  a321210 and 6e5dbe5 (log offsets, and reading past damaged or zero-filled log
-  blocks), which this copy does not have.
-- `ccl_chromium_indexeddb.py`: closest to ccl_chromium_reader 1947980 (2024-07-26).
-  Local changes: the imports are flattened to `from . import ...` for this folder,
-  and a value that fails to deserialize is retried with a fresh Blink deserializer
-  and then skipped, without an error, when the caller passes no
-  `bad_deserializer_data_handler` (upstream raises). Upstream has since added
-  snappy-compressed V8 values (3b104d5), which this copy does not have.
-- `ccl_blink_value_deserializer.py`: closest to ccl_chromium_reader 3be9221. Local
-  change: a host object tag the reader does not implement returns a placeholder
-  holding the remaining bytes where upstream raises NotImplementedError. Upstream has
-  since added NativeFileHandle (5525167).
+- `ccl_chromium_indexeddb.py` and `structures.py`: ccl_chromium_reader ad37443, with
+  only their imports changed for the flat folder (`from . import ccl_leveldb`,
+  `from . import ccl_simplesnappy` and the like).
+- `ccl_leveldb.py`: ccl_chromium_reader ad37443 with DLEAPP 051660d merged in, and
+  `import ccl_simplesnappy` changed to `from . import ccl_simplesnappy`. That
+  change bounds the open file handles: a reader closes each .log and .ldb file after
+  checking it and reopens it for each pass, and what a pass skips as damage is copied
+  back to the file's reader, where upstream keeps it. Upstream ad37443 still fails
+  admin/test/scripts/test_leveldb_file_lifecycle.py without it (5 of 11 tests,
+  measured 2026-11-03), so it stays until upstream takes an equivalent change.
 
-Beside them, `wire_assets.py` is this repository's own code, and `indexeddb_to_json.py` is an
-in-memory adaptation of Spyder Forensics' IndexedDBtoJSON.py helper, as its header says.
+Two helpers around them stay in `scripts/ccl`: `wire_assets.py`, this repository's own code,
+and `indexeddb_to_json.py`, an in-memory adaptation of Spyder Forensics' IndexedDBtoJSON.py
+helper, as its header says. Before 2026-11-03 these readers sat in `scripts/ccl` too.

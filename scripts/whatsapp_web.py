@@ -20,7 +20,7 @@ import sqlite3
 import struct
 import urllib.parse
 
-from scripts.ccl import ccl_chromium_indexeddb
+from scripts.vendor.ccl import ccl_chromium_indexeddb
 from scripts.chromium.local_storage import read_records
 from scripts.chromium.simple_cache import read_entry
 from scripts.firefox import local_storage_value, snappy_raw_uncompress
