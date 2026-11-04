@@ -180,6 +180,54 @@ __artifacts_v2__ = {
                                           "declared paths)",
         },
     },
+    "windowsLnkPlaced": {
+        "name": "Desktop, Taskbar and Startup Shell Links",
+        "description": "Shell links (.lnk) on a user's or the Public desktop, pinned to the taskbar, or in a "
+                       "Startup folder, with each target's path, recorded timestamps, size and volume, and the "
+                       "link's tracker block.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-04",
+        "last_update_date": "2026-11-04",
+        "requirements": "none",
+        "category": "Windows",
+        "notes": "Rows from the .lnk shell links in four places, named in Location: a user's Desktop folder "
+                 "(Users\\<user>\\Desktop, or Documents and Settings\\<user>\\Desktop on Windows XP), the "
+                 "Public desktop (Users\\Public\\Desktop, or the All Users desktop on Windows XP), the taskbar "
+                 "pins folder (AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\"
+                 "TaskBar), and a Startup folder, the user's (Startup (User)) or the ProgramData one (Startup "
+                 "(All users)). A link in a folder below the Desktop folder is listed as Desktop. Every other "
+                 "column, and the handling of a file that does not read as a shell link, is as described in "
+                 "Recent Shell Links (LNK), which reads the same fields with the same code. User is the folder "
+                 "name after Users or Documents and Settings in the path, blank for the Public and All Users "
+                 "folders. A link here can be made by an installer or be a Windows default (taskbar pins in "
+                 "particular), so a row records that the link is in that place, not that a person put it there "
+                 "or opened it. Links in the Start Menu, the Win+X menu (AppData\\Local\\Microsoft\\Windows"
+                 "\\WinX), the Links folder, service profiles and Windows' own folders are not listed: across "
+                 "the surveyed corpus images they were installer-made, shipped with Windows or default "
+                 "shortcuts. A Startup folder's other files are listed by Startup Folder Items. "
+                 "Format: Microsoft [MS-SHLLINK], "
+                 "https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/16cb4ca1-9339-4d0c-a68d-bf1d6cc0f943.",
+        "paths": ("*/Users/*/Desktop/*.[Ll][Nn][Kk]",
+                  "*/Documents and Settings/*/Desktop/*.[Ll][Nn][Kk]",
+                  "*/Quick Launch/User Pinned/[Tt]ask[Bb]ar/*.[Ll][Nn][Kk]",
+                  "*/Start Menu/Programs/[Ss]tart[Uu]p/*.[Ll][Nn][Kk]"),
+        "output_types": ["standard"],
+        "artifact_icon": "link",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 8 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 3 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 12 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 8 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 7 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 13 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 12 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 4 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 5 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 3 rows",
+            "windows11_arm_startupapproved_known_20261104": "Windows 11 build 26200 | 1 row",
+        },
+    },
 }
 
 
@@ -263,4 +311,58 @@ def windowsLnkOfficeRecent(context):
                     ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
                     'Birth Droid Volume ID', 'Birth Droid File ID', 'Source File')
     data_list, sources = _link_rows(context, 'Office Recent Shell Links')
+    return data_headers, data_list, "\n".join(sources)
+
+
+def link_location(relative_source):
+    """(location, user) for a link in one of the places Desktop, Taskbar and Startup Shell Links reads,
+    or None for any other path."""
+    parts = relative_source.replace('\\', '/').split('/')
+    lowered = [part.lower() for part in parts]
+    joined = '/'.join(lowered)
+    owner = ''
+    for root in ('users', 'documents and settings'):
+        if root in lowered:
+            index = lowered.index(root)
+            owner = parts[index + 1] if index + 1 < len(parts) else ''
+            break
+    shared = owner.lower() in ('public', 'all users')
+    if '/start menu/programs/startup/' in joined:
+        if 'programdata' in lowered or shared:
+            return 'Startup (All users)', ''
+        return 'Startup (User)', owner
+    if '/quick launch/user pinned/taskbar/' in joined:
+        return 'Taskbar pinned', owner
+    for root in ('users', 'documents and settings'):
+        if root in lowered:
+            index = lowered.index(root)
+            if index + 2 < len(lowered) and lowered[index + 2] == 'desktop':
+                return ('Public desktop', '') if shared else ('Desktop', owner)
+    return None
+
+
+@artifact_processor
+def windowsLnkPlaced(context):
+    data_headers = (('Target Modified (UTC)', 'datetime'),
+                    ('Target Created (UTC)', 'datetime'),
+                    ('Target Accessed (UTC)', 'datetime'),
+                    'Target Path', 'Location', 'Target Size (bytes)', 'Drive Type',
+                    'Drive Serial', 'Volume Label', 'Network Path', 'Arguments',
+                    'Machine ID', 'Droid Volume ID', 'Droid File ID',
+                    ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
+                    'Birth Droid Volume ID', 'Birth Droid File ID', 'User', 'Source File')
+    skipped = []
+    def skip(relative_source):
+        if link_location(relative_source) is None:
+            skipped.append(relative_source)
+            return True
+        return False
+    rows, sources = _link_rows(context, 'Desktop, Taskbar and Startup Shell Links', skip=skip)
+    data_list = []
+    for row in rows:
+        location, user = link_location(row[-1])
+        data_list.append(row[:4] + (location,) + row[4:-1] + (user, row[-1]))
+    if skipped:
+        logfunc(f'Desktop, Taskbar and Startup Shell Links: {len(skipped)} link(s) matched a path pattern but are '
+                'not in one of the four places listed and were not reported')
     return data_headers, data_list, "\n".join(sources)
