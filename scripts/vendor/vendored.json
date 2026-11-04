@@ -294,6 +294,19 @@
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-ccl_chromium_reader",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/regfprobe.py",
+      "name": "regfprobe",
+      "version": "0.1.0",
+      "upstream": "https://github.com/abrignoni/regfprobe",
+      "upstream_file": "regfprobe.py",
+      "commit": "83d2774589bab2cea8cb7b9573f94a5247d43438",
+      "commit_date": "2026-11-04T13:10:19-05:00",
+      "sha256": "0f1ce51356b5cadec133f55e3716c19d0484b2b22ed1978742d63e0e3e95bfa4",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-regfprobe",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
     }
   ]
 }
