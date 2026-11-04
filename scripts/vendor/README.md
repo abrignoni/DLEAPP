@@ -2,7 +2,7 @@
 
 Code brought in from other repositories so the tool can read disk images,
 acquisitions and databases without asking the examiner to install anything.
-qnxprobe.py, ewfprobe.py, cimreader.py and the ccl_segb package are copied verbatim;
+qnxprobe.py, ewfprobe.py, cimreader.py, regfprobe.py and the ccl_segb package are copied verbatim;
 impacket_ese.py is adapted, as its own section below explains. The CCL LevelDB,
 IndexedDB and V8 readers in ccl/ are covered in the last section.
 
@@ -56,6 +56,19 @@ files) and decodes namespaces, classes and instances. It is a port of python-cim
 here because the licence requires it to travel with the code. The WMI Repository
 artifacts in `scripts/artifacts/windowsWmiRepository.py` import it. Standard library
 only, so this adds no dependency.
+
+## regfprobe.py
+
+| | |
+| --- | --- |
+| upstream | https://github.com/abrignoni/regfprobe |
+| licence | MIT, kept beside it as LICENSE-regfprobe |
+
+Reads Windows registry hives (regf) offline, and replays their `.LOG1` and `.LOG2`
+transaction logs in memory. Its log replay was copied from `scripts/registry_recovery.py`,
+which DLEAPP still uses. Nothing in DLEAPP imports regfprobe yet: the registry artifacts
+still read hives with python-registry through `scripts/windows_registry.py`. Standard library
+only, so this adds no dependency. The upstream window, `regfprobe_gui.py`, is not copied.
 
 ## impacket_ese.py
 
