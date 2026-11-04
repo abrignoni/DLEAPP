@@ -873,8 +873,9 @@ def _redo_replace(record, page, iline, version_flag, page_size):
 
 # ---------------------------------------------------------------- the caller's entry point
 
-def replayed_database(path):
-    """(bytes or None, summary) for the ESE database at `path`, replaying the logs beside it.
+def replayed_database(path, log_folder=None):
+    """(bytes or None, summary) for the ESE database at `path`, replaying the logs beside it,
+    or the logs in `log_folder` when the database keeps them in a folder of their own.
 
     Returns the replayed bytes when the header records a dirty shutdown and the replay
     succeeds, the bytes as stored when it records a clean shutdown, and None when the
@@ -892,7 +893,7 @@ def replayed_database(path):
     if header.state != _DB_STATE_DIRTY:
         return None, f'not replayed: the header records {header.state_name}'
     try:
-        logs, _skipped = find_logs(os.path.dirname(os.path.abspath(path)), header)
+        logs, _skipped = find_logs(log_folder or os.path.dirname(os.path.abspath(path)), header)
     except (ReplayRefused, OSError) as exc:
         return None, f'not replayed: {exc}'
     except Exception as exc:  # pylint: disable=broad-exception-caught
