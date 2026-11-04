@@ -2,12 +2,13 @@
 
 Author: @AlexisBrignoni, Claude.
 
-Office's Alerts provider writes event 300 to the OAlerts event log. Each record carries the alert's text as
-one event data value. No published description of that text's layout was found, so it is reported as stored.
+On every tested record of the OAlerts event log the Event ID was 300 and the record carried one event data value,
+a string array of 2 to 6 strings. No published description of those strings was found, so they are shown as read,
+one per line, and are not named.
 """
 
 from scripts.ilapfuncs import artifact_processor
-from scripts.windows_evtx import read_event_records
+from scripts.windows_evtx import classic_strings, read_event_records
 
 _LOG = 'OAlerts.evtx'
 _LABEL = 'Office Alerts'
@@ -15,8 +16,9 @@ _LABEL = 'Office Alerts'
 __artifacts_v2__ = {
     "officeAlerts": {
         "name": "Office Alerts",
-        "description": "Records of the OAlerts event log, written by a provider named Microsoft Office Alerts with "
-                       "a version number: the time, the provider name, and the alert's text as stored.",
+        "description": "Records of the OAlerts event log, written by a provider whose stored name is Microsoft "
+                       "Office, a number, then Alerts: the time, the provider name, and the alert's event data "
+                       "strings.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
@@ -28,10 +30,11 @@ __artifacts_v2__ = {
                  "cut to whole microseconds. Event ID, Record ID and Computer are the text of those System elements, "
                  "and Provider is the Provider element's Name attribute; on every tested record the Event ID was 300 "
                  "and the provider was Microsoft Office 15 Alerts (cfreds_leakage_win7) or Microsoft Office 16 Alerts "
-                 "(hexordia_mvs2025_win11, lonewolf_win10). Alert Text (as stored) is the record's event data value "
-                 "as stored: every tested record held one value, made of 3 to 15 lines. No published description of "
-                 "those lines was found, so they are not split into fields or named. A record shows that Office wrote "
-                 "an alert to this log, not that anyone saw or answered it.",
+                 "(hexordia_mvs2025_win11, lonewolf_win10). Alert Text is the record's event data, which on every "
+                 "tested record was one value, a string array of 2 to 6 strings; its strings are shown one per line "
+                 "in stored order, and some of them hold line breaks of their own. No published description of those "
+                 "strings was found, so they are not named. A record shows that an alert was written to this log "
+                 "under that provider name, not that anyone saw or answered it.",
         "paths": ('*/Windows/System32/winevt/Logs/OAlerts.evtx',),
         "output_types": ["standard"],
         "artifact_icon": "alert-triangle",
@@ -47,11 +50,10 @@ __artifacts_v2__ = {
 
 @artifact_processor
 def officeAlerts(context):
-    data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Provider', 'Alert Text (as stored)', 'Record ID',
-                    'Computer')
+    data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Provider', 'Alert Text', 'Record ID', 'Computer')
     records, sources = read_event_records(context, _LOG, _LABEL)
     data_list = []
     for record in records:
-        text = '\n'.join(value for value in record.values if value)
+        text = '\n'.join(classic_strings(record.values))
         data_list.append((record.time, record.event_id, record.provider, text, record.record_id, record.computer))
     return data_headers, data_list, '\n'.join(sources)
