@@ -39,7 +39,7 @@ __artifacts_v2__ = {
 import struct
 from datetime import datetime, timedelta, timezone
 
-from Registry import Registry
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.vendor import dpapiprobe

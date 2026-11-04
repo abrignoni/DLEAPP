@@ -80,7 +80,6 @@ ROWS = [
      'Setup\\' + SECOND)]
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Rows(unittest.TestCase):
     def test_a_hive(self):
         self.assertEqual(uh.source_os_rows(HIVE), ROWS)
@@ -116,12 +115,6 @@ class Rows(unittest.TestCase):
                                             for name in ('a', 'c')))
         log.assert_called_once()
         self.assertIn('could not read ab/Windows/System32/config/SYSTEM: not a hive', log.call_args[0][0])
-
-    def test_no_library(self):
-        with mock.patch.object(uh, 'Registry', None), mock.patch.object(uh, 'logfunc') as log:
-            self.assertEqual(uh.windowsUpgradeHistory.__wrapped__(mock.Mock())[1:], ([], ''))
-        log.assert_called_once()
-
 
 if __name__ == '__main__':
     unittest.main()

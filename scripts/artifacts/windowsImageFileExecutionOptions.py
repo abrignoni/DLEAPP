@@ -12,7 +12,7 @@ the notes.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import Registry, found_hives, key_written_utc, open_hive, open_key
+from scripts.windows_registry import found_hives, key_written_utc, open_hive, open_key
 
 _LABEL = 'Image File Execution Options'
 _NT = r"Microsoft\Windows NT\CurrentVersion"
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from the SOFTWARE hive, named in the report's located-at line. Two keys under "
                  "Microsoft\\Windows NT\\CurrentVersion are read: Image File Execution Options and SilentProcessExit. "
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
                  "value and no Debugger or GlobalFlag value; Filter Path is therefore blank on every row, and a "
                  "value in such a subkey was not exercised on real data. A row records a value the hive holds; it "
                  "does not show that the program ran, that a debugger or a monitor process was started, or who wrote "
-                 "the value. Reading the hive needs the python-registry package. A dirty hive, one whose base "
+                 "the value. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base "
                  "block's two sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 transaction "
                  "logs that continue its sequence are applied, following Maxim Suhanov's 'Windows registry file "
                  "format specification' "
@@ -174,9 +174,6 @@ def imageFileExecutionOptions(context):
                     'Filter Path', 'Registry Key')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{_LABEL}: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in found_hives(context, 'SOFTWARE'):
         relative_source = context.get_relative_path(source)

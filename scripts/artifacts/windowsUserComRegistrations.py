@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Microsoft says class registration information is stored under both HKEY_LOCAL_MACHINE\\Software\\Classes, "
                  "default settings that can apply to all users, and HKEY_CURRENT_USER\\Software\\Classes, settings that apply "
@@ -94,15 +94,14 @@ __artifacts_v2__ = {
                  "Also in SOFTWARE is No on all rows of af_case2_win10, hexordia_mvs2025_win11 and szechuan_win10. User holds "
                  "one value on all rows of each image with one UsrClass.dat. Source File is kept beside User because the "
                  "folder name alone does not separate two hives of the same user name on different volumes. Those counts, the "
-                 "Also in SOFTWARE and Users-folder counts and the TreatAs rows were checked against a separate count over the"
-                 " staged hives read with python-registry. The UsrClass.dat hives of alihadi_challenge3_win81, "
+                 "Also in SOFTWARE and Users-folder counts and the TreatAs rows were checked against a separate count over the staged hives, made with the python-registry package. The rows are the same with the vendored regfprobe. The UsrClass.dat hives of alihadi_challenge3_win81, "
                  "alihadi_threatsim_server2019, cfreds_leakage_win7, ou_ransomware_server2022 and szechuan_dc01_server2012r2 "
                  "hold no CLSID or Wow6432Node\\CLSID key and give no rows. A run over a tree holding two volumes, each with "
                  "its own SOFTWARE hive, a third user with no SOFTWARE hive and copies of hives at paths the artifact does not"
                  " declare gave exactly the rows of the three declared hives, with Also in SOFTWARE matched to each user's own"
                  " volume and blank for the third. A path written through %USERPROFILE%, %APPDATA% or %LOCALAPPDATA%, a CLSID "
                  "with both servers and a multi-string value were tested with constructed input only; no tested image holds a "
-                 "CLSID with both servers. Reading the hives requires the python-registry package. A dirty hive is read after "
+                 "CLSID with both servers. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read after "
                  "the entries of its .LOG1 and .LOG2 transaction logs that continue its sequence are applied; the run log "
                  "names each hive replayed and each dirty hive read as it is, with the reason.",
         "paths": ('*/AppData/Local/Microsoft/Windows/[Uu]sr[Cc]lass.[Dd]at',
@@ -130,10 +129,6 @@ __artifacts_v2__ = {
 
 import re
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import found_hives, key_written_utc, open_hive, open_key, user_from_path
@@ -229,9 +224,6 @@ def windowsUserComRegistrations(context):
                     'ThreadingModel', 'LocalServer32', 'TreatAs', 'ProgID', 'Also in SOFTWARE',
                     'Server Under Users Folder', 'Key', 'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Per-User COM Registrations: the python-registry package is not installed')
-        return data_headers, data_list, ''
     machines = {}
     for source in sorted(found_hives(context, 'SOFTWARE')):
         relative = context.get_relative_path(source)

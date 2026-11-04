@@ -85,7 +85,7 @@ the script does not write that database.
 `Invoke-DLEAPPClockValidation.ps1` journals and launches a Clock session. Create
 the named alarm through the normal UI, journal its actual settings, close Clock,
 and then collect `Settings\settings.dat` and its transaction logs. DLEAPP reads
-the offline hive with `python-registry`; it does not load evidence into the
+the offline hive with the vendored regfprobe; it does not load evidence into the
 examiner system registry.
 
 ## Logical collection

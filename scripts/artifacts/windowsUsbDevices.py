@@ -9,10 +9,7 @@ ported from those artifacts.
 import struct
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import is_transaction_log, open_hive
@@ -39,7 +36,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-10-19",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from Enum\\USBSTOR in the SYSTEM hive, in the control set named by the "
                  "hive's Select\\Current value (ControlSet001 when that value cannot be read), "
@@ -72,7 +69,7 @@ __artifacts_v2__ = {
                  "https://learn.microsoft.com/en-us/windows-hardware/drivers/usbcon/supported-usb-classes); "
                  "other USB devices are reported by USB Device Instances and HID Input Devices. "
                  "A record shows the device was connected to the computer, not who connected it. "
-                 "Reading the hive requires python-registry. A dirty hive, one whose base "
+                 "The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base "
                  "block's two sequence numbers differ, is read after the entries in its .LOG1 "
                  "and .LOG2 transaction logs that continue its sequence are applied, following "
                  "Maxim Suhanov's 'Windows registry file format specification' "
@@ -154,7 +151,7 @@ def _property_node(instance, prop_id):
 def _stored_filetime(node):
     """The raw bytes of a device property stored with the FILETIME property type, in
     either layout: Windows 8 and later keep it in the sub-key's default value, whose
-    type python-registry reports as the property type (0x10); Windows 7 keeps a sub-key
+    registry type holds the property type (0x10) in its low 16 bits; Windows 7 keeps a sub-key
     00000000 holding a Type value and a Data value. None for anything else."""
     for value in node.values():
         try:
@@ -175,7 +172,7 @@ def _stored_filetime(node):
 
 def _property_filetime(instance, prop_id):
     """Read a device-property FILETIME. The value stores a device-property type
-    that python-registry's value() cannot decode, so read the raw bytes."""
+    that is not a REG_* type, so read the raw bytes."""
     node = _property_node(instance, prop_id)
     raw = _stored_filetime(node) if node is not None else None
     if raw and len(raw) >= 8:
@@ -198,9 +195,6 @@ def usbDevices(context):
                     'Friendly Name', 'Vendor', 'Product', 'Revision', 'Serial')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('USB Storage Devices: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)

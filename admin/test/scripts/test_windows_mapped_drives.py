@@ -98,7 +98,6 @@ def _y_drive():
                 written=OTHER)
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class DriveRowsTest(unittest.TestCase):
     def test_one_row_per_drive_key_with_both_times_and_the_values_as_stored(self):
         network = _Key('Network', subkeys=[_z_drive(), _y_drive()], written=MAPPED)
@@ -117,7 +116,6 @@ class DriveRowsTest(unittest.TestCase):
         self.assertEqual(drives.drive_rows(_Key('Network', values=[('RemotePath', 'x')]), 'alice'), [])
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class MruRowsTest(unittest.TestCase):
     def test_rows_follow_mrulist_and_an_unlisted_value_follows_with_a_blank_order(self):
         key = _Key(values=[('a', '\\\\old\\share'), ('MRUList', 'cba'), ('b', '\\\\mid\\share'),
@@ -155,7 +153,6 @@ class MruRowsTest(unittest.TestCase):
         self.assertEqual(missing, ['x'])
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -217,16 +214,6 @@ class ArtifactTest(unittest.TestCase):
         (_headers, rows, source), _opened, logged = self.run_artifact(drives.mapNetworkDriveMru, hives)
         self.assertEqual((rows, source), ([], self.bob + '\n' + self.carol))
         self.assertEqual(logged, ['Map Network Drive MRU: could not read vol1/Users/alice/NTUSER.DAT: bad header'])
-
-    def test_without_python_registry_nothing_is_read(self):
-        for function in (drives.mappedNetworkDrives, drives.mapNetworkDriveMru):
-            with mock.patch.object(drives, 'Registry', None), mock.patch.object(drives, 'logfunc') as log, \
-                    mock.patch.object(drives, 'open_hive') as opened:
-                _headers, rows, source = function.__wrapped__(_Context(self.paths))
-            self.assertEqual((rows, source), ([], ''))
-            opened.assert_not_called()
-            self.assertEqual(log.call_count, 1)
-
 
 if __name__ == '__main__':
     unittest.main()

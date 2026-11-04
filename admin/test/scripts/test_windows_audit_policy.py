@@ -106,7 +106,6 @@ class Layout(unittest.TestCase):
         self.assertEqual(len(rows), 59)
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Processor(unittest.TestCase):
     def run_on(self, hives):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -151,12 +150,6 @@ class Processor(unittest.TestCase):
         self.assertIn('d/Windows/System32/config/SECURITY holds no Policy\\PolAdtEv value', logged[2])
         self.assertIn('e/Windows/System32/config/SECURITY holds no Policy\\PolAdtEv value', logged[3])
         self.assertIn('f/Windows/System32/config/SECURITY (20 bytes) is not in a known shape', logged[4])
-
-    def test_no_library(self):
-        with mock.patch.object(ap, 'Registry', None), mock.patch.object(ap, 'logfunc') as log:
-            self.assertEqual(ap.windowsAuditPolicy.__wrapped__(mock.Mock())[1:], ([], ''))
-        log.assert_called_once()
-
 
 if __name__ == '__main__':
     unittest.main()

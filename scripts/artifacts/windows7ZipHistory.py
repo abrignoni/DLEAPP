@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "7-Zip",
         "notes": "Reads the path lists 7-Zip keeps under Software\\7-Zip in each user's NTUSER.DAT (Reference: "
                  "7-Zip 25.01, commit 5e96a8279489832924056b1fa82f29d5837c9469, "
@@ -58,8 +58,7 @@ __artifacts_v2__ = {
                  "other 7z.exe commands, the Explorer context menu commands that open no dialog, "
                  "the folder shortcuts, which are empty in the three captures, and versions other than 25.01. "
                  "pc_mus_001_win11 and af_case2_win10 have 7-Zip installed, and one user hive of each has a "
-                 "Software\\7-Zip key that holds only the Path and Path64 values, so they give no row. Reading "
-                 "the hives requires the python-registry package; a dirty hive is read after its transaction "
+                 "Software\\7-Zip key that holds only the Path and Path64 values, so they give no row. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py); a dirty hive is read after its transaction "
                  "logs are applied, and the run log names each.",
         "paths": ('*/Users/*/NTUSER.DAT',
                   '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
@@ -79,10 +78,6 @@ __artifacts_v2__ = {
 
 from collections import Counter
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import found_hives, key_written_utc, open_hive, open_key, user_from_path
@@ -145,9 +140,6 @@ def sevenZipHistory(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'List', 'Position', 'Path', 'Value', 'User',
                     'Source File')
     data_list, sources, problems = [], [], Counter()
-    if Registry is None:
-        logfunc('7-Zip History: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'NTUSER.DAT')):
         relative = context.get_relative_path(source)
         try:

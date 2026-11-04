@@ -95,15 +95,12 @@ class SevenZip(unittest.TestCase):
         self.assertEqual(sz.history_paths(b''), [])
         self.assertEqual(sz.history_paths(None), [])
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_rows(self):
         self.assertEqual(sz.seven_zip_rows(HIVE, REL), ROWS)
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_no_seven_zip_key(self):
         self.assertEqual(sz.seven_zip_rows(_Hive({}), REL), [])
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_processor(self):
         by_path = {'a/Users/tester/NTUSER.DAT': HIVE, 'b/Users/none/NTUSER.DAT': _Hive({})}
         context = mock.Mock()
@@ -115,12 +112,6 @@ class SevenZip(unittest.TestCase):
         self.assertEqual(headers[0], ('Key Last Written (UTC)', 'datetime'))
         self.assertEqual(rows, ROWS)                         # only the hive with the key contributes
         self.assertEqual(located, 'a/Users/tester/NTUSER.DAT')  # the empty hive is not listed
-
-    def test_no_library(self):
-        with mock.patch.object(sz, 'Registry', None), mock.patch.object(sz, 'logfunc') as log:
-            self.assertEqual(sz.windowsSevenZip.__wrapped__(mock.Mock())[1:], ([], ''))
-        log.assert_called_once()
-
 
 if __name__ == '__main__':
     unittest.main()

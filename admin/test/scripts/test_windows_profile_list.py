@@ -99,7 +99,6 @@ def user_profile(load=LOAD, unload=UNLOAD, **more):
     return _Key(SID, values)
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ProfileRowTest(unittest.TestCase):
     def test_each_column_carries_its_own_value(self):
         self.assertEqual(profiles.profile_row(user_profile()),
@@ -142,7 +141,6 @@ class ProfileRowTest(unittest.TestCase):
         self.assertEqual(profiles.split_filetime(key, 'Absent'), '')
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -189,15 +187,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(logged, [
             'User Profile List: could not read vol1/Windows/System32/config/SOFTWARE: bad header',
             'User Profile List: vol2/Windows/System32/config/software has no ProfileList key'])
-
-    def test_without_python_registry_nothing_is_read(self):
-        with mock.patch.object(profiles, 'Registry', None), mock.patch.object(profiles, 'logfunc') as log, \
-                mock.patch.object(profiles, 'open_hive') as opened:
-            _headers, rows, source = profiles.userProfileList.__wrapped__(_Context(self.paths))
-        self.assertEqual((rows, source), ([], ''))
-        opened.assert_not_called()
-        self.assertEqual(log.call_count, 1)
-
 
 if __name__ == '__main__':
     unittest.main()

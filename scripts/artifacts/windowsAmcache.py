@@ -27,10 +27,7 @@ import re
 import sqlite3
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
 from scripts.windows_registry import open_hive
@@ -66,7 +63,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
         "last_update_date": "2026-10-24",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one "
@@ -114,8 +111,7 @@ __artifacts_v2__ = {
                  "so nothing on that image was compared with a file, and neither were the databases beside the "
                  "hive described below. An entry records that the file was inventoried; "
                  "this artifact does not treat "
-                 "it as proof that the file ran or of who ran it. Reading the hive needs the "
-                 "python-registry package. A dirty hive, one whose base block's two sequence numbers "
+                 "it as proof that the file ran or of who ran it. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 transaction logs that "
                  "continue its sequence are applied, following Maxim Suhanov's 'Windows registry file "
                  "format specification' "
@@ -187,7 +183,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -288,7 +284,7 @@ __artifacts_v2__ = {
                  "2.2 seconds after the newest entry was written and 4.1 hours before the key's own last-written "
                  "time. An "
                  "entry records that Windows inventoried the application; this artifact does not treat it as proof "
-                 "that the application was run. Reading the hive needs the python-registry package. A dirty hive is "
+                 "that the application was run. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is "
                  "read after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are "
                  "applied, following Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
@@ -339,7 +335,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -381,8 +377,7 @@ __artifacts_v2__ = {
                  "under Start Menu folders and 1 on a Desktop, have no entry; the 2 TaskBar paths are outside those "
                  "folders and were not checked against a file. The subkey names there have 14 to 16 hexadecimal "
                  "digits after the bar. An entry records that Windows inventoried the "
-                 "link; this artifact does not treat it as proof that the link or its target was used. Reading the "
-                 "hive needs the python-registry package. A dirty hive is read after the entries in its .LOG1 and "
+                 "link; this artifact does not treat it as proof that the link or its target was used. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read after the entries in its .LOG1 and "
                  ".LOG2 transaction logs that continue its sequence are applied, following Maxim Suhanov's 'Windows "
                  "registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
@@ -433,7 +428,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -494,8 +489,7 @@ __artifacts_v2__ = {
                  "of that name for 299. INF and Driver Package were filled together, on 48 entries. Each entry there "
                  "also holds an unnamed default value, 0 on all 317, which is not reported. An entry records that "
                  "Windows inventoried the driver "
-                 "file; this artifact does not treat it as proof that the driver was loaded. Reading the hive needs "
-                 "the python-registry package. A dirty hive is read after the entries in its .LOG1 and .LOG2 "
+                 "file; this artifact does not treat it as proof that the driver was loaded. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim Suhanov's 'Windows "
                  "registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
@@ -551,7 +545,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -614,7 +608,7 @@ __artifacts_v2__ = {
                  "entry there also holds an unnamed default value, 0 on all 81, which is not reported. An entry "
                  "records that Windows "
                  "inventoried the device; this artifact does not treat it as proof of when the device was connected "
-                 "or of who connected it. Reading the hive needs the python-registry package. A dirty hive is read "
+                 "or of who connected it. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read "
                  "after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
                  "following Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
@@ -666,7 +660,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -735,7 +729,7 @@ __artifacts_v2__ = {
                  "one value, 0, on all 21 and Discovery Method was blank on all 21. Each entry there also holds an "
                  "unnamed default value, 0 on all 21, which is not reported. An entry records that Windows "
                  "inventoried the container; this artifact does not treat it as proof of when a device was connected "
-                 "or of who connected it. Reading the hive needs the python-registry package. A dirty hive is read "
+                 "or of who connected it. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read "
                  "after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
                  "following Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
@@ -785,7 +779,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -863,7 +857,7 @@ __artifacts_v2__ = {
                  "of which 26 are rows here. Each entry there also holds FlightIds and RecoveryIds values, which are "
                  "not reported. An entry records that Windows inventoried the driver package; this artifact does not "
                  "treat it as proof that a driver of the package was loaded or that a device it names was connected. "
-                 "Reading the hive needs the python-registry package. A dirty hive is read after the entries in its "
+                 "The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read after the entries in its "
                  ".LOG1 and .LOG2 transaction logs that continue its sequence are applied, following Maxim Suhanov's "
                  "'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728); "
@@ -915,7 +909,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-29",
         "last_update_date": "2026-10-29",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of a "
                  "Root\\File\\<volume key> subkey, the layout the hive used on Windows 8, read from any hive that holds "
@@ -949,7 +943,7 @@ __artifacts_v2__ = {
                  "second image each subkey stores only values 15, 17, 100 and 101, and 16 on 5 of them. lonewolf_win10"
                  " holds Root\\File with no subkeys; the other Windows 10, 11 and Server 2019 and 2022 images hold no "
                  "Root\\File key. A row shows that Windows recorded the file in this hive; it does not show that the "
-                 "file ran or who ran it. Reading the hive needs the python-registry package. A dirty hive, one whose "
+                 "file ran or who ran it. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose "
                  "base block's two sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim Suhanov's 'Windows registry"
                  " file format specification' "
@@ -995,7 +989,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-29",
         "last_update_date": "2026-10-29",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of Root\\Programs, "
                  "the layout the hive used on Windows 8, read from any hive that holds it. The value names are "
@@ -1027,8 +1021,7 @@ __artifacts_v2__ = {
                  "szechuan_dc01_server2012r2 the Files value lists 133 entries where AmcacheParser links 132. "
                  "lonewolf_win10 holds Root\\Programs with no subkeys; the other Windows 10, 11 and Server 2019 and "
                  "2022 images hold no Root\\Programs key. A row shows that Windows recorded the program in this hive; "
-                 "it does not show that it ran or who installed it. Reading the hive needs the python-registry "
-                 "package. A dirty hive, one whose base block's two sequence numbers differ, is read after the entries"
+                 "it does not show that it ran or who installed it. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two sequence numbers differ, is read after the entries"
                  " in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, following Maxim "
                  "Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728,"
@@ -1254,14 +1247,11 @@ def _inventory_rows(context, key_path, row_of):
         hive_records = []
         database_records = []
         if hive_source:
-            if Registry is None:
-                logfunc('Amcache: the python-registry package is not installed')
-            else:
-                try:
-                    hive_records = _hive_records(hive_source, key_path)
-                    sources.append(hive_source)
-                except Exception as exc:  # pylint: disable=broad-exception-caught
-                    logfunc(f'Amcache: could not read {context.get_relative_path(hive_source)}: {exc}')
+            try:
+                hive_records = _hive_records(hive_source, key_path)
+                sources.append(hive_source)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logfunc(f'Amcache: could not read {context.get_relative_path(hive_source)}: {exc}')
         if database_source:
             try:
                 records = _database_records(database_source, table_base)
@@ -1381,9 +1371,6 @@ def _joined(value):
 def _old_format(context, read):
     """read(hive) for each Amcache.hve, with the sources read; '' sources when nothing was read."""
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Amcache: the python-registry package is not installed')
-        return data_list, ''
     for found in context.get_files_found():
         found = str(found)
         if os.path.basename(found).lower() != 'amcache.hve':

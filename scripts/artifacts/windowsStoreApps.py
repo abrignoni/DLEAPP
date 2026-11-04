@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads the PackageUser table of StateRepository-Machine.srd, one row per package "
                  "registered for a user, joined to its Package and User rows. Package Name, Version, "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
-from scripts.windows_registry import (Registry, filetime_utc, found_hives, open_hive, open_key,
+from scripts.windows_registry import (filetime_utc, found_hives, open_hive, open_key,
                                       value_of)
 
 _PROFILE_LIST = r'Microsoft\Windows NT\CurrentVersion\ProfileList'
@@ -99,8 +99,6 @@ def sid_text(blob):
 def _profiles(context):
     """{SID: profile folder name} from ProfileList in every SOFTWARE hive found."""
     profiles = {}
-    if Registry is None:
-        return profiles
     for hive in found_hives(context, 'SOFTWARE'):
         try:
             root = open_key(open_hive(hive, context), _PROFILE_LIST)

@@ -1,7 +1,7 @@
 """Pin the LanmanServer Shares artifact (scripts/artifacts/windowsLanmanServerShares.py).
 
 The SYSTEM hives are built cell by cell with the builder in test_windows_app_settings.py and read back through
-open_hive and python-registry, as a run reads a staged hive. Every share name, path and remark is invented.
+open_hive and the vendored regfprobe, as a run reads a staged hive. Every share name, path and remark is invented.
 """
 
 import datetime

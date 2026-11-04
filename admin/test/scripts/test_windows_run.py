@@ -71,7 +71,6 @@ NTUSER = '/Users/examiner/report/data/vol/Users/alice/NTUSER.DAT'
 COPIED_SOFTWARE = '/Users/examiner/report/data/vol/Users/bob/Desktop/SOFTWARE'
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class RunRowsTest(unittest.TestCase):
     def test_every_named_value_of_each_key_is_a_row_with_its_key_label(self):
         reg = _Hive({
@@ -118,7 +117,6 @@ class RunRowsTest(unittest.TestCase):
         self.assertEqual(NTUSER_VALUES, (('Windows NT\\CurrentVersion\\Windows', WINDOWS, ('load',)),))
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     def run_artifact(self, hives, files=None):
         def opener(path, _context=None):
@@ -167,15 +165,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual((rows, source), ([], ''))
         self.assertEqual(
             logged, ['Run and RunOnce Keys: could not read vol/Windows/System32/config/SOFTWARE: bad header'])
-
-    def test_without_python_registry_nothing_is_read(self):
-        with mock.patch.object(run, 'Registry', None), mock.patch.object(run, 'logfunc') as log, \
-                mock.patch.object(run, 'open_hive') as opened:
-            _headers, rows, source = run.runKeys.__wrapped__(_Context([SOFTWARE]))
-        self.assertEqual((rows, source), ([], ''))
-        opened.assert_not_called()
-        self.assertEqual(log.call_count, 1)
-
 
 if __name__ == '__main__':
     unittest.main()

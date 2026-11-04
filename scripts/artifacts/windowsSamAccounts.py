@@ -3,7 +3,7 @@
 Author: @AlexisBrignoni, Claude.
 Inspired by the Velociraptor exchange Windows.Forensics.SAM artifact and the
 RegRipper samparse plugin; this reads the SAM hive's on-disk structure directly
-with python-registry.
+with the vendored regfprobe.
 
 Each local account lives under SAM\\Domains\\Account\\Users\\<RID> in the SAM
 hive. Two binary values describe it: F (a fixed struct of account-control flags,
@@ -20,10 +20,7 @@ The SAM F record carries no account-creation timestamp, so none is reported.
 import struct
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -58,7 +55,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from the SAM hive, named in the report's located-at line. One row per "
                  "local account under SAM\\Domains\\Account\\Users. RID is the "
@@ -89,8 +86,7 @@ __artifacts_v2__ = {
                  "last-logon time has Background Activity Moderator (BAM) entries under its SID. Only local "
                  "accounts are in the SAM hive; domain and Microsoft-account "
                  "sign-ins are not. The SAM F record carries "
-                 "no account-creation timestamp, so none is reported. Reading "
-                 "the hive needs the python-registry package. A dirty hive, one whose base "
+                 "no account-creation timestamp, so none is reported. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base "
                  "block's two sequence numbers differ, is read after the entries in its .LOG1 "
                  "and .LOG2 transaction logs that continue its sequence are applied, "
                  "following Maxim Suhanov's 'Windows registry file format specification' "
@@ -233,9 +229,6 @@ def samLocalAccounts(context):
                     'Login Count', 'Failed Login Count')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('SAM local accounts: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if str(f).lower().endswith('sam')]:

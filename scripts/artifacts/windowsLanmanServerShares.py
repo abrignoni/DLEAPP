@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Microsoft says shares and their assigned share permissions are stored in "
                  "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Shares, and that the key can serve as a "
@@ -43,8 +43,7 @@ __artifacts_v2__ = {
                  "(UTC) holds one value on every row, "
                  "because the two Shares keys carry the same last-written time where both hold values. On the 13 rows of "
                  "the three server images "
-                 "ShareName equals Value Name, every value holds the eight fields once each, and python-registry returns two "
-                 "empty strings for its terminating nulls, Type is 0, MaxUses is 4294967295 and CATimeout is 0 on every row, "
+                 "ShareName equals Value Name, every value holds the eight fields once each, and the hive reader returns two empty strings for its terminating nulls, Type is 0, MaxUses is 4294967295 and CATimeout is 0 on every row, "
                  "Other Fields is blank and Security Value is Yes on every row; on the 2 rows of cfreds_hacking_case_winxp "
                  "Security Value is No. The nine other client images tested hold a Shares "
                  "key with no values and give no rows. Those counts were checked against a separate count of the values in "
@@ -53,7 +52,7 @@ __artifacts_v2__ = {
                  "hive in a folder the artifact does not declare, gave exactly their 10 rows, each with its own hive in Source"
                  " File. A value of another type, a string without =, a repeated field and a hive without a Select key were "
                  "tested with constructed input only. A row is a share definition the hive holds; it does not establish that "
-                 "the share was reachable or used. Reading the hive requires the python-registry package. A dirty hive is read"
+                 "the share was reachable or used. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read"
                  " with its .LOG1 and .LOG2 transaction logs applied when they pass the checks of the replay in "
                  "scripts/vendor/regfprobe.py (for the newer log format, entries that continue the hive's sequence; for the "
                  "older format, the first log whose base block is valid, with its two sequence numbers equal and the "
@@ -84,10 +83,6 @@ __artifacts_v2__ = {
 
 from collections import Counter
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import found_hives, key_written_utc, open_hive, open_key, value_of
@@ -148,9 +143,6 @@ def windowsLanmanServerShares(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'Control Set', 'Current Control Set', 'Value Name') \
         + FIELDS + ('Other Fields', 'Security Value', 'Key', 'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('LanmanServer Shares: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'SYSTEM')):
         relative = context.get_relative_path(source)
         counts = Counter()

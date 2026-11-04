@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
-        "requirements": "python-registry for the UsrClass.dat key",
+        "requirements": "none (the vendored regfprobe reads the UsrClass.dat key)",
         "category": "Windows",
         "notes": "Rows from the two places Firefox's Edge migrator reads typed URLs from: the TypedUrls table of "
                  "spartan.edb (" "https://github.com/mozilla-firefox/firefox/blob/8cd6654295f5f314374f36df6226d21a73cbac44/" "browser/components/migration/EdgeProfileMigrator.sys.mjs#L198-L205)"
@@ -259,9 +259,6 @@ def legacyEdgeTypedUrls(context):
                               'spartan.edb TypedUrls table', user, relative_source))
         if rows:
             sources.append(source)
-    if Registry is None:
-        logfunc(f'{label}: the python-registry package is not installed, so UsrClass.dat is not read')
-        return data_headers, data_list, '\n'.join(sources)
     for source in found_hives(context, 'USRCLASS.DAT'):
         relative_source = context.get_relative_path(source)
         try:

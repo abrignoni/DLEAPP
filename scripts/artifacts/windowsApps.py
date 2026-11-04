@@ -11,10 +11,7 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import (
     artifact_processor,
@@ -97,7 +94,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
         "last_update_date": "2026-10-22",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows Apps",
         "notes": "Modernized from WLEAPP and validated on "
                  "windows11_arm_parallels with Clock "
@@ -502,10 +499,6 @@ def _json_alarms(file_found):
 
 
 def _registry_alarms(file_found):
-    if Registry is None:
-        raise RuntimeError(
-            "python-registry is required to read Windows Clock settings.dat"
-        )
     hive = open_settings(file_found)
     try:
         key = hive.open(r"LocalState\Alarms")

@@ -11,7 +11,7 @@ import os
 import struct
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, filetime_utc, open_hive, open_key, user_from_path,
+from scripts.windows_registry import (filetime_utc, open_hive, open_key, user_from_path,
                                       value_of)
 
 _USER_BASE = r'Software\Microsoft\Windows\CurrentVersion'
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per value in the Run, Run32 and StartupFolder subkeys of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved in each NTUSER.DAT "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
-        "requirements": "python-registry for the State column",
+        "requirements": "none (the vendored regfprobe reads the hive for the State column)",
         "category": "Windows",
         "notes": "One row per file in a Startup folder: AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
                  "\\Startup under each user (Location User), ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
@@ -201,9 +201,6 @@ def startupApproved(context):
     data_list = []
     sources = []
     label = 'Startup Approved States'
-    if Registry is None:
-        logfunc(f'{label}: the python-registry package is not installed')
-        return data_headers, data_list, ''
     files = _startup_files(context)
     for source, relative, machine, user in _hives(context):
         try:
@@ -240,18 +237,15 @@ def startupFolderItems(context):
     sources = []
     label = 'Startup Folder Items'
     states = {}
-    if Registry is not None:
-        for source, relative, machine, user in _hives(context):
-            try:
-                reg = open_hive(source, context)
-            except Exception as exc:  # pylint: disable=broad-exception-caught
-                logfunc(f'{label}: could not read {relative}: {exc}')
-                continue
-            for subkey, name, raw in _approved_values(reg, machine):
-                if subkey == 'StartupFolder':
-                    states[('All users' if machine else 'User', user.lower(), name.lower())] = approved_value(raw)
-    else:
-        logfunc(f'{label}: the python-registry package is not installed, so State is blank')
+    for source, relative, machine, user in _hives(context):
+        try:
+            reg = open_hive(source, context)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logfunc(f'{label}: could not read {relative}: {exc}')
+            continue
+        for subkey, name, raw in _approved_values(reg, machine):
+            if subkey == 'StartupFolder':
+                states[('All users' if machine else 'User', user.lower(), name.lower())] = approved_value(raw)
     for (location, user_key, name_key), (source, relative) in sorted(_startup_files(context).items()):
         _flags, state, stamp = states.get((location, user_key, name_key), ('', '', ''))
         user = startup_location(context.get_relative_path(source))[1]

@@ -152,7 +152,6 @@ class SilentExitRowsTest(unittest.TestCase):
         self.assertEqual(list(ifeo.silent_exit_rows(_Key(subkeys=[_Key('a.exe')]), SILENT)), [])
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -223,15 +222,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(source, self.two)
         self.assertEqual(
             logged[0], 'Image File Execution Options: could not read vol1/Windows/System32/config/SOFTWARE: bad header')
-
-    def test_without_python_registry_nothing_is_read(self):
-        with mock.patch.object(ifeo, 'Registry', None), mock.patch.object(ifeo, 'logfunc') as log, \
-                mock.patch.object(ifeo, 'open_hive') as opened:
-            _headers, rows, source = ifeo.imageFileExecutionOptions.__wrapped__(_Context(self.paths))
-        self.assertEqual((rows, source), ([], ''))
-        opened.assert_not_called()
-        self.assertEqual(log.call_count, 1)
-
 
 if __name__ == '__main__':
     unittest.main()

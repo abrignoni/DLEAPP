@@ -12,10 +12,7 @@ recently used entry are sourced from public research (see the artifact notes).
 import struct
 from datetime import timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -39,7 +36,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from each NTUSER.DAT, named in Source File. File / Item is "
                  "the name at the start of the numbered value, decoded from "
@@ -58,8 +55,7 @@ __artifacts_v2__ = {
                  "so it is shown on the MRU Rank 0 entry alone and is blank for the "
                  "rest; the open time of earlier entries is not recorded. Presence "
                  "of an entry does not establish who opened the item, and an entry "
-                 "can outlive the file it names. Reading the hives requires the "
-                 "python-registry package. A dirty hive, one whose base block's two "
+                 "can outlive the file it names. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two "
                  "sequence numbers differ, is read after the entries in its .LOG1 "
                  "and .LOG2 transaction logs that continue its sequence are applied, "
                  "following Maxim Suhanov's 'Windows registry file format "
@@ -142,9 +138,6 @@ def recentDocs(context):
                     ('Opened (UTC)', 'datetime'), 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('RecentDocs: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if str(f).upper().endswith('NTUSER.DAT')]:

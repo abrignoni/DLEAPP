@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-11-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row for each subkey of the SYSTEM hive's Setup key whose name has the form Source OS "
                  "(Updated on <date and time>). No Microsoft description of these keys was found, so nothing "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
                  "26200 captures have none and give no row, so absence of a row is not evidence about how "
                  "Windows was installed beyond that. More than one key in a hive, a key without the install "
                  "values and a hive that cannot be read were tested with constructed input only. Source File is "
-                 "the hive. Reading the hive requires the python-registry package; a dirty hive is read after "
+                 "the hive. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py); a dirty hive is read after "
                  "its transaction logs are applied when they can be, and as it is otherwise, and the run log "
                  "says which. On pc_mus_001_win11 the hive was read as it is.",
         "paths": ('*/Windows/System32/config/SYSTEM',
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row for each key three levels below a DeviceMigration\\Devices key (enumerator, device, "
                  "instance, the levels of the Enum key), read from Setup\\Upgrade\\PnP\\CurrentControlSet\\Control"
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
                  "tested extractions, af_case2_win10, lonewolf_win10, szechuan_win10 and the two Windows 11 build "
                  "26200 captures, have no Setup\\Upgrade key and no DeviceMigration key and give no row; the "
                  "research above reports the key is created by a feature update. Source File is the hive. "
-                 "Reading the hive requires the python-registry package; a dirty hive is read after its "
+                 "The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py); a dirty hive is read after its "
                  "transaction logs are applied when they can be, and as it is otherwise, and the run log says "
                  "which. On pc_mus_001_win11 the hive was read as it is.",
         "paths": ('*/Windows/System32/config/SYSTEM',
@@ -129,10 +129,6 @@ __artifacts_v2__ = {
 import re
 from collections import Counter
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import (current_control_set, filetime_bytes_utc, filetime_utc, found_hives,
@@ -172,9 +168,6 @@ def windowsUpgradeHistory(context):
                     'Build', 'UBR', 'Edition ID', 'Registered Owner', 'Registered Organization', 'Product ID',
                     'System Root', 'Key', 'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Upgrade History (Source OS): the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'SYSTEM')):
         relative = context.get_relative_path(source)
         try:
@@ -245,9 +238,6 @@ def windowsDeviceMigration(context):
                     'Present (as stored)', 'Device Instance ID', 'In Current Enum', 'Bus Device Description',
                     'Matching Device ID', 'Class GUID', 'Driver INF', 'Location Info', 'Key', 'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Device Migration: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'SYSTEM')):
         relative = context.get_relative_path(source)
         problems = Counter()

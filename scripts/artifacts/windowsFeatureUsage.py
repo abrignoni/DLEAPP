@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads every subkey of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FeatureUsage in each NTUSER.DAT "
@@ -59,7 +59,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, filetime_bytes_utc, filetime_utc, found_hives,
+from scripts.windows_registry import (filetime_bytes_utc, filetime_utc, found_hives,
                                       key_written_utc, open_hive, open_key, user_from_path,
                                       value_of)
 
@@ -81,9 +81,6 @@ def featureUsage(context):
                     'Value Name', 'Count', 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Taskbar FeatureUsage: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)

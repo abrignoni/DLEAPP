@@ -114,7 +114,6 @@ SYSTEM_ROWS = [
     (W1, 'Accounts', 'LimitBlankPasswordUse', 1, 'Yes', _LSA_KEY)]
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Settings(unittest.TestCase):
     def test_software(self):
         self.assertEqual(ss.setting_rows(SOFTWARE, ss._SOFTWARE_SETTINGS), SOFTWARE_ROWS)  # pylint: disable=protected-access
@@ -157,12 +156,6 @@ class Settings(unittest.TestCase):
                                             for name in ('SOFTWARE', 'SYSTEM')))
         log.assert_called_once()
         self.assertIn('could not read b/Windows/System32/config/SOFTWARE: not a hive', log.call_args[0][0])
-
-    def test_no_library(self):
-        with mock.patch.object(ss, 'Registry', None), mock.patch.object(ss, 'logfunc') as log:
-            self.assertEqual(ss.windowsSecuritySettings.__wrapped__(mock.Mock())[1:], ([], ''))
-        log.assert_called_once()
-
 
 if __name__ == '__main__':
     unittest.main()

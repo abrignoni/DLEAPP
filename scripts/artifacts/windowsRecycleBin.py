@@ -10,10 +10,7 @@ import os
 import struct
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -37,7 +34,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-10-30",
-        "requirements": "python-registry (only to resolve the user name; the $I files are read without it)",
+        "requirements": "none (the vendored regfprobe reads the hive that resolves the user name)",
         "category": "Windows",
         "notes": "Rows from the $I metadata files under $Recycle.Bin, the folder name matched in any letter case, named in "
                  "Source File. Each row is one item recorded as sent to the "
@@ -135,7 +132,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
-        "requirements": "python-registry (only to resolve the user name; INFO2 is read without it)",
+        "requirements": "none (the vendored regfprobe reads the hive that resolves the user name)",
         "category": "Windows",
         "notes": "Rows from the INFO2 files in the per-user folders under RECYCLER, the folder name matched "
                  "in any letter case, named in Source File. Each row is one file entry. The layout is libyal "
@@ -234,10 +231,9 @@ def recycleBin(context):
     files = [str(f) for f in context.get_files_found()]
 
     users = {}
-    if Registry is not None:
-        for source in files:
-            if os.path.basename(source).upper() == 'SOFTWARE':
-                users.update(_profile_users(source))
+    for source in files:
+        if os.path.basename(source).upper() == 'SOFTWARE':
+            users.update(_profile_users(source))
 
     for source in files:
         if not os.path.basename(source).lower().startswith('$i'):
@@ -356,10 +352,9 @@ def recycleBinInfo2(context):
     files = [str(f) for f in context.get_files_found()]
 
     users = {}
-    if Registry is not None:
-        for source in files:
-            if os.path.basename(source).upper() == 'SOFTWARE':
-                users.update(_profile_users(source))
+    for source in files:
+        if os.path.basename(source).upper() == 'SOFTWARE':
+            users.update(_profile_users(source))
 
     by_folder = {}
     for source in files:

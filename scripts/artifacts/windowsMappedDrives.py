@@ -10,7 +10,7 @@ their order.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive,
                                       open_key, user_from_path)
 
 _DRIVES_LABEL = 'Mapped Network Drives'
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each subkey of the "
                  "Network key at the root of the hive is one row. Drive is the subkey's name. Remote Path, User "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
                  "logon wrote in the subkey was not established, and one drive cannot show whether other hives "
                  "behave the same. Not established either: what unmapping a drive leaves in the key. A row records "
                  "that the user's hive holds a subkey for the share under Network; it does not show that the share "
-                 "was reachable or that a file on it was opened. Reading the hive needs the python-registry package. "
+                 "was reachable or that a file on it was opened. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). "
                  "A dirty hive, one whose base block's two sequence numbers differ, is read after the entries in its "
                  ".LOG1 and .LOG2 transaction logs that continue its sequence are applied, following Maxim Suhanov's "
                  "'Windows registry file format specification' "
@@ -99,7 +99,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each text value of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Map Network Drive MRU other than MRUList is one "
@@ -125,8 +125,7 @@ __artifacts_v2__ = {
                  "MountPoints2 key (see Mapped Network Drives and MountPoints2). The order of several values, a "
                  "blank Order, a name with no value and a repeated name were exercised only by constructed keys in "
                  "the unit tests. A row records that the hive lists the share in this key; it does not show that a "
-                 "connection was made or that a file on the share was opened. Reading the hive needs the "
-                 "python-registry package. A dirty hive, one whose base block's two sequence numbers differ, is read "
+                 "connection was made or that a file on the share was opened. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two sequence numbers differ, is read "
                  "after the entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, "
                  "following Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
@@ -207,9 +206,6 @@ def _read(context, label, key_path, build):
     """Rows from one key of every found NTUSER.DAT; build(key, user, relative path) gives a hive's rows."""
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{label}: the python-registry package is not installed')
-        return data_list, ''
     for source in found_hives(context, 'NTUSER.DAT'):
         relative_source = context.get_relative_path(source)
         try:

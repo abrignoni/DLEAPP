@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads the rules under "
                  "Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules in the SYSTEM "
@@ -129,7 +129,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import Registry, current_control_set, found_hives, open_hive, open_key
+from scripts.windows_registry import current_control_set, found_hives, open_hive, open_key
 
 _SYSTEM_RULES = 'Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules'
 _POLICY_RULES = 'Policies\\Microsoft\\WindowsFirewall\\FirewallRules'
@@ -212,9 +212,6 @@ def windowsFirewallRules(context):
     data_headers = tuple(column for column, _ in _COLUMNS) + (
         'Other Fields', 'Rule ID', 'Version', 'Registry Location')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Windows Firewall Rules: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for hive in sorted(set(found_hives(context, 'SYSTEM', 'SOFTWARE'))):
         hive_name = os.path.basename(hive).upper()
         relative = context.get_relative_path(hive)

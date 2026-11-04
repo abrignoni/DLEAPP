@@ -16,7 +16,7 @@ import os
 from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 _LABEL = 'Default App User Choices'
@@ -41,9 +41,9 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-03",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
-        "notes": "Reads each NTUSER.DAT the paths match with python-registry, and the ProfileList key of each "
+        "notes": "Reads each NTUSER.DAT the paths match with the vendored regfprobe, and the ProfileList key of each "
                  "SOFTWARE hive they match, and reports one row per key named UserChoice or UserChoiceLatest (names "
                  "compared without case) below each subkey of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts and of "
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
                  "minute in which the same user's hive had 20 or more of these keys written. Rows follow the hives "
                  "in the order the tool found them, FileExts before UrlAssociations within a hive, in the order the "
                  "hive lists the keys. A hive that cannot be read is named in the run log and skipped; every tested "
-                 "hive was read. Reading the hive needs the python-registry package. A dirty hive, one whose base "
+                 "hive was read. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base "
                  "block's two sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 transaction "
                  "logs that continue its sequence are applied, following Maxim Suhanov's 'Windows registry file "
                  "format specification' "
@@ -273,9 +273,6 @@ def defaultAppUserChoices(context):
                     'Hash Check', 'Registry Key')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{_LABEL}: the python-registry package is not installed')
-        return data_headers, data_list, ''
     software_sources = []
     sids = profile_sids(context, software_sources)
     for source in found_hives(context, 'NTUSER.DAT'):

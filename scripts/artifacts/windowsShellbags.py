@@ -2,7 +2,7 @@
 
 Author: @AlexisBrignoni, Claude.
 Inspired by the Velociraptor exchange Windows.Forensics.Shellbags artifact; this
-reads the BagMRU keys out of UsrClass.dat and NTUSER.DAT with python-registry and
+reads the BagMRU keys out of UsrClass.dat and NTUSER.DAT with the vendored regfprobe and
 parses the shell items itself.
 
 ShellBags record the folders a user browsed in Explorer. Each BagMRU key is a
@@ -16,10 +16,7 @@ entries a 0xBEEF0004 extension block that carries the long name.
 import struct
 from datetime import datetime, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -53,7 +50,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
         "last_update_date": "2026-11-04",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from UsrClass.dat and NTUSER.DAT, named in Source File. Each "
                  "row is one BagMRU node, that is one folder in a browse tree, from "
@@ -84,7 +81,7 @@ __artifacts_v2__ = {
                  "for drive and root nodes; DOS dates have two-second resolution and "
                  "carry no time zone, so it is shown as read. A ShellBags entry "
                  "records that the folder was browsed, not who was at the keyboard. "
-                 "Reading the hives needs the python-registry package. A dirty hive, one whose base "
+                 "The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base "
                  "block's two sequence numbers differ, is read after the entries in its .LOG1 and "
                  ".LOG2 transaction logs that continue its sequence are applied, following Maxim "
                  "Suhanov's 'Windows registry file format specification' "
@@ -254,9 +251,6 @@ def shellbags(context):
                     ('Item Modified (UTC)', 'datetime'), 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('ShellBags: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if str(f).lower().endswith(('usrclass.dat', 'ntuser.dat'))]:

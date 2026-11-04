@@ -10,7 +10,7 @@ documentation.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, current_control_set, found_hives, key_written_utc, open_hive,
+from scripts.windows_registry import (current_control_set, found_hives, key_written_utc, open_hive,
                                       open_key)
 
 _SESSION_MANAGER = r'Control\Session Manager'
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per value of SYSTEM\\\\<current control set>\\\\Control\\\\Session Manager\\\\KnownDLLs, the "
                  "current control set being the one the Select key's Current value names, or ControlSet001 when Select "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per non-empty LegalNoticeCaption or LegalNoticeText string value in two keys of the SOFTWARE "
                  "hive. "
@@ -123,9 +123,6 @@ def knownDlls(context):
     data_list = []
     sources = []
     label = 'KnownDLLs'
-    if Registry is None:
-        logfunc(f'{label}: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in found_hives(context, 'SYSTEM'):
         relative = context.get_relative_path(source)
         try:
@@ -154,9 +151,6 @@ def logonBanner(context):
     data_list = []
     sources = []
     label = 'Logon Banner'
-    if Registry is None:
-        logfunc(f'{label}: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in found_hives(context, 'SOFTWARE'):
         relative = context.get_relative_path(source)
         try:

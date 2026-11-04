@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads the PolAdtEv value of the Policy key of the SECURITY hive, where Windows keeps the system "
                  "audit policy that auditpol.exe sets and queries (Microsoft, 'auditpol', "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
                  "audit policy was changed', "
                  "https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4719). "
                  "Per-user audit policy and the other auditing options auditpol manages are not read. Source File "
-                 "is the hive. Reading the hive requires the python-registry package; a dirty hive is read after "
+                 "is the hive. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py); a dirty hive is read after "
                  "its transaction logs are applied, and the run log names each.",
         "paths": ('*/Windows/System32/config/SECURITY',
                   '*/Windows/System32/config/[Ss][Ee][Cc][Uu][Rr][Ii][Tt][Yy].[Ll][Oo][Gg][12]'),
@@ -75,10 +75,6 @@ __artifacts_v2__ = {
 
 import struct
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import found_hives, key_written_utc, open_hive, open_key
@@ -189,9 +185,6 @@ def windowsAuditPolicy(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'Category', 'Subcategory', 'Setting', 'Value',
                     'Position', 'Subcategory GUID', 'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Audit Policy: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'SECURITY')):
         relative = context.get_relative_path(source)
         try:

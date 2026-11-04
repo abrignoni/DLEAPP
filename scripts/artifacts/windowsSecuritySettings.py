@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-12",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row for each of 25 registry settings, whether the value is stored or not: Stored is Yes "
                  "or No, Data is the value as stored and empty when it is not stored, and Key Last Written "
@@ -101,8 +101,7 @@ __artifacts_v2__ = {
                  "DefaultPassword is stored on af_case2_win10 only. A setting stored in another form, a second "
                  "control set and a hive that cannot be read were tested with constructed input only. These "
                  "values are the configuration at the time of the hive: they do not show who changed a "
-                 "setting, and whether Windows honoured each value on these systems was not tested. Reading "
-                 "the hives requires the python-registry package; a dirty hive is read after its transaction "
+                 "setting, and whether Windows honoured each value on these systems was not tested. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py); a dirty hive is read after its transaction "
                  "logs are applied, and the run log names each.",
         "paths": ('*/Windows/System32/config/SOFTWARE',
                   '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
@@ -125,10 +124,6 @@ __artifacts_v2__ = {
 
 import os
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import current_control_set, found_hives, key_written_utc, open_hive, open_key
@@ -192,9 +187,6 @@ def windowsSecuritySettings(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'Area', 'Setting', 'Data', 'Stored', 'Key',
                     'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Security Settings: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'SOFTWARE', 'SYSTEM')):
         relative = context.get_relative_path(source)
         try:

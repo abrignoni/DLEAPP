@@ -96,7 +96,6 @@ def _choice(program='AppXabc', hashed='QUJDREVGR0g=', name='UserChoice', written
     return _Key(name, [('ProgId', program), ('Hash', hashed)], written=written)
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ChoiceRowsTest(unittest.TestCase):
     def test_one_row_per_user_choice_key_with_its_time_program_id_hash_and_key_path(self):
         parent = _Key('FileExts', subkeys=[
@@ -179,7 +178,6 @@ class ArtifactTest(unittest.TestCase):
             result = choices.defaultAppUserChoices.__wrapped__(_Context(self.paths))
         return result, [c.args[0] for c in opened.call_args_list], logged
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_both_parent_keys_of_each_user_hive_are_read_under_the_user_folder_name(self):
         hives = {self.alice: _Hive({URLS: _Key(subkeys=[_Key('mailto', subkeys=[_choice('AppXmail', written=LATER)])]),
                                     EXTS: _Key(subkeys=[_Key('.pdf', subkeys=[_choice()])])}),
@@ -196,7 +194,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(source, '\n'.join([self.alice, self.bob, self.carol]))
         self.assertEqual(logged, [])
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_an_unreadable_hive_is_logged_by_its_path_in_the_extraction_and_skipped(self):
         broken = _Key(subkeys=[_Key('.pdf', subkeys=[_Key('UserChoice', [('ProgId', 'x')], written='not a time')])])
         hives = {self.alice: ValueError('bad header'), self.bob: _Hive({EXTS: _Key(subkeys=[_Key('.txt', subkeys=[_choice()])])}),
@@ -208,7 +205,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertTrue(logged[1].startswith('Default App User Choices: could not read vol1/Users/carol/NTUSER.DAT: '))
         self.assertEqual(len(logged), 2)
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_the_sid_comes_from_the_software_hive_of_the_same_volume(self):
         folder = pathlib.Path(self.alice).parents[2]
         software = folder / 'Windows' / 'System32' / 'config' / 'SOFTWARE'
@@ -231,16 +227,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual([(row[1], row[2], row[6]) for row in rows], [('Alice', SID, 'Matches'), ('bob', '', ''), ('carol', '', '')])
         self.assertEqual(source, '\n'.join([self.alice, self.bob, self.carol, str(software), str(elsewhere)]))
         self.assertEqual(logged, [])
-
-    def test_without_python_registry_nothing_is_read_and_the_run_log_says_so(self):
-        logged = []
-        with mock.patch.object(choices, 'Registry', None), mock.patch.object(choices, 'open_hive') as opened, \
-                mock.patch.object(choices, 'logfunc', side_effect=logged.append):
-            headers, rows, source = choices.defaultAppUserChoices.__wrapped__(_Context(self.paths))
-        self.assertEqual((headers, rows, source), (HEADERS, [], ''))
-        opened.assert_not_called()
-        self.assertEqual(logged, ['Default App User Choices: the python-registry package is not installed'])
-
 
 if __name__ == '__main__':
     unittest.main()

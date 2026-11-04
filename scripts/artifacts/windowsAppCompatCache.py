@@ -2,7 +2,7 @@
 
 Author: @AlexisBrignoni, Claude.
 Inspired by the Velociraptor exchange Windows.Registry.AppCompatCache artifact;
-this reads the SYSTEM hive's on-disk structure directly with python-registry and
+this reads the SYSTEM hive's on-disk structure directly with the vendored regfprobe and
 parses the AppCompatCache binary value itself.
 
 AppCompatCache, also called Shimcache, is written by the application-compatibility
@@ -16,10 +16,7 @@ FILETIME.
 import struct
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -37,7 +34,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from the SYSTEM hive, named in the report's located-at line. Each row is one "
                  "AppCompatCache entry under a control set's Control\\Session "
@@ -58,8 +55,7 @@ __artifacts_v2__ = {
                  "ordering, not a timestamp. An AppCompatCache entry records that "
                  "the file was present and seen by the compatibility engine; on "
                  "Windows 10 and 11 it does not reliably establish that the program "
-                 "was executed, so no execution indicator is reported here. Reading "
-                 "the hive needs the python-registry package. A dirty hive, one whose base block's "
+                 "was executed, so no execution indicator is reported here. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's "
                  "two sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim Suhanov's "
                  "'Windows registry file format specification' "
@@ -155,9 +151,6 @@ def appCompatCache(context):
     data_headers = (('File Modified (UTC)', 'datetime'), 'Path', 'Cache Position')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('AppCompatCache: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if str(f).lower().endswith('system')]:

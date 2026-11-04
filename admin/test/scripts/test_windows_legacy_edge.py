@@ -74,7 +74,6 @@ class _Key:
         return self._values[name]
 
 
-@unittest.skipIf(edge.Registry is None, 'python-registry is not installed')
 class RegistryTypedUrlsTest(unittest.TestCase):
     def test_entries_by_number_with_times_where_recorded(self):
         key = _Key([_Value('url10', 'https://example.invalid/ten'), _Value('url2', 'https://example.invalid/two'),

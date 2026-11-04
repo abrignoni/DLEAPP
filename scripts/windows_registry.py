@@ -2,16 +2,22 @@
 
 Author: @AlexisBrignoni, Claude.
 
-Offline hives are read with python-registry. Its key timestamps are the key's
-last-written FILETIME, returned as a naive datetime in UTC; these helpers hand
-back aware UTC datetimes so the report and LAVA store them as instants.
+Offline hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py) through
+its python-registry shaped layer, CompatRegistry. Registry below stands where
+python-registry's Registry module stood, so code written against python-registry 1.3.1
+reads the same names: Registry.Registry(...), the two not-found exceptions, and the REG_*
+numbers as Registry.RegSZ, Registry.RegBin and the rest. Registry.RegistryException is the
+error for a file that is not a hive.
 
-open_hive replays a dirty hive's .LOG1 and .LOG2 transaction logs, in either the
-format Windows 8.1 and later write or the older one, before python-registry reads
-it (scripts/registry_recovery.py).
+Key timestamps are the key's last-written FILETIME as a naive datetime in UTC, rounded to the
+microsecond as python-registry rounds it; these helpers hand back aware UTC datetimes so the
+report and LAVA store them as instants.
+
+open_hive replays a dirty hive's .LOG1 and .LOG2 transaction logs, in either the format
+Windows 8.1 and later write or the older one (scripts/registry_recovery.py), and logs each
+damaged structure regfprobe skips while the hive is read.
 """
 
-import io
 import os
 import struct
 from datetime import datetime, timedelta, timezone
@@ -20,10 +26,24 @@ from scripts.context import Context
 from scripts.ilapfuncs import logfunc
 from scripts.registry_recovery import recover
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.vendor import regfprobe
+
+
+class Registry:  # pylint: disable=too-few-public-methods
+    """python-registry's Registry module, as far as DLEAPP uses it, answered by regfprobe."""
+
+    RegistryKeyNotFoundException = regfprobe.CompatRegistry.RegistryKeyNotFoundException
+    RegistryValueNotFoundException = regfprobe.CompatRegistry.RegistryValueNotFoundException
+    RegistryException = regfprobe.CompatRegistry.RegistryException
+    RegNone, RegSZ, RegExpandSZ, RegBin = 0, 1, 2, 3
+    RegDWord, RegBigEndian, RegLink, RegMultiSZ = 4, 5, 6, 7
+    RegResourceList, RegFullResourceDescriptor, RegResourceRequirementsList, RegQWord = 8, 9, 10, 11
+
+    @staticmethod
+    def Registry(source):  # pylint: disable=invalid-name
+        """A hive read from a path or an open file, as it is: no transaction log is applied
+        (as python-registry read it). open_hive is the way to read a hive with its logs."""
+        return regfprobe.CompatRegistry(source, recover=False)
 
 _EPOCH_1601 = datetime(1601, 1, 1, tzinfo=timezone.utc)
 _EPOCH_1970 = datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -50,7 +70,7 @@ def value_of(key, name, default=None):
 
 
 def raw_value(key, name):
-    """A value's raw bytes, for types python-registry does not decode."""
+    """A value's raw bytes, as stored."""
     if key is None:
         return None
     try:
@@ -155,10 +175,11 @@ def hive_logs(path):
 
 
 def open_hive(path, context=None):
-    """python-registry's view of a hive, its transaction logs replayed first when it is dirty.
+    """A python-registry shaped view of a hive, its transaction logs replayed first when it is dirty.
 
     The logs are read from beside the hive, so an artifact declares them in its paths. The run
-    log names each hive replayed, and each dirty hive read as it is and why.
+    log names each hive replayed, each dirty hive read as it is and why, and each damaged
+    structure skipped while it is read.
     """
     with open(path, 'rb') as handle:
         primary = handle.read()
@@ -185,4 +206,8 @@ def open_hive(path, context=None):
         reasons = '; '.join(f'{name}: {why}' for name, why in summary['reasons'].items())
         logfunc(f"Registry: {label} is dirty and was read as it is "
                 f"({reasons or 'no transaction log beside it'}).")
-    return Registry.Registry(io.BytesIO(data))
+
+    def skipped(kind, offset, reason):
+        logfunc(f"Registry: {label}: skipped a damaged {kind} structure at cell 0x{offset:x} ({reason}).")
+    return regfprobe.CompatRegistry(regfprobe.Hive(data, recover=False, name=os.path.basename(str(path)),
+                                                   on_fault=skipped))
