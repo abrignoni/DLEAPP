@@ -32,10 +32,6 @@ _WINDOWS_EDB = "windows.edb"
 # Guard against a cursor that stops advancing; the store is far smaller than this.
 _ROW_CAP = 5_000_000
 
-# System_Size on folders and other non-file items holds eight 0x2A bytes rather
-# than a byte count; reported blank.
-_SIZE_SENTINEL = b"\x2a" * 8
-
 # SystemIndex_PropertyStore properties read here. The table names each column
 # <number>-<property>, and the number is assigned per index, so a column is found
 # by the property name after the first '-' (see _property_columns).
@@ -61,7 +57,7 @@ __artifacts_v2__ = {
                        "created and accessed times the index recorded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-24",
+        "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
         "notes": "Rows from the SystemIndex_PropertyStore table in Windows.edb, the "
@@ -85,10 +81,11 @@ __artifacts_v2__ = {
                  "and System_DateAccessed properties; Gather Time is the time the "
                  "Windows Search indexer recorded for the item and the other three "
                  "are the file system times the index stored. Size (bytes) is "
-                 "System_Size decoded from its stored 8-byte value; folders and "
-                 "other non-file items store a placeholder of eight 0x2A bytes in "
-                 "this property rather than a byte count, and that placeholder is "
-                 "reported blank (present on 473 of the 587 rows on af_case2_win10, "
+                 "System_Size decoded from its stored 8-byte value; on the tested "
+                 "indexes the column is NULL only on items whose Type is File folder "
+                 "or that store no type (its bit is set in the record's fixed-column "
+                 "null bitmap, which the ESE reader honours), and it is reported "
+                 "blank (NULL on 473 of the 587 rows on af_case2_win10, "
                  "439 of 872 on lonewolf_win10 and 1,491 of 1,641 on szechuan_win10, "
                  "every one of them an item whose Type is File folder or that stores "
                  "no type). Type and Kind are System_ItemTypeText and System_KindText "
@@ -201,9 +198,9 @@ def _filetime(value):
 
 
 def _size(value):
-    """System_Size as a byte count; the folder placeholder is reported blank."""
+    """System_Size as a byte count; blank where the column is NULL."""
     raw = _raw_bytes(value)
-    if raw is None or len(raw) < 8 or raw == _SIZE_SENTINEL:
+    if raw is None or len(raw) < 8:
         return ""
     return struct.unpack_from("<Q", raw)[0]
 
