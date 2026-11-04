@@ -5,7 +5,8 @@ Author: @AlexisBrignoni, Claude.
 KnownDLLs is read from the SYSTEM hive's current control set, Session Manager\\KnownDLLs, the key Microsoft names
 as the list of known DLLs. The logon banner ("Interactive logon: Message title/text for users attempting to log
 on") is read from the SOFTWARE hive, from the values Windows' own security policy export maps that setting to, and
-from the Winlogon values Microsoft documents for the same dialog.
+from the Winlogon values Microsoft lists for the same dialog in its msgina.dll (standard GINA) feature
+documentation.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
@@ -20,22 +21,26 @@ _BANNER_VALUES = ('LegalNoticeCaption', 'LegalNoticeText')
 __artifacts_v2__ = {
     "knownDlls": {
         "name": "KnownDLLs",
-        "description": "The DLLs listed in the KnownDLLs key of the SYSTEM hive's current control set, with the "
-                       "key's last-written time.",
+        "description": "The values of the KnownDLLs key of the SYSTEM hive's current control set, one per listed "
+                       "DLL plus the DllDirectory values where present, with the key's last-written time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "One row per value of SYSTEM\\\\<current control set>\\\\Control\\\\Session Manager\\\\KnownDLLs, the "
-                 "current control set being the one the Select key's Current value names. Microsoft describes the "
+                 "current control set being the one the Select key's Current value names, or ControlSet001 when Select "
+                 "has no Current value. Microsoft describes the "
                  "list of known DLLs as one step of the DLL search order: if a DLL is on the list for that version "
                  "of Windows, the system uses its copy of the known DLL, and the list on a system is in that registry "
                  "key (https://github.com/MicrosoftDocs/win32/blob/129846d6c4f059b97adb840af9d5fca1c35b2c1e/"
-                 "desktop-src/Dlls/dynamic-link-library-search-order.md#L24). Name is the value name and DLL its data "
-                 "as stored. Key Last Written (UTC) is the KnownDLLs key's last-written time, so it is the same on "
+                 "desktop-src/Dlls/dynamic-link-library-search-order.md#L24). Name is the value name and DLL its "
+                 "string data, read up to the first NUL; a REG_EXPAND_SZ value is shown unexpanded. On "
+                 "cfreds_leakage_win7, alihadi_challenge3_win81 and szechuan_dc01_server2012r2 the key also held "
+                 "DllDirectory and DllDirectory32, and on cfreds_hacking_case_winxp DllDirectory, whose data is a "
+                 "folder, not a DLL. Key Last Written (UTC) is the KnownDLLs key's last-written time, so it is the same on "
                  "every row of one hive and does not date any one entry. Other values of the Session Manager key are "
-                 "not read. The list is written by Windows, so most rows are the same on every system of a version: "
+                 "not read. On the tested images most names were shared: "
                  "on the ten tested Windows 7 and later images the key held 30 to 36 values, 22 names were on every one "
                  "of them, and an image had at most 4 names that no more than one other of them had; on "
                  "cfreds_hacking_case_winxp it held 21. A row records an entry "
@@ -68,18 +73,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "python-registry",
         "category": "Windows",
-        "notes": "One row per non-empty LegalNoticeCaption or LegalNoticeText value in two keys of the SOFTWARE hive. "
+        "notes": "One row per non-empty LegalNoticeCaption or LegalNoticeText string value in two keys of the SOFTWARE "
+                 "hive. "
                  "Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System is where Windows' own security policy "
                  "export (secedit /export) puts the settings Interactive logon: Message title and Message text for "
                  "users attempting to log on, measured on the known data (corpus key "
                  "windows11_arm_logon_banner_known_20261104, Windows 11 build 26200): a two-line banner set with "
                  "secedit /configure was stored there as two REG_SZ values, the lines joined by CR LF, and the key's "
                  "last-written time was the moment it was set. Microsoft\\\\Windows NT\\\\CurrentVersion\\\\Winlogon is "
-                 "where Microsoft documents LegalNoticeCaption and LegalNoticeText as the caption and message of the "
-                 "legal notice dialog box (https://github.com/MicrosoftDocs/win32/blob/"
+                 "where Microsoft lists LegalNoticeCaption and LegalNoticeText as the caption and message of the "
+                 "legal notice dialog box, in its msgina.dll (standard GINA) feature documentation "
+                 "(https://github.com/MicrosoftDocs/win32/blob/"
                  "3c1fd9cf483eb6d4026c4a4d0ae9461e7308572e/desktop-src/SecAuthN/msgina-dll-features.md#L18-L31); "
                  "setting the banner through secedit left those empty on the known data. Key names which of the two "
-                 "the row is from, Value the value name and Text its data as stored. Key Last Written (UTC) is that "
+                 "the row is from, Value the value name as stored and Text its string data up to the first NUL. "
+                 "String values only; a value of another type is not shown. Key Last Written (UTC) is that "
                  "key's last-written time, which dates the last change to any value of the key, not this value. "
                  "Microsoft gives the setting's default as no message "
                  "(https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc779661(v=ws.10)); "
@@ -111,7 +119,7 @@ __artifacts_v2__ = {
 
 @artifact_processor
 def knownDlls(context):
-    data_headers = (('Key Last Written (UTC)', 'datetime'), 'Name', 'DLL', 'Control Set', 'Source File')
+    data_headers = (('Key Last Written (UTC)', 'datetime'), 'Name', 'DLL', 'Source File')
     data_list = []
     sources = []
     label = 'KnownDLLs'
@@ -133,7 +141,7 @@ def knownDlls(context):
         written = key_written_utc(key)
         rows = 0
         for value in key.values():
-            data_list.append((written, value.name(), str(value.value()), control_set, relative))
+            data_list.append((written, value.name(), str(value.value()), relative))
             rows += 1
         if rows:
             sources.append(source)
