@@ -41,8 +41,9 @@ __artifacts_v2__ = {
                  "store notes and deleted 2, and put 3 Blob values in store files: each browser gave notes 4 "
                  "live and 2 deletion records and files 3 live records, all 3 with blobs or files. The known "
                  "data has only a .log file; .ldb table files were read on hexordia_mvs2025_win11 (14 files), "
-                 "lonewolf_win10 (1), pc_mus_001_win11 (11) and mvs2026_macbookpro_macos15 (26), whose figures "
-                 "below are from the counting described here. On the corpus: cfreds_leakage_win7 1 row, "
+                 "lonewolf_win10 (1), pc_mus_001_win11 (11) and mvs2026_macbookpro_macos15 (12, after the 12 "
+                 "in byte-identical System/Volumes copies were not read again), whose figures below are from "
+                 "the counting described here. On the corpus: cfreds_leakage_win7 1 row, "
                  "hexordia_mvs2025_win11 70, lonewolf_win10 49, ou_ransomware_server2022 2, pc_mus_001_win11 "
                  "119 and mvs2026_macbookpro_macos15 45; 142 of those 286 rows had no live record. Rows were "
                  "seen only from Chrome and Edge profiles; the Brave, Vivaldi, Opera and Chromium paths are "
@@ -50,7 +51,9 @@ __artifacts_v2__ = {
                  "on all 70 rows of hexordia_mvs2025_win11. Not read: the database version and the other "
                  "database and object store metadata, the index data, the blob files themselves, Session "
                  "Storage, File System and shared_proto_db folders, extension storage under a profile's "
-                 "Storage folder, and WebView2 or Electron app profiles.",
+                 "Storage folder, the IndexedDB folders under a profile's WebStorage/<number> folders (2 on "
+                 "hexordia_mvs2025_win11), whose layout has no origin in the folder name, and WebView2 or "
+                 "Electron app profiles.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/IndexedDB/*',
             '*/Library/Application Support/Google/Chrome/*/IndexedDB/*',
