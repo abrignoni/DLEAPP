@@ -272,7 +272,7 @@ __artifacts_v2__ = {
     "chromiumSavedPaymentCards": {
         "name": "Chromium Saved Payment Cards",
         "description": "Payment cards saved on the device for autofill in the Web Data databases of "
-                       "Google Chrome, Microsoft Edge, Brave, Vivaldi, Opera and Chromium profiles: name on "
+                       "Google Chrome, Microsoft Edge, Brave, Vivaldi, Opera, Chromium and webOS webbrowser profiles: name on "
                        "card, expiry, nickname, use count and the last used and modified times. The card "
                        "number is not read.",
         "author": "@AlexisBrignoni, Claude",
@@ -284,9 +284,10 @@ __artifacts_v2__ = {
                  "browser profile: the cards saved on the device. The column names and the statement that "
                  "saves a card are in Chromium's payments table code (https://github.com/chromium/chromium/blob/51bc117ffe992d07bbc5a28892b8e8e0e9f832fe/components/autofill/core/browser/webdata/payments/payments_autofill_table.cc#L64-L75, #L779-L782). Name "
                  "on Card, Expiry Month, Expiry Year and Nickname are the name_on_card, expiration_month, "
-                 "expiration_year and nickname columns as stored. Last Used and Modified are use_date and "
+                 "expiration_year and nickname columns as stored, text decoded as UTF-8. Last Used and Modified are use_date and "
                  "date_modified, which Chromium writes as seconds since 1 January 1970 UTC (ToTimeT, #L256-L257); "
-                 "a 0 is shown blank. Use Count is use_count as stored. A card starts with a use count of 1 "
+                 "a 0 is shown blank, as is a database with no use_date or use_count column (schema 60, on "
+                 "cfreds_leakage_win7, has neither). Use Count is use_count as stored. A card starts with a use count of 1 "
                  "(https://github.com/chromium/chromium/blob/8a6c17bdde4f7c73bbe1cdf5147a06d7e9948e4c/components/autofill/core/browser/data_model/usage_history_information.h#L74), so 1 does not show the card was used: on the known data (corpus key "
                  "windows11_arm_chromium_cards_known_20261104, a test card typed into the settings page of "
                  "Chrome 157 and of Edge 156 in new profiles) each card read 1 right after it was saved, with "
@@ -296,14 +297,16 @@ __artifacts_v2__ = {
                  "read 1, and a card saved another way, which would read 0, was not tested. A database from "
                  "before is_user_confirmed existed stores an origin column instead; for it User Confirmed is "
                  "Yes when origin is 'Chrome settings' and No otherwise, as Chromium's migration sets the "
-                 "column (#L2215-L2240), which no tested database exercised. The card number is stored "
+                 "column (#L2215-L2240); no tested row came from such a database, because the Web Data files "
+                 "with an origin column (seven keys, schema 60 to 145) held no card. The card number is stored "
                  "encrypted (card_number_encrypted) and is not read, decrypted or reported, nor are its last "
                  "digits. The billing address id, a reference to a saved address, is not shown; it was empty "
                  "on both test cards. Cards stored by the payments server (masked_credit_cards and related "
                  "tables), saved security codes (local_stored_cvc) and saved IBANs are not read; on the known "
-                 "data each held 0 rows. Edge also keeps an Edge-only row per card in credit_cards_edge_extended,"
-                 " which is not read because no source for its columns was found. Edge's row stored no "
-                 "nickname. Browser, Profile and User are as in Chromium Autofill Addresses. A saved card "
+                 "data each held 0 rows. Edge also has a table of its own, credit_cards_edge_extended, which held "
+                 "one row for the one card and is not read because no source for its columns was found. Edge's "
+                 "row stored no nickname, although one was typed into Edge's form; it was found in no table of "
+                 "Web Data and in no file of the profile folder, so Edge 156 did not keep it. Browser, Profile and User are as in Chromium Autofill Addresses. A saved card "
                  "records that a card was saved in that profile, not who saved or used it.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Web Data*',
@@ -335,14 +338,14 @@ __artifacts_v2__ = {
         "artifact_icon": "credit-card",
         "sample_data": {
             "windows11_arm_chromium_cards_known_20261104": "Windows 11 build 26200 (ARM64), Chrome 157, Edge 156.0.4314.58 | 2 rows",
-            "windows11_arm_chromium_autofill_known_20261103": "Windows 11 build 26200 (ARM64), Chrome 157.0.8103.39, Edge 156.0.4314.58, Chromium 110.0.5481.0 and 120.0.6099.0 | 0 rows (no card saved)",
-            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (no card saved)",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no card saved)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no card saved)",
-            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (no card saved)",
-            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (no card saved)",
-            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (no card saved)",
-            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (no card saved)",
+            "windows11_arm_chromium_autofill_known_20261103": "Windows 11 build 26200 (ARM64), Chrome 157.0.8103.39, Edge 156.0.4314.58, Chromium 110.0.5481.0 and 120.0.6099.0 | 0 rows (credit_cards present and empty)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (credit_cards present and empty)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (credit_cards present and empty)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (credit_cards present and empty)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (credit_cards present and empty)",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (credit_cards present and empty)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (credit_cards present and empty)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (credit_cards present and empty)",
         },
     },
 }
