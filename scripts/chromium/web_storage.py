@@ -144,6 +144,9 @@ def _folder_digest(folder):
 def profile_folders(context, store_name, label=''):
     """The located Store of each `store_name` folder (LOCAL_STORAGE, SERVICE_WORKER) a browser profile holds.
 
+    `store_name` can also be a function of the folder's path inside the profile that
+    returns True for the folders wanted.
+
     Grouped from the staged files the patterns matched, so a folder is read once
     however many of its files matched. Only folders inside a known browser user
     data folder are returned (browser_profiles.BROWSER_ROOTS); an Electron or
@@ -167,7 +170,7 @@ def profile_folders(context, store_name, label=''):
         if located is None:
             continue
         browser, profile, user, container, name = located
-        if name != store_name:
+        if not (store_name(name) if callable(store_name) else name == store_name):
             continue
         folders[folder] = Store(folder, relative, browser, profile, user, container, name)
     kept, seen, skipped = [], set(), 0
@@ -179,6 +182,7 @@ def profile_folders(context, store_name, label=''):
         seen.add(key)
         kept.append(folders[folder])
     if skipped and label:
-        logfunc(f'{label}: {skipped} byte-identical {store_name} folder copy(ies) under '
+        folder_label = getattr(store_name, 'folder_label', store_name)
+        logfunc(f'{label}: {skipped} byte-identical {folder_label} folder copy(ies) under '
                 f'System/Volumes/Data or System/Volumes/Update/mnt1 not read again')
     return sorted(kept, key=lambda store: store.relative)
