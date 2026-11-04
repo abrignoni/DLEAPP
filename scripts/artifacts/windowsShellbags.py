@@ -52,7 +52,7 @@ __artifacts_v2__ = {
                        "folder's registry last-write time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-04",
         "requirements": "python-registry",
         "category": "Windows",
         "notes": "Read from UsrClass.dat and NTUSER.DAT, named in Source File. Each "
@@ -60,18 +60,23 @@ __artifacts_v2__ = {
                  "Shell\\BagMRU in UsrClass.dat or NTUSER.DAT (the ShellNoRoam tree "
                  "is read too). Shell Path is rebuilt by walking the tree and "
                  "decoding each node's shell item; a drive shows as C:, a folder "
-                 "shows its long name from the shell item's 0xBEEF0004 block or its "
-                 "short (8.3) name when no long name is stored, and a root shows a "
+                 "shows its long name, read at the long name offset stored at byte 16 of the shell item's "
+                 "0xBEEF0004 block (libfwsi), or its short (8.3) name when the item carries no long name or the block's long name "
+                 "offset falls outside the block, and a root shows a "
                  "known shell-folder name where the GUID is documented or the raw "
                  "{GUID} otherwise; a network location item (libfwsi class 0x40 under a mask of 0x70, the "
                  "domain or workgroup, server, share, Microsoft Windows Network and Entire Network kinds, "
                  "https://github.com/libyal/libfwsi/blob/3887868add54619ec322ac100ab1f06979e042b8/documentation/Windows%20Shell%20Item%20format.asciidoc#L476-L533) "
                  "shows its location, a server without its leading backslashes and a share by the last part of its "
-                 "UNC path, or (network location) when the stored string is empty or not printable; an item type the parser does not decode to a "
+                 "UNC path, or (network location) when the stored string is empty or not printable; any other item type that carries a "
+                 "0xBEEF0004 block shows that block's long name, and an item type the parser does not decode to a "
                  "name is shown as <shell item 0xNN>. On five corpus images 102 rows showed a network item that "
                  "way before these kinds were read; 101 now show names, and the one left, on "
-                 "cfreds_hacking_case_winxp, is a 0x4e item, which libfwsi describes separately and which is not read. A short (8.3) name such as "
-                 "ANDROI~1 is shown as stored. Registry Last Write (UTC) is the BagMRU node key's own "
+                 "cfreds_hacking_case_winxp, is a 0x4e item, which libfwsi describes separately and which is not read. On the 15 corpus images with "
+                 "ShellBags rows, no Shell Path segment is a short (8.3) name in its tilde form. Before the long name was read from that "
+                 "offset, 483 of their 1,007 rows held one, 7 rows on 6 images held a single stray character in place "
+                 "of a folder name, and 14 rows on 3 images showed <shell item 0xNN> for an item that stores a long "
+                 "name. Registry Last Write (UTC) is the BagMRU node key's own "
                  "last-write time, which Windows updates when that folder's child "
                  "list changes, so it approximates when the folder was last browsed "
                  "at or below that node, not a file time. Item Modified (UTC) is the "
@@ -134,18 +139,24 @@ def _dos_datetime(value):
 
 
 def _beef_longname(data):
-    """The UTF-16 long name inside a file entry's 0xBEEF0004 extension block."""
+    """The UTF-16 long name inside a file entry's 0xBEEF0004 extension block, read from the long name
+    offset at byte 16 of the block (libyal libfwsi "Windows Shell Item format" at
+    996128afc64961dbfddf17b176ceff21c499b7d3, "File entry extension block (0xbeef0004)"). The name's
+    position moves with the block version, so it is never walked to from fixed offsets."""
     idx = data.find(b"\x04\x00\xef\xbe")
     if idx < 4:
         return None
-    version = struct.unpack_from("<H", data, idx - 2)[0]
-    pos = idx + 4 + 8 + 2   # signature, created+accessed DOS, unknown
-    if version >= 7:
-        pos += 16           # file reference + unknown
-    if version < 3:
+    start = idx - 4
+    size, version = struct.unpack_from("<HH", data, start)
+    end = min(start + size, len(data))
+    if version < 3 or end - start < 20:
         return None
+    offset = struct.unpack_from("<H", data, start + 16)[0]
+    if not 20 <= offset < end - start:
+        return None
+    pos = start + offset
     chars = []
-    while pos + 1 < len(data):
+    while pos + 1 < end:
         pair = data[pos:pos + 2]
         if pair == b"\x00\x00":
             break
