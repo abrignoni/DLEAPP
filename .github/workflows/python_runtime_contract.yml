@@ -89,4 +89,4 @@ jobs:
 
       - name: Import the compiled dependencies
         run: |
-          python -c "import brotli, yaml, nacl, argon2, Crypto, pillow_heif, Registry, Evtx; print('ok')"
+          python -c "import brotli, yaml, nacl, argon2, Crypto, pillow_heif, Evtx; print('ok')"

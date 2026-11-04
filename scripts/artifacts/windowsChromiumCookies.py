@@ -20,7 +20,7 @@ __artifacts_v2__ = {
                        "--windows-user-password: host, name, path and the decrypted value.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-02",
-        "last_update_date": "2026-11-02",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Decrypts the encrypted_value column of the cookies table of each Windows "
@@ -38,8 +38,7 @@ __artifacts_v2__ = {
                  "from a cleartext account password supplied with --windows-user-password; the SAM "
                  "NT hash alone did not open the user master key on the Windows 11 image tested "
                  "(the SHA-1 candidate did), and the library documents the same for Windows 10 and "
-                 "later. The vendored dpapiprobe library (scripts/vendor/dpapiprobe, PyCryptodome "
-                 "and python-registry) runs the chain. Value is the decrypted cookie value, "
+                 "later. The vendored dpapiprobe library (scripts/vendor/dpapiprobe, with PyCryptodome; it reads the hives with the vendored regfprobe) runs the chain. Value is the decrypted cookie value, "
                  "decoded as UTF-8 with undecodable bytes replaced. At Cookies-database schema "
                  "version 24 and later (read from the database's meta table) the decrypted "
                  "plaintext begins with a 32-byte SHA-256 of the cookie's host_key, which is "
