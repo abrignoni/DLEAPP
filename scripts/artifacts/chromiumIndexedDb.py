@@ -98,8 +98,8 @@ __artifacts_v2__ = {
     },
 }
 
-from scripts.ccl import ccl_chromium_indexeddb as idb
-from scripts.ccl import ccl_leveldb
+from scripts.vendor.ccl import ccl_chromium_indexeddb as idb
+from scripts.vendor.ccl import ccl_leveldb
 from scripts.chromium.web_storage import profile_folders
 from scripts.ilapfuncs import artifact_processor, logfunc
 

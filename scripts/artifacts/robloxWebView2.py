@@ -321,7 +321,7 @@ from datetime import datetime, timezone
 from urllib.parse import parse_qs, urlsplit
 
 from scripts.ccl.indexeddb_to_json import load_indexeddb
-from scripts.ccl import ccl_leveldb
+from scripts.vendor.ccl import ccl_leveldb
 from scripts.chromium.blockfile_cache import iter_entries
 from scripts.chromium.local_storage import leveldb_folders, read_records
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly

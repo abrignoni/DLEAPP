@@ -44,7 +44,7 @@ separate thing: DB8 keeps it as a live LevelDB record until it is purged, and it
 import struct
 from decimal import Decimal
 
-from scripts.ccl import ccl_leveldb
+from scripts.vendor.ccl import ccl_leveldb
 
 MARKER_OBJECT_END = 0
 MARKER_NULL = 1

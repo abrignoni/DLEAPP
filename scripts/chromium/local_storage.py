@@ -14,7 +14,7 @@ through a compacted view, so superseded and deleted versions of a key come
 back too. That history is where drafts and selection state accumulate.
 """
 
-from scripts.ccl import ccl_leveldb
+from scripts.vendor.ccl import ccl_leveldb
 
 _META_PREFIX = b"META:"
 
