@@ -269,6 +269,82 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
+    "chromiumSavedPaymentCards": {
+        "name": "Chromium Saved Payment Cards",
+        "description": "Payment cards saved on the device for autofill in the Web Data databases of "
+                       "Google Chrome, Microsoft Edge, Brave, Vivaldi, Opera and Chromium profiles: name on "
+                       "card, expiry, nickname, use count and the last used and modified times. The card "
+                       "number is not read.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-04",
+        "last_update_date": "2026-11-04",
+        "requirements": "none",
+        "category": "Chromium Browsers",
+        "notes": "One row per card in the credit_cards table of each Web Data database in a Chromium-based "
+                 "browser profile: the cards saved on the device. The column names and the statement that "
+                 "saves a card are in Chromium's payments table code (https://github.com/chromium/chromium/blob/51bc117ffe992d07bbc5a28892b8e8e0e9f832fe/components/autofill/core/browser/webdata/payments/payments_autofill_table.cc#L64-L75, #L779-L782). Name "
+                 "on Card, Expiry Month, Expiry Year and Nickname are the name_on_card, expiration_month, "
+                 "expiration_year and nickname columns as stored. Last Used and Modified are use_date and "
+                 "date_modified, which Chromium writes as seconds since 1 January 1970 UTC (ToTimeT, #L256-L257); "
+                 "a 0 is shown blank. Use Count is use_count as stored. A card starts with a use count of 1 "
+                 "(https://github.com/chromium/chromium/blob/8a6c17bdde4f7c73bbe1cdf5147a06d7e9948e4c/components/autofill/core/browser/data_model/usage_history_information.h#L74), so 1 does not show the card was used: on the known data (corpus key "
+                 "windows11_arm_chromium_cards_known_20261104, a test card typed into the settings page of "
+                 "Chrome 157 and of Edge 156 in new profiles) each card read 1 right after it was saved, with "
+                 "Last Used and Modified equal to the second of the save. User Confirmed is Yes when "
+                 "is_user_confirmed is 1, which Chromium documents as the user having saved the card in "
+                 "settings (https://github.com/chromium/chromium/blob/36258236c6b8a818509adfc1df25387063b4b820/components/autofill/core/browser/data_model/payments/credit_card.h#L138-L141), and No when it is 0; both test cards, saved in settings, "
+                 "read 1, and a card saved another way, which would read 0, was not tested. A database from "
+                 "before is_user_confirmed existed stores an origin column instead; for it User Confirmed is "
+                 "Yes when origin is 'Chrome settings' and No otherwise, as Chromium's migration sets the "
+                 "column (#L2215-L2240), which no tested database exercised. The card number is stored "
+                 "encrypted (card_number_encrypted) and is not read, decrypted or reported, nor are its last "
+                 "digits. The billing address id, a reference to a saved address, is not shown; it was empty "
+                 "on both test cards. Cards stored by the payments server (masked_credit_cards and related "
+                 "tables), saved security codes (local_stored_cvc) and saved IBANs are not read; on the known "
+                 "data each held 0 rows. Edge also keeps an Edge-only row per card in credit_cards_edge_extended,"
+                 " which is not read because no source for its columns was found. Edge's row stored no "
+                 "nickname. Browser, Profile and User are as in Chromium Autofill Addresses. A saved card "
+                 "records that a card was saved in that profile, not who saved or used it.",
+        "paths": (
+            '*/AppData/Local/Google/Chrome/User Data/*/Web Data*',
+            '*/Library/Application Support/Google/Chrome/*/Web Data*',
+            '*/.config/google-chrome/*/Web Data*',
+            '*/AppData/Local/Chromium/User Data/*/Web Data*',
+            '*/Library/Application Support/Chromium/*/Web Data*',
+            '*/.config/chromium/*/Web Data*',
+            '*/snap/chromium/common/chromium/*/Web Data*',
+            '*/.var/app/org.chromium.Chromium/config/chromium/*/Web Data*',
+            '*/webbrowser/chrome/*/Web Data*',
+            '*/AppData/Local/Microsoft/Edge/User Data/*/Web Data*',
+            '*/Library/Application Support/Microsoft Edge/*/Web Data*',
+            '*/.config/microsoft-edge/*/Web Data*',
+            '*/AppData/Local/BraveSoftware/Brave-Browser/User Data/*/Web Data*',
+            '*/Library/Application Support/BraveSoftware/Brave-Browser/*/Web Data*',
+            '*/.config/BraveSoftware/Brave-Browser/*/Web Data*',
+            '*/AppData/Local/Vivaldi/User Data/*/Web Data*',
+            '*/Library/Application Support/Vivaldi/*/Web Data*',
+            '*/.config/vivaldi/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera Stable/*/Web Data*',
+            '*/Library/Application Support/com.operasoftware.Opera/*/Web Data*',
+            '*/.config/opera/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera Stable/Web Data*',
+            '*/Library/Application Support/com.operasoftware.Opera/Web Data*',
+            '*/.config/opera/Web Data*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "credit-card",
+        "sample_data": {
+            "windows11_arm_chromium_cards_known_20261104": "Windows 11 build 26200 (ARM64), Chrome 157, Edge 156.0.4314.58 | 2 rows",
+            "windows11_arm_chromium_autofill_known_20261103": "Windows 11 build 26200 (ARM64), Chrome 157.0.8103.39, Edge 156.0.4314.58, Chromium 110.0.5481.0 and 120.0.6099.0 | 0 rows (no card saved)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (no card saved)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no card saved)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no card saved)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (no card saved)",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (no card saved)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (no card saved)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (no card saved)",
+        },
+    },
 }
 
 import sqlite3
@@ -493,3 +569,45 @@ def chromiumAutofillAddresses(context):
                     'Table', 'Browser', 'Profile', 'User', 'Source File')
     return data_headers, data_list, '\n'.join(sources)
 
+
+def _user_confirmed(confirmed, origin, present):
+    """Yes or No from is_user_confirmed, or, on an older database, from origin as Chromium's migration reads it."""
+    if 'is_user_confirmed' in present:
+        return {1: 'Yes', 0: 'No'}.get(confirmed, _value(confirmed))
+    if 'origin' in present:
+        return 'Yes' if origin == 'Chrome settings' else 'No'
+    return ''
+
+
+@artifact_processor
+def chromiumSavedPaymentCards(context):
+    data_list = []
+    sources = []
+    label = 'Chromium Saved Payment Cards'
+    for store in profile_stores(context, {'Web Data'}, label):
+        db = open_store(store, label)
+        if db is None:
+            continue
+        try:
+            present = table_columns(db, 'credit_cards')
+            rows = []
+            if present:
+                wanted = ('use_date', 'date_modified', 'name_on_card', 'expiration_month', 'expiration_year',
+                          'nickname', 'use_count', 'is_user_confirmed', 'origin')
+                columns = select_list(present, wanted)
+                rows = db.execute(f'SELECT {columns} FROM credit_cards ORDER BY use_date, guid').fetchall()
+        except sqlite3.Error as ex:
+            logfunc(f'{label}: could not read {store.relative}: {ex}')
+            continue
+        finally:
+            db.close()
+        if rows:
+            sources.append(store.path)
+        for (use_date, modified, name, month, year, nickname, use_count, confirmed, origin) in rows:
+            data_list.append((unix_time(use_date), unix_time(modified), _value(name), _value(month),
+                              _value(year), _value(nickname), _value(use_count),
+                              _user_confirmed(confirmed, origin, present)) + row_tail(store))
+    data_headers = (('Last Used', 'datetime'), ('Modified', 'datetime'), 'Name on Card', 'Expiry Month',
+                    'Expiry Year', 'Nickname', 'Use Count', 'User Confirmed', 'Browser', 'Profile', 'User',
+                    'Source File')
+    return data_headers, data_list, '\n'.join(sources)
