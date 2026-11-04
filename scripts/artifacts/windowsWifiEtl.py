@@ -3,7 +3,7 @@
 Author: @AlexisBrignoni, Claude.
 
 Reads Windows\\System32\\LogFiles\\WMI\\Wifi.etl with scripts/etl.py and reports two kinds of manifest event
-from it: the visible networks WLAN AutoConfig records after a scan, and the connection, disconnection and
+from it: the visible network records of WLAN AutoConfig (event 20025), and the connection, disconnection and
 association events of WLAN AutoConfig and the NWiFi driver. The event layouts are the provider templates of
 Windows 11 build 26200, sourced in the notes.
 """
@@ -18,26 +18,26 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Windows Network",
-        "notes": ('Reads Windows\\System32\\LogFiles\\WMI\\Wifi.etl, the file the trace session writes, with '
+        "notes": (('Reads Windows\\System32\\LogFiles\\WMI\\Wifi.etl, the file the trace session writes, with '
                   'scripts/etl.py, which names the source of each layout it reads: the buffer and record headers '
                   "(Geoff Chappell's pages on WMI_BUFFER_HEADER and the trace headers), and Microsoft's "
                   'EVENT_HEADER, EVENT_DESCRIPTOR and TRACE_LOGFILE_HEADER. One row per WLAN AutoConfig event 20025'
                   ' (provider Microsoft-Windows-WLAN-AutoConfig, 9580d7dd-0379-4658-9870-d5be7d52d6de), whose '
                   "message is 'Visible Network: %1, %2 BSSIDS, %3/%4, %5 RSSI'; its template gives Ssid "
                   '(UnicodeString), BssidCount, AuthAlgoId, CipherAlgoId and Rssi (each UInt32). A network the '
-                  'trace records on several scans has a row per event. Event layouts: the provider templates '
-                  'Windows 11 build 26200 gives through its provider metadata (Get-WinEvent -ListProvider; '
-                  'wlansvc.dll 10.0.26100.9549, nwifi.sys 10.0.26100.1), for version 0 of each event; an event of '
-                  'another version is counted in the run log and not decoded. On the corpus files every event '
-                  'decoded was version 0, used exactly the bytes its template gives, and decoded to the same values'
-                  " as the properties Get-WinEvent returned for it. Times: each event's own time stamp, converted "
-                  'the way that module states (StartTime plus the counter difference scaled by a floating-point '
+                  'trace records more than once has a row per event. Event layouts: the provider templates Windows '
+                  '11 build 26200 gives through its provider metadata (Get-WinEvent -ListProvider; wlansvc.dll '
+                  '10.0.26100.9549, nwifi.sys 10.0.26100.1), for version 0 of each event; an event of another '
+                  'version is counted in the run log and not decoded. On the corpus files every event decoded was '
+                  'version 0, used exactly the bytes its template gives and, for every event Get-WinEvent returned,'
+                  " decoded to the same values as its properties. Times: each event's own time stamp, converted the"
+                  ' way that module states (StartTime plus the counter difference scaled by a floating-point '
                   'multiply and truncated), which gave the same time to the 100 ns as Get-WinEvent on Windows 11 '
                   'build 26200 for every event of the corpus files below that Get-WinEvent returned; the report '
                   'shows microseconds. The same connection events (WLAN AutoConfig 8001 and 8003) are also in the '
                   'WLAN-AutoConfig Operational log, which WLAN Connection Events reads: on pc_mus_001_win11 the '
-                  'first 8001 was 3 microseconds apart in the two logs, and an 8003 and 8001 about 36 hours later '
-                  'were 18.0 seconds later in Wifi.etl than in the Operational log. Which of the two times is '
+                  'first 8001 was 2.3 microseconds apart in the two logs, and an 8003 and 8001 about 36 hours later'
+                  ' were 18.0 seconds later in Wifi.etl than in the Operational log. Which of the two times is '
                   'closer to the real time is not established. Authentication Algorithm (DOT11 name) and Cipher '
                   'Algorithm (DOT11 name) are the names Microsoft gives the value in DOT11_AUTH_ALGORITHM '
                   '(https://learn.microsoft.com/en-us/windows/win32/nativewifi/dot11-auth-algorithm) and '
@@ -50,16 +50,16 @@ __artifacts_v2__ = {
                   'between 4294967202 and 4294967257. SSID (as stored) held an empty string on 23 of 320 rows of '
                   'pc_mus_001_win11 and 118 of 1,606 rows of hexordia_mvs2025_win11. The events do not carry the '
                   'BSSIDs or the interface. Known data: pc_mus_001_win11 gave 320 rows with 65 distinct SSID values'
-                  ' over about 1.4 days and hexordia_mvs2025_win11 1,606 rows with 35, 17 of them from the last '
-                  'buffer described next. Get-WinEvent returned no event from the last buffer of the lonewolf_win10'
-                  ' and hexordia_mvs2025_win11 files, a buffer that ends past the 8 MB maximum file size their '
-                  "logfile header records; that buffer's sequence number lay among the other buffers' and its "
-                  'records framed like theirs, and it is read. The Wifi.etl files of lonewolf_win10, af_case2_win10'
-                  " and szechuan_win10 held no 20025 event. Not read: the trace's other events, including WLAN "
-                  'AutoConfig 20024 (a count of networks per scan), and its WPP records (most of each tested file),'
-                  ' whose format information is not in the file and which Get-WinEvent did not decode either. '
-                  'Wifi.etl is written over in a circle, so it holds a recent window of events, and an empty '
-                  'artifact says only that the file held none.'),
+                  ' (the empty string among them) over about 1.4 days and hexordia_mvs2025_win11 1,606 rows with 35'
+                  ' (likewise), 17 of the rows from the last buffer described next. Get-WinEvent returned no event '
+                  'from the last buffer of the lonewolf_win10 and hexordia_mvs2025_win11 files, a buffer that ends '
+                  "past the 8 MB maximum file size their logfile header records; that buffer's sequence number lay "
+                  "among the other buffers' and its records framed like theirs, and it is read. The Wifi.etl files "
+                  "of lonewolf_win10, af_case2_win10 and szechuan_win10 held no 20025 event. Not read: the trace's "
+                  "other events, including WLAN AutoConfig 20024 (message 'Number of Unique Wlan Networks %2'), and"
+                  ' its WPP records (most of each tested file), whose format information is not in the file and '
+                  'which Get-WinEvent did not decode either. Wifi.etl is written over in a circle, so it holds a '
+                  'recent window of events, and an empty artifact says only that the file held none.')),
         "paths": ("*/Windows/System32/LogFiles/WMI/Wifi.etl",),
         "output_types": ["standard"],
         "artifact_icon": "wifi",
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Windows Network",
-        "notes": ('Reads Windows\\System32\\LogFiles\\WMI\\Wifi.etl, the file the trace session writes, with '
+        "notes": (('Reads Windows\\System32\\LogFiles\\WMI\\Wifi.etl, the file the trace session writes, with '
                   'scripts/etl.py, which names the source of each layout it reads: the buffer and record headers '
                   "(Geoff Chappell's pages on WMI_BUFFER_HEADER and the trace headers), and Microsoft's "
                   'EVENT_HEADER, EVENT_DESCRIPTOR and TRACE_LOGFILE_HEADER. One row per event of five kinds: WLAN '
@@ -101,40 +101,40 @@ __artifacts_v2__ = {
                   ' metadata (Get-WinEvent -ListProvider; wlansvc.dll 10.0.26100.9549, nwifi.sys 10.0.26100.1), for'
                   ' version 0 of each event; an event of another version is counted in the run log and not decoded.'
                   ' On the corpus files every event decoded was version 0, used exactly the bytes its template '
-                  'gives, and decoded to the same values as the properties Get-WinEvent returned for it. Times: '
-                  "each event's own time stamp, converted the way that module states (StartTime plus the counter "
-                  'difference scaled by a floating-point multiply and truncated), which gave the same time to the '
-                  '100 ns as Get-WinEvent on Windows 11 build 26200 for every event of the corpus files below that '
-                  'Get-WinEvent returned; the report shows microseconds. The same connection events (WLAN '
-                  'AutoConfig 8001 and 8003) are also in the WLAN-AutoConfig Operational log, which WLAN Connection'
-                  ' Events reads: on pc_mus_001_win11 the first 8001 was 3 microseconds apart in the two logs, and '
-                  'an 8003 and 8001 about 36 hours later were 18.0 seconds later in Wifi.etl than in the '
-                  'Operational log. Which of the two times is closer to the real time is not established. Columns '
-                  'are the template fields of the same name, as stored: SSID, Profile Name, Authentication and '
-                  'Encryption (AuthenticationAlgorithm and CipherAlgorithm, text on 8001), BSS Type, PHY Type and '
-                  'Connection Mode (8001), Disconnect Reason and Disconnect Reason Code (Reason and ReasonCode, '
-                  '8003), Automatic (Auto, 14045), Connection ID (ConnectionId, 8001 and 8003, in hexadecimal as '
-                  "the template's output type gives it). Association MAC (as stored) is the MAC field of 10040 and "
-                  '10041, six bytes written as hexadecimal pairs; the manifest does not say which station it names.'
-                  " Association Status (as stored) is 10041's Status in hexadecimal, its output type; "
-                  'lonewolf_win10 held 0x0 on 10 rows, 0x2 on 4 and 0x5 on 1, whose meanings are not established. '
-                  'Interface GUID is InterfaceGuid (WLAN AutoConfig) or AdapterGuid (NWiFi): on both tested images '
-                  'they held the same GUID, and Interface GUID held one value on all rows of each image. SSID and '
-                  'Profile Name were identical on all rows of both images where either was filled. Not reported: '
-                  'the SSIDList of 14045 and the OnexEnabled and NonBroadcast fields of 8001. Known data: '
-                  'pc_mus_001_win11 gave 39 rows (16 10040, 16 10041, 3 14045, 3 8001, 1 8003) and lonewolf_win10 '
-                  '33 (15, 15, 1, 1, 1). Compared with the Operational log: on pc_mus_001_win11 one 8001 in '
-                  "Wifi.etl is later than that log's last record, and on lonewolf_win10 the Wifi.etl 8003 and 8001 "
-                  "both fall after that log's last record. Get-WinEvent returned no event from the last buffer of "
-                  'the lonewolf_win10 and hexordia_mvs2025_win11 files, a buffer that ends past the 8 MB maximum '
-                  "file size their logfile header records; that buffer's sequence number lay among the other "
-                  "buffers' and its records framed like theirs, and it is read; none of the rows here came from it."
-                  ' The Wifi.etl files of hexordia_mvs2025_win11, af_case2_win10 and szechuan_win10 held none of '
-                  "these events. Not read: the trace's other events, including WLAN AutoConfig 20024 (a count of "
-                  'networks per scan), and its WPP records (most of each tested file), whose format information is '
-                  'not in the file and which Get-WinEvent did not decode either. Wifi.etl is written over in a '
-                  'circle, so it holds a recent window of events, and an empty artifact says only that the file '
-                  'held none.'),
+                  'gives and, for every event Get-WinEvent returned, decoded to the same values as its properties. '
+                  "Times: each event's own time stamp, converted the way that module states (StartTime plus the "
+                  'counter difference scaled by a floating-point multiply and truncated), which gave the same time '
+                  'to the 100 ns as Get-WinEvent on Windows 11 build 26200 for every event of the corpus files '
+                  'below that Get-WinEvent returned; the report shows microseconds. The same connection events '
+                  '(WLAN AutoConfig 8001 and 8003) are also in the WLAN-AutoConfig Operational log, which WLAN '
+                  'Connection Events reads: on pc_mus_001_win11 the first 8001 was 2.3 microseconds apart in the '
+                  'two logs, and an 8003 and 8001 about 36 hours later were 18.0 seconds later in Wifi.etl than in '
+                  'the Operational log. Which of the two times is closer to the real time is not established. '
+                  'Columns are the template fields of the same name, as stored: SSID, Profile Name, Authentication '
+                  'and Encryption (AuthenticationAlgorithm and CipherAlgorithm, text on 8001), BSS Type, PHY Type '
+                  'and Connection Mode (8001), Disconnect Reason and Disconnect Reason Code (Reason and ReasonCode,'
+                  ' 8003), Automatic (Auto, 14045, written true or false), Connection ID (ConnectionId, 8001 and '
+                  "8003, in hexadecimal as the template's output type gives it). Association MAC (as stored) is the"
+                  ' MAC field of 10040 and 10041, six bytes written as hexadecimal pairs; the manifest does not say'
+                  " which station it names. Association Status (as stored) is 10041's Status in hexadecimal, its "
+                  'output type; lonewolf_win10 held 0x0 on 10 rows, 0x2 on 4 and 0x5 on 1, whose meanings are not '
+                  'established. Interface GUID is InterfaceGuid (WLAN AutoConfig) or AdapterGuid (NWiFi): on both '
+                  'tested images they held the same GUID, and Interface GUID held one value on all rows of each '
+                  'image. SSID and Profile Name were identical on all rows of both images where either was filled. '
+                  'Not reported: the SSIDList of 14045 and the OnexEnabled and NonBroadcast fields of 8001. Known '
+                  'data: pc_mus_001_win11 gave 39 rows (16 10040, 16 10041, 3 14045, 3 8001, 1 8003) and '
+                  'lonewolf_win10 33 (15, 15, 1, 1, 1). Compared with the Operational log: on pc_mus_001_win11 one '
+                  "8001 in Wifi.etl is later than that log's last record, and on lonewolf_win10 the Wifi.etl 8003 "
+                  "and 8001 both fall after that log's last record. Get-WinEvent returned no event from the last "
+                  'buffer of the lonewolf_win10 and hexordia_mvs2025_win11 files, a buffer that ends past the 8 MB '
+                  "maximum file size their logfile header records; that buffer's sequence number lay among the "
+                  "other buffers' and its records framed like theirs, and it is read; none of the rows here came "
+                  'from it. The Wifi.etl files of hexordia_mvs2025_win11, af_case2_win10 and szechuan_win10 held '
+                  "none of these events. Not read: the trace's other events, including WLAN AutoConfig 20024 "
+                  "(message 'Number of Unique Wlan Networks %2'), and its WPP records (most of each tested file), "
+                  'whose format information is not in the file and which Get-WinEvent did not decode either. '
+                  'Wifi.etl is written over in a circle, so it holds a recent window of events, and an empty '
+                  'artifact says only that the file held none.')),
         "paths": ("*/Windows/System32/LogFiles/WMI/Wifi.etl",),
         "output_types": ["standard"],
         "artifact_icon": "wifi",
@@ -266,7 +266,7 @@ def _read(context, label, wanted):
 
 @artifact_processor
 def windowsWifiEtlVisibleNetworks(context):
-    data_headers = (('Scan Event Time (UTC)', 'datetime'), 'SSID (as stored)', 'BSSID Count',
+    data_headers = (('Event Time (UTC)', 'datetime'), 'SSID (as stored)', 'BSSID Count',
                     'Authentication Algorithm ID', 'Authentication Algorithm (DOT11 name)', 'Cipher Algorithm ID',
                     'Cipher Algorithm (DOT11 name)', 'RSSI (as stored)')
     rows, sources = _read(context, 'Wi-Fi Visible Networks', {(_AUTOCONFIG, 20025)})

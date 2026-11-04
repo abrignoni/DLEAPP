@@ -17,7 +17,8 @@ Nothing here writes a file or calls Windows. What is implemented, with the sourc
   (0x0B, 0x15). A MESSAGE_TRACE_HEADER (WPP) is a first dword with 0x10000000 set and 0x40000000 clear, whose
   low word is the size, followed by optional members its OptionFlags select (Geoff Chappell,
   https://geoffchappell.com/studies/windows/km/ntoskrnl/inc/api/ntwmi/traceheaders/message_trace_header.htm).
-  A dword without the high bit ends the buffer's records.
+  A dword without the high bit is taken as the end of the buffer's records (this reader's rule;
+  on the corpus files it lost no event Get-WinEvent returned).
 * The EVENT_HEADER is Microsoft's (evntcons.h,
   https://learn.microsoft.com/en-us/windows/win32/api/evntcons/ns-evntcons-event_header): Size, HeaderType,
   Flags, EventProperty, ThreadId, ProcessId, TimeStamp at 0x10, ProviderId at 0x18, the EVENT_DESCRIPTOR at 0x28
@@ -39,9 +40,10 @@ Nothing here writes a file or calls Windows. What is implemented, with the sourc
   is StartTime + int((TimeStamp - T0) * (10,000,000 / PerfFreq)) in FILETIME units, where T0 is the logfile
   header record's own time stamp: the scale is a floating-point multiply and the result is truncated. This rule
   was not found written down; it is the one that gave the same time, to the 100 ns, as Windows' Get-WinEvent
-  (Windows 11 build 26200) for every record of six corpus Wifi*.etl files, including one whose PerfFreq is not
-  10 MHz, where integer division and rounding each disagreed on some records. A system time stamp is taken as a
-  FILETIME (documented, not exercised). The CPU cycle clock (3) is not converted: its times are None.
+  (Windows 11 build 26200) for every record of six corpus Wifi*.etl files that Get-WinEvent returned, including
+  one whose PerfFreq is not 10 MHz, where integer division and rounding each disagreed on some records. A system
+  time stamp is taken as a FILETIME (documented, not exercised). The CPU cycle clock (3) is not converted: its
+  times are None.
 
 Not read: the data of WPP records (no format information is in the file), of system and PERFINFO records other
 than the logfile header, and of classic and instance headers; their records are counted. Windows' Get-WinEvent
