@@ -74,6 +74,18 @@ class LegacyAddressesTest(unittest.TestCase):
         self.assertEqual(full[0].timestamp(), 300)
         self.assertEqual(full[1].timestamp(), 200)
 
+    def test_full_name_with_honorific_prefix_goes_to_other_values(self):
+        db = sqlite3.connect(':memory:')
+        db.execute('CREATE TABLE autofill_profiles (guid VARCHAR PRIMARY KEY, use_date INTEGER, '
+                   'date_modified INTEGER, use_count INTEGER)')
+        db.execute('CREATE TABLE autofill_profile_names (guid VARCHAR, full_name VARCHAR, '
+                   'full_name_with_honorific_prefix VARCHAR)')
+        db.execute("INSERT INTO autofill_profiles VALUES ('g1', 0, 0, 1)")
+        db.execute("INSERT INTO autofill_profile_names VALUES ('g1', 'A B', 'Dr A B')")
+        rows = af._legacy_addresses(db, STORE)  # pylint: disable=protected-access
+        self.assertEqual(rows[0][3], 'A B')
+        self.assertEqual(rows[0][12], 'NAME_FULL_WITH_HONORIFIC_PREFIX (deprecated): Dr A B')
+
     def test_zero_dates_are_blank(self):
         rows = af._legacy_addresses(_legacy_db(), STORE)  # pylint: disable=protected-access
         bare = {row[6]: row for row in rows}['Other']

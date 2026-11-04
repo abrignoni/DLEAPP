@@ -133,7 +133,7 @@ __artifacts_v2__ = {
                        "the last used and modified times and the use count.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
-        "last_update_date": "2026-11-03",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the saved autofill addresses of each Web Data database in a Chromium-based browser "
@@ -177,13 +177,16 @@ __artifacts_v2__ = {
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L190-L206, "
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L304-L307, "
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L321-L324); "
-                 "honorific_prefix is named NAME_HONORIFIC_PREFIX from its column name, since the current "
-                 "source no longer reads it. Other Values lists every other non-empty stored value with its "
+                 "honorific_prefix and full_name_with_honorific_prefix are named NAME_HONORIFIC_PREFIX and "
+                 "NAME_FULL_WITH_HONORIFIC_PREFIX from their column names, the second shown as "
+                 "'NAME_FULL_WITH_HONORIFIC_PREFIX (deprecated)', since the current source no longer reads "
+                 "them. Other Values lists every other non-empty stored value with its "
                  "field type name, or 'type <n>' for a number this artifact does not name, so every stored "
                  "value is reported; on the known data it held the name parts Chromium split from the full "
-                 "name and, on the Chromium 120 rows, field type 117 on both and the street name, house number "
-                 "and street location on one, which field_types.h marks deprecated "
-                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L327). "
+                 "name, field type 117 on the 2 Chromium 110 and 2 Chromium 120 rows, which field_types.h "
+                 "marks deprecated "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L327), "
+                 "and the street name, house number and street location on one Chromium 120 row. "
                  "Where an autofill_profiles side table holds more than one row for a guid, the values are "
                  "joined with '; ' in rowid order; that case was exercised on a constructed database only. A "
                  "value stored as a BLOB is reported by its length and not decoded; the Microsoft Edge 86 "
@@ -533,7 +536,8 @@ _LEGACY_SIDE_TABLES = (
     ('autofill_profile_names', (('full_name', 7), ('first_name', 3), ('middle_name', 4),
                                 ('last_name', 5), ('honorific_prefix', 110),
                                 ('first_last_name', 107), ('conjunction_last_name', 108),
-                                ('second_last_name', 109))),
+                                ('second_last_name', 109),
+                                ('full_name_with_honorific_prefix', 117))),
     ('autofill_profile_emails', (('email', 9),)),
     ('autofill_profile_phones', (('number', 14),)),
 )
