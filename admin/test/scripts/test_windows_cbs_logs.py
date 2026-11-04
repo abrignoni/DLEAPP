@@ -107,6 +107,7 @@ class CbsChecksTest(unittest.TestCase):
                     ('2026-01-05 10:12:00', 'CBS', 'Checking System Update Readiness.'),
                     ('2026-01-05 10:12:00', 'CBS', 'Operation: Detect only '),
                     ('2026-01-05 10:12:00', 'CBS', 'Operation result: 0x0'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Last Successful Step: Stage package detection completes.'),
                     ('2026-01-05 10:12:00', 'CBS', 'Total Detected Corruption:\t816'),
                     ('2026-01-05 10:12:00', 'CBS', 'Total Repaired Corruption:\t0'),
                     ('2026-01-05 10:12:00', 'CBS', 'Total Operation Time: 112 seconds.'))
@@ -119,7 +120,8 @@ class CbsChecksTest(unittest.TestCase):
             ('2026-01-05 10:05:00', -300, '2026-01-05 10:05:00', 0, 0, 0, 0, [], []),
         ])
         self.assertEqual(scans, [{'local': '2026-01-05 10:12:00', 'offset': -300, 'started': '2026-01-05 10:10:00',
-                                  'session': '7_7', 'operation': 'Detect only', 'result': '0x0', 'detected': '816',
+                                  'session': '7_7', 'operation': 'Detect only', 'result': '0x0',
+                                  'step': 'Stage package detection completes.', 'detected': '816',
                                   'repaired': '0', 'seconds': '112'}])
         self.assertEqual(problems, Counter())
 

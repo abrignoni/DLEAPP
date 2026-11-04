@@ -90,6 +90,7 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 246 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 6 rows",
             "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 31 rows",
+            "windows11_arm_cbs_restorehealth_known_20261103": "Windows 11 build 26200 (ARM64) | 37 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -158,6 +159,7 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 707 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 27 rows",
             "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 213 rows",
+            "windows11_arm_cbs_restorehealth_known_20261103": "Windows 11 build 26200 (ARM64) | 248 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -244,6 +246,7 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows",
             "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 3 rows",
+            "windows11_arm_cbs_restorehealth_known_20261103": "Windows 11 build 26200 (ARM64) | 3 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -251,11 +254,11 @@ __artifacts_v2__ = {
     },
     "windowsCbsStoreScans": {
         "name": "CBS Store Corruption Scans",
-        "description": "Each component store corruption report the CBS logs hold, with the operation, its result and the totals "
-                       "of corruption detected and repaired, as stored.",
+        "description": "Each component store corruption report the CBS logs hold, with the operation, its result, its last "
+                       "successful step and the totals of corruption detected and repaired, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-01",
-        "last_update_date": "2026-11-01",
+        "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Windows",
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
@@ -288,18 +291,28 @@ __artifacts_v2__ = {
                  "Summary values (which CBS Store Corruption Scans reads), the 'Session ... finalized' lines, the DISM "
                  "lines Panther\\cbs.log also holds, Windows\\servicing\\Sessions\\*.xml, and the ETL files in "
                  "Logs\\WindowsUpdate and Logs\\CBS. One row per 'Checking System Update Readiness.' line of the CBS "
-                 "component, with the first 'Operation', 'Operation result', 'Total Detected Corruption', 'Total Repaired "
-                 "Corruption' and 'Total Operation Time' lines after it in its run, as stored. Session ID and Session "
-                 "Start come from the last 'Session(... Store Corruption Detect/Repair): <ID>' line before it in its run, "
+                 "component, with the first 'Operation', 'Operation result', 'Last Successful Step', 'Total Detected "
+                 "Corruption', 'Total Repaired Corruption' and 'Total Operation Time' lines after it in its run, as "
+                 "stored with leading and trailing whitespace trimmed. Session ID and Session Start come from the last "
+                 "'Session(... Store Corruption Detect/Repair): <ID>' line before it in its run, "
                  "blank when there is none. Microsoft's page cited above shows this Summary block as an example of the "
                  "log after the DISM commands it describes, with 'Operation: Detect and Repair'. Known data, "
                  "windows11_arm_cbs_known_20261101: DISM /Online /Cleanup-Image /ScanHealth gave one row, Operation "
                  "'Detect only', result 0x0, 816 detected, 0 repaired and 112 seconds, with Session Start (UTC) in the "
                  "same second as the stamped start of the command and Summary Time (UTC) before its stamped end (the log "
                  "writes whole seconds); DISM printed that the component store is repairable. DISM /CheckHealth, run just "
-                 "before, wrote no such block, only a session line (reported by CBS Servicing Sessions). RestoreHealth "
-                 "was not run, so a 'Detect and Repair' row is untested. The per-item lines of the report (816 '(p) CSI "
-                 "Payload Corrupt' lines on the known data) are not read. None of the 13 corpus images holds the block.",
+                 "before, wrote no such block, only a session line (reported by CBS Servicing Sessions). Known data, "
+                 "windows11_arm_cbs_restorehealth_known_20261103 (the same VM two days later, no repair source given): "
+                 "DISM /Online /Cleanup-Image /RestoreHealth exited with 0x800F0915 and printed that the repair content "
+                 "could not be found; it gave one row, Operation 'Detect and Repair', result 0x800f0915, Last Successful "
+                 "Step 'Remove staged packages completes.', 816 detected, 0 repaired and 125 seconds, with Session Start "
+                 "(UTC) in the same second as the stamped start and Summary Time (UTC) before the stamped end. The "
+                 "ScanHealth run after it gave a 'Detect only' row with 816 detected, and on both 'Detect only' rows Last "
+                 "Successful Step held 'Stage package detection completes.'. On that key Total Detected Corruption "
+                 "held 816 on all 3 rows (no repair succeeded between them), UTC Offset (from the log) held UTC-05:00 on "
+                 "all 3 rows (the VM's zone) and Total Repaired Corruption held 0 on every row: a repair that succeeds was "
+                 "not produced, so a row with repaired corruption is untested. The per-item lines of the report (816 '(p) CSI "
+                 "Payload Corrupt' lines per scan on the known data) are not read. None of the 13 corpus images holds the block.",
         "paths": ('*/Windows/Logs/CBS/CBS.log', '*/Windows/Logs/CBS/CbsPersist_*.log',
                   '*/Windows/Logs/CBS/CbsPersist_*.cab', '*/Windows/Panther/cbs.log'),
         "output_types": ["html", "tsv", "lava"],
@@ -316,6 +329,7 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows",
             "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 1 row",
+            "windows11_arm_cbs_restorehealth_known_20261103": "Windows 11 build 26200 (ARM64) | 3 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -372,6 +386,7 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 3180 rows",
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 13 rows",
             "windows11_arm_cbs_known_20261101": "Windows 11 build 26200 (ARM64) | 84 rows",
+            "windows11_arm_cbs_restorehealth_known_20261103": "Windows 11 build 26200 (ARM64) | 87 rows",
             "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no CBS or DISM log)",
             "windows11_arm_known_20261001": "Windows 11 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
             "windows11_arm_known_20261010": "Windows 11 25H2 build 26200 (ARM64) | 0 rows (the extraction holds no CBS or DISM log)",
@@ -392,6 +407,7 @@ _PNP_FILE = re.compile(r'\[Pnp\] (Corrupt|Repaired) file: (.*)')
 _STORE_CHECK = 'Checking System Update Readiness.'
 _STORE_SESSION = re.compile(r'Session\(.*Store Corruption Detect/Repair\): (\S+)')
 _SUMMARY = (('operation', re.compile(r'Operation:\s+(.*)')), ('result', re.compile(r'Operation result:\s+(.*)')),
+            ('step', re.compile(r'Last Successful Step:\s+(.*)')),
             ('detected', re.compile(r'Total Detected Corruption:\s+(\d+)')),
             ('repaired', re.compile(r'Total Repaired Corruption:\s+(\d+)')),
             ('seconds', re.compile(r'Total Operation Time:\s+(\d+) seconds')))
@@ -548,7 +564,7 @@ def cbs_checks(text, problems):
             store_session = (local, started.group(1))
         elif message == _STORE_CHECK:
             scan = {'local': local, 'offset': current, 'started': store_session[0], 'session': store_session[1],
-                    'operation': '', 'result': '', 'detected': '', 'repaired': '', 'seconds': ''}
+                    'operation': '', 'result': '', 'step': '', 'detected': '', 'repaired': '', 'seconds': ''}
             scans.append(scan)
         elif scan is not None:
             for key, pattern in _SUMMARY:
@@ -686,7 +702,7 @@ def windowsCbsSfpRuns(context):
 def windowsCbsStoreScans(context):
     data_headers = (('Summary Time (UTC)', 'datetime'), ('Session Start (UTC)', 'datetime'),
                     'Summary Time (local, as recorded)', 'UTC Offset (from the log)', 'Operation (as stored)',
-                    'Operation Result (as stored)', 'Total Detected Corruption', 'Total Repaired Corruption',
+                    'Operation Result (as stored)', 'Last Successful Step (as stored)', 'Total Detected Corruption', 'Total Repaired Corruption',
                     'Total Operation Time (seconds)', 'Session ID', 'Source File')
     data_list, sources = [], []
     for source, relative, (_, scans) in _read_logs(context, 'CBS Store Corruption Scans', cbs_checks):
@@ -695,5 +711,5 @@ def windowsCbsStoreScans(context):
             offset = scan['offset']
             data_list.append((_utc(scan['local'], offset), _utc(scan['started'], offset), scan['local'],
                               '' if offset is None else _offset_text(offset), scan['operation'], scan['result'],
-                              scan['detected'], scan['repaired'], scan['seconds'], scan['session'], relative))
+                              scan['step'], scan['detected'], scan['repaired'], scan['seconds'], scan['session'], relative))
     return data_headers, data_list, '\n'.join(sources)
