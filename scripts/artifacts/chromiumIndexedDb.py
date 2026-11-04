@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Chromium IndexedDB Databases",
         "description": "Object stores of the IndexedDB databases that sites kept in Google Chrome, Microsoft Edge, "
                        "Brave, Vivaldi, Opera and Chromium profiles: the origin, database and object store names, "
-                       "and how many records each store holds.",
+                       "and counts of each store's record keys.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
@@ -20,8 +20,9 @@ __artifacts_v2__ = {
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L215-L226). "
                  "A database whose name record is no longer live is not listed, and an object store id with no "
                  "name record is skipped. Live Records counts the store's keys under reserved index id 1, the "
-                 "object store data, whose newest record in the LevelDB files is a value; Deletion Records "
-                 "counts those whose newest record is a deletion still in the files "
+                 "object store data, whose newest record in the LevelDB files is a value, with every version "
+                 "of a key, in the .log file or an .ldb table file, taken as one key; Deletion Records counts "
+                 "those whose newest record is a deletion still in the files "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L277-L287). "
                  "LevelDB compaction removes deletions "
                  "(https://github.com/google/leveldb/blob/068d5ee1a3ac40dabd00d211d5013af44be55bea/doc/impl.md#L104), "
@@ -32,20 +33,24 @@ __artifacts_v2__ = {
                  "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L300-L309). "
                  "The counts are read from the keys; no value is decoded, so a value the reader cannot "
                  "deserialize is still counted. The records themselves are a site's own data and are left to "
-                 "the site-specific artifacts (Discord, Slack, Wire, WhatsApp Web, Roblox). Browser, Profile "
-                 "and User come from the path, as in the other Chromium artifacts; on a Mac logical extraction "
-                 "a folder whose copy under System/Volumes/Data holds the same files with the same bytes is "
-                 "read once. Tested: windows11_arm_chromium_indexeddb_known_20261103, where Chrome "
-                 "157.0.8103.39 and Edge 156.0.4314.58 each created database kd_known on "
-                 "https://www.example.com/, put 6 records in store notes and deleted 2, and put 3 Blob values "
-                 "in store files: each browser gave notes 4 live and 2 deletion records and files 3 live "
-                 "records, all 3 with blobs or files. On the corpus: cfreds_leakage_win7 1 row, "
+                 "the artifacts for the site. Browser, Profile and User come from the path, as in the other "
+                 "Chromium artifacts; on a Mac logical extraction a folder whose copy under "
+                 "System/Volumes/Data holds the same files with the same bytes is read once. Tested: "
+                 "windows11_arm_chromium_indexeddb_known_20261103, where Chrome 157.0.8103.39 and Edge "
+                 "156.0.4314.58 each created database kd_known on https://www.example.com/, put 6 records in "
+                 "store notes and deleted 2, and put 3 Blob values in store files: each browser gave notes 4 "
+                 "live and 2 deletion records and files 3 live records, all 3 with blobs or files. The known "
+                 "data has only a .log file; .ldb table files were read on hexordia_mvs2025_win11 (14 files), "
+                 "lonewolf_win10 (1), pc_mus_001_win11 (11) and mvs2026_macbookpro_macos15 (26), whose figures "
+                 "below are from the counting described here. On the corpus: cfreds_leakage_win7 1 row, "
                  "hexordia_mvs2025_win11 70, lonewolf_win10 49, ou_ransomware_server2022 2, pc_mus_001_win11 "
-                 "119 and mvs2026_macbookpro_macos15 45; 136 of those 286 rows had no live record. Live "
-                 "Records with Blobs or Files held 0 on all 70 rows of hexordia_mvs2025_win11. Not read: the "
-                 "database version and the other database and object store metadata, the index data, the blob "
-                 "files themselves, Session Storage, File System and shared_proto_db folders, extension "
-                 "storage under a profile's Storage folder, and WebView2 or Electron app profiles.",
+                 "119 and mvs2026_macbookpro_macos15 45; 142 of those 286 rows had no live record. Rows were "
+                 "seen only from Chrome and Edge profiles; the Brave, Vivaldi, Opera and Chromium paths are "
+                 "declared and were not exercised by any tested image. Live Records with Blobs or Files held 0 "
+                 "on all 70 rows of hexordia_mvs2025_win11. Not read: the database version and the other "
+                 "database and object store metadata, the index data, the blob files themselves, Session "
+                 "Storage, File System and shared_proto_db folders, extension storage under a profile's "
+                 "Storage folder, and WebView2 or Electron app profiles.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/IndexedDB/*',
             '*/Library/Application Support/Google/Chrome/*/IndexedDB/*',
