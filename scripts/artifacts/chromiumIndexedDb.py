@@ -9,7 +9,43 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Chromium Browsers",
-        "notes": "NOTES_IDB",
+        "notes": "One row per object store of each IndexedDB database a site kept in a Chromium-based browser "
+                 "profile, read from the profile's IndexedDB/<origin>.indexeddb.leveldb folders with the "
+                 "vendored ccl_chromium_indexeddb reader (CCL Forensics). Origin (as stored) is the origin "
+                 "name the database metadata holds; on every tested row it had the shape "
+                 "<scheme>_<host>_<port>@<number>, a form this artifact does not decode. Database and Object "
+                 "Store are the database name and the object store name from the database and object store "
+                 "metadata "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L173-L184, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L215-L226). "
+                 "A database whose name record is no longer live is not listed, and an object store id with no "
+                 "name record is skipped. Live Records counts the store's keys under reserved index id 1, the "
+                 "object store data, whose newest record in the LevelDB files is a value; Deletion Records "
+                 "counts those whose newest record is a deletion still in the files "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L277-L287). "
+                 "LevelDB compaction removes deletions "
+                 "(https://github.com/google/leveldb/blob/068d5ee1a3ac40dabd00d211d5013af44be55bea/doc/impl.md#L104), "
+                 "so 0 is not evidence that nothing was deleted. Live Records with Blobs or Files counts the "
+                 "live keys under reserved index id 3, the external object entries, which record a blob, a "
+                 "file or a File System Access handle kept outside the LevelDB files "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L106-L108, "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/content/browser/indexed_db/docs/leveldb_coding_scheme.md#L300-L309). "
+                 "The counts are read from the keys; no value is decoded, so a value the reader cannot "
+                 "deserialize is still counted. The records themselves are a site's own data and are left to "
+                 "the site-specific artifacts (Discord, Slack, Wire, WhatsApp Web, Roblox). Browser, Profile "
+                 "and User come from the path, as in the other Chromium artifacts; on a Mac logical extraction "
+                 "a folder whose copy under System/Volumes/Data holds the same files with the same bytes is "
+                 "read once. Tested: windows11_arm_chromium_indexeddb_known_20261103, where Chrome "
+                 "157.0.8103.39 and Edge 156.0.4314.58 each created database kd_known on "
+                 "https://www.example.com/, put 6 records in store notes and deleted 2, and put 3 Blob values "
+                 "in store files: each browser gave notes 4 live and 2 deletion records and files 3 live "
+                 "records, all 3 with blobs or files. On the corpus: cfreds_leakage_win7 1 row, "
+                 "hexordia_mvs2025_win11 70, lonewolf_win10 49, ou_ransomware_server2022 2, pc_mus_001_win11 "
+                 "119 and mvs2026_macbookpro_macos15 45; 136 of those 286 rows had no live record. Live "
+                 "Records with Blobs or Files held 0 on all 70 rows of hexordia_mvs2025_win11. Not read: the "
+                 "database version and the other database and object store metadata, the index data, the blob "
+                 "files themselves, Session Storage, File System and shared_proto_db folders, extension "
+                 "storage under a profile's Storage folder, and WebView2 or Electron app profiles.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/IndexedDB/*',
             '*/Library/Application Support/Google/Chrome/*/IndexedDB/*',
@@ -38,7 +74,19 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "database",
-        "sample_data": {},
+        "sample_data": {
+            "windows11_arm_chromium_indexeddb_known_20261103": "Windows 11 build 26200 (ARM64), Chrome 157.0.8103.39 and Edge 156.0.4314.58 | 4 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 1 row",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 70 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 49 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 2 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 119 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 45 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (no member matches the declared paths)",
+        },
     },
 }
 
@@ -49,7 +97,7 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 # Index ids that the IndexedDB LevelDB coding scheme reserves inside an object store
 # prefix: 1 for the object store data, 3 for the external object (blob and file)
-# entries (content/browser/indexed_db/docs/leveldb_coding_scheme.md lines 277-310,
+# entries (content/browser/indexed_db/docs/leveldb_coding_scheme.md lines 277-309,
 # chromium 33f34ef179f55596f6c2fc8a55878b7ccf6276e4).
 _DATA_INDEX = 1
 _EXTERNAL_INDEX = 3
