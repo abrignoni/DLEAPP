@@ -223,7 +223,8 @@ __artifacts_v2__ = {
                  "addresses and local_addresses row; the use_date2 and use_date3 columns that version 132 "
                  "added and version 145 dropped, which held no value on any tested row; Microsoft Edge's own "
                  "tables (autofill_profile_edge_extended and the other autofill_edge_ tables), for which no "
-                 "published schema was found; the autofill_ai_, plus_addresses and loyalty_cards tables, empty "
+                 "published schema was found, autofill_edge_field_values being read by Microsoft Edge Form "
+                 "Field Values; the autofill_ai_, plus_addresses and loyalty_cards tables, empty "
                  "in every tested database that has them; and the payment card, IBAN and bank account tables. "
                  "The user data folders read are the same as for Chromium Autofill Entries, and WebView2 or "
                  "Electron app profiles are not read.",
@@ -346,6 +347,78 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (credit_cards present and empty)",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (credit_cards present and empty)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (credit_cards present and empty)",
+        },
+    },
+    "edgeFormFieldValues": {
+        "name": "Microsoft Edge Form Field Values",
+        "description": "Values typed into web form fields and kept by Microsoft Edge in its own "
+                       "autofill_edge_field_values table of Web Data, with the site's host name, the field's "
+                       "label, the count and the first and last times.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-04",
+        "last_update_date": "2026-11-04",
+        "requirements": "none",
+        "category": "Chromium Browsers",
+        "notes": "One row per row of autofill_edge_field_values, a table Microsoft Edge adds to Web Data "
+                 "beside Chromium's autofill table. Edge is closed source and no published schema was found, "
+                 "so every column below is described from known data: corpus key "
+                 "windows11_arm_edge_field_values_known_20261104, made-up values typed into local test forms "
+                 "in a new Edge 156.0.4314.58 profile on Windows 11, with no account signed in, over seven "
+                 "steps (a repeat, a second host, an empty field, a fetch submit, an iframe removal, slow "
+                 "typing); the README beside the zip lists them. Site and Field Label come from the "
+                 "autofill_edge_field_client_info row whose field_id matches: field_id is that row's "
+                 "domain_signature, form_signature_v2 and field_signature_v2 joined by $, on all 6 rows of the "
+                 "known data and all 37 of hexordia_mvs2025_win11, where every field_values row had a "
+                 "client_info row. Site is domain_value, the page's full host name without the port: a form on "
+                 "a host and on its parent domain gave two rows with two Site values. Field Label is label, the "
+                 "text of the field's label element; the field's name, id, placeholder and aria-label were each "
+                 "different and none was stored; it was empty on 1 row of hexordia_mvs2025_win11. Value is the "
+                 "value as stored. Edge stores a field left empty "
+                 "as edge_default_dummy_empty_value, and this artifact shows that value blank: 12 of the 38 "
+                 "rows on hexordia_mvs2025_win11 held it. Created and Last Used are date_created and "
+                 "date_last_used, seconds since 1970-01-01 UTC. On the known data both were the second in "
+                 "which typing into the form began, the same second for every field of the form, and not the "
+                 "submit time: with 20 seconds between page load, each field and the submit click, both "
+                 "fields carried the second the first field was clicked and typed. Chromium's autofill table "
+                 "(Chromium Autofill Entries) kept the same values in rows of its own, dated at the submit, 1 "
+                 "to 42 seconds later on the known data, and with no row for an empty field, so the two "
+                 "tables do not hold the same rows: 11 here against 7 there after the last step. Count is "
+                 "count as stored: it went from 1 to 2 when the same value was submitted again in the same "
+                 "field of the same form on the same host, and that repeat moved Last Used and not Created. "
+                 "Submission Source is submission_source as stored: 6 after a click on the form's submit "
+                 "button, 2 after a fetch POST that then removed the form, and 3 after the iframe holding the "
+                 "form was removed; a repeat overwrites it with the latest submission's value. 6 is not "
+                 "Chromium's value for a normal form submission, 5 in "
+                 "https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/common/mojom/autofill_types.mojom#L153-L176, "
+                 "so Chromium's names are not used. hexordia_mvs2025_win11 also held 101, which the known data "
+                 "did not produce, and its meaning is not established. Not shown: is_masked, which held 1 on 4 "
+                 "rows of hexordia_mvs2025_win11 and 0 on every known-data row, so what sets it is not "
+                 "established; the client_info signatures and its date_created, which on the known data was "
+                 "the first time its field got a value and did not move for a later value; and "
+                 "autofill_edge_fieldid_cid_mapping, autofill_edge_extended, and Edge's other tables, empty on "
+                 "the known data (no account was signed in). The table was absent from the tested databases "
+                 "of schema 88 (an Edge 86 snapshot on ou_ransomware_server2022) and 104 (Edge 108 on "
+                 "pc_mus_001_win11), and present in those of schema 117, 120, 135 and 158; the 117 and 120 "
+                 "ones lack is_masked. Profile, User and Source File are as in Chromium Autofill Entries; "
+                 "Browser is left out because only Edge writes the table. Profile held one value, Default, "
+                 "and User held one value on every row of hexordia_mvs2025_win11 and of the known data, each "
+                 "of which has one Edge profile with rows. Only the Windows Edge folder was exercised; the "
+                 "macOS and Linux Edge folders were not. A row records that a value was typed into a form "
+                 "field of that site in that profile, not who typed it.",
+        "paths": (
+            '*/AppData/Local/Microsoft/Edge/User Data/*/Web Data*',
+            '*/Library/Application Support/Microsoft Edge/*/Web Data*',
+            '*/.config/microsoft-edge/*/Web Data*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "edit",
+        "sample_data": {
+            "windows11_arm_edge_field_values_known_20261104": "Windows 11 build 26200 (ARM64), Edge 156.0.4314.58 | 11 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 38 rows",
+            "windows11_arm_chromium_cards_known_20261104": "Windows 11 build 26200 (ARM64), Edge 156.0.4314.58 | 0 rows (autofill_edge_field_values present and empty)",
+            "windows11_arm_chromium_autofill_known_20261103": "Windows 11 build 26200 (ARM64), Edge 156.0.4314.58 | 0 rows (autofill_edge_field_values present and empty)",
+            "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (autofill_edge_field_values present and empty in two profiles; absent from an Edge 86 snapshot)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621, Edge 108.0.1462.54 | 0 rows (no autofill_edge_field_values table)",
         },
     },
 }
@@ -613,4 +686,47 @@ def chromiumSavedPaymentCards(context):
     data_headers = (('Last Used', 'datetime'), ('Modified', 'datetime'), 'Name on Card', 'Expiry Month',
                     'Expiry Year', 'Nickname', 'Use Count', 'User Confirmed', 'Browser', 'Profile', 'User',
                     'Source File')
+    return data_headers, data_list, '\n'.join(sources)
+
+
+# Edge's stored value for a form field submitted empty, measured on
+# windows11_arm_edge_field_values_known_20261104 (README beside the zip).
+_EDGE_EMPTY_VALUE = 'edge_default_dummy_empty_value'
+
+
+@artifact_processor
+def edgeFormFieldValues(context):
+    data_list = []
+    sources = []
+    label = 'Microsoft Edge Form Field Values'
+    for store in profile_stores(context, {'Web Data'}, label):
+        db = open_store(store, label)
+        if db is None:
+            continue
+        try:
+            present = table_columns(db, 'autofill_edge_field_values')
+            rows = []
+            if present:
+                values = select_list(present, ('date_created', 'date_last_used', 'value', 'count',
+                                               'submission_source', 'field_id'), 'v.')
+                info = table_columns(db, 'autofill_edge_field_client_info')
+                if {'field_id', 'domain_value', 'label'} <= info:
+                    query = (f'SELECT {values}, c.domain_value, c.label FROM autofill_edge_field_values v '
+                             'LEFT JOIN autofill_edge_field_client_info c ON c.field_id = v.field_id')
+                else:
+                    query = f'SELECT {values}, NULL, NULL FROM autofill_edge_field_values v'
+                rows = db.execute(query + ' ORDER BY v.date_created, v.field_id, v.value').fetchall()
+        except sqlite3.Error as ex:
+            logfunc(f'{label}: could not read {store.relative}: {ex}')
+            continue
+        finally:
+            db.close()
+        if present:
+            sources.append(store.path)
+        for created, last_used, value, count, source, _field_id, site, field_label in rows:
+            shown = '' if value == _EDGE_EMPTY_VALUE else _value(value)
+            data_list.append((unix_time(created), unix_time(last_used), _value(site), _value(field_label),
+                              shown, _value(count), _value(source)) + row_tail(store)[1:])
+    data_headers = (('Created', 'datetime'), ('Last Used', 'datetime'), 'Site', 'Field Label', 'Value',
+                    'Count', 'Submission Source', 'Profile', 'User', 'Source File')
     return data_headers, data_list, '\n'.join(sources)
