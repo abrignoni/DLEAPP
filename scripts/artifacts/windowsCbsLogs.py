@@ -254,8 +254,8 @@ __artifacts_v2__ = {
     },
     "windowsCbsStoreScans": {
         "name": "CBS Store Corruption Scans",
-        "description": "Each component store corruption report the CBS logs hold, with the operation, its result and the totals "
-                       "of corruption detected and repaired, as stored.",
+        "description": "Each component store corruption report the CBS logs hold, with the operation, its result, its last "
+                       "successful step and the totals of corruption detected and repaired, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-03",
@@ -292,8 +292,9 @@ __artifacts_v2__ = {
                  "lines Panther\\cbs.log also holds, Windows\\servicing\\Sessions\\*.xml, and the ETL files in "
                  "Logs\\WindowsUpdate and Logs\\CBS. One row per 'Checking System Update Readiness.' line of the CBS "
                  "component, with the first 'Operation', 'Operation result', 'Last Successful Step', 'Total Detected "
-                 "Corruption', 'Total Repaired Corruption' and 'Total Operation Time' lines after it in its run, as stored. Session ID and Session "
-                 "Start come from the last 'Session(... Store Corruption Detect/Repair): <ID>' line before it in its run, "
+                 "Corruption', 'Total Repaired Corruption' and 'Total Operation Time' lines after it in its run, as "
+                 "stored with leading and trailing whitespace trimmed. Session ID and Session Start come from the last "
+                 "'Session(... Store Corruption Detect/Repair): <ID>' line before it in its run, "
                  "blank when there is none. Microsoft's page cited above shows this Summary block as an example of the "
                  "log after the DISM commands it describes, with 'Operation: Detect and Repair'. Known data, "
                  "windows11_arm_cbs_known_20261101: DISM /Online /Cleanup-Image /ScanHealth gave one row, Operation "
@@ -311,7 +312,7 @@ __artifacts_v2__ = {
                  "held 816 on all 3 rows (no repair succeeded between them), UTC Offset (from the log) held UTC-05:00 on "
                  "all 3 rows (the VM's zone) and Total Repaired Corruption held 0 on every row: a repair that succeeds was "
                  "not produced, so a row with repaired corruption is untested. The per-item lines of the report (816 '(p) CSI "
-                 "Payload Corrupt' lines on the known data) are not read. None of the 13 corpus images holds the block.",
+                 "Payload Corrupt' lines per scan on the known data) are not read. None of the 13 corpus images holds the block.",
         "paths": ('*/Windows/Logs/CBS/CBS.log', '*/Windows/Logs/CBS/CbsPersist_*.log',
                   '*/Windows/Logs/CBS/CbsPersist_*.cab', '*/Windows/Panther/cbs.log'),
         "output_types": ["html", "tsv", "lava"],
