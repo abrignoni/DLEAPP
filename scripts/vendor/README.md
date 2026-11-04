@@ -142,7 +142,8 @@ body equals upstream:
 - `ccl_chromium_indexeddb.py` and `structures.py`: ccl_chromium_reader ad37443, with
   only their imports changed for the flat folder (`from . import ccl_leveldb`,
   `from . import ccl_simplesnappy` and the like).
-- `ccl_leveldb.py`: ccl_chromium_reader ad37443 with DLEAPP 051660d merged in. That
+- `ccl_leveldb.py`: ccl_chromium_reader ad37443 with DLEAPP 051660d merged in, and
+  `import ccl_simplesnappy` changed to `from . import ccl_simplesnappy`. That
   change bounds the open file handles: a reader closes each .log and .ldb file after
   checking it and reopens it for each pass, and what a pass skips as damage is copied
   back to the file's reader, where upstream keeps it. Upstream ad37443 still fails
