@@ -209,12 +209,12 @@ def favorite_rows(rows):
 @artifact_processor
 def legacyEdgeFavorites(context):
     data_headers = (('Date Updated (UTC)', 'datetime'), 'Title', 'URL', 'Folder', 'Is Deleted', 'User',
-               'Source File')
+                    'Source File')
     data_list = []
     sources = []
     for source, relative_source, rows in _table_rows(context, 'Favorites', 'Legacy Edge Favorites'):
         built = favorite_rows(rows)
-        user = user_from_path(relative_source)
+        user = user_from_path(context.get_relative_path(source))
         for row in built:
             data_list.append(row + (user, relative_source))
         if built:
@@ -253,7 +253,7 @@ def legacyEdgeTypedUrls(context):
     sources = []
     label = 'Legacy Edge Typed URLs'
     for source, relative_source, rows in _table_rows(context, 'TypedUrls', label):
-        user = user_from_path(relative_source)
+        user = user_from_path(context.get_relative_path(source))
         for row in rows:
             data_list.append((filetime_utc(row.get('AccessDateTimeUTC')), row.get('URL') or '', '',
                               'spartan.edb TypedUrls table', user, relative_source))
