@@ -31,6 +31,26 @@ __artifacts_v2__ = {'firefoxVisits': {'name': 'Firefox Visits',
                    'sample_data': {
                        'ubuntu2604_arm64_firefox_xdg_known_20261031': 'Firefox 146.0 and 159.0 on Ubuntu 26.04 (aarch64) | 5 rows',
                    }},
+ 'firefoxInputHistory': {'name': 'Firefox Input History',
+                         'description': 'Text entered in the Firefox address bar and the page picked from its results, '
+                                        'from moz_inputhistory in places.sqlite, with the use count Firefox keeps.',
+                         'author': '@AlexisBrignoni, Claude',
+                         'creation_date': '2026-11-04',
+                         'last_update_date': '2026-11-04',
+                         'requirements': 'none',
+                         'category': 'Firefox',
+                         'notes': "One row per moz_inputhistory record of places.sqlite: the text entered in the address bar and the page picked from its results, joined to moz_places by place_id. Firefox writes a record when a result is picked in the address bar of a non-private window and the pick loads a URL; for a result other than the heuristic (default) one the text is the address bar's search string at that moment, and a heuristic result writes one only when it came from adaptive autofill, or from origin autofill while adaptive history autofill is enabled (https://github.com/mozilla-firefox/firefox/blob/6181e6b5f28a8fbae1d5c3ef6f6626b5a2180213/browser/components/urlbar/content/UrlbarInputBase.mjs#L2232-L2260). The write stores the text lower-cased and sets use_count to the old use_count times 0.9 plus 1, so a first pick gives 1 (https://github.com/mozilla-firefox/firefox/blob/6181e6b5f28a8fbae1d5c3ef6f6626b5a2180213/browser/components/urlbar/UrlbarUtils.sys.mjs#L541-L567, decay factor at #L62); a periodic decay later multiplies every use_count by a decay rate and deletes the records that fall below a threshold (https://github.com/mozilla-firefox/firefox/blob/6181e6b5f28a8fbae1d5c3ef6f6626b5a2180213/toolkit/components/places/PlacesFrecencyRecalculator.sys.mjs#L437-L457). Table: https://github.com/mozilla-firefox/firefox/blob/6181e6b5f28a8fbae1d5c3ef6f6626b5a2180213/toolkit/components/places/nsPlacesTables.h#L67-L75. Measured on the known data (corpus key windows11_arm_firefox_inputhistory_known_20261104, Firefox 159.0.1 on Windows 11): typing kd-al and picking a history result, then typing KD-AL and picking the same page in a later session, left one record, kd-al with use_count 1.9; one pick of a second page left its text with use_count 1; a pick in a private window added no record, and neither did a pick of a search result (a search result does not load a URL, https://github.com/mozilla-firefox/firefox/blob/6181e6b5f28a8fbae1d5c3ef6f6626b5a2180213/browser/components/urlbar/content/UrlbarShared.mjs#L601-L617). Entered Text (as stored) is the input column; it holds what was in the address bar at the pick, the search string the source names, lower-cased, not the full address. Use Count (as stored) is the use_count column, a weighted figure that decays, not a count of picks. URL and Title are the moz_places URL and current title of the page picked; Page Last Visit (UTC) is that page's last_visit_date (Unix microseconds, UTC), the page's last visit by any route, not the time the text was entered: the table records no time. Place ID is place_id. SQLite WAL files are included. Profiles remain separate; User is blank when source paths do not identify an account. A copy under System/Volumes/Data whose database, and WAL where present, are byte-identical to the copy at the same path outside it is not read again. A profile copied out by Firefox's Refresh into a Desktop folder whose name contains Firefox is read too, as in Firefox Visits, whose notes give the sources. On the tested corpus images no places.sqlite held a record (packt_dfc_linux_mint_usb and the earlier Firefox known data ubuntu2604_arm64_firefox_xdg_known_20261031). A row records that text entered in the address bar led to a picked page at least once, not who entered it.",
+                         'paths': ('*/Library/Application Support/Firefox/Profiles/*/places.sqlite*',
+                                   '*/AppData/Roaming/Mozilla/Firefox/Profiles/*/places.sqlite*',
+                                   '*/.mozilla/firefox/*/places.sqlite*',
+                                   '*/.config/mozilla/firefox/*/places.sqlite*',
+                                   '*/Desktop/*Firefox*/*/places.sqlite*'),
+                         'output_types': 'standard',
+                         'artifact_icon': 'type',
+                         'sample_data': {
+                             'windows11_arm_firefox_inputhistory_known_20261104': 'Windows 11 build 26200 (ARM64), Firefox 159.0.1 | 2 rows',
+                             'ubuntu2604_arm64_firefox_xdg_known_20261031': 'Firefox 146.0 and 159.0 on Ubuntu 26.04 (aarch64) | 0 rows (no records)',
+                         }},
  'firefoxDownloads': {'name': 'Firefox Downloads',
                       'description': 'Firefox download annotations with source URL, destination '
                                      'URI, stored end time, state, and file size.',
@@ -307,6 +327,21 @@ def firefoxVisits(context):
      'User')
     data_list, source_path = firefox.read_artifact(
         context, 'places.sqlite', firefox.visits, 'Firefox Visits')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def firefoxInputHistory(context):
+    data_headers = (('Page Last Visit (UTC)', 'datetime'),
+     'Entered Text (as stored)',
+     'URL',
+     'Title',
+     'Use Count (as stored)',
+     'Place ID',
+     'Profile',
+     'User')
+    data_list, source_path = firefox.read_artifact(
+        context, 'places.sqlite', firefox.input_history, 'Firefox Input History')
     return data_headers, data_list, source_path
 
 
