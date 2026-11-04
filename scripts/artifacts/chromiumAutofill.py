@@ -182,8 +182,8 @@ __artifacts_v2__ = {
                  "'NAME_FULL_WITH_HONORIFIC_PREFIX (deprecated)', since the current source no longer reads "
                  "them. Other Values lists every other non-empty stored value with its "
                  "field type name, or 'type <n>' for a number this artifact does not name, so every stored "
-                 "value is reported; on the known data it held the name parts Chromium split from the full "
-                 "name, field type 117 on the 2 Chromium 110 and 2 Chromium 120 rows, which field_types.h "
+                 "name, email, phone and address value is reported; on the known data it held first, middle "
+                 "and last name parts that were not among the saved values, field type 117 on the 2 Chromium 110 and 2 Chromium 120 rows, which field_types.h "
                  "marks deprecated "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/field_types.h#L327), "
                  "and the street name, house number and street location on one Chromium 120 row. "
@@ -220,7 +220,11 @@ __artifacts_v2__ = {
                  "version 121 dropped "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L1072-L1077), "
                  "which held no rows on any tested image; autofill_profile_addresses, which holds structured "
-                 "street parts of autofill_profiles addresses; autofill_profile_birthdates; the "
+                 "street parts of autofill_profiles addresses; autofill_profile_birthdates; the *_status "
+                 "columns of autofill_profile_names, which Chromium reads as a verification status "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/autofill/core/browser/webdata/addresses/address_autofill_table.cc#L203) "
+                 "and which held non-zero values on the Chromium 110 rows; the origin and "
+                 "disallow_settings_visible_updates columns of autofill_profiles; the "
                  "verification_status and observations columns of the type token tables; language_code, which "
                  "held no value on any tested row; initial_creator_id, which held a value on every tested "
                  "addresses and local_addresses row; the use_date2 and use_date3 columns that version 132 "
@@ -474,8 +478,8 @@ def chromiumAutofill(context):
 # local_addresses_type_tokens and contact_info_type_tokens: components/autofill/core/
 # browser/field_types.h, chromium 33f34ef179f55596f6c2fc8a55878b7ccf6276e4. Retired
 # values are marked deprecated there and not given to another field (lines 159-161,
-# 177-178, 192-194), so one map reads every schema version; 117 is one, which older
-# releases still wrote (line 327). Only the values an address can hold are named; any
+# 177-178, 192-194), so one map reads every schema version; 117 is one (line 327), and
+# the Chromium 110 and 120 known data still hold it. Only the values an address can hold are named; any
 # other value is reported as "type <n>".
 _FIELD_TYPES = {
     3: 'NAME_FIRST', 4: 'NAME_MIDDLE', 5: 'NAME_LAST', 6: 'NAME_MIDDLE_INITIAL',
