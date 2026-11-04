@@ -14,7 +14,9 @@ little-endian Windows FILETIMEs.
 """
 
 import binascii
+from collections import Counter
 from datetime import datetime, timedelta, timezone
+from urllib.parse import parse_qsl, urlsplit
 
 try:
     from scripts.vendor import impacket_ese
@@ -167,6 +169,68 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 1,853 rows",
         },
     },
+    "webcacheLocationParameters": {
+        "name": "WebCache Location Parameters",
+        "description": "Latitude and longitude carried in the clientLocation or location parameter of URLs cached in "
+                       "WebCacheV01.dat, with the accuracy, provider and timestamp parameters of the same URL and the "
+                       "cache entry's creation time.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-03",
+        "last_update_date": "2026-11-03",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "notes": "Reads every container the WebCacheV01.dat Containers table names, with the same ESE reader as WebCache "
+                 "History and WebCache Content, and gives one row per cached URL whose query has a parameter named "
+                 "exactly clientLocation or location whose URL-decoded value is two numbers joined by \"|\", the first in "
+                 "-90 to 90 and the second in -180 to 180. A parameter of either name with another value is counted in "
+                 "the run log and gives no row. Latitude and Longitude are the first and second number. On szechuan_win10 "
+                 "the second number is outside the latitude range on all 20 rows, so that value is latitude then "
+                 "longitude; on pc_mus_001_win11 both numbers fit either range, and latitude first rests on that order "
+                 "and on a published description of these URLs (https://thelocalh0st.com/posts/webcache-geolocation/), "
+                 "not on a Microsoft source. Accuracy (as stored) and Provider (as stored) are the clientLocationAccuracy "
+                 "and clientLocationProvider parameters of the same URL after URL decoding; their units and meaning are "
+                 "not established here. Location Time (UTC) is the clientLocationTimestamp parameter, read as UTC from "
+                 "its trailing Z; on all 14 rows of pc_mus_001_win11 it was under 2 seconds before Cache Entry Created "
+                 "(UTC), the entry's CreationTime FILETIME: 0.8 to 1.9 seconds, with the parameter itself carrying whole "
+                 "seconds. For a location parameter the artifact reads no accuracy, provider or time, so those columns "
+                 "are blank on its rows; the 20 szechuan_win10 URLs carried no such parameters. Location (as stored) is "
+                 "the parameter value after URL decoding, and URL is the cached URL. Cache Directory is the container's "
+                 "Directory, which names the application whose cache the entry belongs to. A row records what a cached "
+                 "request carried, not that the device or a person was at that point at that time, and not who chose the "
+                 "location. Tested rows: on pc_mus_001_win11 (Windows 11 22H2) 14 rows, all clientLocation, all from the "
+                 "Content container under the MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy package's cache, 14 "
+                 "distinct points with 17 decimal places; Parameter held clientLocation, Provider (as stored) held WiFi "
+                 "and Cache Directory held one value on all 14 rows. On szechuan_win10 (Windows 10 2004) 20 rows, all "
+                 "location, all from the Content container under the microsoft.microsoftedge_8wekyb3d8bbwe package's "
+                 "cache in two directories: Parameter held location, Latitude, Longitude and Location (as stored) held "
+                 "one value on all 20 rows, with 4 and 3 decimal places, and Location Time (UTC), Accuracy (as stored) "
+                 "and Provider (as stored) were empty on all 20. What sets the location parameter is not established. "
+                 "Other parameter names that can carry a position (lat and lon, latlng, ll, coords) are not read; on the "
+                 "tested images, in every container, the ll, lng and loc parameters found held single numbers, language "
+                 "tags and URLs, not points. Not read: records ESE marks deleted, and the .log transaction logs, which "
+                 "are not replayed. A byte search for the parameter name as UTF-16LE, which is not a reading of the "
+                 "database, matched more times in pc_mus_001_win11's file than the 14 rows account for (92 matches in the "
+                 "file and 32 in its logs; the 14 rows account for 56, four names each) and 5 times in "
+                 "hexordia_mvs2025_win11's file, which gave no row; those copies are not reported. The replay helper "
+                 "DLEAPP uses for other ESE stores refuses these files, whose pages are 32 KiB. Writes a KML file of the "
+                 "points.",
+        "paths": ("*/AppData/Local/Microsoft/Windows/WebCache/WebCacheV01.dat",),
+        "output_types": ["html", "tsv", "timeline", "lava", "kml"],
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 14 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 20 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no cached URL carries a location parameter)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no cached URL carries a location parameter)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (no cached URL the reader reaches carries a location parameter)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (no cached URL carries a location parameter)",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 0 rows (no cached URL carries a location parameter)",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 0 rows (no cached URL carries a location parameter)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 0 rows (no cached URL carries a location parameter)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 0 rows (no cached URL carries a location parameter)",
+            "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no WebCacheV01.dat)",
+        },
+    },
 }
 
 
@@ -238,7 +302,9 @@ def _read_container(database, table_names, container_id, name, directory,
         return 0
     walk = ese_rows.TableRows(database, table, cap=_ROW_CAP, long_value_columns={"Url", "Filename"})
     for row in walk:
-        rows.append(row_builder(_norm_row(row), name, directory))
+        built = row_builder(_norm_row(row), name, directory)
+        if built is not None:
+            rows.append(built)
     if walk.summary():
         logfunc(f"{label}: {relative_source}, {walk.summary()}")
     return walk.deleted + walk.unreadable
@@ -249,7 +315,7 @@ def _table_names(database):
             for t in database._ESENT_DB__tables.keys()}  # pylint: disable=protected-access
 
 
-def _run(context, headers, select, row_builder, label):
+def _run(context, headers, select, row_builder, label, with_source=True):
     data_list = []
     sources = []
     if impacket_ese is None:
@@ -282,7 +348,7 @@ def _run(context, headers, select, row_builder, label):
                                         name, directory, row_builder, rows,
                                         label, relative_source)
                 for row in rows:
-                    data_list.append(row + (relative_source,))
+                    data_list.append(row + (relative_source,) if with_source else row)
                     rows_here += 1
             finally:
                 database.close()
@@ -333,3 +399,74 @@ def webcacheContent(context):
                 directory)
 
     return _run(context, headers, is_content, build, "WebCache Content")
+
+
+_LOCATION_PARAMETERS = ('clientLocation', 'location')
+
+
+def _number(text):
+    try:
+        value = float(text)
+    except (TypeError, ValueError):
+        return None
+    return value if value == value else None
+
+
+def location_parameters(url, problems):
+    """The location fields of one cached URL, or None when it carries no location parameter.
+
+    A URL qualifies when its query has a clientLocation or location parameter (that exact name) whose value, once
+    URL-decoded, is two numbers joined by "|" with the first in [-90, 90] and the second in [-180, 180]. A
+    qualifying parameter whose value has another shape is counted in problems, and the URL gives no row.
+    """
+    try:
+        query = parse_qsl(urlsplit(url).query, keep_blank_values=True)
+    except ValueError:
+        return None
+    values = {}
+    for key, value in query:
+        values.setdefault(key, value)
+    for parameter in _LOCATION_PARAMETERS:
+        if parameter not in values:
+            continue
+        stored = values[parameter]
+        parts = stored.split('|')
+        latitude = _number(parts[0]) if len(parts) == 2 else None
+        longitude = _number(parts[1]) if len(parts) == 2 else None
+        if latitude is None or longitude is None or not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            problems[f'{parameter} parameters that are not two numbers in range joined by |, no row'] += 1
+            return None
+        stamp = ''
+        if parameter == 'clientLocation' and values.get('clientLocationTimestamp'):
+            try:
+                stamp = datetime.strptime(values['clientLocationTimestamp'], '%Y-%m-%dT%H:%M:%SZ').replace(
+                    tzinfo=timezone.utc)
+            except ValueError:
+                problems['clientLocationTimestamp values not in the form YYYY-MM-DDTHH:MM:SSZ, left blank'] += 1
+        prefix = 'clientLocation' if parameter == 'clientLocation' else None
+        return {'time': stamp, 'latitude': latitude, 'longitude': longitude, 'parameter': parameter,
+                'stored': stored,
+                'accuracy': values.get(f'{prefix}Accuracy', '') if prefix else '',
+                'provider': values.get(f'{prefix}Provider', '') if prefix else ''}
+    return None
+
+
+@artifact_processor
+def webcacheLocationParameters(context):
+    headers = (('Location Time (UTC)', 'datetime'), ('Cache Entry Created (UTC)', 'datetime'), 'Latitude',
+               'Longitude', 'Accuracy (as stored)', 'Provider (as stored)', 'Parameter', 'Location (as stored)',
+               'Cache Directory', 'URL')
+    problems = Counter()
+
+    def build(row, _name, directory):
+        url = _text(row.get('Url'))
+        found = location_parameters(url, problems)
+        if found is None:
+            return None
+        return (found['time'], _filetime_datetime(row.get('CreationTime')), found['latitude'], found['longitude'],
+                found['accuracy'], found['provider'], found['parameter'], found['stored'], directory, url)
+
+    result = _run(context, headers, lambda name: True, build, "WebCache Location Parameters", with_source=False)
+    for problem, count in sorted(problems.items()):
+        logfunc(f"WebCache Location Parameters: {count} {problem}")
+    return result
