@@ -8,9 +8,9 @@ Author: @AlexisBrignoni, Codex
 """
 
 import os
-import re
 import struct
 
+from scripts.chromium.cache_key import key_to_url
 from scripts.chromium.simple_cache import (
     base_time_to_datetime,
     decode_body,
@@ -23,7 +23,6 @@ _DEFAULT_TABLE_LENGTH = 0x10000
 _BLOCK_HEADER_SIZE = 8192
 _BLOCK_SIZES = {1: 36, 2: 256, 3: 1024, 4: 4096}
 _INITIALIZED_MASK = 0x80000000
-_URL_RE = re.compile(r"https?://")
 
 
 class BlockfileEntry:
@@ -89,14 +88,6 @@ def _address_parts(address):
     }
 
 
-def _key_to_url(key):
-    matches = list(_URL_RE.finditer(key))
-    if not matches:
-        return key, ""
-    match = matches[-1]
-    return key[:match.start()], key[match.start():]
-
-
 def _read_address(cache_dir, address, size=None):
     parts = _address_parts(address)
     if not parts["initialized"]:
@@ -150,7 +141,7 @@ def _entry(cache_dir, address):
     item.address = address
     item.source = source
     item.key = key_raw.rstrip(b"\x00").decode("utf-8", "replace")
-    item.key_prefix, item.url = _key_to_url(item.key)
+    item.key_prefix, item.url = key_to_url(item.key)
     item.created = base_time_to_datetime(created)
 
     ranking_address = struct.unpack_from("<I", raw, 8)[0]
