@@ -2,7 +2,8 @@
 
 The LocalSystem profile keeps saved credentials under
 config\\systemprofile\\AppData\\{Local,Roaming}\\Microsoft\\Credentials\\<hash>. Each file
-wraps a DPAPI blob protected in the SYSTEM context; decrypting it yields a CREDENTIAL
+wraps a DPAPI blob protected in the SYSTEM context. The LocalService and NetworkService
+profiles under Windows\\ServiceProfiles keep theirs the same way and are read too. Decrypting one yields a CREDENTIAL
 structure with the credential's target, user name, type and its stored secret. This
 module recovers them with the SYSTEM DPAPI chain via the vendored dpapiprobe library.
 The CREDENTIAL header and string sequence follow impacket's CREDENTIAL_BLOB; impacket
@@ -13,15 +14,15 @@ See the notes.
 __artifacts_v2__ = {
     "windowsSystemCredentials": {
         "name": "Windows System Credential Manager",
-        "description": "Saved credentials of the LocalSystem profile's Credential Manager, decrypted with "
+        "description": "Saved credentials of the LocalSystem, LocalService and NetworkService profiles' Credential Manager, decrypted with "
                        "the SYSTEM DPAPI chain: the credential target, user name, type, when it was last "
                        "written, and the stored secret where the credential holds one inline.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-02",
-        "last_update_date": "2026-11-02",
+        "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Windows Registry",
-        "notes": "Decrypts the saved credentials of the LocalSystem profile's Credential Manager (config\\systemprofile\\AppData\\Local\\Microsoft\\Credentials and the Roaming path). Each file wraps a DPAPI blob protected in the SYSTEM context; the vendored dpapiprobe library (scripts/vendor/dpapiprobe, PyCryptodome and python-registry) opens it from the boot key in the SYSTEM hive, the DPAPI_SYSTEM secret in the SECURITY hive and the SYSTEM master keys under Windows\\System32\\Microsoft\\Protect\\S-1-5-18, which must all be in the same extraction; the hives and master key files are opened read only. Each Windows install in the image is read on its own, pairing its credential files with the master keys and hives under the same Windows folder. The decrypted blob is a CREDENTIAL structure read with impacket's documented CREDENTIAL_BLOB layout: a 48-byte header (Credential Type at offset 12, Persistence at 32, LastWritten FILETIME at 20) then length-prefixed UTF-16 strings for target, alias, description, an unknown field, user name and a sixth string that impacket leaves undocumented, then any credential attributes. This module reads that sixth string as the credential's inline secret. Last Written is that FILETIME (UTC). Target is the credential target, decoded as printable UTF-16LE text, which names what the credential is for (for example Domain:batch=TaskScheduler:<task> for a scheduled-task run-as credential, or WindowsLive:target=... for a machine Microsoft-account credential). Username is the account on the credential, decoded as printable UTF-16LE text. Credential Type and Persistence are the CRED_TYPE_* and CRED_PERSIST_* values from wincred.h, reported by name or, when unknown, by number. Secret is that sixth string decoded as printable UTF-16LE: on the tested data the one domain-password scheduled-task credential held a readable value here, while the generic WindowsLive credentials had it empty because their data is in attributes. A credential whose data is kept in attributes has an empty Secret and a non-empty Attributes count; this module reports the attribute count and total size and does not decode the attribute payload. A credential file whose blob does not decrypt is listed with empty fields and 'decrypt failed' in the Attributes column (not seen on any image run). Tested on seven Windows images: ou_ransomware_server2022 held two (a scheduled-task domain-password credential with a recovered value, and a WindowsLive machine credential), pc_mus_001_win11, lonewolf_win10, szechuan_win10, hexordia_mvs2025_win11 and alihadi_threatsim_server2019 held one WindowsLive machine credential each, and af_case2_win10 held none. The SYSTEM Vault beside these credentials was checked on all seven images and held a policy file, schema files and on some a Latest.dat pointer, but no credential records (no .vcrd), so it is not reported here. Not covered: the user-profile Credential Manager and Vault (a different, credential-gated context) and the attribute payloads of the token credentials.",
+        "notes": "Decrypts the saved credentials of the LocalSystem profile's Credential Manager (config\\systemprofile\\AppData\\Local\\Microsoft\\Credentials and the Roaming path), and of the LocalService and NetworkService profiles (Windows\\ServiceProfiles\\<profile>\\AppData\\Local or Roaming\\Microsoft\\Credentials). On the five tested images that had them, the nine service-profile files each named a master key under Protect\\S-1-5-18\\User and decrypted with the same SYSTEM chain. Each file wraps a DPAPI blob protected in the SYSTEM context; the vendored dpapiprobe library (scripts/vendor/dpapiprobe, PyCryptodome and python-registry) opens it from the boot key in the SYSTEM hive, the DPAPI_SYSTEM secret in the SECURITY hive and the SYSTEM master keys under Windows\\System32\\Microsoft\\Protect\\S-1-5-18, which must all be in the same extraction; the hives and master key files are opened read only. Each Windows install in the image is read on its own, pairing its credential files with the master keys and hives under the same Windows folder. The decrypted blob is a CREDENTIAL structure read with impacket's documented CREDENTIAL_BLOB layout: a 48-byte header (Credential Type at offset 12, Persistence at 32, LastWritten FILETIME at 20) then length-prefixed UTF-16 strings for target, alias, description, an unknown field, user name and a sixth string that impacket leaves undocumented, then any credential attributes. This module reads that sixth string as the credential's inline secret. Last Written is that FILETIME (UTC). Target is the credential target, decoded as printable UTF-16LE text, which names what the credential is for (for example Domain:batch=TaskScheduler:<task> for a scheduled-task run-as credential, or WindowsLive:target=... for a machine Microsoft-account credential). Username is the account on the credential, decoded as printable UTF-16LE text. Credential Type and Persistence are the CRED_TYPE_* and CRED_PERSIST_* values from wincred.h, reported by name or, when unknown, by number. Secret is that sixth string decoded as printable UTF-16LE: on the tested data the one domain-password scheduled-task credential held a readable value here, while the generic WindowsLive credentials had it empty because their data is in attributes. A credential whose data is kept in attributes has an empty Secret and a non-empty Attributes count; this module reports the attribute count and total size and does not decode the attribute payload. A credential file whose blob does not decrypt is listed with empty fields and 'decrypt failed' in the Attributes column (not seen on any image run). Tested on seven Windows images: in the LocalSystem profile ou_ransomware_server2022 held two (a scheduled-task domain-password credential with a recovered value, and a WindowsLive machine credential), and pc_mus_001_win11, lonewolf_win10, szechuan_win10, hexordia_mvs2025_win11 and alihadi_threatsim_server2019 held one WindowsLive machine credential each; the service profiles held one WindowsLive credential each, with its data in attributes, in LocalService and NetworkService on pc_mus_001_win11, lonewolf_win10, szechuan_win10 and alihadi_threatsim_server2019 and in LocalService on ou_ransomware_server2022; af_case2_win10 held none. The SYSTEM Vault beside these credentials was checked on all seven images and held a policy file, schema files and on some a Latest.dat pointer, but no credential records (no .vcrd), so it is not reported here. Not covered: the user-profile Credential Manager and Vault (a different, credential-gated context; Windows User Credential Files lists the user-profile credential files undecrypted) and the attribute payloads of the token credentials.",
         "paths": (
             '*/Windows/System32/config/SYSTEM',
             '*/Windows/System32/config/SECURITY',
@@ -29,17 +30,19 @@ __artifacts_v2__ = {
             '*/Windows/System32/Microsoft/Protect/S-1-5-18/User/*',
             '*/Windows/System32/config/systemprofile/AppData/Local/Microsoft/Credentials/*',
             '*/Windows/System32/config/systemprofile/AppData/Roaming/Microsoft/Credentials/*',
+            '*/Windows/ServiceProfiles/*/AppData/Local/Microsoft/Credentials/*',
+            '*/Windows/ServiceProfiles/*/AppData/Roaming/Microsoft/Credentials/*',
         ),
         "output_types": "standard",
         "artifact_icon": "key",
         "sample_data": {
-            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 2 rows (scheduled-task domain password + WindowsLive machine credential)",
-            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 1 row (WindowsLive machine credential)",
-            "lonewolf_win10": "Windows 10 Education build 16299 | 1 row (WindowsLive machine credential)",
-            "szechuan_win10": "Windows 10 2004 build 19041 | 1 row (WindowsLive machine credential)",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 3 rows (scheduled-task domain password + WindowsLive machine credential + LocalService WindowsLive credential)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 3 rows (WindowsLive machine credential + LocalService and NetworkService WindowsLive credentials)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 3 rows (WindowsLive machine credential + LocalService and NetworkService WindowsLive credentials)",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 3 rows (WindowsLive machine credential + LocalService and NetworkService WindowsLive credentials)",
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 1 row (WindowsLive machine credential)",
-            "alihadi_threatsim_server2019": "Windows Server 2019 | 1 row (WindowsLive machine credential)",
-            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no systemprofile credentials)",
+            "alihadi_threatsim_server2019": "Windows Server 2019 | 3 rows (WindowsLive machine credential + LocalService and NetworkService WindowsLive credentials)",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no systemprofile or service-profile credentials)",
         },
     },
 }
@@ -114,10 +117,13 @@ def _is_config_hive(path):
 
 
 def _install_root(path):
-    """The part of a path before \\Windows\\System32 (one Windows install)."""
+    """The part of a path before \\Windows\\System32 or \\Windows\\ServiceProfiles (one Windows install)."""
     lowered = path.replace('\\', '/').lower()
-    cut = lowered.find('/windows/system32/')
-    return path[:cut] if cut != -1 else path
+    for anchor in ('/windows/system32/', '/windows/serviceprofiles/'):
+        cut = lowered.find(anchor)
+        if cut != -1:
+            return path[:cut]
+    return path
 
 
 def _looks_like_guid(name):
@@ -183,7 +189,7 @@ def windowsSystemCredentials(context):
             slot['hives'].setdefault(name, path)
         elif '/microsoft/protect/s-1-5-18/' in lowered and _looks_like_guid(name):
             slot['mk_dirs'].add(path.replace('\\', '/').rsplit('/', 1)[0])
-        elif '/systemprofile/' in lowered and '/credentials/' in lowered:
+        elif ('/systemprofile/' in lowered or '/windows/serviceprofiles/' in lowered) and '/credentials/' in lowered:
             slot['creds'].append(path)
 
     sources = []
