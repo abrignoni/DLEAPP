@@ -141,9 +141,9 @@ GONE_GROUP = obj(22, sAMAccountName='oldgroup', objectSid=stored_sid(*DOMAIN, 11
                  whenCreated=dstime_of(CREATED), whenChanged=dstime_of(CREATED), isDeleted=1, name='oldgroup')
 UNKNOWN_GONE = obj(13, objectSid=stored_sid(*DOMAIN, 1109), isDeleted=1, name='x')    # neither: not reported
 DELETED_NO_SID = obj(14, sAMAccountName='nosid', isDeleted=1, userAccountControl=0x200)  # no SID: not kept
-FILLER = 0x2A2A2A2A2A2A2A2A          # the value the tested databases hold on every current link
+NULL_TIME = None                     # the ESE reader's link_deltime on every current link of the tested databases
 REMOVED = utc(2020, 9, 19, 2, 0, 0)
-LINKS = [{b'link_DNT': 21, b'backlink_DNT': 10, b'link_base': 1, b'link_deltime': FILLER},
+LINKS = [{b'link_DNT': 21, b'backlink_DNT': 10, b'link_base': 1, b'link_deltime': NULL_TIME},
          {b'link_DNT': 21, b'backlink_DNT': 31, b'link_base': 1},
          {b'link_DNT': 21, b'backlink_DNT': 11, b'link_base': 47},   # another linked attribute
          # a member link with a deletion time: HOST1$ removed from Administrators

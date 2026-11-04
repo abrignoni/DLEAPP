@@ -33,7 +33,7 @@ import os
 import re
 import struct
 
-from scripts.ccl import ccl_leveldb
+from scripts.vendor.ccl import ccl_leveldb
 
 CHROMIUM_COMMIT = '5926523bcfedb77ba2533ace1dd93b477673f72a'
 

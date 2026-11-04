@@ -8,9 +8,10 @@ liblnk's documentation, and reuses the Windows Shell Item decoding shared with
 the ShellBags parser for the LinkTargetIDList.
 
 `parse_lnk(data)` returns a dict of the fields an examiner acts on: the target's
-recorded created/modified/accessed times, the local path (or network path, or a
+recorded created/modified/accessed times, the local path (or the share and the path below it, or a
 shell path rebuilt from the target id list), target size, the volume the target
-lived on (drive type, serial, label), command-line arguments, and the tracker block's machine
+lived on (drive type, serial, label), command-line arguments, the icon location string and
+icon environment path, and the tracker block's machine
 name and droid identifiers. It is also used by the Jump Lists
 parser, whose destination streams are themselves shell links.
 
@@ -62,18 +63,24 @@ def _guid(blob):
 
 
 def _beef_longname(data):
-    """The UTF-16 long name inside a file entry's 0xBEEF0004 extension block."""
+    """The UTF-16 long name inside a file entry's 0xBEEF0004 extension block, read from the long name
+    offset at byte 16 of the block (libyal libfwsi "Windows Shell Item format" at
+    996128afc64961dbfddf17b176ceff21c499b7d3, "File entry extension block (0xbeef0004)"). The name's
+    position moves with the block version, so it is never walked to from fixed offsets."""
     idx = data.find(b"\x04\x00\xef\xbe")
     if idx < 4:
         return None
-    version = struct.unpack_from("<H", data, idx - 2)[0]
-    pos = idx + 4 + 8 + 2
-    if version >= 7:
-        pos += 16
-    if version < 3:
+    start = idx - 4
+    size, version = struct.unpack_from("<HH", data, start)
+    end = min(start + size, len(data))
+    if version < 3 or end - start < 20:
         return None
+    offset = struct.unpack_from("<H", data, start + 16)[0]
+    if not 20 <= offset < end - start:
+        return None
+    pos = start + offset
     chars = []
-    while pos + 1 < len(data):
+    while pos + 1 < end:
         pair = data[pos:pos + 2]
         if pair == b"\x00\x00":
             break
@@ -87,6 +94,28 @@ def _beef_longname(data):
 
 def _printable(text):
     return text if text and all(ch == "\t" or ord(ch) >= 0x20 for ch in text) else ""
+
+
+# Network location shell items, per libyal libfwsi "Windows Shell Item format" at
+# 3887868add54619ec322ac100ab1f06979e042b8, lines 476-533: the class type is 0x40 after a mask of 0x70, its
+# low bits give the kind (1 domain or workgroup, 2 server, 3 share, 6 Microsoft Windows
+# Network, 7 Entire Network; the others are either highlighted as unconfirmed or marked
+# unknown there, and are not read), and the location, an ASCII string, starts at offset 5.
+_NETWORK_KINDS = (0x1, 0x2, 0x3, 0x6, 0x7)
+
+
+def _network_item_name(data):
+    """The display name of a network location shell item, or None when the item is not one
+    of the documented kinds. A server shows its name without the leading backslashes and a
+    share the last part of its UNC path, so a chain reads network, workgroup, server, share."""
+    if len(data) < 6 or data[2] & 0x70 != 0x40 or data[2] & 0x0F not in _NETWORK_KINDS:
+        return None
+    location = _printable(data[5:].split(b"\x00")[0].decode("ascii", "replace"))
+    if data[2] & 0x0F == 0x2:
+        return location.lstrip("\\")
+    if data[2] & 0x0F == 0x3:
+        return location.rstrip("\\").rsplit("\\", 1)[-1]
+    return location
 
 
 def _shell_item_name(data):
@@ -106,6 +135,9 @@ def _shell_item_name(data):
         if not name:
             name = _printable(data[14:].split(b"\x00")[0].decode("ascii", "replace"))
         return name or ""
+    network = _network_item_name(data)
+    if network is not None:
+        return network
     return _beef_longname(data) or ""
 
 
@@ -156,9 +188,9 @@ def parse_lnk(data):
     out["target_accessed"] = _filetime(atime)
     out["target_modified"] = _filetime(wtime)
     out["target_size"] = struct.unpack_from("<I", data, 52)[0]
-    for key in ("local_path", "network_path", "shell_path", "drive_type",
+    for key in ("local_path", "network_path", "network_target", "shell_path", "drive_type",
                 "drive_serial", "volume_label", "arguments", "name",
-                "relative_path", "working_dir", "machine_id",
+                "relative_path", "working_dir", "icon_location", "icon_environment", "machine_id",
                 "droid_volume", "droid_file", "birth_droid_volume", "birth_droid_file"):
         out[key] = ""
 
@@ -195,11 +227,24 @@ def parse_lnk(data):
         suffix = _cstr(data, li + cpsoff) if cpsoff else ""
         if cps_uni:
             suffix = _cstr(data, li + cps_uni, True) or suffix
-        out["local_path"] = base + suffix
+        # The full name is the local path plus the common path, or the network share name plus
+        # the common path; the share name need not end in a separator (libyal liblnk, "Windows
+        # Shortcut File (LNK) format" at f80bdb225cb847916f6d163da9127919969c299d, lines 283-290).
+        if li_flags & 0x1:
+            out["local_path"] = base + suffix
         if (li_flags & 0x2) and cnrloff and li + cnrloff + 12 <= len(data):
             c = li + cnrloff
             netoff = struct.unpack_from("<I", data, c + 8)[0]
             out["network_path"] = _cstr(data, c + netoff) if netoff else ""
+            # With the share name offset above 20 the header carries an offset to the share name
+            # as UTF-16 at byte 20 (liblnk format, same commit as above, lines 367-369).
+            if netoff > 20 and c + 24 <= len(data):
+                net_uni = struct.unpack_from("<I", data, c + 20)[0]
+                if net_uni:
+                    out["network_path"] = _cstr(data, c + net_uni, True) or out["network_path"]
+            if out["network_path"] and not (li_flags & 0x1):
+                out["network_target"] = (out["network_path"].rstrip("\\") + "\\" + suffix
+                                         if suffix else out["network_path"])
         pos = li + li_size
 
     unicode_str = bool(flags & 0x80)
@@ -212,22 +257,43 @@ def parse_lnk(data):
         nbytes = count * 2 if unicode_str else count
         chunk = data[pos:pos + nbytes]
         text = chunk.decode("utf-16-le" if unicode_str else "latin-1", "replace")
-        if key != "icon":
-            out[key] = text
+        out["icon_location" if key == "icon" else key] = text
         pos += nbytes
 
-    while pos + 8 <= len(data):                        # ExtraData blocks
+    out["ends_cleanly"] = False
+    while pos + 4 <= len(data):                        # ExtraData blocks
         block_size = struct.unpack_from("<I", data, pos)[0]
-        if block_size < 4 or pos + block_size > len(data):
+        if block_size < 4:
+            # TerminalBlock: a BlockSize below 4 ends the extra data ([MS-SHLLINK] 2.5).
+            out["ends_cleanly"] = pos + 4 == len(data)
+            break
+        if pos + 8 > len(data) or pos + block_size > len(data):
             break
         signature = struct.unpack_from("<I", data, pos + 4)[0]
         if signature == 0xA0000003 and block_size >= 0x60:   # TrackerDataBlock
             out["machine_id"] = data[pos + 16:pos + 32].split(b"\x00")[0].decode("latin-1", "replace")
             for index, key in enumerate(("droid_volume", "droid_file", "birth_droid_volume", "birth_droid_file")):
                 out[key] = _guid(data[pos + 32 + index * 16:pos + 48 + index * 16])
+        elif signature == 0xA0000007 and block_size >= 0x314:  # IconEnvironmentDataBlock
+            # TargetAnsi (260 bytes) then TargetUnicode (520 bytes); the Unicode one when it is set.
+            unicode_target = data[pos + 268:pos + 788].decode("utf-16-le", "replace").split("\x00")[0]
+            ansi_target = data[pos + 8:pos + 268].split(b"\x00")[0].decode("latin-1", "replace")
+            out["icon_environment"] = unicode_target or ansi_target
         pos += block_size
 
     return out
+
+
+def text_mode_damaged(data):
+    """Whether a file looks like a shell link that a copy in text mode (such as an ASCII mode FTP transfer)
+    changed: every LF byte follows a CR byte, its extra data does not end with the terminal block at the
+    end of the file, and with the CR byte before each LF removed it does."""
+    if b"\n" not in data or data.count(b"\n") != data.count(b"\r\n"):
+        return False
+    if parse_lnk(data).get("ends_cleanly"):
+        return False
+    undone = parse_lnk(data.replace(b"\r\n", b"\n"))
+    return not undone.get("error") and bool(undone.get("ends_cleanly"))
 
 
 def uuid_v1_parts(text):
@@ -255,9 +321,10 @@ def tracker_columns(parsed):
 
 
 def target_path(parsed):
-    """The best available target locator: local path, else network path, else
-    the shell path rebuilt from the target id list."""
-    return parsed.get("local_path") or parsed.get("network_path") or parsed.get("shell_path") or ""
+    """The best available target locator: local path, else the share and the path below
+    it, else the shell path rebuilt from the target id list."""
+    return (parsed.get("local_path") or parsed.get("network_target") or parsed.get("network_path")
+            or parsed.get("shell_path") or "")
 
 
 # DestList entry layout, per libyal dtformats "Jump lists format", which

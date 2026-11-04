@@ -207,8 +207,12 @@ def load_profile():
             tk_msgbox.showerror(title='Error', message=profile_load_error, parent=main_window)
         else:
             profile_filename = destination_path
-            tk_msgbox.showinfo(
-                title='Profile loaded', message=f'Loaded profile: {destination_path}', parent=main_window)
+            message = f'Loaded profile: {destination_path}'
+            unknown = sorted(name for name in ticked if name not in mlist)
+            if unknown:
+                message += (f'\n\nThe profile names {len(unknown)} artifact(s) this version does '
+                            f'not have, which will not run:\n' + '\n'.join(unknown))
+            tk_msgbox.showinfo(title='Profile loaded', message=message, parent=main_window)
 
 
 def save_profile():
@@ -588,6 +592,11 @@ def process(casedata):
             with open(threema_password, 'r', encoding='utf-8', errors='replace') as threema_pw_file:
                 threema_password = threema_pw_file.read(4096).strip()
         Context.set_app_secret('threema_password', threema_password or None)
+        windows_user_password = windows_user_password_var.get().strip()
+        if windows_user_password and os.path.isfile(windows_user_password):
+            with open(windows_user_password, 'r', encoding='utf-8', errors='replace') as win_pw_file:
+                windows_user_password = win_pw_file.read(4096).strip()
+        Context.set_app_secret('windows_user_password', windows_user_password or None)
         wrap_text = True
         bottom_frame.pack_forget()
         mlist_frame.pack_forget()
@@ -628,7 +637,7 @@ def run_crunch(message_queue, selected_modules, extracttype, input_path, out_par
         # object may only be used by the thread that created it, so a connection opened
         # on the main thread is unusable by the artifacts running on this one.
         initialize_lava(input_text(input_path, found_members), out_params.output_folder_base,
-                        extracttype, profile_filename)
+                        extracttype, profile_filename, case_info)
         crunch_successful = dleapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
             loader, case_info, profile_filename, image_password=image_password,
@@ -866,7 +875,7 @@ def case_data():
                 agency_logo_mimetype = guess_mime(agency_logo_file)
                 if agency_logo_mimetype and 'image' in agency_logo_mimetype:
                     try:
-                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read())
+                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read()).decode("ascii")
                     except:
                         agency_logo_load_error = 'Unable to encode the selected file in base64.'
                 else:
@@ -1150,7 +1159,7 @@ def open_signal_key_dialog():
     dialog.title('Signal Desktop key')
     dialog.configure(bg=theme_bgcolor)
     dialog.resizable(False, False)
-    width, height = 470, 310
+    width, height = 470, 330
     main_window.update_idletasks()
     pos_x = main_window.winfo_x() + (main_window.winfo_width() - width) // 2
     pos_y = main_window.winfo_y() + (main_window.winfo_height() - height) // 2
@@ -1161,9 +1170,10 @@ def open_signal_key_dialog():
         "encryptedKey. Older profiles store the key in the clear and need nothing "
         "here.\n\n"
         "Paste one of, captured from the running host:\n"
-        "  •  the 64-character database key, or\n"
-        "  •  the 'Signal Safe Storage' credential (macOS login Keychain, or "
-        "Windows Credential Manager).\n\n"
+        "  •  the 64-character database key (the only option for a Windows "
+        "profile), or\n"
+        "  •  the 'Signal Safe Storage' password (macOS login Keychain), or\n"
+        "  •  the libsecret or kwallet secret Signal stored (Linux).\n\n"
         "A macOS account login password will not work: on current macOS the login "
         "keychain is not encrypted with it."
     )
@@ -1285,6 +1295,77 @@ def open_threema_password_dialog():
         dialog.grab_set()
 
 
+windows_user_password_var = tk.StringVar(value='')
+
+
+def open_windows_user_password_dialog():
+    '''Modal dialog to supply a Windows user account password.'''
+    dialog = tk.Toplevel(main_window)
+    dialog.transient(main_window)
+    dialog.title('Windows user password')
+    dialog.configure(bg=theme_bgcolor)
+    dialog.resizable(False, False)
+    width, height = 470, 280
+    main_window.update_idletasks()
+    pos_x = main_window.winfo_x() + (main_window.winfo_width() - width) // 2
+    pos_y = main_window.winfo_y() + (main_window.winfo_height() - height) // 2
+    dialog.geometry(f'{width}x{height}+{pos_x}+{pos_y}')
+
+    explanation = (
+        "A Windows user account's cleartext password lets DLEAPP recover that "
+        "account's DPAPI master keys and decrypt its user Vault. The SAM NT hash "
+        "alone does not open Windows 10 user keys; a known or cracked password is "
+        "needed.\n\n"
+        "Enter one of:\n"
+        "  •  the account password, or\n"
+        "  •  the path to a file holding it."
+    )
+    ttk.Label(dialog, text=explanation, wraplength=width - 28,
+              justify='left').pack(anchor='w', padx=14, pady=(12, 8))
+
+    entry_var = tk.StringVar(value=windows_user_password_var.get())
+    entry = ttk.Entry(dialog, textvariable=entry_var, show='•')
+    entry.pack(fill='x', padx=14)
+
+    controls = ttk.Frame(dialog)
+    controls.pack(fill='x', padx=14, pady=(6, 0))
+    show_var = tk.BooleanVar(value=False)
+    ttk.Checkbutton(controls, text='Show', variable=show_var,
+                    command=lambda: entry.config(show='' if show_var.get() else '•')
+                    ).pack(side='left')
+
+    def browse_for_file():
+        chosen = tk_filedialog.askopenfilename(
+            parent=dialog, title='Select a file containing the password')
+        if chosen:
+            entry_var.set(chosen)
+    ttk.Button(controls, text='…or choose a file',
+               command=browse_for_file).pack(side='left', padx=(10, 0))
+
+    button_row = ttk.Frame(dialog)
+    button_row.pack(fill='x', padx=14, pady=14, side='bottom')
+
+    def save_and_close():
+        windows_user_password_var.set(entry_var.get().strip())
+        dialog.destroy()
+
+    def clear_and_close():
+        windows_user_password_var.set('')
+        dialog.destroy()
+
+    ttk.Button(button_row, text='Save', command=save_and_close).pack(side='right')
+    ttk.Button(button_row, text='Cancel', command=dialog.destroy).pack(side='right', padx=(0, 6))
+    ttk.Button(button_row, text='Clear', command=clear_and_close).pack(side='left')
+
+    entry.focus_set()
+    entry.bind('<Return>', lambda _event: save_and_close())
+    dialog.bind('<Escape>', lambda _event: dialog.destroy())
+    if is_platform_macos():
+        dialog.grab_set_global()
+    else:
+        dialog.grab_set()
+
+
 app_secret_row = ttk.Frame(output_frame)
 app_secret_row.pack(fill='x', padx=5, pady=(0, 4))
 # Right-aligned so the button sits under the Browse column and fills the row's
@@ -1300,6 +1381,10 @@ threema_password_status = ttk.Label(app_secret_group, text='not set')
 threema_password_status.pack(side='right')
 ttk.Button(app_secret_group, text='Threema password…',
            command=open_threema_password_dialog).pack(side='right', padx=(8, 8))
+windows_user_password_status = ttk.Label(app_secret_group, text='not set')
+windows_user_password_status.pack(side='right')
+ttk.Button(app_secret_group, text='Windows user password…',
+           command=open_windows_user_password_dialog).pack(side='right', padx=(8, 8))
 
 
 def _update_signal_key_status(*_args):
@@ -1311,8 +1396,14 @@ def _update_threema_password_status(*_args):
         text='✓ set' if threema_password_var.get().strip() else 'not set')
 
 
+def _update_windows_user_password_status(*_args):
+    windows_user_password_status.config(
+        text='✓ set' if windows_user_password_var.get().strip() else 'not set')
+
+
 signal_key_var.trace_add('write', _update_signal_key_status)
 threema_password_var.trace_add('write', _update_threema_password_status)
+windows_user_password_var.trace_add('write', _update_windows_user_password_status)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')

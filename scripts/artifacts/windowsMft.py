@@ -95,9 +95,69 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 122289 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 142987 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 102,293 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 12179 rows",
         },
         "artifact_icon": "files",
-    }
+    },
+    "windowsMftSiBeforeFn": {
+        "name": "MFT SI Created Earlier Than FN Created",
+        "description": "Records of an NTFS master file table whose $STANDARD_INFORMATION creation time is earlier "
+                       "than the creation time in the $FILE_NAME that names the row, with the gap, the SI record-changed time and "
+                       "the folders the record's names are in.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-04",
+        "last_update_date": "2026-11-04",
+        "requirements": "none",
+        "category": "File System (Windows)",
+        "notes": "One row per named base record of each $MFT, in use or not, whose $STANDARD_INFORMATION (SI) "
+                 "creation time is earlier than the creation time in the $FILE_NAME (FN) the MFT artifact shows for "
+                 "it, the long name before its DOS 8.3 alias; the two are compared as stored, in 100-nanosecond "
+                 "ticks. Record layout and the four times of each attribute are as in the MFT artifact, whose notes "
+                 "cite the Linux-NTFS documentation; that documentation notes that $FILE_NAME's times are updated "
+                 "only when the name changes (https://github.com/flatcap/ntfs-docs/blob/641edd36dc5f6b62c2aae6658c5a60a4d6d3fe29/attributes/file_name.html#L218-L222). The row names a "
+                 "condition, not what caused it. Known data (corpus key windows11_arm_ntfs_si_fn_known_20261104, a "
+                 "64 MB VHD formatted NTFS, made on Windows 11 build 26200, with one file per scenario and each "
+                 "action's UTC time logged) produced the condition from setting a file's creation time back "
+                 "through the .NET FileInfo CreationTime and CreationTimeUtc properties, from robocopy /COPY:DAT, which carried the source's "
+                 "creation time, and from extracting a zip through the Explorer shell, which wrote the archived time; "
+                 "it did not come from Copy-Item, from moving a file within or across volumes, from Expand-Archive, "
+                 "or from deleting a file and creating one of the same name 2 seconds later. A file whose times were "
+                 "set back and that was then renamed gave no row: the rename wrote the set-back time into FN Created. "
+                 "So a row can come from ordinary copying or extraction, and a record without a row can still have "
+                 "had its times set. Installers, Windows servicing, profile creation and other tools were not "
+                 "tested. Gap (seconds) is FN Created minus SI Created. SI Record Changed is SI's MFT changed time: "
+                 "on the known data it was the moment of the set-back on the set-back files and the moment of the "
+                 "extraction on the Explorer extract, but on the robocopy row, and on the Copy-Item file in the MFT "
+                 "artifact, it was earlier than the copy and equal to the source file's logged creation time. SI Created Whole Second is Yes when SI Created has no "
+                 "fraction of a second; the whole-second set-back and the Explorer extract gave Yes, and on the corpus "
+                 "images between about half and nearly all of the Yes rows are under Program Files, so it describes the value and does not separate a "
+                 "cause. Folders names the folder of every name the record has, from the path's leading folders: "
+                 "Windows\\WinSxS, Windows (other), Program Files (and Program Files (x86)), ProgramData, Users (and "
+                 "Documents and Settings) or Other; it is blank when no name resolves to a path. A record is listed "
+                 "once, under the name in Path, and its other names are in Other Links: on the tested Windows 10 and "
+                 "11 images about 14,700 to 20,300 rows per image have names both under WinSxS and elsewhere in "
+                 "Windows, so no folder is left out. On the tested images the condition held on 79,683 of 122,289 "
+                 "records on af_case2_win10, 81,865 of 142,987 on lonewolf_win10 and 73,226 of 102,293 on "
+                 "szechuan_win10 (65, 57 and 72 percent), on 121,388 of 510,672 on pc_mus_001_win11 "
+                 "(42,027 of them free records with no resolvable path) and on 350 of 12,179 on "
+                 "cfreds_hacking_case_winxp. Of the rows with a path, 97 to 99.5 percent had that path under Windows "
+                 "or Program Files. On the four Windows 10 "
+                 "and 11 images 109 to 767 rows had their only names under Users, and 61 to 71 rows per image had "
+                 "their Path under the Default profile folder; 4 rows on cfreds_hacking_case_winxp had their names under "
+                 "Documents and Settings. Path, Name, "
+                 "In Use, Directory, Other Links and Record are as in the MFT artifact.",
+        "paths": ('*/$MFT',),
+        "output_types": "standard",
+        "sample_data": {
+            "windows11_arm_ntfs_si_fn_known_20261104": "Windows 11 build 26200 (ARM64), test volume; run -t raw on kd_ts.vhd | 4 rows",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 121388 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 79683 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 81865 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 73226 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 350 rows",
+        },
+        "artifact_icon": "clock",
+    },
 }
 
 import os
@@ -193,5 +253,83 @@ def windowsMft(context):
                 sources.append(stream)
         else:
             logfunc(f'{_LABEL}: no named records read from {member}')
+    results.set_source_path('\n'.join(sources))
+    return results
+
+
+
+_TICKS_PER_SECOND = 10_000_000
+
+
+def folder_class(path):
+    """The folder a rooted path is in, by its literal leading folders, or '' for no path."""
+    if not path:
+        return ''
+    parts = [part.lower() for part in path.strip('/').split('/')]
+    if parts[0] == 'windows':
+        return 'Windows\\WinSxS' if len(parts) > 1 and parts[1] == 'winsxs' else 'Windows (other)'
+    if parts[0] in ('program files', 'program files (x86)'):
+        return 'Program Files'
+    if parts[0] == 'programdata':
+        return 'ProgramData'
+    if parts[0] in ('users', 'documents and settings'):
+        return 'Users'
+    return 'Other'
+
+
+def si_before_fn_rows(handle, index):
+    """One row per named base record whose SI creation FILETIME is below its chosen $FILE_NAME's, compared
+    as stored (100 ns ticks), without the Source File column."""
+    for _number, record in iter_mft(handle):
+        if record is None or record.base & _REFERENCE_MASK:
+            continue
+        index.fold(record)
+        chosen = record.best_name()
+        if chosen is None or not record.std_times:
+            continue
+        si_created, _si_modified, si_changed, _si_read = record.std_times
+        fn_created = chosen[3][0]
+        if not si_created or not fn_created or si_created >= fn_created:
+            continue
+        path = '/' if record.number == ROOT_RECORD else _rooted(index.path_of_name(chosen))
+        names = [path] + [_rooted(index.path_of_name(name)) for name in record.link_names() if name is not chosen]
+        folders = '; '.join(sorted({folder_class(name) for name in names if name}))
+        others = [_rooted(index.path_of_name(name)) or name[2]
+                  for name in record.link_names() if name is not chosen]
+        yield (filetime(si_created), filetime(fn_created), round((fn_created - si_created) / _TICKS_PER_SECOND, 7),
+               filetime(si_changed), 'Yes' if si_created % _TICKS_PER_SECOND == 0 else 'No', folders, path,
+               chosen[2], 'Yes' if record.in_use else 'No', 'Yes' if record.is_dir else 'No', '; '.join(others),
+               record.number)
+
+
+@artifact_processor
+def windowsMftSiBeforeFn(context):
+    data_headers = (('SI Created', 'datetime'), ('FN Created', 'datetime'), 'Gap (seconds)',
+                    ('SI Record Changed', 'datetime'), 'SI Created Whole Second', 'Folders', 'Path', 'Name',
+                    'In Use', 'Directory', 'Other Links', 'Record', 'Source File')
+    label = 'MFT SI Created Earlier Than FN Created'
+    results = context.create_artifact_result(headers=data_headers)
+    seeker = context.get_seeker()
+    infos = getattr(seeker, 'file_infos', {}) if seeker else {}
+    sources = []
+    for path in sorted(str(p) for p in context.get_files_found()):
+        if os.path.isdir(path):
+            continue
+        member = _member(context, infos, path)
+        if not (member.endswith('/$MFT') or member == '$MFT'):
+            continue
+        try:
+            index = mft_index(path)
+            relative = context.get_relative_path(path)
+            rows = 0
+            with open(path, 'rb') as handle:
+                for row in si_before_fn_rows(handle, index):
+                    results.add_row(row + (relative,))
+                    rows += 1
+        except OSError as exc:
+            logfunc(f'{label}: could not read {member}: {type(exc).__name__}')
+            continue
+        if rows:
+            sources.append(path)
     results.set_source_path('\n'.join(sources))
     return results

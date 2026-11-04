@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "or errors.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Telegram Desktop",
         "notes": "Routine rendering, font, display, and audio-device chatter is "
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
             "*/.TelegramDesktop/log*.txt",
         ),
         "output_types": ["html", "tsv", "timeline", "lava"],
-        "artifact_icon": "file-lines",
+        "artifact_icon": "file-text",
         "sample_data": {
             "telegram_macos": "Telegram Desktop 7.0.6 macOS | 12 rows",
         },

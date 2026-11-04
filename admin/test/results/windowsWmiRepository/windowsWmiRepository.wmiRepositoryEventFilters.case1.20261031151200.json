@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "module_name": "windowsWmiRepository",
+    "artifact_name": "WMI Repository Event Filters",
+    "function_name": "wmiRepositoryEventFilters",
+    "case_number": "case1",
+    "number_of_columns": 11,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 947,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/windowsWmiRepository/testdata.windowsWmiRepository.wmiRepositoryEventFilters.case1.zip",
+    "start_time": "2026-10-31T15:12:00.790739+00:00",
+    "end_time": "2026-10-31T15:12:00.816792+00:00",
+    "run_time_seconds": 0.002655029296875,
+    "last_commit": {
+      "hash": "6205136b296cd37acba9144caf51e914cd1c2754",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-10-31T11:11:41-04:00",
+      "message": "Add WMI Repository subscription artifacts read with cimprobe"
+    }
+  },
+  "headers": [
+    "Namespace",
+    "Filter Name",
+    "Query Language",
+    "Query",
+    "Event Namespace",
+    "Creator SID",
+    "Bound Consumers",
+    "Other Properties",
+    "Read Errors",
+    "Repository Folder",
+    "Record Offset (OBJECTS.DATA)"
+  ],
+  "data": [
+    [
+      "root\\subscription",
+      "Fixture Orphan Filter",
+      "WQL",
+      "SELECT * FROM __InstanceDeletionEvent WITHIN 30",
+      "",
+      "",
+      "CommandLineEventConsumer.Name=\"Fixture Missing Consumer\"",
+      "",
+      "",
+      "Windows/System32/wbem/Repository",
+      44837
+    ],
+    [
+      "root\\subscription",
+      "Fixture Filter \u00e9\u65e5",
+      "WQL",
+      "SELECT * FROM __InstanceCreationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_Process' AND TargetInstance.Name = 'fixture.exe'",
+      "root\\cimv2",
+      "S-1-5-21-1-2-3-1001",
+      "\\\\.\\ROOT\\subscription:CommandLineEventConsumer.Name=\"Fixture Command\"",
+      "",
+      "",
+      "Windows/System32/wbem/Repository",
+      44109
+    ],
+    [
+      "root\\subscription",
+      "Fixture Script Filter",
+      "WQL",
+      "SELECT * FROM __TimerEvent WHERE TimerID = \"fixture\"",
+      "",
+      "S-1-5-21-1-2-3-1001",
+      "ActiveScriptEventConsumer.Name=\"Fixture Script\"",
+      "",
+      "",
+      "Windows/System32/wbem/Repository",
+      44524
+    ],
+    [
+      "root\\default",
+      "Fixture Default Filter",
+      "WQL",
+      "SELECT * FROM __InstanceCreationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_Process' AND TargetInstance.Name = 'fixture.exe'",
+      "root\\cimv2",
+      "",
+      "\\\\.\\ROOT\\default:LogFileEventConsumer.Name=\"Fixture Log\"",
+      "",
+      "",
+      "Windows/System32/wbem/Repository",
+      1432
+    ]
+  ]
+}

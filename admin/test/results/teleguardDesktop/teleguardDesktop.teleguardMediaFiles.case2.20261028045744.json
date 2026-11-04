@@ -1,0 +1,233 @@
+{
+  "metadata": {
+    "module_name": "teleguardDesktop",
+    "artifact_name": "TeleGuard Windows Media Files",
+    "function_name": "teleguardMediaFiles",
+    "case_number": "case2",
+    "number_of_columns": 7,
+    "number_of_rows": 22,
+    "total_data_size_bytes": 4690,
+    "media_checkins": 22,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/teleguardDesktop/testdata.teleguardDesktop.teleguardMediaFiles.case2.zip",
+    "start_time": "2026-10-28T05:16:04.782937+00:00",
+    "end_time": "2026-10-28T05:16:04.803879+00:00",
+    "run_time_seconds": 0.00996088981628418,
+    "last_commit": {
+      "hash": "de26f660ba9969cff102a572acf7e4865322d89a",
+      "author_name": "Forensik.IT GmbH",
+      "author_email": "336857309+ForensikITGmbH@users.noreply.github.com",
+      "date": "2026-10-26T10:37:26+01:00",
+      "message": "Add files via upload"
+    }
+  },
+  "headers": [
+    "Media",
+    "File Name",
+    "MIME Type",
+    "Stored Name References",
+    "Reference Status",
+    "Database Source",
+    "Source File"
+  ],
+  "data": [
+    [
+      "mock_hash_for_avatar.png",
+      "avatar.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/avatar.png"
+    ],
+    [
+      "mock_hash_for_cache-alias.jpg",
+      "cache-alias.jpg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/AppData/Local/Temp/TeleGuard/images/cache-alias.jpg"
+    ],
+    [
+      "mock_hash_for_cache.jpg",
+      "cache.jpg",
+      "image/jpeg",
+      2,
+      "Referenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/AppData/Local/Temp/TeleGuard/images/cache.jpg"
+    ],
+    [
+      "mock_hash_for_download.jpg",
+      "download.jpg",
+      "image/jpeg",
+      2,
+      "Referenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/Downloads/TeleGuard/download.jpg"
+    ],
+    [
+      "mock_hash_for_duplicate.jpg",
+      "duplicate.jpg",
+      "image/jpeg",
+      1,
+      "Ambiguous references",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/AppData/Local/Temp/TeleGuard/images/duplicate.jpg"
+    ],
+    [
+      "mock_hash_for_duplicate.jpg",
+      "duplicate.jpg",
+      "image/jpeg",
+      1,
+      "Ambiguous references",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/AppData/Local/Temp/TeleGuard/images/thumb/duplicate.jpg"
+    ],
+    [
+      "mock_hash_for_example_document.pdf",
+      "example_document.pdf",
+      "application/pdf",
+      1,
+      "Referenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/Downloads/TeleGuard/example_document.pdf"
+    ],
+    [
+      "mock_hash_for_late.jpg",
+      "late.jpg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/Downloads/TeleGuard/late.jpg"
+    ],
+    [
+      "mock_hash_for_thumb-alias.jpg",
+      "thumb-alias.jpg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/AppData/Local/Temp/TeleGuard/images/thumb-alias.jpg"
+    ],
+    [
+      "mock_hash_for_unreferenced.png",
+      "unreferenced.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/AppData/Local/Temp/TeleGuard/images/avatars/unreferenced.png"
+    ],
+    [
+      "mock_hash_for_unreferenced.png",
+      "unreferenced.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/Users/profile-one/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-one/Downloads/TeleGuard/unreferenced.png"
+    ],
+    [
+      "mock_hash_for_avatar.png",
+      "avatar.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/avatar.png"
+    ],
+    [
+      "mock_hash_for_cache-alias.jpg",
+      "cache-alias.jpg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/AppData/Local/Temp/TeleGuard/images/cache-alias.jpg"
+    ],
+    [
+      "mock_hash_for_cache.jpg",
+      "cache.jpg",
+      "image/jpeg",
+      2,
+      "Referenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/AppData/Local/Temp/TeleGuard/images/cache.jpg"
+    ],
+    [
+      "mock_hash_for_download.jpg",
+      "download.jpg",
+      "image/jpeg",
+      2,
+      "Referenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/Downloads/TeleGuard/download.jpg"
+    ],
+    [
+      "mock_hash_for_duplicate.jpg",
+      "duplicate.jpg",
+      "image/jpeg",
+      1,
+      "Ambiguous references",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/AppData/Local/Temp/TeleGuard/images/duplicate.jpg"
+    ],
+    [
+      "mock_hash_for_duplicate.jpg",
+      "duplicate.jpg",
+      "image/jpeg",
+      1,
+      "Ambiguous references",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/AppData/Local/Temp/TeleGuard/images/thumb/duplicate.jpg"
+    ],
+    [
+      "mock_hash_for_example_document.pdf",
+      "example_document.pdf",
+      "application/pdf",
+      1,
+      "Referenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/Downloads/TeleGuard/example_document.pdf"
+    ],
+    [
+      "mock_hash_for_late.jpg",
+      "late.jpg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/Downloads/TeleGuard/late.jpg"
+    ],
+    [
+      "mock_hash_for_thumb-alias.jpg",
+      "thumb-alias.jpg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/AppData/Local/Temp/TeleGuard/images/thumb-alias.jpg"
+    ],
+    [
+      "mock_hash_for_unreferenced.png",
+      "unreferenced.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/AppData/Local/Temp/TeleGuard/images/avatars/unreferenced.png"
+    ],
+    [
+      "mock_hash_for_unreferenced.png",
+      "unreferenced.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/Users/profile-two/AppData/Roaming/TeleGuard/teleguard_database.db",
+      "extraction/Users/profile-two/Downloads/TeleGuard/unreferenced.png"
+    ]
+  ]
+}

@@ -86,6 +86,19 @@ def visits(db):
                row['source'], row['from_visit'], row['referring_url'])
 
 
+def input_history(db):
+    """moz_inputhistory rows with the page each names; nothing when the table is absent."""
+    tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if 'moz_inputhistory' not in tables:
+        return
+    for row in db.execute('''
+            SELECT p.last_visit_date, i.input, p.url, p.title, i.use_count, i.place_id
+            FROM moz_inputhistory i LEFT JOIN moz_places p ON p.id=i.place_id
+            ORDER BY i.place_id, i.input'''):
+        yield (timestamp(row['last_visit_date']), row['input'], row['url'], row['title'], row['use_count'],
+               row['place_id'])
+
+
 def folder_path(items, parent):
     """Bounded parent walk: retain evidence of broken or cyclic hierarchies."""
     result, seen = [], set()

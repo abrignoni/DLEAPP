@@ -24,12 +24,12 @@ __artifacts_v2__ = {
     "threemaConversations": {
         "name": "Threema Desktop Conversations",
         "description": "Direct, group and distribution-list conversations stored by Threema Desktop, with client state and message totals.",
-        "author": "@AlexisBrignoni, Codex", "creation_date": "2026-09-24", "last_update_date": "2026-09-24",
+        "author": "@AlexisBrignoni, Codex", "creation_date": "2026-09-24", "last_update_date": "2026-10-31",
         "requirements": "PyCryptodome; the 64-character database key for encrypted databases", "category": "Threema Desktop",
         "notes": "Conversation relationships and state meanings follow https://github.com/threema-ch/threema-desktop/tree/93a6615c5567f0cf8371619dc1a5e888eed1d0b6.",
         "paths": ("*/threema.sqlite", "*/threema.sqlite-wal", "*/threema.sqlite-shm", "*/keystorage.bin", "*/threema-key.txt", "*/threema_key.txt", "*/threema-db-key.txt", "*/threema_db_key.txt"),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "comments"},
+        "artifact_icon": "messages"},
     "threemaGroups": {
         "name": "Threema Desktop Groups & Members",
         "description": "Threema groups and their current stored member relationships, including the creator when available.",

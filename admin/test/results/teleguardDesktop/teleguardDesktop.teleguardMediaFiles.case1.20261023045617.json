@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "module_name": "teleguardDesktop",
+    "artifact_name": "TeleGuard Windows Media Files",
+    "function_name": "teleguardMediaFiles",
+    "case_number": "case1",
+    "number_of_columns": 7,
+    "number_of_rows": 6,
+    "total_data_size_bytes": 1392,
+    "media_checkins": 6,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/teleguardDesktop/testdata.teleguardDesktop.teleguardMediaFiles.case1.zip",
+    "start_time": "2026-10-23T04:56:17.012140+00:00",
+    "end_time": "2026-10-23T04:56:17.032483+00:00",
+    "run_time_seconds": 0.005890369415283203,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-23T04:56:17.018070",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Media",
+    "File Name",
+    "MIME Type",
+    "Stored Name References",
+    "Reference Status",
+    "Database Source",
+    "Source File"
+  ],
+  "data": [
+    [
+      "mock_hash_for_example_document.pdf",
+      "example_document.pdf",
+      "application/pdf",
+      1,
+      "Referenced",
+      "extraction/AppData/Roaming/profile-one/teleguard_desktop/teleguard_database.db",
+      "extraction/AppData/Roaming/profile-one/teleguard_desktop/example_document.pdf"
+    ],
+    [
+      "mock_hash_for_example_photo.jpeg",
+      "example_photo.jpeg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/AppData/Roaming/profile-one/teleguard_desktop/teleguard_database.db",
+      "extraction/AppData/Roaming/profile-one/teleguard_desktop/example_photo.jpeg"
+    ],
+    [
+      "mock_hash_for_unreferenced_image.png",
+      "unreferenced_image.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/AppData/Roaming/profile-one/teleguard_desktop/teleguard_database.db",
+      "extraction/AppData/Roaming/profile-one/teleguard_desktop/unreferenced_image.png"
+    ],
+    [
+      "mock_hash_for_example_document.pdf",
+      "example_document.pdf",
+      "application/pdf",
+      1,
+      "Referenced",
+      "extraction/AppData/Roaming/profile-two/teleguard_desktop/teleguard_database.db",
+      "extraction/AppData/Roaming/profile-two/teleguard_desktop/example_document.pdf"
+    ],
+    [
+      "mock_hash_for_example_photo.jpeg",
+      "example_photo.jpeg",
+      "image/jpeg",
+      1,
+      "Referenced",
+      "extraction/AppData/Roaming/profile-two/teleguard_desktop/teleguard_database.db",
+      "extraction/AppData/Roaming/profile-two/teleguard_desktop/example_photo.jpeg"
+    ],
+    [
+      "mock_hash_for_unreferenced_image.png",
+      "unreferenced_image.png",
+      "image/png",
+      0,
+      "Unreferenced",
+      "extraction/AppData/Roaming/profile-two/teleguard_desktop/teleguard_database.db",
+      "extraction/AppData/Roaming/profile-two/teleguard_desktop/unreferenced_image.png"
+    ]
+  ]
+}

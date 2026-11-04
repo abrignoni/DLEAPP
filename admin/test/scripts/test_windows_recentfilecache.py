@@ -7,6 +7,7 @@ import datetime
 import os
 import pathlib
 import struct
+import zlib
 import sys
 import tempfile
 import unittest
@@ -24,8 +25,10 @@ PATHS = ['c:\\tools\\first.exe', 'c:\\users\\someone\\downloads\\second program.
 
 
 def bcf(paths, signature=b'\xfe\xff\xee\xff'):
+    """A RecentFileCache.bcf holding paths, with the CRC-32 of the rest of the file at 0x10."""
     body = b''.join(struct.pack('<i', len(p)) + p.encode('utf-16-le') + b'\0\0' for p in paths)
-    return signature + bytes(16) + body
+    head = signature + bytes(12)
+    return head + struct.pack('<I', zlib.crc32(head + body) & 0xFFFFFFFF) + body
 
 
 class Entries(unittest.TestCase):
@@ -84,18 +87,19 @@ class Artifact(unittest.TestCase):
             return mock.Mock(file_infos={found[0]: mock.Mock(modification_date=when.timestamp())})
 
         (headers, rows, located), logged = self.run_artifact({member: bcf(PATHS)}, seeker)
-        self.assertEqual(headers, (('File Last Written', 'datetime'), 'Program Path', 'Entry'))
-        self.assertEqual(rows, [(when, PATHS[0], 1), (when, PATHS[1], 2)])
+        self.assertEqual(headers, (('File Last Written', 'datetime'), 'Program Path', 'Entry', 'File Checksum Matches'))
+        self.assertEqual(rows, [(when, PATHS[0], 1, 'Yes'), (when, PATHS[1], 2, 'Yes')])
         self.assertEqual(located, os.path.join(self.folder.name, member))
         self.assertEqual(logged, [])
 
     def test_no_seeker_and_a_damaged_file(self):
         member = 'C/Windows/AppCompat/Programs/RECENTFILECACHE.BCF'
         (_, rows, located), logged = self.run_artifact({member: bcf(PATHS)[:-6], 'C/other.txt': b'x'})
-        self.assertEqual(rows, [('', PATHS[0], 1)])
+        self.assertEqual(rows, [('', PATHS[0], 1, 'No')])
         self.assertEqual(located, os.path.join(self.folder.name, member))
-        self.assertEqual(len(logged), 1)
+        self.assertEqual(len(logged), 2)
         self.assertIn('runs past the end of the file; 1 entries read before it', logged[0])
+        self.assertIn('holds a CRC-32 at 0x10 that does not match its contents', logged[1])
 
     def test_a_file_with_no_entries_names_no_source(self):
         (_, rows, located), logged = self.run_artifact({'C/RecentFileCache.bcf': bcf([], signature=b'NOPE')})

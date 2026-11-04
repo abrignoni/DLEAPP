@@ -86,8 +86,8 @@ __artifacts_v2__ = {
                  "Windows 7, Windows Server 2008 R2 and newer and as redirected on Windows Vista, Windows Server "
                  "2008 and earlier (Microsoft, 'Registry Keys Affected by WOW64', as updated 23 October 2025, "
                  "https://learn.microsoft.com/en-us/windows/win32/winprog64/shared-registry-keys); "
-                 "the WOW6432Node paths are read for that reason, and no hive from those earlier versions was "
-                 "tested. No program of either made-up name was started in the session, so whether Windows acts on "
+                 "the WOW6432Node paths are read for that reason. cfreds_hacking_case_winxp is from those earlier "
+                 "versions; its SOFTWARE hive has no WOW6432Node key, so the redirected paths were not exercised. No program of either made-up name was started in the session, so whether Windows acts on "
                  "these values was not tested. Image File Execution Options holds 21, 49, 25 and 21 subkeys on "
                  "af_case2_win10, lonewolf_win10, pc_mus_001_win11 and szechuan_win10 and 48 on the capture; apart "
                  "from the two made-up ones, none holds a Debugger or GlobalFlag value, and none of the four images "
@@ -102,8 +102,7 @@ __artifacts_v2__ = {
                  "format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
                  "https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L746-L749). "
-                 "Logs in the older format used before Windows 8.1 are not applied, and neither is a replay that "
-                 "would give a key an earlier last-written time than the hive already holds, a check added here "
+                 "When no log in the format Windows 8.1 and later write applies, a log in the older format used before Windows 8.1 is applied instead: the first of .LOG1 and .LOG2 whose base block is valid and holds the hive's last-written time has the pages its dirty vector marks written where the vector places them (https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L620-L677, https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L742). On the 16 hives of cfreds_leakage_win7 that carry such a log as .LOG1, each copied, made dirty and given overwritten bytes in every page its log marks for the test, this rebuilt each hive byte for byte, as rla 2026.10.1 did; none of the 54 dirty hives in the 17 corpus images surveyed carries one. A lone .LOG beside a hive is not read. A replay that would give a key an earlier last-written time than the hive already holds is not applied, a check added here "
                  "beyond the specification; the run log names each hive replayed, with the sequence numbers applied, "
                  "and each dirty hive read as it is, with the reason.",
         "paths": ('*/Windows/System32/config/SOFTWARE',
@@ -116,6 +115,7 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (the matched files held nothing this artifact reports)",
             "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (the matched files held nothing this artifact reports)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (the matched files held nothing this artifact reports)",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 4 rows",
         },
     },
 }

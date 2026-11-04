@@ -302,7 +302,7 @@ __artifacts_v2__ = {
                        "reason.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the downloads table of each History database in a Chromium-based browser profile, "
@@ -410,7 +410,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 ' ETag (as stored) and Last-Modified (as stored) are downloads.etag and downloads.last_modified, which DownloadRow describes as the contents of the most recently seen ETag and Last-Modified headers (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_row.h#L82-L86). The history schema migration from version 27 to 28 adds both columns as NOT NULL with an empty default (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/history_database.cc#L847-L850; https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_database.cc#L206-L208), so on a History database from before that migration both are blank because the columns do not exist (no registered image carries a database that old, so that path is not exercised), and a blank on a later database means the column holds an empty string. The values are reported as stored, read as UTF-8 text; nothing is parsed from them. On the tested images an ETag was filled on 16 of 19 rows on pc_mus_001_win11, 8 of 17 on lonewolf_win10, 1 of 2 on cfreds_leakage_win7 (History schema 29), 5 of 10 on hexordia_mvs2025_win11, 4 of 4 on ou_ransomware_server2022 and 1 of 1 on mvs2026_macbookpro_macos15, and Last-Modified on 17, 11, 2, 4, 4 and 1 of those rows.',
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -446,6 +447,10 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 2 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100.2033 | 10 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348.1850 | 4 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 1 row",
         },
     },
     "chromiumSearchTerms": {
@@ -737,7 +742,8 @@ def chromiumUrls(context):
 
 _DOWNLOAD_COLUMNS = ('id', 'start_time', 'end_time', 'last_access_time', 'target_path',
                      'current_path', 'tab_url', 'referrer', 'mime_type', 'received_bytes',
-                     'total_bytes', 'state', 'danger_type', 'interrupt_reason', 'opened')
+                     'total_bytes', 'state', 'danger_type', 'interrupt_reason', 'opened', 'etag',
+                     'last_modified')
 
 
 @artifact_processor
@@ -768,12 +774,13 @@ def chromiumDownloads(context):
         sources.append(store.path)
         for (download_id, start, end, last_access, target_path, current_path, tab_url,
              referrer, mime_type, received, total, state, danger, interrupt,
-             opened) in rows:
+             opened, etag, last_modified) in rows:
             chain = chains.get(download_id, [])
             data_list.append((webkit_time(start), webkit_time(end), webkit_time(last_access),
                               target_path, current_path, chain[-1] if chain else '',
                               chain[0] if chain else '', len(chain), tab_url or '',
-                              referrer or '', mime_type or '', received, total,
+                              referrer or '', mime_type or '', received, total, etag or '',
+                              last_modified or '',
                               enum_label(_DOWNLOAD_STATES, state),
                               enum_label(_DANGER_TYPES, danger),
                               enum_label(_INTERRUPT_REASONS, interrupt), _yes_no(opened),
@@ -781,7 +788,8 @@ def chromiumDownloads(context):
     data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'),
                     ('Last Access Time', 'datetime'), 'Target Path', 'Current Path',
                     'Final URL', 'Original URL', 'URL Chain Length', 'Tab URL', 'Referrer',
-                    'MIME Type', 'Received Bytes', 'Total Bytes', 'State', 'Danger Type',
+                    'MIME Type', 'Received Bytes', 'Total Bytes', 'ETag (as stored)',
+                    'Last-Modified (as stored)', 'State', 'Danger Type',
                     'Interrupt Reason', 'Opened', 'Download ID', 'Browser', 'Profile', 'User',
                     'Source File')
     return data_headers, data_list, '\n'.join(sources)

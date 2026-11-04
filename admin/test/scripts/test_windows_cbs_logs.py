@@ -1,0 +1,200 @@
+"""Pin the CBS and DISM log readers (scripts/artifacts/windowsCbsLogs.py).
+
+The log lines are shaped like those of the tested CBS.log and dism.log files; the times, IDs, clients and command
+lines are made up. The cabinet reader is pinned in test_cab_reader.py.
+"""
+import datetime
+import pathlib
+import sys
+import unittest
+from collections import Counter
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT))
+
+# pylint: disable=wrong-import-position
+from scripts.artifacts import windowsCbsLogs as cbs
+# pylint: enable=wrong-import-position
+
+UTC = datetime.timezone.utc
+
+
+def _cbs(*lines):
+    return '\ufeff' + ''.join(f'{local}, Info                  {component}    {message}\r\n'
+                              for local, component, message in lines)
+
+
+TI = 'TI: --- Initializing Trusted Installer ---'
+
+
+class CbsEventsTest(unittest.TestCase):
+    def test_each_run_takes_the_offset_of_its_own_utc_line(self):
+        text = _cbs(('2024-03-09 10:00:00', 'CBS', 'Session: 1_1 initialized by client Before'),
+                    ('2024-03-09 10:00:01', 'CBS', TI),
+                    ('2024-03-09 10:00:01', 'CBS', 'TI: Last boot time: 2024-03-09 09:58:00.500'),
+                    ('2024-03-09 10:00:02', 'CBS', 'Session: 2_2 initialized by client WinMgmt'),
+                    ('2024-03-09 10:00:03', 'CBS', 'Universal Time is: 2024-03-09 18:00:03.120'),
+                    ('2024-03-09 10:00:03', 'CBS', 'Loaded Servicing Stack v10.0.1.1 with Core: x'),
+                    ('2024-03-09 10:00:04', 'CBS', 'Session: 3_3 initialized by client DISM Package Manager '
+                                                   'Provider, external staging directory: (null), external '
+                                                   'registry directory: (null'),
+                    ('2024-03-09 10:00:05', 'CSI', 'Session: 9_9 initialized by client NotCbs'),
+                    ('2024-03-12 10:00:00', 'CBS', TI),
+                    ('2024-03-12 10:00:01', 'CBS', 'Universal Time is: 2024-03-12 17:00:01.000'),
+                    ('2024-03-12 10:00:02', 'CBS', 'Session: 4_4 initialized by client WindowsUpdateAgent.'),
+                    ('2024-03-12 11:00:00', 'CBS', TI),
+                    ('2024-03-12 11:00:00', 'CBS', 'Session: 5_5 initialized by client NoUtcInRun'))
+        problems = Counter()
+        starts, sessions = cbs.cbs_events(text, problems)
+        self.assertEqual([(s['local'], s['offset'], s['boot'], s['stack']) for s in starts], [
+            ('2024-03-09 10:00:01', -480, '2024-03-09 09:58:00.500', 'v10.0.1.1'),
+            ('2024-03-12 10:00:00', -420, '', ''),
+            ('2024-03-12 11:00:00', None, '', ''),
+        ])
+        self.assertEqual(sessions, [
+            ('2024-03-09 10:00:00', None, '1_1', 'Before'),
+            ('2024-03-09 10:00:02', -480, '2_2', 'WinMgmt'),
+            ('2024-03-09 10:00:04', -480, '3_3', 'DISM Package Manager Provider'),
+            ('2024-03-12 10:00:02', -420, '4_4', 'WindowsUpdateAgent'),
+            ('2024-03-12 11:00:00', None, '5_5', 'NoUtcInRun'),
+        ])
+        self.assertEqual(problems, {'TrustedInstaller starts with no UTC line in their run, UTC left blank': 1})
+        self.assertEqual(cbs._utc('2024-03-09 10:00:02', -480),  # pylint: disable=protected-access
+                         datetime.datetime(2024, 3, 9, 18, 0, 2, tzinfo=UTC))
+        self.assertEqual(cbs._utc('2024-03-09 09:58:00.500', -480),  # pylint: disable=protected-access
+                         datetime.datetime(2024, 3, 9, 17, 58, 0, 500000, tzinfo=UTC))
+        self.assertEqual(cbs._utc('not a time', -480), '')  # pylint: disable=protected-access
+        self.assertEqual(cbs._offset_text(-480), 'UTC-08:00')  # pylint: disable=protected-access
+        self.assertEqual(cbs._offset_text(330), 'UTC+05:30')  # pylint: disable=protected-access
+
+    def test_a_log_with_no_utc_line_leaves_utc_blank(self):
+        text = _cbs(('2015-03-25 03:33:15', 'CBS', 'Session: 6_6 initialized by client WindowsUpdateAgent'))
+        starts, sessions = cbs.cbs_events(text, Counter())
+        self.assertEqual((starts, sessions), ([], [('2015-03-25 03:33:15', None, '6_6', 'WindowsUpdateAgent')]))
+        self.assertEqual(cbs._utc('2015-03-25 03:33:15', None), '')  # pylint: disable=protected-access
+
+    def test_a_run_whose_utc_lines_disagree_is_counted_and_rows_follow_the_line_before_them(self):
+        text = _cbs(('2024-11-03 01:00:00', 'CBS', TI),
+                    ('2024-11-03 01:00:01', 'CBS', 'Universal Time is: 2024-11-03 05:00:01.000'),
+                    ('2024-11-03 01:30:00', 'CBS', 'Session: 7_7 initialized by client A'),
+                    ('2024-11-03 01:10:00', 'CBS', 'Universal Time is: 2024-11-03 06:10:00.000'),
+                    ('2024-11-03 01:20:00', 'CBS', 'Session: 8_8 initialized by client B'))
+        problems = Counter()
+        starts, sessions = cbs.cbs_events(text, problems)
+        self.assertEqual(starts[0]['offset'], -240)
+        self.assertEqual([s[1] for s in sessions], [-240, -300])
+        self.assertEqual(problems, {'TrustedInstaller runs whose UTC lines give more than one offset': 1})
+
+
+
+class CbsChecksTest(unittest.TestCase):
+    def test_sfp_runs_and_a_store_scan(self):
+        text = _cbs(('2026-01-05 10:00:00', 'CBS', TI),
+                    ('2026-01-05 10:00:01', 'CBS', 'TiWorker: Client requests SFP repair object.'),
+                    ('2026-01-05 10:00:01', 'CBS', 'Universal Time is: 2026-01-05 15:00:01.500'),
+                    ('2026-01-05 10:00:02', 'CSI', '00000008 [SR] Verifying 100 components'),
+                    ('2026-01-05 10:00:02', 'CSI', '00000009 [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:03', 'CSI', '0000000a [SR] Verify complete'),
+                    ('2026-01-05 10:00:04', 'CSI', '0000000b [SR] Verifying 14 components'),
+                    ('2026-01-05 10:00:04', 'CSI', '0000000c [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000d [SR] Repairing 2 components'),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000e [SR] Repair complete'),
+                    ('2026-01-05 10:00:06', 'DEPLOY', '[Pnp] Corrupt file: C:\\made\\up.sys'),
+                    ('2026-01-05 10:00:06', 'DEPLOY', '[Pnp] Repaired file: C:\\made\\up.sys'),
+                    ('2026-01-05 10:05:00', 'CBS', 'TiWorker: Client requests SFP repair object.'),
+                    ('2026-01-05 10:10:00', 'CBS', 'Exec: Session processing started. Client: Manual, Session(DISM '
+                                                   'Package Manager Provider Store Corruption Detect/Repair): 7_7'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Checking System Update Readiness.'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Operation: Detect only '),
+                    ('2026-01-05 10:12:00', 'CBS', 'Operation result: 0x0'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Last Successful Step: Stage package detection completes.'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Detected Corruption:\t816'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Repaired Corruption:\t0'),
+                    ('2026-01-05 10:12:00', 'CBS', 'Total Operation Time: 112 seconds.'))
+        problems = Counter()
+        runs, scans = cbs.cbs_checks(text, problems)
+        self.assertEqual([(r['local'], r['offset'], r['last'], r['transactions'], r['verified'], r['repairs'],
+                           r['repaired'], r['corrupt_files'], r['repaired_files']) for r in runs], [
+            ('2026-01-05 10:00:01', -300, '2026-01-05 10:00:06', 2, 114, 1, 2, ['C:\\made\\up.sys'],
+             ['C:\\made\\up.sys']),
+            ('2026-01-05 10:05:00', -300, '2026-01-05 10:05:00', 0, 0, 0, 0, [], []),
+        ])
+        self.assertEqual(scans, [{'local': '2026-01-05 10:12:00', 'offset': -300, 'started': '2026-01-05 10:10:00',
+                                  'session': '7_7', 'operation': 'Detect only', 'result': '0x0',
+                                  'step': 'Stage package detection completes.', 'detected': '816',
+                                  'repaired': '0', 'seconds': '112'}])
+        self.assertEqual(problems, Counter())
+
+    def test_sr_lines_with_no_request_before_them_get_a_run_of_their_own_and_are_counted(self):
+        text = _cbs(('2026-01-05 10:00:00', 'CBS', TI),
+                    ('2026-01-05 10:00:02', 'CSI', '00000009 [SR] Beginning Verify and Repair transaction'),
+                    ('2026-01-05 10:00:03', 'CSI', '0000000a [SR] Verifying 1 components'),
+                    ('2026-01-05 10:00:04', 'CBS', TI),
+                    ('2026-01-05 10:00:05', 'CSI', '0000000b [SR] Beginning Verify and Repair transaction'))
+        problems = Counter()
+        runs, scans = cbs.cbs_checks(text, problems)
+        self.assertEqual([(r['local'], r['transactions'], r['verified']) for r in runs],
+                         [('2026-01-05 10:00:02', 1, 1), ('2026-01-05 10:00:05', 1, 0)])
+        self.assertEqual(scans, [])
+        self.assertEqual(problems, {'runs of [SR] or [Pnp] lines with no SFP repair object request before them': 2})
+
+
+def _dism(*lines):
+    return '\ufeff' + ''.join(f'{local}, {level:<22}DISM   {message}\r\n' for local, level, message in lines)
+
+
+class DismSessionsTest(unittest.TestCase):
+    def test_exe_and_api_sessions_with_interleaved_processes(self):
+        text = _dism(
+            ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
+            ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Host machine information: OS Version=10.0.26100, Running '
+                                            'architecture=amd64, Number of processors=8'),
+            ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Instance information: Parent process=C:\\made-up.exe, Parent '
+                                            'process PID=9999'),
+            ('2024-08-30 15:53:16', 'Info', 'DISM.EXE: Executing command line: dism.exe /online /get-features'),
+            ('2024-08-30 15:53:16', 'Info', 'DISM Manager: PID=7624 TID=7616 Image session successfully loaded - '
+                                            'CDISMManager::CreateImageSession'),
+            ('2024-08-30 15:53:17', 'Info', 'API: PID=100 TID=1 DismApi.dll: <----- Starting DismApi.dll session '
+                                            '-----> - DismInitializeInternal'),
+            ('2024-08-30 15:53:17', 'Info', 'API: PID=100 TID=1 DismApi.dll: Host machine information: OS '
+                                            'Version=10.0.26100, Running architecture=x86 - DismInitializeInternal'),
+            ('2024-08-30 15:53:17', 'Info', 'API: PID=100 TID=1 DismApi.dll: Parent process command line: '
+                                            'C:\\Windows\\system32\\made-up.exe /x - DismInitializeInternal'),
+            ('2024-08-30 15:53:18', 'Info', 'API: PID=200 TID=2 DismApi.dll: <----- Starting DismApi.dll session '
+                                            '-----> - DismInitializeInternal'),
+            ('2024-08-30 15:53:18', 'Info', 'API: PID=100 TID=1 DismApi.dll: <----- Ending DismApi.dll session '
+                                            '-----> - DismShutdownInternal'),
+            ('2024-08-30 15:53:19', 'Info', 'DISM.EXE: Image session has been closed. Reboot required=no.'),
+            ('2024-08-30 15:53:19', 'Info', 'DISM.EXE: <----- Ending Dism.exe session ----->'))
+        problems = Counter()
+        sessions = cbs.dism_sessions(text, problems)
+        self.assertEqual([(s['start'], s['end'], s['kind'], s['command'], s['parent'], s['pid'], s['reboot'])
+                          for s in sessions], [
+            ('2024-08-30 15:53:16', '2024-08-30 15:53:19', 'Dism.exe', 'dism.exe /online /get-features', '', '7624',
+             'no'),
+            ('2024-08-30 15:53:17', '2024-08-30 15:53:18', 'DismApi.dll', '', 'C:\\Windows\\system32\\made-up.exe /x',
+             '100', ''),
+            ('2024-08-30 15:53:18', '', 'DismApi.dll', '', '', '200', ''),
+        ])
+        self.assertEqual(problems, {'sessions with no ending line, reported with a blank end time': 1})
+
+    def test_overlapping_dism_exe_sessions_are_counted_and_the_earlier_left_open(self):
+        text = _dism(('2026-10-12 15:08:12', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
+                     ('2026-10-12 15:08:14', 'Info', 'DISM.EXE: <----- Starting Dism.exe session ----->'),
+                     ('2026-10-12 15:08:20', 'Info', 'DISM.EXE: Image session has been closed. Reboot required=yes.'),
+                     ('2026-10-12 15:08:21', 'Info', 'DISM.EXE: <----- Ending Dism.exe session ----->'))
+        problems = Counter()
+        sessions = cbs.dism_sessions(text, problems)
+        self.assertEqual([(s['start'], s['end'], s['reboot']) for s in sessions],
+                         [('2026-10-12 15:08:12', '', ''), ('2026-10-12 15:08:14', '2026-10-12 15:08:21', 'yes')])
+        self.assertEqual(problems, {'Dism.exe sessions that started before the one before them ended, the earlier '
+                                    'reported with no end time': 1,
+                                    'sessions with no ending line, reported with a blank end time': 1})
+
+    def test_a_log_with_no_session_gives_no_rows(self):
+        self.assertEqual(cbs.dism_sessions(_dism(('2024-08-30 15:53:16', 'Info', 'DISM.EXE: nothing')), Counter()),
+                         [])
+
+
+if __name__ == '__main__':
+    unittest.main()

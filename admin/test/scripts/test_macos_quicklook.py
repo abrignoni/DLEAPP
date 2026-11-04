@@ -42,16 +42,18 @@ def decorated(file_id):
     return file_id - (1 << 63)
 
 
-def version(file_id, generator, modified, size):
-    """A QLThumbnailVersion archive as the basic_files rows carry it."""
+def version(file_id, generator, modified, size, extension=None):
+    """A QLThumbnailVersion archive as the basic_files rows carry it; newer ones add e."""
     uid = plistlib.UID
-    return plistlib.dumps({
-        '$version': 100000, '$archiver': 'NSKeyedArchiver', '$top': {'root': uid(1)},
-        '$objects': ['$null', {'$class': uid(7), 'g': uid(2), 'vi': uid(4), 'm': uid(5), 'i': file_id, 'v': uid(3), 's': size},
-                     generator, '928.2', b'\x9d\xb3\x04\x00', {'NS.time': modified, '$class': uid(6)},
-                     {'$classname': 'NSDate', '$classes': ['NSDate', 'NSObject']},
-                     {'$classname': 'QLThumbnailVersion', '$classes': ['QLThumbnailVersion', 'NSObject']}]},
-        fmt=plistlib.PlistFormat.FMT_BINARY)
+    root = {'$class': uid(7), 'g': uid(2), 'vi': uid(4), 'm': uid(5), 'i': file_id, 'v': uid(3), 's': size}
+    objects = ['$null', root, generator, '928.2', b'\x9d\xb3\x04\x00', {'NS.time': modified, '$class': uid(6)},
+               {'$classname': 'NSDate', '$classes': ['NSDate', 'NSObject']},
+               {'$classname': 'QLThumbnailVersion', '$classes': ['QLThumbnailVersion', 'NSObject']}]
+    if extension is not None:
+        root['e'] = uid(len(objects))
+        objects.append(extension)
+    return plistlib.dumps({'$version': 100000, '$archiver': 'NSKeyedArchiver', '$top': {'root': uid(1)},
+                           '$objects': objects}, fmt=plistlib.PlistFormat.FMT_BINARY)
 
 
 def pixels(png):
@@ -126,7 +128,7 @@ class ArtifactTest(unittest.TestCase):
 
     def test_thumbnails_joined_to_their_files_and_rendered(self):
         # A 2 x 2 bitmap, stored B, G, R, A with the colour premultiplied by alpha, then 8 bytes
-        # of padding, and a second bitmap whose layout is not read.
+        # of padding, and a second bitmap whose layout (alpha only, 0x2007) is not read.
         bitmap = bytes((0, 0, 255, 255, 255, 0, 0, 255, 0, 128, 0, 255, 32, 32, 64, 128))
         data = bytes(8) + bitmap + bytes(8) + bytes(16)
         row = (THUMBS.split(' (')[0].replace('CREATE TABLE', 'INSERT INTO') +
@@ -134,11 +136,11 @@ class ArtifactTest(unittest.TestCase):
                'bytesperrow, bitmapinfo, bitmapdata_location, bitmapdata_length) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         index = [(BASIC,), (THUMBS,),
                  ('INSERT INTO basic_files VALUES (?, ?, ?)',
-                  (FILE_A, FSID, version(FILE_A, 'com.apple.qlgenerator.image', 634496585.0, 347407)),
+                  (FILE_A, FSID, version(FILE_A, 'com.apple.qlgenerator.image', 634496585.0, 347407, 'png')),
                   (FILE_B, FSID, b'not a plist'),
                   (FILE_C, FSID, version(FILE_C, 'com.apple.qlgenerator.pdf', 607052949.0, 846528))),
                  (row, (decorated(FILE_A), 64.0, 3, 635455701.06487, 2, 2, 8, 32, 8, 0x2002, 8, 16),
-                  (decorated(FILE_B), 16.0, 1, 635455527.366853, 2, 2, 8, 32, 8, 0x2001, 32, 16),
+                  (decorated(FILE_B), 16.0, 1, 635455527.366853, 2, 2, 8, 32, 8, 0x2007, 32, 16),
                   # A thumbnail whose file has no basic_files row, and one past the end of the data.
                   (decorated(99), 16.0, 1, 635455600.0, 2, 2, 8, 32, 8, 0x2002, 40, 16))]
         for root in ('', 'System/Volumes/Data/'):
@@ -146,18 +148,18 @@ class ArtifactTest(unittest.TestCase):
             self.put(root + CACHE + 'thumbnails.data', data)
         headers, rows, source = self.run_thumbnails()
         self.assertEqual([h if isinstance(h, str) else h[0] for h in headers],
-                         ['Last Hit (UTC)', 'File Modified (UTC)', 'Thumbnail', 'File ID', 'File Size', 'Generator',
+                         ['Last Hit (UTC)', 'File Modified (UTC)', 'Thumbnail', 'File ID', 'Extension (e)', 'File Size', 'Generator',
                           'Version (as stored)', 'Thumbnail Size (as stored)', 'Width', 'Height', 'Hit Count (as stored)',
                           'Volume ID (as stored)', 'Source File'])
         both = 'System/Volumes/Data/' + CACHE + 'index.sqlite\n' + CACHE + 'index.sqlite'
         IMAGE = 'media:' + hashlib.sha1(self.media[0][1]).hexdigest() if self.media else None
         self.assertEqual(rows, [
-            (datetime(2021, 2, 19, 19, 25, 27, 366853, tzinfo=UTC), '', '', FILE_B, '', '', '', 16.0, 2, 2, 1, FSID, both),
-            (datetime(2021, 2, 19, 19, 26, 40, tzinfo=UTC), '', '', 99, '', '', '', 16.0, 2, 2, 1, '', both),
+            (datetime(2021, 2, 19, 19, 25, 27, 366853, tzinfo=UTC), '', '', FILE_B, '', '', '', '', 16.0, 2, 2, 1, FSID, both),
+            (datetime(2021, 2, 19, 19, 26, 40, tzinfo=UTC), '', '', 99, '', '', '', '', 16.0, 2, 2, 1, '', both),
             (datetime(2021, 2, 19, 19, 28, 21, 64870, tzinfo=UTC), datetime(2021, 2, 8, 17, 3, 5, tzinfo=UTC), IMAGE,
-             FILE_A, 347407, 'com.apple.qlgenerator.image', '928.2', 64.0, 2, 2, 3, FSID, both),
+             FILE_A, 'png', 347407, 'com.apple.qlgenerator.image', '928.2', 64.0, 2, 2, 3, FSID, both),
             # A file versioned without a thumbnail still gets a row.
-            ('', datetime(2020, 3, 28, 1, 49, 9, tzinfo=UTC), '', FILE_C, 846528, 'com.apple.qlgenerator.pdf', '928.2',
+            ('', datetime(2020, 3, 28, 1, 49, 9, tzinfo=UTC), '', FILE_C, '', 846528, 'com.apple.qlgenerator.pdf', '928.2',
              '', '', '', '', FSID, both)])
         # Identical copies check the image in twice under one name; the report keeps one.
         self.assertEqual({(m[0].split('com.apple.QuickLook')[1], m[2], m[3], m[4]) for m in self.media},
@@ -171,7 +173,7 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(sorted(self.logged), sorted(
             f'QuickLook Thumbnails: 1 thumbnail(s) in {r}{CACHE}index.sqlite not rendered: {reason}'
             for r in ('', 'System/Volumes/Data/')
-            for reason in ('a bitmap layout other than 8-bit BGRA with premultiplied alpha',
+            for reason in ('a bitmap layout not decoded here (bitmap info 0x2007)',
                            'a bitmap that does not fit its stated size or thumbnails.data')))
 
     def test_older_layout_and_empty_caches(self):

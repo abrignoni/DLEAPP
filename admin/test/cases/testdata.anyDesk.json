@@ -1,0 +1,136 @@
+{
+    "case1": {
+        "description": "Sanitized copy of the AnyDesk 9.8.3 files from the Windows side of the known-data session (corpus key windows11_arm_anydesk_known_20261031): connection_trace.txt, file_transfer_trace.txt, ad_svc.trace and ad.trace. The public IP, user name, host name and both lab AnyDesk IDs are replaced. No case data.",
+        "maker": "@AlexisBrignoni",
+        "make_data": {
+            "input_data_path": "windows_anydesk_sanitized.zip",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T23:40:23.591507",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T23:40:23.580985",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "anyDeskConnections": {
+                "search_patterns": [
+                    "*/ProgramData/AnyDesk/connection_trace.txt",
+                    "*/ProgramData/AnyDesk/ad_*/connection_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/connection_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/ad_*/connection_trace.txt",
+                    "*/etc/anydesk/connection_trace.txt",
+                    "*/.anydesk/connection_trace.txt",
+                    "*/.anydesk_ad_*/connection_trace.txt"
+                ],
+                "file_count": 1,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "anyDeskFileTransfers": {
+                "search_patterns": [
+                    "*/ProgramData/AnyDesk/file_transfer_trace.txt",
+                    "*/ProgramData/AnyDesk/ad_*/file_transfer_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/file_transfer_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/ad_*/file_transfer_trace.txt",
+                    "*/etc/anydesk/file_transfer_trace.txt",
+                    "*/.anydesk/file_transfer_trace.txt",
+                    "*/.anydesk_ad_*/file_transfer_trace.txt"
+                ],
+                "file_count": 1,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "anyDeskTraceEvents": {
+                "search_patterns": [
+                    "*/ProgramData/AnyDesk/ad_svc.trace",
+                    "*/ProgramData/AnyDesk/ad_*/ad_*_svc.trace",
+                    "*/AppData/Roaming/AnyDesk/ad.trace",
+                    "*/AppData/Roaming/AnyDesk/ad_*/ad_*.trace",
+                    "*/var/log/anydesk.trace",
+                    "*/var/log/anydesk_ad_*.trace",
+                    "*/.anydesk/anydesk.trace",
+                    "*/.anydesk_ad_*/anydesk_ad_*.trace"
+                ],
+                "file_count": 2,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    },
+    "case2": {
+        "description": "Sanitized copy of the AnyDesk 8.1.0 files from the Ubuntu side of the same session (corpus key ubuntu2604_arm64_anydesk_known_20261031): etc/anydesk/connection_trace.txt and file_transfer_trace.txt, var/log/anydesk.trace and the user trace. Same replacements. No case data.",
+        "maker": "@AlexisBrignoni",
+        "make_data": {
+            "input_data_path": "ubuntu_anydesk_sanitized.tar",
+            "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-10-30T23:40:23.766016",
+            "last_commit": {
+                "hash": "Uncommitted",
+                "author_name": "N/A",
+                "author_email": "N/A",
+                "date": "2026-10-30T23:40:23.755661",
+                "message": "File not yet committed to git"
+            }
+        },
+        "artifacts": {
+            "anyDeskConnections": {
+                "search_patterns": [
+                    "*/ProgramData/AnyDesk/connection_trace.txt",
+                    "*/ProgramData/AnyDesk/ad_*/connection_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/connection_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/ad_*/connection_trace.txt",
+                    "*/etc/anydesk/connection_trace.txt",
+                    "*/.anydesk/connection_trace.txt",
+                    "*/.anydesk_ad_*/connection_trace.txt"
+                ],
+                "file_count": 1,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "anyDeskFileTransfers": {
+                "search_patterns": [
+                    "*/ProgramData/AnyDesk/file_transfer_trace.txt",
+                    "*/ProgramData/AnyDesk/ad_*/file_transfer_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/file_transfer_trace.txt",
+                    "*/AppData/Roaming/AnyDesk/ad_*/file_transfer_trace.txt",
+                    "*/etc/anydesk/file_transfer_trace.txt",
+                    "*/.anydesk/file_transfer_trace.txt",
+                    "*/.anydesk_ad_*/file_transfer_trace.txt"
+                ],
+                "file_count": 1,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "anyDeskTraceEvents": {
+                "search_patterns": [
+                    "*/ProgramData/AnyDesk/ad_svc.trace",
+                    "*/ProgramData/AnyDesk/ad_*/ad_*_svc.trace",
+                    "*/AppData/Roaming/AnyDesk/ad.trace",
+                    "*/AppData/Roaming/AnyDesk/ad_*/ad_*.trace",
+                    "*/var/log/anydesk.trace",
+                    "*/var/log/anydesk_ad_*.trace",
+                    "*/.anydesk/anydesk.trace",
+                    "*/.anydesk_ad_*/anydesk_ad_*.trace"
+                ],
+                "file_count": 2,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}

@@ -10,16 +10,30 @@ __artifacts_v2__ = {
     "macosFSEvents": {
         "name": "FSEvents",
         "description": "Path-level file system event records from the fseventsd disk log stream "
-                       "(.fseventsd at a volume's root): event ID, path, the event flags decoded, "
+                       "(.fseventsd at a volume's root, and private/var/db/fseventsd): event ID, path, the event flags decoded, "
                        "node ID and format version.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "File System (macOS)",
         "notes": "Reads the fseventsd disk log files in each .fseventsd folder the declared path "
-                 "matches, at any depth, one row per record; on both tested images the only such "
-                 "folder holding records is the Data volume's. Each file is read as one or more "
+                 "matches, at any depth, one row per record; on each of the five images checked one "
+                 ".fseventsd folder holds records, and on four of them it is the Data volume's. Also reads the same disk log files in "
+                 "private/var/db/fseventsd, which gave rows on 3 of the 5 full macOS images checked: "
+                 "126,238 rows on evidencelocker_macos14, 152,769 on mvs2026_macbookpro_macos15 and "
+                 "514 on adams_macbookpro_macos26, and none on dleapp_macos_bigsur or "
+                 "magnet2021_macos_bigsur. On those three, the only paths found in both that folder "
+                 "and a .fseventsd folder (leading slash ignored) were the empty path (End of "
+                 "transaction records, and Mount records on the .fseventsd side) and "
+                 ".fseventsd/sl-compat, and no event ID and path pair was in "
+                 "both, so its rows add to the .fseventsd rows and do not repeat them. The macOS 27.0.1 "
+                 "fseventsd binary carries the string /private/var/db/fseventsd; when fseventsd writes "
+                 "there and not to a volume's own .fseventsd is not established. A logical extraction "
+                 "can hold that folder under private/var and again under System/Volumes/Data/private/var;"
+                 " a byte-identical copy is read once and counted in the run log (71 files on "
+                 "mvs2026_macbookpro_macos15), and copies that differ are both read (exercised by a "
+                 "unit test, not by any of the five images). Each file is read as one or more "
                  "gzip members holding pages that "
                  "begin with a 12-byte header whose signature is 1SLD, 2SLD or 3SLD. A record is a "
                  "NUL-terminated path, an 8-byte event ID and 4-byte flags, followed in 2SLD and 3SLD "
@@ -34,9 +48,12 @@ __artifacts_v2__ = {
                  "https://github.com/ydkhatri/mac_apt/blob/41ca6a91789b3ba7af8141e724b69328c372054d/plugins/fsevents.py#L180)."
                  " Event Flags names each set bit after the identifier or description that "
                  "documentation gives for its value, and names a bit it does not list as Unknown flag "
-                 "bits with the hex value; no row of either tested image carried one. Item Type names "
+                 "bits with the hex value; no row of the five images checked carried one. Item Type names "
                  "the file, directory, symbolic link and hard link bits among them. Path is the stored"
-                 " path, with no leading slash on any row of the tested images. On dleapp_macos_bigsur"
+                 " path, with no leading slash on any .fseventsd row of the tested images; rows from "
+                 "db/fseventsd begin with a slash on all but the 1SLD rows: 2 on "
+                 "evidencelocker_macos14, 16 on mvs2026_macbookpro_macos15 and 2 on "
+                 "adams_macbookpro_macos26. On dleapp_macos_bigsur"
                  " the Data volume's .fseventsd holds 25 1SLD files of 2 records each, a "
                  ".fseventsd/sl-compat directory record and an End of transaction record with no path,"
                  " and 209 2SLD files, 528,473 rows in all; Record Extra (as stored) has no value on "
@@ -47,15 +64,19 @@ __artifacts_v2__ = {
                  "there took 55 values between 0 and 56. Node ID is blank on 1SLD rows. Path has "
                  "no value on 40 rows of dleapp_macos_bigsur, 25 of them End of transaction "
                  "records, 14 carrying the Mount flag and 1 carrying Renamed and Directory, and "
-                 "on 19 rows of the MacBook Pro, 17 End of transaction"
-                 " and 2 Mount. An Event ID above 9223372036854775807, the largest integer SQLite "
-                 "stores, is reported as text: all 668,539 on evidencelocker_macos14 are, from "
-                 "18427042000980820600 to 18427042000996205725.",
+                 "on 19 .fseventsd rows of the MacBook Pro, 17 End of transaction"
+                 " and 2 Mount, plus 8 End of transaction rows from its db/fseventsd. An Event ID above 9223372036854775807, the largest integer SQLite "
+                 "stores, is reported as text: all 668,539 .fseventsd rows on evidencelocker_macos14 are, "
+                 "from 18427042000980820600 to 18427042000996205725, and 123,621 of its 126,238 "
+                 "db/fseventsd rows, from 18427042000968274299 to 18427042000976618072.",
         "sample_data": {
-                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 528,473 rows",
-                     "evidencelocker_macos14": "macOS 14.6.1 build 23G93 | 668,539 rows",
+                     "adams_macbookpro_macos26": "macOS 26.2 build 25C56 | 1,442,865 rows (514 db/fseventsd)",
+                     "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 528,473 rows (none from db/fseventsd)",
+                     "evidencelocker_macos14": "macOS 14.6.1 build 23G93 | 794,777 rows (668,539 .fseventsd, 126,238 db/fseventsd)",
+                     "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 30,030 rows (none from db/fseventsd)",
+                     "mvs2026_macbookpro_macos15": "macOS 15.4 | 1,912,648 rows (1,759,879 .fseventsd, 152,769 db/fseventsd)",
                  },
-        "paths": ('*/.fseventsd/*',),
+        "paths": ('*/.fseventsd/*', '*/db/fseventsd/*'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "file-search",
     }
@@ -66,6 +87,7 @@ import struct
 import zlib
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.macos_plists import unique_sources
 
 _LABEL = 'FSEvents'
 # Event flag bits and their names, from the cited format documentation.
@@ -179,9 +201,10 @@ def macosFSEvents(context):
                     'Record Extra (as stored)', 'Format Version', 'Source File')
     results = context.create_artifact_result(headers=data_headers)
     sources = []
-    for path in sorted(str(p) for p in context.get_files_found()):
-        if os.path.isdir(path) or os.path.basename(path) == 'fseventsd-uuid':
-            continue
+    found = [str(p) for p in context.get_files_found()
+             if os.path.isfile(p) and os.path.basename(str(p)) != 'fseventsd-uuid']
+    kept, _skipped = unique_sources(context, found, label=_LABEL)
+    for path in sorted(kept):
         relative = context.get_relative_path(path)
         try:
             with open(path, 'rb') as handle:

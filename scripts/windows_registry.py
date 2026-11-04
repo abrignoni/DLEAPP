@@ -6,8 +6,9 @@ Offline hives are read with python-registry. Its key timestamps are the key's
 last-written FILETIME, returned as a naive datetime in UTC; these helpers hand
 back aware UTC datetimes so the report and LAVA store them as instants.
 
-open_hive replays a dirty hive's .LOG1 and .LOG2 transaction logs before
-python-registry reads it (scripts/registry_recovery.py).
+open_hive replays a dirty hive's .LOG1 and .LOG2 transaction logs, in either the
+format Windows 8.1 and later write or the older one, before python-registry reads
+it (scripts/registry_recovery.py).
 """
 
 import io
@@ -170,7 +171,12 @@ def open_hive(path, context=None):
             continue
     data, summary = recover(primary, logs)
     label = (context or Context).get_relative_path(str(path))
-    if summary['state'] == 'recovered':
+    if summary['state'] == 'recovered' and summary.get('format') == 'old':
+        name, sequence, _last = summary['applied'][0]
+        pages = f"{summary['pages']} dirty {'page' if summary['pages'] == 1 else 'pages'}"
+        logfunc(f"Registry: {label} was dirty; wrote the {pages} of {name}, a log in the older format, "
+                f"sequence {sequence}.")
+    elif summary['state'] == 'recovered':
         sources = ' and '.join(name for name, _first, _last in summary['applied'])
         entries = f"{summary['entries']} transaction log {'entry' if summary['entries'] == 1 else 'entries'}"
         logfunc(f"Registry: {label} was dirty; replayed {entries}, sequence "

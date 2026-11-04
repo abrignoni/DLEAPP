@@ -16,7 +16,7 @@ __artifacts_v2__ = {
                        "the order the file holds them, with the time the file was last written.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-14",
-        "last_update_date": "2026-10-14",
+        "last_update_date": "2026-10-29",
         "requirements": "none",
         "category": "Windows",
         "notes": "Reads Windows/AppCompat/Programs/RecentFileCache.bcf and reports one row per entry, in the order "
@@ -24,8 +24,7 @@ __artifacts_v2__ = {
                  "(Reference: RecentFileCacheParser, 'RecentFileCache/RecentFileCacheFile.cs', "
                  "https://github.com/EricZimmerman/RecentFileCacheParser/blob/cad0934d8c7910ad40c0839609453ee629bd9458/RecentFileCache/RecentFileCacheFile.cs): "
                  "a four-byte signature, FE FF EE FF, then from offset 0x14 one entry after another, each a 32-bit "
-                 "count of characters, the path in UTF-16 and a two-byte terminator. The bytes between the "
-                 "signature and the first entry are not read. Program Path is the path decoded from UTF-16, where "
+                 "count of characters, the path in UTF-16 and a two-byte terminator. Of the bytes between the signature and the first entry only the CRC-32 at offset 0x10 is read. File Checksum Matches is Yes when that value equals the CRC-32, as zlib computes it, of the file with those four bytes left out, the check RecentFileCacheParser makes since its 2026.10 release (https://github.com/EricZimmerman/RecentFileCacheParser/blob/f953a6028c09a57006be1fec365a69cda7c87acf/RecentFileCache/RecentFileCacheFile.cs#L62-L63, https://github.com/EricZimmerman/RecentFileCacheParser/blob/f953a6028c09a57006be1fec365a69cda7c87acf/RecentFileCache/Crc32.cs#L27-L45), and No when it does not; a mismatch is also named in the run log. A file shorter than 0x14 bytes yields no rows. It is the same on every row of a file. It was Yes on cfreds_leakage_win7, and the same computation gives the values RecentFileCacheParser's tests assert for its two sample files (0xF4637B64 and 0xE5918E10). No real file with a mismatch has been seen; No is exercised only with constructed input. Program Path is the path decoded from UTF-16, where "
                  "an invalid sequence would show as a replacement character, and Entry its position in the file. A "
                  "file that does not start with the signature, or an entry that runs past the end of the file or "
                  "is not followed by its terminator, is named in the run log, and the entries read before it are "
@@ -47,14 +46,12 @@ __artifacts_v2__ = {
                  "Data Leakage Case PC (Windows 7 Ultimate SP1): 21 rows, 21 distinct paths, all ending .exe and "
                  "written in lower case, 17 of them under c:\\windows. File Last Written held one value on all 21 "
                  "rows, 2015-03-25 15:15:52.256006 UTC, one microsecond later than the $MFT artifact's SI Modified "
-                 "for the file, 2015-03-25 15:15:52.256005 UTC. The corpus's other Windows disk images, "
-                 "pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10 and szechuan_dc01_server2012r2, "
-                 "hold no live file by that name. A row shows that a path was in the file when it was acquired; it "
+                 "for the file, 2015-03-25 15:15:52.256005 UTC. The corpus's 16 other Windows disk images, among them pc_mus_001_win11, af_case2_win10, lonewolf_win10, szechuan_win10 and szechuan_dc01_server2012r2, hold no live file by that name, matching Windows and Programs exactly, AppCompat with either case on its two initials, and the file name with either case on its three initials. A row shows that a path was in the file when it was acquired; it "
                  "gives no time, and by itself does not show that the program ran. Not exercised on real data: a "
                  "damaged file, tested with constructed input, and an input other than a raw image or E01: for a "
                  "tar File Last Written is the member's recorded modified time, for a zip its NTFS or extended "
                  "timestamp field when present, and for a folder or single file the modified time of the examiner's copy.",
-        "paths": ('*/Windows/AppCompat/Programs/RecentFileCache.bcf',),
+        "paths": ('*/Windows/[Aa]pp[Cc]ompat/Programs/[Rr]ecent[Ff]ile[Cc]ache.bcf',),
         "output_types": "standard",
         "artifact_icon": "list",
         "sample_data": {
@@ -70,6 +67,7 @@ __artifacts_v2__ = {
 
 import os
 import struct
+import zlib
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.linux_links import recorded_time, seeker_of
@@ -77,6 +75,16 @@ from scripts.linux_links import recorded_time, seeker_of
 _LABEL = 'RecentFileCache.bcf'
 _SIGNATURE = b'\xfe\xff\xee\xff'                # 0xFFEEFFFE read little-endian
 _FIRST_ENTRY = 0x14
+_CHECKSUM = 0x10
+
+
+def checksum_matches(data):
+    """'Yes' when the CRC-32 stored at 0x10 equals the CRC-32 (zlib's) of the file with those 4 bytes left
+    out, 'No' when it does not, '' for a file too short to hold it."""
+    if len(data) < _FIRST_ENTRY:
+        return ''
+    stored, = struct.unpack_from('<I', data, _CHECKSUM)
+    return 'Yes' if stored == zlib.crc32(data[:_CHECKSUM] + data[_CHECKSUM + 4:]) & 0xFFFFFFFF else 'No'
 
 
 def entries(data):
@@ -102,7 +110,7 @@ def entries(data):
 
 @artifact_processor
 def windowsRecentFileCache(context):
-    data_headers = (('File Last Written', 'datetime'), 'Program Path', 'Entry')
+    data_headers = (('File Last Written', 'datetime'), 'Program Path', 'Entry', 'File Checksum Matches')
     data_list, read = [], []
     seeker = seeker_of(context)
     for path in sorted(str(p) for p in context.get_files_found()):
@@ -119,7 +127,10 @@ def windowsRecentFileCache(context):
         if problem:
             logfunc(f'{_LABEL}: {relative} {problem}; {len(paths):,} entries read before it')
         written = recorded_time(seeker, path, None) if seeker is not None else ''
-        data_list.extend((written, program, number) for number, program in enumerate(paths, 1))
+        matches = checksum_matches(data)
+        if matches == 'No':
+            logfunc(f'{_LABEL}: {relative} holds a CRC-32 at 0x10 that does not match its contents')
+        data_list.extend((written, program, number, matches) for number, program in enumerate(paths, 1))
         if paths:
             read.append(path)
     return data_headers, data_list, '\n'.join(read)

@@ -253,6 +253,17 @@ def create_casedata(path):
     print()
     return
 
+def profile_plugins_not_found(profile_plugins, available_plugins):
+    """Names a profile lists that match no available artifact, sorted.
+
+    Profiles select artifacts by exact name. A name that was later changed, even only in
+    case, selected nothing and said nothing, so a profile could run fewer artifacts than it
+    lists without the examiner knowing.
+    """
+    available = {plugin.name for plugin in available_plugins}
+    return sorted(name for name in profile_plugins if name not in available)
+
+
 def main():
     parser = argparse.ArgumentParser(description='DLEAPP: Desktop, Logs, Events, and Protobuf Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'raw'], required=False, action="store",
@@ -331,9 +342,10 @@ def main():
                         help=("Credential for a current Signal Desktop profile, needed because "
                               "Signal encrypts its database and attachments (older profiles store "
                               "the key in the clear and need nothing). Accepts the 'Signal Safe "
-                              "Storage' credential from the OS credential store (macOS login "
-                              "Keychain, or the Windows Credential Manager), the 64 character "
-                              "database key itself, or the path to a file holding either. A macOS "
+                              "Storage' password from the macOS login Keychain, the libsecret or "
+                              "kwallet secret Signal stored on Linux, the 64 character "
+                              "database key itself (the only option for a Windows profile, whose "
+                              "key DLEAPP does not unwrap), or the path to a file holding either. A macOS "
                               "account login password will not work. Give the flag with no value "
                               "to be prompted without the secret reaching your shell history."))
     parser.add_argument('--threema-password', dest='threema_password', required=False, nargs='?',
@@ -349,6 +361,12 @@ def main():
                               "Desktop, for when it was recovered by other means. Accepts the key "
                               "itself or a path to a file holding it. Prefer --threema-password. "
                               "An already-decrypted threema.sqlite needs neither."))
+    parser.add_argument('--windows-user-password', dest='windows_user_password', required=False,
+                        nargs='?', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        help=("Cleartext password of a Windows user account, used to recover that "
+                              "account's DPAPI master keys and decrypt its user Vault. Accepts the "
+                              "password itself or a path to a file holding it. Give the flag with "
+                              "no value to be prompted without it reaching your shell history."))
 
 
     # Check if no arguments were provided
@@ -470,6 +488,10 @@ def main():
             return
         selected_plugins = [selected_plugin for selected_plugin in available_plugins
                             if selected_plugin.name in profile_plugins]
+        unknown = profile_plugins_not_found(profile_plugins, available_plugins)
+        if unknown:
+            print(f"Warning: the profile names {len(unknown)} artifact(s) this version "
+                  f"does not have, which will not run: {', '.join(unknown)}")
 
     input_path = args.input_path
     wrap_text = args.wrap_text
@@ -482,6 +504,9 @@ def main():
         Context.set_app_secret('threema', resolve_supplied_secret(args.threema_key, 'Threema key'))
         Context.set_app_secret('threema_password',
                                resolve_supplied_secret(args.threema_password, 'Threema password'))
+        Context.set_app_secret('windows_user_password',
+                               resolve_supplied_secret(args.windows_user_password,
+                                                       'Windows user password'))
     except argparse.ArgumentError as secret_error:
         print(secret_error)
         return
@@ -516,7 +541,7 @@ def main():
     Context.set_output_params(out_params)
 
     initialize_lava(input_text(input_path, found_members),
-                    out_params.output_folder_base, extracttype, profile_filename)
+                    out_params.output_folder_base, extracttype, profile_filename, casedata)
 
     # Record history if enabled
     if isinstance(input_path, list):
@@ -655,6 +680,7 @@ def crunch_artifacts(
             else:
                 search_regexes = [plugin.search]
             files_found = []
+            found_already = set()
             log.write(f'<b>For {plugin.name} artifact</b>')
             if search_regexes is None:
                 log.write(f'<ul><li>No search regexes provided for {plugin.name} artifact.')
@@ -692,7 +718,9 @@ def crunch_artifacts(
                                     file_path_ids.add(file_path_id)
                                 lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, file_path_id)
                         log.write(f'</li></ul>')
-                        files_found.extend(found)
+                        # a file two of the artifact's patterns match is handed to it once
+                        files_found.extend(path for path in found if path not in found_already)
+                        found_already.update(found)
             if files_found:
                 if not lava_only and 'lava_only' in output_types:
                     lava_only = True

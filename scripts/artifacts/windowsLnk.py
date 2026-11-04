@@ -11,7 +11,7 @@ target was last known to reside and the NTFS object identifiers of the target
 and its volume.
 """
 
-from scripts.windows_lnk import parse_lnk, target_path, tracker_columns
+from scripts.windows_lnk import parse_lnk, target_path, text_mode_damaged, tracker_columns
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 _LNK = ".lnk"
@@ -25,16 +25,17 @@ __artifacts_v2__ = {
                        "object IDs of the target and its volume.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in a user's Recent folder "
-                 "(AppData\\Roaming\\Microsoft\\Windows\\Recent), read from the files named "
+                 "(AppData\\Roaming\\Microsoft\\Windows\\Recent, or Documents and Settings\\<user>\\Recent "
+                 "on Windows XP), read from the files named "
                  "in Source File. Each row is one shell link. What wrote a given link "
                  "here, and when, is not established by this artifact; a row does not "
                  "record who was at the keyboard, and the target may since have been "
                  "moved or deleted. Target Path is the local path stored in the link "
-                 "(LinkInfo), or the network path for a target on a share, or a shell "
+                 "(LinkInfo), or for a target on a share the share name and the path below it, or a shell "
                  "path rebuilt from the link's target id list when the link stores no "
                  "file path (a known shell-folder name where the GUID is documented, "
                  "otherwise the raw {GUID}); a link to a URI or app shows its root "
@@ -55,14 +56,16 @@ __artifacts_v2__ = {
                  "lived on, from the link's VolumeID; Drive Type is named from the "
                  "Windows GetDriveType constants and Drive Serial and Volume Label are "
                  "as stored; all three are blank for a network or virtual target. "
-                 "Network Path is the UNC path when the target is on a network share, "
-                 "blank for a local target. Arguments is any command line stored in the "
+                 "Network Path is the UNC name of the share when the target is on a network share, "
+                 "blank for a local target. The share name is read from its UTF-16 copy when the link stores one (libyal liblnk, 'Windows Shortcut File (LNK) format' at f80bdb225cb847916f6d163da9127919969c299d, lines 367-369), and from its other copy otherwise; on a test link Windows 11 made to a share named in Cyrillic and Chinese characters, the other copy held question marks and the UTF-16 copy the name, as LECmd also reads it. None of the 23 network links on the five corpus images read for this check (cfreds_hacking_case_winxp, cfreds_leakage_win7, ou_ransomware_server2022, alihadi_challenge3_win81, hexordia_mvs2025_win11) stores the UTF-16 copy. Arguments is any command line stored in the "
                  "link, blank for a plain file shortcut. Machine ID is the "
                  "TrackerDataBlock's MachineID, which [MS-SHLLINK] gives as 'the NetBIOS"
                  " name of the machine where the link target was last known to reside' "
                  "(https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/df8e3748-fba5-4524-968a-f72be06d71fc);"
-                 " it is blank when the link carries no such block, and it was filled on"
-                 " the same 58 of the 91 tested rows as the droid columns. Droid Volume "
+                 " it is blank when the link carries no such block or stores zeros there, and it was filled on"
+                 " the same 58 of the 91 rows of the four Windows 10 and 11 images as the droid columns;"
+                 " on cfreds_hacking_case_winxp it was filled on 2 of the 4 links with the block, and the"
+                 " other 2, both with a network target, store zeros. Droid Volume "
                  "ID, Droid File ID, Birth Droid Volume ID and Birth Droid File ID are "
                  "the TrackerDataBlock's Droid and DroidBirth values, two GUIDs each, "
                  "which [MS-SHLLINK] says are 'used to find the link target with the "
@@ -74,8 +77,8 @@ __artifacts_v2__ = {
                  "metadata file and the file one in that of the file "
                  "(https://github.com/libyal/liblnk/blob/f80bdb225cb847916f6d163da9127919969c299d/documentation/Windows%20Shortcut%20File%20(LNK)%20format.asciidoc#L656-L674)."
                  " They are blank when the link carries no TrackerDataBlock; 58 of the "
-                 "91 tested rows carry one. Checked with The Sleuth Kit 4.15.0 on the "
-                 "four public images: on each of the 49 rows whose Drive Serial is that "
+                 "91 rows of the four Windows 10 and 11 images, and 4 of the 8 on cfreds_hacking_case_winxp, carry one. Checked with The Sleuth Kit 4.15.0 on the "
+                 "four Windows 10 and 11 images: on each of the 49 rows whose Drive Serial is that "
                  "of an NTFS volume in the image, Droid Volume ID and Birth Droid Volume"
                  " ID equal that volume's $Volume object ID, and on each of the 44 of "
                  "those whose Target Path The Sleuth Kit found by name in that volume, "
@@ -98,8 +101,16 @@ __artifacts_v2__ = {
                  "Microsoft [MS-SHLLINK], "
                  "https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/16cb4ca1-9339-4d0c-a68d-bf1d6cc0f943"
                  " ; and libyal liblnk, Windows Shortcut File format, "
-                 "https://github.com/libyal/liblnk/blob/f80bdb225cb847916f6d163da9127919969c299d/documentation/Windows%20Shortcut%20File%20(LNK)%20format.asciidoc",
-        "paths": ("*/Microsoft/Windows/[Rr]ecent/*.[Ll][Nn][Kk]",),
+                 "https://github.com/libyal/liblnk/blob/f80bdb225cb847916f6d163da9127919969c299d/documentation/Windows%20Shortcut%20File%20(LNK)%20format.asciidoc"
+                 " A file whose every LF byte follows a CR byte, whose extra data does not end with the terminal block"
+                 " at the end of the file, and which does once the CR byte before each LF is removed (the change a "
+                 "copy in text mode, such as an ASCII mode FTP transfer, makes to a binary file) is named in the run "
+                 "log as such and not reported. Each of the 211 shell links these two artifacts read across the registered corpus images on 2026-10-30 "
+                 "ends with the terminal block at the end of the file, and none was in that state; each of the 55 that"
+                 " hold an LF byte, copied with a CR byte added before each LF for the test, was found by this check. "
+                 "On those images none of the 211 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
+                 " is a column; Windows Jump Lists reports both.",
+        "paths": ("*/Microsoft/Windows/[Rr]ecent/*.[Ll][Nn][Kk]", "*/Documents and Settings/*/[Rr]ecent/*.[Ll][Nn][Kk]"),
         "output_types": ["standard"],
         "artifact_icon": "link",
         "sample_data": {
@@ -107,6 +118,9 @@ __artifacts_v2__ = {
             "af_case2_win10": "Windows 10 1809 build 17763 | 14 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 38 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 19 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 8 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 17 rows",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 35 rows",
         },
     },
     "windowsLnkOfficeRecent": {
@@ -115,7 +129,7 @@ __artifacts_v2__ = {
                        "path, recorded timestamps, size and volume, and the link's tracker block.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-17",
-        "last_update_date": "2026-10-17",
+        "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in a user's Microsoft Office Recent folder "
@@ -140,7 +154,15 @@ __artifacts_v2__ = {
                  "Birth Droid File ID equal Droid Volume ID and Droid File ID on all 14. On lonewolf_win10 Drive "
                  "Type, Drive Serial, Machine ID, Droid Volume ID and Birth Droid Volume ID each held one value on "
                  "all 8 rows, and Volume Label and Network Path were blank on all 8; on hexordia_mvs2025_win11 "
-                 "Network Path was blank on its one row.",
+                 "Network Path was blank on its one row."
+                 " A file whose every LF byte follows a CR byte, whose extra data does not end with the terminal block"
+                 " at the end of the file, and which does once the CR byte before each LF is removed (the change a "
+                 "copy in text mode, such as an ASCII mode FTP transfer, makes to a binary file) is named in the run "
+                 "log as such and not reported. Each of the 211 shell links these two artifacts read across the registered corpus images on 2026-10-30 "
+                 "ends with the terminal block at the end of the file, and none was in that state; each of the 55 that"
+                 " hold an LF byte, copied with a CR byte added before each LF for the test, was found by this check. "
+                 "On those images none of the 211 has an ICON_LOCATION string or an IconEnvironmentDataBlock, so neither"
+                 " is a column; Windows Jump Lists reports both.",
         "paths": ("*/Microsoft/Office/[Rr]ecent/*.[Ll][Nn][Kk]",),
         "output_types": ["standard"],
         "artifact_icon": "link",
@@ -148,6 +170,7 @@ __artifacts_v2__ = {
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 7 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 8 rows",
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 1 row",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 0 rows (no member matches the declared paths)",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
@@ -157,22 +180,88 @@ __artifacts_v2__ = {
                                           "declared paths)",
         },
     },
+    "windowsLnkPlaced": {
+        "name": "Desktop, Taskbar and Startup Shell Links",
+        "description": "Shell links (.lnk) on a user's or the Public desktop, in the taskbar pins folder, or in a "
+                       "Startup folder, with each target's path, recorded timestamps, size and volume, and the "
+                       "link's tracker block.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-04",
+        "last_update_date": "2026-11-04",
+        "requirements": "none",
+        "category": "Windows",
+        "notes": "Rows from the .lnk shell links in four places, named in Location: a user's Desktop folder "
+                 "(Users\\<user>\\Desktop, or Documents and Settings\\<user>\\Desktop on Windows XP), the "
+                 "Public desktop (Users\\Public\\Desktop; the Windows XP All Users desktop is handled the same way), the taskbar "
+                 "pins folder (AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\"
+                 "TaskBar), and a Startup folder, the user's (Startup (User)), or the ProgramData one or the Windows "
+                 "XP All Users one (Startup (All users)). On the corpus images the rows were in the Desktop, "
+                 "Public desktop and taskbar pins folders; Startup (User) was exercised by one link on "
+                 "windows11_arm_startupapproved_known_20261104, and Startup (All users) and the Windows XP All "
+                 "Users desktop by no image. A link in a folder below the Desktop folder is listed as Desktop. Every other "
+                 "column, and the handling of a file that does not read as a shell link, is as described in "
+                 "Recent Shell Links (LNK), which reads the same fields with the same code. User is the folder "
+                 "name after Users or Documents and Settings in the path, blank for the Public and All Users "
+                 "folders. A link here can be made by an installer or be a Windows default, so a row records that the link is in that place, not that a person put it there "
+                 "or opened it. Links in the Start Menu, the Win+X menu (AppData\\Local\\Microsoft\\Windows"
+                 "\\WinX), the Links folder, service profiles and Windows' own folders are not listed; on the "
+                 "surveyed corpus images those folders held shortcuts named for Windows features and installed "
+                 "programs, and a path listing does not tell whether a person placed any of them. A Startup folder's other files are listed by Startup Folder Items. "
+                 "Format: Microsoft [MS-SHLLINK], "
+                 "https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/16cb4ca1-9339-4d0c-a68d-bf1d6cc0f943.",
+        "paths": ("*/Users/*/Desktop/*.[Ll][Nn][Kk]",
+                  "*/Documents and Settings/*/Desktop/*.[Ll][Nn][Kk]",
+                  "*/Quick Launch/User Pinned/[Tt]ask[Bb]ar/*.[Ll][Nn][Kk]",
+                  "*/Start Menu/Programs/[Ss]tart[Uu]p/*.[Ll][Nn][Kk]"),
+        "output_types": ["standard"],
+        "artifact_icon": "link",
+        "sample_data": {
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 8 rows",
+            "af_case2_win10": "Windows 10 1809 build 17763 | 3 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 12 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 8 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 7 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 13 rows",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 12 rows",
+            "alihadi_challenge3_win81": "Windows 8.1 Enterprise build 9600 | 4 rows",
+            "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
+            "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 5 rows",
+            "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 3 rows",
+            "windows11_arm_startupapproved_known_20261104": "Windows 11 build 26200 | 1 row",
+        },
+    },
 }
 
 
-def _link_rows(context, label):
-    """One row per shell link in files_found, and the staged paths read."""
+def _office_recent(relative_source):
+    """True for a link in a Microsoft\\Office\\Recent folder, which Office Recent Shell Links reads.
+    The XP Recent pattern's wildcard also crosses into that folder."""
+    return '/microsoft/office/' in '/' + relative_source.replace('\\', '/').lower()
+
+
+def _link_rows(context, label, skip=None):
+    """One row per shell link in files_found, and the staged paths read. skip, given the
+    evidence-relative path, leaves a link to another artifact."""
     data_list = []
     sources = []
     not_links = 0
+    damaged = 0
     for source in sorted(str(f) for f in context.get_files_found()
                          if str(f).lower().endswith(_LNK)):
         relative_source = context.get_relative_path(source)
+        if skip and skip(relative_source):
+            continue
         try:
             with open(source, 'rb') as handle:
-                parsed = parse_lnk(handle.read())
+                data = handle.read()
+            parsed = parse_lnk(data)
         except OSError as exc:
             logfunc(f'{label}: could not read {relative_source}: {exc}')
+            continue
+        if text_mode_damaged(data):
+            damaged += 1
+            logfunc(f'{label}: {relative_source} reads as a whole shell link only with the CR byte before each LF '
+                    'removed, as a copy in text mode leaves a binary file, and was not reported')
             continue
         if parsed.get('error'):
             not_links += 1
@@ -193,6 +282,9 @@ def _link_rows(context, label):
         sources.append(source)
     if not_links:
         logfunc(f'{label}: {not_links} file(s) named .lnk did not read as a shell link and were not reported')
+    if damaged:
+        logfunc(f'{label}: {damaged} file(s) named .lnk read as a whole shell link only with the CR byte before '
+                'each LF removed, the state a copy in text mode leaves, and were not reported')
     return data_list, sources
 
 
@@ -206,7 +298,7 @@ def windowsLnkRecent(context):
                     'Machine ID', 'Droid Volume ID', 'Droid File ID',
                     ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
                     'Birth Droid Volume ID', 'Birth Droid File ID', 'Source File')
-    data_list, sources = _link_rows(context, 'Recent Shell Links')
+    data_list, sources = _link_rows(context, 'Recent Shell Links', skip=_office_recent)
     return data_headers, data_list, "\n".join(sources)
 
 
@@ -221,4 +313,58 @@ def windowsLnkOfficeRecent(context):
                     ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
                     'Birth Droid Volume ID', 'Birth Droid File ID', 'Source File')
     data_list, sources = _link_rows(context, 'Office Recent Shell Links')
+    return data_headers, data_list, "\n".join(sources)
+
+
+def link_location(relative_source):
+    """(location, user) for a link in one of the places Desktop, Taskbar and Startup Shell Links reads,
+    or None for any other path."""
+    parts = relative_source.replace('\\', '/').split('/')
+    lowered = [part.lower() for part in parts]
+    joined = '/'.join(lowered)
+    owner = ''
+    for root in ('users', 'documents and settings'):
+        if root in lowered:
+            index = lowered.index(root)
+            owner = parts[index + 1] if index + 1 < len(parts) else ''
+            break
+    shared = owner.lower() in ('public', 'all users')
+    if '/start menu/programs/startup/' in joined:
+        if 'programdata' in lowered or shared:
+            return 'Startup (All users)', ''
+        return 'Startup (User)', owner
+    if '/quick launch/user pinned/taskbar/' in joined:
+        return 'Taskbar pins folder', owner
+    for root in ('users', 'documents and settings'):
+        if root in lowered:
+            index = lowered.index(root)
+            if index + 2 < len(lowered) and lowered[index + 2] == 'desktop':
+                return ('Public desktop', '') if shared else ('Desktop', owner)
+    return None
+
+
+@artifact_processor
+def windowsLnkPlaced(context):
+    data_headers = (('Target Modified (UTC)', 'datetime'),
+                    ('Target Created (UTC)', 'datetime'),
+                    ('Target Accessed (UTC)', 'datetime'),
+                    'Target Path', 'Location', 'Target Size (bytes)', 'Drive Type',
+                    'Drive Serial', 'Volume Label', 'Network Path', 'Arguments',
+                    'Machine ID', 'Droid Volume ID', 'Droid File ID',
+                    ('Droid File ID Time (UTC)', 'datetime'), 'Droid File ID Node',
+                    'Birth Droid Volume ID', 'Birth Droid File ID', 'User', 'Source File')
+    skipped = []
+    def skip(relative_source):
+        if link_location(relative_source) is None:
+            skipped.append(relative_source)
+            return True
+        return False
+    rows, sources = _link_rows(context, 'Desktop, Taskbar and Startup Shell Links', skip=skip)
+    data_list = []
+    for row in rows:
+        location, user = link_location(row[-1])
+        data_list.append(row[:4] + (location,) + row[4:-1] + (user, row[-1]))
+    if skipped:
+        logfunc(f'Desktop, Taskbar and Startup Shell Links: {len(skipped)} link(s) matched a path pattern but are '
+                'not in one of the four places listed and were not reported')
     return data_headers, data_list, "\n".join(sources)

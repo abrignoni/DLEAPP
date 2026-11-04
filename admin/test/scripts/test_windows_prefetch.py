@@ -1,11 +1,14 @@
-"""Pin where Prefetch reads the run count in the two version 30 file information variants, and which SCCA
-versions the reader takes."""
+"""Pin where Prefetch reads the run count in the two version 30 file information variants, which SCCA
+versions the reader takes, and its reading of uncompressed version 17, 23 and 26 files against values
+Eric Zimmerman's Prefetch tests assert for them (admin/test/data/prefetch/README.md)."""
+import gzip
 import os
 import pathlib
 import struct
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -34,17 +37,17 @@ def scca(metrics_offset, run_count_at, run_count, other=0, version=30):
 
 class RunCountTest(unittest.TestCase):
     def test_variant_1_keeps_the_run_count_at_208(self):
-        info = windowsPrefetch._parse_scca_v30(scca(304, 208, 12, other=3))  # pylint: disable=protected-access
+        info = windowsPrefetch._parse_scca(scca(304, 208, 12, other=3), 30)  # pylint: disable=protected-access
         self.assertEqual(info['run_count'], 12)
         self.assertEqual(info.get('metrics_offset'), 304)
 
     def test_variant_2_keeps_the_run_count_at_200(self):
-        info = windowsPrefetch._parse_scca_v30(scca(296, 200, 12, other=3))  # pylint: disable=protected-access
+        info = windowsPrefetch._parse_scca(scca(296, 200, 12, other=3), 30)  # pylint: disable=protected-access
         self.assertEqual(info['run_count'], 12)
         self.assertEqual(info.get('metrics_offset'), 296)
 
     def test_an_unknown_layout_leaves_the_run_count_blank_and_says_so(self):
-        info = windowsPrefetch._parse_scca_v30(scca(280, None, 0, other=5))  # pylint: disable=protected-access
+        info = windowsPrefetch._parse_scca(scca(280, None, 0, other=5), 30)  # pylint: disable=protected-access
         self.assertEqual(info['run_count'], '')
 
         class Context:  # pylint: disable=too-few-public-methods
@@ -105,11 +108,66 @@ class VersionTest(unittest.TestCase):
         self.assertEqual((len(parsed), parsed[0][2]['run_count'], logged), (1, 7, []))
 
     def test_another_version_is_skipped_and_named_in_the_run_log(self):
-        for version in (26, 29, 32):
+        for version in (25, 29, 32):
             with self.subTest(version=version):
                 parsed, logged = self.read({'OLD.EXE-00000001.pf': scca(296, 200, 12, version=version)})
                 self.assertEqual(parsed, [])
                 self.assertEqual(logged, [f'Prefetch: OLD.EXE-00000001.pf SCCA version {version} not supported, skipped'])
+
+
+DATA = REPO_ROOT / 'admin' / 'test' / 'data' / 'prefetch'
+MST = timezone(timedelta(hours=-7))
+
+
+class UncompressedVersionTest(unittest.TestCase):
+    """Values Eric Zimmerman's TestVersion17, 23 and 26 tests assert for these three files, for the fields this module reports."""
+    CASES = {
+        'Win2k3_CMD.EXE-087B4001.pf.gz': dict(
+            version=17, executable='CMD.EXE', run_count=3,
+            last_run=datetime(2016, 1, 15, 16, 1, 40, 875000, tzinfo=MST),
+            volume=('\\DEVICE\\HARDDISKVOLUME1', '64BB3469', datetime(2016, 1, 15, 8, 45, 15, 890625, tzinfo=MST)),
+            files=16, file3='\\DEVICE\\HARDDISKVOLUME1\\WINDOWS\\SYSTEM32\\LOCALE.NLS'),
+        'Win7_CALC.EXE-77FDF17F.pf.gz': dict(
+            version=23, executable='CALC.EXE', run_count=2,
+            last_run=datetime(2016, 1, 16, 13, 27, 1, 196750, tzinfo=MST),
+            volume=('\\DEVICE\\HARDDISKVOLUME2', '88008C2F', datetime(2016, 1, 16, 14, 15, 18, 109375, tzinfo=MST)),
+            files=None, file3=None),
+        'Win8x__CMD.EXE-4A81B364.pf.gz': dict(
+            version=26, executable='CMD.EXE', run_count=2,
+            last_run=datetime(2016, 1, 16, 14, 25, 41, 534117, tzinfo=MST),
+            volume=('\\DEVICE\\HARDDISKVOLUME2', 'A26E529A', None),
+            files=None, file3=None),
+    }
+
+    def test_the_values_the_reference_tests_assert(self):
+        for name, want in self.CASES.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as folder:
+                with gzip.open(DATA / name, 'rb') as packed, open(os.path.join(folder, name[:-3]), 'wb') as out:
+                    out.write(packed.read())
+                with mock.patch.object(windowsPrefetch, 'logfunc') as log:
+                    parsed = list(windowsPrefetch._parsed_prefetch(_Context(folder), 'Prefetch'))  # pylint: disable=protected-access
+                self.assertEqual(log.call_args_list, [])
+                info = parsed[0][2]
+                self.assertEqual((info['version'], info['executable'], info['run_count']),
+                                 (want['version'], want['executable'], want['run_count']))
+                self.assertEqual(info['run_times'][0], want['last_run'])
+                self.assertEqual(info['volumes'][0][:2], want['volume'][:2])
+                if want['volume'][2]:
+                    self.assertEqual(info['volumes'][0][2], want['volume'][2])
+                if want['files']:
+                    self.assertEqual((len(info['files']), info['files'][3]), (want['files'], want['file3']))
+
+    def test_versions_17_and_23_keep_one_run_time(self):
+        for name in ('Win2k3_CMD.EXE-087B4001.pf.gz', 'Win7_CALC.EXE-77FDF17F.pf.gz'):
+            with gzip.open(DATA / name, 'rb') as packed:
+                data = packed.read()
+            info = windowsPrefetch._parse_scca(data, struct.unpack_from('<I', data, 0)[0])  # pylint: disable=protected-access
+            self.assertEqual(len(info['run_times']), 1, name)
+
+    def test_filetimes_are_cut_to_whole_microseconds_without_float_error(self):
+        # 2016-01-15 15:45:15.8906250 UTC as a FILETIME; a float division gives .890624.
+        self.assertEqual(windowsPrefetch._filetime(130973463158906250),  # pylint: disable=protected-access
+                         datetime(2016, 1, 15, 15, 45, 15, 890625, tzinfo=timezone.utc))
 
 
 if __name__ == '__main__':

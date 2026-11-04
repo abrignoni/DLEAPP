@@ -8,9 +8,9 @@ Author: @AlexisBrignoni, Codex
 """
 
 import os
-import re
 import struct
 
+from scripts.chromium.cache_key import key_to_url
 from scripts.chromium.simple_cache import (
     base_time_to_datetime,
     decode_body,
@@ -23,7 +23,6 @@ _DEFAULT_TABLE_LENGTH = 0x10000
 _BLOCK_HEADER_SIZE = 8192
 _BLOCK_SIZES = {1: 36, 2: 256, 3: 1024, 4: 4096}
 _INITIALIZED_MASK = 0x80000000
-_URL_RE = re.compile(r"https?://")
 
 
 class BlockfileEntry:
@@ -33,7 +32,7 @@ class BlockfileEntry:
         "address", "source", "key", "url", "key_prefix", "created",
         "last_used", "request_time", "response_time", "status_code",
         "status_line", "headers", "body_size", "body_source",
-        "body_address", "cache_dir",
+        "body_address", "cache_dir", "reuse_count", "response_info",
     )
 
     def __init__(self):
@@ -53,6 +52,8 @@ class BlockfileEntry:
         self.body_source = ""
         self.body_address = 0
         self.cache_dir = ""
+        self.reuse_count = 0
+        self.response_info = b""
 
     @property
     def content_type(self):
@@ -87,14 +88,6 @@ def _address_parts(address):
     }
 
 
-def _key_to_url(key):
-    matches = list(_URL_RE.finditer(key))
-    if not matches:
-        return key, ""
-    match = matches[-1]
-    return key[:match.start()], key[match.start():]
-
-
 def _read_address(cache_dir, address, size=None):
     parts = _address_parts(address)
     if not parts["initialized"]:
@@ -126,6 +119,7 @@ def _entry(cache_dir, address):
         return None, 0
     try:
         next_address = struct.unpack_from("<I", raw, 4)[0]
+        reuse_count = struct.unpack_from("<i", raw, 12)[0]
         state = struct.unpack_from("<i", raw, 20)[0]
         created = struct.unpack_from("<Q", raw, 24)[0]
         key_length, long_key = struct.unpack_from("<iI", raw, 32)
@@ -147,7 +141,7 @@ def _entry(cache_dir, address):
     item.address = address
     item.source = source
     item.key = key_raw.rstrip(b"\x00").decode("utf-8", "replace")
-    item.key_prefix, item.url = _key_to_url(item.key)
+    item.key_prefix, item.url = key_to_url(item.key)
     item.created = base_time_to_datetime(created)
 
     ranking_address = struct.unpack_from("<I", raw, 8)[0]
@@ -156,6 +150,8 @@ def _entry(cache_dir, address):
         item.last_used = base_time_to_datetime(struct.unpack_from("<Q", ranking)[0])
 
     stream0, _ = _read_address(cache_dir, data_addresses[0], data_sizes[0])
+    item.reuse_count = reuse_count
+    item.response_info = stream0
     (request_time, response_time, item.status_line,
      item.headers) = parse_response_info(stream0)
     item.request_time = base_time_to_datetime(request_time)
