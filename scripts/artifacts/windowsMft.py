@@ -98,7 +98,23 @@ __artifacts_v2__ = {
             "cfreds_hacking_case_winxp": "Windows XP build 2600 | 12179 rows",
         },
         "artifact_icon": "files",
-    }
+    },
+    "windowsMftSiBeforeFn": {
+        "name": "MFT SI Created Earlier Than FN Created",
+        "description": "Records of an NTFS master file table whose $STANDARD_INFORMATION creation time is earlier "
+                       "than the creation time in their $FILE_NAME, with the gap, the SI record-changed time and "
+                       "the folders the record's names are in.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-04",
+        "last_update_date": "2026-11-04",
+        "requirements": "none",
+        "category": "File System (Windows)",
+        "notes": "NOTES_PLACEHOLDER",
+        "paths": ('*/$MFT',),
+        "output_types": "standard",
+        "sample_data": {},
+        "artifact_icon": "clock",
+    },
 }
 
 import os
@@ -194,5 +210,83 @@ def windowsMft(context):
                 sources.append(stream)
         else:
             logfunc(f'{_LABEL}: no named records read from {member}')
+    results.set_source_path('\n'.join(sources))
+    return results
+
+
+
+_TICKS_PER_SECOND = 10_000_000
+
+
+def folder_class(path):
+    """The folder a rooted path is in, by its literal leading folders, or '' for no path."""
+    if not path:
+        return ''
+    parts = [part.lower() for part in path.strip('/').split('/')]
+    if parts[0] == 'windows':
+        return 'Windows\\WinSxS' if len(parts) > 1 and parts[1] == 'winsxs' else 'Windows (other)'
+    if parts[0] in ('program files', 'program files (x86)'):
+        return 'Program Files'
+    if parts[0] == 'programdata':
+        return 'ProgramData'
+    if parts[0] in ('users', 'documents and settings'):
+        return 'Users'
+    return 'Other'
+
+
+def si_before_fn_rows(handle, index):
+    """One row per named base record whose SI creation FILETIME is below its chosen $FILE_NAME's, compared
+    as stored (100 ns ticks), without the Source File column."""
+    for _number, record in iter_mft(handle):
+        if record is None or record.base & _REFERENCE_MASK:
+            continue
+        index.fold(record)
+        chosen = record.best_name()
+        if chosen is None or not record.std_times:
+            continue
+        si_created, _si_modified, si_changed, _si_read = record.std_times
+        fn_created = chosen[3][0]
+        if not si_created or not fn_created or si_created >= fn_created:
+            continue
+        path = '/' if record.number == ROOT_RECORD else _rooted(index.path_of_name(chosen))
+        names = [path] + [_rooted(index.path_of_name(name)) for name in record.link_names() if name is not chosen]
+        folders = '; '.join(sorted({folder_class(name) for name in names if name}))
+        others = [_rooted(index.path_of_name(name)) or name[2]
+                  for name in record.link_names() if name is not chosen]
+        yield (filetime(si_created), filetime(fn_created), round((fn_created - si_created) / _TICKS_PER_SECOND, 7),
+               filetime(si_changed), 'Yes' if si_created % _TICKS_PER_SECOND == 0 else 'No', folders, path,
+               chosen[2], 'Yes' if record.in_use else 'No', 'Yes' if record.is_dir else 'No', '; '.join(others),
+               record.number)
+
+
+@artifact_processor
+def windowsMftSiBeforeFn(context):
+    data_headers = (('SI Created', 'datetime'), ('FN Created', 'datetime'), 'Gap (seconds)',
+                    ('SI Record Changed', 'datetime'), 'SI Created Whole Second', 'Folders', 'Path', 'Name',
+                    'In Use', 'Directory', 'Other Links', 'Record', 'Source File')
+    label = 'MFT SI Created Earlier Than FN Created'
+    results = context.create_artifact_result(headers=data_headers)
+    seeker = context.get_seeker()
+    infos = getattr(seeker, 'file_infos', {}) if seeker else {}
+    sources = []
+    for path in sorted(str(p) for p in context.get_files_found()):
+        if os.path.isdir(path):
+            continue
+        member = _member(context, infos, path)
+        if not (member.endswith('/$MFT') or member == '$MFT'):
+            continue
+        try:
+            index = mft_index(path)
+            relative = context.get_relative_path(path)
+            rows = 0
+            with open(path, 'rb') as handle:
+                for row in si_before_fn_rows(handle, index):
+                    results.add_row(row + (relative,))
+                    rows += 1
+        except OSError as exc:
+            logfunc(f'{label}: could not read {member}: {type(exc).__name__}')
+            continue
+        if rows:
+            sources.append(path)
     results.set_source_path('\n'.join(sources))
     return results
