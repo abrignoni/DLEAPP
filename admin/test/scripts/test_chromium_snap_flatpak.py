@@ -68,7 +68,7 @@ class PathsTest(unittest.TestCase):
                     for prefix in PREFIXES:
                         self.assertIn(prefix + rest, patterns, key)
                     counted += 1
-        self.assertEqual(counted, 33)
+        self.assertEqual(counted, 34)
 
     def test_the_known_stores_match(self):
         paths = artifact_paths()
