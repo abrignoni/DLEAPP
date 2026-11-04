@@ -34,22 +34,21 @@ __artifacts_v2__ = {
     "legacyEdgeFavorites": {
         "name": "Legacy Edge Favorites",
         "description": "Favorites saved in legacy Microsoft Edge (EdgeHTML), from the Favorites table of "
-                       "spartan.edb, with their folder, the time each was last updated and whether Edge "
-                       "marked it deleted.",
+                       "spartan.edb, with their folder, the DateUpdated time and the IsDeleted column.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
-        "notes": "One row per favorite (a Favorites table row whose IsFolder is not set) in each spartan.edb, "
+        "notes": "One row per favorite (a Favorites table row whose IsFolder is not 255) in each spartan.edb, "
                  "named in Source File: the live database under the Edge package's DataStore folder, and the "
                  "copies under MicrosoftEdgeBackups when present. The columns are read as Chromium's Edge "
                  "importer reads them, whose comment gives the table's schema (" "https://github.com/chromium/chromium/blob/b9c0ca47c45c16d8b6b9686a5b06c6412d49eeaf/chrome/utility/importer/edge_importer_win.cc" "#L194-L211): "
-                 "Title and URL as stored, Date Updated (UTC) from DateUpdated, a little-endian Windows "
+                 "Title and URL as the ESE reader decodes them from the column's code page (a NULL is blank), Date Updated (UTC) from DateUpdated, a little-endian Windows "
                  "FILETIME (a 0 is shown blank), and Folder from ParentId, naming each folder row the "
                  "favorite sits in by its Title, outermost first, joined by \" > \". A favorite whose "
                  "ParentId names no folder row is placed at the top, as the importer does (#L286-L293). "
-                 "_Favorites_Bar_ is the folder the importer treats as the favorites bar (#L38). Is "
+                 "_Favorites_Bar_ is the folder the importer treats as the favorites bar (#L38 and #L127). Is "
                  "Deleted is the IsDeleted Bit column: Yes when it holds 255 (true, as Firefox's ESE reader "
                  "reads a Bit, " "https://github.com/mozilla-firefox/firefox/blob/8cd6654295f5f314374f36df6226d21a73cbac44/" "browser/components/migration/ESEDBReader.sys.mjs#L587-L589), "
                  "No when it holds 0, and blank when the column is NULL; both importers skip a row with "
@@ -60,7 +59,7 @@ __artifacts_v2__ = {
                  "with the reason in the run log; each tested database in dirty shutdown was read as stored. "
                  "Edge, or an importer that opens the database through Windows' own ESE engine, may see "
                  "rows a database read as stored does not show. A record ESE marks deleted is not read and "
-                 "is counted in the run log. Rows of folders are not listed. Source: Chromium's Edge "
+                 "is counted in the run log. Rows of folders are not listed. User is taken from the path. Source: Chromium's Edge "
                  "importer, " "https://github.com/chromium/chromium/blob/b9c0ca47c45c16d8b6b9686a5b06c6412d49eeaf/chrome/utility/importer/edge_importer_win.cc" ".",
         "paths": (
             '*/AppData/Local/Packages/[Mm]icrosoft.[Mm]icrosoft[Ee]dge_8wekyb3d8bbwe/AC/[Mm]icrosoft[Ee]dge/User/Default/'
@@ -80,9 +79,9 @@ __artifacts_v2__ = {
     },
     "legacyEdgeTypedUrls": {
         "name": "Legacy Edge Typed URLs",
-        "description": "Addresses typed into the legacy Microsoft Edge (EdgeHTML) address bar, from the "
-                       "TypedUrls table of spartan.edb and from the browser's TypedURLs key in UsrClass.dat, "
-                       "with the typed time where recorded.",
+        "description": "Entries of legacy Microsoft Edge's (EdgeHTML) TypedUrls table in spartan.edb and "
+                       "TypedURLs key in UsrClass.dat, the two places Firefox's Edge migrator reads typed URLs "
+                       "from, with the recorded time where there is one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
@@ -93,18 +92,18 @@ __artifacts_v2__ = {
                  " and the TypedURLs key under the Edge package's storage key in the user's registry ("
                  "#L20-L23 and #L118), which is UsrClass.dat, Software\\Classes in the user's registry. Store "
                  "names which one a row came from, and Source File the file. From the table, URL is the URL "
-                 "column and Typed Time (UTC) is AccessDateTimeUTC, which Firefox requires to be a LongLong "
+                 "column and Time (UTC) is AccessDateTimeUTC, which Firefox requires to be a LongLong "
                  "and reads as a Windows FILETIME (ESEDBReader.sys.mjs#L610-L621, #L683-L691); a 0 is shown "
                  "blank, which 3 of the 7 tested rows held. From the key, URL is the data of a value named "
-                 "url followed by a number, Entry is that name, and Typed Time (UTC) is the 8-byte FILETIME "
+                 "url followed by a number, Entry is that name, and Time (UTC) is the 8-byte FILETIME "
                  "in the value of the same name in the sibling TypedURLsTime key, blank where that value is "
-                 "missing (browser/components/migration/MSMigrationUtils.sys.mjs#L468-L530). Rows from the "
+                 "missing, is not 8 bytes, or holds 0; on lonewolf_win10 the blank row's value held 0 (browser/components/migration/MSMigrationUtils.sys.mjs#L468-L530). Rows from the "
                  "key are listed by that number. On the tested images the key held typed URLs on Windows 10 "
                  "build 16299 and the table on builds 17763 and 19041, never both. On szechuan_win10 one "
-                 "typed URL also appears in WebCache History, accessed 0.6 to 0.7 seconds after its typed "
-                 "time. The table's VisitCount column is not shown: neither importer reads it, and it held 1 "
-                 "on every tested row. User is taken from the path. A typed URL records what was entered in "
-                 "the address bar, not who entered it. spartan.edb is read and replayed as described in "
+                 "typed URL appears as two WebCache History rows, accessed 0.5 to 0.7 seconds after its "
+                 "recorded time. The table's VisitCount column is not shown: neither importer reads it, and it held 1 "
+                 "on every tested row. User is taken from the path. A row does not show who was at the "
+                 "keyboard. spartan.edb is read and replayed as described in "
                  "Legacy Edge Favorites; a dirty UsrClass.dat is read after its .LOG1 and .LOG2 logs are "
                  "applied, as in the other registry artifacts.",
         "paths": (
@@ -249,7 +248,7 @@ def registry_typed_urls(key, times):
 
 @artifact_processor
 def legacyEdgeTypedUrls(context):
-    data_headers = (('Typed Time (UTC)', 'datetime'), 'URL', 'Entry', 'Store', 'User', 'Source File')
+    data_headers = (('Time (UTC)', 'datetime'), 'URL', 'Entry', 'Store', 'User', 'Source File')
     data_list = []
     sources = []
     label = 'Legacy Edge Typed URLs'
