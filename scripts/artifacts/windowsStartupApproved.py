@@ -22,7 +22,7 @@ _IGNORED_FILES = ('desktop.ini',)
 __artifacts_v2__ = {
     "startupApproved": {
         "name": "Startup Approved States",
-        "description": "Whether each Run key entry and Startup folder item was enabled or disabled in Settings "
+        "description": "Whether a Run key entry or Startup folder item was enabled or disabled in Settings "
                        "or Task Manager, and when it was disabled, from the StartupApproved keys of NTUSER.DAT "
                        "and SOFTWARE, with the entry it names where the extraction still holds it.",
         "author": "@AlexisBrignoni, Claude",
@@ -37,17 +37,18 @@ __artifacts_v2__ = {
                  "found, so the reading rests on known data made on Windows 11 build 26200 (corpus key "
                  "windows11_arm_startupapproved_known_20261104): a Run value and Startup folder items were "
                  "turned off and on in Settings > Apps > Startup and on Task Manager's Startup apps page, and the "
-                 "value read after each change. Every value written was 12 bytes. Flags (as stored) is its first "
+                 "values read after each change (mint/step_reads.txt beside the known data). Every value written was 12 bytes. Flags (as stored) is its first "
                  "byte in hex. Settings wrote 00 (on) and 01 (off) for a user entry and 05 (off) and 04 (on) for "
-                 "a machine Run entry; Task Manager wrote 02 (on) and 03 (off), rewrote other values of the same "
-                 "kind to that form, keeping their times, and rewrote a machine Run value of 04 to 06. State is "
+                 "a machine Run entry; Task Manager wrote 02 (on) and 03 (off), rewrote the other values it "
+                 "listed to that form, keeping their times, and rewrote a machine Run value of 04 to 06. State is "
                  "Disabled when the low bit of that byte is set and Enabled when it is clear, which matched every "
                  "measured value; a flag byte not in that list was not exercised and is read by the same bit. "
                  "Disabled Time (UTC) is the little-endian Windows FILETIME in bytes 4 to 11: on each tested "
                  "disable it was the time of the change (Task Manager's matched the moment its button was pressed "
                  "to the microsecond), and a value of 0, which every tested Enable wrote, is shown blank. "
                  "Turning an entry back on cleared its time, so an Enabled row keeps no record of an earlier "
-                 "disable. An entry with no StartupApproved value showed as on in both tools on the VM. Command "
+                 "disable. A Run or Startup folder entry that had no StartupApproved value yet showed as on in "
+                 "Settings on the VM; Task Manager's shown state was not recorded. Command "
                  "or File is, for a Run row, the data of the value of the same name in the same hive's "
                  "CurrentVersion\\Run key and, for a StartupFolder row, the path of the file of that name in the "
                  "same user's Startup folder (Scope User) or the all-users Startup folder (Scope Machine) when the "
@@ -55,12 +56,15 @@ __artifacts_v2__ = {
                  "value and a disabled Startup file left both StartupApproved values in place, unchanged, so a "
                  "Disabled row whose entry is not found records an entry that was there and was turned off. Run32 "
                  "values are listed as stored and are not looked up (Entry Found is blank), because which key "
-                 "they name was not tested. Of the corpus images, Windows Server 2019 "
+                 "they name was not tested; no Run32 value was present on the VM or on any corpus image. Of the "
+                 "eight corpus images in sample_data, Windows Server 2019 "
                  "(alihadi_threatsim_server2019) holds the only disabled values, flag 03, in the Default profile "
                  "and in one user's hive. The tested entries were toggled by those two tools only. User is taken "
                  "from the path. A row records the entry's setting, not that the program ran or who changed it. "
-                 "A dirty hive is read after its .LOG1 and .LOG2 logs are applied, as in the other registry "
-                 "artifacts.",
+                 "A dirty hive is read after its .LOG1 and .LOG2 logs are applied when they can be, as in the "
+                 "other registry artifacts; the run log says when one was read as it is. Startup entries of "
+                 "packaged (Store) apps, which Settings and Task Manager also list, are not recorded in these "
+                 "keys and are not covered here.",
         "paths": ('*/Windows/System32/config/SOFTWARE',
                   '*/Windows/System32/config/[Ss][Oo][Ff][Tt][Ww][Aa][Rr][Ee].[Ll][Oo][Gg][12]',
                   '*/Users/*/NTUSER.DAT',
@@ -78,7 +82,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 1 row",
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 2 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 1 row",
-            "cfreds_hacking_case_winxp": "Windows XP (per the acquisition metadata) | 0 rows (no StartupApproved key)",
+            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 0 rows (no StartupApproved key)",
         },
     },
     "startupFolderItems": {
@@ -93,13 +97,14 @@ __artifacts_v2__ = {
         "notes": "One row per file in a Startup folder: AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
                  "\\Startup under each user (Location User), ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
                  "\\StartUp (Location All users), and Start Menu\\Programs\\Startup under Documents and Settings on "
-                 "Windows XP (Location User, or All users for the All Users folder). desktop.ini is not listed. "
+                 "Windows XP (Location User, or All users for the All Users folder); the Windows XP folders were "
+                 "seen only with desktop.ini. desktop.ini is not listed. "
                  "File is the file name and Size (bytes) the size of the extracted copy. State and Disabled Time "
                  "(UTC) are read from the StartupApproved StartupFolder value of the same name, in the user's "
                  "NTUSER.DAT for a User item and in SOFTWARE for an All users item, as described in Startup "
-                 "Approved States; both are blank when there is no such value, which on the tested VM was the "
-                 "case for an item never toggled, and which Settings and Task Manager showed as on. A shortcut's "
-                 "own target is not read here. No corpus image held a file in a Startup folder other than "
+                 "Approved States; both are blank when there is no such value. On the VM an item had no value "
+                 "until it was first toggled, and Settings showed it as on. A shortcut's "
+                 "own target is not read here. No Windows corpus image surveyed held a file in a Startup folder other than "
                  "desktop.ini; the rows come from the VM known data. A file being in a Startup folder does not show "
                  "that it ran. User is taken from the path.",
         "paths": ('*/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/[Ss]tart[Uu]p/*',

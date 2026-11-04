@@ -1,6 +1,6 @@
 """Pin the StartupApproved value reader and the Startup folder classifier of
 scripts/artifacts/windowsStartupApproved.py. The byte shapes are the ones measured on the known-data VM; the
-times and paths are made up."""
+paths are made up and the time is one press time from the known-data log."""
 import datetime
 import pathlib
 import struct
