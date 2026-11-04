@@ -38,24 +38,28 @@ __artifacts_v2__ = {
                  "once for each NTFS volume it holds. The fields follow the Linux-NTFS documentation of the boot sector "
                  "(https://github.com/flatcap/ntfs-docs/blob/641edd36dc5f6b62c2aae6658c5a60a4d6d3fe29/files/boot.html#L79-L171): Bytes per Sector and Sectors per Cluster at 0x0B and 0x0D, "
                  "Total Sectors at 0x28, MFT Cluster and MFT Mirror Cluster (the clusters where $MFT and $MFTMirr "
-                 "start) at 0x30 and 0x38, the clusters per MFT record at 0x40 (a negative value giving a record of 2 "
-                 "to that power in bytes, #L182-L186) and Serial Number, the 8-byte volume serial number, at 0x48. "
+                 "start) at 0x30 and 0x38, the clusters per MFT record at 0x40 (a negative value means the record is "
+                 "smaller than a cluster, and the size in bytes is 2 raised to the negated value, #L182-L186) and Serial Number, the 8-byte volume serial number, at 0x48. "
                  "Cluster Size is bytes per sector times sectors per cluster, Volume Size is total sectors times bytes "
                  "per sector, and MFT Record Size is worked out from the 0x40 value as the documentation gives. Serial "
-                 "Number (low 32 bits) is the serial's last 8 hex digits: on the tested images 103 Drive Serial values "
-                 "in Recent Shell Links (LNK), on 9 images, each equalled this value for a volume of the same image, "
-                 "and the other Drive Serial values named volumes the images do not hold. Volume Name, NTFS Version "
+                 "Number (low 32 bits) is the serial's last 8 hex digits: on 9 of the tested images, 103 Recent "
+                 "Shell Links (LNK) rows carried a Drive Serial equal to this value for one volume of the same image "
+                 "(9 distinct values, one per image), and the other 50 rows carried a Drive Serial equal to no volume "
+                 "of the same image. Volume Name, NTFS Version "
                  "and Volume Flags come from MFT record 3, $Volume, of the $MFT in the same folder: its resident "
                  "$VOLUME_NAME attribute (https://github.com/flatcap/ntfs-docs/blob/641edd36dc5f6b62c2aae6658c5a60a4d6d3fe29/attributes/volume_name.html) and the major and minor version and "
                  "flags of its $VOLUME_INFORMATION attribute (https://github.com/flatcap/ntfs-docs/blob/641edd36dc5f6b62c2aae6658c5a60a4d6d3fe29/attributes/volume_information.html#L56-L115), "
                  "the flags named from that page's table and any other bit given in hex; a 0x00000080 bit, which the "
                  "table does not name, was set on 6 of the 17 tested volumes. Volume Name is blank where the volume "
-                 "has none, and all three are blank, with a run log line, where no $MFT is beside the $Boot. Volume is "
-                 "the folder the extraction gives the volume. On every one of the 17 NTFS volumes of the ten tested raw "
+                 "has none (on the 12 tested volumes with a blank name, fsstat reported none either). All three are "
+                 "blank, without a log line, when record 3 cannot be decoded, and blank, with a run log line, where "
+                 "no $MFT is beside the $Boot. Volume is the folder the extraction gives the volume, which holds the "
+                 "$Boot read. On every one of the 17 NTFS volumes of the ten tested raw "
                  "Windows images, Serial Number, Volume Name, Bytes per Sector, Cluster Size, MFT Cluster and Total "
-                 "Sectors equalled what The Sleuth Kit 4.15.0 fsstat reports for the same volume. A logical "
-                 "extraction such as an AD1 lists no $Boot and gives no row (hexordia_mvs2025_win11). Only NTFS is "
-                 "read; FAT, exFAT and ReFS volumes give no row.",
+                 "Sectors equalled what The Sleuth Kit 4.15.0 fsstat reports for the same volume. The one "
+                 "logical extraction tested, an AD1 (hexordia_mvs2025_win11), listed no $Boot and gave no row. Only "
+                 "NTFS is read: a row needs a $Boot file with the NTFS signature. The FAT32 partitions of three "
+                 "tested images gave no row; exFAT and ReFS were not tested.",
         "paths": ('*/$Boot', '*/$MFT'),
         "output_types": ["standard"],
         "artifact_icon": "hard-drive",
@@ -69,8 +73,8 @@ __artifacts_v2__ = {
             "alihadi_threatsim_server2019": "Windows Server 2019 Standard build 17763 | 1 row",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 3 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 build 9600 | 2 rows",
-            "cfreds_hacking_case_winxp": "Windows XP build 2600 | 1 row",
-            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (a logical AD1 lists no $Boot)",
+            "cfreds_hacking_case_winxp": "Windows XP | 1 row",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (this logical AD1 lists no $Boot)",
         },
     },
 }
@@ -126,7 +130,7 @@ def ntfsVolumeInfo(context):
     data_headers = ('Volume', 'Serial Number', 'Serial Number (low 32 bits)', 'Volume Name', 'NTFS Version',
                     'Volume Flags', 'Bytes per Sector', 'Sectors per Cluster', 'Cluster Size (bytes)',
                     'Total Sectors', 'Volume Size (bytes)', 'MFT Cluster', 'MFT Mirror Cluster',
-                    'MFT Record Size (bytes)', 'Source File')
+                    'MFT Record Size (bytes)')
     data_list = []
     sources = []
     found = [str(f) for f in context.get_files_found() if os.path.isfile(str(f))]
@@ -158,6 +162,6 @@ def ntfsVolumeInfo(context):
         data_list.append((volume, f'{fields["serial"]:016X}', f'{fields["serial"] & 0xFFFFFFFF:08X}', name, version,
                           flags, fields['bytes_per_sector'], fields['sectors_per_cluster'], fields['cluster'],
                           fields['total_sectors'], fields['size'], fields['mft_lcn'], fields['mirror_lcn'],
-                          fields['record_size'], relative))
+                          fields['record_size']))
         sources.append(boot_path)
     return data_headers, data_list, '\n'.join(sources)
