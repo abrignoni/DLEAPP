@@ -39,6 +39,8 @@ import struct
 import zlib
 from datetime import datetime, timedelta, timezone
 
+from scripts.chromium.cache_key import key_to_url
+
 SIMPLE_HEADER_MAGIC = 0xFCFB6D1BA7725C30
 SIMPLE_EOF_MAGIC = 0xF4FA6F45970D41D8
 
@@ -151,20 +153,6 @@ def decode_body(data, encoding):
         # A partially evicted or unsupported body is still worth returning raw.
         return data
     return data
-
-
-def key_to_url(key):
-    """Split a Chromium cache key into its isolation prefix and the URL.
-
-    Keys carry a network-isolation prefix such as ``1/0/`` or
-    ``_dk_https://site https://site `` ahead of the request URL.
-    """
-    if not key:
-        return "", ""
-    match = _URL_IN_KEY_RE.search(key)
-    if not match:
-        return key, ""
-    return key[:match.start()], key[match.start():]
 
 
 def _plausible_time(value):

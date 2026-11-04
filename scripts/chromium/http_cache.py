@@ -17,9 +17,9 @@ Two pieces, both read as Chromium writes them, at chromium
   microseconds since 1601-01-01 UTC.
 """
 
-import re
 import struct
 
+from scripts.chromium.cache_key import split_key  # pylint: disable=unused-import
 from scripts.chromium.simple_cache import decode_body
 
 _RESPONSE_INFO_HAS_EXTRA_FLAGS = 1 << 31
@@ -27,35 +27,6 @@ _RESPONSE_INFO_HAS_EXTRA_FLAGS = 1 << 31
 _RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME = 1 << 2
 RESPONSE_EXTRA_INFO_HAS_ZSTD_UNCOMPRESSED_BODY_SIZE = 1 << 4
 _RESPONSE_INFO_VERSION_MASK = 0xFF
-# Any text ahead of the numbered part is kept as stored: a "Range_" marker seen on
-# corpus keys has no writer in the http_cache sources read.
-_NUMBERED_PREFIX = re.compile(r'^(?:[A-Za-z]+_)?(?:\d+/){1,2}|^[A-Za-z]+_(?=_dk_|https?:)')
-_DOUBLE_KEY = '_dk_'
-_URL_OR_DOUBLE_KEY = re.compile(r'^(?:_dk_|[A-Za-z][A-Za-z0-9+.-]*://)')
-
-
-def split_key(key):
-    """(numbered prefix, isolation key, url) of a cache entry key.
-
-    The isolation key is the text between "_dk_" and the URL, with its "s_" or
-    "cn_" marker kept; it is '' for a key that is not double keyed.
-    """
-    if not key:
-        return '', '', ''
-    match = _NUMBERED_PREFIX.match(key)
-    prefix = match.group(0) if match else ''
-    rest = key[len(prefix):]
-    if not _URL_OR_DOUBLE_KEY.match(rest):
-        # Not an HTTP resource key (a quicserverinfo: entry, for one): kept whole.
-        return key, '', ''
-    if rest.startswith(_DOUBLE_KEY):
-        space = rest.rfind(' ')
-        if space < 0:
-            return prefix, rest[len(_DOUBLE_KEY):], ''
-        return prefix, rest[len(_DOUBLE_KEY):space], rest[space + 1:]
-    return prefix, '', rest
-
-
 def parse_response_info(stream0):
     """(request time, response time, status line, headers, extra flags) of a pickled HttpResponseInfo.
 
