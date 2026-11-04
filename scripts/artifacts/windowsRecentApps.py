@@ -11,10 +11,7 @@ LastAccessedTime). This reads both.
 
 import os
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import filetime_utc, open_hive, user_from_path
@@ -30,7 +27,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads Software\\Microsoft\\Windows\\CurrentVersion\\Search\\RecentApps in each user's "
                  "NTUSER.DAT, one row per subkey, the key Velociraptor's Windows.Forensics.RecentApps "
@@ -84,7 +81,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads the RecentItems key under each application subkey of the RecentApps key that "
                  "the RecentApps artifact reads, one row per subkey. Path and Display Name are its "
@@ -167,9 +164,6 @@ def windowsRecentApps(context):
     data_headers = (('Last Accessed (UTC)', 'datetime'), 'App ID', 'App Path', 'Launch Count',
                     'Recent Items', 'User', 'App Key')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('RecentApps: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source, user, app, values, items in recent_apps(context, 'RecentApps'):
         data_list.append((_time(values.get('LastAccessedTime')), _text(values.get('AppId')),
                           _text(values.get('AppPath')), _count(values.get('LaunchCount')),
@@ -185,9 +179,6 @@ def windowsRecentAppItems(context):
     data_headers = (('Last Accessed (UTC)', 'datetime'), 'Path', 'Display Name', 'App ID',
                     'User', 'Item Key')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('RecentApps Items: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source, user, _, values, items in recent_apps(context, 'RecentApps Items'):
         for item in items:
             item_values = _values(item)

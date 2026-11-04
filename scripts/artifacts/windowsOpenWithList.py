@@ -8,7 +8,7 @@ key's lettered values hold, in the order its MRUList value gives.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path)
 
 _LABEL = 'Open With List'
@@ -24,9 +24,9 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-02",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
-        "notes": "Reads each NTUSER.DAT the paths match with python-registry: every key named OpenWithList (name "
+        "notes": "Reads each NTUSER.DAT the paths match with the vendored regfprobe: every key named OpenWithList (name "
                  "compared without case) below a subkey of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts. Each text value of such a key other "
                  "than MRUList is one row: Extension is the name of the subkey the key sits under, Value the value's "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
                  "extension (see Default App User Choices). The OpenWithList key was written more than a second "
                  "after that key on 28 of the 30, within a second of it on 1 and more than a second before it on 1. "
                  "A hive that cannot be read is named in the run log and skipped; every tested hive was read. "
-                 "Reading the hive needs the python-registry package. A dirty hive, one whose base block's two "
+                 "The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two "
                  "sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 transaction logs that "
                  "continue its sequence are applied, following Maxim Suhanov's 'Windows registry file format "
                  "specification' "
@@ -137,9 +137,6 @@ def openWithList(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'User', 'Extension', 'Order', 'Value', 'Program')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{_LABEL}: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in found_hives(context, 'NTUSER.DAT'):
         relative_source = context.get_relative_path(source)
         try:

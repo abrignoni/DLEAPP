@@ -1,7 +1,7 @@
 """Pin the Per-User COM Registrations artifact (scripts/artifacts/windowsUserComRegistrations.py).
 
 The UsrClass.dat and SOFTWARE hives are built cell by cell with the builder in test_windows_app_settings.py and read
-back through open_hive and python-registry, as a run reads a staged hive. Every CLSID, name and path is invented.
+back through open_hive and the vendored regfprobe, as a run reads a staged hive. Every CLSID, name and path is invented.
 """
 
 import datetime

@@ -78,7 +78,6 @@ def lease(**values):
     return dict(values, LeaseObtainedTime=OBTAINED, LeaseTerminatesTime=TERMINATES, Lease=1800)
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class LeaseColumnTest(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with

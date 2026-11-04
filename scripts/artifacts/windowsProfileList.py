@@ -12,7 +12,7 @@ sources and measurements are in the notes.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, filetime_utc, found_hives, key_written_utc,
+from scripts.windows_registry import (filetime_utc, found_hives, key_written_utc,
                                       open_hive, open_key, value_of)
 
 _LABEL = 'User Profile List'
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from the SOFTWARE hive, named in the report's located-at line. Each subkey of "
                  "Microsoft\\Windows NT\\CurrentVersion\\ProfileList is one row. SID is the subkey's name and Profile "
@@ -85,8 +85,7 @@ __artifacts_v2__ = {
                  "LocalProfileCleanupCheckTimeLow and LocalProfileCleanupCheckTimeHigh, which the Microsoft page "
                  "gives as tracking a cleanup time "
                  "(https://github.com/MicrosoftDocs/SupportArticles-docs/blob/e07fb125ebfac8934278aa3383232f43106c4416/support/windows-server/support-tools/scripts-to-retrieve-profile-age.md#L38-L41), "
-                 "are in none of the 23 subkeys and are not read. Reading the hive needs the python-registry "
-                 "package. A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "are in none of the 23 subkeys and are not read. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two sequence numbers differ, is read after the "
                  "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, following "
                  "Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
@@ -138,9 +137,6 @@ def userProfileList(context):
                     'State (as stored)')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{_LABEL}: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in found_hives(context, 'SOFTWARE'):
         relative_source = context.get_relative_path(source)

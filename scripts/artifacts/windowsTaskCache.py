@@ -14,10 +14,7 @@ import os
 import struct
 import uuid
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import filetime_utc, open_hive
@@ -36,7 +33,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads the TaskCache key of each SOFTWARE hive, Microsoft\\Windows "
                  "NT\\CurrentVersion\\Schedule\\TaskCache, one row per subkey of its Tasks key and one "
@@ -217,9 +214,6 @@ def windowsTaskCache(context):
                     'In Tasks Key')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('TaskCache: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted({str(f) for f in context.get_files_found()}):
         relative = '/' + context.get_relative_path(source).replace('\\', '/').lstrip('/')
         if not os.path.isfile(source) or not relative.lower().endswith('/windows/system32/config/software'):

@@ -10,10 +10,7 @@ one row per tool key, with the key's last written time.
 
 import os
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import key_written_utc, open_hive
@@ -28,7 +25,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads Software\\Sysinternals in each user's NTUSER.DAT, in the NTUSER.DAT of each "
                  "folder under Windows/ServiceProfiles and in Windows/System32/config/DEFAULT, one row "
@@ -99,9 +96,6 @@ def stored_value(value):
 def windowsSysinternalsEula(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'Tool', 'EulaAccepted', 'Profile')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Sysinternals EULA: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted({str(f) for f in context.get_files_found()}):
         name = os.path.basename(source).upper()
         if not os.path.isfile(source) or name not in ('NTUSER.DAT', 'DEFAULT'):

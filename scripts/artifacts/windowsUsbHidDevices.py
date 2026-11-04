@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-19",
         "last_update_date": "2026-10-19",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per instance sub-key under the VID_ keys of Enum\\USB in the control "
                  "set the Select key's Current value names (ControlSet001 when there is none). "
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-19",
         "last_update_date": "2026-10-19",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per instance sub-key under Enum\\HID in the control set the Select "
                  "key's Current value names (ControlSet001 when there is none). Device Key and "
@@ -228,8 +228,7 @@ def _display(value):
 def _stored_property(node):
     """(property type, raw bytes) from one property sub-key, in either layout seen:
     Windows 8 and later keep the data in the sub-key's default value, whose registry
-    type carries the property type in its low 16 bits (python-registry reports only
-    those bits); Windows 7 keeps a sub-key 00000000 holding a Type value and a Data
+    type carries the property type in its low 16 bits; Windows 7 keeps a sub-key 00000000 holding a Type value and a Data
     value. (None, None) when neither is there."""
     for value in node.values():
         try:
@@ -345,9 +344,6 @@ def usbAllDevices(context):
                     'Container ID', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('USB Device Instances: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in _hives(context):
         relative = context.get_relative_path(path)
         try:
@@ -399,9 +395,6 @@ def hidDevices(context):
                     'Container ID', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('HID Input Devices: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in _hives(context):
         relative = context.get_relative_path(path)
         try:

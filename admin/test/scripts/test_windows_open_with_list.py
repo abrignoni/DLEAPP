@@ -85,7 +85,6 @@ def _list(values, name='OpenWithList', written=PICKED):
     return _Key(name, values, written=written)
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ListRowsTest(unittest.TestCase):
     def test_values_come_in_the_order_the_mru_list_gives_with_the_key_time(self):
         key = _list([('a', 'NOTEPAD.EXE'), ('MRUList', 'cab'), ('b', 'HxD.exe'), ('c', 'Vendor.App_8w!App')])
@@ -127,7 +126,6 @@ class ListRowsTest(unittest.TestCase):
         self.assertEqual(rows, [('', 'u', '.x', '', 'a', 'x.exe')])
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ExtensionRowsTest(unittest.TestCase):
     def test_every_open_with_list_key_is_read_under_its_extension_name_and_other_subkeys_are_not(self):
         fileexts = _Key('FileExts', subkeys=[
@@ -174,7 +172,6 @@ class ArtifactTest(unittest.TestCase):
             result = openwith.openWithList.__wrapped__(_Context(self.paths))
         return result, [c.args[0] for c in opened.call_args_list], logged
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_each_user_hive_is_read_under_the_user_folder_name_and_a_missing_name_is_logged(self):
         hives = {self.alice: _Hive({EXTS: _Key(subkeys=[_Key('.txt', subkeys=[_list([('MRUList', 'ab'), ('b', 'HxD.exe')])]),
                                                         _Key('.asc', subkeys=[_list([('a', 'kleo.exe')])])])}),
@@ -191,7 +188,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(logged, ['Open With List: MRUList values of vol1/Users/alice/NTUSER.DAT list 1 value name(s) their key '
                                   'does not hold'])
 
-    @unittest.skipIf(Registry is None, 'python-registry is not installed')
     def test_an_unreadable_hive_is_logged_by_its_path_in_the_extraction_and_skipped(self):
         broken = _Key(subkeys=[_Key('.pdf', subkeys=[_list([('a', 'x.exe')], written='not a time')])])
         hives = {self.alice: ValueError('bad header'),
@@ -203,16 +199,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(logged[0], 'Open With List: could not read vol1/Users/alice/NTUSER.DAT: bad header')
         self.assertTrue(logged[1].startswith('Open With List: could not read vol1/Users/carol/NTUSER.DAT: '))
         self.assertEqual(len(logged), 2)
-
-    def test_without_python_registry_nothing_is_read_and_the_run_log_says_so(self):
-        logged = []
-        with mock.patch.object(openwith, 'Registry', None), mock.patch.object(openwith, 'open_hive') as opened, \
-                mock.patch.object(openwith, 'logfunc', side_effect=logged.append):
-            headers, rows, source = openwith.openWithList.__wrapped__(_Context(self.paths))
-        self.assertEqual((headers, rows, source), (HEADERS, [], ''))
-        opened.assert_not_called()
-        self.assertEqual(logged, ['Open With List: the python-registry package is not installed'])
-
 
 if __name__ == '__main__':
     unittest.main()

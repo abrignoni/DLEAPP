@@ -8,10 +8,7 @@ artifact.
 
 import os
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive, user_from_path
@@ -57,7 +54,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-10-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per value in the Windows Run and RunOnce autostart keys and in the "
                  "Policies\\Explorer\\Run keys, and one for the Load value of each user's Windows "
@@ -126,8 +123,7 @@ __artifacts_v2__ = {
                  "rows. These are common autostart and persistence "
                  "locations: the presence of an entry does not establish that the "
                  "program ran, and the absence of an entry is not evidence that a "
-                 "program was not set to start automatically. Reading the hives "
-                 "requires the python-registry package. A dirty hive, one whose base block's two "
+                 "program was not set to start automatically. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two "
                  "sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim "
                  "Suhanov's 'Windows registry file format specification' "
@@ -188,9 +184,6 @@ def runKeys(context):
     data_headers = ('Name', 'Command', 'Key', 'Scope', 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Run and RunOnce Keys: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if os.path.basename(str(f)).upper() in ('SOFTWARE', 'NTUSER.DAT')]:

@@ -9,10 +9,7 @@ The Start and Type value meanings, and the Services registry layout, are sourced
 from Microsoft's CreateServiceW documentation (see the notes).
 """
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import is_transaction_log, open_hive
@@ -55,7 +52,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows are the direct subkeys of the current control set's "
                  "Services key in the SYSTEM hive, named in the report's located-at line, one row "
@@ -89,8 +86,7 @@ __artifacts_v2__ = {
                  "the kernel and file system driver rows except 1 of the 356 on lonewolf_win10, 2 "
                  "of the 410 on pc_mus_001_win11 and 2 of the 373 on szechuan_win10, which hold a "
                  "name beginning \\Driver\\. A row shows how a service is "
-                 "configured, not that it ran. Reading the hive needs the "
-                 "python-registry package. A dirty hive, one whose base block's two sequence "
+                 "configured, not that it ran. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two sequence "
                  "numbers differ, is read after the entries in its .LOG1 and .LOG2 transaction "
                  "logs that continue its sequence are applied, following Maxim Suhanov's 'Windows "
                  "registry file format specification' "
@@ -177,9 +173,6 @@ def windowsServices(context):
                     'Start', 'Service Type', 'Run As')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Windows Services: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)

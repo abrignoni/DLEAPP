@@ -84,7 +84,7 @@ class _Key:
 
 
 def new_layout(prop_id, data, kind):
-    """A Windows 8 and later property sub-key: python-registry reports the low bits only."""
+    """A Windows 8 and later property sub-key: the registry type carries the property type in its low bits."""
     return _Key(f'{prop_id:04X}', typed={'(default)': (data, kind)})
 
 
@@ -135,7 +135,6 @@ HIVE = _Hive({'Select': _Key(values={'Current': 1}), r'ControlSet001\Enum\USB': 
               r'ControlSet001\Enum\HID': HID})
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Properties(unittest.TestCase):
     def test_both_layouts_and_the_type_check(self):
         self.assertEqual(uh._date(KEYBOARD_IF, 101), WHEN)  # pylint: disable=protected-access
@@ -151,7 +150,6 @@ class Properties(unittest.TestCase):
         self.assertEqual(uh._display(['a', '', 'b']), 'a, b')  # pylint: disable=protected-access
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Processors(unittest.TestCase):
     def run_both(self):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -190,12 +188,6 @@ class Processors(unittest.TestCase):
             ('VID_16D0&PID_0753&MI_00', '7&def&0&0000', 'kbdhid', 'HID Keyboard Device', 'Plain text',
              'VID_16D0&PID_0753&MI_00\\6&abc&0&0000'),
             ('VEN_27C6&Col01', '7&def&00000', 'mouhid', '', '', '')])
-
-    def test_no_library(self):
-        with mock.patch.object(uh, 'Registry', None), mock.patch.object(uh, 'logfunc'):
-            self.assertEqual(uh.usbAllDevices.__wrapped__(mock.Mock())[1:], ([], ''))
-            self.assertEqual(uh.hidDevices.__wrapped__(mock.Mock())[1:], ([], ''))
-
 
 if __name__ == '__main__':
     unittest.main()

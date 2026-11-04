@@ -72,7 +72,6 @@ NAMES = ['SIGN.MEDIA=11692A28 Imager\\Imager.exe', 'c:\\users\\alice\\downloads\
          'C:\\Program Files\\Tool\\Tool.exe', '\\\\server\\share\\setup.exe']
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class StoreRowsTest(unittest.TestCase):
     def test_one_row_per_value_with_the_name_as_stored_and_the_key_time(self):
         self.assertEqual(store.store_rows(_Key(NAMES), 'alice'),
@@ -82,7 +81,6 @@ class StoreRowsTest(unittest.TestCase):
         self.assertEqual(store.store_rows(_Key(), 'alice'), [])
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -128,15 +126,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual([row[1:] for row in rows], [('bob', NAMES[0])])
         self.assertEqual(source, self.bob + '\n' + self.carol)
         self.assertEqual(logged, ['Compatibility Assistant Store: could not read vol1/Users/alice/NTUSER.DAT: bad header'])
-
-    def test_without_python_registry_nothing_is_read(self):
-        with mock.patch.object(store, 'Registry', None), mock.patch.object(store, 'logfunc') as log, \
-                mock.patch.object(store, 'open_hive') as opened:
-            _headers, rows, source = store.compatibilityAssistantStore.__wrapped__(_Context(self.paths))
-        self.assertEqual((rows, source), ([], ''))
-        opened.assert_not_called()
-        self.assertEqual(log.call_count, 1)
-
 
 if __name__ == '__main__':
     unittest.main()

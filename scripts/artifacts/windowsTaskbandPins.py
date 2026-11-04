@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per pin in the Favorites value of Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"
                  "\\Taskband in each NTUSER.DAT. No Microsoft documentation of the value was found. Its framing "
@@ -303,9 +303,6 @@ def windowsTaskbandPins(context):
     data_list = []
     sources = []
     label = 'Taskbar Pins'
-    if Registry is None:
-        logfunc(f'{label}: the python-registry package is not installed')
-        return data_headers, data_list, ''
     files = _pins_files(context)
     for source in sorted(str(f) for f in context.get_files_found()):
         if os.path.basename(source).upper() != 'NTUSER.DAT' or not os.path.isfile(source):

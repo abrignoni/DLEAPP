@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads each subkey of Software\\Microsoft\\OneDrive\\Accounts in each NTUSER.DAT and "
                  "reports it when it holds a non-empty UserEmail, UserFolder, cid or UserCID "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads each subkey of Software\\Microsoft\\IdentityCRL\\UserExtendedProperties in each "
                  "NTUSER.DAT. Account is the subkey name as stored; on pc_mus_001_win11 and "
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive, open_key,
                                       unix_utc, user_from_path, value_of)
 
 _ONEDRIVE = r'Software\Microsoft\OneDrive\Accounts'
@@ -106,9 +106,6 @@ def oneDriveAccounts(context):
                     'User Folder', 'CID', 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('OneDrive Accounts: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)
@@ -137,9 +134,6 @@ def microsoftAccounts(context):
                     'Last Used Credential Type (as stored)', 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Microsoft Accounts (IdentityCRL): the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)

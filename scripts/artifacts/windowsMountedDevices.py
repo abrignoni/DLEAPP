@@ -9,10 +9,7 @@ and is not ported from those artifacts.
 import struct
 import uuid
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import is_transaction_log, open_hive
@@ -39,7 +36,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per value in the SYSTEM hive's top-level "
                  "MountedDevices key (the Mount Manager's persistent name "
@@ -74,7 +71,7 @@ __artifacts_v2__ = {
                  "mapped to a device, not when the mapping was made or by whom, "
                  "and the key can retain entries for devices that are not "
                  "presently mounted (Windows removes those with mountvol /r). "
-                 "Reading the hive requires python-registry. A dirty hive, one "
+                 "The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one "
                  "whose base block's two sequence numbers differ, is read after "
                  "the entries in its .LOG1 and .LOG2 transaction logs that "
                  "continue its sequence are applied, following Maxim Suhanov's "
@@ -167,9 +164,6 @@ def mountedDevices(context):
     data_headers = ('Mount Point', 'Kind', 'Device')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Mounted Devices: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)

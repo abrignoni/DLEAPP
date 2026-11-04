@@ -506,7 +506,8 @@ class Hive:
 
     FAULT_LOG_LIMIT = 1000
 
-    def __init__(self, source, logs=None, recover=True, name=None):  # pylint: disable=redefined-outer-name
+    def __init__(self, source, logs=None, recover=True, name=None, on_fault=None):  # pylint: disable=redefined-outer-name
+        self.on_fault = on_fault
         primary, path = _read_source(source)
         self.path = path
         self.name = name or (os.path.basename(path) if path else 'hive')
@@ -597,6 +598,8 @@ class Hive:
         self.faults[kind] += 1
         if len(self.fault_log) < self.FAULT_LOG_LIMIT:
             self.fault_log.append((kind, offset, reason))
+        if self.on_fault is not None:
+            self.on_fault(kind, offset, reason)
 
     def cell(self, offset):
         """The data of the cell at offset (from the start of the hive bins data), as a memoryview.
@@ -859,7 +862,7 @@ class Value:
     about the stored bytes did not fit the type (they never stop the value from being read)."""
 
     __slots__ = ('key', 'offset', 'name', 'raw_name', 'type', 'flags', 'size_field',
-                 'data_offset', 'size', 'resident', '_big', 'notes', '_raw', '_data')
+                 'data_offset', 'size', 'resident', '_big', 'unreadable', 'notes', '_raw', '_data')
 
     def __init__(self, key, offset):
         hive = key.hive
@@ -875,6 +878,7 @@ class Value:
         self.resident = bool(self.size_field & 0x80000000)
         self.size = self.size_field & 0x7FFFFFFF
         self._big = False
+        self.unreadable = False   # True when the data cell (or a big data segment) could not be read
         self.notes = []
         self._raw = None
         self._data = None
@@ -918,6 +922,7 @@ class Value:
         except RegfError as error:
             hive.fault('data', self.data_offset, str(error))
             self.notes.append(f'data cell unreadable: {error}')
+            self.unreadable = True
             return b''
         if (self.size > _BIG_DATA_SEGMENT and hive.minor_version > 3 and len(cell) >= 8
                 and bytes(cell[:2]) == b'db'):
@@ -936,6 +941,7 @@ class Value:
         except RegfError as error:
             hive.fault('db', list_offset, str(error))
             self.notes.append(f'big data segment list unreadable: {error}')
+            self.unreadable = True
             return b''
         if 4 * count > len(listing):
             self.notes.append('big data segment list runs past its cell')
@@ -950,6 +956,7 @@ class Value:
             except RegfError as error:
                 hive.fault('db', segment_offset, str(error))
                 self.notes.append(f'big data segment {index} unreadable: {error}')
+                self.unreadable = True
                 break
             take = min(remaining, _BIG_DATA_SEGMENT, len(segment))
             parts.append(bytes(segment[:take]))
@@ -1228,18 +1235,36 @@ class CompatValue:
     def value_type_str(self):
         return _COMPAT_TYPE_NAMES.get(self._value.type, 'Unknown type: %s' % hex(self._value.type))
 
+    def _check(self):
+        """python-registry raises when a value's data cannot be read; so does this, so a caller's
+        error handling sees the damaged value instead of an empty one."""
+        _ = self._value.raw
+        if self._value.unreadable:
+            raise RegfError(f'value {self._value.name or "(default)"}: {"; ".join(self._value.notes)}')
+
     def value(self):
         """The decoded data. A REG_MULTI_SZ is the whole text split at every NUL, trailing empty
-        strings kept, the list shape python-registry 1.3.1 returns; everything else is Value.data."""
+        strings kept, the list shape python-registry 1.3.1 returns; everything else is Value.data.
+        Raises RegistryException when the value's data cannot be read."""
+        self._check()
         if self._value.type == 7:
             raw = self._value.raw
             raw = raw[:len(raw) - len(raw) % 2]
             return raw.decode('utf-16-le', errors='replace').split('\x00')
         if self._value.type == 6:
             return self._value.raw
+        kind, raw = self._value.type, self._value.raw
+        if kind in (4, 5) and len(raw) < 4:
+            # fewer than four stored bytes: the number they make, zero-padded, so callers that do
+            # arithmetic on a REG_DWORD get an int as from python-registry (Value.data keeps the bytes)
+            return int.from_bytes(raw, 'little' if kind == 4 else 'big')
+        if kind == 11 and len(raw) < 8:
+            return int.from_bytes(raw, 'little')
         return self._value.data
 
     def raw_data(self):
+        """The stored bytes. Raises RegistryException when the value's data cannot be read."""
+        self._check()
         return self._value.raw
 
 
@@ -1306,13 +1331,22 @@ class CompatKey:
 
 
 class CompatRegistry:
-    """Answers the python-registry calls Registry.Registry(...) callers make."""
+    """Answers the python-registry calls Registry.Registry(...) callers make.
+
+    The REG_* numbers are here under python-registry's names (RegSZ, RegBin, RegDWord and the
+    rest), with its two not-found exceptions. RegistryException is the base of every error
+    regfprobe raises (RegfError), the exception a caller catches for a file that is not a hive.
+    """
 
     RegistryKeyNotFoundException = RegistryKeyNotFoundException
     RegistryValueNotFoundException = RegistryValueNotFoundException
+    RegistryException = RegfError
+    RegNone, RegSZ, RegExpandSZ, RegBin, RegDWord, RegBigEndian, RegLink, RegMultiSZ = range(8)
+    RegResourceList, RegFullResourceDescriptor, RegResourceRequirementsList, RegQWord = range(8, 12)
 
-    def __init__(self, source, logs=None, recover=True):  # pylint: disable=redefined-outer-name
-        self.hive = source if isinstance(source, Hive) else Hive(source, logs=logs, recover=recover)
+    def __init__(self, source, logs=None, recover=True, on_fault=None):  # pylint: disable=redefined-outer-name
+        self.hive = source if isinstance(source, Hive) else Hive(source, logs=logs, recover=recover,
+                                                                on_fault=on_fault)
 
     def root(self):
         return CompatKey(self.hive.root())

@@ -17,10 +17,7 @@ import os
 import struct
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.windows_lnk import _idlist_path
 from scripts.ilapfuncs import artifact_processor, logfunc
@@ -36,7 +33,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from the RunMRU key in each NTUSER.DAT, named in Source "
                  "File. Command is a value's data with the trailing \\1 marker "
@@ -49,7 +46,7 @@ __artifacts_v2__ = {
                  "command that was present in the Run dialog history; it does "
                  "not record who ran it. This key held no entries on the tested "
                  "images, so the reader is not exercised against populated data "
-                 "here. Reading the hive requires python-registry."
+                 "here. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py)."
                  " A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, "
@@ -79,7 +76,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from the TypedPaths key in each NTUSER.DAT, named in "
                  "Source File. Typed Path is a value's data. Entry is the value "
@@ -87,7 +84,7 @@ __artifacts_v2__ = {
                  "url1. Key Last Modified (UTC) is the TypedPaths key's "
                  "last-write time, shown on the url1 entry only because it dates "
                  "the key as a whole rather than each entry. User is taken from "
-                 "the NTUSER.DAT path. Reading the hive requires python-registry."
+                 "the NTUSER.DAT path. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py)."
                  " A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, "
@@ -118,7 +115,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from the Internet Explorer TypedURLs key in each "
                  "NTUSER.DAT, named in Source File. Typed URL is a value's data. "
@@ -129,8 +126,7 @@ __artifacts_v2__ = {
                  "which was the case on the tested images where Internet "
                  "Explorer was not the browser in use. User is taken from the "
                  "NTUSER.DAT path. A first-run or shipped URL can be present "
-                 "without having been entered by a person. Reading the hive "
-                 "requires python-registry."
+                 "without having been entered by a person. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py)."
                  " A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, "
@@ -161,7 +157,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from the WordWheelQuery key in each NTUSER.DAT, named in "
                  "Source File. Search Term is a numbered value's data, a UTF-16 "
@@ -171,8 +167,7 @@ __artifacts_v2__ = {
                  "because it dates the key as a whole rather than each entry. "
                  "User is taken from the NTUSER.DAT path. This key held no search "
                  "terms on the tested images, so the reader is not exercised "
-                 "against populated data here. Reading the hive requires "
-                 "python-registry."
+                 "against populated data here. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py)."
                  " A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, "
@@ -203,7 +198,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from the OpenSavePidlMRU key in each NTUSER.DAT, named in "
                  "Source File. File Type is the extension sub-key the entry sits "
@@ -219,7 +214,7 @@ __artifacts_v2__ = {
                  "only because it dates the sub-key as a whole rather than each "
                  "entry. User is taken from the NTUSER.DAT path. An entry records "
                  "that a file was chosen in an open or save dialog; it does not "
-                 "record who chose it. Reading the hive requires python-registry."
+                 "record who chose it. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py)."
                  " A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, "
@@ -250,7 +245,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from the LastVisitedPidlMRU key in each NTUSER.DAT, named "
                  "in Source File. Application is the executable name the entry "
@@ -262,7 +257,7 @@ __artifacts_v2__ = {
                  "Last Modified (UTC) is the key's last-write time, shown on the "
                  "rank 1 entry only because it dates the key as a whole rather "
                  "than each entry. User is taken from the NTUSER.DAT path. "
-                 "Reading the hive requires python-registry."
+                 "The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py)."
                  " A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, "
@@ -365,9 +360,6 @@ def runMru(context):
                     'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Run Dialog MRU: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for reg, source, relative_source, user in _each_hive(context, 'Run Dialog MRU'):
         key = _open(reg, _EXPLORER + r"\RunMRU")
         if key is None:
@@ -398,9 +390,6 @@ def typedPaths(context):
                     'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Explorer Typed Paths: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for reg, source, relative_source, user in _each_hive(context, 'Explorer Typed Paths'):
         key = _open(reg, _EXPLORER + r"\TypedPaths")
         if key is None:
@@ -421,9 +410,6 @@ def typedUrls(context):
                     'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Internet Explorer Typed URLs: the python-registry package is not installed')
-        return data_headers, data_list, ''
     base = r"Software\Microsoft\Internet Explorer"
     for reg, source, relative_source, user in _each_hive(context, 'Internet Explorer Typed URLs'):
         key = _open(reg, base + r"\TypedURLs")
@@ -450,9 +436,6 @@ def wordWheelQuery(context):
                     'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Explorer Search History: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for reg, source, relative_source, user in _each_hive(context, 'Explorer Search History'):
         key = _open(reg, _EXPLORER + r"\WordWheelQuery")
         if key is None:
@@ -477,9 +460,6 @@ def openSaveMru(context):
                     ('Key Last Modified (UTC)', 'datetime'), 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Open and Save Dialog MRU: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for reg, source, relative_source, user in _each_hive(context, 'Open and Save Dialog MRU'):
         parent = _open(reg, _EXPLORER + r"\ComDlg32\OpenSavePidlMRU")
         if parent is None:
@@ -509,9 +489,6 @@ def lastVisitedMru(context):
                     ('Key Last Modified (UTC)', 'datetime'), 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('File Dialog Application MRU: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for reg, source, relative_source, user in _each_hive(context, 'File Dialog Application MRU'):
         key = _open(reg, _EXPLORER + r"\ComDlg32\LastVisitedPidlMRU")
         if key is None:

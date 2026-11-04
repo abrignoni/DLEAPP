@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads Software\\Microsoft\\Terminal Server Client in each NTUSER.DAT: the MRU values "
                  "under Default and the subkeys under Servers. Microsoft documents that each new "
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
 import re
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 _TSC = r'Software\Microsoft\Terminal Server Client'
@@ -63,9 +63,6 @@ def rdpClientServers(context):
                     'Username Hint', 'Certificate Hash Stored', 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Remote Desktop Client Servers: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)

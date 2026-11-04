@@ -8,10 +8,7 @@ is not ported from those artifacts.
 
 import struct
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import is_transaction_log, open_hive
@@ -37,7 +34,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Rows from the NetworkList keys in the SOFTWARE hive, named in "
                  "the report's located-at line, one row per network profile. Network Name is the "
@@ -60,8 +57,7 @@ __artifacts_v2__ = {
                  "signature list the network was found in. A gateway MAC address "
                  "can place a network at a physical location through public "
                  "geolocation data; a profile records that the computer connected "
-                 "to the network, not who was using it. Reading the hive requires "
-                 "python-registry. A dirty hive, one whose base block's two sequence numbers "
+                 "to the network, not who was using it. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two sequence numbers "
                  "differ, is read after the entries in its .LOG1 and .LOG2 transaction logs that "
                  "continue its sequence are applied, following Maxim Suhanov's 'Windows registry "
                  "file format specification' "
@@ -138,9 +134,6 @@ def networkList(context):
                     'Default Gateway MAC', 'DNS Suffix', 'Managed')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Network Profiles: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found() if not is_transaction_log(f)]:
         relative_source = context.get_relative_path(source)

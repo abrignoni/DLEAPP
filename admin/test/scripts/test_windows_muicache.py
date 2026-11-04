@@ -80,7 +80,6 @@ VALUES = [('LangID', b'\t\x04'),
           ('C:\\Windows\\system32\\shell32.dll.FriendlyAppName', 'Shell Common Dll')]
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class MuiRowsTest(unittest.TestCase):
     def test_the_two_values_of_a_path_make_one_row_in_the_order_first_named(self):
         rows, skipped = mui.mui_rows(_Key(VALUES), 'alice')
@@ -112,7 +111,6 @@ class MuiRowsTest(unittest.TestCase):
         self.assertEqual(rows, [(WHEN, 'bob', 'C:\\a.exe', '7', '')])
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -164,15 +162,6 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(source, self.bob + '\n' + self.carol)
         self.assertEqual(logged, ['MUICache: could not read vol1/Users/alice/AppData/Local/Microsoft/Windows/'
                                   'UsrClass.dat: bad header'])
-
-    def test_without_python_registry_nothing_is_read(self):
-        with mock.patch.object(mui, 'Registry', None), mock.patch.object(mui, 'logfunc') as log, \
-                mock.patch.object(mui, 'open_hive') as opened:
-            _headers, rows, source = mui.muiCache.__wrapped__(_Context(self.paths))
-        self.assertEqual((rows, source), ([], ''))
-        opened.assert_not_called()
-        self.assertEqual(log.call_count, 1)
-
 
 if __name__ == '__main__':
     unittest.main()

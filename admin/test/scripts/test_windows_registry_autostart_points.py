@@ -101,7 +101,6 @@ SYSTEM = _Hive({
 NTUSER = _Hive({'Software\\' + WINLOGON: _Key(values={'Shell': 'C:\\Users\\a\\made-up.exe'}, written=T2)})
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Points(unittest.TestCase):
     def test_software(self):
         self.assertEqual(ap.point_rows(SOFTWARE, ap._SOFTWARE_POINTS), [  # pylint: disable=protected-access
@@ -145,7 +144,6 @@ class Points(unittest.TestCase):
         self.assertEqual(ap.point_rows(_Hive({}), ap._SOFTWARE_POINTS), [])  # pylint: disable=protected-access
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Processor(unittest.TestCase):
     def run_on(self, hives):
         folder = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
@@ -191,12 +189,6 @@ class Processor(unittest.TestCase):
         rows = self.run_on({'Users/x/export/Windows/System32/config/SYSTEM': SYSTEM})[1]
         self.assertEqual({row[6:8] for row in rows}, {('Machine', '')})
         self.assertEqual(len(rows), 8)
-
-    def test_no_library(self):
-        with mock.patch.object(ap, 'Registry', None), mock.patch.object(ap, 'logfunc') as log:
-            self.assertEqual(ap.windowsRegistryAutostartPoints.__wrapped__(mock.Mock())[1:], ([], ''))
-        log.assert_called_once()
-
 
 if __name__ == '__main__':
     unittest.main()

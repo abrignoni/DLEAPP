@@ -11,7 +11,7 @@ the notes.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive,
                                       open_key, user_from_path)
 
 _LABEL = 'MUICache'
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from each user's UsrClass.dat, named in the report's located-at line. The values of Local "
                  "Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache are named for a file path followed by "
@@ -62,8 +62,7 @@ __artifacts_v2__ = {
                  "Key Last Written (UTC) and User held one value on every row of af_case2_win10, lonewolf_win10 and "
                  "pc_mus_001_win11, where one user hive holds the key, and Company held one value on every row of "
                  "af_case2_win10. A row records that the key of that user's hive holds text for the path; it does "
-                 "not by itself show that the user ran the file, or when. Reading the hive needs the python-registry "
-                 "package. A dirty hive, one whose base block's two sequence numbers differ, is read after the "
+                 "not by itself show that the user ran the file, or when. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two sequence numbers differ, is read after the "
                  "entries in its .LOG1 and .LOG2 transaction logs that continue its sequence are applied, following "
                  "Maxim Suhanov's 'Windows registry file format specification' "
                  "(https://github.com/msuhanov/regf/blob/88e878de51bae393143b0ac8daae6c2dfc256bf7/Windows%20registry%20file%20format%20specification.md#L679-L728, "
@@ -121,9 +120,6 @@ def muiCache(context):
                     'Company')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{_LABEL}: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in found_hives(context, 'USRCLASS.DAT'):
         relative_source = context.get_relative_path(source)

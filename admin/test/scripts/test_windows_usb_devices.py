@@ -81,7 +81,6 @@ def win7_layout(name, data, kind=0x10):
                                                         _Value('Data', data)])])
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Dates(unittest.TestCase):
     def test_windows_8_and_later_layout(self):
         self.assertEqual(ud._property_filetime(instance(new_layout('0065', filetime(WHEN))), '0065'),  # pylint: disable=protected-access

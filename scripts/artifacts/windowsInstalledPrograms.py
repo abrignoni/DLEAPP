@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads every subkey of Microsoft\\Windows\\CurrentVersion\\Uninstall in the SOFTWARE "
                  "hive, the same key under Wow6432Node (reported as the 32-bit view), and "
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive, open_key,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive, open_key,
                                       user_from_path, value_of)
 
 # (view label, key path under the hive root)
@@ -122,9 +122,6 @@ def installedPrograms(context):
                     'Registry View', 'User', 'Key Name', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Installed Programs: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in found_hives(context, 'SOFTWARE', 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
         is_software = os.path.basename(path).upper() == 'SOFTWARE'

@@ -11,7 +11,7 @@ ran (see notes).
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, found_hives, key_written_utc, open_hive,
+from scripts.windows_registry import (found_hives, key_written_utc, open_hive,
                                       open_key, user_from_path)
 
 _LABEL = 'Compatibility Assistant Store'
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each value of "
                  "Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Compatibility Assistant\\Store is one "
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
                  "capture, where one user hive holds the key. Not read: the Layers and Compatibility "
                  "Assistant\\Persisted keys beside it, which hold no value in any tested user hive. A row records "
                  "that the key of that user's hive holds a value named for the program; it does not by itself show "
-                 "that the user ran the program, or when. Reading the hive needs the python-registry package. A "
+                 "that the user ran the program, or when. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A "
                  "dirty hive, one whose base block's two sequence numbers differ, is read after the entries in its "
                  ".LOG1 and .LOG2 transaction logs that continue its sequence are applied, following Maxim Suhanov's "
                  "'Windows registry file format specification' "
@@ -93,9 +93,6 @@ def compatibilityAssistantStore(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'User', 'Program')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{_LABEL}: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in found_hives(context, 'NTUSER.DAT'):
         relative_source = context.get_relative_path(source)

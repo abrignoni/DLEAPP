@@ -114,7 +114,6 @@ MSI_ROW = (WRITTEN_UTC, '02/20/2023 00:00:00', 'Example Tool', '1.2.3', 'Example
            '10.0.0.17763', '0000aa')
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ApplicationRowTest(unittest.TestCase):
     def test_each_column_carries_its_own_value(self):
         self.assertEqual(_row(amcache.application_row, _Key(MSI)), MSI_ROW)
@@ -150,7 +149,6 @@ class ApplicationRowTest(unittest.TestCase):
                          datetime.timedelta(hours=-5))
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ShortcutRowTest(unittest.TestCase):
     def test_path_and_time(self):
         path = 'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Example\\Example Tool.lnk'
@@ -180,7 +178,6 @@ FILE_ROW = (WRITTEN_UTC, 'c:\\program files\\example\\example tool setup.exe', F
             FILE_NAME)
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class FileRowTest(unittest.TestCase):
     def test_each_column_carries_its_own_value(self):
         self.assertEqual(_row(amcache.file_row, _Key(FILE, name=FILE_NAME)), FILE_ROW)
@@ -242,7 +239,6 @@ PACKAGE_ROW = (WRITTEN_UTC, '2018-9-15', PACKAGE_NAME, '1.2.3.4', 'Example Corp'
                'pci\\ven_0000&dev_0001', 'example.sys', '0', '1', '12345')
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class DriverRowTest(unittest.TestCase):
     def test_each_column_carries_its_own_value(self):
         self.assertEqual(_row(amcache.driver_row, _Key(DRIVER, name=DRIVER_PATH)), DRIVER_ROW)
@@ -253,7 +249,6 @@ class DriverRowTest(unittest.TestCase):
         self.assertEqual(_row(amcache.driver_row, _Key({}, name='c:/y.sys'))[3], '')
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class DeviceRowTest(unittest.TestCase):
     def test_each_column_carries_its_own_value(self):
         self.assertEqual(_row(amcache.device_row, _Key(DEVICE, name=DEVICE_NAME)), DEVICE_ROW)
@@ -265,7 +260,6 @@ class DeviceRowTest(unittest.TestCase):
                           '', '', '', '', ''))
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ContainerRowTest(unittest.TestCase):
     def test_each_column_carries_its_own_value(self):
         self.assertEqual(_row(amcache.container_row, _Key(CONTAINER, name=CONTAINER_NAME)), CONTAINER_ROW)
@@ -284,7 +278,6 @@ class ContainerRowTest(unittest.TestCase):
                          (WRITTEN_UTC, '{b}', 'PC', '', '', '', '', '', '', '', '', '', '', '', '', '', ''))
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class PackageRowTest(unittest.TestCase):
     def test_each_column_carries_its_own_value(self):
         self.assertEqual(_row(amcache.package_row, _Key(PACKAGE, name=PACKAGE_NAME)), PACKAGE_ROW)
@@ -301,7 +294,6 @@ class PackageRowTest(unittest.TestCase):
                           ''))
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class ArtifactTest(unittest.TestCase):
     HIVE = '/report/data/vol/Windows/appcompat/Programs/Amcache.hve'
     OTHER = '/report/data/old/Windows/appcompat/Programs/AMCACHE.HVE'
@@ -456,19 +448,6 @@ class ArtifactTest(unittest.TestCase):
             (_headers, rows, source), _opened, logged = self.run_artifact(function, {self.HIVE: _Hive({})})
             self.assertEqual((rows, source, logged), ([], self.HIVE, []))
 
-    def test_without_python_registry_nothing_is_read(self):
-        functions = (amcache.amcacheApplicationFiles, amcache.amcacheApplications, amcache.amcacheShortcuts,
-                     amcache.amcacheDrivers, amcache.amcacheDevices, amcache.amcacheDeviceContainers,
-                     amcache.amcacheDriverPackages)
-        with mock.patch.object(amcache, 'Registry', None), mock.patch.object(amcache, 'logfunc') as log, \
-                mock.patch.object(amcache, 'open_hive') as opened:
-            for function in functions:
-                _headers, rows, source = function.__wrapped__(_Context([self.HIVE]))
-                self.assertEqual((rows, source), ([], ''))
-        opened.assert_not_called()
-        self.assertEqual(log.call_count, len(functions))
-
-
 FILETIME_LATER = 134373448019183342
 LATER_UTC = datetime.datetime(2026, 10, 24, 19, 46, 41, 918334, tzinfo=datetime.timezone.utc)
 
@@ -553,7 +532,6 @@ class AgreesTest(unittest.TestCase):
         self.assertTrue(amcache._agrees(empty_extra, database))  # pylint: disable=protected-access
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class HiveAndDatabaseTest(unittest.TestCase):
     COLUMNS = ['ProgramId', 'FileId', 'LowerCaseLongPath', 'Name', 'Publisher', 'ProductName', 'Version', 'Size',
                'LinkDate']
@@ -616,7 +594,7 @@ class HiveAndDatabaseTest(unittest.TestCase):
                          [(WRITTEN_UTC, None, ''), (None, LATER_UTC, 'c:\\x.exe')])
         self.assertEqual(source, hive_path + '\n' + other_database)
 
-    def test_a_database_without_its_hive_is_read_without_python_registry(self):
+    def test_a_database_without_its_hive_is_read(self):
         database_path = self.database(self.one, [
             ('a|1', '0006aa', '', 'c:\\a.exe', 'a.exe', '', '', '', 5, '', FILETIME_LATER)])
         with mock.patch.object(amcache, 'Registry', None):

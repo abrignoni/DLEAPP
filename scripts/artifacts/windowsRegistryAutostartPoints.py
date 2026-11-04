@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-30",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row for each value read at nine kinds of registry location where Windows is told what "
                  "to load at boot or logon, with the last-written time of the key holding it. A default "
@@ -90,8 +90,7 @@ __artifacts_v2__ = {
                  "a RequireSignedAppInit_DLLs row, binary data and a current control set other than "
                  "ControlSet001 were tested with constructed input only. Whether Windows loads what a value "
                  "names was not tested: the presence of a row does not establish that the program or DLL ran, "
-                 "and other autostart locations exist that this artifact does not read. Reading the hives "
-                 "requires the python-registry package. A dirty hive is read after the entries of its .LOG1 "
+                 "and other autostart locations exist that this artifact does not read. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive is read after the entries of its .LOG1 "
                  "and .LOG2 transaction logs that continue its sequence are applied; the run log names each "
                  "hive replayed and each dirty hive read as it is, with the reason.",
         "paths": ('*/Windows/System32/config/SOFTWARE',
@@ -118,10 +117,6 @@ __artifacts_v2__ = {
 
 import os
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import (current_control_set, found_hives, key_written_utc, open_hive, open_key,
@@ -209,9 +204,6 @@ def windowsRegistryAutostartPoints(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'Location', 'Entry', 'Entry Label', 'Value', 'Data',
                     'Scope', 'User', 'Key', 'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Registry Autostart Points: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'SOFTWARE', 'SYSTEM', 'NTUSER.DAT')):
         relative = context.get_relative_path(source)
         name = os.path.basename(source).upper()

@@ -15,13 +15,13 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-12",
         "last_update_date": "2026-10-12",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row per reported value under HKCU\\Software\\7-Zip in a user's NTUSER.DAT, with one row per "
                  "path in a history value, the key 7-Zip (Igor Pavlov's "
                  "open-source archiver, https://www.7-zip.org) writes. Key Last Written (UTC) is the last-written "
                  "time of the key the row came from, Category groups the rows, Name is the value name (with a "
-                 "position number appended for a history entry), Value is the data as python-registry decodes it (a "
+                 "position number appended for a history entry), Value is the data as the hive reader decodes it (a "
                  "number as its decimal, text as text, other binary as hex) and a decoded path for a history "
                  "entry, User is the folder after Users in the path and Source File is the hive. Config "
                  "rows: Path and Path64, the install folder (Install); Archiver, the archive format last chosen in "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
                  "folder, 1 copy; no extraction history), and on windows11_arm_7zip_known_20261010 the 39 rows are 9 "
                  "config values and 30 history paths (2 archive, 1 extraction, 26 folder, 1 copy). "
                  "User holds one value on every row of each tested image, each image having one user with a 7-Zip "
-                 "key. Reading the hive requires python-registry; a dirty hive is read after "
+                 "key. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py); a dirty hive is read after "
                  "its transaction logs are applied, and the run log names each.",
         "paths": ('*/Users/*/NTUSER.DAT',
                   '*/Users/*/[Nn][Tt][Uu][Ss][Ee][Rr].[Dd][Aa][Tt].[Ll][Oo][Gg][12]'),
@@ -62,10 +62,6 @@ __artifacts_v2__ = {
     },
 }
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import found_hives, is_transaction_log, key_written_utc, open_hive, open_key, user_from_path
@@ -157,9 +153,6 @@ def windowsSevenZip(context):
     data_headers = (('Key Last Written (UTC)', 'datetime'), 'Category', 'Name', 'Value', 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc(f'{_LABEL}: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'NTUSER.DAT')):
         if is_transaction_log(source):
             continue

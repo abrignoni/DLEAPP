@@ -135,7 +135,6 @@ class Edid(unittest.TestCase):
             self.assertIsNone(me.edid_fields(raw))
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Rows(unittest.TestCase):
     def test_a_hive(self):
         rows, unread = me.monitor_rows(HIVE, 'ControlSet001')
@@ -181,12 +180,6 @@ class Rows(unittest.TestCase):
         self.assertEqual(len(logged), 2)
         self.assertIn('1 EDID values of a/Windows/System32/config/SYSTEM are not an EDID block', logged[0])
         self.assertIn('could not read ab/Windows/System32/config/SYSTEM: not a hive', logged[1])
-
-    def test_no_library(self):
-        with mock.patch.object(me, 'Registry', None), mock.patch.object(me, 'logfunc') as log:
-            self.assertEqual(me.windowsMonitorEdid.__wrapped__(mock.Mock())[1:], ([], ''))
-        log.assert_called_once()
-
 
 if __name__ == '__main__':
     unittest.main()

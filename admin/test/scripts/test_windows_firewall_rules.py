@@ -95,7 +95,6 @@ class _Hive:
         return self._keys[path]
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class RuleKeysTest(unittest.TestCase):
     def test_system_uses_the_current_control_set(self):
         rules = _Key()

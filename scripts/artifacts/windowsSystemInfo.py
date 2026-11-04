@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-30",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads the SOFTWARE hive's Microsoft\\Windows NT\\CurrentVersion and Winlogon keys and "
                  "its Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI key, and the SYSTEM "
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-02",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads the Services\\Tcpip\\Parameters\\Interfaces subkeys of the SYSTEM hive's control "
                  "set named by the Select key's Current value (ControlSet001 when there is none), and "
@@ -144,7 +144,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, current_control_set, filetime_bytes_utc,
+from scripts.windows_registry import (current_control_set, filetime_bytes_utc,
                                       filetime_utc, found_hives, key_written_utc, open_hive,
                                       open_key, signed32, unix_utc, value_of)
 
@@ -243,9 +243,6 @@ def windowsSystemInfo(context):
                     'Registry Value', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Windows System Information: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for _folder, hives in sorted(_config_dirs(context).items()):
         for kind, reader in (('SOFTWARE', _software_rows), ('SYSTEM', _system_rows)):
             path = hives.get(kind)
@@ -277,9 +274,6 @@ def windowsNetworkInterfaces(context):
                     ('Key Last Written (UTC)', 'datetime'), 'Interface GUID')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Windows Network Interfaces: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in found_hives(context, 'SYSTEM'):
         relative = context.get_relative_path(path)
         try:

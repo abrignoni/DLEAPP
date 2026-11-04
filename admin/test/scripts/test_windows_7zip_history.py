@@ -102,7 +102,6 @@ class Lists(unittest.TestCase):
         self.assertEqual(sz.list_strings(b'\x00\xd8\x00\x00'), (['\\x00\\xd8'], 0))
 
 
-@unittest.skipIf(Registry is None, 'python-registry is not installed')
 class Rows(unittest.TestCase):
     def test_a_hive(self):
         counts = Counter()
@@ -151,12 +150,6 @@ class Rows(unittest.TestCase):
                                             for user in ('a', 'c')))
         log.assert_called_once()
         self.assertIn('could not read C/Users/ab/NTUSER.DAT: not a hive', log.call_args[0][0])
-
-    def test_no_library(self):
-        with mock.patch.object(sz, 'Registry', None), mock.patch.object(sz, 'logfunc') as log:
-            self.assertEqual(sz.sevenZipHistory.__wrapped__(mock.Mock())[1:], ([], ''))
-        log.assert_called_once()
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "One row for each monitor instance under Enum\\DISPLAY of the SYSTEM hive's current control "
                  "set: Monitor ID is the name of the key under DISPLAY, Instance the name of the key under "
@@ -67,8 +67,7 @@ __artifacts_v2__ = {
                  "rows and both empty on the Default_Monitor row. On the two build 26200 captures Other Text "
                  "was empty on both rows. Serial Text was empty on every row of all six, so that column is "
                  "exercised with constructed input only. A row shows that Windows recorded the monitor on this "
-                 "system, not when or how often it was connected. Source File is the hive. Reading the hive "
-                 "requires the python-registry package; a dirty hive is read after its transaction logs are "
+                 "system, not when or how often it was connected. Source File is the hive. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py); a dirty hive is read after its transaction logs are "
                  "applied, and the run log names each.",
         "paths": ('*/Windows/System32/config/SYSTEM',
                   '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
@@ -89,10 +88,6 @@ __artifacts_v2__ = {
 
 import struct
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import current_control_set, found_hives, key_written_utc, open_hive, open_key
@@ -166,9 +161,6 @@ def windowsMonitorEdid(context):
                     'Monitor Name', 'Serial Text', 'Other Text', 'EDID Size', 'Checksum Valid', 'Key',
                     'Source File')
     data_list, sources = [], []
-    if Registry is None:
-        logfunc('Monitors (EDID): the python-registry package is not installed')
-        return data_headers, data_list, ''
     for source in sorted(found_hives(context, 'SYSTEM')):
         relative = context.get_relative_path(source)
         try:

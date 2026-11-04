@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Reads each Software\\Microsoft\\Office\\<version>\\<application> key in each NTUSER.DAT "
                  "for File MRU and Place MRU subkeys, including those under User MRU\\<account key>, "
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
 import re
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import (Registry, filetime_utc, found_hives, open_hive, open_key,
+from scripts.windows_registry import (filetime_utc, found_hives, open_hive, open_key,
                                       user_from_path)
 
 _OFFICE = r'Software\Microsoft\Office'
@@ -108,9 +108,6 @@ def officeFileMru(context):
                     'List', 'Item', 'Account Key', 'User', 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Office File and Place MRU: the python-registry package is not installed')
-        return data_headers, data_list, ''
     for path in found_hives(context, 'NTUSER.DAT'):
         relative = context.get_relative_path(path)
         user = user_from_path(relative)

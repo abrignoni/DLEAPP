@@ -13,10 +13,7 @@ import codecs
 import struct
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -39,7 +36,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from each NTUSER.DAT, named in Source File. Program is the "
                  "value name with its ROT13 encoding reversed and is shown as "
@@ -54,8 +51,7 @@ __artifacts_v2__ = {
                  "structure recorded no time (a zero FILETIME). Entries whose data "
                  "is not the 72-byte structure, including the UEME_CTLSESSION "
                  "control value, are skipped. UserAssist Key (GUID) is the parent "
-                 "GUID as stored, not interpreted. Reading the hives requires the "
-                 "python-registry package. A dirty hive, one whose base block's two "
+                 "GUID as stored, not interpreted. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two "
                  "sequence numbers differ, is read after the entries in its .LOG1 "
                  "and .LOG2 transaction logs that continue its sequence are "
                  "applied, following Maxim Suhanov's 'Windows registry file format "
@@ -114,9 +110,6 @@ def userAssist(context):
                     'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('UserAssist: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if str(f).upper().endswith('NTUSER.DAT')]:

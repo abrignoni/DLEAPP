@@ -315,11 +315,13 @@ class OpenHiveTest(unittest.TestCase):
         return path
 
     def _open(self, path, context=None):
-        """The bytes open_hive hands python-registry."""
+        """The bytes open_hive hands regfprobe to read."""
         read = []
         with mock.patch.object(windows_registry, 'logfunc', self.logs.append), \
                 mock.patch.object(windows_registry.Context, '_data_folder', self.folder), \
-                mock.patch.object(windows_registry.Registry, 'Registry', side_effect=lambda f: read.append(f.read())):
+                mock.patch.object(windows_registry.regfprobe, 'Hive',
+                                  side_effect=lambda data, **_kw: read.append(bytes(data))), \
+                mock.patch.object(windows_registry.regfprobe, 'CompatRegistry'):
             windows_registry.open_hive(path, context)
         return read[0]
 
@@ -361,6 +363,19 @@ class OpenHiveTest(unittest.TestCase):
         self.assertEqual(self._open(path)[4096 + 512:4096 + 1024], sector(7))
         self.assertEqual(self.logs, ['Registry: SAM was dirty; wrote the 1 dirty page of SAM.LOG1, a log in '
                                      'the older format, sequence 3.'])
+
+    def test_each_damaged_structure_regfprobe_skips_is_named_in_the_run_log(self):
+        path = self._write('SYSTEM', hive(5, 5))
+        callbacks = []
+        with mock.patch.object(windows_registry, 'logfunc', self.logs.append), \
+                mock.patch.object(windows_registry.Context, '_data_folder', self.folder), \
+                mock.patch.object(windows_registry.regfprobe, 'Hive',
+                                  side_effect=lambda data, **kw: callbacks.append(kw['on_fault'])), \
+                mock.patch.object(windows_registry.regfprobe, 'CompatRegistry'):
+            windows_registry.open_hive(path)
+            callbacks[0]('nk', 0x1d168, 'cell at 0x1d168 has an impossible size 0')
+        self.assertEqual(self.logs, ['Registry: SYSTEM: skipped a damaged nk structure at cell 0x1d168 '
+                                     '(cell at 0x1d168 has an impossible size 0).'])
 
     def test_a_clean_hive_is_read_as_it_is_without_a_log_line(self):
         primary = hive(8, 8)

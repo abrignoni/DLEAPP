@@ -2,7 +2,7 @@
 
 Author: @AlexisBrignoni, Claude.
 Inspired by the Velociraptor exchange Windows.Forensics.Bam artifact; this reads
-the SYSTEM hive's on-disk structure directly with python-registry.
+the SYSTEM hive's on-disk structure directly with the vendored regfprobe.
 
 The Background Activity Moderator (bam) and Desktop Activity Moderator (dam)
 services record, per user SID, the last time each executable ran. Each value is
@@ -14,10 +14,7 @@ artifact.
 import struct
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -38,7 +35,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-16",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "Read from the SYSTEM hive, named in the report's located-at line. Each row is one "
                  "executable entry under a control set's Services\\bam or "
@@ -55,8 +52,7 @@ __artifacts_v2__ = {
                  "tested images every row is bam: the dam service key had no subkeys, so it held no "
                  "user entries. An entry records that the executable ran for the user, "
                  "not who was at the keyboard, and the \\Device\\HarddiskVolume<n> "
-                 "prefix is not resolved to a drive letter here. Reading the hive "
-                 "needs the python-registry package. A dirty hive, one whose base block's two "
+                 "prefix is not resolved to a drive letter here. The hive is read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose base block's two "
                  "sequence numbers differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim Suhanov's "
                  "'Windows registry file format specification' "
@@ -126,9 +122,6 @@ def backgroundActivityModerator(context):
                     'Service')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('BAM/DAM: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if str(f).lower().endswith('system')]:

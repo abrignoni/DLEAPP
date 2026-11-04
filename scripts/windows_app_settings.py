@@ -34,15 +34,11 @@ import struct
 import uuid
 from datetime import timedelta
 
-from scripts.windows_registry import filetime_utc, key_written_utc, open_hive, user_from_path
+from scripts.windows_registry import Registry, filetime_utc, key_written_utc, open_hive, user_from_path
 
-try:
-    from Registry.RegistryParse import RegistryException
-except ImportError:
-    RegistryException = OSError
 
-# What reading a damaged or truncated hive can raise, from the replay or from python-registry.
-HIVE_ERRORS = (OSError, ValueError, IndexError, struct.error, RegistryException)
+# What reading a damaged or truncated hive can raise, from the replay or from regfprobe.
+HIVE_ERRORS = (OSError, ValueError, IndexError, struct.error, Registry.RegistryException)
 
 TYPE_BASE = 0x5F5E100
 
@@ -70,7 +66,7 @@ class Setting:
     """One decoded value: name, type number and name, value, and its stored FILETIME.
 
     type_number is None for a value of an ordinary registry type, whose value is what
-    python-registry returns and whose written time is blank. For a composite, value is
+    the hive reader's value() returns and whose written time is blank. For a composite, value is
     a dict of name to (type name, value); its members carry no time of their own.
     """
 
@@ -198,16 +194,13 @@ def decode_composite(data):
 
 
 def stored_type_of(value):
-    """The value's type exactly as the hive stores it.
-
-    python-registry's value_type() keeps only the low twelve bits, which loses the
-    0x5F5E100 base, so the full 32-bit field of the value record is read here.
-    """
-    return value._vkrecord.unpack_dword(0xC)  # pylint: disable=protected-access
+    """The value's type exactly as the hive stores it: value_type() is the full 32-bit field
+    of the value record, 0x5F5E100 base included."""
+    return value.value_type()
 
 
 def decode(value):
-    """A Setting for one python-registry value."""
+    """A Setting for one value of the hive."""
     raw_type = stored_type_of(value)
     name = value.name()
     number = raw_type - TYPE_BASE
@@ -215,7 +208,7 @@ def decode(value):
         try:
             plain = value.value()
         except Exception as ex:  # pylint: disable=broad-exception-caught
-            # python-registry raises its own exception classes for types it cannot read.
+            # a value the reader cannot decode is reported with the error, never dropped
             return Setting(name, raw_type, None, f'0x{raw_type:X}', '', '', str(ex))
         return Setting(name, raw_type, None, f'0x{raw_type:X}', plain, '')
     raw = bytes(value.raw_data())

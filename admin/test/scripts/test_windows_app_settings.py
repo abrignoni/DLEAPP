@@ -1,7 +1,7 @@
 """Packaged-app settings.dat: the value decoder, and the artifacts that use it.
 
 The hives are built here, cell by cell, the way the registry file format lays them out, and are
-read back through open_hive and python-registry exactly as a run reads a staged hive. Every name,
+read back through open_hive and the vendored regfprobe exactly as a run reads a staged hive. Every name,
 string and identifier in them is invented for the test.
 """
 

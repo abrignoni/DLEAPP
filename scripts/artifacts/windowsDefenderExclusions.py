@@ -11,7 +11,7 @@ notes.
 """
 
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.windows_registry import Registry, found_hives, key_written_utc, open_hive, open_key
+from scripts.windows_registry import found_hives, key_written_utc, open_hive, open_key
 
 # (Location label, key path under the SOFTWARE hive root)
 _EXCLUSION_KEYS = (
@@ -29,10 +29,9 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
-        "notes": "Read from the SOFTWARE hive, named in the report's located-at line, with "
-                 "python-registry. A dirty hive, one whose base block's two sequence "
+        "notes": "Read from the SOFTWARE hive, named in the report's located-at line, with the vendored regfprobe. A dirty hive, one whose base block's two sequence "
                  "numbers differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim "
                  "Suhanov's 'Windows registry file format specification' "
@@ -46,10 +45,11 @@ __artifacts_v2__ = {
                  "Policies\\Microsoft\\Windows Defender\\Exclusions, labelled Group "
                  "Policy. Each value directly under either key and each value in one of "
                  "its subkeys is one row: Subkey is the subkey's name, blank for a value "
-                 "directly under the key; Value Name and Value Data (as stored) are the "
-                 "value's name and data as stored; Registry Key is the key's path under "
-                 "the hive root. Key Last Written (UTC) is the last written time of the "
-                 "key holding the value, as python-registry reads it; it belongs to the "
+                 "directly under the key; Value Name is the value's name, and Value Data (as stored) is "
+                 "its data decoded by registry type and written as text (a string up to its first NUL, "
+                 "a DWORD or QWORD as its decimal number, a REG_MULTI_SZ as a Python list of its "
+                 "strings, any other type as a Python bytes literal); Registry Key is the key's path under "
+                 "the hive root. Key Last Written (UTC) is the last written time of the key holding the value, to the microsecond; it belongs to the "
                  "key, so every value in one key shares it. Microsoft's Policy CSP page "
                  "maps the ExcludedExtensions, ExcludedPaths and ExcludedProcesses "
                  "policies to the Group Policy settings Exclusions_Extensions, "
@@ -110,9 +110,6 @@ def defenderExclusions(context):
                     'Value Data (as stored)', 'Location', 'Registry Key')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('Microsoft Defender Exclusions: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in found_hives(context, 'SOFTWARE'):
         relative_source = context.get_relative_path(source)

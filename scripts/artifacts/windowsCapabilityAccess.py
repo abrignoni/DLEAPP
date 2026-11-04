@@ -9,10 +9,7 @@ from that artifact.
 import os
 from datetime import datetime, timedelta, timezone
 
-try:
-    from Registry import Registry
-except ImportError:
-    Registry = None
+from scripts.windows_registry import Registry
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.windows_registry import open_hive
@@ -42,7 +39,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-27",
-        "requirements": "python-registry",
+        "requirements": "none (vendored regfprobe)",
         "category": "Windows",
         "notes": "The machine-wide store is read from the SOFTWARE hive and the "
                  "per-user store from each NTUSER.DAT, named in Source File so "
@@ -60,8 +57,7 @@ __artifacts_v2__ = {
                  "recorded no such time, which is common, so many rows carry "
                  "only the consent setting. Presence of a consent entry does "
                  "not establish that the app used the capability, and a blank "
-                 "time does not establish that it did not. Reading the hives "
-                 "requires the python-registry package. A dirty hive, one whose "
+                 "time does not establish that it did not. The hives are read with the vendored regfprobe (scripts/vendor/regfprobe.py). A dirty hive, one whose "
                  "base block's two sequence numbers differ, is read after the "
                  "entries in its .LOG1 and .LOG2 transaction logs that continue "
                  "its sequence are applied, following Maxim Suhanov's 'Windows "
@@ -132,9 +128,6 @@ def capabilityAccessManager(context):
                     ('Last Used Stop (UTC)', 'datetime'), 'Source File')
     data_list = []
     sources = []
-    if Registry is None:
-        logfunc('CapabilityAccessManager: the python-registry package is not installed')
-        return data_headers, data_list, ''
 
     for source in [str(f) for f in context.get_files_found()
                    if os.path.basename(str(f)).upper() in ('SOFTWARE', 'NTUSER.DAT')]:
