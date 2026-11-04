@@ -301,9 +301,9 @@
       "version": "0.1.0",
       "upstream": "https://github.com/abrignoni/regfprobe",
       "upstream_file": "regfprobe.py",
-      "commit": "83d2774589bab2cea8cb7b9573f94a5247d43438",
-      "commit_date": "2026-11-04T13:10:19-05:00",
-      "sha256": "0f1ce51356b5cadec133f55e3716c19d0484b2b22ed1978742d63e0e3e95bfa4",
+      "commit": "497456bf001589dccba2e05e19ba695e208f45fd",
+      "commit_date": "2026-11-04T14:10:22-05:00",
+      "sha256": "a6b68f3f50d4673f3eed5e108f35bf7469bccbef4a9903f884d309778baef35f",
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-regfprobe",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."

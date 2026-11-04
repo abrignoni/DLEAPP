@@ -25,7 +25,7 @@ __artifacts_v2__ = {
                  "Select\\Current value or that value is not a number. Value Name is the name of the value. Every tested value "
                  "is a REG_MULTI_SZ whose strings take the form Field=Value, and each string is split at its first =. "
                  "ShareName, Path, Remark, Type, Permissions, MaxUses, CSCFlags and CATimeout are those fields as stored, text"
-                 " unchanged and blank when the value holds no such field. Other Fields holds, joined with ' | ', every other "
+                 " unchanged, and blank when the value holds no such field or the field is empty. Other Fields holds, joined with ' | ', every other "
                  "non-empty string of the value as stored: a field with another name, a second field of a name already shown, "
                  "or a string without =. A value of another type is reported with its type and data in Other Fields. The "
                  "Microsoft article cited above does not document these fields, so no meaning is given here for Type, "
@@ -54,8 +54,11 @@ __artifacts_v2__ = {
                  " File. A value of another type, a string without =, a repeated field and a hive without a Select key were "
                  "tested with constructed input only. A row is a share definition the hive holds; it does not establish that "
                  "the share was reachable or used. Reading the hive requires the python-registry package. A dirty hive is read"
-                 " with the entries of its .LOG1 and .LOG2 transaction logs applied when they continue its sequence and pass "
-                 "the checks in scripts/registry_recovery.py, and otherwise as it is; the run log names each hive replayed and"
+                 " with its .LOG1 and .LOG2 transaction logs applied when they pass the checks of the replay in "
+                 "scripts/vendor/regfprobe.py (for the newer log format, entries that continue the hive's sequence; for the "
+                 "older format, the first log whose base block is valid, with its two sequence numbers equal and the "
+                 "hive's last-written time), and otherwise as it is; the "
+                 "run log names each hive replayed and"
                  " each dirty hive read as it is, with the reason.",
         "paths": ('*/Windows/System32/config/SYSTEM',
                   '*/Windows/System32/config/[Ss][Yy][Ss][Tt][Ee][Mm].[Ll][Oo][Gg][12]'),
