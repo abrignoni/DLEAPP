@@ -351,7 +351,7 @@ __artifacts_v2__ = {
     },
     "edgeFormFieldValues": {
         "name": "Microsoft Edge Form Field Values",
-        "description": "Values typed into web form fields and kept by Microsoft Edge in its own "
+        "description": "Values entered into web form fields and kept by Microsoft Edge in its own "
                        "autofill_edge_field_values table of Web Data, with the site's host name, the field's "
                        "label, the count and the first and last times.",
         "author": "@AlexisBrignoni, Claude",
@@ -369,12 +369,14 @@ __artifacts_v2__ = {
                  "autofill_edge_field_client_info row whose field_id matches: field_id is that row's "
                  "domain_signature, form_signature_v2 and field_signature_v2 joined by $, on all 6 rows of the "
                  "known data and all 37 of hexordia_mvs2025_win11, where every field_values row had a "
-                 "client_info row. Site is domain_value, the page's full host name without the port: a form on "
-                 "a host and on its parent domain gave two rows with two Site values. Field Label is label, the "
+                 "client_info row. Site is domain_value, the page's full host name without the port: the same "
+                 "form served from a host and from its parent domain was stored under two different Site "
+                 "values, one per host. Field Label is label, the "
                  "text of the field's label element; the field's name, id, placeholder and aria-label were each "
                  "different and none was stored; it was empty on 1 row of hexordia_mvs2025_win11. Value is the "
-                 "value as stored. Edge stores a field left empty "
-                 "as edge_default_dummy_empty_value, and this artifact shows that value blank: 12 of the 38 "
+                 "value as stored; a BLOB value would be reported by its length, and every tested value was "
+                 "text. On the known data Edge stored a field left empty as edge_default_dummy_empty_value, "
+                 "and this artifact shows that value blank: 12 of the 38 "
                  "rows on hexordia_mvs2025_win11 held it. Created and Last Used are date_created and "
                  "date_last_used, seconds since 1970-01-01 UTC. On the known data both were the second in "
                  "which typing into the form began, the same second for every field of the form, and not the "
@@ -395,16 +397,18 @@ __artifacts_v2__ = {
                  "rows of hexordia_mvs2025_win11 and 0 on every known-data row, so what sets it is not "
                  "established; the client_info signatures and its date_created, which on the known data was "
                  "the first time its field got a value and did not move for a later value; and "
-                 "autofill_edge_fieldid_cid_mapping, autofill_edge_extended, and Edge's other tables, empty on "
-                 "the known data (no account was signed in). The table was absent from the tested databases "
+                 "autofill_edge_fieldid_cid_mapping, autofill_edge_extended and the other autofill_edge_, "
+                 "credit_cards_edge_ and edge_ tables, which held no rows on the known data except edge_meta's "
+                 "one version row; the known data had no account signed in. The table was absent from the tested databases "
                  "of schema 88 (an Edge 86 snapshot on ou_ransomware_server2022) and 104 (Edge 108 on "
                  "pc_mus_001_win11), and present in those of schema 117, 120, 135 and 158; the 117 and 120 "
                  "ones lack is_masked. Profile, User and Source File are as in Chromium Autofill Entries; "
-                 "Browser is left out because only Edge writes the table. Profile held one value, Default, "
+                 "Browser is left out because the paths read are Edge's, so it would hold one value. Profile held one value, Default, "
                  "and User held one value on every row of hexordia_mvs2025_win11 and of the known data, each "
                  "of which has one Edge profile with rows. Only the Windows Edge folder was exercised; the "
-                 "macOS and Linux Edge folders were not. A row records that a value was typed into a form "
-                 "field of that site in that profile, not who typed it.",
+                 "macOS and Linux Edge folders were not. A row records that a value was entered into a form "
+                 "field of that site and the form was submitted or removed, in that profile; it does not "
+                 "record who entered it.",
         "paths": (
             '*/AppData/Local/Microsoft/Edge/User Data/*/Web Data*',
             '*/Library/Application Support/Microsoft Edge/*/Web Data*',
