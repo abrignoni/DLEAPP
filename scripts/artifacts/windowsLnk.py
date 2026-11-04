@@ -182,7 +182,7 @@ __artifacts_v2__ = {
     },
     "windowsLnkPlaced": {
         "name": "Desktop, Taskbar and Startup Shell Links",
-        "description": "Shell links (.lnk) on a user's or the Public desktop, pinned to the taskbar, or in a "
+        "description": "Shell links (.lnk) on a user's or the Public desktop, in the taskbar pins folder, or in a "
                        "Startup folder, with each target's path, recorded timestamps, size and volume, and the "
                        "link's tracker block.",
         "author": "@AlexisBrignoni, Claude",
@@ -192,19 +192,21 @@ __artifacts_v2__ = {
         "category": "Windows",
         "notes": "Rows from the .lnk shell links in four places, named in Location: a user's Desktop folder "
                  "(Users\\<user>\\Desktop, or Documents and Settings\\<user>\\Desktop on Windows XP), the "
-                 "Public desktop (Users\\Public\\Desktop, or the All Users desktop on Windows XP), the taskbar "
+                 "Public desktop (Users\\Public\\Desktop; the Windows XP All Users desktop is handled the same way), the taskbar "
                  "pins folder (AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\"
-                 "TaskBar), and a Startup folder, the user's (Startup (User)) or the ProgramData one (Startup "
-                 "(All users)). A link in a folder below the Desktop folder is listed as Desktop. Every other "
+                 "TaskBar), and a Startup folder, the user's (Startup (User)), or the ProgramData one or the Windows "
+                 "XP All Users one (Startup (All users)). On the corpus images the rows were in the Desktop, "
+                 "Public desktop and taskbar pins folders; Startup (User) was exercised by one link on "
+                 "windows11_arm_startupapproved_known_20261104, and Startup (All users) and the Windows XP All "
+                 "Users desktop by no image. A link in a folder below the Desktop folder is listed as Desktop. Every other "
                  "column, and the handling of a file that does not read as a shell link, is as described in "
                  "Recent Shell Links (LNK), which reads the same fields with the same code. User is the folder "
                  "name after Users or Documents and Settings in the path, blank for the Public and All Users "
-                 "folders. A link here can be made by an installer or be a Windows default (taskbar pins in "
-                 "particular), so a row records that the link is in that place, not that a person put it there "
+                 "folders. A link here can be made by an installer or be a Windows default, so a row records that the link is in that place, not that a person put it there "
                  "or opened it. Links in the Start Menu, the Win+X menu (AppData\\Local\\Microsoft\\Windows"
-                 "\\WinX), the Links folder, service profiles and Windows' own folders are not listed: across "
-                 "the surveyed corpus images they were installer-made, shipped with Windows or default "
-                 "shortcuts. A Startup folder's other files are listed by Startup Folder Items. "
+                 "\\WinX), the Links folder, service profiles and Windows' own folders are not listed; on the "
+                 "surveyed corpus images those folders held shortcuts named for Windows features and installed "
+                 "programs, and a path listing does not tell whether a person placed any of them. A Startup folder's other files are listed by Startup Folder Items. "
                  "Format: Microsoft [MS-SHLLINK], "
                  "https://learn.microsoft.com/openspecs/windows_protocols/ms-shllink/16cb4ca1-9339-4d0c-a68d-bf1d6cc0f943.",
         "paths": ("*/Users/*/Desktop/*.[Ll][Nn][Kk]",
@@ -332,7 +334,7 @@ def link_location(relative_source):
             return 'Startup (All users)', ''
         return 'Startup (User)', owner
     if '/quick launch/user pinned/taskbar/' in joined:
-        return 'Taskbar pinned', owner
+        return 'Taskbar pins folder', owner
     for root in ('users', 'documents and settings'):
         if root in lowered:
             index = lowered.index(root)

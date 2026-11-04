@@ -22,7 +22,7 @@ class LinkLocationTest(unittest.TestCase):
             'C/Users/Public/Desktop/c.lnk': ('Public desktop', ''),
             'C/Documents and Settings/pat/Desktop/d.lnk': ('Desktop', 'pat'),
             'C/Documents and Settings/All Users/Desktop/e.lnk': ('Public desktop', ''),
-            f'C/Users/pat/{PINS}/f.lnk': ('Taskbar pinned', 'pat'),
+            f'C/Users/pat/{PINS}/f.lnk': ('Taskbar pins folder', 'pat'),
             'C/Users/pat/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/g.lnk': ('Startup (User)', 'pat'),
             'C/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/h.lnk': ('Startup (All users)', ''),
             'C/Documents and Settings/All Users/Start Menu/Programs/Startup/i.lnk': ('Startup (All users)', ''),
