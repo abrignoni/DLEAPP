@@ -1,0 +1,127 @@
+name: AUR publish
+
+# Keeps the dleapp-bin AUR package on the latest release: when a GitHub
+# Release is published, pkgver and the checksums in packaging/aur/dleapp-bin
+# are refreshed from its assets, committed back here, and pushed to the AUR.
+#
+# Setup (repository owner, once): create an AUR account, add an ssh key for
+# it, store the private key as the AUR_SSH_PRIVATE_KEY repository secret, and
+# make sure the `dleapp-bin` AUR package exists (the first push creates it).
+# Without the secret the AUR push is skipped but the in-repo refresh still
+# lands, so forks and rehearsals never fail on it.
+#
+# dleapp-git needs no publishing: it builds the latest commit itself, so AUR
+# users on it get every push with a --devel upgrade.
+#
+# .SRCINFO is patched for values only (pkgver, checksums), which keeps the
+# makepkg-canonical formatting. If PKGBUILD's structure ever changes
+# (new fields, sources), regenerate it locally with `makepkg --printsrcinfo`.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name || github.ref }}
+
+      - name: Refresh dleapp-bin to this release
+        shell: bash
+        env:
+          TAG: ${{ github.event.release.tag_name || '' }}
+        run: |
+          TAG="${TAG:-$(git describe --tags --abbrev=0)}"
+          echo "release tag: $TAG"
+          test -n "$TAG" || { echo "::error::no tag found"; exit 1; }
+          VER="${TAG#v}"
+          REPO="${{ github.repository }}"
+          python3 - "$TAG" "$VER" "$REPO" <<'EOF'
+          import re, subprocess, sys, urllib.request
+          tag, ver, repo = sys.argv[1], sys.argv[2], sys.argv[3]
+          base = f"https://github.com/{repo}/releases/download/{tag}/SHA256SUMS.txt"
+          sums = urllib.request.urlopen(base).read().decode()
+          def digest(name):
+              for line in sums.splitlines():
+                  h, _, f = line.partition("  ")
+                  if f.strip() == name:
+                      return h.strip()
+              sys.exit(f"error: {name} not in SHA256SUMS.txt")
+          x64 = digest(f"DLEAPP-{ver}-linux-x64.AppImage")
+          arm = digest(f"DLEAPP-{ver}-linux-arm64.AppImage")
+          def fetch(path):
+              # Desktop entry and icon ride main, not the tag (see PKGBUILD).
+              url = f"https://raw.githubusercontent.com/{repo}/main/{path}"
+              return urllib.request.urlopen(url).read()
+          import hashlib
+          desktop = hashlib.sha256(fetch("packaging/linux/dleapp.desktop")).hexdigest()
+          icon = hashlib.sha256(fetch("assets/icon.png")).hexdigest()
+          pkg = open("packaging/aur/dleapp-bin/PKGBUILD").read()
+          pkg, n = re.subn(r"^pkgver=.*", f"pkgver={ver}", pkg, count=1, flags=re.M)
+          assert n == 1
+          pkg, n = re.subn(r"^sha256sums_x86_64=.*",
+                            f"sha256sums_x86_64=('{x64}')", pkg, count=1, flags=re.M)
+          assert n == 1
+          pkg, n = re.subn(r"^sha256sums_aarch64=.*",
+                            f"sha256sums_aarch64=('{arm}')", pkg, count=1, flags=re.M)
+          assert n == 1
+          pkg, n = re.subn(r"(?s)^sha256sums=\('.*?'\n.*?'.*?'\)",
+                            f"sha256sums=('{desktop}'\n            '{icon}')", pkg, count=1, flags=re.M)
+          assert n == 1, "common sha256sums block not found"
+          open("packaging/aur/dleapp-bin/PKGBUILD", "w").write(pkg)
+          src = open("packaging/aur/dleapp-bin/.SRCINFO").read()
+          src, n = re.subn(r"(?m)^\tpkgver = .*", f"\tpkgver = {ver}", src, count=1)
+          assert n == 1
+          # Values only, in file order: desktop, icon, x86_64, aarch64.
+          lines = src.splitlines(keepends=True)
+          vals = iter([desktop, icon, x64, arm])
+          for i, line in enumerate(lines):
+              if re.match(r"^\tsha256sums(_\w+)? = [0-9a-f]{64}\n$", line):
+                  key = line.split(" = ")[0]
+                  lines[i] = f"{key} = {next(vals)}\n"
+          open("packaging/aur/dleapp-bin/.SRCINFO", "w").write("".join(lines))
+          print(f"pkgver={ver}")
+          print(f"sha256sums_x86_64={x64}\nsha256sums_aarch64={arm}")
+          print(f"desktop={desktop}\nicon={icon}")
+          EOF
+          git -C "$GITHUB_WORKSPACE" diff -- packaging/aur/dleapp-bin || true
+
+      - name: Commit the refreshed AUR files back
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packaging/aur/dleapp-bin/PKGBUILD packaging/aur/dleapp-bin/.SRCINFO
+          git diff --cached --quiet && echo "no changes to commit" && exit 0
+          git commit -m "AUR: dleapp-bin ${{ github.event.release.tag_name || 'refresh' }}"
+          git push
+
+      - name: Push to the AUR
+        if: env.AUR_SSH_PRIVATE_KEY != ''
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          printf 'Host aur.archlinux.org\n  IdentityFile ~/.ssh/aur\n  StrictHostKeyChecking yes\n' > ~/.ssh/config
+          ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+          rm -rf /tmp/aur-push && mkdir -p /tmp/aur-push
+          cp packaging/aur/dleapp-bin/PKGBUILD packaging/aur/dleapp-bin/.SRCINFO /tmp/aur-push/
+          cd /tmp/aur-push
+          git init -q -b master .
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -qm "dleapp-bin ${{ github.event.release.tag_name || '' }}"
+          git remote add aur "ssh://aur@aur.archlinux.org/dleapp-bin.git"
+          git push aur master
