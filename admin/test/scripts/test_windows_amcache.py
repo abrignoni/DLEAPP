@@ -342,7 +342,7 @@ class ArtifactTest(unittest.TestCase):
         (headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheApplicationFiles,
                                                                      {self.HIVE: hive})
         self.assertEqual(rows, [_hive_only(FILE_ROW)])
-        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), DB_TIME, 'File Path', 'SHA-1', 'Name', 'Publisher',
+        self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), DB_TIME, 'File Path', ('SHA-1', 'hash'), 'Name', 'Publisher',
                                    'Product Name', 'Version', 'Size (bytes)', 'Link Date', 'Program ID', 'Entry Key'))
         self.assertEqual((source, logged), (self.HIVE, []))
 
@@ -409,7 +409,7 @@ class ArtifactTest(unittest.TestCase):
         (headers, rows, source), _opened, logged = self.run_artifact(amcache.amcacheDrivers, {self.HIVE: hive})
         self.assertEqual(rows, [_hive_only(DRIVER_ROW)])
         self.assertEqual(headers, (('Key Last Write (UTC)', 'datetime'), DB_TIME, 'Driver Last Write (as stored)', 'Driver Path',
-                                   'SHA-1', 'Driver Name', 'Service', 'Company', 'Product', 'Driver Version',
+                                   ('SHA-1', 'hash'), 'Driver Name', 'Service', 'Company', 'Product', 'Driver Version',
                                    'In Box (as stored)', 'Signed (as stored)', 'Kernel Mode (as stored)', 'INF',
                                    'Driver Package', 'PE Timestamp (as stored)'))
         self.assertEqual((source, logged), (self.HIVE, []))

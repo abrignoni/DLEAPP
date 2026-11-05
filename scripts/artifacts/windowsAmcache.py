@@ -1285,7 +1285,7 @@ _TIMES = (('Key Last Write (UTC)', 'datetime'), ('Database Row Modified (UTC)', 
 
 @artifact_processor
 def amcacheApplicationFiles(context):
-    data_headers = _TIMES + ('File Path', 'SHA-1', 'Name', 'Publisher', 'Product Name', 'Version',
+    data_headers = _TIMES + ('File Path', ('SHA-1', 'hash'), 'Name', 'Publisher', 'Product Name', 'Version',
                              'Size (bytes)', 'Link Date', 'Program ID', 'Entry Key')
     data_list, sources = _inventory_rows(context, _INVENTORY_PATH, file_row)
     return data_headers, data_list, sources
@@ -1312,7 +1312,7 @@ def amcacheShortcuts(context):
 @artifact_processor
 def amcacheDrivers(context):
     data_headers = _TIMES + ('Driver Last Write (as stored)',
-                             'Driver Path', 'SHA-1', 'Driver Name', 'Service', 'Company', 'Product',
+                             'Driver Path', ('SHA-1', 'hash'), 'Driver Name', 'Service', 'Company', 'Product',
                              'Driver Version', 'In Box (as stored)', 'Signed (as stored)',
                              'Kernel Mode (as stored)', 'INF', 'Driver Package',
                              'PE Timestamp (as stored)')

@@ -223,8 +223,8 @@ def defenderDetectionHistory(context):  # pylint: disable=too-many-locals
     data_headers = (('Initial Detection Time (UTC)', 'datetime'),
                     ('Last Status Change Time (UTC)', 'datetime'),
                     ('Remediation Time (UTC)', 'datetime'), 'Threat Name', 'Threat ID',
-                    'Severity', 'Category', 'Resource Count', 'Resources', 'SHA-256', 'SHA-1',
-                    'MD5', 'Domain User', 'Process Name', 'Second User (as stored)',
+                    'Severity', 'Category', 'Resource Count', 'Resources', ('SHA-256', 'hash'), ('SHA-1', 'hash'),
+                    ('MD5', 'hash'), 'Domain User', 'Process Name', 'Second User (as stored)',
                     'GUID at Index 9', 'Detection ID', 'Read Note',
                     'Source File')
     data_list = []
