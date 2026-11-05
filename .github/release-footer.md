@@ -9,8 +9,38 @@
 | Windows 11 on ARM | `-windows-arm64-portable.zip` |
 | macOS, Apple silicon | `-macos-arm64.dmg` |
 | macOS, Intel | `-macos-x64.dmg` |
-| Linux, 64-bit Intel or AMD | `-linux-x64.AppImage` |
-| Linux on ARM | `-linux-arm64.AppImage` |
+| Linux, 64-bit Intel or AMD (AppImage) | `-linux-x64.AppImage` |
+| Linux on ARM (AppImage) | `-linux-arm64.AppImage` |
+| Debian/Ubuntu, 64-bit Intel or AMD | `-linux-x64.deb` |
+| Debian/Ubuntu on ARM | `-linux-arm64.deb` |
+| Fedora/RHEL/openSUSE, 64-bit Intel or AMD | `-linux-x64.rpm` |
+| Fedora/RHEL/openSUSE on ARM | `-linux-arm64.rpm` |
+
+The `.deb` installs with `sudo dpkg -i`, the `.rpm` with `sudo dnf install`
+(`zypper install` on openSUSE). Both carry the same frozen `dleapp` under
+`/opt/dleapp` with a `/usr/bin/dleapp` symlink, so no Python setup is needed.
+
+## One-line install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/abrignoni/DLEAPP/main/install.sh | bash
+```
+
+Picks the native package for the machine, verifies it against
+`SHA256SUMS.txt`, and installs it; elsewhere it installs the AppImage.
+Re-running it upgrades. `METHOD=`, `TAG=` and `PREFIX=` are documented at the
+top of
+[install.sh](https://github.com/abrignoni/DLEAPP/blob/main/install.sh).
+
+## Arch Linux
+
+`dleapp-bin` follows the latest release, `dleapp-git` the latest commit
+(rebuild it on `--devel` upgrades):
+
+```bash
+paru -S dleapp-bin   # or: yay -S dleapp-bin
+paru -S dleapp-git
+```
 
 Every download holds one program, `dleapp`. Started without arguments, from the
 Applications folder or a double-click, it opens the window. Given arguments in a terminal,
@@ -42,6 +72,10 @@ the first time. Choose More info, then Run anyway.
 
 On Linux, make the AppImage executable once (`chmod +x DLEAPP-*.AppImage`). It needs FUSE
 to start; where FUSE is not available, run it with `--appimage-extract-and-run`.
+The `.deb` and `.rpm` need neither: they install the same frozen `dleapp` under
+`/opt/dleapp` with a `/usr/bin/dleapp` symlink (`sudo dpkg -i DLEAPP-*.deb`,
+`sudo dnf install DLEAPP-*.rpm`). On Arch, `dleapp-bin` follows the latest
+release and `dleapp-git` the latest commit.
 
 If you would rather not clear a warning, run from source instead; the README has the steps.
 

@@ -1,0 +1,23 @@
+pkgbase = dleapp-git
+	pkgdesc = Desktop Logs Events And Protobuf Parser (latest git)
+	pkgver = 2026.4.6.dev.r0.g0000000
+	pkgrel = 1
+	url = https://github.com/abrignoni/DLEAPP
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	makedepends = git
+	makedepends = python
+	makedepends = tk
+	makedepends = python-pip
+	makedepends = python-pyinstaller
+	makedepends = xorg-server-xvfb
+	depends = hicolor-icon-theme
+	optdepends = fuse2: only if you also run upstream AppImages; this package needs none
+	provides = dleapp
+	conflicts = dleapp
+	conflicts = dleapp-bin
+	source = git+https://github.com/abrignoni/DLEAPP.git
+	sha256sums = SKIP
+
+pkgname = dleapp-git
