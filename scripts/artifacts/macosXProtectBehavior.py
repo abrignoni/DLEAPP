@@ -120,10 +120,10 @@ def _schema_version(path):
 @artifact_processor
 def macosXProtectBehaviorEvents(context):
     data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Violated Rule', 'Exec Path',
-                    'Exec Signing ID', 'Exec Team ID', 'Exec CDHash', 'Exec SHA-256',
+                    'Exec Signing ID', 'Exec Team ID', ('Exec CDHash', 'hash'), ('Exec SHA-256', 'hash'),
                     'Exec Is Notarized (as stored)', 'Responsible Path',
-                    'Responsible Signing ID', 'Responsible Team ID', 'Responsible CDHash',
-                    'Responsible SHA-256', 'Responsible Is Notarized (as stored)',
+                    'Responsible Signing ID', 'Responsible Team ID', ('Responsible CDHash', 'hash'),
+                    ('Responsible SHA-256', 'hash'), 'Responsible Is Notarized (as stored)',
                     'Reported (as stored)', 'Profile Hash (as stored)', 'Schema Version',
                     'Source File')
     databases = [str(path) for path in context.get_files_found()

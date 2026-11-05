@@ -532,8 +532,8 @@ def appLockerRuleEvents(context):
 
 @artifact_processor
 def appLockerConfigCiEvents(context):
-    data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Outcome', 'File Path', 'SHA-256', 'SHA-1',
-                    'SHA-256 Catalog Hash', 'SHA-1 Catalog Hash', 'Original File Name', 'Internal Name',
+    data_headers = (('Event Time (UTC)', 'datetime'), 'Event ID', 'Outcome', 'File Path', ('SHA-256', 'hash'), ('SHA-1', 'hash'),
+                    ('SHA-256 Catalog Hash', 'hash'), ('SHA-1 Catalog Hash', 'hash'), 'Original File Name', 'Internal Name',
                     'File Description', 'Product Name', 'File Version', 'User Writeable', 'Result', 'USN',
                     'Publisher', 'Issuer', 'Signature Index', 'Signature Count', 'Package Family Name',
                     'Package Version', 'Config CI Policy', 'Status', 'CLSID', 'Processing Error Code',
