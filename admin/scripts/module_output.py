@@ -34,6 +34,10 @@ import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+from admin.scripts import corpus_privacy  # noqa: E402  pylint: disable=wrong-import-position
+
 RESULTS_DIR = REPO_ROOT / "admin" / "test" / "results"
 
 # A parsed timestamp outside this window is almost certainly an epoch mistake
@@ -51,6 +55,23 @@ def load_registry(registry_path):
     if not isinstance(registry, dict) or not isinstance(registry.get("samples"), dict):
         raise ValueError(f"{registry_path} has no 'samples' object")
     return registry
+
+
+def baseline_refusal(registry, corpus):
+    """Return why no baseline may be recorded for a corpus, or None.
+
+    A baseline puts the corpus key in a committed file name, with row counts,
+    column names and digests beside it. That is what an entry's
+    allow_public_metadata governs, so false, or null (terms not established),
+    is refused. An entry without the field has no designation recorded and is
+    allowed, as is a key the registry does not hold (corpus_zip reports that).
+    """
+    entry = registry["samples"].get(corpus)
+    if not corpus_privacy.refuses(entry, "allow_public_metadata"):
+        return None
+    return (corpus_privacy.describe(corpus, entry, "allow_public_metadata")
+            + f"\nA baseline would commit admin/test/results/{corpus}.json with that key and "
+              "its counts, so none was recorded.")
 
 
 def corpus_zip(registry, registry_path, corpus):

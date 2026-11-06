@@ -14,7 +14,9 @@ Encrypted corpora need their secret, exactly as a normal run does::
 
 Given ``--secret signal`` with no value the secret is prompted for without
 echo, so it stays out of shell history. The baseline that comes out carries
-digests and counts, never rows, so it is safe to commit.
+digests and counts, never rows, so it is safe to commit. It does carry the corpus
+key, so a corpus whose registry entry has allow_public_metadata false or null is
+refused before anything is parsed.
 """
 
 import argparse
@@ -64,6 +66,9 @@ def main():
 
     secrets = resolve_secrets(args.secret)
     registry = module_output.load_registry(args.registry)
+    refusal = module_output.baseline_refusal(registry, args.corpus)
+    if refusal:
+        raise SystemExit(refusal)
     zip_path = module_output.corpus_zip(registry, args.registry, args.corpus)
 
     print(f"parsing {zip_path.name} ...")
