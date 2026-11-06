@@ -61,17 +61,24 @@ def baseline_refusal(registry, corpus):
     """Return why no baseline may be recorded for a corpus, or None.
 
     A baseline puts the corpus key in a committed file name, with row counts,
-    column names and digests beside it. That is what an entry's
+    column names and digests beside it. The key and counts are what an entry's
     allow_public_metadata governs, so false, or null (terms not established),
-    is refused. An entry without the field has no designation recorded and is
+    is refused. The digests are unsalted SHA-256 over the column values, so a
+    digest over one short value confirms a guessed value; an entry whose
+    private is true is refused for that reason, even where its key may be
+    cited. An entry without the fields has no designation recorded and is
     allowed, as is a key the registry does not hold (corpus_zip reports that).
     """
     entry = registry["samples"].get(corpus)
-    if not corpus_privacy.refuses(entry, "allow_public_metadata"):
-        return None
-    return (corpus_privacy.describe(corpus, entry, "allow_public_metadata")
-            + f"\nA baseline would commit admin/test/results/{corpus}.json with that key and "
-              "its counts, so none was recorded.")
+    if corpus_privacy.refuses(entry, "allow_public_metadata"):
+        return (corpus_privacy.describe(corpus, entry, "allow_public_metadata")
+                + f"\nA baseline would commit admin/test/results/{corpus}.json with that key "
+                  "and its counts, so none was recorded.")
+    if corpus_privacy.field_state(entry, "private") is True:
+        return (corpus_privacy.describe(corpus, entry, "private")
+                + f"\nA baseline would commit admin/test/results/{corpus}.json with digests of "
+                  "its column values, which can confirm a guessed value, so none was recorded.")
+    return None
 
 
 def corpus_zip(registry, registry_path, corpus):

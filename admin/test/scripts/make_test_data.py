@@ -16,7 +16,8 @@ Given ``--secret signal`` with no value the secret is prompted for without
 echo, so it stays out of shell history. The baseline that comes out carries
 digests and counts, never rows, so it is safe to commit. It does carry the corpus
 key, so a corpus whose registry entry has allow_public_metadata false or null is
-refused before anything is parsed.
+refused before anything is parsed. So is one marked private: a digest over one
+short value can confirm a guessed value.
 """
 
 import argparse
