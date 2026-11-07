@@ -133,7 +133,8 @@ class TestSpec(unittest.TestCase):
 
     def test_what_is_bundled_comes_from_the_driver(self):
         analysis = _run_spec('linux', onefile=False)[0]['Analysis'].kwargs
-        self.assertEqual(analysis['binaries'], self.driver.bundle_binaries())
+        self.assertEqual(analysis['binaries'],
+                         self.driver.bundle_binaries() + self.driver.licenses.heicreader_binaries())
         self.assertEqual(analysis['datas'], self.driver.bundle_datas())
         hidden = analysis['hiddenimports']
         for name in self.driver.hidden_imports():
@@ -373,7 +374,7 @@ class TestBundleContents(unittest.TestCase):
         hidden = self.driver.hidden_imports()
         self.assertTrue(expected <= set(hidden))
         # The old specs' list, pefile among it: only the Defender artifacts reach it.
-        for name in ('pefile', 'requests', 'pillow_heif', 'xml.etree.ElementTree'):
+        for name in ('pefile', 'requests', 'heicreader', 'xml.etree.ElementTree'):
             self.assertIn(name, hidden)
 
     @unittest.skipIf(sys.version_info < (3, 14), 'compression.zstd exists from Python 3.14')
