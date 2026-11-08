@@ -68,7 +68,7 @@ __artifacts_v2__ = {
                  "Edge 108.0.1462.54 on pc_mus_001_win11, and Chrome 65.0.3325.181 on lonewolf_win10. No "
                  "member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched any of the declared paths. The "
                  "user data folders read are those of Google Chrome, Chromium, Microsoft Edge, Brave, "
-                 "Vivaldi and Opera on Windows, macOS and Linux, and a store directly inside an "
+                 "Vivaldi and Opera (and Opera GX and 360 Safe Browser, Windows only) on Windows, macOS and Linux, and a store directly inside an "
                  "Opera user data folder is reported with that folder as its Profile. Only the "
                  "Windows Google Chrome and "
                  "Microsoft Edge folders and the Linux Chromium snap and Flatpak folders were exercised by a "
@@ -106,7 +106,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Login Data*',
             '*/Library/Application Support/Google/Chrome/*/Login Data*',
@@ -127,9 +128,13 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/Login Data*',
             '*/.config/vivaldi/*/Login Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Login Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Login Data*',
+            '*/AppData/Roaming/360se6/User Data/*/Login Data*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Login Data*',
             '*/.config/opera/*/Login Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Login Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Login Data*',
+            '*/AppData/Roaming/360se6/User Data/Login Data*',
             '*/Library/Application Support/com.operasoftware.Opera/Login Data*',
             '*/.config/opera/Login Data*',
         ),
@@ -142,6 +147,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }

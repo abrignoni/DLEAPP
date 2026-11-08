@@ -84,7 +84,8 @@ __artifacts_v2__ = {
                  "key cannot be recovered; the ARSO/TBAL recovery path and the Edge, Brave, "
                  "Vivaldi, Opera and Chromium folders were not exercised against real data here "
                  "(only Google Chrome was). The dpapiprobe TBAL layout was read from one Windows "
-                 "image upstream and is covered by the library's forged tests.",
+                 "image upstream and is covered by the library's forged tests."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 2 rows for Opera GX and 17 for 360 Safe Browser. On the known data one cookie per browser was set by a test page; the other rows came from pages the browsers loaded on their own. The known data holds no DPAPI master key, so none of its values were decrypted.",
         "paths": (
             '*/Windows/System32/config/SYSTEM',
             '*/Windows/System32/config/SECURITY',
@@ -100,13 +101,20 @@ __artifacts_v2__ = {
             '*/AppData/Local/Vivaldi/User Data/Local State',
             '*/AppData/Local/Vivaldi/User Data/*/Cookies',
             '*/AppData/Roaming/Opera Software/Opera Stable/Local State',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Local State',
+            '*/AppData/Roaming/360se6/User Data/Local State',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Cookies',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Cookies',
+            '*/AppData/Roaming/360se6/User Data/*/Cookies',
             '*/AppData/Roaming/Opera Software/Opera Stable/Cookies',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Cookies',
+            '*/AppData/Roaming/360se6/User Data/Cookies',
         ),
         "output_types": "standard",
         "artifact_icon": "database",
         "sample_data": {
             "windows11_chromium_oscrypt_known_20261102": "Windows 11 build 26200, Chrome v10, Cookies schema 24 | 1 row (minted known account, recovered via the account password)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 19 rows",
         },
     },
 }

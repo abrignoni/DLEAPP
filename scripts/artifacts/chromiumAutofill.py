@@ -48,7 +48,7 @@ __artifacts_v2__ = {
                  "are read by Chromium Autofill Addresses; its credit card and IBAN tables are not read. No "
                  "member of af_case2_win10, szechuan_win10 or "
                  "dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
-                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
+                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX and 360 Safe Browser, Windows only) on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
                  "reported with that folder as its Profile. Only the Windows Google Chrome and "
                  "Microsoft Edge folders and the Linux Chromium snap and Flatpak folders were exercised by a "
@@ -87,7 +87,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Web Data*',
             '*/Library/Application Support/Google/Chrome/*/Web Data*',
@@ -108,9 +109,13 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/Web Data*',
             '*/.config/vivaldi/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/*/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Web Data*',
             '*/.config/opera/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/Web Data*',
             '*/.config/opera/Web Data*',
         ),
@@ -123,6 +128,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "chromiumAutofillAddresses": {
@@ -234,7 +240,8 @@ __artifacts_v2__ = {
                  "Field Values; the autofill_ai_, plus_addresses and loyalty_cards tables, empty "
                  "in every tested database that has them; and the payment card, IBAN and bank account tables. "
                  "The user data folders read are the same as for Chromium Autofill Entries, and WebView2 or "
-                 "Electron app profiles are not read.",
+                 "Electron app profiles are not read."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Web Data*',
             '*/Library/Application Support/Google/Chrome/*/Web Data*',
@@ -255,9 +262,13 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/Web Data*',
             '*/.config/vivaldi/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/*/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Web Data*',
             '*/.config/opera/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/Web Data*',
             '*/.config/opera/Web Data*',
         ),
@@ -275,6 +286,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (the matched files held nothing this artifact reports)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "chromiumSavedPaymentCards": {
@@ -315,7 +327,8 @@ __artifacts_v2__ = {
                  "one row for the one card and is not read because no source for its columns was found. Edge's "
                  "row stored no nickname, although one was typed into Edge's form; it was found in no table of "
                  "Web Data and in no file of the profile folder, so Edge 156 did not keep it. Browser, Profile and User are as in Chromium Autofill Addresses. A saved card "
-                 "records that a card was saved in that profile, not who saved or used it.",
+                 "records that a card was saved in that profile, not who saved or used it."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Web Data*',
             '*/Library/Application Support/Google/Chrome/*/Web Data*',
@@ -336,9 +349,13 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/Web Data*',
             '*/.config/vivaldi/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/*/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Web Data*',
             '*/.config/opera/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/Web Data*',
             '*/.config/opera/Web Data*',
         ),
@@ -354,6 +371,7 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 build 20348 | 0 rows (credit_cards present and empty)",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (credit_cards present and empty)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (credit_cards present and empty)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "edgeFormFieldValues": {

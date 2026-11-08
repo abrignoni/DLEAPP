@@ -109,9 +109,10 @@ __artifacts_v2__ = {
                  "hexordia_mvs2025_win11, EBWebView folders and Spotify hold DIPS files of version 7 with "
                  "the same bounces columns; mvs2026_macbookpro_macos15 holds a Signal DIPS write-ahead "
                  "log), as in the other Chromium artifacts. The user data folders read are those of Google"
-                 " Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux,"
+                 " Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX and 360 Safe Browser, Windows only) on Windows, macOS and Linux,"
                  " and the webOS webbrowser folder; only the Windows Edge, macOS Chrome and Linux Chromium"
-                 " snap and Flatpak folders held a DIPS file on the tested images.",
+                 " snap and Flatpak folders held a DIPS file on the tested images."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX and 2 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/DIPS*',
             '*/Library/Application Support/Google/Chrome/*/DIPS*',
@@ -132,9 +133,13 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/DIPS*',
             '*/.config/vivaldi/*/DIPS*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/DIPS*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/DIPS*',
+            '*/AppData/Roaming/360se6/User Data/*/DIPS*',
             '*/Library/Application Support/com.operasoftware.Opera/*/DIPS*',
             '*/.config/opera/*/DIPS*',
             '*/AppData/Roaming/Opera Software/Opera Stable/DIPS*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/DIPS*',
+            '*/AppData/Roaming/360se6/User Data/DIPS*',
             '*/Library/Application Support/com.operasoftware.Opera/DIPS*',
             '*/.config/opera/DIPS*',
         ),
@@ -156,6 +161,7 @@ __artifacts_v2__ = {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no DIPS file)",
             "evidencelocker_macos14": "macOS 14.6.1 build 23G93 | 0 rows (no DIPS file)",
             "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no DIPS file)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 2 rows",
         },
     },
     "edgeWebAssistHistory": {

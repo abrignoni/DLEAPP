@@ -130,7 +130,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 23 rows for Opera GX and 3 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Favicons*',
             '*/Library/Application Support/Google/Chrome/*/Favicons*',
@@ -151,9 +152,13 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/Favicons*',
             '*/.config/vivaldi/*/Favicons*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Favicons*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Favicons*',
+            '*/AppData/Roaming/360se6/User Data/*/Favicons*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Favicons*',
             '*/.config/opera/*/Favicons*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Favicons*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Favicons*',
+            '*/AppData/Roaming/360se6/User Data/Favicons*',
             '*/Library/Application Support/com.operasoftware.Opera/Favicons*',
             '*/.config/opera/Favicons*',
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
@@ -175,9 +180,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/History*',
             '*/.config/vivaldi/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/History*',
             '*/Library/Application Support/com.operasoftware.Opera/*/History*',
             '*/.config/opera/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/History*',
             '*/Library/Application Support/com.operasoftware.Opera/History*',
             '*/.config/opera/History*',
         ),
@@ -194,6 +201,7 @@ __artifacts_v2__ = {
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348 | 40 rows",
             "mvs2026_macbookpro_macos15": "macOS 15.4 build 24E248 | 68 rows",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 26 rows",
         },
     },
 }
