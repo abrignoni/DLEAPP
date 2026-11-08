@@ -25,9 +25,14 @@ PLAIN = {
     'transactions': {TXID: '00'},
     'labels': {'bc1qtest': 'my address', TXID: 'my tx', TXID + ':1': 'my output'},
     'payment_requests': {'r1': {'amount_msat': 100000000, 'message': 'pay me', 'time': 1700000100, 'exp': 3600,
-                                'height': 0, 'outputs': [[0, 'bc1qtest', 100000]], 'bip70': None}},
+                                'height': 0, 'outputs': [[0, 'bc1qtest', 100000]], 'bip70': None,
+                                'payment_hash': None},
+                         'r2': {'amount_msat': None, 'message': 'ln request', 'time': 1700000150, 'exp': 0,
+                                'height': 0, 'outputs': [], 'bip70': None, 'payment_hash': 'aa' * 32}},
     'invoices': {'i1': {'amount_msat': '!', 'message': 'to pay', 'time': 1700000200, 'exp': 0,
-                        'outputs': [[0, 'bc1qother', 0]], 'lightning_invoice': None}},
+                        'outputs': [[1, '6a00', 0]], 'lightning_invoice': None},
+                 'i2': {'amount_msat': 5000, 'message': 'ln', 'time': 1700000300, 'exp': 600,
+                        'outputs': None, 'lightning_invoice': 'lnbc1test'}},
 }
 
 
@@ -70,7 +75,7 @@ class ElectrumTest(unittest.TestCase):
         self.assertTrue(all(len(row) == len(headers) for row in rows))
         self.assertEqual(rows, [
             ('', 'locked', 'Yes (user password)', '', '', '', '', '', '', '', '', '', '', '', '', 'mainnet', 'lab'),
-            (t(1700000000), 'plain', 'No', 'No', '4.8.4', 'standard', 'bip32', 'segwit', '74', 2, 1, 1, 3, 1, 1,
+            (t(1700000000), 'plain', 'No', 'No', '4.8.4', 'standard', 'bip32', 'segwit', '74', 2, 1, 1, 3, 2, 2,
              'mainnet', 'lab'),
             ('', 'tw', 'No', '', '', '', '', '', '74', 0, 0, 0, 0, 0, 0, 'testnet', 'u')])
         self.assertNotIn('NEVER SHOWN', repr(rows))
@@ -88,9 +93,12 @@ class ElectrumTest(unittest.TestCase):
             headers, rows, _ = electrum.electrumRequests.__wrapped__(self.context)
         self.assertEqual(len(headers), len(rows[0]))
         self.assertEqual(rows, [
-            (t(1700000100), t(1700003700), 'plain', 'Payment request', 100000, 'pay me', 'bc1qtest', 'No', 'r1',
+            (t(1700000100), t(1700003700), 'plain', 'Payment request', 100000, 'pay me', 'bc1qtest', '', 'No', 'r1',
              'mainnet', 'lab'),
-            (t(1700000200), '', 'plain', 'Invoice', '!', 'to pay', 'bc1qother', 'No', 'i1', 'mainnet', 'lab')])
+            (t(1700000150), '', 'plain', 'Payment request', '', 'ln request', '', '', 'Yes', 'r2', 'mainnet', 'lab'),
+            (t(1700000200), '', 'plain', 'Invoice', '!', 'to pay', '', '6a00', 'No', 'i1', 'mainnet', 'lab'),
+            (t(1700000300), t(1700000900), 'plain', 'Invoice', 5, 'ln', '', '', 'Yes', 'i2', 'mainnet', 'lab')])
+
 
 
 if __name__ == '__main__':
