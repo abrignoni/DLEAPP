@@ -163,6 +163,21 @@ body equals upstream:
   back to the file's reader, where upstream keeps it. Upstream ad37443 still fails
   admin/test/scripts/test_leveldb_file_lifecycle.py without it (5 of 11 tests,
   measured 2026-11-03), so it stays until upstream takes an equivalent change.
+  A second local change, from 2026-11-08: a data block of a table (.ldb) file that cannot be
+  read whole or whose snappy stream does not decompress is skipped, logged (noting when its
+  checksum does not match) and listed in the reader's `damage`, and reading goes on with the
+  next block and file. Upstream ad37443 raises there, so a caller gets nothing more from that
+  folder. On pc_mus_001_win11 four .ldb files in a MicrosoftWindows.Client package's Local
+  Storage each hold a data block with a zero-filled stretch of 53,248 to 65,536 bytes and a
+  checksum that does not match. Of the 185 .ldb files on cfreds_leakage_win7,
+  hexordia_mvs2025_win11, lonewolf_win10, ou_ransomware_server2022, pc_mus_001_win11,
+  discord_win_ptb, wire_win, mvs2026_macbookpro_macos15,
+  windows11_arm_operagx_360se_known_20261107 and windows11_arm_bitcoincore_known_20261108 (the
+  corpus keys that hold any), those four are the only ones the reader on main raised on, and no
+  artifact reads that folder. A skipped block can have held a newer version of a key, so a
+  caller that keeps the newest record per key can then see an older one.
+  admin/test/scripts/test_leveldb_table_damage.py pins the decompression cases and the read of
+  the next file.
 
 Two helpers around them stay in `scripts/ccl`: `wire_assets.py`, this repository's own code,
 and `indexeddb_to_json.py`, an in-memory adaptation of Spyder Forensics' IndexedDBtoJSON.py
