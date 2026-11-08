@@ -73,7 +73,7 @@ __artifacts_v2__ = {
                  "and Chrome 65.0.3325.181 (profile Default) on lonewolf_win10. No member of "
                  "af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched any of the declared paths. The user data "
                  "folders read are those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and "
-                 "Opera on Windows, macOS and Linux, and a store directly inside an Opera user "
+                 "Opera (and Opera GX, Windows only) on Windows, macOS and Linux, and a store directly inside an Opera user "
                  "data folder is reported with that folder as its Profile. Only the Windows "
                  "Google Chrome and Microsoft "
                  "Edge folders and the Linux Chromium snap and Flatpak folders were exercised by a registered "
@@ -122,7 +122,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 8 rows for Opera GX. 360 Safe Browser keeps its history and bookmarks in 360History and 360Bookmarks, which are encrypted, and this artifact does not read them.",
+                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 8 rows for Opera GX. 360 Safe Browser writes files named 360History and 360Bookmarks, which on the known data are not SQLite or JSON (360History is high-entropy bytes, 360Bookmarks base64 text decoding to high-entropy bytes), and this artifact does not read them.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -218,7 +218,7 @@ __artifacts_v2__ = {
                  "108.0.1462.54 (profile Default) on pc_mus_001_win11, and Chrome 65.0.3325.181 (profile "
                  "Default) on lonewolf_win10. No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched "
                  "any of the declared paths. The user data folders read are those of Google Chrome, "
-                 "Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and "
+                 "Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX, Windows only) on Windows, macOS and "
                  "Linux, and a store directly inside an Opera user data folder is reported with "
                  "that folder as its Profile. "
                  "Only the Windows Google Chrome and Microsoft Edge folders and the Linux Chromium snap and "
@@ -261,7 +261,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 4 rows for Opera GX. 360 Safe Browser keeps its history and bookmarks in 360History and 360Bookmarks, which are encrypted, and this artifact does not read them.",
+                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 4 rows for Opera GX. 360 Safe Browser writes files named 360History and 360Bookmarks, which on the known data are not SQLite or JSON (360History is high-entropy bytes, 360Bookmarks base64 text decoding to high-entropy bytes), and this artifact does not read them.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -379,7 +379,7 @@ __artifacts_v2__ = {
                  "Edge 108.0.1462.54 (profile Default) on pc_mus_001_win11, and Chrome 65.0.3325.181 "
                  "(profile Default) on lonewolf_win10. No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
-                 "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
+                 "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX, Windows only) on Windows, macOS and Linux, "
                  "and a store directly inside an Opera user data folder is reported with that "
                  "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge "
                  "folders and the Linux Chromium snap and Flatpak folders were exercised by a registered image, "
@@ -419,7 +419,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 ' ETag (as stored) and Last-Modified (as stored) are downloads.etag and downloads.last_modified, which DownloadRow describes as the contents of the most recently seen ETag and Last-Modified headers (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_row.h#L82-L86). The history schema migration from version 27 to 28 adds both columns as NOT NULL with an empty default (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/history_database.cc#L847-L850; https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_database.cc#L206-L208), so on a History database from before that migration both are blank because the columns do not exist (no registered image carries a database that old, so that path is not exercised), and a blank on a later database means the column holds an empty string. The values are reported as stored, read as UTF-8 text; nothing is parsed from them. On the tested images an ETag was filled on 16 of 19 rows on pc_mus_001_win11, 8 of 17 on lonewolf_win10, 1 of 2 on cfreds_leakage_win7 (History schema 29), 5 of 10 on hexordia_mvs2025_win11, 4 of 4 on ou_ransomware_server2022 and 1 of 1 on mvs2026_macbookpro_macos15, and Last-Modified on 17, 11, 2, 4, 4 and 1 of those rows.' " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX. 360 Safe Browser keeps its history and bookmarks in 360History and 360Bookmarks, which are encrypted, and this artifact does not read them.",
+                 ' ETag (as stored) and Last-Modified (as stored) are downloads.etag and downloads.last_modified, which DownloadRow describes as the contents of the most recently seen ETag and Last-Modified headers (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_row.h#L82-L86). The history schema migration from version 27 to 28 adds both columns as NOT NULL with an empty default (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/history_database.cc#L847-L850; https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_database.cc#L206-L208), so on a History database from before that migration both are blank because the columns do not exist (no registered image carries a database that old, so that path is not exercised), and a blank on a later database means the column holds an empty string. The values are reported as stored, read as UTF-8 text; nothing is parsed from them. On the tested images an ETag was filled on 16 of 19 rows on pc_mus_001_win11, 8 of 17 on lonewolf_win10, 1 of 2 on cfreds_leakage_win7 (History schema 29), 5 of 10 on hexordia_mvs2025_win11, 4 of 4 on ou_ransomware_server2022 and 1 of 1 on mvs2026_macbookpro_macos15, and Last-Modified on 17, 11, 2, 4, 4 and 1 of those rows.' " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX. 360 Safe Browser writes files named 360History and 360Bookmarks, which on the known data are not SQLite or JSON (360History is high-entropy bytes, 360Bookmarks base64 text decoding to high-entropy bytes), and this artifact does not read them.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -518,7 +518,7 @@ __artifacts_v2__ = {
                  "Edge 108.0.1462.54 (profile Default) on pc_mus_001_win11, and Chrome 65.0.3325.181 "
                  "(profile Default) on lonewolf_win10. No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
-                 "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
+                 "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX and 360 Safe Browser, Windows only) on Windows, macOS and Linux, "
                  "and a store directly inside an Opera user data folder is reported with that "
                  "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge "
                  "folders and the Linux Chromium snap and Flatpak folders were exercised by a registered image, "
@@ -558,7 +558,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',

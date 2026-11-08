@@ -3,7 +3,7 @@
 Opera GX keeps its user data folder in AppData/Roaming/Opera Software/Opera GX Stable and 360 Safe
 Browser in AppData/Roaming/360se6/User Data, as on windows11_arm_operagx_360se_known_20261107. Every
 artifact pattern for an Opera Stable store must have its Opera GX sibling, and its 360 sibling except
-for History and Bookmarks, which 360 keeps encrypted under other names. The expected values are
+for History and Bookmarks, which 360 writes as 360History and 360Bookmarks, not SQLite or JSON. The expected values are
 written out, never read back from the code.
 """
 import ast

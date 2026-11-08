@@ -44,7 +44,7 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/bookmarks/common/bookmark_constants.cc#L17-L20). "
                  "No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur matched any of the "
                  "declared paths. The user data folders read are "
-                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
+                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX, Windows only) on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
                  "reported with that folder as its Profile. Only the Windows Google Chrome "
                  "folder was exercised by a registered image, the Microsoft Edge profile of "
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX. 360 Safe Browser keeps its history and bookmarks in 360History and 360Bookmarks, which are encrypted, and this artifact does not read them.",
+                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX. 360 Safe Browser writes files named 360History and 360Bookmarks, which on the known data are not SQLite or JSON (360History is high-entropy bytes, 360Bookmarks base64 text decoding to high-entropy bytes), and this artifact does not read them.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Bookmarks*',
             '*/Library/Application Support/Google/Chrome/*/Bookmarks*',

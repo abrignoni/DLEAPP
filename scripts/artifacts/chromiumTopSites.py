@@ -46,7 +46,7 @@ __artifacts_v2__ = {
                  "Edge 108.0.1462.54 on pc_mus_001_win11 (top_sites, 9 rows), and Chrome 65.0.3325.181 on "
                  "lonewolf_win10 (thumbnails, 16 rows). No member of af_case2_win10, szechuan_win10 or dleapp_macos_bigsur "
                  "matched any of the declared paths. The user data folders read are those of Google "
-                 "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, macOS and Linux, "
+                 "Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX and 360 Safe Browser, Windows only) on Windows, macOS and Linux, "
                  "and a store directly inside an Opera user data folder is reported with that "
                  "folder as its Profile. Only the Windows Google Chrome and Microsoft Edge "
                  "folders and the Linux Chromium snap and Flatpak folders were exercised by a registered image, "
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX and 12 for 360 Safe Browser. None of the 12 360 Safe Browser rows on the known data was one of the test pages, so they came from the browser itself. Their titles are shown as stored: 360 Safe Browser wrote them as GBK bytes read as Latin-1 characters, and reading the stored text back as Latin-1 and decoding it as GBK gave a readable site name for all 12.",
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 12 rows for 360 Safe Browser; Opera GX wrote no Top Sites file on the known data. None of the 12 360 Safe Browser rows on the known data was one of the test pages, and the rig opened no other page in that browser. Their titles are shown as stored: the stored text of all 12 is made of characters in the Latin-1 range, and taking those characters as bytes and decoding them as GBK gave Chinese text for all 12.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Top Sites*',
             '*/Library/Application Support/Google/Chrome/*/Top Sites*',
@@ -213,7 +213,7 @@ __artifacts_v2__ = {
                  "2), and Chrome 65.0.3325.181 on lonewolf_win10 (version 1). No member of af_case2_win10, "
                  "szechuan_win10 or dleapp_macos_bigsur matched any of the declared paths. The user data "
                  "folders read are "
-                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
+                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX and 360 Safe Browser, Windows only) on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
                  "reported with that folder as its Profile. Only the Windows Google Chrome and "
                  "Microsoft Edge folders and the Linux Chromium snap and Flatpak folders were exercised by a "
@@ -253,7 +253,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX; 360 Safe Browser wrote no Shortcuts file on the known data.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Shortcuts*',
             '*/Library/Application Support/Google/Chrome/*/Shortcuts*',

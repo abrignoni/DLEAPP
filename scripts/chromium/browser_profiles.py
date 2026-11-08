@@ -16,9 +16,9 @@ Where each browser keeps its user data folder:
 
 * Opera GX and 360 Safe Browser, Windows only: the folders Opera GX 139.0.6053.42
   and 360 Safe Browser 16.1.2000.64 wrote on Windows 11, measured on the known
-  data windows11_arm_operagx_360se_known_20261107. 360 Safe Browser keeps its
-  history and bookmarks as encrypted 360History and 360Bookmarks files, which
-  no artifact reads.
+  data windows11_arm_operagx_360se_known_20261107. 360 Safe Browser writes
+  360History and 360Bookmarks, which on the known data are not SQLite or JSON
+  (high-entropy bytes, the second base64-wrapped) and which no artifact reads.
 
 Chromium installed as a snap or as a Flatpak: Chromium puts its user data
 folder in $CHROME_CONFIG_HOME, else $XDG_CONFIG_HOME, else ~/.config

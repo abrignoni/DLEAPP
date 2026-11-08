@@ -79,7 +79,7 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11, and Chrome 65.0.3325.181 on lonewolf_win10. The extension files under "
                  "a profile's Extensions folder are not read. No member of af_case2_win10, szechuan_win10 "
                  "or dleapp_macos_bigsur matched any of the declared paths. The user data folders read are "
-                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera on Windows, "
+                 "those of Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi and Opera (and Opera GX and 360 Safe Browser, Windows only) on Windows, "
                  "macOS and Linux, and a store directly inside an Opera user data folder is "
                  "reported with that folder as its Profile. Only the Windows Google Chrome and "
                  "Microsoft Edge folders and the Linux Chromium snap and Flatpak folders were exercised by a "
@@ -118,7 +118,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX and 2 for 360 Safe Browser.",
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each opened three local test pages) this artifact gave 0 rows for Opera GX and 2 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Preferences*',
             '*/Library/Application Support/Google/Chrome/*/Preferences*',
