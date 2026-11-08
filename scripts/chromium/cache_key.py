@@ -14,8 +14,10 @@ Chromium recovers the URL as the text after the rightmost space of a double key
 
 import re
 
-# Any text ahead of the numbered part is kept as stored: a "Range_" marker seen on
-# corpus keys has no writer in the http_cache sources read.
+# Any text ahead of the numbered part is kept as stored. A "Range_" marker is the prefix
+# Chromium's sparse control gives a child entry, Range_<parent key>:<signature>:<child>
+# (net/disk_cache/blockfile/sparse_control.cc, lines 54-64 at chromium 33f34ef); the rest
+# of such a key, the parent key and the two numbers, is kept as the URL.
 _NUMBERED_PREFIX = re.compile(r'^(?:[A-Za-z]+_)?(?:\d+/){1,2}|^[A-Za-z]+_(?=_dk_|https?:)')
 _DOUBLE_KEY = '_dk_'
 _URL_OR_DOUBLE_KEY = re.compile(r'^(?:_dk_|[A-Za-z][A-Za-z0-9+.-]*://)')

@@ -59,7 +59,7 @@ class LocateTest(unittest.TestCase):
 class PathsTest(unittest.TestCase):
     def test_every_config_chromium_pattern_has_both_siblings(self):
         paths = artifact_paths()
-        self.assertEqual(len(paths), 28)
+        self.assertEqual(len(paths), 30)
         counted = 0
         for key, patterns in paths.items():
             for pattern in patterns:

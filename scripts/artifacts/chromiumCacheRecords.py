@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "picture, video or audio.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
-        "last_update_date": "2026-11-03",
+        "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "One row per entry of the HTTP disk cache of a Chromium-based browser profile on Windows, "
@@ -53,8 +53,10 @@ __artifacts_v2__ = {
                  "Chromium reads it "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_cache.cc#L783-L893). "
                  "Isolation Key is that isolation key, with its s_ or cn_ marker kept, and Key Prefix the text "
-                 "before it, both as stored; 236 tested keys began with Range_, whose writer is not "
-                 "established, and a key that names no resource URL, such as a quicserverinfo entry, is kept "
+                 "before it, both as stored; 236 tested keys began with Range_, the key Chromium gives a child entry holding up to one MiB of a "
+                 "sparse entry's data, Range_<parent key>:<signature>:<child number>, both numbers in "
+                 "hexadecimal "
+                 "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/blockfile/sparse_control.cc#L54-L65 and #L538-L541), and a key that names no resource URL, such as a quicserverinfo entry, is kept "
                  "whole in Key Prefix with URL blank. Host is the URL's host. Cached Media is the body of an "
                  "image, video or audio entry, with its Content-Encoding (gzip, deflate, br, and zstd on "
                  "Python 3.14 or with the zstandard package) undone; Chromium also zstd-compresses some bodies "
@@ -73,8 +75,9 @@ __artifacts_v2__ = {
                  "System Profile caches held no entry. Isolation Key had no value on any row of "
                  "cfreds_leakage_win7 or lonewolf_win10, whose keys are not split by site. Not read: the "
                  "server IP address, certificate and other fields stored after the headers in the response "
-                 "info; the Media Cache and Application Cache folders, which the older tested builds kept "
-                 "beside Cache GPUCache and Code Cache; No_Vary_Search; the simple cache format (one file per "
+                 "info; the Media Cache and Application Cache folders of the older tested builds, which "
+                 "Chromium Media Cache Records and Chromium Application Cache read; GPUCache and Code Cache; "
+                 "No_Vary_Search; the simple cache format (one file per "
                  "entry); Opera, whose folders these paths do not name; and WebView2 or Electron app caches.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Cache/*',
@@ -94,6 +97,33 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 18673 rows",
             "af_case2_win10": "Windows 10 1809 build 17763 | 0 rows (no member matches the declared paths)",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "chromiumMediaCacheRecords": {
+        "name": "Chromium Media Cache Records",
+        "description": "Entries of the separate HTTP disk cache older Google Chrome and Chromium builds kept "
+                       "for media requests, in a profile's Media Cache folder on Windows: cached URL, HTTP "
+                       "status, content type, body size, the entry's created and last used times, the "
+                       "request and response times, and, for an entry whose body is stored whole, the cached "
+                       "picture, video or audio.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-08",
+        "last_update_date": "2026-11-08",
+        "requirements": "none",
+        "category": "Chromium Browsers",
+        "notes": "Reads the Media Cache folder of a Chromium-based browser profile on Windows with the same reader, and gives the same columns read the same way, as Chromium Cache Records, whose notes give the sources for each column. Chrome 65 keeps this folder as a separate HTTP disk cache for the profile's media requests (https://github.com/chromium/chromium/blob/65.0.3325.181/chrome/browser/profiles/profile_impl_io_data.cc#L494-L497 and #L637-L656, https://github.com/chromium/chromium/blob/65.0.3325.181/chrome/common/chrome_constants.cc#L155); Chromium's chrome_constants.cc at d5e871096c2c285b2f93f7922b69c2edce5b1de1 names no Media Cache folder. Most entries are the child entries Chromium writes for a sparse entry, whose key is Range_<parent key>:<signature>:<child number>, both numbers in hexadecimal, and each of which holds up to one MiB of the parent's data from offset child number times one MiB (https://github.com/chromium/chromium/blob/65.0.3325.181/net/disk_cache/blockfile/sparse_control.cc#L49-L59 and #L518-L521): 222 of 323 rows on lonewolf_win10 (children of 86 parent entries) and 6 of 8 on cfreds_leakage_win7 (children of 2), and on both every child's parent key is an entry of the same cache. A child row holds no response info, so its Response Time, Request Time, HTTP Status and Content Type are blank, Key Prefix holds Range_, URL holds the rest of the child key (the parent key, then its signature and child number) and Host the host of the parent's URL; its Body Size (bytes) is the size of its own data. The parent row carries the response info and a Body Size (bytes) of 0, since its data is in its children. The children are not put back together, so Cached Media held no value on any row of either image: 85 of the 87 picture, video or audio entries on lonewolf_win10 and both on cfreds_leakage_win7 are sparse parents, and the other two are redirects with no body. Reuse Count held 0 and Isolation Key no value on every row of both images, whose keys are not split by site; Host held one value on all 8 rows of cfreds_leakage_win7, and Browser, Profile and User one value on every row of both, which each hold one profile with a Media Cache. Tested: lonewolf_win10 (Chrome 65.0.3325.181, 323 rows) and cfreds_leakage_win7 (8 rows); no other Windows image in the corpus listings holds a Media Cache folder. Not read: the GPUCache folder, Chromium's shader cache (https://github.com/chromium/chromium/blob/65.0.3325.181/gpu/ipc/host/shader_disk_cache.cc#L562), whose entries are not keyed by URL, and the Application Cache, read by Chromium Application Cache.",
+        "paths": (
+            '*/AppData/Local/Google/Chrome/User Data/*/Media Cache/*',
+            '*/AppData/Local/Chromium/User Data/*/Media Cache/*',
+            '*/AppData/Local/Microsoft/Edge/User Data/*/Media Cache/*',
+            '*/AppData/Local/BraveSoftware/Brave-Browser/User Data/*/Media Cache/*',
+            '*/AppData/Local/Vivaldi/User Data/*/Media Cache/*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "film",
+        "sample_data": {
+            "lonewolf_win10": "Windows 10 Education build 16299, Google Chrome 65.0.3325.181 | 323 rows",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601, Google Chrome | 8 rows",
         },
     },
 }
@@ -133,12 +163,10 @@ def _media(entry, folder, content_type, headers, extra_flags):
                                    force_type=content_type, force_extension=extension) or ''
 
 
-@artifact_processor
-def chromiumCacheRecords(context):
-    label = 'Chromium Cache Records'
+def _cache_records(context, folder_names, label):
     data_list = []
     sources = []
-    for folder_name in _CACHE_FOLDERS:
+    for folder_name in folder_names:
         for store in profile_folders(context, folder_name, label):
             index = os.path.join(store.path, 'index')
             if not os.path.isfile(index):
@@ -166,8 +194,20 @@ def chromiumCacheRecords(context):
                 sources.append(index)
             else:
                 logfunc(f'{label}: {store.relative} has no blockfile index with entries')
-    data_headers = (('Last Used', 'datetime'), ('Created', 'datetime'), ('Response Time', 'datetime'),
-                    ('Request Time', 'datetime'), 'URL', 'Host', 'HTTP Status', 'Content Type',
-                    'Body Size (bytes)', ('Cached Media', 'media'), 'Reuse Count', 'Isolation Key',
-                    'Key Prefix', 'Browser', 'Profile', 'User')
-    return data_headers, data_list, '\n'.join(sources)
+    return _HEADERS, data_list, '\n'.join(sources)
+
+
+_HEADERS = (('Last Used', 'datetime'), ('Created', 'datetime'), ('Response Time', 'datetime'),
+            ('Request Time', 'datetime'), 'URL', 'Host', 'HTTP Status', 'Content Type',
+            'Body Size (bytes)', ('Cached Media', 'media'), 'Reuse Count', 'Isolation Key',
+            'Key Prefix', 'Browser', 'Profile', 'User')
+
+
+@artifact_processor
+def chromiumCacheRecords(context):
+    return _cache_records(context, _CACHE_FOLDERS, 'Chromium Cache Records')
+
+
+@artifact_processor
+def chromiumMediaCacheRecords(context):
+    return _cache_records(context, ('Media Cache',), 'Chromium Media Cache Records')
