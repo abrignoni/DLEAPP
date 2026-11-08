@@ -170,7 +170,7 @@ def microsoftImeJapaneseHistory(context):
         for problem in problems:
             logfunc(f'Microsoft IME Japanese Conversion History: {relative}: {problem}')
         sources.append(path)
-        user = user_from_path(relative)
+        user = user_from_path(context.get_relative_path(path))
         for ftime, segments in records:
             data_list.append((_filetime(ftime), ''.join(r for r, _c in segments),
                               ''.join(c or r for r, c in segments),
@@ -189,7 +189,7 @@ def microsoftImeJapaneseDdds(context):
             logfunc(f'Microsoft IME Japanese Sentence History: {relative}: {ex}')
             continue
         sources.append(path)
-        user = user_from_path(relative)
+        user = user_from_path(context.get_relative_path(path))
         for ftime, words in sentences:
             data_list.append((_filetime(ftime), ''.join(d for d, _r in words), ''.join(r for _d, r in words),
                               ' | '.join(d for d, _r in words), user))
