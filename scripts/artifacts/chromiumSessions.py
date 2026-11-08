@@ -162,7 +162,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 20 rows for Opera GX and 4 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Sessions*/Session_*',
             '*/AppData/Local/Google/Chrome/User Data/*/Current Session',
@@ -219,8 +220,14 @@ __artifacts_v2__ = {
             '*/.config/vivaldi/*/Current Session',
             '*/.config/vivaldi/*/Last Session',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Sessions*/Session_*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Sessions*/Session_*',
+            '*/AppData/Roaming/360se6/User Data/*/Sessions*/Session_*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Current Session',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Current Session',
+            '*/AppData/Roaming/360se6/User Data/*/Current Session',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Last Session',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Last Session',
+            '*/AppData/Roaming/360se6/User Data/*/Last Session',
             '*/Library/Application Support/com.operasoftware.Opera/*/Sessions*/Session_*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Current Session',
             '*/Library/Application Support/com.operasoftware.Opera/*/Last Session',
@@ -228,8 +235,14 @@ __artifacts_v2__ = {
             '*/.config/opera/*/Current Session',
             '*/.config/opera/*/Last Session',
             '*/AppData/Roaming/Opera Software/Opera Stable/Sessions*/Session_*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Sessions*/Session_*',
+            '*/AppData/Roaming/360se6/User Data/Sessions*/Session_*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Current Session',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Current Session',
+            '*/AppData/Roaming/360se6/User Data/Current Session',
             '*/AppData/Roaming/Opera Software/Opera Stable/Last Session',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Last Session',
+            '*/AppData/Roaming/360se6/User Data/Last Session',
             '*/Library/Application Support/com.operasoftware.Opera/Sessions*/Session_*',
             '*/Library/Application Support/com.operasoftware.Opera/Current Session',
             '*/Library/Application Support/com.operasoftware.Opera/Last Session',
@@ -246,6 +259,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 101 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 4 rows",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 24 rows",
         },
     },
     "chromiumClosedTabs": {
@@ -351,7 +365,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX and 3 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Sessions*/Tabs_*',
             '*/AppData/Local/Google/Chrome/User Data/*/Current Tabs',
@@ -408,8 +423,14 @@ __artifacts_v2__ = {
             '*/.config/vivaldi/*/Current Tabs',
             '*/.config/vivaldi/*/Last Tabs',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Sessions*/Tabs_*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Sessions*/Tabs_*',
+            '*/AppData/Roaming/360se6/User Data/*/Sessions*/Tabs_*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Current Tabs',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Current Tabs',
+            '*/AppData/Roaming/360se6/User Data/*/Current Tabs',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Last Tabs',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Last Tabs',
+            '*/AppData/Roaming/360se6/User Data/*/Last Tabs',
             '*/Library/Application Support/com.operasoftware.Opera/*/Sessions*/Tabs_*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Current Tabs',
             '*/Library/Application Support/com.operasoftware.Opera/*/Last Tabs',
@@ -417,8 +438,14 @@ __artifacts_v2__ = {
             '*/.config/opera/*/Current Tabs',
             '*/.config/opera/*/Last Tabs',
             '*/AppData/Roaming/Opera Software/Opera Stable/Sessions*/Tabs_*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Sessions*/Tabs_*',
+            '*/AppData/Roaming/360se6/User Data/Sessions*/Tabs_*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Current Tabs',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Current Tabs',
+            '*/AppData/Roaming/360se6/User Data/Current Tabs',
             '*/AppData/Roaming/Opera Software/Opera Stable/Last Tabs',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Last Tabs',
+            '*/AppData/Roaming/360se6/User Data/Last Tabs',
             '*/Library/Application Support/com.operasoftware.Opera/Sessions*/Tabs_*',
             '*/Library/Application Support/com.operasoftware.Opera/Current Tabs',
             '*/Library/Application Support/com.operasoftware.Opera/Last Tabs',
@@ -435,6 +462,7 @@ __artifacts_v2__ = {
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 711 rows",
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (no member matches the declared paths)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 3 rows",
         },
     },
 }

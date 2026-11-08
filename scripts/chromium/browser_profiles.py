@@ -14,6 +14,12 @@ Where each browser keeps its user data folder:
   https://github.com/brave/brave-core/blob/c3c208b50d4198b432b0fd3956e8e19bd5fb5fbb/common/importer/chrome_importer_utils_mac.mm#L33-L68
   https://github.com/brave/brave-core/blob/c3c208b50d4198b432b0fd3956e8e19bd5fb5fbb/common/importer/chrome_importer_utils_linux.cc#L45-L130
 
+* Opera GX and 360 Safe Browser, Windows only: the folders Opera GX 139.0.6053.42
+  and 360 Safe Browser 16.1.2000.64 wrote on Windows 11, measured on the known
+  data windows11_arm_operagx_360se_known_20261107. 360 Safe Browser keeps its
+  history and bookmarks as encrypted 360History and 360Bookmarks files, which
+  no artifact reads.
+
 Chromium installed as a snap or as a Flatpak: Chromium puts its user data
 folder in $CHROME_CONFIG_HOME, else $XDG_CONFIG_HOME, else ~/.config
 (chrome_paths_linux.cc, lines 62 to 101, at the 153.0.8010.47 tag,
@@ -69,6 +75,8 @@ BROWSER_ROOTS = (
     ('Opera', ('AppData', 'Roaming', 'Opera Software', 'Opera Stable')),
     ('Opera', ('Library', 'Application Support', 'com.operasoftware.Opera')),
     ('Opera', ('.config', 'opera')),
+    ('Opera GX', ('AppData', 'Roaming', 'Opera Software', 'Opera GX Stable')),
+    ('360 Safe Browser', ('AppData', 'Roaming', '360se6', 'User Data')),
     ('webOS webbrowser', ('webbrowser', 'chrome')),
 )
 

@@ -121,7 +121,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 8 rows for Opera GX. 360 Safe Browser keeps its history and bookmarks in 360History and 360Bookmarks, which are encrypted, and this artifact does not read them.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -142,9 +143,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/History*',
             '*/.config/vivaldi/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/History*',
             '*/Library/Application Support/com.operasoftware.Opera/*/History*',
             '*/.config/opera/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/History*',
             '*/Library/Application Support/com.operasoftware.Opera/History*',
             '*/.config/opera/History*',
         ),
@@ -157,6 +160,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 4 rows",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 8 rows",
         },
     },
     "chromiumUrls": {
@@ -256,7 +260,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 4 rows for Opera GX. 360 Safe Browser keeps its history and bookmarks in 360History and 360Bookmarks, which are encrypted, and this artifact does not read them.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -277,9 +282,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/History*',
             '*/.config/vivaldi/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/History*',
             '*/Library/Application Support/com.operasoftware.Opera/*/History*',
             '*/.config/opera/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/History*',
             '*/Library/Application Support/com.operasoftware.Opera/History*',
             '*/.config/opera/History*',
         ),
@@ -292,6 +299,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 4 rows",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 4 rows",
         },
     },
     "chromiumDownloads": {
@@ -411,7 +419,7 @@ __artifacts_v2__ = {
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
                  " since it sits in no home folder."
-                 ' ETag (as stored) and Last-Modified (as stored) are downloads.etag and downloads.last_modified, which DownloadRow describes as the contents of the most recently seen ETag and Last-Modified headers (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_row.h#L82-L86). The history schema migration from version 27 to 28 adds both columns as NOT NULL with an empty default (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/history_database.cc#L847-L850; https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_database.cc#L206-L208), so on a History database from before that migration both are blank because the columns do not exist (no registered image carries a database that old, so that path is not exercised), and a blank on a later database means the column holds an empty string. The values are reported as stored, read as UTF-8 text; nothing is parsed from them. On the tested images an ETag was filled on 16 of 19 rows on pc_mus_001_win11, 8 of 17 on lonewolf_win10, 1 of 2 on cfreds_leakage_win7 (History schema 29), 5 of 10 on hexordia_mvs2025_win11, 4 of 4 on ou_ransomware_server2022 and 1 of 1 on mvs2026_macbookpro_macos15, and Last-Modified on 17, 11, 2, 4, 4 and 1 of those rows.',
+                 ' ETag (as stored) and Last-Modified (as stored) are downloads.etag and downloads.last_modified, which DownloadRow describes as the contents of the most recently seen ETag and Last-Modified headers (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_row.h#L82-L86). The history schema migration from version 27 to 28 adds both columns as NOT NULL with an empty default (https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/history_database.cc#L847-L850; https://github.com/chromium/chromium/blob/030bb0851e6c8c0fdd53d2270d5ae905a9dbce07/components/history/core/browser/download_database.cc#L206-L208), so on a History database from before that migration both are blank because the columns do not exist (no registered image carries a database that old, so that path is not exercised), and a blank on a later database means the column holds an empty string. The values are reported as stored, read as UTF-8 text; nothing is parsed from them. On the tested images an ETag was filled on 16 of 19 rows on pc_mus_001_win11, 8 of 17 on lonewolf_win10, 1 of 2 on cfreds_leakage_win7 (History schema 29), 5 of 10 on hexordia_mvs2025_win11, 4 of 4 on ou_ransomware_server2022 and 1 of 1 on mvs2026_macbookpro_macos15, and Last-Modified on 17, 11, 2, 4, 4 and 1 of those rows.' " Opera GX is read from its Windows user data folder, AppData/Roaming/Opera Software/Opera GX Stable; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX. 360 Safe Browser keeps its history and bookmarks in 360History and 360Bookmarks, which are encrypted, and this artifact does not read them.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -432,9 +440,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/History*',
             '*/.config/vivaldi/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/History*',
             '*/Library/Application Support/com.operasoftware.Opera/*/History*',
             '*/.config/opera/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/History*',
             '*/Library/Application Support/com.operasoftware.Opera/History*',
             '*/.config/opera/History*',
         ),
@@ -451,6 +461,7 @@ __artifacts_v2__ = {
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100.2033 | 10 rows",
             "ou_ransomware_server2022": "Windows Server 2022 Standard build 20348.1850 | 4 rows",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 1 row",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
     "chromiumSearchTerms": {
@@ -546,7 +557,8 @@ __artifacts_v2__ = {
                  " The folder webbrowser/chrome, which an LG webOS TV keeps on the volume it mounts at"
                  " /mnt/lg/cmn_data, is read as the user data folder of a browser named webOS webbrowser (field"
                  " mapped from a private sample); which app writes it is not established, and User is blank for it,"
-                 " since it sits in no home folder.",
+                 " since it sits in no home folder."
+                 " Opera GX and 360 Safe Browser are read from their Windows user data folders, AppData/Roaming/Opera Software/Opera GX Stable and AppData/Roaming/360se6/User Data; on the known data windows11_arm_operagx_360se_known_20261107 (Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 on Windows 11, each started on three local test pages) this artifact gave 0 rows for Opera GX and 0 for 360 Safe Browser.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History*',
             '*/Library/Application Support/Google/Chrome/*/History*',
@@ -567,9 +579,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/History*',
             '*/.config/vivaldi/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/History*',
             '*/Library/Application Support/com.operasoftware.Opera/*/History*',
             '*/.config/opera/*/History*',
             '*/AppData/Roaming/Opera Software/Opera Stable/History*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/History*',
             '*/Library/Application Support/com.operasoftware.Opera/History*',
             '*/.config/opera/History*',
             '*/AppData/Local/Google/Chrome/User Data/*/Web Data*',
@@ -591,9 +605,13 @@ __artifacts_v2__ = {
             '*/Library/Application Support/Vivaldi/*/Web Data*',
             '*/.config/vivaldi/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/*/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/*/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/*/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/*/Web Data*',
             '*/.config/opera/*/Web Data*',
             '*/AppData/Roaming/Opera Software/Opera Stable/Web Data*',
+            '*/AppData/Roaming/Opera Software/Opera GX Stable/Web Data*',
+            '*/AppData/Roaming/360se6/User Data/Web Data*',
             '*/Library/Application Support/com.operasoftware.Opera/Web Data*',
             '*/.config/opera/Web Data*',
         ),
@@ -606,6 +624,7 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "ubuntu2604_arm64_chromium": "Ubuntu 26.04 LTS aarch64, Chromium 153.0.8010.47 (snap) and 154.0.8037.57 (Flatpak) | 0 rows (the matched files held nothing this artifact reports)",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 0 rows (the matched files held nothing this artifact reports)",
         },
     },
 }
