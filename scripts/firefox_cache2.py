@@ -13,8 +13,9 @@ Layout from netwerk/cache2 at the FIREFOX_159_0_1_RELEASE tag
   all big-endian 32-bit), the key with a terminating NUL, then NUL-terminated
   name and value pairs (CacheFileMetadata.h, lines 48 to 116; CacheFileMetadata.cpp,
   lines 1054 to 1160).
-* The block hash is Bob Jenkins' lookup2 hash with an initial value of 0
-  (CacheHashUtils.cpp, lines 22 to 115; CacheHashUtils.h, line 35). Firefox
+* The block hash is the one CacheHashUtils.cpp attributes to Bob Jenkins
+  (burtleburtle.net/bob/hash/evahash.html), with an initial value of 0
+  (CacheHashUtils.cpp, lines 13 to 115; CacheHashUtils.h, line 35). Firefox
   refuses an entry whose hash does not match, and so does this reader.
 """
 
@@ -54,7 +55,7 @@ def _mix(a, b, c):
 
 
 def cache_hash(data, initval=0):
-    """CacheHash::Hash: lookup2 over little-endian 32-bit words."""
+    """CacheHash::Hash over little-endian 32-bit words."""
     a = b = 0x9e3779b9
     c = initval
     length = len(data)
