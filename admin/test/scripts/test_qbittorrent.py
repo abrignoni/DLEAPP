@@ -67,6 +67,12 @@ class QbittorrentTest(unittest.TestCase):
                                          'qbittorrent.log', 'lab'),
                                         ('2026-01-02 03:04:06', 'Warning', 'Something odd', '', 'qbittorrent.log', 'lab')])
 
+    def test_stopped_follows_qbittorrent_rule(self):
+        self.assertEqual(qbt._stopped({b'paused': 1, b'auto_managed': 0}), 'Yes')  # pylint: disable=protected-access
+        self.assertEqual(qbt._stopped({b'paused': 1, b'auto_managed': 1}), 'No')  # pylint: disable=protected-access
+        self.assertEqual(qbt._stopped({b'paused': 0, b'auto_managed': 1}), 'No')  # pylint: disable=protected-access
+        self.assertEqual(qbt._stopped({}), '')  # pylint: disable=protected-access
+
 
 if __name__ == '__main__':
     unittest.main()
