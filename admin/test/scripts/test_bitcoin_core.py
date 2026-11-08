@@ -30,6 +30,7 @@ CTransaction(hash=abababab, ver=2, vin.size=1, vout.size=1, nLockTime=1)
 
 2026-01-01T00:00:05.123456Z [w1] Submitting wtx {TX1} to mempool and for broadcast to peers
 2026-01-01T00:00:06Z [w1] Fee Calculation: not an event
+2026-01-01T00:00:06Z [msghand] [w1] Submitting wtx {TX2} to mempool without broadcast
 2026-01-01T00:00:07Z Shutdown done
 2026-01-01T00:01:00Z Bitcoin Core version v32.1.0 (release build)
 2026-01-01T00:01:01Z [warning] ThreadRPCServer incorrect password attempt from [::1]:5001
@@ -89,7 +90,9 @@ class BitcoinCoreTest(unittest.TestCase):
              'CTransaction(hash=abababab, ver=2, vin.size=1, vout.size=1, nLockTime=1)\n'
              'CTxOut(nValue=1.00000000, scriptPubKey=0014aa)', 'regtest', 'lab'),
             (datetime(2026, 1, 1, 0, 0, 5, 123456, tzinfo=timezone.utc), 'w1', 'Submitting wtx', TX1,
-             'to mempool and for broadcast to peers', 'regtest', 'lab')])
+             'to mempool and for broadcast to peers', 'regtest', 'lab'),
+            # A thread name before the wallet's name (-logthreadnames) is passed over.
+            (t(2026, 1, 1, 0, 0, 6), 'w1', 'Submitting wtx', TX2, 'to mempool without broadcast', 'regtest', 'lab')])
 
     def test_sessions(self):
         _, rows, _ = btc.bitcoinCoreSessions.__wrapped__(self.context)
@@ -98,7 +101,7 @@ class BitcoinCoreTest(unittest.TestCase):
             (t(2026, 1, 1, 0, 0, 2), t(2026, 1, 1, 0, 0, 7), 'v32.1.0',
              'C:\\\\Users\\\\lab\\\\AppData\\\\Local\\\\Bitcoin\\\\regtest',
              'C:\\\\Users\\\\lab\\\\AppData\\\\Local\\\\Bitcoin\\\\bitcoin.conf (not found, skipping)', 'Yes', 1, '127.0.0.1',
-             10, 'regtest', 'lab'),
+             11, 'regtest', 'lab'),
             (t(2026, 1, 1, 0, 1, 0), t(2026, 1, 1, 0, 1, 1), 'v32.1.0', '', '', 'No', 1, '::1', 2, 'regtest', 'lab')])
 
     def test_address_book_and_legacy_wallet(self):
