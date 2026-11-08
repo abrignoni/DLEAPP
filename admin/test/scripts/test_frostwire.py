@@ -1,7 +1,7 @@
 """Pin the FrostWire artifacts.
 
-The resume and torrent files are built here with the fields libtorrent 2.0 writes (the known data
-windows11_arm_frostwire_known_20261108 has the same keys), with made-up values.
+The resume and torrent files are built here with the keys the artifact reads, which the resume files of the known data
+windows11_arm_frostwire_known_20261108 also carry, with made-up values.
 """
 import hashlib
 import pathlib
