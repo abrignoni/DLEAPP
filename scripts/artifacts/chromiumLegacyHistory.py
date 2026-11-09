@@ -17,7 +17,8 @@ __artifacts_v2__ = {
                  "https://github.com/chromium/chromium/blob/afa7a1c77c10c66e16e0e097dfb62a8b01915f52/media/base/media_switches.cc#L454-L455) "
                  "and off by default at the 92.0.4515.159 tag "
                  "(https://github.com/chromium/chromium/blob/01f0145da37acadacd53b1f0c3afd5f1e0a48f3d/media/base/media_switches.cc#L463-L464); "
-                 "the release tags checked put the default on from 86 to 91. Chromium removed the "
+                 "the tags 85.0.4183.0 (off), 86.0.4240.0, 87.0.4280.0, 89.0.4389.0 and 90.0.4430.0 (on) "
+                 "put the default on from 86 to 91. Chromium removed the "
                  "database in d5bb0ed111869bfff34b440cf0e15aee97fabf48 (2023-11-21). Whether a later "
                  "release deletes an existing file was not established. Tested on the known data "
                  "windows11_arm_chromium_legacy_history_known_20261108: official Chromium snapshots "
@@ -42,13 +43,13 @@ __artifacts_v2__ = {
                  "as whole seconds since 1601-01-01 UTC (line 84, base::Time::Now()."
                  "ToDeltaSinceWindowsEpoch().InSeconds()), not the microseconds the other Chromium "
                  "History databases use; on the known data it matched the logged time each tab was "
-                 "closed to the second. Origin is the url of the origin row the playback names. "
+                 "closed to the second. Origin is the origin value (scheme, host and port) of the origin row the playback names. "
                  "The origin table's own columns (an aggregate watch time and media engagement values) "
                  "are not shown: the engagement columns held NULL on the known data, and "
                  "aggregate_watchtime_audio_video_s is the sum of watch_time_s over the origin's playback "
-                 "rows with both video and audio (media_history_origin_table.cc lines 139 to 144 at "
+                 "rows with both video and audio (media_history_origin_table.cc lines 141 to 145 at "
                  "the same commit). "
-                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/. On the known data Browser held Chromium and User one value on all 4 rows (one user data folder), Origin held one value on all 4 rows (one local test origin) and Has Audio held Yes on all 4 rows (every test page had audio).",
+                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile that differ, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/; a byte-identical second copy is read once and logged. On the known data Browser held Chromium and User one value on all 4 rows (one user data folder), Origin held one value on all 4 rows (one local test origin) and Has Audio held Yes on all 4 rows (every test page had audio).",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Media History*',
             '*/Library/Application Support/Google/Chrome/*/Media History*',
@@ -107,7 +108,8 @@ __artifacts_v2__ = {
                  "https://github.com/chromium/chromium/blob/afa7a1c77c10c66e16e0e097dfb62a8b01915f52/media/base/media_switches.cc#L454-L455) "
                  "and off by default at the 92.0.4515.159 tag "
                  "(https://github.com/chromium/chromium/blob/01f0145da37acadacd53b1f0c3afd5f1e0a48f3d/media/base/media_switches.cc#L463-L464); "
-                 "the release tags checked put the default on from 86 to 91. Chromium removed the "
+                 "the tags 85.0.4183.0 (off), 86.0.4240.0, 87.0.4280.0, 89.0.4389.0 and 90.0.4430.0 (on) "
+                 "put the default on from 86 to 91. Chromium removed the "
                  "database in d5bb0ed111869bfff34b440cf0e15aee97fabf48 (2023-11-21). Whether a later "
                  "release deletes an existing file was not established. Tested on the known data "
                  "windows11_arm_chromium_legacy_history_known_20261108: official Chromium snapshots "
@@ -136,9 +138,9 @@ __artifacts_v2__ = {
                  "divided by 1000 (lines 93 to 100; both are 0 when the player reported no position). "
                  "Last Updated is last_updated_time_s, whole seconds since 1601-01-01 UTC (line 104). "
                  "Artwork URLs lists the url and size of each mediaImage row linked to the session "
-                 "through sessionImage, one per line. Origin is the url of the origin row the session "
-                 "names. "
-                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/. On the known data Browser held Chromium, User one value, Origin one value and Title, Artist and Album one value each on both rows (the same test page in two profiles).",
+                 "through sessionImage, one per line. Origin is the origin value (scheme, host and port) of the origin "
+                 "row the session names. "
+                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile that differ, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/; a byte-identical second copy is read once and logged. On the known data Browser held Chromium, User one value, Origin one value and Title, Artist and Album one value each on both rows (the same test page in two profiles).",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Media History*',
             '*/Library/Application Support/Google/Chrome/*/Media History*',
@@ -197,14 +199,17 @@ __artifacts_v2__ = {
                  "reopened it, and Chromium's own expirer moved those visits to Archived History; "
                  "their History Index text stayed under the original times, because the rig changed "
                  "the visit times the deletion matches on. Google Chrome and Microsoft Edge builds "
-                 "were not run; Microsoft Edge on Chromium came after both stores were dropped, so "
-                 "the Edge paths are read only for completeness and no image exercised them. The user "
+                 "were not run, so the Edge paths are read only for completeness and no image "
+                 "exercised them. The user "
                  "data folders read are those the Chromium Web Visits artifact reads, plus 360 Safe "
                  "Browser's on Windows; only the Windows Chromium folder was exercised. "
                  "One row per visits row of an Archived History database, joined to its urls row. "
                  "Chromium moved a visit there once it was older than 90 days "
                  "(https://github.com/chromium/chromium/blob/9dae4a37862398cd103d2d0b3d25ce1d540eac0b/chrome/browser/history/history_backend.cc#L104 "
-                 "and #L756) when its transition was TYPED, AUTO_BOOKMARK or AUTO_TOPLEVEL, or LINK, "
+                 "and #L756; the 36.0.1985.143 release still opens Archived History, "
+                 "https://github.com/chromium/chromium/blob/03a1bdf59379255b3ae984612958ae796163819f/chrome/browser/history/history_backend.cc#L561 "
+                 "and #L627-L628, and the Chromium Web Visits artifact cites the M37 note that it was "
+                 "dropped) when its transition was TYPED, AUTO_BOOKMARK or AUTO_TOPLEVEL, or LINK, "
                  "FORM_SUBMIT, KEYWORD or GENERATED at the end of a redirect chain; other visits, "
                  "subframes among them, were deleted "
                  "(https://github.com/chromium/chromium/blob/9dae4a37862398cd103d2d0b3d25ce1d540eac0b/chrome/browser/history/expire_history_backend.cc#L102-L123). "
@@ -214,7 +219,9 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/9dae4a37862398cd103d2d0b3d25ce1d540eac0b/base/time.h#L6). "
                  "Transition and Transition Qualifiers name the core type and the qualifier bits as "
                  "the Chromium Web Visits artifact does. Visit Source is read from visit_source as "
-                 "there; a visit with no row is shown as BROWSED (no visit_source row). URL Last "
+                 "there; a visit with no row is shown as BROWSED (no visit_source row). Visit Duration "
+                 "(seconds) is visits.visit_duration, written in microseconds (visit_database.cc line "
+                 "165 at the same commit) and divided by 1,000,000. URL Last "
                  "Visit Time is the archived urls row's last_visit_time: when a URL is archived again "
                  "Chromium copies the main History's last visit onto it (expire_history_backend.cc "
                  "lines 482 to 501), and on the known data the URL that also had a later visit in History "
@@ -223,7 +230,7 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/9dae4a37862398cd103d2d0b3d25ce1d540eac0b/chrome/browser/history/archived_database.cc#L64-L65) "
                  "but the expirer does not copy search terms into it (TODO at expire_history_backend.cc "
                  "line 490); it held 0 rows on the known data and is not read. "
-                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/. On the known data Browser held Chromium, User one value and Profile one value (Profile 3, the only profile with archived visits) on all 4 rows; Transition Qualifiers held CHAIN_START, CHAIN_END and Visit Source held BROWSED (no visit_source row) on all 4 rows.",
+                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile that differ, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/; a byte-identical second copy is read once and logged. On the known data Browser held Chromium, User one value and Profile one value (Profile 3, the only profile with archived visits) on all 4 rows; Transition Qualifiers held CHAIN_START, CHAIN_END and Visit Source held BROWSED (no visit_source row) on all 4 rows.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Archived History*',
             '*/Library/Application Support/Google/Chrome/*/Archived History*',
@@ -281,15 +288,15 @@ __artifacts_v2__ = {
                  "reopened it, and Chromium's own expirer moved those visits to Archived History; "
                  "their History Index text stayed under the original times, because the rig changed "
                  "the visit times the deletion matches on. Google Chrome and Microsoft Edge builds "
-                 "were not run; Microsoft Edge on Chromium came after both stores were dropped, so "
-                 "the Edge paths are read only for completeness and no image exercised them. The user "
+                 "were not run, so the Edge paths are read only for completeness and no image "
+                 "exercised them. The user "
                  "data folders read are those the Chromium Web Visits artifact reads, plus 360 Safe "
                  "Browser's on Windows; only the Windows Chromium folder was exercised. "
                  "One row per page in a History Index YYYY-MM database, Chrome's full-text index of "
                  "page text, one file per database identifier, which the source describes as a year and "
                  "month (https://github.com/chromium/chromium/blob/9dae4a37862398cd103d2d0b3d25ce1d540eac0b/chrome/browser/history/text_database.cc#L58 "
                  "and #L85-L95); the known data's file is History Index 2026-11. "
-                 "The pages table is an FTS3 table with the ICU tokenizer (line 185), which a SQLite "
+                 "The pages table is an FTS3 table with the ICU tokenizer (lines 185 and 186), which a SQLite "
                  "built without ICU cannot query, so the text is read from its content table, "
                  "pages_content (c0url, c1title, c2body), the table FTS3 keeps each row's columns in, "
                  "joined on rowid to the info table. Visit Time is info.time, the time of the visit "
@@ -299,7 +306,7 @@ __artifacts_v2__ = {
                  "in the known-data profile whose visits the rig left unchanged, each matched the "
                  "visit_time of the History visit of the same page exactly. The page text of a frame "
                  "was indexed with its parent page: the known-data page holding an iframe has the "
-                 "frame's text in its Body Text. Body Text is the page text Chrome indexed, as stored. Chrome deletes a "
+                 "frame's text in its Body Text. Body Text is the page text Chrome indexed, decoded as UTF-8 (undecodable bytes replaced). Chrome deletes a "
                  "page's text when the visit it belongs to is deleted or archived, matched on that "
                  "visit time (expire_history_backend.cc lines 439 and 440), and deletes index "
                  "files older than three months (line 147), so pages here can outlive their visits "
@@ -307,9 +314,9 @@ __artifacts_v2__ = {
                  "tag, and the 36.0.1985.143 release deletes every History Index file when it opens "
                  "the history databases "
                  "(https://github.com/chromium/chromium/blob/03a1bdf59379255b3ae984612958ae796163819f/chrome/browser/history/history_backend.cc#L562-L563 "
-                 "and #L1632-L1647), so these files survive only where no later Chrome ran on the "
-                 "profile. "
-                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/. On the known data Browser held Chromium and User one value on all 9 rows (one user data folder).",
+                 "and #L1632-L1647), so they are gone from a profile that "
+                 "release opened; other releases were not checked. "
+                 "Source File names the file each row came from, since Browser, Profile and User do not separate two copies of one profile that differ, which a logical extraction can hold under Users/ and System/Volumes/Data/Users/; a byte-identical second copy is read once and logged. On the known data Browser held Chromium and User one value on all 9 rows (one user data folder).",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/History Index *',
             '*/Library/Application Support/Google/Chrome/*/History Index *',
@@ -469,9 +476,8 @@ def read_archived_visits(db):
         else:
             visit_source = enum_label(_VISIT_SOURCES, source)
         seconds = '' if duration is None else int(duration) / 1_000_000
-        out.append((webkit_time(visit_time), url or '', title or '', core, qualifiers,
-                    visit_source, seconds, webkit_time(last_visit), visit_count, typed_count,
-                    visit_id))
+        out.append((webkit_time(visit_time), webkit_time(last_visit), url or '', title or '',
+                    core, qualifiers, visit_source, seconds, visit_count, typed_count, visit_id))
     return out
 
 
@@ -545,9 +551,9 @@ def chromiumMediaSessions(context):
 def chromiumArchivedVisits(context):
     data_list, sources = _rows(context, {'Archived History'}, 'Chromium Archived Visits',
                                read_archived_visits)
-    data_headers = (('Visit Time', 'datetime'), 'URL', 'Title', 'Transition',
-                    'Transition Qualifiers', 'Visit Source', 'Visit Duration (seconds)',
-                    ('URL Last Visit Time', 'datetime'), 'Visit Count', 'Typed Count', 'Visit ID',
+    data_headers = (('Visit Time', 'datetime'), ('URL Last Visit Time', 'datetime'), 'URL',
+                    'Title', 'Transition', 'Transition Qualifiers', 'Visit Source',
+                    'Visit Duration (seconds)', 'Visit Count', 'Typed Count', 'Visit ID',
                     'Browser', 'Profile', 'User', 'Source File')
     return data_headers, data_list, sources
 

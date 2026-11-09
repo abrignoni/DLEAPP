@@ -99,12 +99,12 @@ class ArchivedHistoryTest(unittest.TestCase):
         db.execute('INSERT INTO visit_source VALUES (2, 0)')
         first, second = read_archived_visits(db)
         self.assertEqual(first[0], datetime.datetime(2026, 11, 9, 0, 13, 16, tzinfo=UTC))
-        self.assertEqual(first[1:7], ('https://a.test/', 'A', 'AUTO_TOPLEVEL (6)', 'CHAIN_START, CHAIN_END',
+        self.assertEqual(first[1], datetime.datetime(2026, 11, 9, 0, 13, 26, tzinfo=UTC))
+        self.assertEqual(first[2:8], ('https://a.test/', 'A', 'AUTO_TOPLEVEL (6)', 'CHAIN_START, CHAIN_END',
                                       'BROWSED (no visit_source row)', 2.5))
-        self.assertEqual(first[7], datetime.datetime(2026, 11, 9, 0, 13, 26, tzinfo=UTC))
         self.assertEqual(first[8:], (2, 1, 1))
-        self.assertEqual(second[3], 'TYPED (1)')
-        self.assertEqual(second[5], 'SYNCED (0)')
+        self.assertEqual(second[4], 'TYPED (1)')
+        self.assertEqual(second[6], 'SYNCED (0)')
 
     def test_no_visits_table_gives_none(self):
         self.assertIsNone(read_archived_visits(sqlite3.connect(':memory:')))
