@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "each visit's urls row, the transition and the visit source.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-27",
+        "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "Reads the visits table of each History database in a Chromium-based browser profile and "
@@ -92,7 +92,8 @@ __artifacts_v2__ = {
                  "read: other Chrome channels (Beta, Dev, Canary), extension storage partitions under a "
                  "profile's Storage folder, and WebView2 or Electron app profiles such as EBWebView "
                  "folders, which share the layout but sit in other applications' folders. Also "
-                 "not read: the Archived History database of older Chrome releases; Chromium's "
+                 "not read here: the Archived History database of older Chrome releases, which the "
+                 "Chromium Archived Visits artifact reads; Chromium's "
                  "history_backend.cc notes that it no longer maintains an archived database as "
                  "of M37 "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/history/core/browser/history_backend.cc#L1577). "
