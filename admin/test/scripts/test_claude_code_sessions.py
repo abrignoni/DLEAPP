@@ -122,7 +122,7 @@ class SessionsTest(TreeTest):
             {'type': 'ai-title', 'sessionId': SID, 'aiTitle': 'Title one'},
             user('p1', version='2.1.319', gitBranch='HEAD'),
             assistant([{'type': 'tool_use', 'name': 'Agent', 'input': {}}], ts='2026-11-09T00:59:00.000Z'),
-            user('<x>', isMeta=True),
+            user('<x>', isMeta=True, timestamp='not a time'),
         ))
         self.add(f'u/.claude/projects/C--p/{SID}/subagents/agent-abc.jsonl', jsonl(
             user('count', agentId='abc', isSidechain=True),
@@ -133,6 +133,8 @@ class SessionsTest(TreeTest):
         main, sub = sorted(rows, key=lambda r: r[3])
         self.assertEqual(main[2:16], (SID, '', '', 'Title one', 'C:\\p', 'HEAD', '2.1.319', 'm-test', 1, 1, 0,
                                       'Agent (1)', 'acc', 'org'))
+        self.assertEqual((main[0].isoformat(), main[1].isoformat()),
+                         ('2026-11-09T00:57:51.801000+00:00', '2026-11-09T00:59:00+00:00'))
         self.assertEqual(sub[2:5], (SID, 'abc', 'Explore'))
         self.assertEqual(len(source.split('\n')), 3)
 
