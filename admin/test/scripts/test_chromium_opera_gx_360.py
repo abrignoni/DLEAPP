@@ -66,7 +66,7 @@ class PathsTest(unittest.TestCase):
                     self.assertNotIn(sibling, paths, (module, key))
                 else:
                     self.assertIn(sibling, paths, (module, key))
-        self.assertEqual(checked, 74)
+        self.assertEqual(checked, 82)
 
 
 if __name__ == '__main__':
