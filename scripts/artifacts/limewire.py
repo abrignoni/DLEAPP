@@ -253,7 +253,8 @@ def _first_stream(paths, label):
                 contents = loads(handle.read())
             if contents:
                 return contents[0], path
-        except (OSError, JavaSerializationError, IndexError, ValueError) as ex:
+        except (OSError, JavaSerializationError, IndexError, ValueError, AttributeError, TypeError,
+                RecursionError) as ex:
             logfunc(f'{label}: could not read {os.path.basename(path)}: {ex}')
     return None, None
 
