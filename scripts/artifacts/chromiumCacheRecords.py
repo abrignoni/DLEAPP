@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "picture, video or audio.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
-        "last_update_date": "2026-11-08",
+        "last_update_date": "2026-11-09",
         "requirements": "none",
         "category": "Chromium Browsers",
         "notes": "One row per entry of the HTTP disk cache of a Chromium-based browser profile on Windows, "
@@ -64,8 +64,15 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_response_info.cc#L140-L157), "
                  "which is undone first, a branch no tested entry exercised (exercised on a constructed body "
                  "only). A body whose data is not in the cache files is absent, and a body that does not "
-                 "decode is shown as stored. Every image, video and audio entry with a stored body on the "
-                 "tested images was shown: 14,222 rows, 13,992 of them images. Browser, Profile and User come "
+                 "decode is shown as stored. A picture, video or audio entry stored as a "
+                 "sparse entry, whose data is in Range_ children, is shown when its children hold all of it, read "
+                 "as the notes of Chromium Media Cache Records describe: 35 of the 41 such entries on the tested "
+                 "images (1 of 1 on hexordia_mvs2025_win11, 16 of 22 on ou_ransomware_server2022, 18 of 18 on "
+                 "pc_mus_001_win11); its Body Size (bytes) stays 0 as stored. Each of the 35 decodes in ffmpeg "
+                 "with no error, and each of the 31 among them that begins as an MP4 or WebM container (23 by "
+                 "Content Type, plus 8 labelled audio/mpeg) ends exactly where its top-level boxes or its EBML "
+                 "Segment say it does. Every image, video and audio entry with a stored body, or a sparse body held whole, "
+                 "on the tested images was shown: 14,257 rows, 13,992 of them images. Browser, Profile and User come "
                  "from the path, as in the other Chromium artifacts, and separate every cache folder on the "
                  "tested images; the folder's index file is in the source list of the report. Tested: "
                  "windows11_arm_chromium_cache_known_20261103 (Chrome 157.0.8103.39 and Edge 156.0.4314.58, 14 "
@@ -104,14 +111,14 @@ __artifacts_v2__ = {
         "description": "Entries of the separate HTTP disk cache older Google Chrome and Chromium builds kept "
                        "for media requests, in a profile's Media Cache folder on Windows: cached URL, HTTP "
                        "status, content type, body size, the entry's created and last used times, the "
-                       "request and response times, and, for an entry whose body is stored whole, the cached "
-                       "picture, video or audio.",
+                       "request and response times, and the cached picture, video or audio, put back together "
+                       "from the pieces the cache stores it in when no piece is missing.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-08",
-        "last_update_date": "2026-11-08",
+        "last_update_date": "2026-11-09",
         "requirements": "none",
         "category": "Chromium Browsers",
-        "notes": "Reads the Media Cache folder of a Chromium-based browser profile on Windows with the same reader, and gives the same columns read the same way, as Chromium Cache Records, whose notes give the sources for each column. Chrome 65 keeps this folder as a separate HTTP disk cache for the profile's media requests (https://github.com/chromium/chromium/blob/65.0.3325.181/chrome/browser/profiles/profile_impl_io_data.cc#L494-L497 and #L637-L656, https://github.com/chromium/chromium/blob/65.0.3325.181/chrome/common/chrome_constants.cc#L155); Chromium's chrome_constants.cc at d5e871096c2c285b2f93f7922b69c2edce5b1de1 names no Media Cache folder. Most entries are the child entries Chromium writes for a sparse entry, whose key is Range_<parent key>:<signature>:<child number>, both numbers in hexadecimal, and each of which holds up to one MiB of the parent's data from offset child number times one MiB (https://github.com/chromium/chromium/blob/65.0.3325.181/net/disk_cache/blockfile/sparse_control.cc#L49-L59 and #L518-L521): 222 of 323 rows on lonewolf_win10 (children of 86 parent entries) and 6 of 8 on cfreds_leakage_win7 (children of 2), and on both every child's parent key is an entry of the same cache. A child row holds no response info, so its Response Time, Request Time, HTTP Status and Content Type are blank, Key Prefix holds Range_, URL holds the rest of the child key (the parent key, then its signature and child number) and Host the host of the parent's URL; its Body Size (bytes) is the size of its own data. The parent row carries the response info and a Body Size (bytes) of 0, since its data is in its children. The children are not put back together, so Cached Media held no value on any row of either image: 85 of the 87 picture, video or audio entries on lonewolf_win10 and both on cfreds_leakage_win7 are sparse parents, and the other two are redirects with no body. Reuse Count held 0 and Isolation Key no value on every row of both images, whose keys are not split by site; Host held one value on all 8 rows of cfreds_leakage_win7, and Browser, Profile and User one value on every row of both, which each hold one profile with a Media Cache. Tested: lonewolf_win10 (Chrome 65.0.3325.181, 323 rows) and cfreds_leakage_win7 (8 rows); no other Windows image in the corpus listings holds a Media Cache folder. Not read: the GPUCache folder, Chromium's shader cache (https://github.com/chromium/chromium/blob/65.0.3325.181/gpu/ipc/host/shader_disk_cache.cc#L562), whose entries are not keyed by URL, and the Application Cache, read by Chromium Application Cache.",
+        "notes": "Reads the Media Cache folder of a Chromium-based browser profile on Windows with the same reader, and gives the same columns read the same way, as Chromium Cache Records, whose notes give the sources for each column. Chrome 65 keeps this folder as a separate HTTP disk cache for the profile's media requests (https://github.com/chromium/chromium/blob/65.0.3325.181/chrome/browser/profiles/profile_impl_io_data.cc#L494-L497 and #L637-L656, https://github.com/chromium/chromium/blob/65.0.3325.181/chrome/common/chrome_constants.cc#L155); Chromium's chrome_constants.cc at d5e871096c2c285b2f93f7922b69c2edce5b1de1 names no Media Cache folder. Most entries are the child entries Chromium writes for a sparse entry, whose key is Range_<parent key>:<signature>:<child number>, both numbers in hexadecimal, and each of which holds up to one MiB of the parent's data from offset child number times one MiB (https://github.com/chromium/chromium/blob/65.0.3325.181/net/disk_cache/blockfile/sparse_control.cc#L49-L59 and #L518-L521): 222 of 323 rows on lonewolf_win10 (children of 86 parent entries) and 6 of 8 on cfreds_leakage_win7 (children of 2), and on both every child's parent key is an entry of the same cache. A child row holds no response info, so its Response Time, Request Time, HTTP Status and Content Type are blank, Key Prefix holds Range_, URL holds the rest of the child key (the parent key, then its signature and child number) and Host the host of the parent's URL; its Body Size (bytes) is the size of its own data. The parent row carries the response info and a Body Size (bytes) of 0, since its data is in its children. For a picture, video or audio parent, Cached Media is its data put back together from its children as SparseControl reads them: only children whose own header carries the parent's signature and kIndexMagic, and in each only the 1 KiB blocks its bitmap marks and the part-filled block its header records (https://github.com/chromium/chromium/blob/65.0.3325.181/net/disk_cache/blockfile/sparse_control.cc#L476-L501, #L586-L619 and #L659-L665, https://github.com/chromium/chromium/blob/65.0.3325.181/net/disk_cache/blockfile/disk_format_base.h#L99-L126). It is shown only when those blocks hold every byte from 0 to the parent's stored Content-Length, which Chromium sets to the size of the whole resource when it stores the response and reads back as that size (https://github.com/chromium/chromium/blob/65.0.3325.181/net/http/http_cache_transaction.cc#L1871-L1873, https://github.com/chromium/chromium/blob/65.0.3325.181/net/http/partial_data.cc#L225-L229 and #L360-L363); Body Size (bytes) stays 0 as stored. 85 of the 87 picture, video or audio entries on lonewolf_win10 and both on cfreds_leakage_win7 are sparse parents, and the other two are redirects with no body. 63 of the 85 and both of the 2 were put back together; the children of the other 22 leave a gap (on two, the last child holds 91 and 781 bytes past the blocks its bitmap marks, which are not read; the other 20 are missing whole children). Each of the 65 decodes in ffmpeg with no error, and each of the 61 MP4 and WebM files among them ends exactly where its top-level boxes or its EBML Segment say it does. Reuse Count held 0 and Isolation Key no value on every row of both images, whose keys are not split by site; Host held one value on all 8 rows of cfreds_leakage_win7, and Browser, Profile and User one value on every row of both, which each hold one profile with a Media Cache. Tested: lonewolf_win10 (Chrome 65.0.3325.181, 323 rows) and cfreds_leakage_win7 (8 rows); no other Windows image in the corpus listings holds a Media Cache folder. Not read: the GPUCache folder, Chromium's shader cache (https://github.com/chromium/chromium/blob/65.0.3325.181/gpu/ipc/host/shader_disk_cache.cc#L562), whose entries are not keyed by URL, and the Application Cache, read by Chromium Application Cache.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Media Cache/*',
             '*/AppData/Local/Chromium/User Data/*/Media Cache/*',
@@ -150,11 +157,34 @@ def _host(url):
         return ''
 
 
-def _media(entry, folder, content_type, headers, extra_flags):
+def _sparse_media(entry, children, status, headers):
+    """A sparse entry's data put back together from its children, or None.
+
+    Chromium stores a 206 response as a sparse entry (net/http/partial_data.cc#L393-L395)
+    and replaces its Content-Length with the size of the whole resource, which it reads
+    back as that size
+    (https://github.com/chromium/chromium/blob/65.0.3325.181/net/http/http_cache_transaction.cc#L1871-L1873,
+    net/http/partial_data.cc#L225-L229 and #L360-L363, all at the same tag).
+    """
+    if status != '206' or entry.sparse_size <= 0:
+        return None
+    length = headers.get('content-length', '').strip()
+    if not length.isdigit():
+        return None
+    return blockfile_cache.sparse_body(entry, children, int(length))
+
+
+def _media(entry, folder, content_type, headers, extra_flags, status, children):
     """The checked-in body of a picture, video or audio entry, or ''."""
-    if not content_type.startswith(_MEDIA_TYPES) or entry.body_size <= 0:
+    if not content_type.startswith(_MEDIA_TYPES):
         return ''
-    body = stored_body(entry.read_body(), extra_flags,
+    if entry.body_size > 0:
+        raw = entry.read_body()
+    else:
+        raw = _sparse_media(entry, children, status, headers)
+        if raw is None:
+            return ''
+    body = stored_body(raw, extra_flags,
                        headers.get('content-encoding', '').strip().lower())
     if not body:
         return ''
@@ -173,7 +203,9 @@ def _cache_records(context, folder_names, label):
                 continue
             files = [os.path.join(store.path, name) for name in sorted(os.listdir(store.path))]
             rows = 0
-            for entry in blockfile_cache.iter_entries(files, folder_names=(os.path.basename(store.path),)):
+            entries = list(blockfile_cache.iter_entries(files, folder_names=(os.path.basename(store.path),)))
+            children = blockfile_cache.sparse_children(entries)
+            for entry in entries:
                 prefix, isolation, url = split_key(entry.key)
                 parsed = parse_response_info(entry.response_info)
                 if parsed is None:
@@ -187,7 +219,8 @@ def _cache_records(context, folder_names, label):
                 data_list.append((entry.last_used, entry.created, base_time_to_datetime(response_time),
                                   base_time_to_datetime(request_time), url, _host(url), status,
                                   content_type, entry.body_size,
-                                  _media(entry, store.path, content_type, headers, extra_flags), entry.reuse_count,
+                                  _media(entry, store.path, content_type, headers, extra_flags, status, children),
+                                  entry.reuse_count,
                                   isolation, prefix, store.browser, store.profile, store.user))
                 rows += 1
             if rows:
