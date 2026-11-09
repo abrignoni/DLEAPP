@@ -71,6 +71,10 @@ class OracleStreamTest(unittest.TestCase):
         self.assertEqual(js.plain(holder.fields['file']), 'C:\\kd\\a.txt')
         self.assertEqual(holder.annotations['KdSerialOracle$Holder'], [b'\x00\x00\x00*', 'kd-extra'])
 
+    def test_uri_reads_as_its_string(self):
+        self.assertEqual(js.plain(_obj('java.net.URI', {'string': 'http://tracker.test/announce'})),
+                         'http://tracker.test/announce')
+
     def test_bad_streams_are_refused(self):
         with self.assertRaises(js.JavaSerializationError):
             js.loads(b'not a stream')

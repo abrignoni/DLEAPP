@@ -2,7 +2,9 @@
 
 The stream protocol is Oracle's "Java Object Serialization Specification", chapter 6
 (https://docs.oracle.com/javase/8/docs/platform/serialization/spec/protocol.html). A stream
-names every class and field before the values, so it reads without the program's classes.
+names every class and field before the values, so the default fields read without the
+program's classes; what a writeObject method adds is kept as bytes and objects for the caller
+to interpret.
 
 What a class writes in its own writeObject method follows its default fields as an
 annotation: block data for primitives and objects in between. Every object keeps those
@@ -16,6 +18,7 @@ writes (openjdk/jdk8u at the jdk8u472-b08 tag, jdk/src/share/classes/java/):
   util/Hashtable.java lines 1131 to 1158: table length and count, then each key and value.
   util/ArrayList.java lines 757 to 768: the size field, the size again, then each element.
   io/File.java lines 2191 to 2195: the path field, then the separator character.
+  net/URI.java lines 510 and 1639 to 1643: the string field only.
 LinkedHashMap and LinkedHashSet write as their superclass does, so they read the same way.
 """
 
@@ -332,6 +335,8 @@ def plain(value):
         return value.fields.get('value')
     if name == 'java.io.File':
         return value.fields.get('path')
+    if name == 'java.net.URI':
+        return value.fields.get('string')
     if name in _EMPTY:
         return _EMPTY[name]()
     if name.startswith(_WRAPPERS):
