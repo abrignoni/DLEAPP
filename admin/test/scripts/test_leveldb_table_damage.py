@@ -2,7 +2,7 @@
 
 A data block that does not decompress is skipped and logged, and reading goes on with the next block
 and the next file, where the reader used to raise and the caller got nothing more from the folder. The tables here are built
-in the LevelDB table format (doc/table_format.md: data blocks, a metaindex and an index block, each with
+in the LevelDB table format (doc/table_format.md and table/table_builder.cc: data blocks, a metaindex and an index block, each with
 a 5-byte trailer of compression type and masked crc32c, then the 48-byte footer).
 """
 import pathlib
