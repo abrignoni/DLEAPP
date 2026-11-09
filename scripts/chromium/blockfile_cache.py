@@ -33,6 +33,7 @@ class BlockfileEntry:
         "last_used", "request_time", "response_time", "status_code",
         "status_line", "headers", "body_size", "body_source",
         "body_address", "cache_dir", "reuse_count", "response_info",
+        "sparse_size", "sparse_address",
     )
 
     def __init__(self):
@@ -54,6 +55,8 @@ class BlockfileEntry:
         self.cache_dir = ""
         self.reuse_count = 0
         self.response_info = b""
+        self.sparse_size = 0
+        self.sparse_address = 0
 
     @property
     def content_type(self):
@@ -71,6 +74,11 @@ class BlockfileEntry:
         """Return the stored response body."""
         body, _ = _read_address(self.cache_dir, self.body_address, self.body_size)
         return body
+
+    def read_sparse_data(self):
+        """Return stream 2, where a sparse entry and its children keep their SparseData."""
+        data, _ = _read_address(self.cache_dir, self.sparse_address, self.sparse_size)
+        return data
 
     def decoded_body(self):
         """Return the response body with supported Content-Encoding removed."""
@@ -164,6 +172,8 @@ def _entry(cache_dir, address):
     item.body_address = data_addresses[1]
     _, item.body_source = _read_address(
         cache_dir, data_addresses[1], min(item.body_size, 1))
+    item.sparse_size = max(data_sizes[2], 0)
+    item.sparse_address = data_addresses[2]
     return item, next_address
 
 
@@ -208,3 +218,107 @@ def iter_entries(files_found, folder_names=("Cache_Data",)):
                 if item is not None:
                     yield item
                 address = next_address
+
+
+# Sparse entries, as net/disk_cache/blockfile/sparse_control.cc writes them at
+# https://github.com/chromium/chromium/blob/65.0.3325.181/net/disk_cache/blockfile/sparse_control.cc#L34-L59:
+# the parent keeps a SparseHeader and a bitmap of its children in stream 2; each
+# child, keyed Range_<parent key>:<signature>:<child number> (both in hexadecimal),
+# holds up to 1 MiB of the parent's data from offset child number * 1 MiB in its
+# stream 1, and in its stream 2 the parent's header and a bitmap of which 1 KiB
+# blocks it holds, with last_block and last_block_len for a part-filled block.
+_SPARSE_MAGIC = 0xC103CAC3   # kIndexMagic, net/disk_cache/blockfile/disk_format.h
+_SPARSE_HEADER = struct.Struct("<qIiii40x")   # SparseHeader, disk_format_base.h
+_CHILD_SIZE = 0x100000        # kMaxEntrySize
+_SPARSE_BLOCK = 1024          # kBlockSize
+_CHILD_BITS = 1024            # kNumSparseBits
+
+
+def _bits(bitmap, count=None):
+    count = len(bitmap) * 8 if count is None else count
+    return [i for i in range(count) if bitmap[i // 8] >> (i % 8) & 1]
+
+
+def _sparse_header(data):
+    if len(data) < _SPARSE_HEADER.size:
+        return None
+    signature, magic, _key_len, last_block, last_block_len = _SPARSE_HEADER.unpack_from(data)
+    if magic != _SPARSE_MAGIC:
+        return None
+    if not 0 <= last_block_len < _SPARSE_BLOCK:
+        # As SparseControl::OpenChild does, a length out of range means no part-filled block.
+        last_block, last_block_len = -1, 0
+    return signature, last_block, last_block_len
+
+
+def sparse_children(entries):
+    """Map (parent key, signature) to {child number: entry} for every Range_ child."""
+    children = {}
+    for entry in entries:
+        if not entry.key.startswith("Range_"):
+            continue
+        try:
+            parent_key, signature, number = entry.key[6:].rsplit(":", 2)
+            key = (parent_key, int(signature, 16))
+            children.setdefault(key, {})[int(number, 16)] = entry
+        except ValueError:
+            continue
+    return children
+
+
+def _child_ranges(child, signature, base):
+    """The (start, end) offsets in the parent that a child holds, as SparseControl reads them."""
+    header = _sparse_header(child.read_sparse_data())
+    if header is None or header[0] != signature:
+        return []
+    _, last_block, last_block_len = header
+    data = child.read_body()
+    bitmap = child.read_sparse_data()[_SPARSE_HEADER.size:_SPARSE_HEADER.size + _CHILD_BITS // 8]
+    present = set(_bits(bitmap, min(_CHILD_BITS, len(bitmap) * 8)))
+    ranges, block = [], 0
+    while block < _CHILD_BITS:
+        if block in present:
+            end = block
+            while end in present:
+                end += 1
+            stop = end * _SPARSE_BLOCK
+            if end == last_block:
+                stop += last_block_len
+            ranges.append((block * _SPARSE_BLOCK, stop))
+            block = end + 1 if end == last_block else end
+        else:
+            if block == last_block and last_block_len:
+                ranges.append((block * _SPARSE_BLOCK, block * _SPARSE_BLOCK + last_block_len))
+            block += 1
+    return [(base + start, base + min(stop, len(data)), data, start)
+            for start, stop in ranges if min(stop, len(data)) > start]
+
+
+def sparse_body(parent, children, resource_size):
+    """The parent's data put back together from its children, or None.
+
+    Returned only when the children hold every byte from 0 to ``resource_size``
+    with no gap; a child counts only if its own header carries the parent's
+    signature, and only the blocks its bitmap marks are read.
+    """
+    if resource_size <= 0:
+        return None
+    header = _sparse_header(parent.read_sparse_data())
+    if header is None:
+        return None
+    signature = header[0]
+    kids = children.get((parent.key, signature), {})
+    pieces = []
+    for number in sorted(kids):
+        pieces.extend(_child_ranges(kids[number], signature, number * _CHILD_SIZE))
+    pieces.sort(key=lambda piece: piece[0])
+    out = bytearray()
+    for start, stop, data, data_start in pieces:
+        if start > len(out):
+            return None
+        if stop > len(out):
+            skip = len(out) - start
+            out += data[data_start + skip:data_start + (stop - start)]
+        if len(out) >= resource_size:
+            return bytes(out[:resource_size])
+    return None
