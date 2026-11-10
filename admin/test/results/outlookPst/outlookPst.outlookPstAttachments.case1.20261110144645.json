@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "module_name": "outlookPst",
+    "artifact_name": "Outlook Attachments",
+    "function_name": "outlookPstAttachments",
+    "case_number": "case1",
+    "number_of_columns": 12,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 344,
+    "media_checkins": 0,
+    "media_embedded_checkins": 2,
+    "input_zip_path": "admin/test/cases/data/outlookPst/testdata.outlookPst.outlookPstAttachments.case1.zip",
+    "start_time": "2026-11-10T14:46:45.500564+00:00",
+    "end_time": "2026-11-10T14:46:45.534398+00:00",
+    "run_time_seconds": 0.003793001174926758,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-10T09:46:45.526562",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Item Delivery Time",
+    "Item Modified",
+    "Attachment",
+    "File Name",
+    "Size",
+    "MIME Type",
+    "Folder",
+    "Item Subject",
+    "Within Attached Item",
+    "Message Class",
+    "Item ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      1794238263,
+      1794238263,
+      "mock_embedded_html_path",
+      "kd_attach.txt",
+      59,
+      "",
+      "/Top of Outlook data file/Drafts",
+      "kd_mail_2 with attachment",
+      "",
+      "IPM.Note",
+      "0x200084",
+      "kd_outlook/pst/Outlook Data File - kd_pim.pst"
+    ],
+    [
+      1794239148,
+      1794239147,
+      "mock_embedded_html_path",
+      "kd_attach.txt",
+      59,
+      "",
+      "/Top of Outlook data file/kd_ansi_mail",
+      "kd_ansi_mail_1 with attachment",
+      "",
+      "IPM.Note",
+      "0x200024",
+      "kd_outlook/pst/kd_ansi.pst"
+    ]
+  ]
+}
