@@ -93,5 +93,100 @@
     }
    }
   }
+ },
+ "case2": {
+  "description": "The PST of the known-data kit windows11_arm_outlook_pst_more_known_20261110, made with Outlook LTSC 2024 and no account on a lab VM: a contact, two distribution lists (a contact member, one-off members, a removed member) and five recurring series with one moved and two deleted occurrences. Every value was typed by the kit (kd_ names, example.com addresses). No case data.",
+  "maker": "@AlexisBrignoni",
+  "make_data": {
+   "input_data_path": "windows11_arm_outlook_pst_more_known_20261110.zip",
+   "os": "macOS-27.2-arm64-arm-64bit-Mach-O",
+   "timestamp": "2026-11-10T11:49:25.399701",
+   "last_commit": {
+    "hash": "2346d9bf1b33dd084e8a57366322bf9a45e43cbc",
+    "author_name": "N/A",
+    "author_email": "N/A",
+    "date": "2026-11-10T09:59:39-05:00",
+    "message": "Outlook artifacts: HTML body code page, afStorage attachments"
+   }
+  },
+  "artifacts": {
+   "outlookPstEmails": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]"
+    ],
+    "file_count": 1,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   },
+   "outlookPstContacts": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]"
+    ],
+    "file_count": 1,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   },
+   "outlookPstAppointments": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]"
+    ],
+    "file_count": 1,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   },
+   "outlookPstTasks": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]"
+    ],
+    "file_count": 1,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   },
+   "outlookPstNotes": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]"
+    ],
+    "file_count": 1,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   },
+   "outlookPstJournals": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]"
+    ],
+    "file_count": 1,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   },
+   "outlookPstAttachments": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]"
+    ],
+    "file_count": 1,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   }
+  }
  }
 }

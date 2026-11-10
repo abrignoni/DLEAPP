@@ -1,13 +1,17 @@
-"""Shared reading for the Outlook PST and OST artifacts in scripts/artifacts/outlookPst.py.
+"""Shared reading for the Outlook PST and OST artifacts in scripts/artifacts/outlookPst.py
+and scripts/artifacts/outlookAutocomplete.py.
 
 Files are read with the vendored pstprobe (scripts/vendor/pstprobe.py). Property IDs and
 names are those of Microsoft [MS-OXPROPS] v20250520; what each property means, and the
 values an enumerated one takes, are cited beside it from the Exchange protocol
 documents ([MS-OXCMSG], [MS-OXOMSG], [MS-OXOCNTC], [MS-OXOTASK], [MS-OXONOTE],
-[MS-OXOJRNL], release v20250520, and [MS-OXOCAL], release v20250819).
+[MS-OXOJRNL], [MS-OXCDATA], release v20250520, [MS-PST] v20250218 and [MS-OXOCAL] v20250819).
+The autocomplete stream follows Microsoft Learn's "Autocomplete Stream" page.
 """
 
+import datetime
 import hashlib
+import struct
 import html.parser
 import os
 from collections import Counter
@@ -26,6 +30,7 @@ PSETID_NOTE = '0006200e-0000-0000-c000-000000000046'
 # Tagged properties ([MS-OXPROPS] names)
 TAG_MESSAGE_CLASS = 0x001A           # PidTagMessageClass
 TAG_SUBJECT = 0x0037                 # PidTagSubject
+TAG_TRANSPORT_HEADERS = 0x007D       # PidTagTransportMessageHeaders
 TAG_CLIENT_SUBMIT_TIME = 0x0039      # PidTagClientSubmitTime
 TAG_SENT_REPRESENTING_NAME = 0x0042  # PidTagSentRepresentingName
 TAG_SENDER_NAME = 0x0C1A             # PidTagSenderName
@@ -81,6 +86,10 @@ PST_PATHS = ('*.[pP][sS][tT]', '*.[oO][sS][tT]')
 def has_prefix(message_class, prefix):
     value, prefix = message_class.lower(), prefix.lower()
     return value == prefix or value.startswith(prefix + '.')
+
+
+def kind_is_list(message_class):
+    return isinstance(message_class, str) and has_prefix(message_class, 'IPM.DistList')
 
 
 def kind_of(message_class):
@@ -360,16 +369,9 @@ def unique_files(files_found, relative, counts):
 _INDEX = {}
 
 
-def _index(pst, path, counts):
-    """(folder path, item NID, class) for every item listed in a normal folder's contents
-    table, walking the folder tree from the root. Search folders, whose results are items
-    of other folders, and folder-associated contents are not listed. The class is read from
-    the contents table row, else from the item."""
-    stat = os.stat(path)
-    key = (os.path.realpath(path), stat.st_size, stat.st_mtime_ns)
-    if key in _INDEX:
-        return _INDEX[key]
-    items, seen = [], set()
+def _folders(pst, counts):
+    """Every folder of the file, walking the folder tree from the root, each once."""
+    seen = set()
     pending = [(P.NID_ROOT_FOLDER, '')]
     while pending:
         nid, parent = pending.pop(0)
@@ -388,6 +390,50 @@ def _index(pst, path, counts):
             pending.extend((sub, folder.path) for sub in folder.subfolder_nids())
         except P.DAMAGE_ERRORS:
             counts['folder hierarchy tables that could not be read'] += 1
+        yield folder
+
+
+def associated_items(pst, message_class, counts):
+    """(folder path, item) for every folder-associated item whose PidTagMessageClass is
+    message_class, compared without regard to case, in every folder that is not a search
+    folder."""
+    for folder in _folders(pst, counts):
+        if folder.is_search_folder:
+            continue
+        try:
+            nids = folder.assoc_message_nids()
+        except P.DAMAGE_ERRORS:
+            counts['folder-associated contents tables that could not be read'] += 1
+            continue
+        for nid in nids:
+            try:
+                item = pst.message(nid)
+            except P.DAMAGE_ERRORS:
+                counts['folder-associated items that could not be read'] += 1
+                continue
+            if item is None:
+                counts['folder-associated items listed with no item node'] += 1
+                continue
+            value = item.message_class
+            if isinstance(value, str) and value.lower() == message_class.lower():
+                yield folder.path, item
+
+
+def is_pst_name(path):
+    return os.path.splitext(str(path))[1].lower() in ('.pst', '.ost')
+
+
+def _index(pst, path, counts):
+    """(folder path, item NID, class) for every item listed in a normal folder's contents
+    table, walking the folder tree from the root. Search folders, whose results are items
+    of other folders, and folder-associated contents are not listed. The class is read from
+    the contents table row, else from the item."""
+    stat = os.stat(path)
+    key = (os.path.realpath(path), stat.st_size, stat.st_mtime_ns)
+    if key in _INDEX:
+        return _INDEX[key]
+    items = []
+    for folder in _folders(pst, counts):
         if folder.is_search_folder:
             continue
         try:
@@ -451,3 +497,391 @@ def read_items(context, kinds, label, build_row):
     if counts:
         logfunc(f'{label}: ' + ', '.join(f'{n} {what}' for what, n in sorted(counts.items())))
     return rows, '\n'.join(read)
+
+
+# Autocomplete stream: Microsoft Learn, "Autocomplete Stream" (Outlook MAPI reference,
+# https://learn.microsoft.com/en-us/office/client-developer/outlook/mapi/autocomplete-stream).
+# It is held in PidTagRoamingBinary (0x7C09) of the folder-associated item of class
+# IPM.Configuration.Autocomplete, and Outlook keeps a local copy in RoamCache as
+# Stream_Autocomplete_*.dat; the layout below is the same in both.
+TAG_ROAMING_BINARY = 0x7C09
+AUTOCOMPLETE_CLASS = 'IPM.Configuration.Autocomplete'
+AUTOCOMPLETE_MAJOR = 12          # "if the major version is different than 12, then this stream should not be read"
+# property types whose value is the 8-byte union alone
+_AC_STATIC = {0x0002, 0x0003, 0x0004, 0x0005, 0x000A, 0x000B, 0x0014, 0x0040}
+
+
+class AutocompleteError(ValueError):
+    """The stream does not follow the documented layout."""
+
+
+def _filetime(raw):
+    ticks = int.from_bytes(raw, 'little')
+    if ticks == 0:
+        return None
+    try:
+        return P.filetime_to_datetime(ticks)
+    except (OverflowError, ValueError, AttributeError):
+        return None
+
+
+def parse_autocomplete(data):
+    """(minor version, rows) of an autocomplete stream; each row is {property tag: value}.
+    Raises AutocompleteError when the major version is not 12, a property type has no
+    documented layout, or the rows, the extra information and the 8 trailing metadata bytes
+    do not end exactly at the end of the stream."""
+
+    end = len(data)
+    if end < 16:
+        raise AutocompleteError(f'{end} bytes, shorter than the 16-byte header')
+    _meta, major, minor, count = struct.unpack_from('<4I', data, 0)
+    if major != AUTOCOMPLETE_MAJOR:
+        raise AutocompleteError(f'major version {major}, not {AUTOCOMPLETE_MAJOR}')
+    pos = 16
+
+    def take(n):
+        nonlocal pos
+        if n < 0 or pos + n > end:
+            raise AutocompleteError(f'a field of {n} bytes at offset {pos} runs past the end ({end})')
+        chunk = data[pos:pos + n]
+        pos += n
+        return chunk
+
+    def u32():
+        return struct.unpack('<I', take(4))[0]
+
+    def counted():
+        return take(u32())
+
+    rows = []
+    for _ in range(count):
+        row = {}
+        for _ in range(u32()):
+            tag = u32()
+            take(4)                      # reserved
+            union = take(8)
+            ptype = tag & 0xFFFF
+            if ptype in _AC_STATIC:
+                if ptype == 0x0002:
+                    value = struct.unpack_from('<h', union)[0]
+                elif ptype in (0x0003, 0x000A):
+                    value = struct.unpack_from('<i', union)[0]
+                elif ptype == 0x0004:
+                    value = struct.unpack_from('<f', union)[0]
+                elif ptype == 0x0005:
+                    value = struct.unpack_from('<d', union)[0]
+                elif ptype == 0x000B:
+                    value = bool(struct.unpack_from('<h', union)[0])
+                elif ptype == 0x0014:
+                    value = struct.unpack_from('<q', union)[0]
+                else:
+                    value = _filetime(union)
+            elif ptype == 0x001E:
+                value = counted().split(b'\x00', 1)[0].decode('cp1252', 'replace')
+            elif ptype == 0x001F:
+                value = counted().decode('utf-16-le', 'replace').split('\x00', 1)[0]
+            elif ptype == 0x0048:
+                value = take(16)
+            elif ptype == 0x0102:
+                value = counted()
+            elif ptype in (0x1102, 0x101E, 0x101F):
+                items = [counted() for _ in range(u32())]
+                if ptype == 0x101E:
+                    value = [i.split(b'\x00', 1)[0].decode('cp1252', 'replace') for i in items]
+                elif ptype == 0x101F:
+                    value = [i.decode('utf-16-le', 'replace').split('\x00', 1)[0] for i in items]
+                else:
+                    value = items
+            else:
+                raise AutocompleteError(f'property 0x{tag:08x} has a type with no documented layout')
+            row[tag] = value
+        rows.append(row)
+    extra = u32()
+    take(extra)
+    take(8)
+    if pos != end:
+        raise AutocompleteError(f'{end - pos} bytes after the trailing metadata')
+    return minor, rows
+
+
+# Distribution list members ([MS-OXOCNTC] 2.2.2.2) and the EntryIDs they hold ([MS-OXCDATA]
+# 2.2.5.1 One-Off EntryID; [MS-OXOCNTC] 2.2.2.2.4.1.1 WrappedEntryId; [MS-PST] 2.4.3.2 the
+# EntryID of an object in a PST)
+LID_DL_ONE_OFF_MEMBERS = 0x8054      # PidLidDistributionListOneOffMembers
+LID_DL_MEMBERS = 0x8055              # PidLidDistributionListMembers
+LID_DL_STREAM = 0x8064               # PidLidDistributionListStream
+ONE_OFF_UID = bytes.fromhex('812b1fa4bea310199d6e00dd010f5402')
+WRAPPED_UID = bytes.fromhex('c091add3519dcf11a4a900aa0047faa4')
+TAG_RECORD_KEY = 0x0FF9              # PidTagRecordKey
+# [MS-OXOCNTC] 2.2.2.2.4.1.1: bits 0x70 of the Type of a wrapped contact name the address
+_WRAPPED_CONTACT_ADDRESS = {4: 0x8083, 5: 0x8093, 6: 0x80A3}   # Email1..Email3 (PidLidEmailNEmailAddress)
+
+
+def parse_one_off(data):
+    """(display name, address type, email address) of a One-Off EntryID, or None when the
+    bytes are not one. The 2-byte flags word after Version is read most significant byte
+    first, as its bit diagram is drawn; U (0x0080) selects UTF-16 strings."""
+    if len(data) < 24 or data[4:20] != ONE_OFF_UID:
+        return None
+    flags = int.from_bytes(data[22:24], 'big')
+    unicode_ = bool(flags & 0x0080)
+    pos, out = 24, []
+    for _ in range(3):
+        if unicode_:
+            end = pos
+            while end + 1 < len(data) and data[end:end + 2] != b'\x00\x00':
+                end += 2
+            if end + 1 >= len(data):
+                return None
+            out.append(data[pos:end].decode('utf-16-le', 'replace'))
+            pos = end + 2
+        else:
+            end = data.find(b'\x00', pos)
+            if end < 0:
+                return None
+            out.append(data[pos:end].decode('cp1252', 'replace'))
+            pos = end + 1
+    if pos != len(data):
+        return None
+    return tuple(out)
+
+
+def _person(name, addrtype, address):
+    shown = address if not addrtype or addrtype.upper() == 'SMTP' else f'{addrtype}:{address}'
+    if name and shown and name != address:
+        return f'{name} <{shown}>'
+    return name or shown
+
+
+def store_record_key(pst, reader):
+    try:
+        store = pst.message_store()
+    except P.DAMAGE_ERRORS:
+        return None
+    value = reader.get(store, TAG_RECORD_KEY) if store is not None else None
+    return bytes(value) if isinstance(value, (bytes, bytearray)) else None
+
+
+def _member_entry(entry, pst, record_key, reader):
+    """(text, NID of the item it names in this file or None, what to count when the text is
+    used) for one PidLidDistributionListMembers entry."""
+    entry = bytes(entry)
+    one_off = parse_one_off(entry)
+    if one_off:
+        return _person(*one_off), None, None
+    if len(entry) < 21 or entry[4:20] != WRAPPED_UID:
+        return f'[entry {entry.hex()}]', None, 'distribution list member entries of another kind, shown as stored'
+    kind, embedded = entry[20], entry[21:]
+    one_off = parse_one_off(embedded)
+    if one_off:
+        # Outlook 16 writes Type 0xB5 here, which [MS-OXOCNTC] gives to a GAL mail user
+        # (an Address Book EntryID); the embedded bytes carry the One-Off provider UID
+        return _person(*one_off), None, None
+    if len(embedded) == 24 and record_key and embedded[4:20] == record_key:
+        nid = int.from_bytes(embedded[20:24], 'little')
+        try:
+            item = pst.message(nid)
+        except P.DAMAGE_ERRORS:
+            item = None
+        if item is None:
+            return f'[item 0x{nid:x} not found]', None, 'distribution list members naming an item not in the file'
+        name = reader.text(reader.get(item.pc, TAG_DISPLAY_NAME))
+        lid = _WRAPPED_CONTACT_ADDRESS.get((kind >> 4) & 0x7) if kind & 0x0F == 3 else None
+        address = reader.text(reader.named(item, PSETID_ADDRESS, lid)) if lid else ''
+        return _person(name, 'SMTP', address), nid, None
+    return f'[entry {entry.hex()}]', None, 'distribution list members whose entry is not of this file, shown as stored'
+
+
+def dl_members(message, pst, record_key, reader):
+    """One line per member of a distribution list: the one-off entry at the member's position
+    in PidLidDistributionListOneOffMembers when there is one, else the member's own entry
+    from PidLidDistributionListMembers; a member that names an item of this file is followed
+    by that item's ID. '' when neither property is stored."""
+    if reader.named(message, PSETID_ADDRESS, LID_DL_STREAM) is not None:
+        reader.counts['distribution lists with PidLidDistributionListStream, not decoded'] += 1
+    members = reader.named(message, PSETID_ADDRESS, LID_DL_MEMBERS)
+    one_offs = reader.named(message, PSETID_ADDRESS, LID_DL_ONE_OFF_MEMBERS)
+    members = members if isinstance(members, list) else []
+    one_offs = one_offs if isinstance(one_offs, list) else []
+    if one_offs and members and len(one_offs) != len(members):
+        reader.counts['distribution lists whose two member arrays differ in length'] += 1
+    lines = []
+    for i in range(max(len(members), len(one_offs))):
+        text, nid, note = (_member_entry(members[i], pst, record_key, reader) if i < len(members)
+                           else ('', None, None))
+        one_off = parse_one_off(bytes(one_offs[i])) if i < len(one_offs) else None
+        if one_off:
+            text = _person(*one_off)
+        elif note:
+            reader.counts[note] += 1
+        lines.append(text + (f' [item 0x{nid:x}]' if nid is not None else ''))
+    return '\n'.join(lines)
+
+
+# Recurrence of a calendar item ([MS-OXOCAL] 2.2.1.44)
+LID_APPOINTMENT_RECUR = 0x8216       # PidLidAppointmentRecur
+_FREQUENCY = {0x200A: 'Daily', 0x200B: 'Weekly', 0x200C: 'Monthly', 0x200D: 'Yearly'}
+_PATTERN = {0x0: 'Day', 0x1: 'Week', 0x2: 'Month', 0x3: 'MonthNth', 0x4: 'MonthEnd',
+            0xA: 'HjMonth', 0xB: 'HjMonthNth', 0xC: 'HjMonthEnd'}
+_DAYS = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat')
+_NTH = {1: 'First', 2: 'Second', 3: 'Third', 4: 'Fourth', 5: 'Last'}
+_END_TYPE = {0x2021: 'End by date', 0x2022: 'End after occurrences', 0x2023: 'No end', 0xFFFFFFFF: 'No end'}
+NO_END_DATE = 0x5AE980DF
+_ARO_SUBJECT, _ARO_MEETINGTYPE, _ARO_REMINDERDELTA, _ARO_REMINDER = 0x1, 0x2, 0x4, 0x8
+_ARO_LOCATION, _ARO_BUSYSTATUS, _ARO_ATTACHMENT, _ARO_SUBTYPE, _ARO_APPTCOLOR = 0x10, 0x20, 0x40, 0x80, 0x100
+
+
+class RecurrenceError(ValueError):
+    """The blob does not follow the documented layout."""
+
+
+def minutes_to_local(minutes):
+    """A count of minutes since 1601-01-01 00:00 as a naive datetime: the blob stores these
+    in the series' own time zone, not UTC."""
+    return datetime.datetime(1601, 1, 1) + datetime.timedelta(minutes=minutes)
+
+
+def parse_recurrence(data):
+    """The AppointmentRecurrencePattern of a PidLidAppointmentRecur value as a dict. Raises
+    RecurrenceError on a version the document does not give, a field past the end, or bytes
+    left after ReservedBlock2."""
+    end, pos = len(data), 0
+
+    def take(fmt):
+        nonlocal pos
+        size = struct.calcsize(fmt)
+        if pos + size > end:
+            raise RecurrenceError(f'a {size}-byte field at offset {pos} runs past the end ({end})')
+        value = struct.unpack_from(fmt, data, pos)
+        pos += size
+        return value if len(value) > 1 else value[0]
+
+    def skip(n):
+        nonlocal pos
+        if n < 0 or pos + n > end:
+            raise RecurrenceError(f'{n} bytes at offset {pos} run past the end ({end})')
+        pos += n
+
+    reader_v, writer_v, frequency, pattern, calendar = take('<5H')
+    if (reader_v, writer_v) != (0x3004, 0x3004):
+        raise RecurrenceError(f'versions 0x{reader_v:x}/0x{writer_v:x}, not 0x3004')
+    first, period, _sliding = take('<3I')
+    out = {'frequency': frequency, 'pattern': pattern, 'calendar': calendar, 'period': period,
+           'days': None, 'day': None, 'nth': None}
+    if pattern in (0x1,):
+        out['days'] = take('<I')
+    elif pattern in (0x2, 0x4, 0xA, 0xC):
+        out['day'] = take('<I')
+    elif pattern in (0x3, 0xB):
+        out['days'], out['nth'] = take('<2I')
+    elif pattern != 0x0:
+        raise RecurrenceError(f'PatternType 0x{pattern:x} is not one the document gives')
+    out['end_type'], out['occurrences'], out['first_dow'] = take('<3I')
+    out['deleted'] = [take('<I') for _ in range(take('<I'))]
+    out['modified'] = [take('<I') for _ in range(take('<I'))]
+    out['start_date'], out['end_date'] = take('<2I')
+    reader2, writer2, out['start_offset'], out['end_offset'] = take('<4I')
+    if reader2 != 0x3006:
+        raise RecurrenceError(f'ReaderVersion2 0x{reader2:x}, not 0x3006')
+    exceptions = []
+    for _ in range(take('<H')):
+        start, finish, original, flags = take('<3IH')
+        e = {'start': start, 'end': finish, 'original': original, 'flags': flags,
+             'subject': None, 'location': None}
+        if flags & _ARO_SUBJECT:
+            _length, length2 = take('<2H')
+            e['subject'] = data[pos:pos + length2].decode('cp1252', 'replace')
+            skip(length2)
+        for flag in (_ARO_MEETINGTYPE, _ARO_REMINDERDELTA, _ARO_REMINDER):
+            if flags & flag:
+                skip(4)
+        if flags & _ARO_LOCATION:
+            _length, length2 = take('<2H')
+            e['location'] = data[pos:pos + length2].decode('cp1252', 'replace')
+            skip(length2)
+        for flag in (_ARO_BUSYSTATUS, _ARO_ATTACHMENT, _ARO_SUBTYPE, _ARO_APPTCOLOR):
+            if flags & flag:
+                skip(4)
+        exceptions.append(e)
+    skip(take('<I'))                                  # ReservedBlock1
+    for e in exceptions:
+        if writer2 >= 0x3009:
+            skip(take('<I'))                          # ChangeHighlight
+        skip(take('<I'))                              # ReservedBlockEE1
+        if e['flags'] & (_ARO_SUBJECT | _ARO_LOCATION):
+            skip(12)                                  # StartDateTime, EndDateTime, OriginalStartDate
+            if e['flags'] & _ARO_SUBJECT:
+                n = take('<H')
+                e['subject'] = data[pos:pos + 2 * n].decode('utf-16-le', 'replace')
+                skip(2 * n)
+            if e['flags'] & _ARO_LOCATION:
+                n = take('<H')
+                e['location'] = data[pos:pos + 2 * n].decode('utf-16-le', 'replace')
+                skip(2 * n)
+            skip(take('<I'))                          # ReservedBlockEE2
+    skip(take('<I'))                                  # ReservedBlock2
+    if pos != end:
+        raise RecurrenceError(f'{end - pos} bytes after ReservedBlock2')
+    out['exceptions'] = exceptions
+    out['first_date_time'] = first
+    return out
+
+
+def describe_pattern(r):
+    """The stored pattern fields in words: frequency, PatternType and its fields, period."""
+    words = [_FREQUENCY.get(r['frequency'], 'RecurFrequency 0x%x' % r['frequency']),
+             _PATTERN.get(r['pattern'], 'PatternType 0x%x' % r['pattern'])]
+    if r['days'] is not None:
+        words.append(','.join(d for i, d in enumerate(_DAYS) if r['days'] & (1 << i)) or 'no days')
+    if r['nth'] is not None:
+        words.append(_NTH.get(r['nth'], 'N %d' % r['nth']))
+    if r['day'] is not None:
+        words.append('day %d' % r['day'])
+    # Period is minutes for a daily pattern, weeks for a weekly one and months for monthly
+    # and yearly ones (2.2.1.44.1); any other combination is shown as stored
+    period = r['period']
+    if r['frequency'] == 0x200A and r['pattern'] == 0x0 and period % 1440 == 0:
+        words.append(f'every {period // 1440} day(s)')
+    elif r['frequency'] == 0x200B and r['pattern'] == 0x1:
+        words.append('every %d week(s)' % period)
+    elif r['frequency'] in (0x200C, 0x200D):
+        words.append('every %d month(s)' % period)
+    else:
+        words.append('Period %d' % period)
+    return ', '.join(words)
+
+
+def _local(minutes, with_time=True):
+    value = minutes_to_local(minutes)
+    return value.strftime('%Y-%m-%d %H:%M') if with_time else value.date().isoformat()
+
+
+def recurrence_columns(message, reader):
+    """(Recurrence, Series End, Deleted Occurrences, Modified Occurrences) from
+    PidLidAppointmentRecur, or four blanks when it is not stored or does not decode."""
+    blob = reader.named(message, PSETID_APPOINTMENT, LID_APPOINTMENT_RECUR)
+    if not isinstance(blob, (bytes, bytearray)):
+        return '', '', '', ''
+    try:
+        r = parse_recurrence(bytes(blob))
+    except RecurrenceError:
+        reader.counts['recurrence values that do not follow the documented layout, left blank'] += 1
+        return '', '', '', ''
+    end_type = _END_TYPE.get(r['end_type'], 'EndType 0x%x' % r['end_type'])
+    if r['end_type'] == 0x2022:
+        end_type = 'end after %d occurrences' % r['occurrences']
+    text = describe_pattern(r) + '; ' + end_type[0].lower() + end_type[1:]
+    series_end = '' if r['end_date'] == NO_END_DATE else _local(r['end_date'], False)
+    # an exception's original date is in DeletedInstanceDates too; a date left after taking
+    # those out is an occurrence removed from the series
+    originals = {e['original'] - e['original'] % 1440 for e in r['exceptions']}
+    deleted = '\n'.join(_local(d, False) for d in r['deleted'] if d not in originals)
+    lines = []
+    for e in r['exceptions']:
+        line = _local(e['original']) + ' moved to ' + _local(e['start']) + ' to ' + _local(e['end'])
+        if e['subject'] is not None:
+            line += ' | Subject: ' + e['subject']
+        if e['location'] is not None:
+            line += ' | Location: ' + e['location']
+        lines.append(line)
+    return text, series_end, deleted, '\n'.join(lines)

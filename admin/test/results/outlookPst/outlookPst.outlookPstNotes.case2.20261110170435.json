@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "module_name": "outlookPst",
+    "artifact_name": "Outlook Notes",
+    "function_name": "outlookPstNotes",
+    "case_number": "case2",
+    "number_of_columns": 10,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/outlookPst/testdata.outlookPst.outlookPstNotes.case2.zip",
+    "start_time": "2026-11-10T17:04:35.017183+00:00",
+    "end_time": "2026-11-10T17:04:35.032253+00:00",
+    "run_time_seconds": 0.0011191368103027344,
+    "last_commit": {
+      "hash": "2346d9bf1b33dd084e8a57366322bf9a45e43cbc",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-10T09:59:39-05:00",
+      "message": "Outlook artifacts: HTML body code page, afStorage attachments"
+    }
+  },
+  "headers": [
+    "Modified",
+    "Created",
+    "Folder",
+    "Subject",
+    "Body",
+    "Color",
+    "Attachments",
+    "Message Class",
+    "Item ID",
+    "Source File"
+  ],
+  "data": []
+}

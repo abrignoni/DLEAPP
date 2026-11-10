@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "module_name": "outlookAutocomplete",
+    "artifact_name": "Outlook Autocomplete",
+    "function_name": "outlookAutocomplete",
+    "case_number": "case1",
+    "number_of_columns": 13,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 610,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/outlookAutocomplete/testdata.outlookAutocomplete.outlookAutocomplete.case1.zip",
+    "start_time": "2026-11-10T17:04:35.230424+00:00",
+    "end_time": "2026-11-10T17:04:35.271098+00:00",
+    "run_time_seconds": 0.002228975296020508,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-10T12:04:35.265087",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Item Modified",
+    "Item Created",
+    "Folder",
+    "Rank",
+    "Nickname",
+    "Display Name",
+    "Email Address",
+    "Address Type",
+    "SMTP Address",
+    "Dropdown Display",
+    "Weight",
+    "Store",
+    "Source File"
+  ],
+  "data": [
+    [
+      1794238337,
+      1794238337,
+      "/Top of Outlook data file/Inbox",
+      1,
+      "kd.contact1@example.com",
+      "Kd Contactone (kd.contact1@example.com)",
+      "kd.contact1@example.com",
+      "SMTP",
+      "kd.contact1@example.com",
+      "Kd Contactone (kd.contact1@example.com)",
+      8192,
+      "PidTagRoamingBinary of IPM.Configuration.Autocomplete",
+      "kd_outlook/pst/Outlook Data File - kd_pim.pst"
+    ],
+    [
+      1794238337,
+      1794238337,
+      "/Top of Outlook data file/Inbox",
+      2,
+      "kd.contact2@example.com",
+      "Kd Contacttwo (kd.contact2@example.com)",
+      "kd.contact2@example.com",
+      "SMTP",
+      "kd.contact2@example.com",
+      "Kd Contacttwo (kd.contact2@example.com)",
+      8192,
+      "PidTagRoamingBinary of IPM.Configuration.Autocomplete",
+      "kd_outlook/pst/Outlook Data File - kd_pim.pst"
+    ]
+  ]
+}
