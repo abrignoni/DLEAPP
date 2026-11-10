@@ -3,8 +3,8 @@
 Files are read with the vendored pstprobe (scripts/vendor/pstprobe.py). Property IDs and
 names are those of Microsoft [MS-OXPROPS] v20250520; what each property means, and the
 values an enumerated one takes, are cited beside it from the Exchange protocol
-documents ([MS-OXCMSG], [MS-OXOMSG], [MS-OXOCAL], [MS-OXOCNTC], [MS-OXOTASK],
-[MS-OXONOTE], [MS-OXOJRNL]), release v20250520.
+documents ([MS-OXCMSG], [MS-OXOMSG], [MS-OXOCNTC], [MS-OXOTASK], [MS-OXONOTE],
+[MS-OXOJRNL], release v20250520, and [MS-OXOCAL], release v20250819).
 """
 
 import hashlib
@@ -53,6 +53,10 @@ TAG_ATTACH_MIME = 0x370E             # PidTagAttachMimeTag
 # [MS-OXCMSG] 2.2.1.6 PidTagMessageFlags
 MF_READ = 0x00000001
 MF_UNSENT = 0x00000008
+
+# [MS-OXCMSG] 2.2.2.9 PidTagAttachMethod: afStorage keeps the attachment as an object in an
+# application-specific format (PidTagAttachDataObject), not as an attached item
+AF_STORAGE = 0x00000006
 
 # [MS-OXOMSG] 2.2.3.1 PidTagRecipientType: the low values; 0x10000000 and 0x80000000 are
 # resend flags that can be ORed in.
@@ -172,6 +176,26 @@ def visible_text(markup):
     return '\n'.join(line for line in lines if line)
 
 
+TAG_INTERNET_CODEPAGE = 0x3FDE      # PidTagInternetCodepage
+
+
+def decode_html(message, data, reader):
+    """PidTagBodyHtml stored as bytes, decoded with PidTagInternetCodepage, the code page of
+    the body ([MS-OXPROPS] 2.747), when it names one Python has and the bytes decode in it;
+    else as UTF-8; else in that code page (or UTF-8) with undecodable bytes replaced."""
+    data = data.split(b'\x00', 1)[0]
+    codepage = reader.get(message.pc, TAG_INTERNET_CODEPAGE)
+    codec = P.codepage_codec(codepage) if isinstance(codepage, int) and codepage > 0 else None
+    for name in (codec, 'utf-8'):
+        if name:
+            try:
+                return data.decode(name)
+            except (UnicodeDecodeError, LookupError):
+                continue
+    reader.counts['HTML bodies with bytes their code page does not decode, replaced'] += 1
+    return data.decode(codec or 'utf-8', 'replace')
+
+
 def body_text(message, reader):
     """(text, source): PidTagBody when stored; else the text the compressed RTF body
     (PidTagRtfCompressed) holds or encapsulates; else the visible text of PidTagBodyHtml."""
@@ -197,7 +221,7 @@ def body_text(message, reader):
         reader.counts['HTML bodies that could not be read'] += 1
         markup = None
     if isinstance(markup, (bytes, bytearray)):
-        markup = bytes(markup).decode('utf-8', 'replace')
+        markup = decode_html(message, bytes(markup), reader)
     if isinstance(markup, str) and markup.strip():
         return visible_text(markup), 'PidTagBodyHtml'
     return '', ''
@@ -213,7 +237,8 @@ def file_attachments(message, reader, chain=None, depth=0):
         return
     for a in attachments:
         try:
-            if a.is_embedded_message:
+            method = a.method
+            if a.is_embedded_message and method != AF_STORAGE:
                 inner = a.embedded_message()
                 if inner is not None and depth < 8:
                     name = reader.text(inner.subject) or '(attached item)'
@@ -222,6 +247,8 @@ def file_attachments(message, reader, chain=None, depth=0):
         except P.DAMAGE_ERRORS:
             reader.counts['attached items that could not be read'] += 1
             continue
+        if method == AF_STORAGE:
+            reader.counts['attachments in an application-specific format (afStorage), listed without data'] += 1
         yield chain or '', a
 
 
@@ -234,7 +261,7 @@ def attachment_names(message, reader):
         return ''
     for a in attachments:
         try:
-            if a.is_embedded_message:
+            if a.is_embedded_message and a.method != AF_STORAGE:
                 inner = a.embedded_message()
                 subject = reader.text(inner.subject) if inner is not None else ''
                 names.append('[attached item] ' + subject)

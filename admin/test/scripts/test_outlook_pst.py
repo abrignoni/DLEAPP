@@ -106,6 +106,43 @@ class Values(unittest.TestCase):
                   '<body><p>Hello &amp; welcome</p><div>second<br>third</div></body></html>')
         self.assertEqual(O.visible_text(markup), 'Hello & welcome\nsecond\nthird')
 
+    def test_html_body_uses_its_code_page(self):
+        class _PC:
+            def __init__(self, codepage):
+                self.codepage = codepage
+
+            def get(self, pid):
+                return self.codepage if pid == 0x3FDE else None
+
+        class _Message:
+            def __init__(self, codepage):
+                self.pc = _PC(codepage)
+
+        data = '<p>caf\u00e9 \u20ac5</p>'.encode('cp1252')     # not valid UTF-8
+        counts = Counter()
+        self.assertEqual(O.decode_html(_Message(1252), data, O.Reader(counts)), '<p>caf\u00e9 \u20ac5</p>')
+        utf8 = '<p>caf\u00e9</p>'.encode('utf-8')
+        self.assertEqual(O.decode_html(_Message(None), utf8, O.Reader(counts)), '<p>caf\u00e9</p>')
+        self.assertEqual(counts['HTML bodies with bytes their code page does not decode, replaced'], 0)
+
+    def test_storage_attachment_is_listed_not_opened(self):
+        class _Attachment:
+            def __init__(self, method, embedded):
+                self.method, self.is_embedded_message, self.filename = method, embedded, 'a.bin'
+
+            def embedded_message(self):
+                raise AssertionError('an afStorage attachment must not be opened as an item')
+
+        class _Message:
+            def attachments(self):
+                return [_Attachment(6, True), _Attachment(1, False)]
+
+        counts = Counter()
+        found = list(O.file_attachments(_Message(), O.Reader(counts)))
+        self.assertEqual([a.method for _within, a in found], [6, 1])
+        self.assertEqual(counts['attachments in an application-specific format (afStorage), listed without data'], 1)
+        self.assertEqual(counts['attached items that could not be read'], 0)
+
     def test_enum_names_and_unknown_values(self):
         self.assertEqual(outlookPst._enum(2, outlookPst._BUSY), 'Busy')  # pylint: disable=protected-access
         self.assertEqual(outlookPst._enum(9, outlookPst._TASK_STATUS), '9 (as stored)')  # pylint: disable=protected-access
