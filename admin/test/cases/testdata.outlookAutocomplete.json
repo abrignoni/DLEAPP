@@ -1,0 +1,32 @@
+{
+ "case1": {
+  "description": "The two PSTs of the known-data kit windows11_arm_outlook_pst_known_20261109, made with Outlook LTSC 2024 and no account on a lab VM: a Unicode PST with drafts, a moved mail, contacts, appointments, tasks, notes, journal entries and Deleted Items, and an ANSI PST with two mails and a contact. Every value was typed by the kit (kd_ names, example.com addresses). No case data.",
+  "maker": "@AlexisBrignoni",
+  "make_data": {
+   "input_data_path": "windows11_arm_outlook_pst_known_20261109.zip",
+   "os": "macOS-27.2-arm64-arm-64bit-Mach-O",
+   "timestamp": "2026-11-10T11:49:25.203166",
+   "last_commit": {
+    "hash": "Uncommitted",
+    "author_name": "N/A",
+    "author_email": "N/A",
+    "date": "2026-11-10T11:49:25.194125",
+    "message": "File not yet committed to git"
+   }
+  },
+  "artifacts": {
+   "outlookAutocomplete": {
+    "search_patterns": [
+     "*.[pP][sS][tT]",
+     "*.[oO][sS][tT]",
+     "*/RoamCache/Stream_Autocomplete*.dat"
+    ],
+    "file_count": 2,
+    "expected_output": {
+     "headers": [],
+     "data": []
+    }
+   }
+  }
+ }
+}

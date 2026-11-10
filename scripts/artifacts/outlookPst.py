@@ -67,14 +67,20 @@ __artifacts_v2__ = {
             "item is shown as [attached item] and its subject, and attachments inside an attached item "
             "are not listed there. Read and Unsent are the mfRead and mfUnsent bits of "
             "PidTagMessageFlags ([MS-OXCMSG] 2.2.1.6). Internet Message ID is PidTagInternetMessageId. "
-            "Meeting requests and responses (IPM.Schedule.Meeting) are reported here. The transport "
-            "headers (PidTagTransportMessageHeaders) are not reported."
+            "Meeting requests and responses (IPM.Schedule.Meeting) are reported here. Transport Headers "
+            "is the text of PidTagTransportMessageHeaders with trailing NULs removed, which [MS-OXOMSG] 2.2.1.61 gives as the start of "
+            "the message stream received over SMTP, up to the first blank line; the Received lines and "
+            "addresses in it are not parsed into columns. On the inputs in sample_data it was set on "
+            "202 of 1,512 rows, in 14 files, none of them unsent items, and on none of the rows of "
+            "windows11_arm_outlook_pst_known_20261109 and its stress key, which hold no sent or "
+            "received mail."
         ),
         "sample_data": {
             "windows11_arm_outlook_pst_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 9 rows",
             "windows11_arm_outlook_pst_stress_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 1210 rows",
             "pst_public_fixtures_20261109": "PST and OST test files from public library repositories | 279 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1, Outlook OST | 14 rows",
+            "windows11_arm_outlook_pst_more_known_20261110": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 0 rows",
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
@@ -124,10 +130,27 @@ __artifacts_v2__ = {
             "Work Address and Home Address are PidLidWorkAddress and PidLidHomeAddress; Birthday is the "
             "date of PidTagBirthday, which [MS-OXOCNTC] 2.2.1.5.1 stores at 11:59 UTC; Notes is the "
             "item's body, read as for Outlook Emails. Attachments holds the file attachments of the "
-            "item and of items attached to it, as media. On the corpus inputs in sample_data, 39 rows, "
+            "item and of items attached to it, as media. On the corpus inputs in sample_data, 42 rows, "
             "Email 2, Email 3, Birthday and Home Address had no value on any row, and Modified was "
-            "blank on 16. A distribution list (IPM.DistList, 3 rows) is reported by its name; its "
-            "members ([MS-OXOCNTC] 2.2.2.2) are not decoded. In one of the three outlook.com OSTs of "
+            "blank on 16. A distribution list (IPM.DistList) is reported by its name, and List Members "
+            "has one line per member: the One-Off EntryID ([MS-OXCDATA] 2.2.5.1) at the member's position "
+            "in PidLidDistributionListOneOffMembers, which [MS-OXOCNTC] 2.2.2.2.2 keeps in step with "
+            "PidLidDistributionListMembers, as display name and address, else the member's own entry "
+            "from PidLidDistributionListMembers. A member whose entry is a WrappedEntryId "
+            "(2.2.2.2.4.1.1) holding the EntryID of an item in the same file ([MS-PST] v20250218 2.4.3.2, matched "
+            "on the store's PidTagRecordKey) is followed by that item's Item ID; an entry that cannot be "
+            "decoded is shown as hexadecimal and counted in the run log. Outlook 16 in "
+            "windows11_arm_outlook_pst_more_known_20261110 wrapped plain addresses with Type 0xB5, which "
+            "[MS-OXOCNTC] gives to a GAL mail user, around a One-Off EntryID, so the embedded entry is "
+            "read by its own provider UID, not by Type. In that key, kd_dl_1 lists its contact member, "
+            "with that contact's Item ID, and the one-off address, and kd_dl_2 lists the two "
+            "addresses left after a third was removed, as its fill log records. "
+            "PidLidDistributionListStream (2.2.2.2.4), which a client uses when the member properties "
+            "would pass 15,000 bytes or when a bit of its DistListStreamFlags field calls for the stream, "
+            "is not decoded. A list "
+            "that holds it is counted in the run log, and its List Members then comes from the two "
+            "member properties, which the document says should be ignored in that case; none of the 5 "
+            "lists on these inputs held it. List Members was blank on every row that is not a list. In one of the three outlook.com OSTs of "
             "pst_public_fixtures_20261109, 11 contacts are in a Contacts subfolder named Recipient "
             "Cache and 1 in a folder named MeContact; what puts them there was not established."
         ),
@@ -136,6 +159,7 @@ __artifacts_v2__ = {
             "windows11_arm_outlook_pst_stress_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 3 rows",
             "pst_public_fixtures_20261109": "PST and OST test files from public library repositories | 32 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1, Outlook OST | 0 rows",
+            "windows11_arm_outlook_pst_more_known_20261110": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 3 rows",
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
@@ -183,17 +207,34 @@ __artifacts_v2__ = {
             "description of the recurrence (2.2.1.46); Busy Status is PidLidBusyStatus by its "
             "documented name (2.2.1.2); Required Attendees and Optional Attendees are "
             "PidLidToAttendeesString and PidLidCcAttendeesString; Body is the item's body, read as for "
-            "Outlook Emails. The recurrence itself (PidLidAppointmentRecur) and exceptions to a series "
-            "are not decoded. [MS-OXOCAL] 3.1.5.5.1 says the times of an all-day appointment that is "
+            "Outlook Emails. Recurrence, Series End, Deleted Occurrences and Modified Occurrences are "
+            "decoded from PidLidAppointmentRecur, the AppointmentRecurrencePattern of [MS-OXOCAL] "
+            "2.2.1.44.5; a value whose fields do not end exactly at the end of the blob is left blank "
+            "and counted in the run log, and none was on these inputs. Recurrence names the stored "
+            "RecurFrequency, PatternType, its days or day of month, Period, and the end type; Series End "
+            "is EndDate, blank when the series has no end (0x5AE980DF). Deleted Occurrences lists the "
+            "dates of DeletedInstanceDates other than the original dates of the series' exceptions, "
+            "which the document says are removed from the pattern; an occurrence moved to another day "
+            "was not on these inputs. Modified Occurrences has one line per ExceptionInfo: "
+            "its original start, its new start and end, and the subject and location when the "
+            "exception changes them, the Unicode text of the ExtendedException where it is stored. "
+            "These dates and times are as the blob stores them, in the local time of the series' time "
+            "zone (2.2.1.44.1, 2.2.1.44.2), not UTC like Start and End. In "
+            "windows11_arm_outlook_pst_more_known_20261110, five series made at UTC-5 (daily, every two "
+            "weeks on Tuesday and Thursday, day 15 monthly, second Wednesday, yearly) decode to the "
+            "patterns, ends, the deleted 2026-12-03 and 2027-02-15 occurrences and the occurrence moved "
+            "from 09:00 to 14:00 with a new subject and location that its fill log records. On the "
+            "inputs in sample_data, 48 rows have the blob; Recurrence Pattern was blank on 36 of them. "
+            "[MS-OXOCAL] 3.1.5.5.1 says the times of an all-day appointment that is "
             "not a meeting are converted to the time zone stored with it, not read as plain UTC: Start "
             "of the all-day appointment in windows11_arm_outlook_pst_known_20261109, made on a client "
             "at UTC-5 for 25 November 2026, is 2026-11-25 05:00, the local midnight, and the three "
             "Start values there are the times its fill log records, converted to UTC. Attachments holds "
             "the file attachments of the item and of items attached to it, as media. On the corpus "
-            "inputs in sample_data, 518 rows, Optional Attendees had no value on any row; 488 rows are "
+            "inputs in sample_data, 523 rows, Optional Attendees had no value on any row; 488 rows are "
             "in folders named United States holidays in the three outlook.com OSTs of "
-            "pst_public_fixtures_20261109; Modified was blank on 499; Recurring was Yes on 43 and "
-            "Recurrence Pattern set on 7. Message Class held IPM.Appointment on all 518 rows; it is "
+            "pst_public_fixtures_20261109; Modified was blank on 499; Recurring was Yes on 48 and "
+            "Recurrence Pattern set on 12. Message Class held IPM.Appointment on all 523 rows; it is "
             "kept because a class that continues IPM.Appointment is reported here too."
         ),
         "sample_data": {
@@ -201,6 +242,7 @@ __artifacts_v2__ = {
             "windows11_arm_outlook_pst_stress_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 3 rows",
             "pst_public_fixtures_20261109": "PST and OST test files from public library repositories | 512 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1, Outlook OST | 0 rows",
+            "windows11_arm_outlook_pst_more_known_20261110": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 5 rows",
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
@@ -263,6 +305,7 @@ __artifacts_v2__ = {
             "windows11_arm_outlook_pst_stress_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 2 rows",
             "pst_public_fixtures_20261109": "PST and OST test files from public library repositories | 2 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1, Outlook OST | 0 rows",
+            "windows11_arm_outlook_pst_more_known_20261110": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 0 rows",
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
@@ -316,6 +359,7 @@ __artifacts_v2__ = {
             "windows11_arm_outlook_pst_stress_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 2 rows",
             "pst_public_fixtures_20261109": "PST and OST test files from public library repositories | 1 row",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1, Outlook OST | 0 rows",
+            "windows11_arm_outlook_pst_more_known_20261110": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 0 rows",
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
@@ -371,6 +415,7 @@ __artifacts_v2__ = {
             "windows11_arm_outlook_pst_stress_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 2 rows",
             "pst_public_fixtures_20261109": "PST and OST test files from public library repositories | 1 row",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1, Outlook OST | 0 rows",
+            "windows11_arm_outlook_pst_more_known_20261110": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 0 rows",
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
@@ -433,6 +478,7 @@ __artifacts_v2__ = {
             "windows11_arm_outlook_pst_stress_known_20261109": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 352 rows",
             "pst_public_fixtures_20261109": "PST and OST test files from public library repositories | 294 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1, Outlook OST | 0 rows",
+            "windows11_arm_outlook_pst_more_known_20261110": "Windows 11 build 26200 (ARM64), Outlook LTSC 2024 16.0.17932.21056 | 0 rows",
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
@@ -468,7 +514,7 @@ def outlookPstEmails(context):
     data_headers = (('Delivery Time', 'datetime'), ('Submit Time', 'datetime'), ('Modified', 'datetime'),
                     'Folder', 'From', 'From Address', 'Sent On Behalf Of', 'To', 'Cc', 'Bcc', 'Subject',
                     'Body', 'Body Source', ('Attachments', 'media'), 'Attachment Names', 'Read', 'Unsent',
-                    'Internet Message ID', 'Message Class', 'Item ID', 'Source File')
+                    'Internet Message ID', 'Transport Headers', 'Message Class', 'Item ID', 'Source File')
 
     def row(m, folder, message_class, source, relative, r):
         pc = m.pc
@@ -487,7 +533,8 @@ def outlookPstEmails(context):
                 O.attachment_names(m, r),
                 '' if flags is None else r.flag(flags & O.MF_READ),
                 '' if flags is None else r.flag(flags & O.MF_UNSENT),
-                r.text(r.get(pc, O.TAG_INTERNET_MESSAGE_ID))) + _tail(m, message_class, relative)
+                r.text(r.get(pc, O.TAG_INTERNET_MESSAGE_ID)),
+                r.text(r.get(pc, O.TAG_TRANSPORT_HEADERS))) + _tail(m, message_class, relative)
 
     rows, read = O.read_items(context, ('email',), 'Outlook Emails', row)
     return data_headers, rows, read
@@ -498,7 +545,7 @@ def outlookPstContacts(context):
     data_headers = (('Modified', 'datetime'), ('Created', 'datetime'), 'Folder', 'Display Name',
                     'Given Name', 'Surname', 'File As', 'Email 1', 'Email 2', 'Email 3', 'Business Phone',
                     'Home Phone', 'Mobile Phone', 'Company', 'Job Title', ('Birthday', 'date'),
-                    'Work Address', 'Home Address', 'Notes', ('Attachments', 'media'),
+                    'Work Address', 'Home Address', 'List Members', 'Notes', ('Attachments', 'media'),
                     'Message Class', 'Item ID', 'Source File')
 
     def row(m, folder, message_class, source, relative, r):
@@ -513,6 +560,7 @@ def outlookPstContacts(context):
                 r.text(r.get(pc, O.TAG_COMPANY)), r.text(r.get(pc, O.TAG_TITLE)),
                 birthday.date().isoformat() if birthday else '',
                 r.text(r.named(m, O.PSETID_ADDRESS, 0x801B)), r.text(r.named(m, O.PSETID_ADDRESS, 0x801A)),
+                O.dl_members(m, m.pst, O.store_record_key(m.pst, r), r) if O.kind_is_list(message_class) else '',
                 O.body_text(m, r)[0], O.attachment_media(source, m, r)) + _tail(m, message_class, relative)
 
     rows, read = O.read_items(context, ('contact',), 'Outlook Contacts', row)
@@ -521,18 +569,21 @@ def outlookPstContacts(context):
 
 @artifact_processor
 def outlookPstAppointments(context):
-    data_headers = (('Start', 'datetime'), ('End', 'datetime'), ('Modified', 'datetime'), 'Folder',
-                    'Subject', 'Location', 'All Day', 'Recurring', 'Recurrence Pattern', 'Busy Status',
+    data_headers = (('Start', 'datetime'), ('End', 'datetime'), ('Modified', 'datetime'), ('Series End', 'date'),
+                    'Folder', 'Subject', 'Location', 'All Day', 'Recurring', 'Recurrence Pattern', 'Recurrence',
+                    'Deleted Occurrences', 'Modified Occurrences', 'Busy Status',
                     'Required Attendees', 'Optional Attendees', 'Body', ('Attachments', 'media'),
                     'Message Class', 'Item ID', 'Source File')
 
     def row(m, folder, message_class, source, relative, r):
         a = O.PSETID_APPOINTMENT
         busy = r.named(m, a, 0x8205)
+        recurrence, series_end, deleted, modified = O.recurrence_columns(m, r)
         return (r.time(r.named(m, a, 0x820D)), r.time(r.named(m, a, 0x820E)),
-                r.time(r.get(m.pc, O.TAG_MODIFIED_TIME)), folder, r.text(m.subject),
+                r.time(r.get(m.pc, O.TAG_MODIFIED_TIME)), series_end, folder, r.text(m.subject),
                 r.text(r.named(m, a, 0x8208)), r.flag(r.named(m, a, 0x8215)), r.flag(r.named(m, a, 0x8223)),
-                r.text(r.named(m, a, 0x8232)), _enum(busy if isinstance(busy, int) else None, _BUSY),
+                r.text(r.named(m, a, 0x8232)), recurrence, deleted, modified,
+                _enum(busy if isinstance(busy, int) else None, _BUSY),
                 r.text(r.named(m, a, 0x823B)), r.text(r.named(m, a, 0x823C)), O.body_text(m, r)[0],
                 O.attachment_media(source, m, r)) + _tail(m, message_class, relative)
 

@@ -4,21 +4,21 @@
     "artifact_name": "Outlook Emails",
     "function_name": "outlookPstEmails",
     "case_number": "case1",
-    "number_of_columns": 21,
+    "number_of_columns": 22,
     "number_of_rows": 9,
     "total_data_size_bytes": 1935,
     "media_checkins": 0,
     "media_embedded_checkins": 2,
     "input_zip_path": "admin/test/cases/data/outlookPst/testdata.outlookPst.outlookPstEmails.case1.zip",
-    "start_time": "2026-11-10T14:46:44.451101+00:00",
-    "end_time": "2026-11-10T14:46:44.497250+00:00",
-    "run_time_seconds": 0.006043910980224609,
+    "start_time": "2026-11-10T17:04:34.878940+00:00",
+    "end_time": "2026-11-10T17:04:34.897277+00:00",
+    "run_time_seconds": 0.0030989646911621094,
     "last_commit": {
-      "hash": "Uncommitted",
+      "hash": "2346d9bf1b33dd084e8a57366322bf9a45e43cbc",
       "author_name": "N/A",
       "author_email": "N/A",
-      "date": "2026-11-10T09:46:44.481448",
-      "message": "File not yet committed to git"
+      "date": "2026-11-10T09:59:39-05:00",
+      "message": "Outlook artifacts: HTML body code page, afStorage attachments"
     }
   },
   "headers": [
@@ -40,6 +40,7 @@
     "Read",
     "Unsent",
     "Internet Message ID",
+    "Transport Headers",
     "Message Class",
     "Item ID",
     "Source File"
@@ -64,6 +65,7 @@
       "No",
       "Yes",
       "",
+      "",
       "IPM.Note",
       "0x2003a4",
       "kd_outlook/pst/Outlook Data File - kd_pim.pst"
@@ -87,6 +89,7 @@
       "No",
       "Yes",
       "",
+      "",
       "IPM.Note",
       "0x200184",
       "kd_outlook/pst/Outlook Data File - kd_pim.pst"
@@ -109,6 +112,7 @@
       "",
       "Yes",
       "Yes",
+      "",
       "",
       "IPM.Note",
       "0x200044",
@@ -135,6 +139,7 @@
       "No",
       "Yes",
       "",
+      "",
       "IPM.Note",
       "0x200084",
       "kd_outlook/pst/Outlook Data File - kd_pim.pst"
@@ -157,6 +162,7 @@
       "",
       "No",
       "Yes",
+      "",
       "",
       "IPM.Note",
       "0x2000c4",
@@ -181,6 +187,7 @@
       "No",
       "Yes",
       "",
+      "",
       "IPM.Note",
       "0x200124",
       "kd_outlook/pst/Outlook Data File - kd_pim.pst"
@@ -203,6 +210,7 @@
       "",
       "No",
       "Yes",
+      "",
       "",
       "IPM.Note",
       "0x2001e4",
@@ -229,6 +237,7 @@
       "No",
       "Yes",
       "",
+      "",
       "IPM.Note",
       "0x200024",
       "kd_outlook/pst/kd_ansi.pst"
@@ -251,6 +260,7 @@
       "",
       "No",
       "Yes",
+      "",
       "",
       "IPM.Note",
       "0x200044",

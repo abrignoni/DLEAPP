@@ -4,21 +4,21 @@
     "artifact_name": "Outlook Contacts",
     "function_name": "outlookPstContacts",
     "case_number": "case1",
-    "number_of_columns": 23,
+    "number_of_columns": 24,
     "number_of_rows": 4,
     "total_data_size_bytes": 757,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/outlookPst/testdata.outlookPst.outlookPstContacts.case1.zip",
-    "start_time": "2026-11-10T14:46:44.671535+00:00",
-    "end_time": "2026-11-10T14:46:44.713050+00:00",
-    "run_time_seconds": 0.004290103912353516,
+    "start_time": "2026-11-10T17:04:34.859541+00:00",
+    "end_time": "2026-11-10T17:04:34.878547+00:00",
+    "run_time_seconds": 0.003782033920288086,
     "last_commit": {
-      "hash": "Uncommitted",
+      "hash": "2346d9bf1b33dd084e8a57366322bf9a45e43cbc",
       "author_name": "N/A",
       "author_email": "N/A",
-      "date": "2026-11-10T09:46:44.697974",
-      "message": "File not yet committed to git"
+      "date": "2026-11-10T09:59:39-05:00",
+      "message": "Outlook artifacts: HTML body code page, afStorage attachments"
     }
   },
   "headers": [
@@ -40,6 +40,7 @@
     "Birthday",
     "Work Address",
     "Home Address",
+    "List Members",
     "Notes",
     "Attachments",
     "Message Class",
@@ -56,6 +57,7 @@
       "Contactdeleted",
       "Contactdeleted, Kd",
       "kd.contact3@example.com",
+      "",
       "",
       "",
       "",
@@ -93,6 +95,7 @@
       "",
       "",
       "",
+      "",
       "IPM.Contact",
       "0x200204",
       "kd_outlook/pst/Outlook Data File - kd_pim.pst"
@@ -118,6 +121,7 @@
       "",
       "",
       "",
+      "",
       "IPM.Contact",
       "0x200224",
       "kd_outlook/pst/Outlook Data File - kd_pim.pst"
@@ -131,6 +135,7 @@
       "Ansicontact",
       "Ansicontact, Kd",
       "kd.ansi@example.com",
+      "",
       "",
       "",
       "",
