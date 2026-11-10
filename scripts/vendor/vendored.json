@@ -307,6 +307,19 @@
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-regfprobe",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/pstprobe.py",
+      "name": "pstprobe",
+      "version": "0.1.0",
+      "upstream": "https://github.com/abrignoni/pstprobe",
+      "upstream_file": "pstprobe.py",
+      "commit": "eafc78e1ec10a54c9472032a63acd8241eea42d1",
+      "commit_date": "2026-11-10T00:02:27-05:00",
+      "sha256": "1484ae4c244e17e4c70416c16227d31371d27a37a9a08226d11026538f089dbc",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-pstprobe",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
     }
   ]
 }
