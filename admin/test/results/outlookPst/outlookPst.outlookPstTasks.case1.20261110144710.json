@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "module_name": "outlookPst",
+    "artifact_name": "Outlook Tasks",
+    "function_name": "outlookPstTasks",
+    "case_number": "case1",
+    "number_of_columns": 15,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 318,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/outlookPst/testdata.outlookPst.outlookPstTasks.case1.zip",
+    "start_time": "2026-11-10T14:47:10.766262+00:00",
+    "end_time": "2026-11-10T14:47:10.813322+00:00",
+    "run_time_seconds": 0.00423884391784668,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-10T09:47:10.805180",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Due Date",
+    "Start Date",
+    "Date Completed",
+    "Modified",
+    "Folder",
+    "Subject",
+    "Status",
+    "Percent Complete",
+    "Complete",
+    "Owner",
+    "Body",
+    "Attachments",
+    "Message Class",
+    "Item ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2026-11-30",
+      "",
+      "",
+      1794238285,
+      "/Top of Outlook data file/Tasks",
+      "kd_task_1 open",
+      "Not Started",
+      "0%",
+      "No",
+      "Unknown",
+      "kd_task_1 body.\r\n",
+      "",
+      "IPM.Task",
+      "0x2002c4",
+      "kd_outlook/pst/Outlook Data File - kd_pim.pst"
+    ],
+    [
+      "",
+      "",
+      1794200400,
+      1794238286,
+      "/Top of Outlook data file/Tasks",
+      "kd_task_2 completed",
+      "Complete",
+      "100%",
+      "Yes",
+      "Unknown",
+      "",
+      "",
+      "IPM.Task",
+      "0x2002e4",
+      "kd_outlook/pst/Outlook Data File - kd_pim.pst"
+    ]
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "module_name": "outlookPst",
+    "artifact_name": "Outlook Journals",
+    "function_name": "outlookPstJournals",
+    "case_number": "case1",
+    "number_of_columns": 13,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 357,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/outlookPst/testdata.outlookPst.outlookPstJournals.case1.zip",
+    "start_time": "2026-11-10T14:46:45.295690+00:00",
+    "end_time": "2026-11-10T14:46:45.329939+00:00",
+    "run_time_seconds": 0.0037000179290771484,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-11-10T09:46:45.322350",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Start",
+    "End",
+    "Modified",
+    "Folder",
+    "Type",
+    "Type Description",
+    "Duration (minutes)",
+    "Subject",
+    "Body",
+    "Attachments",
+    "Message Class",
+    "Item ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      1794229200,
+      1794230100,
+      1794238291,
+      "/Top of Outlook data file/Journal",
+      "Phone call",
+      "Phone call",
+      15,
+      "kd_journal_1 phone call",
+      "kd_journal_1 body.\r\n",
+      "",
+      "IPM.Activity",
+      "0x200344",
+      "kd_outlook/pst/Outlook Data File - kd_pim.pst"
+    ],
+    [
+      1794232800,
+      1794236400,
+      1794238292,
+      "/Top of Outlook data file/Journal",
+      "Meeting",
+      "Meeting",
+      60,
+      "kd_journal_2 meeting",
+      "",
+      "",
+      "IPM.Activity",
+      "0x200364",
+      "kd_outlook/pst/Outlook Data File - kd_pim.pst"
+    ]
+  ]
+}
