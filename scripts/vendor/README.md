@@ -2,7 +2,7 @@
 
 Code brought in from other repositories so the tool can read disk images,
 acquisitions and databases without asking the examiner to install anything.
-qnxprobe.py, ewfprobe.py, cimreader.py, regfprobe.py and the ccl_segb package are copied verbatim;
+qnxprobe.py, ewfprobe.py, cimreader.py, regfprobe.py, pstprobe.py and the ccl_segb package are copied verbatim;
 impacket_ese.py is adapted, as its own section below explains. The CCL LevelDB,
 IndexedDB and V8 readers in ccl/ are covered in the last section.
 
@@ -70,6 +70,20 @@ which now imports it from here. The registry artifacts read hives with it, throu
 python-registry shaped `Registry` in `scripts/windows_registry.py`, and the vendored dpapiprobe
 reads the SYSTEM and SECURITY hives with it. Standard library
 only, so this adds no dependency. The upstream window, `regfprobe_gui.py`, is not copied.
+
+## pstprobe.py
+
+| | |
+| --- | --- |
+| upstream | https://github.com/abrignoni/pstprobe |
+| licence | MIT, kept beside it as LICENSE-pstprobe |
+
+Reads Outlook PST and OST files (ANSI, Unicode and the 4 KB-page OST) read-only: folders,
+items with their properties, recipients and attachments, and compressed RTF bodies. It is
+written from Microsoft's [MS-PST] specification; for the 4 KB-page OST, which [MS-PST] does
+not describe, it follows Joachim Metz's PFF format notes. Standard library only, so this adds no
+dependency. The upstream property-name table (`pstprobe_names.py`) and window
+(`pstprobe_gui.py`) are not copied; the reader works without the name table.
 
 ## impacket_ese.py
 
