@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "Library/Safari/Favicon Cache/favicons.db.",
         "author": "@abrignoni, @AlexisBrignoni, Claude",
         "creation_date": "2026-10-30",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Safari (macOS)",
         "notes": "Ported from iLEAPP's Safari Browser - Favicons artifact (@abrignoni), which reads the "
@@ -24,14 +24,45 @@ __artifacts_v2__ = {
                  "timestamp is not established. When a logical extraction holds the same file under "
                  "Users/ and under System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a "
                  "byte-identical copy is not read again and the run log counts it. The rejected_resources "
-                 "table (page and icon URL pairs with a timestamp, 5 rows on each tested image) and the "
-                 "icon images are not read.",
+                 "table is reported by the Safari Rejected Favicons artifact. The icon images are not read.",
         "paths": ('*/Library/Safari/Favicon Cache/favicons.db*',),
         "output_types": "standard",
         "artifact_icon": "photo",
         "sample_data": {
             "magnet2021_macos_bigsur": "macOS 11.2.1 | 34 rows",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 29 rows",
+        },
+    },
+    "macosSafariRejectedFavicons": {
+        "name": "Safari Rejected Favicons",
+        "description": "Page and icon URL pairs in the rejected_resources table of Safari's favicon cache on macOS.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "none",
+        "category": "Safari (macOS)",
+        "notes": (
+            "Reads the rejected_resources table of favicons.db: page_url and icon_url as stored. Timestamp is the "
+            "table's timestamp column read as seconds since 2001-01-01 UTC, or as Unix seconds when the value is "
+            "above 978307200, as in the Safari - Favicons (macOS) artifact; every tested value was below that. "
+            "The 2001 reading comes from the values: read that way they fall between 2021-02 and 2026-02 on the "
+            "tested images. What makes Safari record a pair here, and what sets the timestamp, is not "
+            "established. A row shows that Safari's favicon cache recorded the page URL. User is the folder after "
+            "Users in the path, root under private/var/root, otherwise blank. User held one value on every row of "
+            "each tested image, which each hold one user's Safari data. When a logical extraction holds the same "
+            "file under Users/ and under System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a "
+            "byte-identical copy is not read again and the run log counts it, and a row that copies with "
+            "different bytes both hold is reported once with every file that held it in Source File. "
+        ),
+        "paths": ('*/Library/Safari/Favicon Cache/favicons.db*',),
+        "output_types": "standard",
+        "artifact_icon": "image",
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 5 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (rejected_resources holds no row)",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no member matches the declared paths)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 5 rows",
+            "adams_macbookpro_macos26": "macOS 26.2 | 13 rows",
         },
     }
 }
@@ -86,4 +117,22 @@ def macosSafariFavicons(context):
         for row in get_sqlite_db_records(path, _QUERY):
             rows.append((_time(row['timestamp']), _text(row['page']), _text(row['icon']), _text(row['width']),
                          _text(row['height']), _text(row['has_generated_representations']), user, relative))
+    return data_headers, fold_view_rows(rows), '\n'.join(read)
+
+
+@artifact_processor
+def macosSafariRejectedFavicons(context):
+    data_headers = (('Timestamp', 'datetime'), 'Page URL', 'Icon URL', 'User', 'Source File')
+    found = [str(p) for p in context.get_files_found() if os.path.basename(str(p)) == 'favicons.db']
+    paths, _skipped = unique_sources(context, found, sidecars=('-wal',), label='Safari Rejected Favicons')
+    rows, read = [], []
+    for path in paths:
+        if not does_table_exist_in_db(path, 'rejected_resources'):
+            continue
+        relative = context.get_relative_path(path)
+        read.append(path)
+        user = user_from_path(relative)
+        query = 'SELECT timestamp, page_url, icon_url FROM rejected_resources ORDER BY timestamp, page_url'
+        for row in get_sqlite_db_records(path, query):
+            rows.append((_time(row['timestamp']), _text(row['page_url']), _text(row['icon_url']), user, relative))
     return data_headers, fold_view_rows(rows), '\n'.join(read)
