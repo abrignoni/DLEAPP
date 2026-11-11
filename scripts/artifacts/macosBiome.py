@@ -615,6 +615,79 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "bolt",
     },
+    "macosBiomeSafariPageViews": {
+        "name": "Biome Safari Page Views",
+        "description": "Records from the ProactiveHarvesting.Safari.PageView Biome stream: page and record times, "
+                       "URL, title and the page text the record holds.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": (
+            "Each file under the stream's local folder and under its remote folder is read as a SEGB file with "
+            'the vendored ccl_segb package, except a file whose name begins with a dot and a file named lock, one'
+            ' row per record the file marks as written whose data ccl_segb can still read, and each such record '
+            'is read as one protobuf message whose fields are taken by number without a schema; a record that '
+            'does not read as one is counted in the run log and not reported. Records the file does not mark as '
+            'written are not reported; those ccl_segb returns are counted in the run log, and it returns none of '
+            'the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Page Time '
+            '(UTC) is the first column and the time the timeline uses. Record Time (UTC) is the time the SEGB '
+            'file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 '
+            'on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, '
+            'ccl_segb/ccl_segb2.py, '
+            'https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142,'
+            ' and ccl_segb/ccl_segb_common.py, '
+            'https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21);'
+            ' the stream file on each of the two tested images that hold one is SEGB version 2. User is the '
+            'folder after Users in the source path, or root under private/var/root, and is blank when the input '
+            "is one user's home folder whose path names no user. Sync Origin is Local for the local folder, or "
+            'Remote with the name of the folder under remote the record came from. Sync Origin does not separate '
+            'two files of one folder, and every file in a folder is read, so Source File names the file each row '
+            'came from and the file its Record Offset counts from. Record Offset is the offset ccl_segb gives for'
+            " the record. In a version 2 file that is the record's 8-byte header, which starts with its stored "
+            "CRC, and the record's data begins 8 bytes later. In a version 1 file it is where the record's data "
+            'begins, and ccl_segb reads two times per record, of which Record Time is the first. No version 1 '
+            'file, remote folder, tombstone folder or two-view repeat of a written record of this stream was in '
+            'the tested data. When a logical extraction holds the stream under Users/ and under '
+            'System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, '
+            'and the run log counts the repeats. Reads the ProactiveHarvesting.Safari.PageView Biome stream. '
+            'Unique ID, Domain ID, Page Time (UTC), Title, Content, Content Is Reader Text (as stored), URL, '
+            'Content Protection and Persona ID are fields 1 to 9, which the BMProactiveHarvestingPageView class '
+            'of BiomeLibrary on macOS 27.2 (build 26B123) names uniqueID, domainID, absoluteTimestamp, title, '
+            'content, contentIsReaderText, url, contentProtection and personaId when asked for its protoFields. '
+            'BiomeLibrary on that macOS gives that class as the event class of this stream. Those names come from'
+            ' a newer macOS than the tested image, which is macOS 26.2; each of the 7 reported records held '
+            'exactly fields 1 to 9, once each, with wire types that fit them. Page Time is field 3 read as a '
+            'double of seconds since 00:00:00 on 1 January 2001 UTC: the class exposes absoluteTimestamp as a '
+            'date, the epoch is taken from that name and from the values, which fall 68 to 93 seconds before '
+            "their record's Record Time on the tested image, and each of the 7 values on that image is within a "
+            "tenth of a second of a visit to the same URL in the same user's Safari History.db, as the Safari "
+            'History artifact reports it. Content is the text the record holds for the page, up to 6,052 bytes on'
+            ' the tested records, and is shown whole. What Unique ID, Domain ID, Content Is Reader Text, Content '
+            'Protection and Persona ID mean beyond their names is not sourced here. What decides whether a page '
+            'gets a record is not established, and earlier records in the file were no longer marked as written, '
+            'so the absence of a record does not show a page was not visited. On the tested image History.db gave'
+            ' 380 visit rows in all, 40 of them from the first Page Time to the last. Domain ID and Content '
+            'Protection each held one value on all 7 rows of the macOS 26.2 image, and User and Sync Origin each '
+            "held one value on all 7 rows. That image's stream file also held 39 records not marked as written, "
+            'all with zeroed data. On the macOS 15.4 image the stream file held 17 records, none marked as '
+            'written and all with zeroed data, so it gives no rows. On the other three tested images no file '
+            'matches the declared paths.'
+        ),
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no member matches the declared paths)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (the one stream file holds 17 records, none marked "
+                                          "as written)",
+            "adams_macbookpro_macos26": "macOS 26.2 | 7 rows",
+        },
+        "paths": ("*/Biome/streams/*/ProactiveHarvesting.Safari.PageView/local/*",
+                  "*/Biome/streams/*/ProactiveHarvesting.Safari.PageView/remote/*"),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "globe",
+    },
 }
 
 import plistlib
@@ -622,7 +695,7 @@ from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, webkit_timestampsconv
 from scripts.macos_biome import double, fields, first, stream_records, text
-from scripts.macos_plists import resolve_keyed_archive
+from scripts.macos_plists import mac_absolute_utc, resolve_keyed_archive
 
 def _as_stored(value):
     return '' if value is None else str(value)
@@ -946,4 +1019,18 @@ def macosBiomeAppIntentsTranscript(context):
                     'Intent Class', 'Parameters', 'Entity Types', 'Entity Titles', 'App URL',
                     'Phrase Template', 'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome App Intents Transcript', _intent_row)
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeSafariPageViews(context):
+    data_headers = (('Page Time (UTC)', 'datetime'), ('Record Time (UTC)', 'datetime'), 'URL', 'Title', 'Content',
+                    'Content Is Reader Text (as stored)', 'Unique ID', 'Domain ID', 'Content Protection',
+                    'Persona ID', 'User', 'Sync Origin', 'Source File', 'Record Offset')
+    rows, source = _read(context, 'Biome Safari Page Views', lambda f: (
+        mac_absolute_utc(double(first(f, 3))), text(first(f, 7)), text(first(f, 4)), text(first(f, 5)),
+        _as_stored(first(f, 6)), text(first(f, 1)), text(first(f, 2)), text(first(f, 8)), text(first(f, 9))))
+    # _read leads each row with the record time and sorts on it; the page time leads here.
+    rows = [(row[1], row[0]) + row[2:] for row in rows]
+    rows.sort(key=lambda row: (str(row[0]), row[1], str(row[-2]), row[-1]))
     return data_headers, rows, source
