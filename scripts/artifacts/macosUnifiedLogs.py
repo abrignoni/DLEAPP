@@ -458,6 +458,74 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "box",
     },
+    "macosUnifiedLogAirDrop": {
+        "name": "Unified Logs - AirDrop",
+        "description": "Unified log entries from sharingd whose message matches AirDrop text: discoverable mode "
+                       "changes, scanning mode, transfer entries, discovered endpoints, service start and "
+                       "stop-attempt messages, validation record hashes, metric events and 'SharingDaemon "
+                       "State' entries.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
+        "category": "Unified Logs (macOS)",
+        "notes": (
+            'Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA database in '
+            "the same run, so it reports nothing when that artifact did not run; Row Number is the entry's row "
+            'number in that table and rows are in that order. Selects entries whose process image path ends in '
+            "/sharingd and whose message contains 'AirDrop ID', 'SharingDaemon State', 'startSending', 'New "
+            "incoming transfer', 'SDAirDropSendService' or 'discovered endpoint:', or begins with 'Scanning "
+            "mode', 'Discoverable mode changed from', 'Hashes in validation record:', "
+            "'SDAirDropReceiveService', 'Starting AirDrop', 'Attempting Stop AirDrop' or 'MetricEvent "
+            "'com.apple.sharing.AirDrop.', or whose subsystem is com.apple.sharing with category AirDrop or "
+            "AirDropUI and a message containing 'transfer'. Matching ignores letter case. 'AirDrop ID', "
+            "'SharingDaemon State', 'startSending', 'New incoming transfer', 'Scanning mode', 'Discoverable "
+            "mode changed from' and 'Hashes in validation record:' are message texts iLEAPP's logarchive "
+            'AirDrop artifact selects '
+            '(https://github.com/abrignoni/iLEAPP/blob/ff134661f602c2009a87f709b85970e608dcac73/scripts/artifacts/logarchive.py#L4064-L4075).'
+            ' Its notes cite Sarah Edwards '
+            '(https://www.mac4n6.com/blog/2020/6/5/analysis-of-apple-unified-logs-quarantine-edition-entry-11-airdropping-some-knowledge)'
+            " for the artifact and Hexordia research for 'Discoverable mode changed from' and 'Hashes in "
+            "validation record:'. iLEAPP matches them in any process and 'Scanning mode' anywhere in the "
+            "message; this artifact matches them in sharingd only and 'Scanning mode' at the start. The other "
+            'terms were added from the messages sharingd wrote on the tested macOS images, and no source is '
+            'cited for what they mean. Event Message is the text the Unified Logs import stored and no value is'
+            ' taken out of it: a row shows that sharingd logged that text at that time, not that a file was '
+            'sent or received. Other AirDrop messages from sharingd and from other processes are not selected '
+            'and remain in the Unified Logs table. Tested on dleapp_macos_bigsur (macOS 11.2.1, 7 rows), '
+            'evidencelocker_macos14 (macOS 14.6.1, 240 rows), mvs2026_macbookpro_macos15 (macOS 15.4, 3 rows) '
+            'and adams_macbookpro_macos26 (macOS 26.2, 766 rows); magnet2021_macos_bigsur gave no imported log '
+            'entries. 810 of the 1,016 rows contain <private>: none of 7 on macOS 11.2.1, 153 of 240 on 14.6.1,'
+            " 2 of 3 on 15.4 and 655 of 766 on 26.2. The macOS 11.2.1 rows are 6 'Discoverable mode changed "
+            "from' entries, each from (null) to a named mode, and one 'SharingDaemon State' entry. "
+            "'SDAirDropReceiveService' gave 38 rows on the macOS 14.6.1 image and 517 on the macOS 26.2 image, "
+            "and 'SDAirDropSendService' 50 and 7: on 14.6.1 they are 21 and 35 'transfers UPDATE' entries, 2 "
+            "and 1 'transfers ADD', 2 and 1 'transfers REMOVE' and 13 'start' entries each, and on 26.2 they "
+            "are 515 and 5 'transfers UPDATE' entries with one ADD and one REMOVE each. Every UPDATE entry "
+            'logged its id and state as <private>, and the ADD and REMOVE entries their id. On the macOS 26.2 '
+            'image one entry gave the AirDrop ID in the clear, 21 entries in category AirDrop or AirDropUI '
+            "contained 'transfer', among them a 'New incoming transfer' entry that gave a transfer identifier, "
+            'a sender label and an item type in the clear and entries naming a transfer identifier with a '
+            "received event or a user response, and 3 of the 15 'Hashes in validation record:' entries held an "
+            'Email value with an ellipsis in the middle and <nil> for Phone where the other 12 held <private> '
+            'for both; what that value is was not established here. The MetricEvent entries gave 8 rows on '
+            "macOS 14.6.1 and 12 on macOS 26.2. 'startSending' matched no entry on any tested image. The "
+            "'SharingDaemon State' entries (1, 19, 0 and 47 rows) have no Subsystem or Category. Process Image "
+            'Path held one value (/usr/libexec/sharingd) on every row of each tested image, and Process ID, '
+            "Subsystem and Category each held one value on the 3 rows of the macOS 15.4 image. A 'log show' "
+            'JSON export was not tested.'
+        ),
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (no unified log entries were imported)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 | 7 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 240 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 3 rows",
+            "adams_macbookpro_macos26": "macOS 26.2 | 766 rows",
+        },
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "share-2",
+    },
     "macosUnifiedLogScreenCapture": {
         "name": "Unified Logs - Screen Capture Launches",
         "description": "Unified log entries from screencapture recording that it was started and the "
@@ -1245,3 +1313,25 @@ def macosUnifiedLogTCCRequests(context):
                     'Auth Value (as stored)', 'Auth Reason (as stored)', 'Function', 'tccd PID',
                     'Message ID', 'Row Number')
     return data_headers, data_list, source_path
+
+
+@artifact_processor
+def macosUnifiedLogAirDrop(context):
+    return _selected_entries(context, """
+        process_image_path LIKE '%/sharingd'
+        AND (event_message LIKE '%AirDrop ID%'
+             OR event_message LIKE '%SharingDaemon State%'
+             OR event_message LIKE '%startSending%'
+             OR event_message LIKE '%New incoming transfer%'
+             OR event_message LIKE '%SDAirDropSendService%'
+             OR event_message LIKE '%discovered endpoint:%'
+             OR event_message LIKE 'Scanning mode%'
+             OR event_message LIKE 'Discoverable mode changed from%'
+             OR event_message LIKE 'Hashes in validation record:%'
+             OR event_message LIKE 'SDAirDropReceiveService%'
+             OR event_message LIKE 'Starting AirDrop%'
+             OR event_message LIKE 'Attempting Stop AirDrop%'
+             OR event_message LIKE 'MetricEvent ''com.apple.sharing.AirDrop.%'
+             OR (subsystem = 'com.apple.sharing' AND category IN ('AirDrop', 'AirDropUI')
+                 AND event_message LIKE '%transfer%'))
+    """)
