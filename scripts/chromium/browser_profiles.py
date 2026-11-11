@@ -31,6 +31,14 @@ lines 3168 to 3175, at the 1.16.6 tag,
   https://github.com/flatpak/flatpak/blob/e761a8885453c217a931281092a641ebbdd0a0c6/common/flatpak-context.c#L3168-L3175
 ), so Flathub's Chromium keeps it in ~/.var/app/org.chromium.Chromium/config/chromium.
 
+On macOS, Chrome and Chromium keep a profile's cache outside the user data folder:
+the user cache dir is Library/Caches plus the profile's path below Application
+Support, ~/Library/Caches/Google/Chrome/Default for the default profile (the same
+docs/user_data_dir.md, lines 188 to 205,
+  https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/docs/user_data_dir.md#L188-L205
+). Those two folders are listed below so that a cache file is placed in its
+browser and profile; no other artifact's paths name a file there.
+
 Each profile is a folder inside the user data folder (Default, Profile 2, ...).
 When a browser's Local State lists no profile, Brave's importer reads the user
 data folder itself as the profile, an empty profile id appended to the folder:
@@ -53,13 +61,15 @@ from collections import namedtuple
 from scripts.ilapfuncs import get_sqlite_db_path, logfunc, open_sqlite_db_readonly
 from scripts.macos_plists import canonical_relative, unique_sources
 
-# (browser name, user data folder relative to the user's home folder)
+# (browser name, user data folder or macOS cache folder, relative to the user's home folder)
 BROWSER_ROOTS = (
     ('Google Chrome', ('AppData', 'Local', 'Google', 'Chrome', 'User Data')),
     ('Google Chrome', ('Library', 'Application Support', 'Google', 'Chrome')),
+    ('Google Chrome', ('Library', 'Caches', 'Google', 'Chrome')),
     ('Google Chrome', ('.config', 'google-chrome')),
     ('Chromium', ('AppData', 'Local', 'Chromium', 'User Data')),
     ('Chromium', ('Library', 'Application Support', 'Chromium')),
+    ('Chromium', ('Library', 'Caches', 'Chromium')),
     ('Chromium', ('.config', 'chromium')),
     ('Chromium', ('snap', 'chromium', 'common', 'chromium')),
     ('Chromium', ('.var', 'app', 'org.chromium.Chromium', 'config', 'chromium')),

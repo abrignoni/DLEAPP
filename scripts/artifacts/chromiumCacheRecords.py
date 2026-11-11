@@ -133,6 +133,73 @@ __artifacts_v2__ = {
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601, Google Chrome | 8 rows",
         },
     },
+    "chromiumSimpleCacheRecords": {
+        "name": "Chromium Simple Cache Records",
+        "description": "Entries of the HTTP cache Google Chrome and Chromium keep on macOS, one file per "
+                       "entry: the URL, the request and response times, the HTTP status, the content type "
+                       "and the stored body's size. A picture, video or audio body stored in the entry file "
+                       "is shown.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "none",
+        "category": "Chromium Browsers",
+        "notes": ("Reads the Cache/Cache_Data folder of each Google Chrome and Chromium profile's cache folder on "
+                  'macOS. Chromium keeps that folder outside the user data folder there: Library/Caches plus the '
+                  "profile's path below Application Support, Library/Caches/Google/Chrome/Default for Chrome's default "
+                  'profile '
+                  '(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/docs/user_data_dir.md#L188-L205). '
+                  'Chromium uses its Simple Cache backend by default on macOS '
+                  '(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/backend_experiment.h#L14-L19), '
+                  'one file per entry; Chromium Cache Records reads the blockfile format. One row per file named '
+                  '<hash>_0 that reads as an entry with scripts/chromium/simple_cache.py, which gives the layout it '
+                  'reads; a file of that name that does not read as an entry is counted in the run log. URL, Isolation '
+                  "Key and Key Prefix are the parts of the entry's key, split as Chromium Cache Records splits a key. "
+                  "Response Time and Request Time are the response_time and request_time of the entry's stored response "
+                  'information, microseconds since 1601-01-01 UTC; the original response time stored after them is not '
+                  "reported. Host is the URL's host. HTTP Status is the status code of the stored status line, Content "
+                  'Type the stored Content-Type header without its parameters, in lower case, and Body Size (bytes) the '
+                  'size of the body as stored, before any Content-Encoding is undone. Cached Media shows the body of an '
+                  'entry whose Content Type starts with image/, video/ or audio/ and that has a stored body, with its '
+                  'Content-Encoding (gzip, deflate, br, and zstd where the Python in use can decode it) undone; a body '
+                  "that does not decode is shown as stored. Chromium's own zstd storage of a body is not undone, and no "
+                  "tested entry had it. Entry File is the entry's file name, and Browser, Profile and User come from "
+                  "its path. The report's source path names the folder's index file, or its first <hash>_0 file when "
+                  'there is none, to identify the folder. Not read: the <hash>_1 file (stream 2, '
+                  'https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/simple/simple_entry_format.h#L20-L40) '
+                  'and the <hash>_s file (sparse data, which on the tested input sat beside every status 206 entry), '
+                  "the index files, which hold each entry's last-used time "
+                  '(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/simple/simple_index.h#L100-L113), '
+                  'so no last-used time is reported, the Code Cache and No_Vary_Search folders, a cache kept directly '
+                  "in Cache without Cache_Data, the caches under a profile's Storage folder, and the cache folders of "
+                  'other Chromium-based browsers on macOS, whose location is not sourced here. A cache folder that is '
+                  'also present under System/Volumes/Data with the same bytes is read once. Measured on one input, '
+                  'mvs2026_macbookpro_macos15 (macOS 15.4): 6,183 rows from one Chrome profile, every one of its 6,183 '
+                  '<hash>_0 files. For those entries ccl_chromium_reader 0.3.18 returned the same set of keys and, for '
+                  'each, the same request time, response time, status line, content type and stored body bytes. '
+                  'Response Time ran from 2025-12-01 to 2025-12-10. HTTP Status was 200 on 5,938 rows, 204 on 141, 302 '
+                  'on 69, 206 on 15, 404 on 13, 303 on 5 and 301 and 400 on 1 each; Content Type was blank on 114. Of '
+                  'the 2,582 rows with a picture, video or audio type, 2,559 show the media and 23 had no stored body, '
+                  '15 of them the status 206 rows, each of which has a <hash>_s file beside it. Every shown item was a '
+                  'picture: the 13 video and 2 audio rows were the 15 status 206 rows, so no video or audio was shown '
+                  'on any input or in the tests. Of the 2,559 shown bodies 110 were stored with br and 60 with gzip. '
+                  'Key Prefix (1/0/), Browser, Profile and User each held one value on all 6,183 rows, and no Isolation '
+                  'Key was blank. The Chromium folder and a second profile are exercised by the tests only, and a '
+                  'second user is not exercised. The four other inputs below matched no file.'),
+        "paths": (
+            '*/Library/Caches/Google/Chrome/*/Cache/Cache_Data/*',
+            '*/Library/Caches/Chromium/*/Cache/Cache_Data/*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "database",
+        "sample_data": {
+            "mvs2026_macbookpro_macos15": "macOS 15.4, Google Chrome | 6183 rows",
+            "adams_macbookpro_macos26": "macOS 26.2 build 25C56 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (no member matches the declared paths)",
+        },
+    },
 }
 
 import os
@@ -140,6 +207,7 @@ from urllib.parse import urlsplit
 
 from scripts.chromium import blockfile_cache
 from scripts.chromium.http_cache import parse_response_info, split_key, stored_body
+from scripts.chromium import simple_cache
 from scripts.chromium.simple_cache import base_time_to_datetime
 from scripts.chromium.web_storage import profile_folders
 from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc
@@ -244,3 +312,46 @@ def chromiumCacheRecords(context):
 @artifact_processor
 def chromiumMediaCacheRecords(context):
     return _cache_records(context, ('Media Cache',), 'Chromium Media Cache Records')
+
+
+_SIMPLE_HEADERS = (('Response Time', 'datetime'), ('Request Time', 'datetime'), 'URL', 'Host', 'HTTP Status',
+                   'Content Type', 'Body Size (bytes)', ('Cached Media', 'media'), 'Isolation Key', 'Key Prefix',
+                   'Entry File', 'Browser', 'Profile', 'User')
+
+
+def _simple_media(entry, content_type):
+    """The checked-in body of a picture, video or audio entry, or ''."""
+    if not content_type.startswith(_MEDIA_TYPES) or not entry.body_size:
+        return ''
+    body = entry.decoded_body()
+    if not body:
+        return ''
+    extension = content_type.split('/', 1)[1].split('+')[0] or None
+    return check_in_embedded_media(entry.path, body, force_type=content_type, force_extension=extension) or ''
+
+
+@artifact_processor
+def chromiumSimpleCacheRecords(context):
+    label = 'Chromium Simple Cache Records'
+    data_list = []
+    sources = []
+    for store in profile_folders(context, 'Cache/Cache_Data', label):
+        files = [os.path.join(store.path, name) for name in sorted(os.listdir(store.path))]
+        candidates = [path for path in files if path.endswith('_0')]
+        rows = 0
+        for entry in simple_cache.iter_entries(candidates):
+            prefix, isolation, url = split_key(entry.key)
+            content_type = entry.content_type.split(';')[0].strip().lower()
+            data_list.append((base_time_to_datetime(entry.response_time), base_time_to_datetime(entry.request_time),
+                              url, _host(url), '' if entry.status_code is None else str(entry.status_code),
+                              content_type, entry.body_size, _simple_media(entry, content_type), isolation, prefix,
+                              os.path.basename(entry.path), store.browser, store.profile, store.user))
+            rows += 1
+        if rows:
+            index = os.path.join(store.path, 'index')
+            sources.append(index if os.path.isfile(index) else candidates[0])
+        if len(candidates) != rows:
+            logfunc(f'{label}: {len(candidates) - rows} of {len(candidates)} files named <hash>_0 in '
+                    f'{store.relative} did not read as a cache entry')
+    data_list.sort(key=lambda row: (row[0] is None or row[0] == '', str(row[0]), row[2]))
+    return _SIMPLE_HEADERS, data_list, '\n'.join(sources)
