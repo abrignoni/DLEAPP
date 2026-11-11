@@ -62,6 +62,59 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "address-book",
     },
+    "macosContactGroups": {
+        "name": "Contact Groups",
+        "description": "Groups in each user's AddressBook-v22.abcddb stores, with the stored dates and the "
+                       "contacts each group lists as members.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "none",
+        "category": "Contacts (macOS)",
+        "notes": (
+            "Reads each user's AddressBook-v22.abcddb under ~/Library/Application Support/AddressBook and the "
+            'one in each Sources folder beneath it, one row per ZABCDRECORD row whose entity is ABCDGroup in '
+            'Z_PRIMARYKEY. Group Name and Unique ID are ZNAME and ZUNIQUEID as stored. Created (UTC) and '
+            'Modified (UTC) are ZCREATIONDATE and ZMODIFICATIONDATE read as seconds since 00:00:00 UTC on 1 '
+            'January 2001, the reference date Apple documents for NSDate '
+            '(https://developer.apple.com/documentation/foundation/nsdate). Members lists the contacts that the'
+            " store's contact-to-group join table links to the group. Each member is shown by its first, middle"
+            ' and last name. When it has none, its organization is shown. When it has neither, or the linked '
+            'record is not an ABCDContact row, it is shown as (record N), N being its Z_PK in that store; one '
+            'member on the tested images was shown that way. Members are listed in the order the store returned'
+            " them, joined with '; '. Member Count is the number of those links. Core Data names that table and"
+            ' its columns with entity numbers that differ between stores, so it is found by shape: a table '
+            'named Z_<number>PARENTGROUPS with one Z_<number>CONTACTS column and one Z_<number>PARENTGROUPS '
+            'column, which ended in the digit 1 in every tested store. When no such table is found Member Count'
+            ' and Members are blank and the run log says so; that did not happen on the tested images. The '
+            'group-to-group table is not read, so a group inside a group is not shown; that table held no rows '
+            'in any store on the five tested images. Rows of the ABCDSubscribedGroup entity are not read; no '
+            'tested store held one. Who or what created a group is not established. On the five tested images '
+            'each store that held a group held exactly one, and that group listed every contact in its store. '
+            'The same group name recurred across unrelated images. No tested image held a group that listed '
+            "only some of a store's contacts, so that case is unexercised. Store is Main for the top-level "
+            'database and Sources/ with the folder name for one under Sources; every group on the five tested '
+            'images came from a store under Sources, with 0 to 7 members. On the two logical images two volume '
+            'views of a store (Users/ beside System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/) '
+            'held the same group with different Modified values, so each group is reported twice there, once '
+            'per file. User is the folder after Users in the path, root for a store under private/var/root, and'
+            ' blank otherwise. User held one value on every row of each tested image. A copy of a store under '
+            'System/Volumes/Data/ or System/Volumes/Update/mnt1/ whose database and -wal file are both '
+            'byte-identical to one already read is not read again and the run log counts it; a row identical in'
+            ' every other column in copies that differ is reported once, with each file in Source File, one per'
+            ' line. No group on the tested images was folded this way.'
+        ),
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 2 rows (1 group, reported from two volume views)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 1 row",
+            "evidencelocker_macos14": "macOS 14.6.1 | 1 row",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 4 rows (2 groups, reported from two volume views)",
+            "adams_macbookpro_macos26": "macOS 26.2 | 3 rows",
+        },
+        "paths": ('*/Library/Application Support/AddressBook/*AddressBook-v22.abcddb*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "users",
+    },
 }
 
 import re
@@ -143,4 +196,73 @@ def macosContacts(context):
                               *(row[i] or '' for i in range(3, 10)),
                               *(detail.get(pk, '') for detail in details), notes.get(pk, ''),
                               row[10] or '', _store(relative), user_from_path(relative), relative))
+    return data_headers, fold_view_rows(data_list), '\n'.join(read)
+
+
+_GROUPS = '''
+    SELECT r.Z_PK, r.ZCREATIONDATE, r.ZMODIFICATIONDATE, r.ZNAME, r.ZUNIQUEID
+    FROM ZABCDRECORD r JOIN Z_PRIMARYKEY e ON e.Z_ENT = r.Z_ENT
+    WHERE e.Z_NAME = 'ABCDGroup'
+    ORDER BY r.ZCREATIONDATE
+'''
+
+
+def _member_links(path):
+    """[(contact pk, group pk)] from the contact-to-group join table, or None when none is found.
+
+    Core Data names the table and its columns with entity numbers that differ between
+    stores (Z_21PARENTGROUPS with Z_21CONTACTS and Z_18PARENTGROUPS1 in one, Z_22PARENTGROUPS
+    with Z_22CONTACTS and Z_19PARENTGROUPS1 in another), so they are found by shape.
+    """
+    tables = get_sqlite_db_records(
+        path, "SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'Z\\_%PARENTGROUPS' ESCAPE '\\'")
+    for (table,) in tables:
+        if not re.fullmatch(r'Z_\d+PARENTGROUPS', table):
+            continue
+        columns = [row[1] for row in get_sqlite_db_records(path, f'PRAGMA table_info("{table}")')]
+        contact = [c for c in columns if re.fullmatch(r'Z_\d+CONTACTS', c)]
+        group = [c for c in columns if re.fullmatch(r'Z_\d+PARENTGROUPS\d*', c)]
+        if len(contact) == 1 and len(group) == 1:
+            return [(row[0], row[1]) for row in get_sqlite_db_records(
+                path, f'SELECT "{contact[0]}", "{group[0]}" FROM "{table}"')]
+    return None
+
+
+def _contact_names(path):
+    """{contact pk: display text} from the name and organization fields, as stored."""
+    names = {}
+    for row in get_sqlite_db_records(path, _CONTACTS):
+        person = ' '.join(str(part) for part in (row[3], row[4], row[5]) if part)
+        names[row[0]] = person or str(row[7] or '')
+    return names
+
+
+@artifact_processor
+def macosContactGroups(context):
+    data_headers = (('Created (UTC)', 'datetime'), ('Modified (UTC)', 'datetime'), 'Group Name', 'Member Count',
+                    'Members', 'Unique ID', 'Store', 'User', 'Source File')
+    data_list = []
+    read = []
+    stores = [p for p in context.get_files_found() if str(p).endswith('.abcddb')]
+    paths, _skipped = unique_sources(context, stores, sidecars=('-wal',), label='Contact Groups')
+    for path in paths:
+        relative = context.get_relative_path(path)
+        if not does_table_exist_in_db(path, 'ZABCDRECORD'):
+            logfunc(f'Contact Groups: no ZABCDRECORD table read from {relative}')
+            continue
+        read.append(path)
+        groups = get_sqlite_db_records(path, _GROUPS)
+        if not groups:
+            continue
+        links = _member_links(path)
+        if links is None:
+            logfunc(f'Contact Groups: no contact-to-group table found in {relative}; members not listed')
+        names = _contact_names(path)
+        for row in groups:
+            members = [contact for contact, group in (links or []) if group == row[0]]
+            listed = '; '.join(names.get(contact, f'(record {contact})') or f'(record {contact})'
+                               for contact in members)
+            data_list.append((mac_absolute_utc(row[1]), mac_absolute_utc(row[2]), row[3] or '',
+                              '' if links is None else len(members), listed, row[4] or '',
+                              _store(relative), user_from_path(relative), relative))
     return data_headers, fold_view_rows(data_list), '\n'.join(read)
