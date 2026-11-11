@@ -6,17 +6,19 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari",
+        "category": "Safari (macOS)",
         "notes": (
             "Reads the preference_values table of PerSitePreferences.db: domain, preference and preference_value "
             "as stored. The meaning of a preference_value number is not established and is not labelled. "
             "Timestamp (as stored) is the table's timestamp column, declared as TEXT; the Timestamp (as stored) "
-            "column was empty on every tested row, so its format is not known and it is not converted. Value (as "
+            "column was NULL on every tested row, so its format is not known and it is not converted. Value (as "
             "stored) held 0 on all 5 rows read across the tested images. The default_preferences table held no "
-            "row on the tested images and is not read, and the sync_data and record_name columns newer versions "
-            "add are not read. User is the folder after Users in the path, root under private/var/root, otherwise "
-            "blank; it held one value on every row of each tested image, which each hold one user's Safari data. "
-            "When a logical extraction holds the same file under Users/ and under System/Volumes/Data/Users/ or "
+            "row on the four tested images that hold the file and is not read. The sync_data and record_name "
+            "columns, present on the macOS 15.4 and 26.2 images and absent on the 11.2.1 images, are not read. A "
+            "deleted_cloudkit_records table on the macOS 26.2 image held no row and is not read. User is the "
+            "folder after Users in the path, root under private/var/root, otherwise blank. User held one value on "
+            "every row of each tested image, which each hold one user's Safari data. When a logical extraction "
+            "holds the same file under Users/ and under System/Volumes/Data/Users/ or "
             "System/Volumes/Update/mnt1/Users/, a byte-identical copy is not read again and the run log counts "
             "it, and a row that copies with different bytes both hold is reported once with every file that held "
             "it in Source File. "

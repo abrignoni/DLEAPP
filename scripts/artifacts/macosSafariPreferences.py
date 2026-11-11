@@ -6,14 +6,14 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari",
+        "category": "Safari (macOS)",
         "notes": (
             "Reads the RecentWebSearches list of com.apple.Safari.plist. Date is the entry's Date value, a plist "
             "date, shown as UTC. Search String is SearchString as stored. URLs lists the entry's URLs array, one "
             "per line; the entries on the macOS 15.4 and 26.2 images all had it and the entries on the two macOS "
             "11.2.1 images had none, so the URLs column was empty there. What the list keeps and when Safari "
             "drops an entry is not established: the longest list read held 20 entries. User is the folder after "
-            "Users in the path, root under private/var/root, otherwise blank; it held one value on every row of "
+            "Users in the path, root under private/var/root, otherwise blank. User held one value on every row of "
             "each tested image, which each hold one user's Safari data. When a logical extraction holds the same "
             "file under Users/ and under System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a "
             "byte-identical copy is not read again and the run log counts it, and a row that copies with "
@@ -26,31 +26,33 @@ __artifacts_v2__ = {
         "sample_data": {
             "magnet2021_macos_bigsur": "macOS 11.2.1 | 5 rows",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 1 row",
-            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (the one com.apple.Safari.plist found holds no RecentWebSearches key)",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (the one com.apple.Safari.plist found holds no "
+                                      "RecentWebSearches key)",
             "mvs2026_macbookpro_macos15": "macOS 15.4 | 7 rows",
             "adams_macbookpro_macos26": "macOS 26.2 | 20 rows",
         },
     },
     "macosSafariPreferences": {
         "name": "Safari Preferences",
-        "description": "Top-level keys of Safari's preferences file on macOS, as stored.",
+        "description": "Top-level keys and values of Safari's preferences file on macOS.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari",
+        "category": "Safari (macOS)",
         "notes": (
             "One row per top-level key of com.apple.Safari.plist, in the Safari container and in "
-            "Library/Preferences, with the key name and value as stored and no interpretation of what a key "
-            "means. Value Type is the plist type. Dates are shown as UTC ISO 8601 text, reals as stored (a real "
-            "that Safari uses as a time is not converted), arrays and dictionaries as JSON text, and data values "
-            "as a byte count only: their bytes are not shown or decoded. RecentWebSearches is left out because "
-            "the Safari Recent Web Searches artifact reports it. User is the folder after Users in the path, root "
-            "under private/var/root, otherwise blank; it held one value on every row of each tested image, which "
-            "each hold one user's Safari data. When a logical extraction holds the same file under Users/ and "
-            "under System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a byte-identical copy is not "
-            "read again and the run log counts it, and a row that copies with different bytes both hold is "
-            "reported once with every file that held it in Source File. "
+            "Library/Preferences, with the key name as stored and the value shown as described here, with no "
+            "interpretation of what a key means. Value Type is the plist type. Dates are shown as UTC ISO 8601 "
+            "text, reals as stored (a real that Safari uses as a time is not converted), arrays and dictionaries "
+            "as JSON text, and data values as a byte count only: their bytes are not shown or decoded. "
+            "RecentWebSearches is left out because the Safari Recent Web Searches artifact reports it. User is "
+            "the folder after Users in the path, root under private/var/root, otherwise blank. User held one "
+            "value on every row of each tested image, which each hold one user's Safari data. When a logical "
+            "extraction holds the same file under Users/ and under System/Volumes/Data/Users/ or "
+            "System/Volumes/Update/mnt1/Users/, a byte-identical copy is not read again and the run log counts "
+            "it, and a row that copies with different bytes both hold is reported once with every file that held "
+            "it in Source File. "
         ),
         "paths": ('*/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari.plist',
                   '*/Library/Preferences/com.apple.Safari.plist'),

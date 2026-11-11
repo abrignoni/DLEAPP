@@ -7,29 +7,34 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari",
+        "category": "Safari (macOS)",
         "notes": (
             "Reads the ItemTable of two generations of WebKit local storage. Current: localstorage.sqlite3 under "
             "an app's Library/WebKit folder, one database per origin, with a file named origin beside the "
             "LocalStorage folder. Origin and Top Origin are decoded from that file as WebKit writes it (top "
             "origin then client origin, each a protocol string, a host string and an optional port; WebKit "
-            "source, WebCorePersistentCoders.cpp and StorageUtilities.cpp at commit ab66a42). Origin and Top "
-            "Origin were identical on every row of the two tested images with this layout (macOS 15.4 and 26.2), "
-            "so storage partitioned under a different top site has not been exercised. Older: "
+            "source, WebCorePersistentCoders.cpp, PersistentCoders.cpp and StorageUtilities.cpp at commit "
+            "ab66a422cda8b830153306460a4b27a3c0a773b7). Origin and Top Origin were identical on every row of the "
+            "two tested images with this layout (macOS 15.4 and 26.2), so storage partitioned under a different "
+            "top site has not been exercised, and neither has an origin with a port or a 16-bit string. Older: "
             "Library/Safari/LocalStorage/<name>.localstorage, where Origin is the file name as stored with "
             ".localstorage removed and the Top Origin column was empty on every row (the two macOS 11.2.1 "
-            "images). Value is the stored BLOB decoded as UTF-16 little endian, which is how WebKit writes it "
-            "(SQLiteStorageArea.cpp, same commit); Value Size (bytes) is the BLOB length. A key shows that a page "
-            "from the origin stored a value; the table has no timestamps. App Folder is the container folder or "
-            "the folder under Library/WebKit, or Safari for the older layout; App Folder held one value on three of the four tested images with rows and two on mvs2026_macbookpro_macos15, where 102 of the 219 rows came from a "
-            "third-party app's WebKit store. Roblox's WebKit store, when present, is also reported by the Roblox "
-            "artifacts. IndexedDB, service worker and cache storage in the same folders are not read. User is the "
-            "folder after Users in the path, root under private/var/root, otherwise blank; it held one value on "
-            "every row of each tested image, which each hold one user's Safari data. When a logical extraction "
-            "holds the same file under Users/ and under System/Volumes/Data/Users/ or "
-            "System/Volumes/Update/mnt1/Users/, a byte-identical copy is not read again and the run log counts "
-            "it, and a row that copies with different bytes both hold is reported once with every file that held "
-            "it in Source File. "
+            "images). Value is the stored BLOB decoded as UTF-16 little endian. For the current layout WebKit "
+            "binds the string's UTF-16 code units as the BLOB (SQLiteStorageArea.cpp and SQLiteStatement.cpp, "
+            "same commit). The older layout is decoded the same way; every value on the tested images had an even "
+            "length and decoded without a replacement character. Value Size (bytes) is the BLOB length. A row "
+            "shows that web content from the origin stored the key in that app's WebKit store; the table has no "
+            "timestamps. App Folder is the container folder or the folder under Library/WebKit, or Safari for the "
+            "older layout (the Library/WebKit form outside a container was not exercised); App Folder held one "
+            "value on three of the four tested images with rows and two on mvs2026_macbookpro_macos15, where 102 "
+            "of the 219 rows came from a third-party app's WebKit store. Roblox's WebKit store, when present, is "
+            "also reported by the Roblox artifacts. IndexedDB, service worker and cache storage in the same "
+            "folders are not read. User is the folder after Users in the path, root under private/var/root, "
+            "otherwise blank. User held one value on every row of each tested image; every file read sat under "
+            "one user's folder. When a logical extraction holds the same file under Users/ and under "
+            "System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a byte-identical copy is not read "
+            "again and the run log counts it, and a row that copies with different bytes both hold is reported "
+            "once with every file that held it in Source File. "
         ),
         "paths": ('*/Library/WebKit/*/LocalStorage/localstorage.sqlite3*',
                   '*/Library/WebKit/*/origin',
@@ -151,7 +156,7 @@ def macosWebKitLocalStorage(context):
         relative = context.get_relative_path(path)
         name = os.path.basename(path)
         if name == _NEW_NAME:
-            # <top origin hash>/<origin hash>/LocalStorage/localstorage.sqlite3, with the origin file beside LocalStorage
+            # <top origin hash>/<origin hash>/LocalStorage/localstorage.sqlite3; origin sits beside LocalStorage
             top, origin = read_origin_file(os.path.join(os.path.dirname(os.path.dirname(path)), 'origin'))
         else:
             top, origin = '', name[:-len(_LEGACY_SUFFIX)]

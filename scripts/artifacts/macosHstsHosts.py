@@ -1,31 +1,35 @@
 __artifacts_v2__ = {
     "macosHstsHosts": {
-        "name": "HSTS Hosts",
+        "name": "macOS HSTS Hosts",
         "description": "Hosts recorded in the HSTS.plist files of Safari and other macOS apps.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Network",
+        "category": "Networks (macOS)",
         "notes": (
-            "Reads every HSTS.plist under a user's Library/Cookies and Library/Caches folders, including app "
-            "containers: the host names recorded under each storage session key, with the entry's Create Time, "
-            "Expiry, Include Subdomains and HSTS Host values. The column names are the plist's own key names. "
-            "Create Time and Expiry are stored as numbers and are read as seconds since 2001-01-01 UTC; read that way the Create Time values on the five tested images are dates between 2020-12 and 2026-02. That reading comes from the values, not from Apple documentation, and what event sets Create Time is not "
-            "established. A row shows that the app's network storage recorded an HSTS policy for the host; it "
-            "does not show a page visit by itself. An Expiry stored as infinity cannot be shown as a date, so "
-            "Expiry is blank and Expiry Stored As Infinity is true: 706 of the 708 hosts in "
-            "Library/Cookies/HSTS.plist on magnet2021_macos_bigsur were stored that way, all created within the "
-            "same second, and the Expiry Stored As Infinity column was empty on the other four images. HSTS Host "
-            "held true on every row but one, where the key was absent. Storage Session held "
-            "com.apple.CFNetwork.defaultStorageSession on every row. App Folder is the container folder, or the "
-            "folder under Caches, or Cookies. Top-level keys that are not dictionaries (schema and content "
-            "versions) are not reported. User is the folder after Users in the path, root under private/var/root, "
-            "otherwise blank; it held one value on every row of each tested image, which each hold one user's "
-            "Safari data. When a logical extraction holds the same file under Users/ and under "
-            "System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a byte-identical copy is not read "
-            "again and the run log counts it, and a row that copies with different bytes both hold is reported "
-            "once with every file that held it in Source File. "
+            "Reads HSTS.plist in a Library/Cookies folder and in the folders under Library/Caches, including "
+            "those inside app containers: the host names recorded under each storage session key, with the "
+            "entry's Create Time, Expiry, Include Subdomains and HSTS Host values. Create Time, Expiry, Include "
+            "Subdomains and HSTS Host are the plist's own key names. Host is the entry's dictionary key and "
+            "Storage Session is the top-level key. Create Time and Expiry are stored as numbers and are read as "
+            "seconds since 2001-01-01 UTC; read that way the Create Time values on the five tested images are "
+            "dates between 2020-12 and 2026-02. That reading comes from the values, not from Apple documentation, "
+            "and what event sets Create Time is not established. A row shows that the host is recorded in that "
+            "HSTS.plist; it does not show a page visit by itself. An Expiry stored as infinity cannot be shown as "
+            "a date, so Expiry is blank and Expiry Stored As Infinity is true: 706 of the 708 hosts in "
+            "Library/Cookies/HSTS.plist on magnet2021_macos_bigsur were stored that way and their Create Time "
+            "values all fall within one second, and the Expiry Stored As Infinity column was empty on the other "
+            "four images. HSTS Host held true on every row but one, where the key was absent. Storage Session "
+            "held com.apple.CFNetwork.defaultStorageSession on every row. The folder in Source File (a container "
+            "folder, a folder under Caches, or Cookies) is the only record of which app's file a row came from. "
+            "Top-level keys that are not dictionaries (a schema version, a content version and a preload entries "
+            "signature on the macOS 11.2.1 images) are not reported. User is the folder after Users in the path, "
+            "root under private/var/root, otherwise blank. User held one value on every row of each tested image; "
+            "every file read sat under one user's folder. When a logical extraction holds the same file under "
+            "Users/ and under System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a byte-identical "
+            "copy is not read again and the run log counts it, and a row that copies with different bytes both "
+            "hold is reported once with every file that held it in Source File. "
         ),
         "paths": ('*/Library/Cookies/HSTS.plist', '*/Library/Caches/*/HSTS.plist'),
         "output_types": "standard",
@@ -61,26 +65,12 @@ def _flag(entry, key):
     return '' if value is None else str(value)
 
 
-def _store_folder(relative):
-    """The folders between Library and HSTS.plist, which name the app that owns the file."""
-    parts = str(relative).replace('\\', '/').split('/')
-    owner = ''
-    for index, part in enumerate(parts[:-1]):
-        if part == 'Containers' and index + 1 < len(parts) - 1:
-            return parts[index + 1]
-        if part == 'Caches' and index + 1 < len(parts) - 1:
-            owner = parts[index + 1]
-        if part == 'Cookies':
-            owner = 'Cookies'
-    return owner
-
-
 @artifact_processor
 def macosHstsHosts(context):
     data_headers = (('Create Time', 'datetime'), ('Expiry', 'datetime'), 'Host', 'Include Subdomains',
-                    'HSTS Host', 'Expiry Stored As Infinity', 'Storage Session', 'App Folder', 'User', 'Source File')
+                    'HSTS Host', 'Expiry Stored As Infinity', 'Storage Session', 'User', 'Source File')
     found = [str(p) for p in context.get_files_found() if os.path.basename(str(p)) == 'HSTS.plist']
-    paths, _skipped = unique_sources(context, found, label='HSTS Hosts')
+    paths, _skipped = unique_sources(context, found, label='macOS HSTS Hosts')
     rows, read = [], []
     for path in paths:
         plist = load_plist(path)
@@ -89,7 +79,6 @@ def macosHstsHosts(context):
         relative = context.get_relative_path(path)
         read.append(path)
         user = user_from_path(relative)
-        folder = _store_folder(relative)
         for session in sorted(plist):
             hosts = plist[session]
             if not isinstance(hosts, dict):
@@ -102,5 +91,5 @@ def macosHstsHosts(context):
                 infinite = 'true' if isinstance(expiry, float) and math.isinf(expiry) else ''
                 rows.append((_moment(entry.get('Create Time')), _moment(expiry), host,
                              _flag(entry, 'Include Subdomains'), _flag(entry, 'HSTS Host'), infinite, session,
-                             folder, user, relative))
+                             user, relative))
     return data_headers, fold_view_rows(rows), '\n'.join(read)

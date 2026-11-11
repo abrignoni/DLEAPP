@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "Library/Safari/Favicon Cache/favicons.db.",
         "author": "@abrignoni, @AlexisBrignoni, Claude",
         "creation_date": "2026-10-30",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Safari (macOS)",
         "notes": "Ported from iLEAPP's Safari Browser - Favicons artifact (@abrignoni), which reads the "
@@ -40,22 +40,23 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari",
+        "category": "Safari (macOS)",
         "notes": (
             "Reads the rejected_resources table of favicons.db: page_url and icon_url as stored. Timestamp is the "
             "table's timestamp column read as seconds since 2001-01-01 UTC, or as Unix seconds when the value is "
-            "above 978307200, as in the Safari Favicons artifact; every tested value was below that. What makes "
-            "Safari record a pair here, and what sets the timestamp, is not established. A row shows that "
-            "Safari's favicon cache recorded the page URL. User is the folder after Users in the path, root under "
-            "private/var/root, otherwise blank; it held one value on every row of each tested image, which each "
-            "hold one user's Safari data. When a logical extraction holds the same file under Users/ and under "
-            "System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a byte-identical copy is not read "
-            "again and the run log counts it, and a row that copies with different bytes both hold is reported "
-            "once with every file that held it in Source File. "
+            "above 978307200, as in the Safari - Favicons (macOS) artifact; every tested value was below that. "
+            "The 2001 reading comes from the values: read that way they fall between 2021-02 and 2026-02 on the "
+            "tested images. What makes Safari record a pair here, and what sets the timestamp, is not "
+            "established. A row shows that Safari's favicon cache recorded the page URL. User is the folder after "
+            "Users in the path, root under private/var/root, otherwise blank. User held one value on every row of "
+            "each tested image, which each hold one user's Safari data. When a logical extraction holds the same "
+            "file under Users/ and under System/Volumes/Data/Users/ or System/Volumes/Update/mnt1/Users/, a "
+            "byte-identical copy is not read again and the run log counts it, and a row that copies with "
+            "different bytes both hold is reported once with every file that held it in Source File. "
         ),
         "paths": ('*/Library/Safari/Favicon Cache/favicons.db*',),
         "output_types": "standard",
-        "artifact_icon": "photo",
+        "artifact_icon": "image",
         "sample_data": {
             "magnet2021_macos_bigsur": "macOS 11.2.1 | 5 rows",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (rejected_resources holds no row)",
