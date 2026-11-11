@@ -8,10 +8,13 @@ Linux service. Every value is invented. The expected values are written out, nev
 read back from the code.
 """
 import fnmatch
+import os
 import pathlib
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timezone
+from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -132,6 +135,60 @@ class Paths(unittest.TestCase):
                      'var/log/anydesk.trace', 'home/u/.anydesk/anydesk.trace'):
             self.assertTrue(self.matches('anyDeskTraceEvents', path), path)
         self.assertFalse(self.matches('anyDeskTraceEvents', 'home/u/.anydesk/.anydesk.trace'))
+
+
+class SettingLine(unittest.TestCase):
+    def test_split_at_the_first_equals_sign(self):
+        self.assertEqual(ad.parse_setting_line('ad.fixture.id=123456789'), ('ad.fixture.id', '123456789'))
+        self.assertEqual(ad.parse_setting_line('ad.fixture.list=a=b;c=d'), ('ad.fixture.list', 'a=b;c=d'))
+        self.assertEqual(ad.parse_setting_line('ad.fixture.empty='), ('ad.fixture.empty', ''))
+
+    def test_lines_that_are_not_a_setting(self):
+        self.assertIsNone(ad.parse_setting_line('no equals sign'))
+        self.assertIsNone(ad.parse_setting_line('=value without a name'))
+
+
+class _Context:
+    def __init__(self, root, files):
+        self.root, self.files = root, files
+
+    def get_files_found(self):
+        return self.files
+
+    def get_relative_path(self, path):
+        return os.path.relpath(path, self.root).replace(os.sep, '/')
+
+
+class SettingsArtifact(unittest.TestCase):
+    def test_rows(self):
+        with tempfile.TemporaryDirectory() as root:
+            files = []
+            for relative, text in (
+                    ('ProgramData/AnyDesk/system.conf', 'ad.fixture.id=123456789\nad.fixture.alias=\n\nstray line\n'),
+                    ('Users/fixture/AppData/Roaming/AnyDesk/user.conf', 'ad.fixture.lang=en\n'),
+                    ('ProgramData/AnyDesk/system.conf.lock', 'ad.fixture.locked=1\n')):
+                path = os.path.join(root, *relative.split('/'))
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, 'w', encoding='utf-8', newline='') as handle:
+                    handle.write(text)
+                files.append(path)
+            with mock.patch.object(ad, 'logfunc', lambda *_a, **_k: None):
+                headers, rows, sources = ad.anyDeskSettings.__wrapped__(_Context(root, files + files[:1]))
+            self.assertEqual(headers, ('Setting', 'Value', 'Line', 'Source File'))
+            self.assertEqual(rows, [
+                ('ad.fixture.id', '123456789', 1, 'ProgramData/AnyDesk/system.conf'),
+                ('ad.fixture.alias', '', 2, 'ProgramData/AnyDesk/system.conf'),
+                ('ad.fixture.lang', 'en', 1, 'Users/fixture/AppData/Roaming/AnyDesk/user.conf')])
+            self.assertEqual([os.path.relpath(s, root).replace(os.sep, '/') for s in sources.split('\n')],
+                             ['ProgramData/AnyDesk/system.conf', 'Users/fixture/AppData/Roaming/AnyDesk/user.conf'])
+
+    def test_paths_take_the_three_files_in_each_folder(self):
+        patterns = ad.__artifacts_v2__['anyDeskSettings']['paths']
+        for path in ('p3/ProgramData/AnyDesk/system.conf', 'p3/ProgramData/AnyDesk/service.conf',
+                     'p3/Users/fixture/AppData/Roaming/AnyDesk/user.conf', 'lba0/etc/anydesk/system.conf',
+                     'lba0/home/fixture/.anydesk/user.conf', 'p3/ProgramData/AnyDesk/ad_custom/system.conf'):
+            self.assertTrue(any(fnmatch.fnmatch(path, pattern) for pattern in patterns), path)
+        self.assertFalse(any(fnmatch.fnmatch('p3/ProgramData/Other/system.conf', pattern) for pattern in patterns))
 
 
 if __name__ == '__main__':
