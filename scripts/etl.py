@@ -8,6 +8,10 @@ Nothing here writes a file or calls Windows. What is implemented, with the sourc
   the offset to the next buffer in the file; SavedOffset at 0x04, the bytes of the buffer in use; SequenceNumber
   at 0x18) followed by records (Geoff Chappell, WMI_BUFFER_HEADER,
   https://www.geoffchappell.com/studies/windows/km/ntoskrnl/inc/api/ntwmi/wmi_buffer_header/index.htm).
+  When SavedOffset is 0 the Offset member at 0x30 of the same header is used in its place (this reader's
+  rule): the first buffer of each of ten ExplorerStartupLog files written by Windows 7 had SavedOffset 0 and
+  an Offset that ended at its logfile header record, and Offset equalled SavedOffset on every other buffer
+  of the 26 ExplorerStartupLog files compared (Windows 7 to Windows 11).
 * Records. Each record starts on an 8-byte boundary, and its first dword has the high bit set; the byte at 0x02
   gives the header type and the record size is a 16-bit value (Geoff Chappell, Trace Headers,
   https://geoffchappell.com/studies/windows/km/ntoskrnl/inc/api/ntwmi/traceheaders/index.htm). The size is at
@@ -162,6 +166,9 @@ class EtlFile:
             if offset + size > len(data):
                 self.problems['a last buffer cut short by the end of the file, not read'] += 1
                 return
+            if saved == 0:
+                # seen on the first buffer of ten Windows 7 files: SavedOffset is 0 and Offset ends at the last record
+                saved = struct.unpack_from('<I', data, offset + 0x30)[0]
             if saved > size or saved < BUFFER_HEADER:
                 self.problems['buffers whose bytes in use lie outside the buffer, not read'] += 1
             else:
