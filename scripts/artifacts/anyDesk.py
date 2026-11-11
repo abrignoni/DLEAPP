@@ -1,4 +1,4 @@
-"""AnyDesk connection, file transfer and trace log records for DLEAPP.
+"""AnyDesk connection, file transfer, trace log and settings records for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -175,6 +175,59 @@ __artifacts_v2__ = {
         "sample_data": {
             "windows11_arm_anydesk_known_20261031": "AnyDesk 9.8.3 on Windows 11 build 26200 (ARM64) | 58 rows",
             "ubuntu2604_arm64_anydesk_known_20261031": "AnyDesk 8.1.0 on Ubuntu 26.04 (aarch64) | 50 rows",
+        },
+    },
+    "anyDeskSettings": {
+        "name": "AnyDesk Settings",
+        "description": "Each setting line of the .conf files in AnyDesk's folders (system.conf, service.conf and "
+                       "user.conf in the known data), one row per line: the setting's name and its value as "
+                       "stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "none",
+        "category": "AnyDesk",
+        "notes": ("Reads the .conf files in AnyDesk's folders: ProgramData\\AnyDesk and each user's "
+                  "AppData\\Roaming\\AnyDesk on Windows, /etc/anydesk and each user's .anydesk on Linux, the folders "
+                  'AnyDesk Connections and AnyDesk File Transfers read. Subfolders are read too. One row per line that '
+                  'has a name and an equals sign: Setting is the text before the first equals sign with surrounding '
+                  'spaces removed, and Value everything after it, as stored; bytes that do not decode as text are '
+                  "replaced and counted in the run log, and the known data had none; Line is the line's number and "
+                  'Source File the file. A non-blank line of any other shape is counted in the run log; the known data '
+                  "had none. No meaning is given to a setting here: the names are AnyDesk's own and what each holds was "
+                  'not sourced. Measured on two inputs. The Windows 11 known data (AnyDesk 9.8.3) gave 41 rows from '
+                  'four files: service.conf (3 rows) and system.conf (26) in ProgramData\\AnyDesk, and system.conf (4) '
+                  "and user.conf (8) in the user's folder. The Ubuntu 26.04 known data (AnyDesk 8.1.0) gave 47 rows "
+                  'from three files: service.conf (3) and system.conf (22) in /etc/anydesk and user.conf (22) in the '
+                  "user's .anydesk. On both, the value of ad.anynet.id in system.conf equalled the ID that AnyDesk "
+                  'Trace Events reports as Own AnyDesk ID from the trace log. On both, service.conf held ad.anynet.pkey '
+                  "and ad.anynet.cert, each a value beginning -----BEGIN, so the report holds the client's private key "
+                  'as stored. The Windows system.conf held ad.security.permission_profiles._full_access.pwd, 64 hex '
+                  'digits, and ad.security.permission_profiles._full_access.salt, 32 hex digits; what the two values '
+                  'are was not established. Of the 54 setting names seen, 30 were in both inputs, 7 only on Windows and '
+                  '17 only on Ubuntu. Value was empty on 2 Windows rows and 4 Ubuntu rows. A line holds a name and a '
+                  'value only, so no row has a time; whether any value encodes a time was not established. The paths '
+                  'also match the ad_<name> folders under the two Windows folders and .anydesk_ad_<name> on Linux, '
+                  "where AnyDesk's support article (https://support.anydesk.com/docs/what-are-trace-files.md) puts a "
+                  "custom client's trace files; no custom client was tested, so whether its .conf files are there is "
+                  'not established. macOS was not tested, and the .anydesk and etc/anydesk patterns also match those '
+                  'folders on a macOS image. hexordia_mvs2025_win11, lonewolf_win10 and pc_mus_001_win11 matched no '
+                  'file.'),
+        "paths": ('*/ProgramData/AnyDesk/*.conf',
+                  '*/ProgramData/AnyDesk/ad_*/*.conf',
+                  '*/AppData/Roaming/AnyDesk/*.conf',
+                  '*/AppData/Roaming/AnyDesk/ad_*/*.conf',
+                  '*/etc/anydesk/*.conf',
+                  '*/.anydesk/*.conf',
+                  '*/.anydesk_ad_*/*.conf'),
+        "output_types": ["standard"],
+        "artifact_icon": "settings",
+        "sample_data": {
+            "windows11_arm_anydesk_known_20261031": "AnyDesk 9.8.3 on Windows 11 build 26200 (ARM64) | 41 rows",
+            "ubuntu2604_arm64_anydesk_known_20261031": "AnyDesk 8.1.0 on Ubuntu 26.04 (aarch64) | 47 rows",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (no member matches the declared paths)",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (no member matches the declared paths)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
         },
     },
 }
@@ -359,4 +412,36 @@ def anyDeskTraceEvents(context):
                               number, relative))
         logfunc(f'AnyDesk Trace Events: {relative}: {dated} dated lines, {undated} other non-blank '
                 f'lines; {reported} reported, {dated - reported} dated lines not reported')
+    return data_headers, data_list, '\n'.join(sources)
+
+
+def parse_setting_line(line):
+    """(name, value) of a name=value line, split at the first equals sign, or None for any other line."""
+    name, equals, value = line.partition('=')
+    if not equals or not name.strip():
+        return None
+    return name.strip(), value
+
+
+@artifact_processor
+def anyDeskSettings(context):
+    data_headers = ('Setting', 'Value', 'Line', 'Source File')
+    data_list = []
+    sources = []
+    for relative, text, source in _read_files(context, 'AnyDesk Settings'):
+        if not relative.lower().endswith('.conf'):
+            continue
+        sources.append(source)
+        read = unread = 0
+        for number, line in enumerate(_LINE_BREAK.split(text), 1):
+            if not line.strip():
+                continue
+            setting = parse_setting_line(line)
+            if setting is None:
+                unread += 1
+                continue
+            read += 1
+            data_list.append((setting[0], setting[1], number, relative))
+        logfunc(f'AnyDesk Settings: {relative}: {read} lines read, {unread} non-blank lines without a '
+                'name and an equals sign')
     return data_headers, data_list, '\n'.join(sources)
