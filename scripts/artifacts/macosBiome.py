@@ -688,6 +688,71 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "globe",
     },
+    "macosBiomeNotesHarvest": {
+        "name": "Biome Notes Harvest",
+        "description": "Records from the ProactiveHarvesting.Notes Biome stream: the record time and the "
+                       "absolute timestamp, title, content and identifier fields each record holds.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-12",
+        "last_update_date": "2026-11-12",
+        "requirements": "none",
+        "category": "Biome (macOS)",
+        "notes": (
+            "Reads the ProactiveHarvesting.Notes Biome stream. Every file matched under the stream's local and "
+            'remote folders is read, except a file whose name begins with a dot, a file named lock, and '
+            'anything under a tombstone folder; each is read as a SEGB file with the vendored ccl_segb package,'
+            ' and a file that does not read as SEGB is named in the run log and skipped. One row per record the'
+            ' file marks as written whose data ccl_segb can still read, each read as one protobuf message whose'
+            ' fields are taken by number without a schema; a record that does not read as one is counted in the'
+            ' run log and not reported. Records ccl_segb returns that are not marked as written are counted in '
+            'the run log and not reported; ccl_segb itself leaves out empty trailer slots and entries whose '
+            'data was overwritten, which are not counted, and in the tested files it returned every trailer '
+            "entry. The field numbers are the ones BiomeLibrary's BMProactiveHarvestingNotes class names in its"
+            ' protoFields on macOS 27.2 (build 26B123): 1 uniqueID, 2 domainID, 3 absoluteTimestamp, 4 title, 5'
+            ' content, 6 contentProtection, 7 personaId; BiomeLibrary on that macOS gives that class as the '
+            'event class of the ProactiveHarvesting.Notes stream. Those names come from a newer macOS than the '
+            'tested image, which is macOS 26.2. The 12 reported records held only fields 1, 2, 3, 5, 6 and 7, '
+            'once each, with wire types that fit. Record Time (UTC) is the time the SEGB file stores with each '
+            'record, read as seconds since 2001-01-01 UTC; it leads and drives the timeline because field 3 '
+            'held 0 on 11 of the 12 tested records. Absolute Timestamp (UTC) is field 3 read as a double of '
+            'seconds since 2001-01-01 UTC; the epoch is taken from the field name and from the one non-zero '
+            "value, which falls about 25 minutes before its record's Record Time, and what moment the field "
+            'records is not established. Field 3 was a stored 0, shown as 2001-01-01, on 11 of the 12 records '
+            'and a non-zero value on one. Title is field 4, which no tested record held, so Title is blank on '
+            'all 12. Content is field 5, the text the record holds, up to 26 characters on the tested records. '
+            'Unique ID, Domain ID, Content Protection and Persona ID are fields 1, 2, 6 and 7 read as UTF-8 '
+            'text; what they mean beyond their names is not sourced here. The 12 records held 6 distinct Unique'
+            ' ID values, each with one Content value, on 1 to 4 records each, so 12 rows are not 12 notes. '
+            'Domain ID was absent from 5 records. Content Protection, Sync Origin and User each held one value '
+            'on all 12, and Persona ID a different value on each of the 12; what Persona ID identifies is not '
+            'sourced. The tested records held no field beyond these; what decides whether a note gets a record,'
+            ' or a further one, is not established, so the absence of a record does not show a note did not '
+            'exist. Record Offset is the offset ccl_segb gives for the record: in a version 2 file, which the '
+            "tested files are, that is the record's 8-byte header, and the data begins 8 bytes later; in a "
+            'version 1 file it is where the data begins. Sync Origin is Local for the local folder or Remote '
+            'with the folder name under remote; every tested row was Local, and no remote folder, version 1 '
+            'file or tombstone folder of this stream was in the tested data. Source File names the file each '
+            'row came from, the file its Record Offset counts from; every file in a folder is read. User is the'
+            ' folder after Users in the source path, root under private/var/root, otherwise blank. When a '
+            'logical extraction holds the stream under more than one volume view, a written record with the '
+            'same offset, time and bytes is reported once and the run log counts the repeats; no such repeat '
+            'was in the tested data, because the one image with two views held no written record. Only '
+            'adams_macbookpro_macos26 held written records (12); mvs2026_macbookpro_macos15 held the stream '
+            'file with 34 records, all unwritten with zeroed data; on the other three tested images no file '
+            'matches the declared paths.'
+        ),
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (no member matches the declared paths)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no member matches the declared paths)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (the stream file holds 34 records, none written)",
+            "adams_macbookpro_macos26": "macOS 26.2 | 12 rows",
+        },
+        "paths": ("*/Biome/streams/*/ProactiveHarvesting.Notes/local/*",
+                  "*/Biome/streams/*/ProactiveHarvesting.Notes/remote/*"),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "edit-3",
+    },
 }
 
 import plistlib
@@ -1033,4 +1098,17 @@ def macosBiomeSafariPageViews(context):
     # _read leads each row with the record time and sorts on it; the page time leads here.
     rows = [(row[1], row[0]) + row[2:] for row in rows]
     rows.sort(key=lambda row: (str(row[0]), row[1], str(row[-2]), row[-1]))
+    return data_headers, rows, source
+
+
+@artifact_processor
+def macosBiomeNotesHarvest(context):
+    data_headers = (('Record Time (UTC)', 'datetime'), ('Absolute Timestamp (UTC)', 'datetime'), 'Title',
+                    'Content',
+                    'Unique ID', 'Domain ID', 'Content Protection', 'Persona ID', 'User', 'Sync Origin',
+                    'Source File', 'Record Offset')
+    # Record Time leads and drives the timeline because field 3 (Absolute Timestamp) was 0 on most records.
+    rows, source = _read(context, 'Biome Notes Harvest', lambda f: (
+        mac_absolute_utc(double(first(f, 3))), text(first(f, 4)), text(first(f, 5)), text(first(f, 1)),
+        text(first(f, 2)), text(first(f, 6)), text(first(f, 7))))
     return data_headers, rows, source
