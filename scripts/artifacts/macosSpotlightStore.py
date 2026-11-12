@@ -151,6 +151,117 @@ __artifacts_v2__ = {
             "szechuan_win10": "Windows 10 2004 build 19041 | 0 rows (no member matches the declared paths)",
         },
     },
+    "macosSpotlightStoreContent": {
+        "name": "Spotlight Store Content Details",
+        "description": "One row per attribute value a Spotlight store record holds under the listed snippet, title, description, comment, author, email address, phone number, keyword, location, camera and message attribute names, with the file name the record holds.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "none",
+        "category": "Spotlight (macOS)",
+        "notes": (
+            'Reads the same Spotlight store files as Spotlight Store Files, with the same reader, and gives one'
+            ' row per attribute a record holds with a value: a record holding three of the listed attributes '
+            'gives three rows, and a list attribute is one row. An empty value, or a list holding only empty '
+            'entries, gives no row. Only records that name a file in _kMDItemFileName are reported. Attribute '
+            'is the attribute name as the store holds it. Value is the stored value as text: a list is shown '
+            'one entry per line without its empty entries, a localized string is its first language version '
+            'that is not empty, numbers are shown as stored, and a line break inside a stored string also shows'
+            ' as a new line. Content Modified (UTC), Record Updated (UTC), Name, Path and File ID are built as '
+            'Spotlight Store Files builds them, and its notes give their sources and limits. Source File lists '
+            "each store file that held the row, one per line: a volume's store.db and .store.db are both read, "
+            'and a row both hold is reported once with both named. A record the two copies hold with a '
+            'different Content Modified or Record Updated gives a row for each copy, so rows are not distinct '
+            'values. A value is what the store holds for the record; it does not establish that a person '
+            'opened, wrote or sent the file. No member of evidencelocker_macos14 matches the declared paths. '
+            'The attributes reported are _kMDItemSnippet, kMDItemTitle, kMDItemDescription, kMDItemComment, '
+            'kMDItemAuthors, kMDItemAuthorEmailAddresses, kMDItemEmailAddresses, kMDItemPhoneNumbers, '
+            'kMDItemKeywords, kMDItemCreator, kMDItemLatitude, kMDItemLongitude, kMDItemAltitude, kMDItemCity, '
+            'kMDItemAcquisitionMake, kMDItemAcquisitionModel, kMDItemDurationSeconds, kMDItemOriginSubject, '
+            'kMDItemOriginSenderDisplayName, kMDItemDestinationRecipients, kMDItemUserSharedReceivedRecipient, '
+            'kMDItemUserSharedReceivedRecipientHandle, kMDItemTransportAccount, kMDItemAccountIdentifier and '
+            "kMDItemContainerDisplayName; other attributes are not reported here. Apple's MDItem.h in "
+            'MacOSX27.2.sdk (Metadata framework headers) describes the sixteen from kMDItemTitle to '
+            'kMDItemDurationSeconds and describes neither _kMDItemSnippet nor the last eight, so those are '
+            'shown under their stored names with no meaning attached. _kMDItemSnippet held text of at most 301,'
+            ' 301, 450 and 302 characters on magnet2021_macos_bigsur, dleapp_macos_bigsur, '
+            'mvs2026_macbookpro_macos15 and adams_macbookpro_macos26, and exactly 300 characters on most '
+            'records; what the text is taken from is not established. Rows per attribute on those four images: '
+            '_kMDItemSnippet 269, 284, 17,383 and 3,011; kMDItemCreator 148, 157, 60 and 8; kMDItemComment 1, '
+            '759, 16 and 3; kMDItemTitle 10, 226, 13 and 2; the other attributes gave 3, 472, 21 and 14 rows '
+            'together. Of all rows, 683 of the 1,898 on dleapp_macos_bigsur, 14 of the 17,493 on '
+            'mvs2026_macbookpro_macos15, 4 of the 3,038 on adams_macbookpro_macos26 and none on '
+            'magnet2021_macos_bigsur come from one copy only. kMDItemAuthorEmailAddresses gave no row on any '
+            'tested image: dleapp_macos_bigsur holds it on 105 records in each copy, each a list of one empty '
+            'entry, as it holds kMDItemAuthors, and the other three stores do not hold it on any record that '
+            'names a file. Every content list on the tested images had one entry, so a list of several entries '
+            'was not exercised here.'
+        ),
+        "paths": ('*/.Spotlight-V100/Store-V2/*/store.db', '*/.Spotlight-V100/Store-V2/*/.store.db',
+                  '*/.Spotlight-V100/Store-V2/*/dbStr-*.map.*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "file-text",
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 431 rows",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 1,898 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no member matches the declared paths)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 17,493 rows",
+            "adams_macbookpro_macos26": "macOS 26.2 | 3,038 rows",
+        },
+    },
+    "macosSpotlightStoreEngagement": {
+        "name": "Spotlight Store Engagement",
+        "description": "One row per value a Spotlight store record holds under eight attribute names that contain Engagement, with the file name the record holds. What the values record is not established.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-11",
+        "last_update_date": "2026-11-11",
+        "requirements": "none",
+        "category": "Spotlight (macOS)",
+        "notes": (
+            'Reads the same Spotlight store files as Spotlight Store Files, with the same reader, and gives one'
+            ' row per attribute a record holds with a value: a record holding three of the listed attributes '
+            'gives three rows, and a list attribute is one row. An empty value, or a list holding only empty '
+            'entries, gives no row. Only records that name a file in _kMDItemFileName are reported. Attribute '
+            'is the attribute name as the store holds it. Value is the stored value as text: a list is shown '
+            'one entry per line without its empty entries, a localized string is its first language version '
+            'that is not empty, numbers are shown as stored, and a line break inside a stored string also shows'
+            ' as a new line. Content Modified (UTC), Record Updated (UTC), Name, Path and File ID are built as '
+            'Spotlight Store Files builds them, and its notes give their sources and limits. Source File lists '
+            "each store file that held the row, one per line: a volume's store.db and .store.db are both read, "
+            'and a row both hold is reported once with both named. A record the two copies hold with a '
+            'different Content Modified or Record Updated gives a row for each copy, so rows are not distinct '
+            'values. A value is what the store holds for the record; it does not establish that a person '
+            'opened, wrote or sent the file. No member of evidencelocker_macos14 matches the declared paths. '
+            'The attributes reported are _kMDItemRecentSpotlightEngagementQueries, '
+            '_kMDItemRecentSpotlightEngagementDates, _kMDItemRecentSpotlightEngagementRenderPositions, their '
+            'three NonUnique forms, _kMDItemRecentOutOfSpotlightEngagementDates and _kMDItemEngagementData. '
+            '_kMDItemLastOutOfSpotlightEngagementDate is in the types table of the macOS 15.4 and 26.2 stores, '
+            "is held by no record that names a file there, and is not reported. Apple's MDItem.h in "
+            "MacOSX27.2.sdk describes none of these names, so the names and the store's value types are the "
+            'only description: what writes a query value and what moment a date marks are not established here.'
+            ' The tested stores hold the three Dates attributes as value type 0x0C, which the format '
+            'documentation Spotlight Store Files cites describes as a Cocoa timestamp, and they are read as '
+            'seconds since 1 January 2001 UTC and shown as UTC text one per line. _kMDItemEngagementData is '
+            "data shown as hex and not decoded. The first column is the file's content modification date, not "
+            'an engagement date: the engagement dates are text in Value, so the timeline places a row at the '
+            'content modification time. Rows on the tested images: magnet2021_macos_bigsur 1 '
+            '(_kMDItemEngagementData), dleapp_macos_bigsur none, mvs2026_macbookpro_macos15 14 from 7 records '
+            '(7 _kMDItemRecentOutOfSpotlightEngagementDates rows and one row for each of the other seven '
+            'attributes, all seven from one record) and adams_macbookpro_macos26 2 '
+            '(_kMDItemRecentOutOfSpotlightEngagementDates, with 4 and 15 dates).'
+        ),
+        "paths": ('*/.Spotlight-V100/Store-V2/*/store.db', '*/.Spotlight-V100/Store-V2/*/.store.db',
+                  '*/.Spotlight-V100/Store-V2/*/dbStr-*.map.*'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "search",
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 1 row",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no record holds an engagement attribute)",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no member matches the declared paths)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 14 rows",
+            "adams_macbookpro_macos26": "macOS 26.2 | 2 rows",
+        },
+    },
 }
 
 import os
@@ -304,3 +415,93 @@ def macosSpotlightStoreFiles(context):
     merged.sort(key=lambda entry: (entry[0][0] == '', str(entry[0][0]), entry[0][16], str(entry[0][14])))
     data_list = [values + ('\n'.join(sources),) for values, sources in merged]
     return data_headers, data_list, '\n'.join(read)
+
+
+def _read_stores(context, label):
+    """[(path, relative path, items, locate)] for each distinct store read, as Spotlight Store Files reads them."""
+    files = [str(path) for path in context.get_files_found()
+             if os.path.basename(str(path)) in _STORES and os.path.isfile(str(path))]
+    paths, _skipped = unique_sources(context, files, label=label)
+    stores = []
+    for path in paths:
+        relative = context.get_relative_path(path)
+        try:
+            store = Store(path)
+        except (OSError, StoreError) as error:
+            logfunc(f'{label}: {relative} not read: {error}')
+            continue
+        items = list(store.items())
+        if store.unreadable_pages or store.incomplete:
+            logfunc(f'{label}: {relative}: {store.unreadable_pages} record page(s) not read, '
+                    f'{store.incomplete} record(s) not fully decoded')
+        mount = store.recorded_path.split(_MARKER, 1)[0] if _MARKER in store.recorded_path else ''
+        stores.append((path, relative, items, _locator(items, mount)))
+    return stores
+
+
+def _shown(value):
+    """A stored value as text: a list one entry per line without empty entries, data as hex, '' for none."""
+    if value is None:
+        return ''
+    if isinstance(value, list):
+        return '\n'.join(_shown(v) for v in value if v not in ('', None))
+    if isinstance(value, (bytes, bytearray)):
+        return bytes(value).hex()
+    if isinstance(value, float):
+        return repr(value)
+    return str(value)
+
+
+_CONTENT = ('_kMDItemSnippet', 'kMDItemTitle', 'kMDItemDescription', 'kMDItemComment', 'kMDItemAuthors',
+            'kMDItemAuthorEmailAddresses', 'kMDItemEmailAddresses', 'kMDItemPhoneNumbers', 'kMDItemKeywords',
+            'kMDItemCreator', 'kMDItemLatitude', 'kMDItemLongitude', 'kMDItemAltitude', 'kMDItemCity',
+            'kMDItemAcquisitionMake', 'kMDItemAcquisitionModel', 'kMDItemDurationSeconds', 'kMDItemOriginSubject',
+            'kMDItemOriginSenderDisplayName', 'kMDItemDestinationRecipients', 'kMDItemUserSharedReceivedRecipient',
+            'kMDItemUserSharedReceivedRecipientHandle', 'kMDItemTransportAccount', 'kMDItemAccountIdentifier',
+            'kMDItemContainerDisplayName')
+_ENGAGEMENT_DATES = ('_kMDItemRecentSpotlightEngagementDates', '_kMDItemRecentSpotlightEngagementDatesNonUnique',
+                     '_kMDItemRecentOutOfSpotlightEngagementDates')
+_ENGAGEMENT = ('_kMDItemRecentSpotlightEngagementQueries', '_kMDItemRecentSpotlightEngagementDates',
+               '_kMDItemRecentSpotlightEngagementRenderPositions',
+               '_kMDItemRecentSpotlightEngagementQueriesNonUnique',
+               '_kMDItemRecentSpotlightEngagementDatesNonUnique',
+               '_kMDItemRecentSpotlightEngagementRenderPositionsNonUnique',
+               '_kMDItemRecentOutOfSpotlightEngagementDates', '_kMDItemEngagementData')
+
+
+def _detail_rows(context, label, names, date_names=()):
+    """(headers, rows, read paths): one row per value a named record holds under one of names."""
+    data_headers = (('Content Modified (UTC)', 'datetime'), ('Record Updated (UTC)', 'datetime'), 'Name', 'Path',
+                    'Attribute', 'Value', 'File ID', 'Source File')
+    records, read = [], []
+    for path, relative, items, locate in _read_stores(context, label):
+        read.append(path)
+        for item in items:
+            attributes = item.attributes
+            name = attributes.get('_kMDItemFileName')
+            if not isinstance(name, str):
+                continue
+            located = None
+            for key in names:
+                value = _cocoa_text(attributes.get(key)) if key in date_names else _shown(attributes.get(key))
+                if value == '':
+                    continue
+                if located is None:
+                    located = locate(item.identifier, item.parent, name)
+                records.append(((_cocoa(attributes.get('kMDItemContentModificationDate')),
+                                 _unix_micro(item.updated), name, located, key, value,
+                                 _identifier(item.identifier)), relative))
+    merged = merge_sources(records)
+    merged.sort(key=lambda entry: (entry[0][0] == '', str(entry[0][0]), entry[0][3], str(entry[0][1]),
+                                   names.index(entry[0][4])))
+    return data_headers, [values + ('\n'.join(sources),) for values, sources in merged], '\n'.join(read)
+
+
+@artifact_processor
+def macosSpotlightStoreContent(context):
+    return _detail_rows(context, 'Spotlight Store Content Details', _CONTENT)
+
+
+@artifact_processor
+def macosSpotlightStoreEngagement(context):
+    return _detail_rows(context, 'Spotlight Store Engagement', _ENGAGEMENT, _ENGAGEMENT_DATES)
