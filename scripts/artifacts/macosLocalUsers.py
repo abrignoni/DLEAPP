@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                        "group membership, where the record stores them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "Accounts (macOS)",
         "notes": "Read from the account records under private/var/db/dslocal/nodes/Default/users, one "
@@ -79,15 +79,109 @@ __artifacts_v2__ = {
                  "Timestamp (UTC) is that identity's timestamp value, a property-list date, shown when "
                  "one identity is listed; what event it records was not established. Only thisisdfir's "
                  "record on dleapp_macos_bigsur carries LinkedIdentity, and only the UID 501 account's "
-                 "on the MacBook Pro extraction. Values not reported include ShadowHashData, "
-                 "KerberosKeys, HeimdalSRPKey, the picture and jpegphoto values, and the node's other "
-                 "groups.",
+                 "on the MacBook Pro extraction. The record's ShadowHashData fields and its picture and "
+                 "jpegphoto values are reported by the Local User Password Hashes and Local User "
+                 "Pictures artifacts. Values not reported include KerberosKeys, HeimdalSRPKey and the "
+                 "node's other groups.",
         "paths": ('*/var/db/dslocal/nodes/Default/users/*.plist',
                   '*/var/db/dslocal/nodes/Default/groups/admin.plist'),
         "output_types": ["standard"],
         "artifact_icon": "users",
         "sample_data": {
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 5 rows",
+        },
+    },
+    "macosLocalUserPictures": {
+        "name": "Local User Pictures",
+        "description": "The picture path and the embedded image stored in the macOS local account "
+                       "records that Local User Accounts reports, where a record carries them.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-12",
+        "last_update_date": "2026-11-12",
+        "requirements": "none",
+        "category": "Accounts (macOS)",
+        "notes": (
+            'One row per macOS local account that stores a picture path or an embedded image: a record under '
+            "private/var/db/dslocal/nodes/Default/users, not the system volume's template copy, whose shell "
+            'does not end in /false, the same records Local User Accounts reports. A byte-identical copy of a '
+            'record under another volume view is read once; a copy that differs is read too and gives its own '
+            "row, which no tested image held. Name, Real Name and UID are the first element of the record's "
+            "name, realname and uid values as stored. Picture Path is the first element of the record's picture"
+            ' value as stored; on the tested images it was a path under /Library/User Pictures or '
+            '/System/Library/CoreServices, the artifact does not read the file at that path, and whether it '
+            'shows the same picture as the embedded image was not established. Account Picture is the first '
+            "element of the record's jpegphoto value when it holds bytes, saved to the report's media folder; "
+            "Embedded Picture Format is the MIME type read from those bytes' leading bytes and Embedded Picture"
+            ' Size (bytes) is their length. Despite the jpegphoto key name, the stored bytes were TIFF on '
+            "dleapp_macos_bigsur and PNG on mvs2026_macbookpro_macos15, one record each, and the path's own "
+            'extension differed from them. JPEG, PNG, TIFF, GIF and HEIC signatures are checked; only TIFF and '
+            'PNG occurred on the tested images, and the other three are untested. Bytes with none of those '
+            'signatures are still saved, with a .bin extension and a blank Embedded Picture Format, which no '
+            'tested image held. A TIFF picture may not display in the HTML report or in LAVA; the file is in '
+            "the report's media folder either way. Account Picture, Embedded Picture Format and Embedded "
+            'Picture Size are blank when the record holds no jpegphoto bytes, as for the Guest record on '
+            'dleapp_macos_bigsur, which has no jpegphoto key, and the one account on adams_macbookpro_macos26, '
+            'whose jpegphoto value is an empty string; both carried a picture path only. On the three images '
+            'with rows no record left out for a shell ending in /false carried a picture or jpegphoto value. On'
+            ' magnet2021_macos_bigsur the pattern matched only the 218 template copies, which are not read; on '
+            'evidencelocker_macos14 it matched no file; neither gave a row.'
+        ),
+        "paths": ('*/var/db/dslocal/nodes/Default/users/*.plist',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "user",
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (only template copies matched, 218 files, not read)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 2 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no file matched the pattern)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 1 row",
+            "adams_macbookpro_macos26": "macOS 26.2 | 1 row",
+        },
+    },
+    "macosLocalUserPasswordHashes": {
+        "name": "Local User Password Hashes",
+        "description": "The fields the reported macOS local account records store in ShadowHashData: "
+                       "scheme name, iterations, salt and the entropy or verifier bytes, as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-12",
+        "last_update_date": "2026-11-12",
+        "requirements": "none",
+        "category": "Accounts (macOS)",
+        "notes": (
+            'One row per scheme key a macOS local account stores in ShadowHashData: a record under '
+            "private/var/db/dslocal/nodes/Default/users, not the system volume's template copy, whose shell "
+            'does not end in /false, the same records Local User Accounts reports. A byte-identical copy of a '
+            'record under another volume view is read once; a copy that differs is read too and gives its own '
+            "row, which no tested image held. Name, Real Name and UID are the first element of the record's "
+            "name, realname and uid values as stored. The artifact name follows the record's ShadowHashData "
+            "key. ShadowHashData is the first element of the record's ShadowHashData value, a property list "
+            '(binary on the tested images) whose keys are scheme names; each key whose value is a dictionary '
+            'gives a row, and a key holding any other kind of value gives none, which no tested image held. '
+            "Scheme is the key name as stored. Iterations is the scheme's iterations value as stored and Salt "
+            '(hex) its salt value as hex. Value Field is the name of the field the scheme holds as bytes, '
+            'entropy or verifier, whichever is present, and entropy when both are, and Value (hex) is that '
+            "field's bytes as hex; other fields a scheme may hold are not reported, and on the tested images "
+            'each scheme held only iterations, salt and one of those two. The scheme and field names in the '
+            "rows are the record's own and values are shown as stored or as hex; nothing here is interpreted, "
+            'and what a field is used for beyond its name is not described here. A row shows that the record '
+            'stores these fields; it does not establish that a password is set or in use for the account, and '
+            'the Guest record on dleapp_macos_bigsur carried both scheme keys. On dleapp_macos_bigsur, '
+            'mvs2026_macbookpro_macos15 and adams_macbookpro_macos26, 5 of the 13 reported accounts carried '
+            'ShadowHashData, 2, 2 and 1; each held two keys, SALTED-SHA512-PBKDF2 with an entropy field of 128 '
+            'bytes (256 hex characters) and SRP-RFC5054-4096-SHA512-PBKDF2 with a verifier field of 512 bytes '
+            '(1,024 hex characters), each with a 32-byte salt (64 hex characters) and an integer iterations '
+            'value. The other 8 accounts carried no ShadowHashData and gave no row. On magnet2021_macos_bigsur '
+            'the pattern matched only the 218 template copies, which are not read; on evidencelocker_macos14 it'
+            ' matched no file; neither gave a row.'
+        ),
+        "paths": ('*/var/db/dslocal/nodes/Default/users/*.plist',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "key",
+        "sample_data": {
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (only template copies matched, 218 files, not read)",
+            "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 4 rows",
+            "evidencelocker_macos14": "macOS 14.6.1 | 0 rows (no file matched the pattern)",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 4 rows",
+            "adams_macbookpro_macos26": "macOS 26.2 | 2 rows",
         },
     },
 }
@@ -204,4 +298,109 @@ def macosLocalUsers(context):
             f'whose shell ends in /false not reported; {skipped_template} files under '
             f'System/Library/Templates not read')
     data_list.sort(key=lambda row: (int(row[6]) if row[6].lstrip('-').isdigit() else 0, row[4]))
+    return data_headers, data_list, '\n'.join(sources)
+
+
+from scripts.ilapfuncs import check_in_embedded_media  # noqa: E402
+
+_IMAGE_MAGIC = (
+    (b'\xff\xd8\xff', 'image/jpeg', 'jpg'),
+    (b'\x89PNG\r\n\x1a\n', 'image/png', 'png'),
+    (b'MM\x00*', 'image/tiff', 'tiff'),
+    (b'II*\x00', 'image/tiff', 'tiff'),
+    (b'GIF87a', 'image/gif', 'gif'),
+    (b'GIF89a', 'image/gif', 'gif'),
+)
+_SHADOW_VERIFIER_FIELDS = ('entropy', 'verifier')
+
+
+def _image_kind(data):
+    """(mime type, extension) from an image's leading bytes, or ('', '') when unrecognised.
+
+    An ISO base media file (HEIC among them) carries 'ftyp' at offset 4 and its brand after it.
+    """
+    if not isinstance(data, (bytes, bytearray)) or len(data) < 12:
+        return '', ''
+    data = bytes(data)
+    for magic, mime, extension in _IMAGE_MAGIC:
+        if data.startswith(magic):
+            return mime, extension
+    if data[4:8] == b'ftyp':
+        brand = data[8:12]
+        if brand in (b'heic', b'heix', b'mif1', b'heis', b'hevc', b'heim', b'heis'):
+            return 'image/heic', 'heic'
+    return '', ''
+
+
+def _account_records(context, label):
+    """(path, relative path, record) for each account the Local User Accounts artifact reports: a
+    record under the users folder, not the system template copy, whose shell does not end in /false,
+    one per byte-identical copy across volume views."""
+    found = [str(handle) for handle in context.get_files_found()]
+    live = [handle for handle in found
+            if handle.endswith('.plist')
+            and _USERS in anchored(context.get_relative_path(handle))
+            and _TEMPLATE not in anchored(context.get_relative_path(handle))]
+    kept, _skipped = unique_sources(context, live, label=label)
+    for path in kept:
+        record = load_plist(path)
+        if not isinstance(record, dict):
+            continue
+        if str(first(record, 'shell')).endswith('/false'):
+            continue
+        yield path, anchored(context.get_relative_path(path)), record
+
+
+@artifact_processor
+def macosLocalUserPictures(context):
+    data_headers = (('Account Picture', 'media'), 'Name', 'Real Name', 'UID', 'Picture Path',
+                    'Embedded Picture Format', 'Embedded Picture Size (bytes)')
+    data_list, sources = [], []
+    for path, _relative, record in _account_records(context, 'Local User Pictures'):
+        name = str(first(record, 'name'))
+        picture_path = str(first(record, 'picture'))
+        photo = first(record, 'jpegphoto')
+        if not isinstance(photo, (bytes, bytearray)) or not photo:
+            photo = b''
+        if not picture_path and not photo:
+            continue
+        mime, extension = _image_kind(photo)
+        media = ''
+        if photo:
+            media = check_in_embedded_media(path, bytes(photo), name=f'{name} account picture',
+                                            force_type=mime or None,
+                                            force_extension=extension or 'bin') or ''
+        data_list.append((media, name, str(first(record, 'realname')), str(first(record, 'uid')),
+                          picture_path, mime, len(photo) if photo else ''))
+        sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def macosLocalUserPasswordHashes(context):
+    data_headers = ('Name', 'Real Name', 'UID', 'Scheme (as stored)', 'Iterations (as stored)',
+                    'Salt (hex)', 'Value Field (as stored)', 'Value (hex)')
+    data_list, sources = [], []
+    for path, _relative, record in _account_records(context, 'Local User Password Hashes'):
+        shadow = nested_plist(record, 'ShadowHashData')
+        if not shadow:
+            continue
+        name = str(first(record, 'name'))
+        real = str(first(record, 'realname'))
+        uid = str(first(record, 'uid'))
+        added = False
+        for scheme in sorted(shadow):
+            fields = shadow.get(scheme)
+            if not isinstance(fields, dict):
+                continue
+            field = next((candidate for candidate in _SHADOW_VERIFIER_FIELDS
+                          if isinstance(fields.get(candidate), (bytes, bytearray))), '')
+            salt = fields.get('salt')
+            data_list.append((
+                name, real, uid, str(scheme), str(fields.get('iterations', '')),
+                bytes(salt).hex() if isinstance(salt, (bytes, bytearray)) else '',
+                field, bytes(fields[field]).hex() if field else ''))
+            added = True
+        if added:
+            sources.append(path)
     return data_headers, data_list, '\n'.join(sources)
