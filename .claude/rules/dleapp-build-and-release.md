@@ -157,12 +157,21 @@ Linux (x64 and ARM64): the folder build and an AppImage, made by appimagetool 1.
 type2 runtime 20251108, both pinned by digest in `build.py` and run with
 `APPIMAGE_EXTRACT_AND_RUN` so the build machine needs no FUSE. The finished AppImage is run
 once and has to report the version. Linux builds are made on Ubuntu 22.04 for its glibc
-2.35. `test_builds.yml` builds and smoke-tests all six legs weekly, on dispatch, and on pull
+2.35. `packaging/linux/build_linux_packages.py` wraps the same one-folder build as a
+`.deb` (assembled with the standard library, no `dpkg-deb` needed) and an `.rpm`
+(`rpmbuild`), installed to `/opt/dleapp` with a `/usr/bin/dleapp` symlink, a desktop
+entry, an icon and a man page; the release attaches them as
+`DLEAPP-<version>-linux-<arch>.deb/.rpm` beside the AppImage. `test_builds.yml`
+installs the `.deb` and runs `dleapp --version` from it. Arch users get
+`dleapp-bin` (latest release, refreshed by `aur-publish.yml` on every release)
+and `dleapp-git` (latest commit, rebuilt on `--devel` upgrades) from
+`packaging/aur/`; everyone else gets `install.sh`, which picks the native
+package, verifies it against `SHA256SUMS.txt`, and installs it. `test_builds.yml` builds and smoke-tests all six legs weekly, on dispatch, and on pull
 requests that touch packaging.
 
 `release.yml` runs the same steps when a `v*` tag is pushed, refuses a tag that is not
 `v` + `dleapp_version`, names the assets `DLEAPP-<version>-<platform>-<arch>`
-(portable.zip on Windows, .dmg on macOS, .AppImage on Linux; no Linux .tar.gz), stages them
+(portable.zip on Windows, .dmg on macOS, .AppImage/.deb/.rpm on Linux; no Linux .tar.gz), stages them
 in `release-assets/` (never `assets/`, which holds the window's images), adds
 `SHA256SUMS.txt`, and creates a **draft** release; publishing is a click. Dispatched by
 hand, it builds the assets without creating a release. `.github/release-footer.md` is

@@ -143,7 +143,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q libtcl8.6 libtk8.6 xvfb
+          sudo apt-get install -y -q libtcl8.6 libtk8.6 xvfb rpm
           python -c "import tkinter" || { echo "tkinter unavailable in this Python"; exit 1; }
 
       # The tag names the version the assets will be published under, and
@@ -345,6 +345,21 @@ jobs:
         shell: bash
         run: python packaging/build.py installer
 
+      # Native packages wrap the same one-folder build the AppImage ships, as
+      # /opt/dleapp with a /usr/bin/dleapp symlink. Installed here and run once:
+      # an asset that installs but does not start never reaches the release.
+      - name: Phase 2, native packages (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          python packaging/linux/build_linux_packages.py --folder dist/DLEAPP --out dist all
+          dpkg-deb -I dist/*.deb
+          rpm -qlp dist/*.rpm
+          sudo dpkg -i dist/*.deb
+          dleapp --version | grep -F "DLEAPP $VERSION"
+          sudo dpkg -r dleapp
+          ls -l dist/*.deb dist/*.rpm
+
       # Notarising the .dmg covers the signed .app inside it, and the stapled ticket lets
       # Gatekeeper accept it offline. A rejection prints Apple's log, which names the file.
       - name: macOS, sign, notarise and staple the disk image
@@ -414,6 +429,16 @@ jobs:
               ;;
             Linux)
               mv "dist/DLEAPP-$VERSION.AppImage" "release-assets/$STEM.AppImage"
+              # The builder names the packages its own way (dleapp_<debver>_<debarch>.deb,
+              # dleapp-<ver>-<rel>.<rpmarch>.rpm); the release assets follow the same
+              # DLEAPP-<version>-<platform>-<arch> pattern as everything else here.
+              case "$RUNNER_ARCH" in
+                X64) DEBARCH=amd64 ;;
+                ARM64) DEBARCH=arm64 ;;
+                *) echo "::error::unknown RUNNER_ARCH $RUNNER_ARCH"; exit 1 ;;
+              esac
+              cp dist/dleapp_*"$DEBARCH".deb "release-assets/$STEM.deb"
+              cp dist/dleapp-*.rpm "release-assets/$STEM.rpm"
               ;;
           esac
           ls -l release-assets/

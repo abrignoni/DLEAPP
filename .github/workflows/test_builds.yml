@@ -102,7 +102,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q libtcl8.6 libtk8.6 xvfb
+          sudo apt-get install -y -q libtcl8.6 libtk8.6 xvfb rpm
           python -c "import tkinter" || { echo "tkinter unavailable in this Python"; exit 1; }
 
       - name: Fetch the Unified Log parser (digest-verified)
@@ -170,6 +170,20 @@ jobs:
           python packaging/build.py installer
           ls -l dist/DLEAPP-*.AppImage
 
+      # The native packages wrap the same one-folder build. Installed and run:
+      # a package that installs but does not start fails here, not in a release.
+      - name: Phase 2, native packages (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          python packaging/linux/build_linux_packages.py --folder dist/DLEAPP --out dist all
+          dpkg-deb -I dist/*.deb
+          dpkg-deb -c dist/*.deb
+          rpm -qlp dist/*.rpm
+          sudo dpkg -i dist/*.deb
+          dleapp --version
+          sudo dpkg -r dleapp
+
       # The one-folder build, with Windows' single-file executable and Linux's AppImage.
       - name: Upload the build (Windows, Linux)
         if: runner.os != 'macOS'
@@ -180,6 +194,8 @@ jobs:
             dist/DLEAPP/
             dist/dleapp.exe
             dist/DLEAPP-*.AppImage
+            dist/*.deb
+            dist/*.rpm
           retention-days: 14
           if-no-files-found: error
 
