@@ -154,6 +154,67 @@ __artifacts_v2__ = {
             "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 1 row",
         },
     },
+    "sshKeyFiles": {
+        "name": "SSH Key Files",
+        "description": "Private and public SSH key files (a user's .ssh/id_* and .pub files and the "
+                       "host keys in etc/ssh and ProgramData/ssh), with each key's kind and type, "
+                       "its SHA256 fingerprint where one is computed, whether an OpenSSH-format "
+                       "private key is encrypted, and the comment of a public key file. The "
+                       "private part of a key is not parsed, decrypted or reported: the type and "
+                       "fingerprint of an OpenSSH private key come from the public key stored "
+                       "unencrypted inside it.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-13",
+        "last_update_date": "2026-11-13",
+        "requirements": "none",
+        "category": "SSH",
+        "notes": "One row per private key file, and one row per key line of a public key file. A "
+                 "public key file (a .pub, or a host key's .pub) is read as lines holding a type, "
+                 "a base64 key and an optional comment; Fingerprint (SHA256) is the SHA-256 of the "
+                 "key's stored bytes in base64 with its padding removed, the way OpenSSH prints a "
+                 "key's fingerprint, computed with the same read_key used by SSH Authorized Keys "
+                 "and SSH Known Hosts. A certificate's fingerprint is left blank and counted in "
+                 "the run log. A private key file in the OpenSSH format (-----BEGIN OPENSSH PRIVATE "
+                 "KEY-----) carries its first public key unencrypted even when the private key is "
+                 "passphrase-encrypted (https://github.com/openssh/openssh-portable/blob/"
+                 "d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/PROTOCOL.key#L5-L19); the Key Type and "
+                 "Fingerprint (SHA256) are read from that public key, and Encrypted is yes when the "
+                 "file's cipher name is not none and no when it is none "
+                 "(https://github.com/openssh/openssh-portable/blob/"
+                 "d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/PROTOCOL.key#L59-L69). A private key "
+                 "file with any other -----BEGIN ... PRIVATE KEY----- header (RSA, EC, DSA, PRIVATE "
+                 "KEY, ENCRYPTED PRIVATE KEY) has its Key Type set to the label in the header (RSA, "
+                 "EC or DSA), blank for a PKCS#8 header which names no algorithm; Encrypted is yes "
+                 "when the header says ENCRYPTED or the file has a DEK-Info line, and blank "
+                 "otherwise, where blank does not mean the key is unencrypted; this artifact does "
+                 "not compute a fingerprint for these files, so Fingerprint is blank. No tested "
+                 "image holds such a legacy PEM key and no unit test covers it, so that branch is "
+                 "implemented from the code only. Comment is blank for a private key; the OpenSSH "
+                 "format keeps the comment in the private key list "
+                 "(https://github.com/openssh/openssh-portable/blob/"
+                 "d01efaa1c9ed84fd9011201dbc3c7cb0a82bcee3/PROTOCOL.key#L30-L44), which this "
+                 "artifact does not read, and a .pub beside it can carry a comment. On "
+                 "ubuntu2604_arm64_sshkeyfiles_known_20261113 (known data made with ssh-keygen "
+                 "10.2p1) the four private keys, their four .pub files and three host .pub files "
+                 "give 11 rows; every fingerprint equals what ssh-keygen -lf prints for that file, "
+                 "including id_ed25519_enc, whose private key is encrypted (aes256-ctr) while its "
+                 "fingerprint reads from the plaintext public key. No tested image holds a host "
+                 "private key, a ProgramData/ssh key or a certificate, and a private key saved "
+                 "under a name that does not start with id_ or ssh_host_ is not read. "
+                 "authorized_keys and known_hosts in the same folder are not read here; they are "
+                 "covered by SSH Authorized Keys and SSH Known Hosts. A line of a public key file "
+                 "that does not hold a key, and an OpenSSH-format private key that could not be "
+                 "parsed, are counted in the run log and not reported; an empty file gives no row "
+                 "and no count. Source File names the file each row came from.",
+        "paths": ('*/.ssh/id_*', '*/.ssh/*.pub', '*/etc/ssh/ssh_host_*', '*/ProgramData/ssh/ssh_host_*'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "key",
+        "sample_data": {
+            "ubuntu2604_arm64_sshkeyfiles_known_20261113": "Ubuntu 26.04 LTS aarch64 | 11 rows",
+            "ubuntu2604_arm64_sshkeys": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+            "ubuntu2604_arm64_triage": "Ubuntu 26.04 LTS aarch64 | 0 rows (no member matches the declared paths)",
+        },
+    },
 }
 
 import base64
@@ -298,4 +359,80 @@ def sshAuthorizedKeys(context):
 def sshKnownHosts(context):
     data_headers = ('Hosts', 'Hashed', 'Marker', 'Key Type', 'Fingerprint (SHA256)', 'Comment', 'Line', 'Source File')
     data_list, source = _process(context, known_host_rows, 'SSH Known Hosts')
+    return data_headers, data_list, source
+
+
+def _openssh_private_key(data):
+    """(type, SHA256 fingerprint, 'yes'/'no' encrypted) of an OpenSSH private key, from the
+    public key stored unencrypted in it, or None when it cannot be parsed."""
+    try:
+        body = ''.join(line for line in data.decode('ascii', errors='replace').splitlines()
+                       if '-----' not in line)
+        raw = base64.b64decode(body, validate=False)
+    except (binascii.Error, ValueError):
+        return None
+    if raw[:15] != b'openssh-key-v1\x00':
+        return None
+
+    def read(offset):
+        if offset + 4 > len(raw):
+            raise ValueError('truncated')
+        (length,) = struct.unpack('>I', raw[offset:offset + 4])
+        start = offset + 4
+        if start + length > len(raw):
+            raise ValueError('truncated')
+        return raw[start:start + length], start + length
+
+    try:
+        cipher, offset = read(15)
+        _kdf, offset = read(offset)
+        _kdfopts, offset = read(offset)
+        offset += 4  # number of keys
+        public, _ = read(offset)
+    except (ValueError, struct.error):
+        return None
+    key_type = _blob_type(public)
+    if not key_type:
+        return None
+    fingerprint = 'SHA256:' + base64.b64encode(hashlib.sha256(public).digest()).decode('ascii').rstrip('=')
+    encrypted = 'no' if cipher.decode('ascii', errors='replace') == 'none' else 'yes'
+    return key_type, fingerprint, encrypted
+
+
+def key_file_rows(data, counts):
+    """(kind, type, fingerprint, encrypted, comment) for a private or public SSH key file."""
+    head = data[:40].decode('ascii', errors='replace')
+    if head.startswith('-----BEGIN ') and 'PRIVATE KEY-----' in data[:80].decode('ascii', 'replace'):
+        header = data.decode('ascii', 'replace').splitlines()[0]
+        if 'OPENSSH PRIVATE KEY' in header:
+            parsed = _openssh_private_key(data)
+            if parsed is None:
+                counts['OpenSSH private key files that could not be parsed, not reported'] += 1
+                return []
+            key_type, fingerprint, encrypted = parsed
+            return [('Private', key_type, fingerprint, encrypted, '')]
+        label = header.replace('-----BEGIN ', '').replace(' PRIVATE KEY-----', '').strip()
+        key_type = label if label in ('RSA', 'EC', 'DSA') else ''
+        text = data.decode('ascii', errors='replace')
+        encrypted = 'yes' if (label == 'ENCRYPTED' or 'DEK-Info:' in text) else ''
+        return [('Private', key_type, '', encrypted, '')]
+    rows = []
+    for line in _lines(data):
+        text = line.strip()
+        if not text or text.startswith('#'):
+            continue
+        match = _KEY.fullmatch(text)
+        fingerprint, is_key = read_key(match.group(1), match.group(2), counts) if match else ('', False)
+        if not is_key:
+            counts['public key lines that do not hold a key, not reported'] += 1
+            continue
+        rows.append(('Public', match.group(1), fingerprint, '', match.group(3) or ''))
+    return rows
+
+
+@artifact_processor
+def sshKeyFiles(context):
+    data_headers = ('Key Kind', 'Key Type', 'Fingerprint (SHA256)', 'Encrypted', 'Comment',
+                    'Source File')
+    data_list, source = _process(context, key_file_rows, 'SSH Key Files')
     return data_headers, data_list, source
