@@ -52,7 +52,11 @@ def _varint(data, position):
 
 def proto_fields(data):
     """{field number: last value} of one encoded message: an int for a varint, bytes otherwise."""
-    out = {}
+    return dict(proto_items(data))
+
+
+def proto_items(data):
+    """(field number, value) for every field of one encoded message, in order, repeated fields included."""
     position = 0
     size = len(data)
     while position < size:
@@ -73,8 +77,7 @@ def proto_fields(data):
             raise ProtoError(f'unsupported wire type {wire_type}')
         if position > size:
             raise ProtoError('field runs past the end')
-        out[number] = value
-    return out
+        yield number, value
 
 
 def signed64(value):
