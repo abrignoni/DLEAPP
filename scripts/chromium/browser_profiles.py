@@ -96,9 +96,10 @@ _HOME_PARENTS = ('Users', 'home')
 # Folders a profile keeps its own stores in. When one sits directly in a user
 # data folder, the user data folder is read as the profile rather than the
 # folder being read as a profile named Network, Extensions, Sessions, Sync Data, Local Storage,
-# Service Worker, File System or WebStorage.
+# Service Worker, File System, WebStorage or Platform Notifications.
 _PROFILE_SUBFOLDERS = ('Network', 'Extensions', 'Sessions', 'Sessions_Encrypted', 'Sync Data',
-                       'Local Storage', 'Service Worker', 'File System', 'WebStorage')
+                       'Local Storage', 'Service Worker', 'File System', 'WebStorage',
+                       'Platform Notifications')
 
 # A SQLite store's rollback journal or write-ahead log, which the store is read with.
 _SIDECARS = ('-journal', '-wal')
