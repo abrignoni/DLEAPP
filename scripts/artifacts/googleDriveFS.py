@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the items table of the two metadata databases, metadata_sqlite_db and '
             'mirror_metadata_sqlite.db, in each account folder of a Google Drive for desktop '
@@ -90,6 +91,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the mirror_item table of mirror_sqlite.db in each account folder of a Google '
             'Drive for desktop (DriveFS) folder. Amged Wageh describes that table as the list of '
@@ -145,6 +147,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads experiments.db in each Google Drive for desktop (DriveFS) folder, which is '
             'Library/Application Support/Google/DriveFS on the tested Mac, and the '
@@ -218,6 +221,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the drive_fs logs, drive_fs.txt and drive_fs_N.txt, in the Logs folder of each '
             'Google Drive for desktop (DriveFS) folder, which is Library/Application '
@@ -272,6 +276,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the roots table of root_preference_sqlite.db in each Google Drive for desktop '
             '(DriveFS) folder, which is Library/Application Support/Google/DriveFS on the tested '
@@ -324,6 +329,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the media table of root_preference_sqlite.db in each Google Drive for desktop '
             '(DriveFS) folder, which is Library/Application Support/Google/DriveFS on the tested '

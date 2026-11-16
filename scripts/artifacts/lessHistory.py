@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Command Line (less)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the history file of the less pager at the places less 668 looks by default: lesshst in "
                  ".local/state in the home folder, lesshst in the folder $XDG_DATA_HOME names, and .lesshst in the "
                  "home folder. less uses the first of these that exists, and makes a new file in .local/state when "
@@ -118,6 +119,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Command Line (less)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the history file of the less pager at the places less 668 looks by default: lesshst in "
                  ".local/state in the home folder, lesshst in the folder $XDG_DATA_HOME names, and .lesshst in the "
                  "home folder. less uses the first of these that exists, and makes a new file in .local/state when "

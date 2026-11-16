@@ -37,6 +37,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Bits-Client%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-Bits-Client records "
                  "with Event ID 3, 4, 5, 59, 60, 61 or 16403 are read. Event is a short "

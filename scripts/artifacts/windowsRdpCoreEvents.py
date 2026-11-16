@@ -48,6 +48,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-RemoteDesktopServices-RdpCoreTS%4Operational.evtx the paths match "
                  "with python-evtx and reports, one row per record, the records whose provider is "
                  "Microsoft-Windows-RemoteDesktopServices-RdpCoreTS and whose Event ID is 65, 66, 102, 103, 104, "

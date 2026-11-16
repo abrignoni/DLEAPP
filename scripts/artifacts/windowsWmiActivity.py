@@ -33,6 +33,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-WMI-Activity%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-WMI-Activity records "
                  "with Event ID 5859, 5860 or 5861 are read. The provider manifest's "
@@ -110,6 +111,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-WMI-Activity%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-WMI-Activity records "
                  "with Event ID 5857 or 5858 are read. The provider manifest's message for "

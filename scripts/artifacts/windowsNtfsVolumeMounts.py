@@ -32,6 +32,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Ntfs%4Operational.evtx the paths match with python-evtx and reports, "
                  "one row per record, the records whose provider is Microsoft-Windows-Ntfs and whose Event ID is 4, "
                  "300, 303 or 305. Event is the first line of the event's message in the provider's manifest: 4 'The "

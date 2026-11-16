@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-16",
         "requirements": "none",
         "category": "Siri (macOS)",
+        "platforms": ("macOS",),
         "notes": 'Reads the Core Data store AgentSessionStore.sqlite in Library/Daemon '
                  'Containers/<UUID>/Data/AgentSessionKit. The path is matched on the AgentSessionKit folder; the '
                  "container's .com.apple.containermanagerd.metadata.plist identifier is not checked. Sources: the "
@@ -102,6 +103,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-16",
         "requirements": "none",
         "category": "Siri (macOS)",
+        "platforms": ("macOS",),
         "notes": 'Reads ZARTIFACTENTITY in the Core Data store AgentSessionStore.sqlite in Library/Daemon '
                  'Containers/<UUID>/Data/AgentSessionKit, the store the Siri App Conversations artifact reads; see '
                  'its notes for the sources and the private macOS 27.2.1 (26B131) system whose test conversations of '
@@ -146,6 +148,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-16",
         "requirements": "none",
         "category": "Siri (macOS)",
+        "platforms": ("macOS",),
         "notes": 'Reads the persistent-history tables (ACHANGE and ATRANSACTION) of the Core Data store '
                  'AgentSessionStore.sqlite in Library/Daemon Containers/<UUID>/Data/AgentSessionKit, the store the '
                  'Siri App Conversations artifact reads; see its notes for the sources and the private macOS 27.2.1 '

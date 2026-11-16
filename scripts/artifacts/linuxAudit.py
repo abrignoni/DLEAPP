@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Logins (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/audit/audit.log and its numbered rotations, gzip ones included, and reports one row"
                  " per record, in line order, file by file in name order; Line is its line number in the file and "
                  "Source File the file, and the files that held a row are named in the report's located-at line. "

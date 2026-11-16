@@ -57,6 +57,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "TeamViewer",
+        "platforms": ("Windows",),
         "notes": "Read from Connections_incoming.txt and Connections.txt in a folder named TeamViewer anywhere in "
                  "the input, with the T and V of TeamViewer and the C of the file name in either case. "
                  "TeamViewer's knowledge base says successful connections are listed in Connections_incoming.txt "
@@ -249,6 +250,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "TeamViewer",
+        "platforms": ("Windows", "macOS"),
         "notes": "Read from files named TeamViewer*_Logfile*.log in any folder, with the T and V of TeamViewer and"
                  " the L of Logfile in either case. TeamViewer's knowledge base names TeamViewer15_Logfile.log, or"
                  " TeamViewerXX_Logfile.log for TeamViewer (Classic), and an _OLD copy when there is one, in "

@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "PyCryptodome",
         "category": "Telegram Desktop",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Only live binlog entries whose backing object exists and passes "
                  "TDEF authentication are included. Deleted/stale entries and "
                  "unrecognized serialized cache objects are suppressed. The "

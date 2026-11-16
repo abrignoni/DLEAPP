@@ -39,6 +39,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give the stored reason its name",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from System.evtx, named in the report's located-at line; rows come only from "
                  "Microsoft-Windows-Kernel-General records with Event ID 1, and the same provider's Event ID "
                  "12 records are read for the build check described below. The provider's manifest gives "
@@ -155,6 +156,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
                  "Microsoft-Windows-Security-Auditing records with Event ID 4616 are read. Microsoft "
                  "documents 4616 as 'The system time was changed.' and says it is logged regardless of the "

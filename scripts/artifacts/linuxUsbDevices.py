@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "USB Devices (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per USB device connection the Linux kernel logged in the syslog files /var/log/syslog, "
                  "kern.log and messages and their rotations (numbered and gzip ones, and dated ones of messages), "
                  "read folder by folder and each file oldest rotation first. The kernel logs a line as it sets up "
@@ -118,6 +119,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "USB Devices (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per USB device connection the Linux kernel logged in the systemd journal files under "
                  "var/log/journal and run/log/journal, read with the same reader as systemd Journal "
                  "(scripts/systemd_journal.py); only entries with _TRANSPORT kernel are read. The kernel's lines "
@@ -180,6 +182,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "USB Devices (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per disk the usb-storage driver made of a USB device, from the kernel's lines in the "
                  "syslog files /var/log/syslog, kern.log and messages and their rotations, read as USB Devices "
                  "(syslog) reads them: folder by folder, each file oldest rotation first, a Linux version line "
@@ -307,6 +310,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "USB Devices (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per disk the usb-storage driver made of a USB device, from the kernel's entries in the "
                  "systemd journal files, read as USB Devices (journal) reads them: entries of each boot in the "
                  "order the kernel logged them, an entry that two journal files hold read once, and boots kept "

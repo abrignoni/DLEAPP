@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the .DS_Store file in a folder named .Trash and in a subfolder of a .Trashes '
             'folder. Topher Kessler describes /Users/username/.Trash as holding the files on the '
@@ -65,6 +66,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Trash (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'One row per file under a folder named .Trash or .Trashes, at any depth, so a trashed folder is '
             "listed file by file and a .Trash folder inside a user's iCloud Drive folder is included. The "

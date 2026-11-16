@@ -12,6 +12,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "Direction is taken from the ZISFROMME column: a set flag is "
                  "reported as Outgoing, a clear flag as Incoming. It is left "
                  "blank where ZISFROMME is NULL and on ZMESSAGETYPE 6 rows, "

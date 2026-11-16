@@ -70,6 +70,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Windows PowerShell.evtx, named in the report's located-at line. "
                  "Only records of the PowerShell provider with Event ID 400 to 403 (engine "
                  "lifecycle) or 600 and 601 (provider lifecycle) are read. Microsoft's "
@@ -165,6 +166,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Windows PowerShell.evtx (PowerShell provider, Event ID 800) and "
                  "Microsoft-Windows-PowerShell%4Operational.evtx (Microsoft-Windows-PowerShell "
                  "provider, Event ID 4103), both named in the report's located-at line; "
@@ -237,6 +239,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-PowerShell%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-PowerShell records with "
                  "Event ID 4104 are read. Microsoft documents 4104 as the event PowerShell "
@@ -317,6 +320,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-PowerShell%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-PowerShell records with "
                  "Event ID 40961, 40962 or 53504 are read. Event is the message "

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-15",
         "requirements": "none",
         "category": "Claude Code",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads settings.json and settings.local.json in every .claude folder the paths match, the user "
                  "folder and any project folder alike; Source File says which, because a row alone does not (the "
                  "Claude Code documentation names ~/.claude/settings.json as the user file, .claude/settings.json "
@@ -57,6 +58,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-15",
         "requirements": "none",
         "category": "Claude Code",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Scope is where the server was read: Project file for a .mcp.json (Project is its folder), User "
                  "for mcpServers at the top level of .claude.json, Local for mcpServers under a project path of "
                  ".claude.json (Project is that path). The Claude Code documentation describes these three places "
@@ -96,6 +98,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-15",
         "requirements": "none",
         "category": "Claude Code",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per key of projects in each .claude.json. Project is the key as stored. On the Windows "
                  "known data, 1.0.123 wrote backslashes and 2.1.319 wrote forward slashes; Claude Code 2.1.112 "
                  "replaces backslashes with forward slashes in the key "

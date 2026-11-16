@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             (
             (
@@ -126,6 +127,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             (
             (

@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "Values are reported verbatim for evidentiary analysis, including "
                  "PlayerHydrationBlob and PlayerHydrationSignature. These values can "
                  "contain sensitive account state, but the parser does not classify "
@@ -36,6 +37,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "Compound XML values such as vectors are flattened into a compact "
                  "name=value representation.",
         "paths": (

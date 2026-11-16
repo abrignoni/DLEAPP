@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the subkeys of Microsoft\\Windows Portable Devices\\Devices in the SOFTWARE hive"
                  " and of Enum\\SWD\\WPDBUSENUM in the SYSTEM hive's control set named by the Select "
                  "key's Current value (ControlSet001 when there is none), with each subkey's "

@@ -34,6 +34,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-User Profile Service%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-User Profiles Service records with "
                  "Event ID 1, 3, 5 or 67 are read. Event is the provider's message for the event with its "

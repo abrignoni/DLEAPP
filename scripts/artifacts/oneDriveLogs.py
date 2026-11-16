@@ -29,6 +29,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "PyCryptodome",
         "category": "OneDrive (Desktop)",
+        "platforms": ("Windows", "macOS"),
         "notes": "Reads the OneDrive sync client's own logs, the .odl, .odlgz, .odlsent and .aodl "
                  "files under AppData\\Local\\Microsoft\\OneDrive\\logs on Windows or "
                  "Library/Logs/OneDrive on macOS, the two locations Khatri gives ('Reading "

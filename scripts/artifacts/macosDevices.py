@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each plist in /private/var/db/lockdown and reports those that hold a HostID or"
                  " DeviceCertificate value, one row per file; Device Identifier is the file name "
                  "without .plist. libimobiledevice's usbmuxd, which reads the same folder, stores a "
@@ -44,6 +45,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the Devices dictionary of each user's "
                  "~/Library/Preferences/com.apple.iPod.plist, one row per device. Connected is the "
                  "device's Connected date as stored; whether it records the first or the latest "
@@ -77,6 +79,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads /Library/Preferences/com.apple.Bluetooth.plist: one row per address found in "
                  "DeviceCache or in the PairedDevices, BRPairedDevices, MagicCloudPairedDevices and "
                  "IDSPairedDevices lists, with Listed In naming the lists that hold it. Name, Display "

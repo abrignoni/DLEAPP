@@ -7,6 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "CoreAnalytics (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'One row per .core_analytics file under Library/Logs/DiagnosticReports, its Retired folder '
             'included. A .core_analytics file is lines of JSON: a header object, an object marked <metadata>, '
@@ -47,6 +48,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "CoreAnalytics (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'One row per event record of the .core_analytics files under Library/Logs/DiagnosticReports, its '
             'Retired folder included. A .core_analytics file is lines of JSON: a header object, an object '

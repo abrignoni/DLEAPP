@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Mail (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each user's Envelope Index under ~/Library/Mail/V<n>/MailData, one "
                  "row per message in its messages table. Date Received (UTC) and Date Sent "
                  "(UTC) are date_received and date_sent read as Unix seconds; read that "

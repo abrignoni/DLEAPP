@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "Potato Desktop",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Potato Desktop is a fork of Telegram Desktop and writes the same style of "
                  "log.txt. One row per log.txt found. Version and Numeric Version are the "
                  "'set version to' and 'Launched version:' values on the launch line; Update "

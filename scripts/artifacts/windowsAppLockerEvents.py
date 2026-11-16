@@ -92,6 +92,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-AppLocker%4EXE and DLL.evtx, %4MSI and Script.evtx, %4Packaged "
                  "app-Deployment.evtx and %4Packaged app-Execution.evtx the paths match with python-evtx and "
                  "reports, one row per record, the records whose provider is Microsoft-Windows-AppLocker and whose "
@@ -225,6 +226,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-AppLocker%4EXE and DLL.evtx, %4MSI and Script.evtx, %4Packaged "
                  "app-Deployment.evtx and %4Packaged app-Execution.evtx the paths match with python-evtx and "
                  "reports, one row per record, the records whose provider is Microsoft-Windows-AppLocker and whose "
@@ -365,6 +367,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-AppLocker%4EXE and DLL.evtx, %4MSI and Script.evtx, %4Packaged "
                  "app-Deployment.evtx and %4Packaged app-Execution.evtx the paths match with python-evtx and "
                  "reports, one row per record, the records whose provider is Microsoft-Windows-AppLocker and whose "

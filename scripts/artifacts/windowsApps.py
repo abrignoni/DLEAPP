@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Windows Apps",
+        "platforms": ("Windows",),
         "notes": "Validated with Photos 2026.11020.20001.0. The modern "
                  "database is LocalState/shared.sqlite. Numeric timestamps "
                  "are converted from Windows FILETIME; their original "
@@ -70,6 +71,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Windows Apps",
+        "platforms": ("Windows",),
         "notes": "Validated by adding a controlled local folder in Photos "
                  "2026.11020.20001.0. DateScanned uses 100-nanosecond units "
                  "from the Unix epoch; folder dates use Windows FILETIME.",
@@ -96,6 +98,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows Apps",
+        "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP and validated on "
                  "windows11_arm_parallels with Clock "
                  "11.2605.10.0. Scheduled fields are device-local; created "

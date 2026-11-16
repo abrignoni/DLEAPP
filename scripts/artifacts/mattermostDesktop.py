@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Mattermost (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the Mattermost Desktop (Electron) Chromium HTTP cache in '
             'Mattermost/Cache/Cache_Data, and the same folder under Mattermost/Partitions/*, in '
@@ -99,6 +100,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Mattermost (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the Mattermost Desktop (Electron) Chromium HTTP cache in '
             'Mattermost/Cache/Cache_Data, and the same folder under Mattermost/Partitions/*, in '
@@ -172,6 +174,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Mattermost (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the Mattermost Desktop (Electron) Chromium HTTP cache in '
             'Mattermost/Cache/Cache_Data, and the same folder under Mattermost/Partitions/*, in '
@@ -247,6 +250,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Mattermost (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the IndexedDB database named localforage, object store keyvaluepairs, key '
             'persist:storage in each Mattermost/IndexedDB/<origin>.indexeddb.leveldb folder. '
@@ -318,6 +322,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Mattermost (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads Mattermost/config.json (the desktop app's configuration, whose servers list "
             'holds name, url, order and an optional isPredefined, and whose optional '

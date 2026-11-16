@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads each .DS_Store file the declared path matches, with the .DS_Store reader Trash '
             "Put Back uses, written from Wim Lewis's notes on the format, which describe the file "

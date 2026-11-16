@@ -17,6 +17,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads authorized_applications in each user's ~/Library/Application "
                  "Support/com.apple.akd/authorization.db, joined to authorized_teams on team_id and to"
                  " authorized_primary_applications on client_id. The primary application is the row's "
@@ -81,6 +82,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads device_list in each user's ~/Library/Application "
                  "Support/com.apple.akd/devicelist.db, the table iLEAPP's appleAccountDeviceList reads"
                  " on iOS. Last Updated and Last Cache Updated are last_updated_date and "
@@ -131,6 +133,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads deleted_device_list in each user's ~/Library/Application "
                  "Support/com.apple.akd/devicelist.db. Deleted and Last Updated are deleted_date and "
                  "last_updated_date read as Unix seconds, the same reading device_list's dates take in"
@@ -165,6 +168,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the emails table (client_key, email) in each user's ~/Library/Application "
                  "Support/com.apple.akd/privateEmails.db and reports both columns as stored. What the "
                  "addresses are used for, and which client a client_key names, are not established. "

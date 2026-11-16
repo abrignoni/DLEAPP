@@ -7,6 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Menu Bar (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "One row per item per file, for each item named by an NSStatusItem key of a user's "
             "com.apple.systemuiserver.plist or com.apple.controlcenter.plist. The keys read 'NSStatusItem "
@@ -47,6 +48,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Menu Bar (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "One row per entry of the menuExtras list of a user's com.apple.systemuiserver.plist, as stored. "
             "Position is the entry's place in the list, counted from 0. What writes the list and when is not "

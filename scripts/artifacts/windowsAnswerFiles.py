@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the Windows Setup answer files Windows\\Panther\\unattend.xml, "
                  "Windows\\Panther\\Unattend\\Unattend.xml or Autounattend.xml, and "
                  "Windows\\System32\\Sysprep\\unattend.xml, one row per setting. Microsoft's Windows "

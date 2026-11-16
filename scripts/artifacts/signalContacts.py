@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-28",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Signal (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "A conversation exists here once Signal has learned of the "
                  "account, which includes accounts that were never messaged "
                  "from this device. The message count distinguishes those." " db.sqlite-wal is staged with the database and the frames up to its last "
@@ -40,6 +41,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-28",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Signal (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Signal Desktop records calls it observed. A call placed or "
                  "answered on a phone linked to the same account may not appear "
                  "here, so an absent call is not evidence no call took place. "
@@ -77,6 +79,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-28",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Signal (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "These records show cryptographic contact at the protocol "
                  "level, which can name accounts that no longer appear in any "
                  "message. Key material itself is not reported." " db.sqlite-wal is staged with the database and the frames up to its last "

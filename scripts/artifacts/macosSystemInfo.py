@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "System Information (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads SystemVersion.plist in a volume's own System/Library/CoreServices folder, and the "
                  "SystemConfiguration preferences.plist, .GlobalPreferences.plist and "
                  "com.apple.loginwindow.plist in a volume's own Library/Preferences folder. A copy with a "

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the screen time history GNOME Shell keeps for a user, session-active-history.json in the "
                  "gnome-shell folder of the user's data folder (Reference: GNOME Shell 50.1, "
                  "'js/misc/timeLimitsManager.js', "

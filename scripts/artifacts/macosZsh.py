@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Persistence (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads the zsh startup files .zshenv, .zprofile, .zshrc, .zlogin and .zlogout in any "
             "folder, their system equivalents in /etc (private/etc on macOS), and a compiled copy "
@@ -77,6 +78,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Persistence (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads every file whose name ends in .zwc, one row per entry. The layout is zsh 5.9's "
             "(Reference: zsh, 'Src/parse.c', "
@@ -117,6 +119,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Command Line (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads .zsh_history, the file the stock /etc/zshrc on macOS names as HISTFILE when "
             "ZDOTDIR is unset, and Terminal's per-session .history and .historynew files in "
@@ -161,6 +164,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Command Line (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads Terminal's session state files, <session id>.session in .zsh_sessions, which "
             "/etc/zshrc_Apple_Terminal writes when a zsh started by Terminal exits "

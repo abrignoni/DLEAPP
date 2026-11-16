@@ -63,6 +63,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "AnyDesk",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "AnyDesk's support article says connection_trace.txt is created when a connection request is "
                  "received, holds the date and time, whether the request was accepted or rejected and who sent "
                  "it, and sits in the folder of the client's configuration files "
@@ -105,6 +106,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "AnyDesk",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "AnyDesk's support article does not describe file_transfer_trace.txt. It was found beside "
                  "connection_trace.txt in ProgramData\\AnyDesk on Windows and etc/anydesk on Linux in the known "
                  "data (windows11_arm_anydesk_known_20261031, ubuntu2604_arm64_anydesk_known_20261031), and is "
@@ -141,6 +143,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "AnyDesk",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Trace log locations are the ones AnyDesk's support article gives for Windows 7 and later, "
                  "Linux and macOS, standard and custom builds "
                  "(https://support.anydesk.com/docs/what-are-trace-files.md, read 2026-10-31). The article does "
@@ -187,6 +190,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "AnyDesk",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": ("Reads the .conf files in AnyDesk's folders: ProgramData\\AnyDesk and each user's "
                   "AppData\\Roaming\\AnyDesk on Windows, /etc/anydesk and each user's .anydesk on Linux, the folders "
                   'AnyDesk Connections and AnyDesk File Transfers read. Subfolders are read too. One row per line that '

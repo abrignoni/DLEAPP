@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "All values are reported verbatim for evidentiary analysis. The "
                  "output can contain authentication, anti-bot, identity-verification "
                  "and session values; the parser does not test whether they remain "

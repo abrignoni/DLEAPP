@@ -30,6 +30,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each subkey of the "
                  "Network key at the root of the hive is one row. Drive is the subkey's name. Remote Path, User "
                  "Name, Provider Name, Provider Type, Connection Type, Defer Flags and Connect Flags are the "
@@ -101,6 +102,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each text value of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Map Network Drive MRU other than MRUList is one "
                  "row: Value is its name and Share its data, as stored. Order is the position of the value's name in "

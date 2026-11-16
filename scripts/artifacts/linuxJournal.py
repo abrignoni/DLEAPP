@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "requirements": "Fields systemd compressed with zstd are decoded with Python 3.14 or later, or with the "
                         "backports.zstd or zstandard package on an earlier Python",
         "category": "systemd Journal (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per entry the reader finds in the systemd journal files under var/log/journal and "
                  "run/log/journal, where systemd-journald writes them, including files it renamed with the "
                  ".journal~ suffix after it was stopped uncleanly or found them corrupted (Reference: systemd, "
@@ -156,6 +157,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "systemd Journal (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per systemd journal file found at the same paths as systemd Journal, with what the "
                  "file's header records and what reading the file found (Reference: systemd, 'Journal File "
                  "Format', "

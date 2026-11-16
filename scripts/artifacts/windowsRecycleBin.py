@@ -36,6 +36,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none (the vendored regfprobe reads the hive that resolves the user name)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the $I metadata files under $Recycle.Bin, the folder name matched in any letter case, named in "
                  "Source File. Each row is one item recorded as sent to the "
                  "Recycle Bin. Deleted (UTC) is the Windows FILETIME the $I "
@@ -93,6 +94,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per file inside a $R folder under $Recycle.Bin, the folder name matched in any letter case, named in the report's located-at line. The "
                  "format documentation describes a $R item only as holding the deleted content; on lonewolf_win10 two "
                  "$R items are folders, each with a $I file of the same name, which the existing Recycle Bin artifact "
@@ -134,6 +136,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none (the vendored regfprobe reads the hive that resolves the user name)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the INFO2 files in the per-user folders under RECYCLER, the folder name matched "
                  "in any letter case, named in Source File. Each row is one file entry. The layout is libyal "
                  "dtformats' 'Windows Recycler file formats' "

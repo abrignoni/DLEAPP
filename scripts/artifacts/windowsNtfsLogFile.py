@@ -21,6 +21,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-13",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per log record of a volume's $LogFile that adds an entry to an NTFS index or deletes "
                  "one, where the entry it carries is a file name's. The layout is the one the NTFS-3G project "
                  "describes (Reference: NTFS-3G 2022.10.3, "
@@ -98,6 +99,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-13",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per log record of a volume's $LogFile whose redo operation is "
                  "InitializeFileRecordSegment (2), the operation that writes a new file record into the $MFT, "
                  "where its redo data is the start of a file record. The log is read the way the NTFS $LogFile "

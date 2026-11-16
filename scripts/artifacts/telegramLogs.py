@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Telegram Desktop",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Routine rendering, font, display, and audio-device chatter is "
                  "suppressed. A log line mentioning a message is application "
                  "diagnostic text and is not recovered message content. Telegram "

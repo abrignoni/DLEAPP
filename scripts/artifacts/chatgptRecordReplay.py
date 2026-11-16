@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "ChatGPT (macOS)",
+        "platforms": ("macOS",),
         "notes": "Recording is started from within the app and time-limited by it, so "
                  "these files cover the recorded sessions only and are not a "
                  "continuous activity record. The app's bundle identifier is "
@@ -54,6 +55,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-18",
         "requirements": "none",
         "category": "ChatGPT (macOS)",
+        "platforms": ("macOS",),
         "notes": "session.json records no event count, unlike the metadata.json "
                  "the Computer History feature writes for its segments. The "
                  "recorded events path is the absolute path on the machine that "

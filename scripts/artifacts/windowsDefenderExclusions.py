@@ -31,6 +31,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the SOFTWARE hive, named in the report's located-at line, with the vendored regfprobe. A dirty hive, one whose base block's two sequence "
                  "numbers differ, is read after the entries in its .LOG1 and .LOG2 "
                  "transaction logs that continue its sequence are applied, following Maxim "

@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-TaskScheduler%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-TaskScheduler "
                  "records with Event ID 106, 140 or 141 are read. Event is a short form of "
@@ -88,6 +89,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-TaskScheduler%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-TaskScheduler "
                  "records with Event ID 200 or 201 are read. Event is 'Task action launched' on "

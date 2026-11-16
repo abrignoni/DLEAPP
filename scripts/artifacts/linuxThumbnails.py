@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per file the paths match in a size folder (normal, large, x-large or xx-large), or in "
                  "the fail folder or a program's folder under it, of a .cache/thumbnails or .thumbnails folder. "
                  "The thumbnail standard puts each user's thumbnails in $XDG_CACHE_HOME/thumbnails, or "

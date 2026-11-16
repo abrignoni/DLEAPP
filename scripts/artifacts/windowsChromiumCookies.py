@@ -23,6 +23,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows",),
         "notes": "Decrypts the encrypted_value column of the cookies table of each Windows "
                  "Chromium Cookies database (<profile>/Cookies on older releases, "
                  "<profile>/Network/Cookies on newer ones). Chromium stores a random AES-256 key "

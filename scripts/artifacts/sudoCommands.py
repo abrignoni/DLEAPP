@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Command Line (sudo)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated "
                  "rotations, gzip ones included, named in the report's located-at line, and reports each command "
                  "sudo logged there, in file order; Line is the line's number in the file, or the first and last "
@@ -158,6 +159,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Command Line (sudo)",
+        "platforms": ("Linux",),
         "notes": "One row per command sudo logged in the systemd journal files under var/log/journal and "
                  "run/log/journal, read with the same reader as systemd Journal (scripts/systemd_journal.py) and "
                  "in the way Cron Log (journal) reads its entries: journald keeps the name in a syslog line's tag "

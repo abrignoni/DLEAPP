@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each user's client.db under ~/Library/Application "
                  "Support/CloudDocs/session/db, one row per client_items row. Version "
                  "Modified (UTC), Item Birth Time (UTC) and Last Used (UTC) are "
@@ -78,6 +79,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads each user's server.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
             "server_items row. The column names are the table's own and no Apple documentation of the table is "
@@ -127,6 +129,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads each user's server.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
             'row of its devices table: Device Name is name and Key is key, as stored. The table is what the '
@@ -159,6 +162,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
             'row of its boot_history table. Date (UTC) is date read as Unix seconds. OS, BR, Bird Schema, DB '
@@ -203,6 +207,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
             'row of its client_document_access table. Modify Access Time (UTC) and Access Time (UTC) are '
@@ -241,6 +246,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
             "row of its client_downloads table. The item is the client_items row whose rowid equals the row's "
@@ -306,6 +312,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "iCloud Drive (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
             "row of its client_uploads table. The item is the client_items row whose rowid equals the row's "

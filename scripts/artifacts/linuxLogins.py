@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Logins (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/wtmp and its numbered rotations, one row per reported "
                  "record in file order; a rotation compressed with gzip is read the same "
                  "way "
@@ -100,6 +101,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Logins (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/btmp and its numbered rotations, one row per reported record in file order, with "
                  "the same reader, record layouts and columns as Login Records (wtmp), whose notes give glibc's "
                  "struct utmp, how the layout is chosen and each column's source; an empty file is counted in the "
@@ -173,6 +175,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Logins (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/lastlog, one row per user ID whose record is not all zero; "
                  "bytes after the last whole record are counted in the run log and not read. "
                  "OpenSSH 10.2p1 writes a user's record only when it records a login, "

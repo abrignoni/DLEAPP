@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-13",
         "requirements": "none",
         "category": "Installed Software (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the RPM database rpmdb.sqlite (RPM 4.16 added a SQLite backend for the package database and "
                  "Fedora uses it from Fedora 33; Fedora 36 and later keep the file at usr/lib/sysimage/rpm and "
                  "earlier Fedora kept it at var/lib/rpm, and the search pattern matches either) and reports one row "

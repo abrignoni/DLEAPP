@@ -17,6 +17,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per reported value under HKCU\\Software\\7-Zip in a user's NTUSER.DAT, with one row per "
                  "path in a history value, the key 7-Zip (Igor Pavlov's "
                  "open-source archiver, https://www.7-zip.org) writes. Key Last Written (UTC) is the last-written "

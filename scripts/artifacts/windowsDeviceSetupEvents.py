@@ -62,6 +62,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-DeviceSetupManager%4Admin.evtx, named in the report's "
                  "located-at line; only Microsoft-Windows-DeviceSetupManager records with Event ID 112, "
                  "121, 123, 124, 125, 126, 150, 151, 152, 160, 166 or 234 are read, the Admin events whose "

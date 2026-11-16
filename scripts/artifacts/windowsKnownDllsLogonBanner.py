@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per value of SYSTEM\\\\<current control set>\\\\Control\\\\Session Manager\\\\KnownDLLs, the "
                  "current control set being the one the Select key's Current value names, or ControlSet001 when Select "
                  "has no Current value. Microsoft describes the "
@@ -73,6 +74,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per non-empty LegalNoticeCaption or LegalNoticeText string value in two keys of the SOFTWARE "
                  "hive. "
                  "Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System is where Windows' own security policy "

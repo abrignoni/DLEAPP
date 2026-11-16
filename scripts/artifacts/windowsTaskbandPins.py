@@ -37,6 +37,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per pin in the Favorites value of Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"
                  "\\Taskband in each NTUSER.DAT. No Microsoft documentation of the value was found. Its framing "
                  "is read as measured: a 0x00 byte, then for each pin a 32-bit length and a shell item list of "

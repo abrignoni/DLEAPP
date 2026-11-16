@@ -40,6 +40,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per favorite (a Favorites table row whose IsFolder is not 255) in each spartan.edb, "
                  "named in Source File: the live database under the Edge package's DataStore folder, and the "
                  "copies under MicrosoftEdgeBackups when present. The columns are read as Chromium's Edge "
@@ -87,6 +88,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none (the vendored regfprobe reads the UsrClass.dat key)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the two places Firefox's Edge migrator reads typed URLs from: the TypedUrls table of "
                  "spartan.edb (" "https://github.com/mozilla-firefox/firefox/blob/8cd6654295f5f314374f36df6226d21a73cbac44/" "browser/components/migration/EdgeProfileMigrator.sys.mjs#L198-L205)"
                  " and the TypedURLs key under the Edge package's storage key in the user's registry ("

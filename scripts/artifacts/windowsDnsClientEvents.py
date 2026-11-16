@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, the "
                  "records whose provider is Microsoft-Windows-DNS-Client and whose Event ID is 1014. The provider's "
                  "manifest sends 1014 to the System channel as a warning with the message 'Name resolution for the "

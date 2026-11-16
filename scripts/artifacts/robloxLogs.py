@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "UDMUX and RCC labels follow the source log. In the tested corpus "
                  "UDMUX was public-routable and RCC used private address space, but "
                  "that relationship is an observation rather than a guaranteed "
@@ -34,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "URLs and query parameters are reported verbatim for evidentiary "
                  "analysis and may contain tokens or credential-like values. The "
                  "parser does not determine whether those values remain valid or "
@@ -61,6 +63,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "Long messages are limited to 10,000 characters. The first "
                  "untimestamped policy line and multiline continuations are omitted.",
         "paths": (

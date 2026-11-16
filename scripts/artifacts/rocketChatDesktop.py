@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Rocket.Chat (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads the IndexedDB database the Rocket.Chat web client keeps in the desktop app's "
             'partition for a server '
@@ -120,6 +121,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Rocket.Chat (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the servers list of Rocket.Chat/config.json. The fields reported are eight '
             "of those of the desktop app's Server type (src/servers/common.ts lines 14 to 53 of "

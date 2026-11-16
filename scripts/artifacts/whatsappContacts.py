@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "These are the contacts WhatsApp stored, which is not necessarily "
                  "the same set as the device address book. A row can exist for a "
                  "correspondent the account never messaged.",
@@ -27,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "The last message text and date are a summary the chat row caches; "
                  "the full messages are in the WhatsApp Messages artifact.",
         "paths": ('*/ChatStorage.sqlite*',),
@@ -44,6 +46,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "A member row reflects the membership WhatsApp last recorded for "
                  "the group, not necessarily the membership at any earlier time.",
         "paths": ('*/ChatStorage.sqlite*',),
@@ -60,6 +63,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "The table stores the JID only. A matching name, where shown, is "
                  "looked up from the push-name and chat tables in the same database.",
         "paths": ('*/ChatStorage.sqlite*',),
@@ -77,6 +81,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "A push name is chosen by the correspondent, not by the account "
                  "holder or their address book, so it can differ from a saved "
                  "contact name and is not a verified identity.",

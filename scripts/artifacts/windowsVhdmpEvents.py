@@ -43,6 +43,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-VHDMP-Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-VHDMP records with "
                  "Event ID 1, 2, 12, 17, 18, 22, 23, 24, 25, 27, 28, 50 or 51 are read. "

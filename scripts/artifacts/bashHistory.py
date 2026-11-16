@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Command Line (bash)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each .bash_history the paths match, one row per line in file order "
                  "that is not a time stamp, with the line's number in the file. Readline "
                  "8.3, the history library in bash 5.3, stamps each entry it adds "

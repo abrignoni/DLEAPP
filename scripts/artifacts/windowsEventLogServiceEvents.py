@@ -67,6 +67,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Security.evtx and System.evtx the paths match with python-evtx and reports, one row "
                  "per record, the records whose provider is Microsoft-Windows-Eventlog, whatever their Event ID, but "
                  "1102 and 104: those are the log cleared events, which the Event Logs Cleared artifact reports. "

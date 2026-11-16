@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Ntfs%4Operational.evtx the paths match with python-evtx and reports, "
                  "one row per record, the records whose provider is Microsoft-Windows-Ntfs and whose Event ID is 500,"
                  " 'A process has created a USN journal on a volume.', or 501, 'A process has deleted a USN journal "

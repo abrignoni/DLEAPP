@@ -59,6 +59,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the System event log, named in the report's located-at line. Each record of Service "
                  "Control Manager event 7040 is one row; the provider's message for it is 'The start type of the %1 "
                  "service was changed from %2 to %3.' (Service Control Manager manifest as registered on Windows 11 "
@@ -146,6 +147,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx, pefile",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the System event log, named in the report's located-at line. Each record of eleven "
                  "Service Control Manager events is one row: 7000 and 7001 (a service failed to start), 7009 and "
                  "7011 (a timeout while waiting for a service), 7022 (a service hung on starting), 7023 and 7024 (a "

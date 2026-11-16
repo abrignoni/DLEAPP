@@ -23,6 +23,7 @@ def _windows_artifact(parser, paths, sample_description):
     metadata = dict(source)
     metadata["name"] = source["name"].replace("Roblox ", "Roblox Windows ", 1)
     metadata["category"] = "Roblox (Windows)"
+    metadata["platforms"] = ("Windows",)
     metadata["paths"] = paths
     metadata["sample_data"] = {"roblox_windows": sample_description}
     return metadata

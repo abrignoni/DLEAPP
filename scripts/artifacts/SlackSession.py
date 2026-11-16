@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-01",
         "requirements": "none",
         "category": "Slack (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "'Duration' is Last Activity minus Session Start and is best "
                  "read as a lower bound on how long the client was open for "
                  "that session, not a guarantee it was in the foreground the "

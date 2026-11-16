@@ -24,6 +24,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'Reads the Background Intelligent Transfer Service queue in '
                   'ProgramData\\Microsoft\\Network\\Downloader: qmgr.db, an ESE database, and the '
                   '.log and .jrs files in the same folder, with scripts/bits_qmgr.py. Only this'
@@ -153,6 +154,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'The files of the jobs in BITS Jobs, from the same folder and the same two '
                   "places: the records of qmgr.db's Files table, and the file records found by "
                   "searching qmgr.db and the folder's .db, .log and .jrs files for the file "

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row for each value read at nine kinds of registry location where Windows is told what "
                  "to load at boot or logon, with the last-written time of the key holding it. A default "
                  "installation has values in most of them, so a row is an entry to compare with what the "

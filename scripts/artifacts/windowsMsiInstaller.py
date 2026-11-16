@@ -45,6 +45,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Application.evtx, named in the report's located-at line; only "
                  "records of the MsiInstaller provider with Event ID 1033 to 1037, 11707, "
                  "11708, 11724, 11725, 11728 or 11729 are read. Microsoft's Windows Installer "

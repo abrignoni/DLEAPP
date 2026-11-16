@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Audit Trail (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the trail files in /var/audit (private/var/audit on a Mac). The audit daemon names a new trail"
                  " with a timestamp and .not_terminated "
                  "(https://github.com/apple-oss-distributions/OpenBSM/blob/bb0681420e99d447f466ba70d38589213bb69fea/openbsm/libauditd/auditd_lib.c#L823-L824),"
@@ -160,6 +161,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Audit Trail (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the same trails, the same way, as the Audit Trail (BSM) artifact, whose notes give the format,"
                  " the sources, the validation against praudit and the meaning of every column, and keeps only the "
                  "records whose event number is in a fixed list, named here as Apple's OpenBSM-21 audit_event names "

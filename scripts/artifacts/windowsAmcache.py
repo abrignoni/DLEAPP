@@ -65,6 +65,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one "
                  "InventoryApplicationFile entry, a key Psmths's Amcache reference lists from Windows "
@@ -185,6 +186,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryApplication, a key Psmths's Amcache reference lists from Windows 10 build 14393, "
@@ -337,6 +339,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryApplicationShortcut, a key Psmths's Amcache reference names among the hive's keys "
@@ -430,6 +433,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryDriverBinary, a key Psmths's Amcache reference names among the hive's keys without "
@@ -547,6 +551,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryDevicePnp. No description of this key's values that could be relied on was found: "
@@ -662,6 +667,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryDeviceContainer. Microsoft describes a container ID as the identification string "
@@ -781,6 +787,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
                  "Root\\InventoryDriverPackage. Driver Package is the subkey's name, or the database row's ItemKey. The other columns are values of "
@@ -911,6 +918,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-29",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of a "
                  "Root\\File\\<volume key> subkey, the layout the hive used on Windows 8, read from any hive that holds "
                  "it; AmcacheParser reads it from Root\\File and Root\\Programs "
@@ -991,6 +999,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-29",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of Root\\Programs, "
                  "the layout the hive used on Windows 8, read from any hive that holds it. The value names are "
                  "hexadecimal numbers for which no Microsoft documentation was found; each column names the value it "

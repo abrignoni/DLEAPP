@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "Outcome Code is the ZOUTCOME value the database holds and is "
                  "reported as the raw integer rather than a guessed label such as "
                  "missed or outgoing. A duration of zero is shown as stored and "

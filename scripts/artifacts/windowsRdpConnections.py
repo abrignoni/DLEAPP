@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads "
                  "Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx and "
                  "reports the records of the provider of that name with Event ID 261, 1149, 1150 "

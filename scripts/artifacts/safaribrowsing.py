@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "Every History.db found is parsed, so a Mac with more than one user account reports "
                  "each account, tagged by Source File. A Safari profile's History.db under "
                  "Library/Safari/Profiles/<UUID>/ is read as its own store, and its Source File names "
@@ -74,6 +75,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per history_items_to_tags row, which links a "
                  "history_tags row to a history_items row, and one row for "
                  "each history_tags row that no link names. Tag Modified is "
@@ -182,6 +184,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per node whose WebBookmarkType is WebBookmarkTypeLeaf. Folder Path joins, "
                  "with a slash, the Title of each node above the leaf, leaving out an empty Title; "
                  "Title is URIDictionary.title, URL is URLString and Bookmark UUID is WebBookmarkUUID. "
@@ -217,6 +220,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per entry of the plist's TopSites list. Title is TopSiteTitle and URL is "
                  "TopSiteURLString. Built-in Default shows Yes or No for a stored TopSiteIsBuiltIn of "
                  "true or false and is blank when the entry has no such key. What TopSiteIsBuiltIn "
@@ -266,6 +270,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "Each entry of ClosedTabOrWindowPersistentStates holds a PersistentState. An entry "
                  "whose PersistentState holds TabStates is read as a window and gives one row per tab. "
                  "An entry that holds no TabStates and holds TabUUID or TabURL is read as one tab. An "
@@ -332,6 +337,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per cloud_tabs row, joined to cloud_tab_devices on device_uuid. Tab Title, "
                  "URL and Tab UUID are the title, url and tab_uuid columns. Last Viewed is "
                  "last_viewed_time read as Mac Absolute Time (seconds since 2001-01-01) and shown in "
@@ -390,6 +396,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per cloud_tab_devices row. Last Modified is last_modified read as Mac "
                  "Absolute Time (seconds since 2001-01-01) and shown in UTC; what it marks is not "
                  "established. Device Name is device_name, Device UUID is device_uuid and Device Type "
@@ -435,6 +442,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per bookmarks row whose type is 0. On the tested database the rows of type 1 "
                  "were folders: tab groups, a profile and Safari's own lists. Last Viewed is "
                  "DateLastViewed from the row's extra_attributes plist and Date Closed is DateClosed "
@@ -504,6 +512,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per snapshot_metadata row of a Metadata.db inside a com.apple.Safari "
                  "TabSnapshots folder. Created is date_created read as Mac Absolute Time (seconds "
                  "since 2001-01-01) and shown in UTC; what it marks is not established. URL is url, "
@@ -555,6 +564,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per tab of each SessionWindows window's TabStates. Tab Title is TabTitle, "
                  "URL is TabURL, Tab UUID is TabUUID, Tab Index is TabIndex and Window UUID is the "
                  "window's WindowUUID. Window Closed is the tab's DateClosed, or the window's "

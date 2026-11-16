@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Windows\\System32\\drivers\\etc\\hosts, one row per line that holds an "
                  "address. The comment block of the default file describes the format: each entry "
                  "on its own line, the IP address in the first column followed by the host name, "
@@ -48,6 +49,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Networks (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads private/etc/hosts, one row per line that holds an address, and skips the "
                  "copy under System/Library/Templates. Apple's hosts(5) describes the format: one "
                  "line per host with the Internet address, the official host name and any aliases, "
@@ -82,6 +84,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Networks (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads etc/hosts wherever the extraction holds one, one row per line that holds "
                  "an address. It skips the macOS private/etc/hosts, including its template copy, "
                  "and the Windows drivers/etc/hosts, which the Hosts File and Windows Hosts File "

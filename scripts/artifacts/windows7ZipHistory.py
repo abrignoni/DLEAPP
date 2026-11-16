@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none (vendored regfprobe)",
         "category": "7-Zip",
+        "platforms": ("Windows",),
         "notes": "Reads the path lists 7-Zip keeps under Software\\7-Zip in each user's NTUSER.DAT (Reference: "
                  "7-Zip 25.01, commit 5e96a8279489832924056b1fa82f29d5837c9469, "
                  "'CPP/7zip/UI/Common/ZipRegistry.cpp' line 23 and 'CPP/7zip/UI/FileManager/ViewSettings.cpp' "

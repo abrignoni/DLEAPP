@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Logins (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads /var/run/utmpx (private/var/run/utmpx on a Mac), the file in which Apple's utmpx "
                  "manual page says currently logged in users are tracked "
                  "(https://github.com/apple-oss-distributions/Libc/blob/4e34d0559e3a1b081afeb8604d9e204a1f31321d/gen/NetBSD/utmpx.5#L53-L54), "

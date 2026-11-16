@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Containers (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads containers.sqlite3 in a Library/ContainerManager folder and reports one row per "
                  "code_signing_info row, joined to code_signing_data on its cs_info_id column, which the schema "
                  "declares a foreign key to code_signing_info(id). Code Signing ID is the code_signing_id_text "

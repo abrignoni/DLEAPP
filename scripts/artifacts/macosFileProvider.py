@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "File Provider (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per FP_snapshot record in each "
                  "Library/Application Support/FileProvider/<domain>/database/db, the SQLite "
                  "database a File Provider extension keeps for one sync domain. macOS registers a "

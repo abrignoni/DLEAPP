@@ -29,6 +29,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the SOFTWARE hive, named in the report's located-at line. Each subkey of "
                  "Microsoft\\Windows NT\\CurrentVersion\\ProfileList is one row. SID is the subkey's name and Profile "
                  "Path its ProfileImagePath value, as stored. Profile Load Time (UTC) is read from the subkey's "

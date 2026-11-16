@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none (vendored regfprobe)",
         "category": "PuTTY",
+        "platforms": ("Windows",),
         "notes": ('Read from Software\\SimonTatham\\PuTTY in each NTUSER.DAT under Users and under '
                   'Windows/ServiceProfiles; the PuTTY manual gives that key as where PuTTY for Windows stores saved '
                   'sessions and host keys (https://the.earth.li/~sgtatham/putty/0.85/htmldoc/AppendixA.html, A.5.2). '
@@ -100,6 +101,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none (vendored regfprobe)",
         "category": "PuTTY",
+        "platforms": ("Windows",),
         "notes": ('Read from Software\\SimonTatham\\PuTTY in each NTUSER.DAT under Users and under '
                   'Windows/ServiceProfiles; the PuTTY manual gives that key as where PuTTY for Windows stores saved '
                   'sessions and host keys (https://the.earth.li/~sgtatham/putty/0.85/htmldoc/AppendixA.html, A.5.2). '
@@ -164,6 +166,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none (vendored regfprobe)",
         "category": "PuTTY",
+        "platforms": ("Windows",),
         "notes": ('Read from Software\\SimonTatham\\PuTTY in each NTUSER.DAT under Users and under '
                   'Windows/ServiceProfiles; the PuTTY manual gives that key as where PuTTY for Windows stores saved '
                   'sessions and host keys (https://the.earth.li/~sgtatham/putty/0.85/htmldoc/AppendixA.html, A.5.2). '

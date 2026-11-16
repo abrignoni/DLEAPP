@@ -104,6 +104,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is one "
                  "power event, matched on both its provider and Event ID because "
                  "an Event ID means different things for different providers: "

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Installed Software (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per stanza that has a Package field, in each var/lib/dpkg/status file the declared paths "
                  "match, the file in which dpkg records whether each package it knows is installed or marked for "
                  "removal (Reference: dpkg, 'dpkg.pod', "
@@ -162,6 +163,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Installed Software (Linux)",
+        "platforms": ("Linux",),
         "notes": "Compares the copies of dpkg's status file in each root the declared paths match: the current "
                  "var/lib/dpkg/status and the copies in var/backups, dpkg.status.0 and the older dpkg.status.1.gz, "
                  "dpkg.status.2.gz and so on (Reference: dpkg 1.23.7, 'src/dpkg-db-backup.sh', "

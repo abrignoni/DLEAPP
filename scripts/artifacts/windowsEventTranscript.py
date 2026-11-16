@@ -26,6 +26,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
                  'the declared path can match one copy per volume. Windows keeps this database while the Turn on '
@@ -159,6 +160,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
                  'the declared path can match one copy per volume. Windows keeps this database while the Turn on '
@@ -297,6 +299,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
                  'the declared path can match one copy per volume. Windows keeps this database while the Turn on '
@@ -435,6 +438,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
                  'the declared path can match one copy per volume. Windows keeps this database while the Turn on '
@@ -563,6 +567,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
                  'the declared path can match one copy per volume. Windows keeps this database while the Turn on '

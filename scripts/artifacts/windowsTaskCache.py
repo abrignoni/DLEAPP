@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the TaskCache key of each SOFTWARE hive, Microsoft\\Windows "
                  "NT\\CurrentVersion\\Schedule\\TaskCache, one row per subkey of its Tasks key and one "
                  "per key of its Tree that holds an Id naming no Tasks subkey. A dirty hive, one whose "

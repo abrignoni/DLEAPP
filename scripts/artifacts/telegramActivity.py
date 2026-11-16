@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "PyCryptodome",
         "category": "Telegram Desktop",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "This is interaction-proximity evidence, not proof that a message "
                  "was exchanged. Peer access hashes are intentionally not "
                  "reported. Last Seen Value is Telegram's raw encoded status, not "
@@ -63,6 +64,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "PyCryptodome",
         "category": "Telegram Desktop",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Internal wildcard placeholders such as *media_cache* are "
                  "suppressed. A retained path indicates Telegram associated a "
                  "media object with that local path; it does not prove the file "

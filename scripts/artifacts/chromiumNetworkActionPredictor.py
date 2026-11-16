@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the network_action_predictor table of each Chromium-based browser profile's "
                  "Network Action Predictor database. Browser, Profile and User come from the path: the "
                  "browser from the user data folder, the profile from the folder inside it, and the user "

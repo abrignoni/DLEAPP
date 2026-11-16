@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the Accounts array of each user's "
                  "~/Library/Preferences/MobileMeAccounts.plist, one row per account. Services Listed "
                  "names every entry in the account's Services array; Services Marked Enabled and "
@@ -52,6 +53,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Accounts (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads ZACCOUNT in each user's Accounts4.sqlite or Accounts3.sqlite, joined to "
                  "ZACCOUNTTYPE for the type and to the parent account ZPARENTACCOUNT names. Date is "
                  "ZDATE read as seconds since 00:00:00 UTC on 1 January 2001, the reference date Apple"

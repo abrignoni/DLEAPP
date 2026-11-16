@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Call History (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads ZCALLRECORD in each user's CallHistory.storedata and "
                  "CallHistoryTemp.storedata under ~/Library/Application "
                  "Support/CallHistoryDB, one row per record. Call Start (UTC) is ZDATE "

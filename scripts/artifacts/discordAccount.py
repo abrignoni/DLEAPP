@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "sentry/scope_v3.json has the name, folder and layout (a scope and an event) of the file "
                  "Sentry's Electron SDK keeps to persist context beyond a crash "
                  "(https://github.com/getsentry/sentry-electron/blob/630c5533d6e750c897c26ecc88558e60e32c53e1/src/main/integrations/sentry-minidump/index.ts#L40), "

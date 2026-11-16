@@ -67,6 +67,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-SMBServer%4Operational.evtx, %4Security.evtx, %4Audit.evtx and "
                  "%4Connectivity.evtx the paths match with python-evtx and reports, one row per record, the records "
                  "whose provider is Microsoft-Windows-SMBServer and whose Event ID is 551, 658, 1000, 1001, 1003 to "

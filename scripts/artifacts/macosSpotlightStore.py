@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "none",
         "category": "Spotlight (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the Spotlight metadata store in each .Spotlight-V100/Store-V2 folder of a '
             'volume: store.db, .store.db and the dbStr-N.map files beside them, which hold the '
@@ -159,6 +160,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Spotlight (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the same Spotlight store files as Spotlight Store Files, with the same reader, and gives one'
             ' row per attribute a record holds with a value: a record holding three of the listed attributes '
@@ -217,6 +219,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Spotlight (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the same Spotlight store files as Spotlight Store Files, with the same reader, and gives one'
             ' row per attribute a record holds with a value: a record holding three of the listed attributes '

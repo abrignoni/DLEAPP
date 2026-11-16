@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "File System (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "The layout is from Apple's published vsdbutil source (diskdev_cmds-757, "
             'vsdbutil.tproj/vsdbutil_main.c, struct VSDBEntry): 47-byte records, each a '

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Networks (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads /Library/Preferences/com.apple.wifi.known-networks.plist, one row per "
                  "top-level entry; the entries are keyed wifi.network.ssid. followed by the "
                  "SSID, and SSID is the entry's SSID value decoded as UTF-8, or the text after "

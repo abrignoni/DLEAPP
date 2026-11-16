@@ -52,6 +52,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Diagnostics-Performance%4Operational.evtx the paths match with "
                  "python-evtx and reports, one row per record, the records whose provider is "
                  "Microsoft-Windows-Diagnostics-Performance and whose Event ID is 100 or 200. The provider's "
@@ -140,6 +141,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Diagnostics-Performance%4Operational.evtx the paths match with "
                  "python-evtx and reports, one row per record, the records whose provider is "
                  "Microsoft-Windows-Diagnostics-Performance and whose Event ID is 101 to 110 or 201 to 203. The "

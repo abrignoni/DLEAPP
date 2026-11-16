@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Contacts (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each user's AddressBook-v22.abcddb under ~/Library/Application "
                  "Support/AddressBook and the one in each Sources folder beneath it, one "
                  "row per ZABCDRECORD row whose entity is ABCDContact in Z_PRIMARYKEY. "
@@ -71,6 +72,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Contacts (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads each user's AddressBook-v22.abcddb under ~/Library/Application Support/AddressBook and the "
             'one in each Sources folder beneath it, one row per ZABCDRECORD row whose entity is ABCDGroup in '

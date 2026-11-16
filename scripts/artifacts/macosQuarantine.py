@@ -21,6 +21,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-15",
         "requirements": "none",
         "category": "Quarantine (macOS)",
+        "platforms": ("macOS",),
         "notes": "Every QuarantineEventsV2 store found is parsed, one per user, "
                  "tagged by Source File. Timestamp is CFAbsoluteTime (seconds "
                  "since 2001-01-01 UTC), rendered in UTC. Agent Name is the app "

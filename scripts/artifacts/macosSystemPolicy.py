@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "System Policy (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the kext_load_history_v3 table of '
             '/private/var/db/SystemPolicyConfiguration/KextPolicy, with its -wal. Path, Bundle '
@@ -45,6 +46,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "System Policy (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the kext_policy table of /private/var/db/SystemPolicyConfiguration/KextPolicy, '
             'with its -wal. Team ID, Bundle ID, Developer Name, Allowed and Flags are reported as '
@@ -73,6 +75,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "System Policy (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the object table of the SystemPolicy database, at /private/var/db/SystemPolicy '
             'on dleapp_macos_bigsur and at /private/var/db/SystemPolicyConfiguration/SystemPolicy '

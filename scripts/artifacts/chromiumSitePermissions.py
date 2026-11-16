@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the Preferences file of each Chromium-based browser profile that scripts/chromium/browser_profiles "
                  "locates (Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi, Opera, Opera GX, 360 Safe Browser and "
                  "webOS webbrowser) on Windows, macOS and Linux. Secure Preferences, and files beside Preferences such as "
@@ -146,6 +147,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the Preferences file of each Chromium-based browser profile that scripts/chromium/browser_profiles "
                  "locates (Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi, Opera, Opera GX, 360 Safe Browser and "
                  "webOS webbrowser) on Windows, macOS and Linux. Secure Preferences, and files beside Preferences such as "
@@ -244,6 +246,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-14",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the Preferences file of each Chromium-based browser profile that scripts/chromium/browser_profiles "
                  "locates (Google Chrome, Chromium, Microsoft Edge, Brave, Vivaldi, Opera, Opera GX, 360 Safe Browser and "
                  "webOS webbrowser) on Windows, macOS and Linux. Secure Preferences, and files beside Preferences such as "

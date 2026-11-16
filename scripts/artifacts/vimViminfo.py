@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Command Line (Vim)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "
                  "(https://github.com/vim/vim/blob/60e93b5de7b2ebdf39a84f6d19873ac4d4686a57/src/os_unix.h#L299, "
@@ -113,6 +114,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Command Line (Vim)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "
                  "(https://github.com/vim/vim/blob/60e93b5de7b2ebdf39a84f6d19873ac4d4686a57/src/os_unix.h#L299, "
@@ -214,6 +216,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Command Line (Vim)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "
                  "(https://github.com/vim/vim/blob/60e93b5de7b2ebdf39a84f6d19873ac4d4686a57/src/os_unix.h#L299, "
@@ -310,6 +313,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Command Line (Vim)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "
                  "(https://github.com/vim/vim/blob/60e93b5de7b2ebdf39a84f6d19873ac4d4686a57/src/os_unix.h#L299, "

@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Keyboard (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads ZTEXTREPLACEMENTENTRY in each user's Library/KeyboardServices/TextReplacements.db "
                  "and its -wal. Timestamp is ZTIMESTAMP, which the store's own Core Data model "
                  "(Z_MODELCACHE) declares as a date attribute (attribute type 900), read as seconds since "

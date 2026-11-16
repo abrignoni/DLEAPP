@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the cookies table of each Cookies database in a Chromium-based browser profile, at "
                  "<profile>/Cookies (Chrome 65 on lonewolf_win10) or <profile>/Network/Cookies (Chrome and "
                  "Edge 108 on pc_mus_001_win11); one row per cookies row. The value and encrypted_value "

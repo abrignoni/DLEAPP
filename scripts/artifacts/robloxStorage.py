@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "UTF-16 values are decoded and JSON is normalized. Values are "
                  "reported in full and may contain tokens or credential-like data; "
                  "the parser does not determine whether they remain valid or "
@@ -36,6 +37,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "WebKit uses a binary structured-clone encoding. This parser does "
                  "not fully deserialize every JavaScript value type; it extracts "
                  "embedded readable strings and limits each preview to 5,000 "
@@ -63,6 +65,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "The 16-byte IDs are opaque cache keys. Atime behaves as Unix "
                  "milliseconds and ttl, when present, behaves as Unix seconds in the "
                  "tested corpus. Score appears to be a ranking or eviction metric; "
@@ -84,6 +87,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (macOS)",
+        "platforms": ("macOS",),
         "notes": "WebKit's cache is an internal, versioned implementation format. "
                  "URLs and query parameters are reported in full. HTTP Date, content "
                  "type and ETag are heuristic string recoveries and can be absent or "

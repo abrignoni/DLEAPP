@@ -29,6 +29,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give the token elevation type its text",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
                  "Microsoft-Windows-Security-Auditing records with Event ID 4688 are read. Microsoft "
                  "documents 4688 as 'A new process has been created.' in the Audit Process Creation "

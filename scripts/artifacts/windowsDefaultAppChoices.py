@@ -43,6 +43,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads each NTUSER.DAT the paths match with the vendored regfprobe, and the ProfileList key of each "
                  "SOFTWARE hive they match, and reports one row per key named UserChoice or UserChoiceLatest (names "
                  "compared without case) below each subkey of "

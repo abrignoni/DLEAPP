@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads monitors.xml, where GNOME's mutter stores the display configurations a user applied, from "
                  "the user's configuration folder and from the system configuration folders such as /etc/xdg "
                  "(Reference: mutter 50.1, commit 8e9bb806da4a6a4fc87aa4a481b228dba6735cbd, "

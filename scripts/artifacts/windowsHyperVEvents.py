@@ -315,6 +315,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Hyper-V-Worker-Admin.evtx and "
                  "Microsoft-Windows-Hyper-V-Worker-Operational.evtx the paths match with python-evtx and reports, one "
                  "row per record, the records whose provider is Microsoft-Windows-Hyper-V-Worker and whose Event ID "
@@ -455,6 +456,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Hyper-V-Compute-Admin.evtx and "
                  "Microsoft-Windows-Hyper-V-Compute-Operational.evtx the paths match with python-evtx and reports, "
                  "one row per record, the records whose provider is Microsoft-Windows-Hyper-V-Compute and whose Event "
@@ -580,6 +582,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Hyper-V-VmSwitch-Operational.evtx the paths match with python-evtx "
                  "and reports, one row per record, the records whose provider is Microsoft-Windows-Hyper-V-VmSwitch "
                  "and whose Event ID is one of 9, 21, 23, 24, 32, 34, 35, 62 to 64, 66 to 71, 77, 89, 124 to 126, "

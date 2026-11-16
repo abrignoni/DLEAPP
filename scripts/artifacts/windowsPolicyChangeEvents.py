@@ -58,6 +58,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx, pefile",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
                  "Microsoft-Windows-Security-Auditing records with Event ID 4719 are read. Microsoft documents 4719 "
                  "as 'System audit policy was changed.', says it generates when the computer's audit policy changes "
@@ -143,6 +144,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
                  "Microsoft-Windows-Security-Auditing records with Event ID 4717 or 4718 are read. Microsoft "
                  "documents 4717 as 'System security access was granted to an account.' and 4718 as 'System security "
@@ -226,6 +228,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
                  "Microsoft-Windows-Security-Auditing records with Event ID 4739 are read. Microsoft documents 4739 "
                  "as 'Domain Policy was changed.', generated when the computer's Account Lockout Policy or Password "

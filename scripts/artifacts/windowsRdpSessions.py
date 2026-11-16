@@ -49,6 +49,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Microsoft-Windows-TerminalServices-"
                  "LocalSessionManager%4Operational.evtx log, named in the report's located-at "
                  "line. These events are reported: 21 (Session "

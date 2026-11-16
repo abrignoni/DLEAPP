@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-31',
         'requirements': 'none', 'category': 'TeleGuard Windows',
+        'platforms': ('Windows',),
         'notes': 'Times are Unix milliseconds in UTC; zero is the epoch and null or invalid values are '
                  'blank. Direction compares sender with the unique service user serverId; missing ids leave '
                  'it blank. Conversation ID includes Source File. Localized Message prefers de, en, then the '
@@ -46,6 +47,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-31',
         'requirements': 'none', 'category': 'TeleGuard Windows',
+        'platforms': ('Windows',),
         'notes': 'One row per stored chatId per database. First Message and Last Message use the minimum and '
                  'maximum valid createDate (Unix milliseconds, UTC). Direction counts compare sender with '
                  'the unique service user serverId; missing ids count as Direction Unknown. Participants '
@@ -63,6 +65,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
+        'platforms': ('Windows',),
         'notes': 'Last Activity and Last Visit are stored Unix milliseconds in UTC; their application '
                  'meaning is unverified. Null or invalid times are blank; zero is the epoch. The three '
                  'message counts count chatId, sender and receiver references in this database. Avatar uses '
@@ -79,6 +82,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
+        'platforms': ('Windows',),
         'notes': 'One row per mediaFiles or additional files entry; quotedMediaFiles stays in parent raw '
                  'Metadata. Search covers the database tree plus same-profile '
                  'AppData/Local/Temp/TeleGuard/images and Downloads/TeleGuard for a sole main DB at '
@@ -101,6 +105,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
         'requirements': 'none', 'category': 'TeleGuard Windows',
+        'platforms': ('Windows',),
         'notes': 'Inventory covers the database tree plus same-profile AppData/Local/Temp/TeleGuard/images '
                  'and Downloads/TeleGuard when a sole main database at AppData/Roaming/TeleGuard owns that '
                  'profile. Databases, sidecars and logs are excluded. Named files are listed regardless of '

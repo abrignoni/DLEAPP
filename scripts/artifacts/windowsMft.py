@@ -20,6 +20,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per base record of each $MFT that holds at least one $FILE_NAME, "
                  "whether or not the record is in use; extension records are folded into the "
                  "record they extend. The layout follows the Linux-NTFS documentation "
@@ -109,6 +110,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per named base record of each $MFT, in use or not, whose $STANDARD_INFORMATION (SI) "
                  "creation time is earlier than the creation time in the $FILE_NAME (FN) the MFT artifact shows for "
                  "it, the long name before its DOS 8.3 alias; the two are compared as stored, in 100-nanosecond "

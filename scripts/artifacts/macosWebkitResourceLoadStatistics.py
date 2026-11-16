@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
         'creation_date': '2026-10-30', 'last_update_date': '2026-10-30',
         'requirements': 'none', 'category': 'Browser (macOS)',
+        'platforms': ('macOS',),
         'notes': "Ported from iLEAPP's WebKit tracking-prevention artifacts (@ForensikITGmbH), with macOS "
                  "paths and owners. These are WebKit tracking-prevention statistics, not a complete "
                  "browsing history. A domain may be observed as a subresource. Interaction flags do not "
@@ -45,6 +46,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
         'creation_date': '2026-10-30', 'last_update_date': '2026-10-30',
         'requirements': 'none', 'category': 'Browser (macOS)',
+        'platforms': ('macOS',),
         'notes': "Ported from iLEAPP's WebKit tracking-prevention artifacts (@ForensikITGmbH), with macOS "
                  "paths and owners. These are WebKit tracking-prevention statistics, not a complete "
                  "browsing history. A domain may be observed as a subresource. Interaction flags do not "
@@ -85,6 +87,7 @@ __artifacts_v2__ = {
         'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
         'creation_date': '2026-10-30', 'last_update_date': '2026-10-30',
         'requirements': 'none', 'category': 'Browser (macOS)',
+        'platforms': ('macOS',),
         'notes': "Ported from iLEAPP's WebKit tracking-prevention artifacts (@ForensikITGmbH), with macOS "
                  "paths and owners. These are WebKit tracking-prevention statistics, not a complete "
                  "browsing history. A domain may be observed as a subresource. Interaction flags do not "

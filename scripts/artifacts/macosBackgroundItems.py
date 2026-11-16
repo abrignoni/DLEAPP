@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Persistence (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads BackgroundItems-v*.btm in /private/var/db/com.apple.backgroundtaskmanagement, "
                  "an NSKeyedArchiver archive whose store object lists items per user identifier; each "
                  "item is one row, and User Identifier is the key it is listed under, as stored. Type "

@@ -32,6 +32,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the files the paths match in the Windows Protect folders (AppData\\Roaming\\Microsoft\\Protect "
                  "of a profile and Windows\\System32\\Microsoft\\Protect) and reports one row per file whose name is a "
                  "GUID, a DPAPI master key file. The Preferred file of a folder is read for the two Preferred "

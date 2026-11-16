@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row for each monitor instance under Enum\\DISPLAY of the SYSTEM hive's current control "
                  "set: Monitor ID is the name of the key under DISPLAY, Instance the name of the key under "
                  "that, Device Description the instance's DeviceDesc value as stored, and Key Last Written "

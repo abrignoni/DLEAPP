@@ -43,6 +43,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Dhcp-Client%4Admin.evtx the paths match with python-evtx and "
                  "reports, one row per record, the records whose provider is Microsoft-Windows-Dhcp-Client and whose "
                  "Event ID is 1001, 1002, 1003, 50065, 50066 or 50067. The provider's manifest gives the six events "

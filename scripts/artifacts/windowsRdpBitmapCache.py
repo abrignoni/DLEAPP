@@ -26,6 +26,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Lists the files ending in .bin or .bmc in a profile's "
                   'AppData\\Local\\Microsoft\\Terminal Server Client\\Cache folder. The '
                   'Cache????.bin files are read with scripts/rdp_bitmap_cache.py, which follows'
@@ -79,6 +80,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'One row per tile of each Cache????.bin file listed by RDP Bitmap Cache '
                   "Files, with the tile as a PNG image. The layout is read from ANSSI's "
                   'bmc-tools, bmc-tools.py at commit 5a4cad32be78b3b874aeec910cb478e04ba3501e '
@@ -129,6 +131,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": 'One row per page of up to 256 tiles of a Cache????.bin file, as a PNG image:'
                   ' the tiles in the order the file stores them, Tile Index 0 first, 16 to a '
                   'row, each in a 64 by 64 cell, so a page is 1,024 pixels wide and 64 pixels '

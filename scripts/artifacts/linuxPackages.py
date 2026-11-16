@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Installed Software (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/apt/history.log and its numbered rotations, gzip ones "
                  "included, one row per package entry of each transaction in file order. "
                  "apt 3.2.0, the version on the VM the tested image was taken from, writes "
@@ -81,6 +82,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Installed Software (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/dpkg.log and its numbered rotations, gzip ones included, "
                  "one row per install, upgrade, remove, purge or disappear line in file "
                  "order. dpkg 1.23.7, the upstream release of the dpkg 1.23.7ubuntu1 on the "

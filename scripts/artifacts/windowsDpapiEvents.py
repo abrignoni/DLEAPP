@@ -54,6 +54,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Crypto-DPAPI%4Operational.evtx the paths match with python-evtx and "
                  "reports, one row per record, every record whose provider is Microsoft-Windows-Crypto-DPAPI, "
                  "whatever its Event ID. Microsoft's page for the CryptProtectData function (dpapi.h) says of the "

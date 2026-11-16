@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Windows Apps",
+        "platforms": ("Windows",),
         "notes": "Reads each tab file (<tab id>.bin) in LocalState/TabState under a user's "
                  "Packages/Microsoft.WindowsNotepad_* folder, one row per tab file, with the layout "
                  "ogmini's Notepad-State-Library documents (MIT; "
@@ -88,6 +89,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Windows Apps",
+        "platforms": ("Windows",),
         "notes": "Reads each WindowState file (<window id>.0.bin and <window id>.1.bin) in "
                  "LocalState/WindowState under a user's Packages/Microsoft.WindowsNotepad_* folder, one "
                  "row per file, with the layout ogmini's Notepad-State-Library documents (MIT; "
@@ -128,6 +130,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Windows Apps",
+        "platforms": ("Windows",),
         "notes": "Reads every value of every key in Settings/settings.dat under a user's "
                  "Packages/Microsoft.WindowsNotepad_* folder, one row per value, from the hive opened and "
                  "decoded as in Phone Link Linked Devices (scripts/windows_app_settings.py). "

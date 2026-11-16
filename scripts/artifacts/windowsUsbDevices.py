@@ -38,6 +38,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-19",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from Enum\\USBSTOR in the SYSTEM hive, in the control set named by the "
                  "hive's Select\\Current value (ControlSet001 when that value cannot be read), "
                  "named in the report's located-at line, one row per device instance. Vendor, "

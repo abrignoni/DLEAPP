@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Persistence (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads every file whose name starts with disabled in '
             '/private/var/db/com.apple.xpc.launchd, one row per key of each that reads as a '

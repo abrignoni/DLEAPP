@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "WhatsApp (Apple)",
+        "platforms": ("macOS",),
         "notes": "The media kind shown is derived from the file extension recorded "
                  "in the database path; it is not verified against the file's "
                  "content. Latitude and longitude are shown "

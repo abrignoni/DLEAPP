@@ -107,6 +107,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-WinRM%4Operational.evtx the paths match with python-evtx and reports, one row per record, every record whose provider is Microsoft-Windows-WinRM, whatever its Event ID. Microsoft's "
                  "Windows Remote Management page describes WinRM as its implementation of the WS-Management Protocol, 'a standard Simple Object Access Protocol (SOAP)-based, firewall-friendly protocol that allows hardware and "
                  "operating systems, from different vendors, to interoperate' (https://github.com/MicrosoftDocs/win32/blob/7d0a1e3842939462dc8c4c1f36b31f494c483ebe/desktop-src/WinRM/portal.md?plain=1#L22). The provider's manifest of "

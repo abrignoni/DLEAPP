@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads /Library/Bluetooth/com.apple.MobileBluetooth.ledevices.paired.db, the "
                  "database iLEAPP's Bluetooth Paired LE artifact reads on iOS. On "
                  "adams_macbookpro_macos26 (macOS 26.2) the Bluetooth preferences file is "
@@ -51,6 +52,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads /Library/Bluetooth/com.apple.MobileBluetooth.ledevices.other.db, the "
                  "database iLEAPP's Bluetooth Other LE artifact reads on iOS. A row is a device record "
                  "in this table; it does not by itself establish a pairing, a connection or a timed "

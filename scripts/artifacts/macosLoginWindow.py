@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Login Window (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "One row per entry of the TALAppsToRelaunchAtLogin list of a user's "
             'Library/Preferences/ByHost/com.apple.loginwindow.<id>.plist. Bundle ID, Path, Hide and Background '
@@ -42,6 +43,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Login Window (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "One row per top-level key of a user's Library/Preferences/com.apple.loginwindow.plist and "
             'Library/Preferences/ByHost/com.apple.loginwindow.<id>.plist, with the key name as stored and no '

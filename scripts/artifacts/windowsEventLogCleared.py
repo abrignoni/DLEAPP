@@ -26,6 +26,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security and System event logs, named in the report's located-at line. Each row is "
                  "one record the event log service (provider Microsoft-Windows-Eventlog) wrote when a log was "
                  "cleared: event 1102 in the Security log and event 104 in the System log, the two events "

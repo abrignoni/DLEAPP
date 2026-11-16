@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads renderer log lines that name [Routing/Utils] and Transitioning to "
                  "/channels/<server>/<channel>, with an optional message ID. A route with @me in place of "
                  "a server ID is shown as Direct messages: the client's script builds a channel route with "
@@ -45,6 +46,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Event is the bracketed tag after [GatewaySocket], title-cased: discord_macos held "
                  "Connect, Connected, Resume, Resumed, Ws Closed, Ready, Fast Connect, Reset and Ack "
                  "Timeout. Gateway Host is the wss:// host named in the line, Session ID a session value "

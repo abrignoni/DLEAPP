@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Screen Time (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each RMAdminStore-*.sqlite under "
                  "private/var/folders/<xx>/<yyyy>/0/com.apple.ScreenTimeAgent/Store, one "
                  "row per ZUSAGETIMEDITEM row. App Bundle ID and Web Domain are "
@@ -66,6 +67,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Screen Time (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each RMAdminStore-*.sqlite under "
                  "private/var/folders/<xx>/<yyyy>/0/com.apple.ScreenTimeAgent/Store, one "
                  "row per ZUSAGECOUNTEDITEM row. App Bundle ID, Notifications, Pickups and "
@@ -113,6 +115,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Screen Time (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each RMAdminStore-*.sqlite under "
                  "private/var/folders/<xx>/<yyyy>/0/com.apple.ScreenTimeAgent/Store, one "
                  "row per ZUSAGEBLOCK row. Screen Time (seconds, as stored) is "

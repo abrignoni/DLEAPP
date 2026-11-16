@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Outlook",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
             "0.1.0 (scripts/vendor/pstprobe.py), written from Microsoft [MS-PST]; the 4 KB-page layout "
@@ -96,6 +97,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Outlook",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
             "0.1.0 (scripts/vendor/pstprobe.py), written from Microsoft [MS-PST]; the 4 KB-page layout "
@@ -174,6 +176,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Outlook",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
             "0.1.0 (scripts/vendor/pstprobe.py), written from Microsoft [MS-PST]; the 4 KB-page layout "
@@ -257,6 +260,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Outlook",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
             "0.1.0 (scripts/vendor/pstprobe.py), written from Microsoft [MS-PST]; the 4 KB-page layout "
@@ -320,6 +324,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Outlook",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
             "0.1.0 (scripts/vendor/pstprobe.py), written from Microsoft [MS-PST]; the 4 KB-page layout "
@@ -374,6 +379,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Outlook",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
             "0.1.0 (scripts/vendor/pstprobe.py), written from Microsoft [MS-PST]; the 4 KB-page layout "
@@ -430,6 +436,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-10",
         "requirements": "none",
         "category": "Outlook",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
             "0.1.0 (scripts/vendor/pstprobe.py), written from Microsoft [MS-PST]; the 4 KB-page layout "

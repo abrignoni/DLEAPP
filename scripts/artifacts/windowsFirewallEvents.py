@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the Firewall channel log, Microsoft-Windows-Windows Firewall With Advanced "
                  "Security%4Firewall.evtx, and reports the records of the "
                  "Microsoft-Windows-Windows Firewall With Advanced Security provider with Event ID "
@@ -115,6 +116,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the same log as the Windows Firewall Rule Changes artifact for the "
                  "provider's records with Event ID 2002, 2003, 2082 or 2083, one row per record. "
                  "Change names 2002 and 2083 by the first sentence of their message, 'A Windows "
@@ -181,6 +183,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give stored numbers their names",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the same log as the Windows Firewall Rule Changes artifact for the "
                  "provider's records with Event ID 2011, one row per record. The message the "
                  "provider's manifest gives 2011 begins 'Windows Defender Firewall was unable to "

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per folder in ~/Library/Application Support/Garmin/Express/"
                  "RegisteredDevices, read from its GarminDevice.xml and AdditionalInfo.plist. "
                  "Model, Part Number and Software Version are the Description, PartNumber and "
@@ -54,6 +55,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per string in each CompletedUploadsV2_<name>.plist of a folder in "
                  "~/Library/Application Support/Garmin/Express/RegisteredDevices, in the order "
                  "stored. List is the part of the plist's file name after CompletedUploadsV2_. "
@@ -82,6 +84,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per record line of each .txt file under ~/Library/Application Support/Garmin/Express/Logs whose name does not begin with a dot. The line layout was read from the files themselves; no Garmin documentation of it was found. A record line begins with a date, a time written with dots between hours, minutes and seconds, and a bracketed zone label and UTC offset, followed by two more fields and the message, separated by ' | '. A line that does not begin that way is part of a message that spans several lines and is appended, after a line break, to the message of the record above it; non-blank lines before a file's first record line are reported on their own row with the time columns blank. Files are read as UTF-8, and any bytes that are not UTF-8 are replaced. Local Time (as recorded) and Offset (as recorded) are the time and the bracketed zone label and offset exactly as the line writes them. Time (UTC) is that local time minus the offset the same line records, so no time zone is assumed; it is blank when the date and time are not a valid calendar time. ID (as stored) and Level (as stored) are the second and third fields as written; what the ID identifies and what each level value means are not established. Message is the rest of the line as written. Line is the line number in the file where the record begins. When a logical extraction holds a log under Users/ and under System/Volumes/Data/Users/, a copy whose bytes begin with the other copy's bytes is treated as the same file written further, and only the longer copy is read; copies where neither begins with the other are both read and the run log names them. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. Only the macOS location is covered. Public regression cases are independently authored synthetic data; local private validation details are not published.",
         "paths": ('*/Library/Application Support/Garmin/Express/Logs/*.txt',),
         "output_types": ["html", "tsv", "timeline", "lava"],

@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Discord (Desktop)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the Discord client's HTTP cache in both of Chromium's formats: the simple cache, "
                  "one *_0 file per entry under Cache/Cache_Data, as in the tested macOS profile, and the "
                  "blockfile cache, an index file with data_N block files and f_ files directly under "

@@ -70,6 +70,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line. Reported are the "
                  "account-lifecycle events (creation, enabling, disabling, "
                  "change, rename (4781), deletion, lockout, unlock, and password change or "

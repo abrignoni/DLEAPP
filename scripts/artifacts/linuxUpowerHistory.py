@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "System (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the history files the UPower daemon keeps in its history folder, /var/lib/upower unless the "
                  "build names another (Reference: UPower v1.91.1, commit 57f59b584e066dddafaa11cb8137b32e6e3d15c7, "
                  "'meson.build' lines 108 to 111, https://gitlab.freedesktop.org/upower/upower); a folder set with "

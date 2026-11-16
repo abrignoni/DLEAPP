@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the bookmarks file GTK applications share, gtk-3.0/bookmarks in the user's configuration "
                  "folder. GNOME Files reads and writes it (Reference: Nautilus 50.2.2, commit "
                  "c6592e9c7fce37ad685d0ba24720893955b7835d, 'src/nautilus-bookmark-list.c' lines 75 to 85, "

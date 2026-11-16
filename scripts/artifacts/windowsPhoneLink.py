@@ -31,6 +31,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Phone Link",
+        "platforms": ("Windows",),
         "notes": "Reads the message (SMS) and mms tables of each phone.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row, ordered by "
                  "time within each database. The folder under LocalCache/Indexed that holds "
@@ -130,6 +131,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Phone Link",
+        "platforms": ("Windows",),
         "notes": "Reads the media table of each photos.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Measured on "
                  "hexordia_mvs2025_win11 (Phone Link 1.24101.61.0, 4 rows) against the "
@@ -174,6 +176,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Phone Link",
+        "platforms": ("Windows",),
         "notes": "Reads the phone_apps table of each phoneapps.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Measured on "
                  "hexordia_mvs2025_win11 (Phone Link 1.24101.61.0, 42 rows) against the "
@@ -212,6 +215,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Phone Link",
+        "platforms": ("Windows",),
         "notes": "Reads the subscription table of each phone.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Measured on "
                  "hexordia_mvs2025_win11 (1 row) against the siminfo table of telephony.db "
@@ -242,6 +246,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Phone Link",
+        "platforms": ("Windows",),
         "notes": "Reads the contact table of each contacts.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per contact, with the "
                  "phonenumber, emailaddress, postaladdress, contactdate and contacturl rows "
@@ -275,6 +280,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Phone Link",
+        "platforms": ("Windows",),
         "notes": "Reads the call_history table of each calling.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Unexercised: "
                  "the table is empty on hexordia_mvs2025_win11, the only tested image holding a "
@@ -308,6 +314,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Phone Link",
+        "platforms": ("Windows",),
         "notes": "Reads the LocalState/Devices key of Settings/settings.dat in a user's "
                  "Packages/Microsoft.YourPhone_* folder, an offline registry hive opened as DLEAPP opens "
                  "every hive (a dirty hive's .LOG1 and .LOG2 entries are applied first and the run log "
