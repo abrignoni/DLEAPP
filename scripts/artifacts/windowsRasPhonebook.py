@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-15",
         "requirements": "none",
         "category": "Windows Network",
+        "platforms": ("Windows",),
         "notes": "Reads rasphone.pbk in a Microsoft\\Network\\Connections\\Pbk folder. On the lab VM the user entry "
                  "was written under the user's AppData\\Roaming and the all-users entry under ProgramData. Other "
                  ".pbk files (router.pbk of a routing server, or a phonebook an application keeps elsewhere) are "

@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the .lnk shell links in a user's Recent folder "
                  "(AppData\\Roaming\\Microsoft\\Windows\\Recent, or Documents and Settings\\<user>\\Recent "
                  "on Windows XP), read from the files named "
@@ -132,6 +133,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the .lnk shell links in a user's Microsoft Office Recent folder "
                  "(AppData\\Roaming\\Microsoft\\Office\\Recent in the tested profiles; the pattern matches a .lnk, "
                  "in any letter case, under any folder whose path ends Microsoft\\Office\\Recent or "
@@ -190,6 +192,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the .lnk shell links in four places, named in Location: a user's Desktop folder "
                  "(Users\\<user>\\Desktop, or Documents and Settings\\<user>\\Desktop on Windows XP), the "
                  "Public desktop (Users\\Public\\Desktop; the Windows XP All Users desktop is handled the same way), the taskbar "

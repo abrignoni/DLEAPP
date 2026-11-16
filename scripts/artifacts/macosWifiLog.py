@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Networks (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads wifi.log in a folder ending var/log (private/var/log on a Mac), its rotated copies "
                  "wifi.log.N and wifi.log.N.bz2, and files named wifi-*.log in the same folder, decompressing any "
                  "copy that starts with the bzip2 signature; other names are not read. A folder's files are read "
@@ -133,6 +134,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Networks (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the same files as Wi-Fi Log Events, in the same order and with the same rules for line "
                  "forms, joined lines and volume views (see that artifact's notes, which also say what Time (as "
                  "written) is relative to), and reports every entry Wi-Fi Log Events does not, so the two "

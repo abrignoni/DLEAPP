@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the address books Evolution Data Server keeps for a user, contacts.db in each folder under "
                  ".local/share/evolution/addressbook, the folder for the built-in Personal address book being named "
                  "system (Reference: evolution-data-server 3.56.2, "
@@ -79,6 +80,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the calendars Evolution Data Server keeps for a user, calendar.ics in each folder under "
                  ".local/share/evolution/calendar, the folder for the built-in Personal calendar being named system "
                  "(Reference: evolution-data-server 3.56.2, "
@@ -131,6 +133,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the task lists Evolution Data Server keeps for a user, tasks.ics in each folder under "
                  ".local/share/evolution/tasks, the folder for the built-in Personal task list being named system "
                  "(Reference: evolution-data-server 3.56.2, "

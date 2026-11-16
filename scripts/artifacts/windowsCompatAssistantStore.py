@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each value of "
                  "Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Compatibility Assistant\\Store is one "
                  "row. Program is the value's name, as stored. User is the folder after Users in the hive's path. "

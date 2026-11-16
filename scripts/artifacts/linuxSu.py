@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Logins (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and /var/log/messages and "
                  "their numbered or dated "
                  "rotations, gzip ones included, and reports each line in which util-linux's su recorded a switch "
@@ -127,6 +128,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Logins (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
                  "SYSLOG_IDENTIFIER is su and whose MESSAGE is a switch of user in the form User Switches (su) "
                  "describes, read with the same reader as systemd Journal (scripts/systemd_journal.py) and in the "

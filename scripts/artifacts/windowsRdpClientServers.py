@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Software\\Microsoft\\Terminal Server Client in each NTUSER.DAT: the MRU values "
                  "under Default and the subkeys under Servers. Microsoft documents that each new "
                  "Remote Desktop Connection is given MRU0 and the other values move down, so MRU "

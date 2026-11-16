@@ -38,6 +38,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per value in the SYSTEM hive's top-level "
                  "MountedDevices key (the Mount Manager's persistent name "
                  "database), named in the report's located-at line. Mount Point "

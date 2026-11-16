@@ -49,6 +49,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the WebCacheV01.dat History containers: the container "
                  "named History plus the periodic MSHist01 containers, whose name is "
                  "MSHist01 followed by two YYYYMMDD dates marking the history period "
@@ -116,6 +117,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the WebCacheV01.dat Content containers (container Name "
                  "Content), which index the INetCache of Internet Explorer, legacy "
                  "Edge and packaged apps. Read from WebCacheV01.dat, named in Source "
@@ -184,6 +186,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every container the WebCacheV01.dat Containers table names, with the same ESE reader as WebCache "
                  "History and WebCache Content, and gives one row per cached URL whose query has a parameter named "
                  "exactly clientLocation or location whose URL-decoded value is two numbers joined by \"|\", the first in "
@@ -247,6 +250,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the WebCacheV01.dat containers named iedownload. Read from WebCacheV01.dat, "
                  "named in Source File, with the ESE reader adapted from impacket in scripts/vendor. "
                  "Each row is one entry in an iedownload Container_<id> table. Accessed (UTC) is the "

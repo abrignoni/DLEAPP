@@ -67,6 +67,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, every "
                  "record whose provider is Microsoft-Windows-Kernel-Boot, whatever its Event ID. The provider's "
                  "manifest sends 34 Event IDs to the System channel "

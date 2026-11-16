@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Networks (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the Application Firewall settings file "
                  "/Library/Preferences/com.apple.alf.plist, and a file of the same name in any "
                  "other Library/Preferences folder of the extraction, and reports one row per "

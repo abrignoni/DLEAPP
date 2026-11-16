@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": "Ported from iLEAPP's Safari Browser - Favicons artifact (@abrignoni), which reads the "
                  "same tables in the iOS Favicons.db. Reads icon_info joined to page_url by uuid in each "
                  "Library/Safari/Favicon Cache/favicons.db, with its -wal, one row per page URL and icon "
@@ -41,6 +42,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads the rejected_resources table of favicons.db: page_url and icon_url as stored. Timestamp is the "
             "table's timestamp column read as seconds since 2001-01-01 UTC, or as Unix seconds when the value is "

@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Kernel-ShimEngine%4Operational.evtx, named in the report's "
                  "located-at line; only Microsoft-Windows-Kernel-ShimEngine records with Event ID 4 are read. "
                  "The provider's manifest gives event 4 the message 'Flags [%4] were applied to device [%1] - "
@@ -97,6 +98,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Kernel-ShimEngine%4Operational.evtx, named in the report's "
                  "located-at line; only Microsoft-Windows-Kernel-ShimEngine records with Event ID 3 are read. "
                  "The provider's manifest gives event 3 the message '%3 shim(s) were applied to driver [%1]. "

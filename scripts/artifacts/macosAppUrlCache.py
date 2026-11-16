@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Web Cache (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each Cache.db under a Library/Caches folder, including ones nested below "
                  "an app's own cache folder, that has a cfurl_cache_response table, one row per "
                  "row of that table with its cfurl_cache_blob_data and cfurl_cache_receiver_data "

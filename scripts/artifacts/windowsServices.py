@@ -54,6 +54,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows are the direct subkeys of the current control set's "
                  "Services key in the SYSTEM hive, named in the report's located-at line, one row "
                  "per service or driver. The current control set is resolved from "

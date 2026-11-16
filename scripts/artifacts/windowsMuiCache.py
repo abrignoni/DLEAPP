@@ -29,6 +29,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from each user's UsrClass.dat, named in the report's located-at line. The values of Local "
                  "Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache are named for a file path followed by "
                  ".FriendlyAppName or .ApplicationCompany, and each path is one row. Program is the path, as stored; "

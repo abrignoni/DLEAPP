@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Accounts (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated "
                  "rotations, gzip ones included, and reports each line whose program is one of the shadow tools "
                  "that add, change or remove accounts and groups (useradd, userdel, usermod, groupadd, groupdel, "
@@ -142,6 +143,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Accounts (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
                  "SYSLOG_IDENTIFIER is one of the program names Account Changes reads, read with the same reader "
                  "as systemd Journal (scripts/systemd_journal.py) and in the way Cron Log (journal) reads its "

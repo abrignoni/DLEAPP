@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads each subkey of Software\\Microsoft\\OneDrive\\Accounts in each NTUSER.DAT and "
                  "reports it when it holds a non-empty UserEmail, UserFolder, cid or UserCID "
                  "value; other "
@@ -59,6 +60,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads each subkey of Software\\Microsoft\\IdentityCRL\\UserExtendedProperties in each "
                  "NTUSER.DAT. Account is the subkey name as stored; on pc_mus_001_win11 and "
                  "lonewolf_win10 it is an email address, and CID, the cid value, equals the cid of the"

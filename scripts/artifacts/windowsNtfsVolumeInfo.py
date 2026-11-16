@@ -34,6 +34,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per $Boot in the extraction that starts with an NTFS boot sector, which a raw image lists "
                  "once for each NTFS volume it holds. The fields follow the Linux-NTFS documentation of the boot sector "
                  "(https://github.com/flatcap/ntfs-docs/blob/641edd36dc5f6b62c2aae6658c5a60a4d6d3fe29/files/boot.html#L79-L171): Bytes per Sector and Sectors per Cluster at 0x0B and 0x0D, "

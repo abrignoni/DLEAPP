@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the tree files in .local/share/gvfs-metadata in a home folder, where gvfsd-metadata "
                  "keeps the keys set for files through GIO's metadata:: attributes, as gio set sets them "
                  "(GVfs 1.60.0, layout in "
@@ -69,6 +70,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the journal files in .local/share/gvfs-metadata in a home folder, named after their "
                  "tree with a -<tag>.log suffix "
                  "(https://gitlab.gnome.org/GNOME/gvfs/-/blob/d9f29d3e4238fc3c279b682269e2f7ca97bb8ec1/metadata/metabuilder.c#L1002-1030), "

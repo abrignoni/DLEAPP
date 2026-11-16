@@ -36,6 +36,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Windows\\SoftwareDistribution\\ReportingEvents.log, named in the report's "
                  "located-at line; the file is decoded as UTF-16 when it opens with a byte order mark, as "
                  "it did on every tested image, and as UTF-8 otherwise. Microsoft's Japan Configuration "

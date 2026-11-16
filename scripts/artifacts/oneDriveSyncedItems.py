@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "OneDrive (Desktop)",
+        "platforms": ("Windows",),
         "notes": "One row per file or folder record in the item list the OneDrive sync client keeps "
                  "in AppData\\Local\\Microsoft\\OneDrive\\settings\\<account folder> on Windows: the "
                  "<account id>.dat file and SyncEngineDatabase.db (its od_ClientFile_Records and "

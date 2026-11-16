@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads each Software\\Microsoft\\Office\\<version>\\<application> key in each NTUSER.DAT "
                  "for File MRU and Place MRU subkeys, including those under User MRU\\<account key>, "
                  "and reports each value named Item N; other values in those keys are not reported. An"

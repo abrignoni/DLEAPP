@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every subkey of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FeatureUsage in each NTUSER.DAT "
                  "and reports each value in it, with Value Name as stored and Count as its data. Value"

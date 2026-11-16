@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Intelligence Platform (macOS)",
+        "platforms": ("macOS",),
         "notes": "Ported from iLEAPP's Intelligence Platform Knowledge Graph artifacts. The parsing "
                  "helpers are copied unchanged; the entry points were rewritten to read one store per "
                  "user and add the User and Source File columns. Each user's "
@@ -61,6 +62,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-30",
         "requirements": "none",
         "category": "Intelligence Platform (macOS)",
+        "platforms": ("macOS",),
         "notes": "Ported from iLEAPP's Intelligence Platform Knowledge Graph artifacts. The parsing "
                  "helpers are copied unchanged; the entry points were rewritten to read one store per "
                  "user and add the User and Source File columns. Each user's "

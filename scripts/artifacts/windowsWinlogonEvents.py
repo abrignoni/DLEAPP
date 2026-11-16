@@ -45,6 +45,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from System.evtx, named in the report's located-at line; only Microsoft-Windows-Winlogon "
                  "records with Event ID 7001 or 7002 are read. Event is the provider's message, shortened: the "
                  "message of 7001 is 'User Logon Notification for Customer Experience Improvement Program' and that "
@@ -132,6 +133,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Winlogon%4Operational.evtx the paths match with python-evtx and "
                  "reports, one row per record, the Microsoft-Windows-Winlogon records with Event ID 1, 2, 811 or 812."
                  " Event is the provider's message, shortened: 'Authentication started.' for 1, 'Authentication "

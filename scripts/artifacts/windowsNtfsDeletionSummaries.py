@@ -27,6 +27,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Ntfs%4Operational.evtx the paths match with python-evtx and reports, "
                  "one row per record, the records whose provider is Microsoft-Windows-Ntfs and whose Event ID is 151."
                  " The event is version 0 on Windows 10 build 19041 and Windows 11 build 22621 with different fields "

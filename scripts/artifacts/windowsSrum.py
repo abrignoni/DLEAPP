@@ -63,6 +63,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM Network Usage table "
                  "{973F5D5C-1D90-4944-BE8E-24B94231A174}. Bytes Sent and Bytes "
                  "Received are byte counts for the snapshot as stored. Interface "
@@ -155,6 +156,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM Application Resource Usage table "
                  "{D10CA2FE-6FCF-4F6D-848E-B2E99266FA89}. Foreground and Background "
                  "Bytes Read and Bytes Written are disk byte counts for the snapshot "
@@ -250,6 +252,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM Network Connections table "
                  "{DD6636C4-8929-4683-974E-22C046A43763}. Connect Start Time (UTC) "
                  "is a Windows FILETIME as stored, matching the Velociraptor "
@@ -328,6 +331,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM Execution Stats table "
                  "{5C8CF1C7-7257-4F13-B223-970EF5939312}. End Time (UTC) is a "
                  "Windows FILETIME as stored, matching the Velociraptor artifact's "
@@ -418,6 +422,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM table {D10CA2FE-6FCF-4F6D-848E-B2E99266FA86}. On the six images "
                  "whose SOFTWARE hive was read (af_case2_win10, lonewolf_win10, pc_mus_001_win11, szechuan_win10, "
                  "ou_ransomware_server2022 and alihadi_threatsim_server2019) the key of that GUID under SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\"
@@ -459,6 +464,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}. On af_case2_win10, "
                  "lonewolf_win10, pc_mus_001_win11 and szechuan_win10 the key of that GUID under "
                  "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SRUM\\Extensions is named Energy Usage "
@@ -516,6 +522,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM table {FEE4E14F-02A9-4550-B5CE-5FA2DA202E37}LT, the long-term table of the "
                  "provider SRUM Energy Usage reads. Each row is one entry of the table. Timestamp (UTC) is the "
                  "TimeStamp column decoded as an OLE automation date (days since 1899-12-30), as in the other SRUM "
@@ -570,6 +577,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM table {DC3D3B50-BB90-5066-FA4E-A5F90DD8B677}. On ou_ransomware_server2022 and"
                  " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
                  "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Cpu Provider with the DLL sdprov.dll. Each row is"
@@ -615,6 +623,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM table {841A7317-3805-518B-C2EA-AD224CB4AF84}. On ou_ransomware_server2022 and"
                  " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
                  "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Physical Disk Provider with the DLL sdprov.dll. "
@@ -660,6 +669,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM table {17F4D97B-F26A-5E79-3A82-90040A47D13D}. On ou_ransomware_server2022 and"
                  " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
                  "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Volume Provider with the DLL sdprov.dll. Each row"
@@ -706,6 +716,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SRUM table {EEE2F477-0659-5C47-EF03-6D6BEFD441B3}. On ou_ransomware_server2022 and"
                  " alihadi_threatsim_server2019 the key of that GUID under SOFTWARE\\Microsoft\\Windows "
                  "NT\\CurrentVersion\\SRUM\\Extensions is named SDP Network Provider with the DLL sdprov.dll. Each "

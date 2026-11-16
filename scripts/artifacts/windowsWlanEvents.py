@@ -32,6 +32,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-WLAN-AutoConfig%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-WLAN-AutoConfig "
                  "records with Event ID 8001, 8003, 11000 or 11001 are read. Event is the "

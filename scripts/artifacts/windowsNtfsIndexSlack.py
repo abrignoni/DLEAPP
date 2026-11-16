@@ -20,6 +20,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-13",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per file name entry found in the slack of a directory's $I30 index allocation that is in "
                  "neither of that directory's entry lists now. NTFS keeps a directory's index as a tree: its root "
                  "in the $INDEX_ROOT attribute of the directory's $MFT record, and, once it has grown, index "
@@ -111,6 +112,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-13",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per file name entry found in the slack of a directory's $I30 index allocation whose file "
                  "reference and name are still a live entry of that directory, but with other values. The NTFS "
                  "$I30 Index Slack - Unlisted Entries artifact's notes say how the index allocations are staged, "

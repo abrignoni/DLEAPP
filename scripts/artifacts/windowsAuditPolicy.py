@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the PolAdtEv value of the Policy key of the SECURITY hive, where Windows keeps the system "
                  "audit policy that auditpol.exe sets and queries (Microsoft, 'auditpol', "
                  "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/auditpol). No "

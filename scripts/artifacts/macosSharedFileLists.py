@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Recent Items (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the .sfl2, .sfl3 and .sfl4 files under each user's ~/Library/Application "
                  "Support/com.apple.sharedfilelist, including the per-application lists in its "
                  "subfolders, and the same folder under /private/var/root. Each file is an "

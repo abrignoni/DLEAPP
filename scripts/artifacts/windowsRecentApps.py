@@ -29,6 +29,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Software\\Microsoft\\Windows\\CurrentVersion\\Search\\RecentApps in each user's "
                  "NTUSER.DAT, one row per subkey, the key Velociraptor's Windows.Forensics.RecentApps "
                  "artifact reads; that artifact says the key is populated from Windows 10 1607 to 1709 "
@@ -83,6 +84,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the RecentItems key under each application subkey of the RecentApps key that "
                  "the RecentApps artifact reads, one row per subkey. Path and Display Name are its "
                  "Path and DisplayName values as stored, and Last Accessed (UTC) is its "

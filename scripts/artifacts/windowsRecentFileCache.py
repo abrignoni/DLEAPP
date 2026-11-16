@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-29",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Windows/AppCompat/Programs/RecentFileCache.bcf and reports one row per entry, in the order "
                  "the file holds them. The layout is the one Eric Zimmerman's RecentFileCacheParser reads "
                  "(Reference: RecentFileCacheParser, 'RecentFileCache/RecentFileCacheFile.cs', "

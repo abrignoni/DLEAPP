@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Logs (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the problem reports Apport writes to its report folder, /var/crash unless the "
                  "APPORT_REPORT_DIR environment variable names another (Reference: Apport 2.34.1, commit "
                  "dd6b78e17c2e6940387bc46419d6486887237430, 'apport/fileutils.py' line 35, "

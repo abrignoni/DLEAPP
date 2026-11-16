@@ -57,6 +57,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Report.wer files in the report folders under Microsoft\\Windows\\WER in "
                  "ProgramData or in a user profile's AppData\\Local, the two locations Velociraptor's "
                  "Windows.System.WindowsErrorReporting artifact reads (Zach Stanford, "
@@ -158,6 +159,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per LoadedModule[n] field of each Report.wer (see Windows Error Reporting "
                  "Reports), in index order, with the report's EventTime, AppName and ReportIdentifier. "
                  "Module Path is the value as stored. That the module was loaded in the reported "
@@ -200,6 +202,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Application.evtx, named in the report's located-at line; only records of "
                  "the Windows Error Reporting provider with Event ID 1001 are read. On "
                  "pc_mus_001_win11 (build 22621) the records name their fields: Bucket, BucketType, "
@@ -267,6 +270,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Application.evtx, named in the report's located-at line; only Application "
                  "Error records with Event ID 1000 and Application Hang records with Event ID 1002 are "
                  "read. On pc_mus_001_win11 (build 22621) the records name their fields: AppName, "

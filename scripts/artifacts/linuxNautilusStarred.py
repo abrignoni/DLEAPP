@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the store GNOME Files (Nautilus) keeps for starred files, a tinysparql database in "
                  ".local/share/nautilus/tags (Reference: Nautilus 50.2.2, 'src/nautilus-tag-manager.c', "
                  "https://gitlab.gnome.org/GNOME/nautilus/-/blob/c6592e9c7fce37ad685d0ba24720893955b7835d/src/nautilus-tag-manager.c#L672-676), "

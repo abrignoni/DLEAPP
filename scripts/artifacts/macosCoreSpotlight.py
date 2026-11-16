@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Spotlight (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads each CoreSpotlight store, a folder under a Library/Metadata/CoreSpotlight '
             'folder holding store.db, .store.db and the dbStr-N.map files (index.spotlightV3, in '

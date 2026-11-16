@@ -32,6 +32,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Application-Experience%4Program-Telemetry.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-Application-Experience records with "
                  "Event ID 500 or 505 are read. The provider's manifest gives 500 and 505 the same fields "
@@ -101,6 +102,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from "
                  "Microsoft-Windows-Application-Experience%4Program-Compatibility-Assistant.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Program-Compatibility-Assistant "

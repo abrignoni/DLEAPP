@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the visits table of each History database in a Chromium-based browser profile and "
                  "joins each visit to its urls row for the URL and title; one row per visits row. Every "
                  "visit on the tested images had a urls row. Browser, Profile and User come from the path: "
@@ -174,6 +175,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the urls table of each History database in a Chromium-based browser profile; one "
                  "row per urls row. On the tested images every urls row had at least one visits row, so "
                  "this artifact names no URL that Chromium Web Visits does not. Browser, Profile and User "
@@ -314,6 +316,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-31",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the downloads table of each History database in a Chromium-based browser profile, "
                  "with the URL chain from downloads_url_chains; one row per downloads row. Browser, "
                  "Profile and User come from the path: the browser from the user data folder, the profile "
@@ -475,6 +478,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the keyword_search_terms table of each History database in a Chromium-based "
                  "browser profile, joined to urls on url_id; one row per keyword_search_terms row. Search "
                  "Term is keyword_search_terms.term, described in keyword_search_term.h as the search term "

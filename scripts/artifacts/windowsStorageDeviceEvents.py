@@ -34,6 +34,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Partition%4Diagnostic.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-Partition records with "
                  "Event ID 1006 are read, one row each. The provider's manifest, as "
@@ -107,6 +108,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Kernel-PnP%4Configuration.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-Kernel-PnP records with "
                  "Event ID 400, 410 or 420 are read. Event is the first sentence of the "

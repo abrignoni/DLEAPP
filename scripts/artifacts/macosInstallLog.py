@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Installed Software (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads install.log in a folder ending var/log (private/var/log on a Mac) and its rotated "
                  "copies install.log.N and install.log.T followed by a number, gunzipping any copy that "
                  "starts with the gzip signature, oldest first: the highest N first, then T copies in the "

@@ -22,6 +22,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "none",
         "category": "VLC",
+        "platforms": ("Windows", "Linux"),
         "notes": "VLC 3 keeps its Qt interface settings on Windows in %APPDATA%\\vlc\\vlc-qt-interface.ini, or in "
                  "<VLC folder>\\portable\\vlc\\vlc-qt-interface.ini when a portable folder sits beside vlc.exe, and on "
                  "Linux in ~/.config/vlc/vlc-qt-interface.conf, Qt's INI text under another name "
@@ -147,6 +148,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "none",
         "category": "VLC",
+        "platforms": ("Windows", "Linux"),
         "notes": "Rows from the VLC 3 Qt settings file (see VLC Recent Media for where it is) and from the vlcrc in "
                  "the same profile folder, %APPDATA%\\vlc\\vlcrc or <VLC folder>\\portable\\vlcrc on Windows and "
                  "~/.config/vlc/vlcrc on Linux "

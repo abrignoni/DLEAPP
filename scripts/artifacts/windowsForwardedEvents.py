@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-25",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from ForwardedEvents.evtx and the files named Archive-ForwardedEvents-*.evtx in the same "
                  "folder, named in the report's located-at line: every record of each that renders and parses as XML; the run "
                  "log counts any that do not. wecutil's /lf option names the local event log that stores the events "

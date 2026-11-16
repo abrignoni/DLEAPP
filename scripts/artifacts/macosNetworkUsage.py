@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "Network Usage (macOS)",
+        "platforms": ("macOS",),
         "notes": "macOS keeps netusage.sqlite at /private/var/networkd/db/. "
                  "Every netusage.sqlite found is parsed, tagged by Source File. "
                  "The timestamps are Mac Absolute Time (Core Data), seconds "

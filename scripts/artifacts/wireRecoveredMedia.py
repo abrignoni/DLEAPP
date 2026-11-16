@@ -12,6 +12,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "PyCryptodome",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Only assets still present in an on-disk cache can be recovered. Timestamp is "
                  "the time of the confirmed version of the asset-add event, the version Wire "
                  "Attachments reports: of the versions LevelDB keeps of that event, the one with "

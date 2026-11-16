@@ -38,6 +38,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from each NTUSER.DAT, named in Source File. Program is the "
                  "value name with its ROT13 encoding reversed and is shown as "
                  "stored; it is a path, a KnownFolder-GUID path or a name with no "

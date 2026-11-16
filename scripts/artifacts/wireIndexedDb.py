@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Parses https_app.wire.com_0.indexeddb.leveldb via the vendored "
                  "CCL Chromium IndexedDB reader and Spyder Forensics IndexedDBtoJSON logic. "
                  "'MLS Identity Created' is the mls_credentials created_at value "
@@ -48,6 +49,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "A Wire profile can hold the databases of more than one account, and the "
                  "wire_win profile holds two; every account's databases are read, and a "
                  "record is compared with earlier versions of itself only within the "
@@ -84,6 +86,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "'Relationship' reads Self device for the local_identity record, the client "
                  "this installation registered for the account, and Contact device for every "
                  "other client record. Wire's web app also stores the account owner's other "
@@ -130,6 +133,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Type is the stored type code labelled with its name in Wire's "
                  "CONVERSATION_TYPE enum: Regular for REGULAR (0), Self for SELF (1), One-to-one "
                  "for ONE_TO_ONE (2), Connect for CONNECT (3) and Global team for GLOBAL_TEAM "
@@ -171,6 +175,7 @@ __artifacts_v2__ = {
         "requirements": "PyCryptodome (only to decrypt cached assets for the Media column; the rows are "
                         "read without it)",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Recovered media are decrypted from the on-disk asset caches when present: the "
                  "asset itself, or its preview image when only the preview is cached (on "
                  "wire_win 5 images and the previews of 2 videos). 'Outgoing' is left blank on "
@@ -228,6 +233,7 @@ __artifacts_v2__ = {
         "requirements": "PyCryptodome (only to decrypt cached assets for the Recovered Media column; "
                         "the rows are read without it)",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Wire's client encrypts each asset with its own random key, and every asset-add "
                  "event on wire_win carries that key (otr_key) and the SHA-256 of the encrypted "
                  "blob; only assets whose encrypted blob is still in an on-disk cache show a "
@@ -271,6 +277,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "PyCryptodome (only to fill the Recovered column; the rows are read without it)",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Timestamps are the times workbox's expiration plugin stored for the asset's "
                  "URL, which it sets when the service worker writes the asset to its cache and "
                  "again each time it serves the cached copy; the store holds one entry per URL, "
@@ -319,6 +326,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Duration is taken from the voice-channel-deactivate event, in milliseconds: "
                  "Wire's web app writes Date.now() minus the call's start time there. Reference: "
                  "Wire, 'CallingRepository.ts', "
@@ -363,6 +371,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "A Wire profile can hold the databases of more than one account, and the "
                  "wire_win profile holds two; every account's databases are read, and a "
                  "record is compared with earlier versions of itself only within the "
@@ -393,6 +402,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Metadata only. Presence and counts of key stores, not the keys. A Wire "
                  "profile can hold the databases of more than one account, and the "
                  "wire_win profile holds two; every account's databases are read. Counts "

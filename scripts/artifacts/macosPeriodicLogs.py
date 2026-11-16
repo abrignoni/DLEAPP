@@ -7,6 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Periodic Logs (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the Disk status section of each run in private/var/log/daily.out. The section is the output '
             'of df: on the Magnet macOS 11.2.1 image /etc/periodic/daily/400.status-disks runs df with the '
@@ -47,6 +48,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Periodic Logs (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the Network interface status section of each run in private/var/log/daily.out. The section '
             'is the output of netstat -i or netstat -in, per /etc/periodic/daily/420.status-network on the '
@@ -89,6 +91,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Periodic Logs (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the Local system status section of each run in private/var/log/daily.out. The section is the'
             ' output of uptime, per /etc/periodic/daily/430.status-rwho on the Magnet macOS 11.2.1 image; when '
@@ -126,6 +129,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Periodic Logs (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the Doing login accounting section of each run in private/var/log/monthly.out. The section '
             'is the output of ac -p, sorted, per /etc/periodic/monthly/200.accounting on the Magnet macOS '

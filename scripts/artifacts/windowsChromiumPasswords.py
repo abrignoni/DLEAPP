@@ -25,6 +25,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows",),
         "notes": "Decrypts the password_value column of the logins table of each Windows Chromium "
                  "Login Data and Login Data For Account database. Chromium stores a random AES-256 "
                  "key in the installation's Local State under os_crypt.encrypted_key, as base64 of "

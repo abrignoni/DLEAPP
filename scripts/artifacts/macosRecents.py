@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Recents (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the Recents database in the com.apple.corerecents.recentsd container of each user, a SQLite "
                  "database with the tables recents, contacts and metadata, the last two tied to a recents row by "
                  "their recent_id column in the tables' own definitions. One row is reported per contacts row of an "

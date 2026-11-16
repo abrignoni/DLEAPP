@@ -32,6 +32,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "PcaAppLaunchDic.txt keeps one pipe-separated line per executable: "
                  "the full path and the most recent run time. The time is recorded "
                  "in UTC and is rendered here as UTC. The Program Compatibility "
@@ -64,6 +65,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "PcaGeneralDb0.txt (and the alternate PcaGeneralDb1.txt) keep one "
                  "pipe-separated line per event with eight fields: run time, a run "
                  "status code, the executable path, the file description, the "

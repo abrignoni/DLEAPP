@@ -249,6 +249,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  'Microsoft-Windows-Security-Auditing events 4768, 4769, 4770 and 4771 is one row; only that provider is '
                  'read, because an Event ID means different things for different providers. Event is the title of the '
@@ -344,6 +345,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 4776 is one row; only that provider is read. Microsoft's page "
                  "for the event, '4776(S, F): The computer attempted to validate the credentials for an account.' (as "
@@ -412,6 +414,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  'Microsoft-Windows-Security-Auditing events 5140 and 5145 is one row; only that provider is read. Event '
                  "is the title of the event's page in Microsoft's audit documentation (Microsoft, '5140(S, F): A network "
@@ -487,6 +490,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 4662 is one row; only that provider is read. Microsoft's page "
                  "for the event, '4662(S, F): An operation was performed on an object.' (as updated 27 April 2026, "

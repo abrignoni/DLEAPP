@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per USN_RECORD_V2 or USN_RECORD_V3 in each $Extend/$UsnJrnl:$J stream "
                  "a raw image or E01 holds, which the raw image seeker lists from its first "
                  "stored cluster, so the hole Windows leaves in front of the records is not "

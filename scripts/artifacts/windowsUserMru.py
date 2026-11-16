@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the RunMRU key in each NTUSER.DAT, named in Source "
                  "File. Command is a value's data with the trailing \\1 marker "
                  "Windows appends removed. RunMRU orders its entries with an "
@@ -78,6 +79,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the TypedPaths key in each NTUSER.DAT, named in "
                  "Source File. Typed Path is a value's data. Entry is the value "
                  "name (url1, url2, ...); Windows numbers the most recent entry "
@@ -117,6 +119,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the Internet Explorer TypedURLs key in each "
                  "NTUSER.DAT, named in Source File. Typed URL is a value's data. "
                  "Entry is the value name (url1, url2, ...); Windows numbers the "
@@ -159,6 +162,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the WordWheelQuery key in each NTUSER.DAT, named in "
                  "Source File. Search Term is a numbered value's data, a UTF-16 "
                  "string. MRU Rank is the entry's place in the key's MRUListEx "
@@ -200,6 +204,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the OpenSavePidlMRU key in each NTUSER.DAT, named in "
                  "Source File. File Type is the extension sub-key the entry sits "
                  "under (the * sub-key is the combined list across types, so a "
@@ -247,6 +252,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the LastVisitedPidlMRU key in each NTUSER.DAT, named "
                  "in Source File. Application is the executable name the entry "
                  "stores, as stored; some entries store a class identifier "

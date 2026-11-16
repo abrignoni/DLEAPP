@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Personalization Portrait (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads PPSQLDatabase.db in a Library/PersonalizationPortrait folder, which in the tested samples "
                  "sat in a user's Library, and reports one row per row of its ne_records table. Source Time (UTC), "
                  "Bundle ID, Group ID and Document ID come from the sources row the record's source_id references, "
@@ -62,6 +63,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Personalization Portrait (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads PPSQLDatabase.db in a Library/PersonalizationPortrait folder, which in the tested samples "
                  "sat in a user's Library, and reports one row per row of its tp_records table. Source Time (UTC), "
                  "Bundle ID, Group ID and Document ID come from the sources row the record's source_id references, "
@@ -114,6 +116,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Personalization Portrait (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads PPSQLDatabase.db in a Library/PersonalizationPortrait folder, which in the tested samples "
                  "sat in a user's Library, and reports one row per row of its loc_records table. Source Time (UTC), "
                  "Bundle ID, Group ID and Document ID come from the sources row the record's source_id references, "

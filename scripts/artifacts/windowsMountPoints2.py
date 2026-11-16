@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the subkeys of Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2"
                  " in each NTUSER.DAT. A name in braces is typed Volume GUID, a name beginning ## "
                  "Network share, and anything else Other. Share Path rewrites a ## name with the "

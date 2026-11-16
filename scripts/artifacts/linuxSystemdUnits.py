@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Persistence (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads each file and link under a folder named etc/systemd/system, etc/systemd/user or "
                  ".config/systemd/user, wherever it sits in the extraction, and reports one row per entry in the "
                  "order of Source File, the path the evidence records for it. Scope is System for "
@@ -123,6 +124,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Persistence (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads each Unit file and Drop-in that systemd Unit Files and Links reports, in its order, and "
                  "reports one row per assignment: Section is the section it is in, Key and Value are the text before "
                  "and after its first =, each with the spaces and tabs around it removed, and Line is the line the "

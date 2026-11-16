@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Microsoft says class registration information is stored under both HKEY_LOCAL_MACHINE\\Software\\Classes, "
                  "default settings that can apply to all users, and HKEY_CURRENT_USER\\Software\\Classes, settings that apply "
                  "only to the interactive user, that HKEY_CLASSES_ROOT merges the two, and that the user-specific settings "

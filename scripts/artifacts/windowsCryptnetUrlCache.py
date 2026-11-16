@@ -34,6 +34,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every file in the MetaData folder of "
                  "AppData/LocalLow/Microsoft/CryptnetUrlCache in any profile the declared path "
                  "reaches, which includes Windows/System32/config/systemprofile, "
@@ -103,6 +104,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": ("Reads the same MetaData and Content files as CryptnetUrlCache, which gives each entry's URL and "
                   'other fields; Profile Folder and Cache File identify the entry in both. An OCSP request sent with '
                   "GET is the base-64 text of the DER request appended to the responder's URL (RFC 6960, Appendix A.1), "

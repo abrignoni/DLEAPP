@@ -47,6 +47,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-LiveId%4Operational.evtx the paths match with python-evtx and "
                  "reports, one row per record, every record whose provider is Microsoft-Windows-LiveId, whatever its "
                  "Event ID. The provider's manifest of Windows 11 build 26100.1742 sends 11 entries to this log's "

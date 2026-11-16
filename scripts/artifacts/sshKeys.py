@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each authorized_keys and authorized_keys2 file in a .ssh folder, "
                  "one row per key line in file order. OpenSSH 10.2p1's sshd reads those "
                  "two files by default for public key authentication, each line holding an "
@@ -84,6 +85,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each known_hosts, known_hosts2 and known_hosts.old file in a .ssh folder and each "
                  "ssh_known_hosts and ssh_known_hosts2 file in an etc/ssh or ProgramData/ssh folder, one row "
                  "per key line in file order; ssh_config(5) of OpenSSH 10.2p1 names these "
@@ -168,6 +170,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "SSH",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per private key file, and one row per key line of a public key file. A "
                  "public key file (a .pub, or a host key's .pub) is read as lines holding a type, "
                  "a base64 key and an optional comment; Fingerprint (SHA256) is the SHA-256 of the "

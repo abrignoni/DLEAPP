@@ -21,6 +21,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each Chromium-based browser profile's session file: Sessions/Session_<number> in "
                  "current releases, and Current Session and Last Session in the profile folder of older "
                  "ones, as in lonewolf_win10's Chrome profile; Sessions_Encrypted/Session_<number> is "
@@ -272,6 +273,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each Chromium-based browser profile's tab restore file: Sessions/Tabs_<number> in "
                  "current releases, and Current Tabs and Last Tabs in the profile folder of older ones, as "
                  "in lonewolf_win10's Chrome profile; Sessions_Encrypted/Tabs_<number> is matched too. "

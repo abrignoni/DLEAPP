@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every subkey of Microsoft\\Windows\\CurrentVersion\\Uninstall in the SOFTWARE "
                  "hive, the same key under Wow6432Node (reported as the 32-bit view), and "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall in each NTUSER.DAT, where User "

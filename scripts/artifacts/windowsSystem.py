@@ -33,6 +33,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "Windows System",
+        "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Timestamps are interpreted as Unix "
                  "seconds in UTC. Payloads that are not JSON remain visible. "
                  "The Activity table's columns differ between Windows builds: "
@@ -71,6 +72,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-25",
         "requirements": "none",
         "category": "Windows System",
+        "platforms": ("Windows",),
         "notes": "Each row is one row of the ActivityOperation table of ActivitiesCache.db, read read-only "
                  "together with its -wal when one is staged beside it. Eric Zimmerman's WxTCmd reads the same "
                  "table (EricZimmerman/WxTCmd, WxTCmd/Classes/ActivitiesCache.cs, commit "
@@ -116,6 +118,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "beautifulsoup4",
         "category": "Windows System",
+        "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Arrival and expiry values use the "
                  "Windows FILETIME epoch and are reported in UTC. Boot ID is "
                  "reported as stored because its encoding is not documented. The "
@@ -150,6 +153,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Windows System",
+        "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Times are .NET ticks converted to "
                  "UTC. Empty notes are retained because their metadata can "
                  "still have forensic value.",
@@ -175,6 +179,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Windows System",
+        "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Read from setupapi.dev.log in the Windows inf folder, whatever the "
                  "letter case of the folder and file names, and from the files beside it named "
                  "setupapi.dev.<8 digits>_<6 digits>.log; Source File names the file each row came from. "

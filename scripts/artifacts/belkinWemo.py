@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Belkin WeMo",
+        "platforms": ("Device",),
         "notes": "Reads nvram.bin, the one-file volume qnxprobe 1.54 and later gives a libnvram store found "
                  "in a raw flash dump. The layout is env_image_gemtek in Belkin's own libnvram.c (its header "
                  "carries Belkin's copyright), as found in a public copy of the WeMo firmware tree (https://github.com/svenschwermer/wemo/blob/46d0ccd248806e8e07210f9b34166b127e9d3d52/"
@@ -42,6 +43,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Belkin WeMo",
+        "platforms": ("Device",),
         "notes": "One row per setup.xml whose root element holds a device element in the urn:Belkin:device-1-0 "
                  "namespace. A WeMo serves a file of this shape over UPnP at /setup.xml, as recorded in pywemo's "
                  "test data "
@@ -80,6 +82,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Belkin WeMo",
+        "platforms": ("Device",),
         "notes": "One row per ManufactureData.xml whose root element is ManufactureData. Serial Number, STA MAC "
                  "Address, AP MAC Address, SSID (as stored), Firmware Version, Country Code and Target Country "
                  "are the SerialNumber, STAMacAddress, APMacAddress, SSID, FirmwareVersion, CountryCode and "

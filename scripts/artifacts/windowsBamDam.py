@@ -37,6 +37,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the SYSTEM hive, named in the report's located-at line. Each row is one "
                  "executable entry under a control set's Services\\bam or "
                  "Services\\dam, State\\UserSettings\\<SID> on Windows 10 1809 and "

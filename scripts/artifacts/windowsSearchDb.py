@@ -45,6 +45,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the SystemIndex_<n>_PropertyStore table in Windows.db, the "
                  "Windows 11 (22H2 and later) Windows Search index, read from the file "
                  "named in the report's located-at line and opened read only. Windows.db keeps each "

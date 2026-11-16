@@ -30,6 +30,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\"
                  "<host name>_history.txt, the path PSReadLine builds on Windows from the "
                  "roaming application data folder and the name of the PowerShell host, or "

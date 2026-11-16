@@ -67,6 +67,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from files named PowerShell_transcript.*.txt anywhere in the input. "
                  "PowerShell names a transcript PowerShell_transcript.<computer "
                  "name>.<random>.<yyyyMMddHHmmss>.txt "
@@ -232,6 +233,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the same files as the PowerShell Transcripts artifact, whose notes give "
                  "the file names, the folders and how sessions are found. When a transcript is "
                  "started with -IncludeInvocationHeader, or by the transcription policy with "

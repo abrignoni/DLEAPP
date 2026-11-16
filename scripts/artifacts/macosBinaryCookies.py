@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Cookies (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each .binarycookies file in a Library/Cookies folder, including one inside an app "
                  "container such as Safari's "
                  "Containers/com.apple.Safari/Data/Library/Cookies/Cookies.binarycookies, and in a "

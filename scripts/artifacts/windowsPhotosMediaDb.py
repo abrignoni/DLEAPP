@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Windows Photos",
+        "platforms": ("Windows",),
         "notes": "Reads MediaDb.v1.sqlite, the library database of the Windows Photos app, in the LocalState folder "
                  "of the Microsoft.Windows.Photos package of each user, with its write-ahead log. The app's source "
                  "is not published: what a column holds rests on its name and on what was measured on "
@@ -71,6 +72,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "Windows Photos",
+        "platforms": ("Windows",),
         "notes": "Reads MediaDb.v1.sqlite, the library database of the Windows Photos app, in the LocalState folder "
                  "of the Microsoft.Windows.Photos package of each user, with its write-ahead log. The app's source "
                  "is not published: what a column holds rests on its name and on what was measured on "

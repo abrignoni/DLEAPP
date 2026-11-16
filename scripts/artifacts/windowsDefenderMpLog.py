@@ -55,6 +55,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the MPLog-*.log files under ProgramData\\Microsoft\\Windows "
                  "Defender\\Support, each named in the Source File column and in the "
                  "report's located-at line. Only lines carrying the fields Microsoft "

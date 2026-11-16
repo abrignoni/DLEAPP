@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per directive in each user's .ssh/config and in etc/ssh/ssh_config and the files of "
                  "etc/ssh/ssh_config.d, and in ProgramData/ssh/ssh_config, file by file in path order and within a file in line order; Line is the line"
                  " number and Source File the file, and the files read are named in the report's located-at line. "
@@ -111,6 +112,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "none",
         "category": "SSH",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per directive in etc/ssh/sshd_config, the files of etc/ssh/sshd_config.d and "
                  "ProgramData/ssh/sshd_config, file by file in path order and within a file in line order; Line is the line number and Source File the file, "
                  "and the files read are named in the report's located-at line. sshd reads /etc/ssh/sshd_config "

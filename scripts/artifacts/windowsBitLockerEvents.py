@@ -362,6 +362,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-BitLocker%4BitLocker Management.evtx the paths match with "
                  "python-evtx and reports, one row per record, every record whose provider is "
                  "Microsoft-Windows-BitLocker-API, whatever its Event ID. The provider's manifest gives that log's "
@@ -503,6 +504,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, every "
                  "record whose provider is Microsoft-Windows-BitLocker-Driver, whatever its Event ID. The provider's "
                  "manifest sends all 138 of its events, 24577 to 24713 and 24720, to the System channel "

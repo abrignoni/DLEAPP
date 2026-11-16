@@ -27,6 +27,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Software\\Sysinternals in each user's NTUSER.DAT, in the NTUSER.DAT of each "
                  "folder under Windows/ServiceProfiles and in Windows/System32/config/DEFAULT, one row "
                  "per subkey. A hive that cannot be opened is logged and skipped. Velociraptor's Windows.Registry.Sysinternals.Eulacheck artifact reads "

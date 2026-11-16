@@ -20,6 +20,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Reminders (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             (
             (

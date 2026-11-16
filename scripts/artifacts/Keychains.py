@@ -12,6 +12,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Keychains (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads Apple's classic 'kych' keychain format (the "
                  "AppleDatabase on-disk layout: 16-byte header, schema "
                  "section, per-relation tables, length-prefixed string "
@@ -67,6 +68,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Keychains (macOS)",
+        "platforms": ("macOS",),
         "notes": "Shares the classic-keychain parser with Keychain Generic "
                  "Passwords. The internet-password attribute layout (server, "
                  "protocol, port, path added after the shared attributes) "
@@ -115,6 +117,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Keychains (macOS)",
+        "platforms": ("macOS",),
         "notes": "acct/svce/labl are reported as-is: plaintext when SQLite "
                  "stored them as TEXT, or as a hex value flagged 'hashed' "
                  "when stored as BLOB. A 'Resolved (SHA-1 Dictionary Match)' "

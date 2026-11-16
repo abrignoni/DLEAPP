@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads each user's ~/Library/Preferences/com.apple.finder.plist. Recent folder rows "
                  "come from FXRecentFolders, with Path, Volume Name and Target Created read from each "
                  "entry's file-bookmark; Go to Folder rows come from GoToField and GoToFieldHistory, "
@@ -55,6 +56,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the persistent-apps, persistent-others and recent-apps lists of each user's "
                  "~/Library/Preferences/com.apple.dock.plist, one row per tile; Label, Bundle ID and "
                  "URL are the tile's file-label, bundle-identifier and file-data _CFURLString values, "
@@ -86,6 +88,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-12",
         "requirements": "none",
         "category": "Finder and Dock (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "One row per key of FXDesktopVolumePositions in each user's "
             '~/Library/Preferences/com.apple.finder.plist, the Finder preference keyed by volume. On the tested'

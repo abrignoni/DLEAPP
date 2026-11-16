@@ -21,6 +21,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": ("Reads ExplorerStartupLog.etl and ExplorerStartupLog_RunOnce.etl from a user profile's "
                   'AppData\\Local\\Microsoft\\Windows\\Explorer folder with scripts/etl.py, which names the source of each '
                   'layout it reads. One row per Microsoft-Windows-Shell-Core (provider '
@@ -86,6 +87,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": ("One row per ExplorerStartupLog.etl or ExplorerStartupLog_RunOnce.etl read from a user profile's "
                   'AppData\\Local\\Microsoft\\Windows\\Explorer folder with scripts/etl.py, which names the source of each '
                   "layout it reads. Trace Start (UTC) and Trace End (UTC) are StartTime and EndTime of the file's "

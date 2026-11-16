@@ -56,6 +56,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per value in the Windows Run and RunOnce autostart keys and in the "
                  "Policies\\Explorer\\Run keys, and one for the Load value of each user's Windows "
                  "NT\\CurrentVersion\\Windows key."

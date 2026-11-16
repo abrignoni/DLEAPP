@@ -22,6 +22,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-19",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from "
                  "ProgramData\\Microsoft\\Windows\\CapabilityAccessManager\\CapabilityAccessManager.db "
                  "together with its write-ahead log; Source File names the database each row came from, "
@@ -120,6 +121,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the NonPackagedIdentityRelationship table of "
                  "ProgramData\\Microsoft\\Windows\\CapabilityAccessManager\\CapabilityAccessManager.db, with "
                  "its write-ahead log; Source File names the database each row came from, since the "

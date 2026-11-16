@@ -41,6 +41,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "The machine-wide store is read from the SOFTWARE hive and the "
                  "per-user store from each NTUSER.DAT, named in Source File so "
                  "the two are distinguishable. Capability is the sensor or "

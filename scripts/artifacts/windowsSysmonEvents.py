@@ -167,6 +167,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 1 or 5 are read. On older systems"
@@ -271,6 +272,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 3 are read. On older systems "
@@ -372,6 +374,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 22 are read. On older systems "
@@ -467,6 +470,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 2, 11, 15, 23, 26, 27, 28 or 29 "
@@ -586,6 +590,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 12, 13 or 14 are read. On older "
@@ -689,6 +694,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 6 or 7 are read. On older systems"
@@ -786,6 +792,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 8 or 10 are read. On older "
@@ -887,6 +894,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 9 or 25 are read. On older "
@@ -987,6 +995,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 17 or 18 are read. On older "
@@ -1081,6 +1090,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 19, 20 or 21 are read. On older "
@@ -1176,6 +1186,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 24 are read. On older systems "
@@ -1271,6 +1282,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Sysmon (Windows)",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
                  "Microsoft-Windows-Sysmon records with Event ID 4, 16 or 255 are read. On older "

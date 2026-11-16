@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the usage list GNOME Shell keeps for each user, the application_state file in the "
                  "gnome-shell folder of the user's data folder (Reference: GNOME Shell 50.1, "
                  "'src/shell-app-usage.c', "

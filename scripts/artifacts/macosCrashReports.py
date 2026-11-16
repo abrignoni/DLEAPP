@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Crash Reports (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the .ips and .crash files in a Library/Logs/DiagnosticReports folder and the "
                  "folders below it, such as Retired, one row per crash report. Apple's page 'Interpreting "
                  "the JSON format of a crash report' "

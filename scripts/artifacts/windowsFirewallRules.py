@@ -17,6 +17,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the rules under "
                  "Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules in the SYSTEM "
                  "hive's control set named by the Select key's Current value (ControlSet001 when "

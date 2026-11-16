@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLSleepWakeAgent_EventForward_PowerState from macOS PowerLog, in every .PLSQL '
             'database and .PLSQL.gz archive in /private/var/db/powerlog/Library/BatteryLife or '
@@ -82,6 +83,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLSleepWakeAgent_EventForward_UserIdle from the PowerLog databases the '
             'PowerLog - Sleep and Wake artifact reads, with Time corrected, and rows held by more '
@@ -114,6 +116,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLApplicationAgent_EventForward_FrontmostApp from the PowerLog databases the '
             'PowerLog - Sleep and Wake artifact reads, with Time corrected, and rows held by more '
@@ -145,6 +148,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLLocaleAgent_EventForward_TimeZone from the PowerLog databases the PowerLog - '
             'Sleep and Wake artifact reads, with Time corrected, and rows held by more than one '
@@ -177,6 +181,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLPeripheralAgent_EventForward_ClamshellState from the PowerLog databases the '
             'PowerLog - Sleep and Wake artifact reads, with Time corrected, and rows held by more '
@@ -207,6 +212,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLPeripheralAgent_EventForward_DeviceState from the PowerLog databases the '
             'PowerLog - Sleep and Wake artifact reads, with Time corrected, and rows held by more '
@@ -249,6 +255,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLAudioAgent_EventForward_AudioDevice from the PowerLog databases the PowerLog '
             '- Sleep and Wake artifact reads, with Time corrected, and rows held by more than one '
@@ -288,6 +295,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLApplicationAgent_EventForward_AppLifecycle from the PowerLog databases the '
             'PowerLog - Sleep and Wake artifact reads, with times corrected, and rows held by '
@@ -323,6 +331,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLProcessNetworkAgent_EventInterval_UsageDiff from the PowerLog databases the '
             'PowerLog - Sleep and Wake artifact reads, with times corrected, and rows held by '
@@ -359,6 +368,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLDisplayAgent_Aggregate_ScreenOn from the PowerLog databases the PowerLog - '
             'Sleep and Wake artifact reads, with times corrected, and rows held by more than one '
@@ -390,6 +400,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLConfigAgent_EventNone_Config from the PowerLog databases the PowerLog - '
             'Sleep and Wake artifact reads, with Time corrected, and rows held by more than one '
@@ -453,6 +464,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "PowerLog (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads PLBatteryAgent_EventBackward_Battery from the PowerLog databases the PowerLog '
             '- Sleep and Wake artifact reads, with Time corrected, and rows held by more than one '

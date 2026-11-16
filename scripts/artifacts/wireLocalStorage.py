@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Wire (Windows)",
+        "platforms": ("Windows",),
         "notes": "Only entries for wire.com origins (the host wire.com or one of its "
                  "subdomains) and keys stored without an origin (reported as '(app)') "
                  "are reported, and only from Local Storage folders under a folder "

@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Saved Application State (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the windows.plist in each savedState folder of a Saved Application State "
                  "folder and reports one row per entry that carries an NSTitle, with that entry's "
                  "NSWindowID as Window ID and its NSTitle as Window Title, as stored. Mothers Ruin "
@@ -74,6 +75,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Command Line (macOS)",
+        "platforms": ("macOS",),
         "notes": "Decrypts the data.data in each savedState folder that has a windows.plist beside "
                  "it and reports each Terminal window record found, one row per dictionary in the "
                  "record's Window Settings list. Following Mothers Ruin Software's 'Saved "

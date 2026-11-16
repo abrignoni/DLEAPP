@@ -17,6 +17,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-18",
         "requirements": "none",
         "category": "ChatGPT (macOS)",
+        "platforms": ("macOS",),
         "notes": "VALIDATION BOUNDARY: the event decoder is shared with the "
                  "ChatGPT Record & Replay Events artifact and was proven against "
                  "a recorded capture, but no genuine Computer History segment was "
@@ -72,6 +73,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-18",
         "requirements": "none",
         "category": "ChatGPT (macOS)",
+        "platforms": ("macOS",),
         "notes": "VALIDATION BOUNDARY: exercised only against a synthetic fixture, "
                  "not corpus-verified. No genuine Computer History segment was "
                  "available, so the field names read here were taken from the "
@@ -109,6 +111,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-18",
         "requirements": "none",
         "category": "ChatGPT (macOS)",
+        "platforms": ("macOS",),
         "notes": "VALIDATION BOUNDARY: exercised only against a synthetic fixture, "
                  "not corpus-verified. No genuine memory file was available, so "
                  "the fixture's file names were built from the same documentation "

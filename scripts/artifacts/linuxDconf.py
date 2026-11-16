@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the dconf database at .config/dconf/user in a home folder, one row per key. dconf is "
                  "a key and value store built for user preferences "
                  "(https://gitlab.gnome.org/GNOME/dconf/-/blob/a6b86bd66d3b42d8cfeacc2cc71a4fc78abadb71/README#L1-4); "

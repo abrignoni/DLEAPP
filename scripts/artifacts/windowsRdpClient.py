@@ -36,6 +36,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from "
                  "Microsoft-Windows-TerminalServices-RDPClient%4Operational.evtx, named in "
                  "the report's located-at line; only records of the "

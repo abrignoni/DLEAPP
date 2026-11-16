@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "PyYAML",
         "category": "Networks (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads each file in a NetworkManager system-connections folder as a key file: groups in square "
                  "brackets, key=value lines, lines beginning with # as comments, the last value of a repeated key, "
                  "and the escapes for space, new line, tab, carriage return and backslash replaced in a value "
@@ -89,6 +90,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "PyYAML",
         "category": "Networks (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads netplan's YAML files in /etc/netplan, /run/netplan and /lib/netplan with PyYAML's base "
                  "loader, which keeps every value as the text written, so a value such as an unquoted password of "
                  "digits is not turned into a number. A file holds a network mapping with one mapping per device "
@@ -157,6 +159,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-10",
         "requirements": "PyYAML",
         "category": "Networks (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads the two key files NetworkManager keeps in its state folder, /var/lib/NetworkManager: "
                  "timestamps, group timestamps, and seen-bssids, group seen-bssids (Reference: NetworkManager "
                  "1.54.3, commit 8caccc6bed0b56528ef3d880af1c217bb8d24419, "

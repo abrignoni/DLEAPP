@@ -30,6 +30,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the Task Scheduler XML definitions under "
                  "Windows\\System32\\Tasks, one row per task, each named in "
                  "Source File. Task Name is the task's URI (its path in the Task "

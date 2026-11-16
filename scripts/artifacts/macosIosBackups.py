@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per backup folder directly inside a MobileSync/Backup folder, read from "
                  "the Info.plist, Manifest.plist and Status.plist at the top of that folder. Apple "
                  "names ~/Library/Application Support/MobileSync/Backup/ as where a Mac keeps these "
@@ -58,6 +59,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "Connected Devices (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per bundle ID in the Installed Applications list or the Applications "
                  "dictionary of each backup's Info.plist, with Listed In naming which of the two "
                  "holds it. The other columns come from the entry's iTunesMetadata plist: App Name "

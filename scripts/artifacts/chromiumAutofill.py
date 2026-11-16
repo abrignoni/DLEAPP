@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the autofill table of each Web Data database in a Chromium-based browser profile: "
                  "one row per stored form field name and value, with its count and dates. An "
                  "autofill table missing either date_created or date_last_used is logged and not "
@@ -142,6 +143,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the saved autofill addresses of each Web Data database in a Chromium-based browser "
                  "profile, one row per address, from whichever of three table layouts the database holds. Up "
                  "to schema version 112 an address is a row of autofill_profiles, with its names, emails and "
@@ -300,6 +302,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per card in the credit_cards table of each Web Data database in a Chromium-based "
                  "browser profile: the cards saved on the device. The column names and the statement that "
                  "saves a card are in Chromium's payments table code (https://github.com/chromium/chromium/blob/51bc117ffe992d07bbc5a28892b8e8e0e9f832fe/components/autofill/core/browser/webdata/payments/payments_autofill_table.cc#L64-L75, #L779-L782). Name "
@@ -384,6 +387,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per row of autofill_edge_field_values, a table Microsoft Edge adds to Web Data "
                  "beside Chromium's autofill table. Edge is closed source and no published schema was found, "
                  "so every column below is described from known data: corpus key "

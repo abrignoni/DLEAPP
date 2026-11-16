@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Spotlight (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the Spotlight shortcuts file in each home folder at four locations: "
                  "Library/Application Support/com.apple.spotlight.Shortcuts, Library/Application "
                  "Support/com.apple.spotlight/com.apple.spotlight.Shortcuts, "

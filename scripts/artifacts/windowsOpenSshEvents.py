@@ -39,6 +39,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from OpenSSH%4Operational.evtx and OpenSSH%4Admin.evtx, named in the report's "
                  "located-at line; only OpenSSH provider records with Event ID 1, 2, 3 or 4 are read. "
                  "Microsoft's OpenSSH for Windows is its fork of OpenSSH (Microsoft Learn, 'OpenSSH for "

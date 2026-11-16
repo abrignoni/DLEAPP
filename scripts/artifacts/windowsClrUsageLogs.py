@@ -31,6 +31,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the files in a profile's AppData\\Local\\Microsoft\\CLR_v<version>\\UsageLogs "
                  "folder, and in the same folder under a packaged app's LocalCache\\Local, each named in "
                  "the report's located-at line; one row per file. bohops describes these as usage logs the "

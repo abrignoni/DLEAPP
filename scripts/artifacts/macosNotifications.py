@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Notifications (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the Notification Center database db2/db: under "
                  "private/var/folders/<xx>/<yyyy>/0/com.apple.notificationcenter on "
                  "dleapp_macos_bigsur, and in the group.com.apple.usernoted group "

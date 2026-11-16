@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "Siri (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads SiriAnalytics.db in a Library/Assistant folder and reports one row per row of its events "
                  "table. Date Created (UTC) is the date_created column read as Unix seconds; it carried a value on "
                  "every row of every tested image, where the 2001 epoch would place the Big Sur rows in 2051 and "

@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Media History is a SQLite database in each browser profile, named in media_history_store.cc "
                  "(https://github.com/chromium/chromium/blob/afa7a1c77c10c66e16e0e097dfb62a8b01915f52/chrome/browser/media/history/media_history_store.cc#L35), "
                  "written while the UseMediaHistoryStore feature was on. It is on by default at the "
@@ -100,6 +101,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Media History is a SQLite database in each browser profile, named in media_history_store.cc "
                  "(https://github.com/chromium/chromium/blob/afa7a1c77c10c66e16e0e097dfb62a8b01915f52/chrome/browser/media/history/media_history_store.cc#L35), "
                  "written while the UseMediaHistoryStore feature was on. It is on by default at the "
@@ -190,6 +192,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Archived History and History Index are SQLite databases that old Chrome kept beside "
                  "History in each profile. Tested on the known data "
                  "windows11_arm_chromium_legacy_history_known_20261108: the official Chromium snapshot "
@@ -279,6 +282,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-08",
         "requirements": "none",
         "category": "Chromium Browsers",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Archived History and History Index are SQLite databases that old Chrome kept beside "
                  "History in each profile. Tested on the known data "
                  "windows11_arm_chromium_legacy_history_known_20261108: the official Chromium snapshot "

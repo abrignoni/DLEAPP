@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads the PackageUser table of StateRepository-Machine.srd, one row per package "
                  "registered for a user, joined to its Package and User rows. Package Name, Version, "
                  "Architecture, Resource ID and Publisher ID are split from PackageFullName in the "

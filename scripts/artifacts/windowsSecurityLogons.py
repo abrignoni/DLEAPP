@@ -54,6 +54,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line. Only the logon "
                  "family of events is reported: 4624 and 4625 (a logon that "
                  "succeeded or failed), 4634 and 4647 (a logoff), and 4648 (a "

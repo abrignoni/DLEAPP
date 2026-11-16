@@ -51,6 +51,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-24",
         "requirements": "none (Windows.edb correlation uses the vendored ESE reader)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Rows from the thumbcache_*.db files in a user's Explorer folder, "
                  "read from the files named in Source File. Each row is one cache "
                  "entry that carries a thumbnail image or resolves to a file name, or "

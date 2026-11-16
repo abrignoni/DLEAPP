@@ -37,6 +37,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, the "
                  "records whose provider is Microsoft-Windows-UserPnp and whose Event ID is 20001 or 20002. The "
                  "provider's manifest gives 20001 the message 'Driver Management concluded the process to install "
@@ -160,6 +161,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, the "
                  "records whose provider is Microsoft-Windows-UserPnp and whose Event ID is 20003 or 20004. The "
                  "provider's manifest gives 20003 the message 'Driver Management has concluded the process to add "

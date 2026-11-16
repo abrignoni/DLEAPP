@@ -78,6 +78,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
                  "records with Event ID 1006, 1007, 1008, 1009, 1011, 1015, 1116, 1117, "
@@ -267,6 +268,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
                  "records with Event ID 5000, 5001, 5004, 5007, 5010, 5012, 5013 or 1013 "
@@ -379,6 +381,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
                  "records with Event ID 1000, 1001 or 1002 are read. Event is the message "

@@ -7,6 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Networks (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "Reads HSTS.plist in a Library/Cookies folder and in the folders under Library/Caches, including "
             "those inside app containers: the host names recorded under each storage session key, with the "

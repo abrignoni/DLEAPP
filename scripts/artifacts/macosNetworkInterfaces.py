@@ -7,6 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Networks (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'One row per entry of the Interfaces array of '
             'Library/Preferences/SystemConfiguration/NetworkInterfaces.plist, values as stored. BSD Name is the'

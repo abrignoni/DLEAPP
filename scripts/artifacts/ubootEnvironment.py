@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Bootloader (U-Boot)",
+        "platforms": ("Device",),
         "notes": "Reads uboot-env.bin, the one-file volume qnxprobe 1.54 and later gives a store in U-Boot's "
                  "environment layout found in a raw flash dump, and a file named uboot.env. The layout is "
                  "env_t in U-Boot's include/env_internal.h (https://github.com/u-boot/u-boot/blob/"

@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "Windows Defender",
+        "platforms": ("Windows",),
         "notes": (
             'Table BmProcessInfo. Process Start (UTC) is ProcessStartTime read as a FILETIME '
             '(100 ns since 1601-01-01 UTC): 2018-03-27 09:15:58 to 2018-04-06 12:51:09 on '
@@ -106,6 +107,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "Windows Defender",
+        "platforms": ("Windows",),
         "notes": (
             'Table BackupProcessInfo, which Protokol-7 describe as files and processes tracked '
             'for ransomware rollback. Instance Time (UTC) is InstanceTimeStamp read as a '
@@ -206,6 +208,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "Windows Defender",
+        "platforms": ("Windows",),
         "notes": (
             'Table AttributePersistContext. Insert Time (UTC) and Expire Time (UTC) are '
             'InsertTime and ExpireTime read as FILETIMEs: on pc_mus_001_win11 inserts run '
@@ -299,6 +302,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "Windows Defender",
+        "platforms": ("Windows",),
         "notes": (
             'Table FileHashes. Instance Time (UTC) is InstanceTimeStamp read as a FILETIME: '
             '2023-01-03 22:43:32 to 2023-01-05 01:54:27 on pc_mus_001_win11 and 2020-09-18 '
@@ -388,6 +392,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "Windows Defender",
+        "platforms": ("Windows",),
         "notes": (
             'Table FileInstance, which exists on the three Windows 10 images only and is not '
             'described in the Protokol-7 write-up; column meanings below are measured or taken '
@@ -482,6 +487,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "Windows Defender",
+        "platforms": ("Windows",),
         "notes": (
             'Table RollingQueuesValues. Insert Time (UTC) and Expire Time (UTC) are InsertTime '
             'and ExpireTime read as FILETIMEs: on hexordia_mvs2025_win11 inserts fall on '

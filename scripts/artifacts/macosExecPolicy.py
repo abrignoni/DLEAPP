@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "System Policy (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the scan_targets_v2 table of '
             "/private/var/db/SystemPolicyConfiguration/ExecPolicy, with its -wal. Scott Knight's "
@@ -71,6 +72,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "System Policy (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the executable_measurements_v2 table of '
             "/private/var/db/SystemPolicyConfiguration/ExecPolicy, with its -wal. Scott Knight's "
@@ -121,6 +123,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "System Policy (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the policy_scan_cache table of '
             '/private/var/db/SystemPolicyConfiguration/ExecPolicy, with its -wal. Brandon Dalton '
@@ -172,6 +175,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "System Policy (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             'Reads the provenance_tracking table of '
             '/private/var/db/SystemPolicyConfiguration/ExecPolicy, with its -wal. Howard Oakley '

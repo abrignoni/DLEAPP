@@ -26,6 +26,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads each NTUSER.DAT the paths match with the vendored regfprobe: every key named OpenWithList (name "
                  "compared without case) below a subkey of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts. Each text value of such a key other "

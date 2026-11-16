@@ -30,6 +30,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per value in the Run, Run32 and StartupFolder subkeys of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved in each NTUSER.DAT "
                  "(Scope User) and of Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved in SOFTWARE "
@@ -94,6 +95,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-04",
         "requirements": "none (the vendored regfprobe reads the hive for the State column)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "One row per file in a Startup folder: AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
                  "\\Startup under each user (Location User), ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
                  "\\StartUp (Location All users), and Start Menu\\Programs\\Startup under Documents and Settings on "

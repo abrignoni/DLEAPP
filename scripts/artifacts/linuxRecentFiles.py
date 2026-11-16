@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "Reads each recently used list GTK keeps, a recently-used.xbel file, in both places GTK has kept "
                  "it. Of the GTK releases checked, 2.10.0, 2.12.0, 2.14.0, 2.16.0, 2.18.0, 2.20.0, 2.21.0 to 2.21.2, "
                  "2.22.0 and 2.23.0 keep it as .recently-used.xbel in the home folder (2.22.0, "

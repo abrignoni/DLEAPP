@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
+        "platforms": ("macOS",),
         "notes": "Rows are listed by message date, then message ROWID, then chat ROWID. "
                  "Every chat.db found is parsed, so a Mac with more than one "
                  "user account reports each account's messages, tagged by "
@@ -61,6 +62,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
+        "platforms": ("macOS",),
         "notes": "Rows are listed by created_date, then attachment ROWID, then message ROWID. "
                  "created_date/start_date are Mac Absolute Time in seconds, a "
                  "different unit from the message table's dates. The stored "
@@ -95,6 +97,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
+        "platforms": ("macOS",),
         "notes": "Participants are listed in chat_handle_join row order. "
                  "Every chat.db found is parsed, tagged by Source File. "
                  "When an extraction holds the same chat.db at its own path and "
@@ -124,6 +127,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-12",
         "requirements": "none",
         "category": "iMessage (macOS)",
+        "platforms": ("macOS",),
         "notes": "All four tables were empty on the validation image (no "
                  "deletions had occurred), so only the schema, not real "
                  "tombstone data, was confirmed. Forensically these rows "

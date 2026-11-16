@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
                  "names %windir%\\Logs\\CBS\\CBS.log as the log DISM writes "
@@ -105,6 +106,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
                  "names %windir%\\Logs\\CBS\\CBS.log as the log DISM writes "
@@ -175,6 +177,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
                  "names %windir%\\Logs\\CBS\\CBS.log as the log DISM writes "
@@ -261,6 +264,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-03",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
                  "names %windir%\\Logs\\CBS\\CBS.log as the log DISM writes "
@@ -344,6 +348,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-01",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\DISM\\dism.log. One row per '<----- Starting Dism.exe session ----->' or '<----- "
                  "Starting DismApi.dll session ----->' line. Command Line is the first 'DISM.EXE: Executing command line' "
                  "line of a Dism.exe session and is written only in those sessions; Parent Process Command Line is the "

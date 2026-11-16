@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Command Line (wget)",
+        "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the HSTS store GNU Wget keeps as .wget-hsts in the home folder (Reference: GNU Wget "
                  "1.25.0, 'src/main.c' lines 173 to 186, https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz); a store "
                  "named with --hsts-file or the hstsfile setting is not read ('src/main.c' line 339, 'src/init.c' "

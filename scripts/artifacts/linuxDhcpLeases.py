@@ -35,6 +35,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-13",
         "requirements": "none",
         "category": "Networks (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per lease file. systemd-networkd writes one lease file per link under "
                  "run/systemd/netif/leases; the file name is the kernel interface index, a number, "
                  "and the file does not record the interface name. NetworkManager writes "

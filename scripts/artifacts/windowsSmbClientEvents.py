@@ -43,6 +43,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-11",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-SmbClient%4Connectivity.evtx the paths match with python-evtx and "
                  "reports, one row per record, the records whose provider is Microsoft-Windows-SMBClient and whose "
                  "Event ID is 30800, 30803 to 30808, 30828, 30829, 30830 or 30833. Event is the first line of the "

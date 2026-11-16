@@ -48,6 +48,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 4672 is one row; the provider's message for it begins "
                  "'Special privileges assigned to new logon.' and lists the account, its logon ID and its privileges "
@@ -133,6 +134,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing events 4798 and 4799 is one row; the provider's messages for "
                  "them begin 'A user's local group membership was enumerated.' and 'A security-enabled local group "
@@ -225,6 +227,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx, pefile",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 5379 is one row; the provider's message for it begins "
                  "'Credential Manager credentials were read.', names the account and the read operation, and ends "
@@ -323,6 +326,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 5381 or 5382 is one row. The provider's message for "
                  "both begins 'Vault credentials were read.' and names the account; it ends 'This event occurs "

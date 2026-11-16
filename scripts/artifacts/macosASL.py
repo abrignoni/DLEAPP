@@ -47,6 +47,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Apple System Log (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the .asl files directly in private/var/log/asl, the folder Velociraptor's "
                  "MacOS.Forensics.ASL exchange artifact reads "
                  "(https://github.com/Velocidex/velociraptor-docs/blob/d88489acae3045e7386f37de4fbce0afde1c146e/content/exchange/artifacts/MacOS.Forensics.ASL.yaml#L15-L19), "
@@ -129,6 +130,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Apple System Log (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the same files as ASL Messages, directly in private/var/log/asl and in the "
                  "same way, and reports the messages of the com.apple.system.utmpx and "
                  "com.apple.system.lastlog facilities, the facilities Apple's Libc uses when it logs a "
@@ -195,6 +197,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Apple System Log (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the .asl files directly in private/var/log/powermanagement with the reader ASL "
                  "Messages uses, in the layout Apple's syslog source gives "
                  "(https://github.com/apple-oss-distributions/syslog/blob/69d8586e9a599c304e1b702a9c2830e2f78126d5/libsystem_asl.tproj/include/asl_file.h#L82-L98). "
@@ -228,6 +231,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Apple System Log (macOS)",
+        "platforms": ("macOS",),
         "notes": "Reads the .asl files directly in private/var/log/DiagnosticMessages with the reader "
                  "ASL Messages uses, in the layout Apple's syslog source gives "
                  "(https://github.com/apple-oss-distributions/syslog/blob/69d8586e9a599c304e1b702a9c2830e2f78126d5/libsystem_asl.tproj/include/asl_file.h#L82-L98). "

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per .desktop file in a user's .local/share/applications folder, its subfolders included, "
                  "and in a Desktop folder, file by file in path order; Source File is the file, and the files read "
                  "are named in the report's located-at line. $XDG_DATA_HOME defaults to ~/.local/share and is "
@@ -97,6 +98,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-30",
         "requirements": "none",
         "category": "Desktop (Linux)",
+        "platforms": ("Linux",),
         "notes": "One row per line of the [Default Applications], [Added Associations] and [Removed Associations] "
                  "groups of each mimeapps.list and <desktop>-mimeapps.list file under .config, "
                  ".local/share/applications, etc/xdg, usr/share/applications, usr/local/share/applications and "

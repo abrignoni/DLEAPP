@@ -31,6 +31,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The bundle identifier is in ZVALUESTRING. Times are Mac "
                  "Absolute Time (Core Data) in UTC; the -wal sidecar is read "
                  "alongside the database. Reference: Sarah Edwards, 'Knowledge "
@@ -57,6 +58,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The bundle identifier is in ZVALUESTRING. Times are Mac "
                  "Absolute Time (Core Data) in UTC; the -wal sidecar is read "
                  "alongside the database. Reference: Sarah Edwards, 'Knowledge "
@@ -85,6 +87,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The browser bundle is in ZVALUESTRING; the domain and page "
                  "URL are in the structured metadata (Screen Time / Digital "
                  "Health keys). The Browser Bundle ID column is uniform when "
@@ -116,6 +119,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The URL is in ZVALUESTRING; the page title is in the "
                  "structured metadata. Visit Time is Mac Absolute Time (Core "
                  "Data) in UTC; the -wal sidecar is read alongside the "
@@ -144,6 +148,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The app short name is in ZVALUESTRING; the intent class, "
                  "verb, direction and derived identifier are in the structured "
                  "metadata. The derived identifier is reported as stored and is "
@@ -176,6 +181,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The action is in ZVALUESTRING; the App Bundle ID is in the "
                  "structured metadata and is not recorded on every row (blank "
                  "where absent). Event Time is Mac Absolute Time (Core Data) in "
@@ -206,6 +212,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-25",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "One row per ZOBJECT record whose ZSTREAMNAME is /app/mediaUsage. "
                  "App Bundle ID is ZVALUESTRING; URL and Media URL are the "
                  "structured metadata columns Z_DKAPPMEDIAUSAGEMETADATAKEY__URL "
@@ -242,6 +249,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The playing state and media metadata are in the structured "
                  "metadata. Times are Mac Absolute Time (Core Data) in UTC; the "
                  "-wal sidecar is read alongside the database. References: Sarah "
@@ -269,6 +277,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The Screen Status is read from ZVALUEINTEGER (0 backlight "
                  "off, 1 backlight on). Times are Mac Absolute Time (Core Data) "
                  "in UTC; the -wal sidecar is read alongside the database. "
@@ -297,6 +306,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The Lock Status is read from ZVALUEINTEGER (0 unlocked, 1 "
                  "locked). Times are Mac Absolute Time (Core Data) in UTC; the "
                  "-wal sidecar is read alongside the database. Reference: Sarah "
@@ -323,6 +333,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "none",
         "category": "KnowledgeC (macOS)",
+        "platforms": ("macOS",),
         "notes": "The Charging State is read from ZVALUEINTEGER (0 not plugged "
                  "in, 1 plugged in). A desktop, or a Mac left on a charger, "
                  "records long plugged-in intervals, so the Charging State "

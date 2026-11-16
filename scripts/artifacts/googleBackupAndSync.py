@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": "Reads snapshot.db, with its -wal, in each profile folder of the legacy Google Drive desktop "
                  "client under AppData/Local/Google/Drive on Windows (the client Google replaced with Drive for desktop, which Google Drive Items "
                  "reads); the path pattern also matches a Library/Application Support/Google/Drive folder on "
@@ -79,6 +80,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": "Reads cloud_graph_entry and cloud_relations in cloud_graph/cloud_graph.db, with its -wal when "
                  "present, in each profile folder of the legacy Google Drive desktop client, one row per "
                  "cloud_graph_entry. Cloud Path is built from cloud_relations as Google Backup and Sync Items "
@@ -115,6 +117,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": "Reads fschanges and change_buffer_entries in the databases under TempData/<folder>/"
                  "change_buffer/ in each profile folder of the legacy Google Drive desktop client, one row per "
                  "fschanges row, joined to the change_buffer_entries row whose fschange names it. Direction "
@@ -150,6 +153,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": "Reads external_devices in device_db.db in each profile folder of the legacy Google Drive "
                  "desktop client, one row per device. Label and Device ID are label and device_id as stored; "
                  "on lonewolf_win10 the one device ID is a Windows device path. USB Type, Discovery Action and "
@@ -179,6 +183,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": "Reads the data table of sync_config.db (entry_key, data_key, data_value) in each profile "
                  "folder, and the global_preferences (preference_type, preference_value) and username_mapping "
                  "(username, directory_path) tables of global.db beside the profile folders, of the legacy "
@@ -210,6 +215,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-17",
         "requirements": "none",
         "category": "Google Drive",
+        "platforms": ("Windows", "macOS"),
         "notes": "Reads every file whose name contains sync_log.log under the profile folders "
                  "of the legacy Google Drive desktop client, one row per log entry. An entry begins "
                  "with a line of the form '<date> <time>,<milliseconds> <offset> <level> pid=<number> "

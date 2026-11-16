@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "One row per IndexedDB database. Reads IndexedDB.sqlite3 in two layouts: current, under an app's "
             'WebKit WebsiteData folder, with a file named origin two folders above the database folder, and '
@@ -70,6 +71,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-11",
         "requirements": "none",
         "category": "Safari (macOS)",
+        "platforms": ("macOS",),
         "notes": (
             "One row per row of a database's Records table, from databases that hold at least one. Reads "
             "IndexedDB.sqlite3 in two layouts: current, under an app's WebKit WebsiteData folder, with a file "

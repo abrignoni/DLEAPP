@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "CookiesData is encrypted with Windows DPAPI and cannot be decrypted "
                  "from AppData alone. The complete base64 value is retained for "
                  "decryption when matching Windows account material is available. "
@@ -33,6 +34,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "Chromium v10 cookie values depend on the WebView2 Local State "
                  "os_crypt key and Windows DPAPI. Encrypted values are reported in "
                  "full as hexadecimal evidence; no decryption is attempted.",
@@ -56,6 +58,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "URLs and query parameters are reported in full and may contain "
                  "challenge tokens or credential-like values. The parser does not "
                  "determine whether those values remain valid or reusable. History "
@@ -84,6 +87,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "LevelDB table and log files preserve historical versions. Values "
                  "are reported in full; JSON is compacted and may contain tokens, "
                  "notifications and account state. The parser does not determine "
@@ -108,6 +112,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "Chromium Session Storage namespaces map origins to numbered maps. "
                  "LevelDB log records can preserve values after the namespace is "
                  "cleared; those tombstoned versions are labeled Deleted. UTF-16 "
@@ -133,6 +138,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "The vendored Chromium IndexedDB reader returns decoded JavaScript "
                  "values where supported and explicit placeholders otherwise. "
                  "Historical versions can repeat. Output may contain tokens or "
@@ -159,6 +165,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "Parses Chromium v3 index, data_N blocks and f_XXXXXX streams using "
                  "the published blockfile format. URLs and headers are reported in "
                  "full. The cache is partial and can contain tokens or "
@@ -184,6 +191,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "Only user-specific API endpoints are included; general feature "
                  "configuration metadata is excluded. Nested JSON is flattened to "
                  "field paths. Empty collections are retained as stored rather "
@@ -214,6 +222,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row is emitted per relationship, membership or search action. "
                  "Group-search response listings are omitted because they are server "
                  "results rather than user activity. Searches with no user ID in the "
@@ -239,6 +248,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "Purchase-flow telemetry documents page views, available products "
                  "and session state; it does not by itself prove a completed purchase. "
                  "Payment-card data was not present in the tested AppData corpus. "
@@ -272,6 +282,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "Only records containing an actual user-linked item or wall post "
                  "are emitted. Empty lists, endpoint errors, category catalogs, "
                  "feature metadata and settings-option catalogs are excluded. "
@@ -297,6 +308,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-29",
         "requirements": "none",
         "category": "Roblox (Windows)",
+        "platforms": ("Windows",),
         "notes": "Recovered from retained privatemessages.roblox.com response bodies. "
                  "The cache is partial and can hold multiple versions; identical "
                  "message versions are deduplicated by message ID and update time. "

@@ -36,6 +36,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the SYSTEM hive, named in the report's located-at line. Each row is one "
                  "AppCompatCache entry under a control set's Control\\Session "
                  "Manager\\AppCompatCache value; every ControlSet00N in the hive is "

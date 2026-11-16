@@ -67,6 +67,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-22",
         "requirements": "none",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from the files under ProgramData/Microsoft/Windows "
                  "Defender/Scans/History/Service/DetectionHistory/<folder>/ whose name is a GUID, each "
                  "named in the Source File column and the report's located-at line. One row per file. "

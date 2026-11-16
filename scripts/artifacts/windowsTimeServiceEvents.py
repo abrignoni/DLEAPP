@@ -46,6 +46,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, the "
                  "records whose provider is Microsoft-Windows-Time-Service and whose Event ID is 34, 35, 37, 52, "
                  "129, 134 or 158. Other providers use those Event IDs in the same log (1, 54, 13 and 0 records on "

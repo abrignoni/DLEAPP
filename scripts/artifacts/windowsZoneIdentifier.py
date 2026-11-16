@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "File System (Windows)",
+        "platforms": ("Windows",),
         "notes": "One row per Zone.Identifier stream, read from a raw image or E01 through the "
                  "raw image seeker, which names a stream <file>:<stream>, or from a folder or "
                  "archive holding a file whose name ends in :Zone.Identifier. File is the path "

@@ -38,6 +38,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
         "category": "Windows",
+        "platforms": ("Windows",),
         "notes": "Read from each NTUSER.DAT, named in Source File. File / Item is "
                  "the name at the start of the numbered value, decoded from "
                  "UTF-16 and shown as stored; the shell item that follows the name "
