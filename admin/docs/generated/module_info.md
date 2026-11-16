@@ -951,6 +951,6 @@ Number of artifacts using **deprecated** 'function' key: 0<br>
 
 | Module | Error/Issue |
 |--------|-------------|
-| robloxWindows.py | Error evaluating __artifacts_v2__: malformed node or string on line 35: Call(func=Name(id='_windows_artifact', ctx=Load()), args=[Name(id='_roblox_pre |
+| robloxWindows.py | Error evaluating __artifacts_v2__: malformed node or string on line 36: Call(func=Name(id='_windows_artifact', ctx=Load()), args=[Name(id='_roblox_pre |
 
 <!-- MODULE_INFO_END -->
