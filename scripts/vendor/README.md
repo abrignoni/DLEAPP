@@ -170,17 +170,20 @@ body equals upstream:
 - `ccl_chromium_indexeddb.py` and `structures.py`: ccl_chromium_reader ad37443, with
   only their imports changed for the flat folder (`from . import ccl_leveldb`,
   `from . import ccl_simplesnappy` and the like).
-- `ccl_leveldb.py`: ccl_chromium_reader ad37443 with DLEAPP 051660d merged in, and
-  `import ccl_simplesnappy` changed to `from . import ccl_simplesnappy`. That
-  change bounds the open file handles: a reader closes each .log and .ldb file after
-  checking it and reopens it for each pass, and what a pass skips as damage is copied
-  back to the file's reader, where upstream keeps it. Upstream ad37443 still fails
-  admin/test/scripts/test_leveldb_file_lifecycle.py without it (5 of 11 tests,
-  measured 2026-11-03), so it stays until upstream takes an equivalent change.
-  A second local change, from 2026-11-08: a data block of a table (.ldb) file that cannot be
+- `ccl_leveldb.py`: ccl_chromium_reader 7a01b07 (2026-11-16), with only its two
+  `ccl_simplesnappy` imports changed for the flat folder (`from . import ccl_simplesnappy` and
+  `from .ccl_simplesnappy import check_masked_crc`), so it is not in vendored.json. Upstream now
+  carries the two changes this copy used to add. The first bounds the open file handles: a
+  reader opens each .log, .ldb and manifest file only while a pass reads it, and each pass gets
+  its own handle (https://github.com/cclgroupltd/ccl_chromium_reader/pull/58, which replaced
+  https://github.com/cclgroupltd/ccl_chromium_reader/pull/56);
+  admin/test/scripts/test_leveldb_file_lifecycle.py pins it. A reader's `damage` now lists what
+  every pass skipped, not only the last one.
+  The second, from DLEAPP 0e4953a (2026-11-08), is upstream as
+  https://github.com/cclgroupltd/ccl_chromium_reader/pull/57: a data block of a table (.ldb) file that cannot be
   read whole or whose snappy stream does not decompress is skipped, logged (noting when its
   checksum does not match) and listed in the reader's `damage`, and reading goes on with the
-  next block and file. Upstream ad37443 raises there, so a caller gets nothing more from that
+  next block and file. Upstream ad37443 raised there, so a caller gets nothing more from that
   folder. On pc_mus_001_win11 four .ldb files in a MicrosoftWindows.Client package's Local
   Storage each hold a data block with a zero-filled stretch of 53,248 to 65,536 bytes and a
   checksum that does not match. Of the 185 .ldb files on cfreds_leakage_win7,
@@ -192,6 +195,10 @@ body equals upstream:
   caller that keeps the newest record per key can then see an older one.
   admin/test/scripts/test_leveldb_table_damage.py pins the decompression cases and the read of
   the next file.
+  Measured 2026-11-16 over the zip, tar and folder sources in the corpus registries (disk images
+  and other containers were not read): of 10,658 LevelDB folders (9,308 table files) under 85
+  corpus keys, the copy before and after this re-vendor returns the same 7,588,177 records, and
+  both refuse the same 16 folders when they are opened.
 
 Two helpers around them stay in `scripts/ccl`: `wire_assets.py`, this repository's own code,
 and `indexeddb_to_json.py`, an in-memory adaptation of Spyder Forensics' IndexedDBtoJSON.py
