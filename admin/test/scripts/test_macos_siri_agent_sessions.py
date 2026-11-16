@@ -86,6 +86,32 @@ def build(path, with_rows=True, tables=True):
     database.close()
 
 
+HISTORY = '''
+CREATE TABLE Z_PRIMARYKEY (Z_ENT INTEGER PRIMARY KEY, Z_NAME VARCHAR, Z_SUPER INTEGER, Z_MAX INTEGER);
+CREATE TABLE ACHANGE ( Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, ZCHANGETYPE INTEGER, ZENTITY INTEGER, ZENTITYPK INTEGER, ZTRANSACTIONID INTEGER, ZCOLUMNS BLOB , ZTOMBSTONE0 BLOB);
+CREATE TABLE ATRANSACTION ( Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, ZAUTHORTS INTEGER, ZBUNDLEIDTS INTEGER, ZCONTEXTNAMETS INTEGER, ZPROCESSIDTS INTEGER, ZTIMESTAMP FLOAT, ZAUTHOR VARCHAR, ZBUNDLEID VARCHAR, ZCONTEXTNAME VARCHAR, ZPROCESSID VARCHAR, ZQUERYGEN BLOB );
+'''
+
+
+def add_history(path, session_ent=3, event_ent=2):
+    """Persistent history with made-up deletes; entity numbers come from Z_PRIMARYKEY, so tests can move them."""
+    database = sqlite3.connect(path)
+    database.executescript(HISTORY)
+    database.executemany('INSERT INTO Z_PRIMARYKEY (Z_ENT, Z_NAME) VALUES (?,?)',
+                         [(session_ent, 'AgentSessionRecordEntity'), (event_ent, 'AgentSessionEventEntity'),
+                          (4, 'ArtifactEntity')])
+    database.executemany('INSERT INTO ATRANSACTION (Z_PK, ZTIMESTAMP) VALUES (?,?)',
+                         [(10, BASE + 500), (11, BASE + 600), (12, BASE + 700)])
+    database.executemany(
+        'INSERT INTO ACHANGE (Z_PK, ZCHANGETYPE, ZENTITY, ZENTITYPK, ZTRANSACTIONID, ZTOMBSTONE0) VALUES (?,?,?,?,?,?)',
+        [(1, 2, event_ent, 7, 10, 'DE-1'), (2, 2, session_ent, 9, 10, 'DS-1'), (3, 2, event_ent, 8, 10, 'DE-2'),
+         (4, 2, 4, 5, 10, None),                       # an attachment delete: not a session or event
+         (5, 1, session_ent, 1, 11, None),             # an update in another transaction
+         (6, 2, session_ent, 3, 12, 'DS-2')])          # a session deleted with no event
+    database.commit()
+    database.close()
+
+
 class Artifact(unittest.TestCase):
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
@@ -101,7 +127,7 @@ class Artifact(unittest.TestCase):
         build(path, **kw)
         return path
 
-    def run_artifact(self, found, extraction=()):
+    def run_artifact(self, found, extraction=(), function='macosSiriAgentSessions'):
         context = mock.Mock()
         context.get_files_found.return_value = found
         context.get_relative_path.side_effect = lambda p: os.path.relpath(p, self.folder.name)
@@ -111,7 +137,7 @@ class Artifact(unittest.TestCase):
         self.seeker = seeker
         with mock.patch.object(sa, 'logfunc') as log, mock.patch('scripts.macos_plists.logfunc'), \
                 mock.patch.object(sa, 'check_in_media', side_effect=lambda p, name='': f'media:{p}') as media:
-            result = sa.macosSiriAgentSessions.__wrapped__(context)
+            result = getattr(sa, function).__wrapped__(context)
         self.media = media
         return result, [c.args[0] for c in log.call_args_list]
 
@@ -206,6 +232,41 @@ class Artifact(unittest.TestCase):
         (_, rows, _), _ = self.run_artifact([first, second, first + '-wal'])
         self.assertEqual(sorted({r[18] for r in rows}), ['a', 'b'])
         self.assertEqual(len(rows), 8)
+
+    def test_attachments_artifact(self):
+        path = self.database()
+        held = ['Users/a/Documents/made up.txt']
+        (headers, rows, located), log = self.run_artifact([path], extraction=held, function='macosSiriAgentAttachments')
+        self.assertEqual(len(headers), 12)
+        # the app-entity rows, session-level row included; the data row is not reported
+        self.assertEqual([r[1] for r in rows], ['AttachmentFileEntity', 'SelectedText', 'AgentMediaEntity',
+                                                 'attachment row not decoded'])
+        self.assertEqual(rows[0][2:5], ('test.attach', FILE_PATH, 'media:Users/a/Documents/made up.txt'))
+        self.assertEqual(rows[0][6], '')
+        self.assertEqual(rows[0][7:10], ('title one', 'S-1', 'E-2'))
+        self.assertEqual(rows[1][6], 'made-up-id')
+        self.assertEqual(rows[2][8:10], ('S-1', ''))
+        self.assertEqual(rows[3][8:10], ('S-2', 'E-3'))
+        self.assertTrue(any('1 attachment row(s)' in m for m in log))
+        self.assertEqual(located, path)
+
+    def test_deletions_artifact(self):
+        path = self.database()
+        add_history(path, session_ent=7, event_ent=5)
+        (headers, rows, located), _ = self.run_artifact([path], function='macosSiriAgentDeletions')
+        utc = datetime.timezone.utc
+        at = lambda s: datetime.datetime(2001, 1, 1, tzinfo=utc) + datetime.timedelta(seconds=s)
+        self.assertEqual(headers[0], ('Deleted At (UTC)', 'datetime'))
+        rel = os.path.relpath(path, self.folder.name)
+        self.assertEqual(rows, [(at(BASE + 500), 'DS-1', 2, 'DE-1\nDE-2', '10', 'a', rel),
+                                (at(BASE + 700), 'DS-2', 0, '', '12', 'a', rel)])
+        self.assertEqual(located, path)
+
+    def test_deletions_need_history(self):
+        path = self.database()
+        (_, rows, located), log = self.run_artifact([path], function='macosSiriAgentDeletions')
+        self.assertEqual((rows, located), ([], ''))
+        self.assertTrue(any('no persistent history' in m for m in log))
 
     def test_path_pattern(self):
         pattern = sa.__artifacts_v2__['macosSiriAgentSessions']['paths'][0]
