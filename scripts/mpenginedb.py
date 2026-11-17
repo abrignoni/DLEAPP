@@ -44,8 +44,8 @@ any other, and a file it cannot decrypt is returned with no database and the rea
 When the built-in key does not give a database, read_database() rebuilds the keystream from
 the file itself (derive_keystream). The write-up says the same thing can be done because unused
 space in a SQLite page is zero-filled and zero XOR the keystream is the keystream. This code was
-written for this module from that sentence and from the SQLite file format (sqlite.org/fileformat2.html);
-nothing of Protokol-7's derivation was read or run. How it works is in derive_keystream().
+written for this module from that sentence and from the SQLite file format (sqlite.org/fileformat2.html).
+How it works is in derive_keystream().
 
 The evidence is never written to: both files are read into memory, and the decrypted copy is
 written to a temporary folder that Database removes whole, so the -wal and -shm files SQLite
@@ -196,8 +196,8 @@ def derive_keystream(db_bytes, wal_bytes, page_size):
     is accepted when at least 3 pages vote on it and at least 90% of those votes agree; with
     fewer or less the keystream is not derived and the file is not read. The caller still
     requires the result to read as a SQLite database. Only the first 16 bytes of page 1 are
-    used, never the
-    key, so a different key on another engine build is handled the same way.
+    used, never the key, so the rebuild does not depend on it. No file with a different key
+    was tested.
     """
     if len(db_bytes) < page_size:
         return None, 'the file is shorter than one page'
