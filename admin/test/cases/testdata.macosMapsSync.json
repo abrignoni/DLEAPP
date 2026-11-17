@@ -1,0 +1,50 @@
+{
+    "case1": {
+        "description": "The MapsSync_0.0.1 files, with -wal and -shm, and MapsSync_0.0.1_deviceLocalCache.db of the known-data capture maps_known_data_macos27: a lab macOS 27.2.1 VM with a new local user and no Apple Account, where Apple Maps was used on public landmarks following a timed activity log (searches with Enter, partial text with a chosen suggestion, directions, Places > Add, Pin, the Favorites star, Save to Places, a new guide). No case data.",
+        "maker": "@AlexisBrignoni",
+        "make_data": {
+            "input_data_path": "maps_known_data_macos27.zip",
+            "os": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+            "timestamp": "2026-11-16T21:46:25.713556",
+            "last_commit": {
+                "hash": "3ab73a7e94ce5840b851b74d76269224c4f2a0bf",
+                "author_name": "Brigs",
+                "author_email": "N/A",
+                "date": "2026-11-16T21:44:23-05:00",
+                "message": "Add Apple Maps MapsSync artifacts for macOS (work in progress)"
+            }
+        },
+        "artifacts": {
+            "macosMapsSync": {
+                "search_patterns": [
+                    "*/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1*"
+                ],
+                "file_count": 6,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "macosMapsFavorites": {
+                "search_patterns": [
+                    "*/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1*"
+                ],
+                "file_count": 6,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            },
+            "macosMapsCollectionItems": {
+                "search_patterns": [
+                    "*/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1*"
+                ],
+                "file_count": 6,
+                "expected_output": {
+                    "headers": [],
+                    "data": []
+                }
+            }
+        }
+    }
+}

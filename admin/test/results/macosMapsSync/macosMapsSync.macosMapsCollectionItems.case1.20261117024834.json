@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "module_name": "macosMapsSync",
+    "artifact_name": "Maps Saved Places and Guides (MapsSync)",
+    "function_name": "macosMapsCollectionItems",
+    "case_number": "case1",
+    "number_of_columns": 17,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 539,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/macosMapsSync/testdata.macosMapsSync.macosMapsCollectionItems.case1.zip",
+    "start_time": "2026-11-17T02:48:34.542771+00:00",
+    "end_time": "2026-11-17T02:48:34.574388+00:00",
+    "run_time_seconds": 0.005754947662353516,
+    "last_commit": {
+      "hash": "3ab73a7e94ce5840b851b74d76269224c4f2a0bf",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-11-16T21:44:23-05:00",
+      "message": "Add Apple Maps MapsSync artifacts for macOS (work in progress)"
+    }
+  },
+  "headers": [
+    "Created",
+    "Modified",
+    "Entity (Z_PRIMARYKEY Name)",
+    "Custom Name",
+    "Place Name",
+    "Address",
+    "Category",
+    "Note",
+    "Item Type (As Stored)",
+    "Guides",
+    "Query (Sent)",
+    "Query (Raw)",
+    "Latitude",
+    "Longitude",
+    "Item Number",
+    "User",
+    "Source File"
+  ],
+  "data": [
+    [
+      1794882469,
+      1794882469,
+      "CollectionPlaceItem",
+      "",
+      "Space Needle",
+      "400 Broad St, Seattle, WA  98109, United States",
+      "Observation Deck||Landmark||Travel and Leisure",
+      "",
+      1,
+      "",
+      "space needle",
+      "",
+      47.6205191,
+      -122.3492914,
+      1,
+      "kdu",
+      "Users/kdu/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1"
+    ],
+    [
+      1794882535,
+      1794882572,
+      "CollectionPlaceItem",
+      "",
+      "Griffith Observatory",
+      "2800 East Observatory Road, Los Angeles, CA 90027, United States",
+      "Observatory||Travel and Leisure",
+      "",
+      0,
+      "Lab guide",
+      "Griffith Observatory",
+      "griffith ob",
+      34.118105,
+      -118.3003755,
+      2,
+      "kdu",
+      "Users/kdu/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1"
+    ]
+  ]
+}
