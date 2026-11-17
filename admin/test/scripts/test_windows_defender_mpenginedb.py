@@ -5,6 +5,7 @@ reverses; no record comes from a real machine.
 """
 import os
 import pathlib
+import random
 import shutil
 import sqlite3
 import struct
@@ -134,6 +135,62 @@ class ReaderTest(unittest.TestCase):
         self.assertIn('does not decrypt', result.reason)
         self.assertIsNone(reader.read_database(b'SQLite format 3\x00' + bytes(2000)).plain)
         self.assertIsNone(reader.read_database(b'').plain)
+
+    def fixture_with_empty_tables(self, rows_after=()):
+        """A database with enough rows for interior pages and four empty tables, whose root pages
+        are unused space apart from an 8-byte header."""
+        many = [(n, FT_BASE + n, n, '\\Device\\HarddiskVolume3\\Windows\\System32\\p%d.exe' % n, 'p%d' % n * (n % 7))
+                for n in range(400)]
+        fixture = Fixture(self.dir, many, rows_after)
+        con = sqlite3.connect(fixture.path)
+        con.execute('PRAGMA wal_autocheckpoint=0')
+        for name in ('T1', 'T2', 'T3', 'T4'):
+            con.execute(f'CREATE TABLE {name}(ID INTEGER PRIMARY KEY NOT NULL, V TEXT)')
+        con.commit()
+        con.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        with open(fixture.path, 'rb') as handle:
+            fixture.plain_before = handle.read()
+        con.close()
+        return fixture
+
+    def test_a_keystream_is_derived_from_the_file_when_the_built_in_key_is_wrong(self):
+        fixture = self.fixture_with_empty_tables()
+        with_key = reader.read_database(encrypt_pages(fixture.plain_before))
+        self.assertEqual(with_key.key_source, 'the key built into this reader')
+        stored = encrypt_pages(fixture.plain_before, OTHER_KEY)
+        self.assertIsNone(reader.read_database(stored, derive=False).plain)
+        derived = reader.read_database(stored)
+        self.assertEqual(derived.reason, '')
+        self.assertEqual(derived.key_source, 'a keystream derived from the file')
+        self.assertEqual(derived.plain, with_key.plain)
+        self.assertEqual(derived.plain[PS:], fixture.plain_before[PS:])
+
+    def test_a_derived_keystream_reads_the_wal_too(self):
+        rows = [(1000 + n, FT_BASE + n, 1000 + n, '\\Device\\x%d.exe' % n, None) for n in range(50)]
+        fixture = self.fixture_with_empty_tables(rows)
+        self.assertTrue(fixture.plain_wal)
+        good = reader.read_database(encrypt_pages(fixture.plain_before), encrypt_wal(fixture.plain_wal))
+        other = reader.read_database(encrypt_pages(fixture.plain_before, OTHER_KEY),
+                                     encrypt_wal(fixture.plain_wal, OTHER_KEY))
+        self.assertEqual(other.key_source, 'a keystream derived from the file')
+        self.assertGreater(other.wal_applied_frames, 0)
+        self.assertEqual(other.wal_applied_frames, good.wal_applied_frames)
+        self.assertEqual(other.plain, good.plain)
+
+    def test_a_file_that_is_not_a_database_is_not_made_into_one_by_the_derivation(self):
+        fixture = self.fixture_with_empty_tables()
+        stored = bytearray(random.Random(7).randbytes(len(fixture.plain_before)))
+        stored[16:18] = struct.pack('>H', PS)
+        stored[:16] = bytes(a ^ b for a, b in zip(reader.MAGIC, reader.rc4_keystream(OTHER_KEY, 16)))
+        result = reader.read_database(bytes(stored))
+        self.assertIsNone(result.plain)
+        self.assertIn('could not be derived', result.reason)
+
+    def test_the_derivation_needs_enough_unused_space_and_otherwise_refuses(self):
+        fixture = Fixture(self.dir, ROWS_A)
+        result = reader.read_database(encrypt_pages(fixture.plain_before, OTHER_KEY))
+        self.assertIsNone(result.plain)
+        self.assertIn('could not be derived', result.reason)
 
     def test_a_header_that_decrypts_over_garbage_pages_is_refused(self):
         fixture = Fixture(self.dir, ROWS_A)
@@ -380,6 +437,39 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(rows[1][0], '')
         self.assertEqual(rows[1][4:7], ('', '', ''))
         self.assertTrue(self.logged('1 non-zero time value(s) in FileHashes'))
+
+    def test_low_fi_rows_columns_times_and_hex_signature(self):
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        fixture = Fixture(directory, ROWS_A)
+        con = sqlite3.connect(fixture.path)
+        con.execute('CREATE TABLE FileLowFiAsync(ID INTEGER PRIMARY KEY NOT NULL, Key INTEGER NULL, '
+                    'FileName NVARCHAR NULL, SigSeq INTEGER NULL, SigSha BLOB NULL, SigIsSync INTEGER NULL, '
+                    'InstanceTimeStamp INTEGER NULL)')
+        con.execute('INSERT INTO FileLowFiAsync VALUES (1, -9, ?, 5864002824740, ?, 1, ?)',
+                    ('D:\\tool\\a.exe', bytes(range(20)), FT_BASE))
+        con.commit()
+        con.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        with open(fixture.path, 'rb') as handle:
+            fixture.plain_before = handle.read()
+        con.close()
+        files = self.stage(fixture)
+        headers, rows, _source = self.run_artifact(artifact.windowsDefenderMpEngineLowFi, files)
+        self.assertEqual(headers[0], ('Instance Time (UTC)', 'datetime'))
+        self.assertEqual(rows, [(datetime(2031, 6, 15, 8, 30, 12, tzinfo=UTC), 'D:\\tool\\a.exe',
+                                 5864002824740, bytes(range(20)).hex(), 1)])
+        self.assertTrue(self.logged('read with the key built into this reader'))
+
+    def test_a_derived_keystream_is_named_in_the_log(self):
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        helper = ReaderTest('test_the_stored_key_is_256_bytes')
+        helper.dir = directory
+        fixture = helper.fixture_with_empty_tables()
+        files = self.stage(fixture, key=OTHER_KEY)
+        _headers, rows, _source = self.run_artifact(artifact.windowsDefenderMpEngineProcesses, files)
+        self.assertEqual(len(rows), 400)
+        self.assertTrue(self.logged('read with a keystream derived from the file'))
 
     def test_two_copies_are_each_read_and_the_row_count_is_the_sum(self):
         directory = tempfile.mkdtemp()

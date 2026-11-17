@@ -41,6 +41,12 @@ header and its b-tree header reads as a table b-tree page, and it says so when i
 The write-up measured the key on one engine build; this module does not claim it holds on
 any other, and a file it cannot decrypt is returned with no database and the reason.
 
+When the built-in key does not give a database, read_database() rebuilds the keystream from
+the file itself (derive_keystream). The write-up says the same thing can be done because unused
+space in a SQLite page is zero-filled and zero XOR the keystream is the keystream. This code was
+written for this module from that sentence and from the SQLite file format (sqlite.org/fileformat2.html);
+nothing of Protokol-7's derivation was read or run. How it works is in derive_keystream().
+
 The evidence is never written to: both files are read into memory, and the decrypted copy is
 written to a temporary folder that Database removes whole, so the -wal and -shm files SQLite
 makes beside a database whose header says WAL go with it.
@@ -85,6 +91,8 @@ class Result:
     wal_valid_frames: int = 0
     wal_applied_frames: int = 0
     wal_notes: list = field(default_factory=list)
+    key_source: str = ''
+    derived_offsets: int = 0
 
 
 def rc4_keystream(key, count):
@@ -151,6 +159,90 @@ def _wal_frames(wal):
     return header, frames
 
 
+_MIN_VOTES = 3
+_MIN_AGREEMENT = 0.9
+
+
+def _candidate_pages(db_bytes, wal_bytes, page_size):
+    """The stored bytes of every page after page 1 and of every WAL frame body that is not for
+    page 1, with pages that are all zero bytes left out: a page SQLite never wrote reads as zero
+    and says nothing about the keystream."""
+    out = []
+    for n in range(1, len(db_bytes) // page_size):
+        out.append(db_bytes[n * page_size:(n + 1) * page_size])
+    if wal_bytes and len(wal_bytes) >= 32 and struct.unpack('>I', wal_bytes[:4])[0] in _WAL_MAGICS \
+            and struct.unpack('>I', wal_bytes[8:12])[0] == page_size:
+        offset = 32
+        while offset + 24 + page_size <= len(wal_bytes):
+            if struct.unpack('>I', wal_bytes[offset:offset + 4])[0] != 1:
+                out.append(wal_bytes[offset + 24:offset + 24 + page_size])
+            offset += 24 + page_size
+    return [page for page in out if any(page)]
+
+
+def derive_keystream(db_bytes, wal_bytes, page_size):
+    """(keystream, reason): the page-sized RC4 keystream rebuilt from the evidence file alone,
+    or (None, why not).
+
+    Every page uses the same keystream, so a stored byte that is zero in plaintext is the
+    keystream byte at that offset. Bytes 0 to 15 of the keystream come from page 1, whose first
+    16 bytes are the known SQLite header text. For the rest, each other page is read through
+    those 16 bytes: its first bytes give the b-tree page type, the cell count and where the cell
+    content starts, and the stretch between the end of its cell pointer array and the start of
+    its cell content is unused, so each such stored byte is a vote for the keystream byte at its
+    offset. A page whose first bytes do not read as a b-tree page header is left out. Some
+    unused stretches hold old data, so the vote runs twice: the first time over every page, the
+    second only over pages whose stretch is at least 98% equal to the first result. An offset
+    is accepted when at least 3 pages vote on it and at least 90% of those votes agree; with
+    fewer or less the keystream is not derived and the file is not read. The caller still
+    requires the result to read as a SQLite database. Only the first 16 bytes of page 1 are
+    used, never the
+    key, so a different key on another engine build is handled the same way.
+    """
+    if len(db_bytes) < page_size:
+        return None, 'the file is shorter than one page'
+    keystream = bytearray(page_size)
+    keystream[:16] = _xor(db_bytes[:16], MAGIC)
+    spans = []
+    for page in _candidate_pages(db_bytes, wal_bytes, page_size):
+        head = _xor(page[:8], bytes(keystream[:8]))
+        kind = head[0]
+        if kind not in _BTREE_TYPES:
+            continue
+        cells = struct.unpack('>H', head[3:5])[0]
+        content = struct.unpack('>H', head[5:7])[0] or 65536
+        start = max((12 if kind in (0x02, 0x05) else 8) + 2 * cells, 16)
+        if start <= content <= page_size:
+            spans.append((page, start, content))
+    if not spans:
+        return None, 'no page after page 1 reads as a b-tree page through the header bytes of page 1'
+    # Round 0 takes the commonest stored byte at each offset over every unused stretch. Some
+    # unused stretches hold old data, so round 1 keeps only pages whose stretch is at least 98%
+    # the keystream under round 0 and votes again; round 1 is the keystream.
+    for keep in (False, True):
+        votes = [dict() for _ in range(page_size)]
+        for page, start, content in spans:
+            if keep and sum(1 for o in range(start, content) if page[o] == keystream[o]) \
+                    < 0.98 * (content - start):
+                continue
+            for offset in range(start, content):
+                tally = votes[offset]
+                tally[page[offset]] = tally.get(page[offset], 0) + 1
+        weak = []
+        for offset in range(16, page_size):
+            tally = votes[offset]
+            total = sum(tally.values())
+            value, count = max(tally.items(), key=lambda item: item[1]) if tally else (0, 0)
+            keystream[offset] = value
+            if total < _MIN_VOTES or count < total * _MIN_AGREEMENT:
+                weak.append(offset)
+    if weak:
+        return None, (f'{len(weak)} of {page_size - 16} keystream offsets have fewer than {_MIN_VOTES} '
+                      f'votes or less than {int(_MIN_AGREEMENT * 100)}% agreement among them '
+                      f'(first: {weak[0]})')
+    return bytes(keystream), ''
+
+
 def _looks_like_a_database(pages):
     """True when page 1 reads as a table b-tree page after its 100-byte header and at least
     half of up to the next 16 pages open with a b-tree page type byte."""
@@ -160,30 +252,58 @@ def _looks_like_a_database(pages):
     return not rest or sum(1 for page in rest if page[0] in _BTREE_TYPES) * 2 >= len(rest)
 
 
-def read_database(db_bytes, wal_bytes=None, key=KEY):
+def read_database(db_bytes, wal_bytes=None, key=KEY, derive=True):
     """Decrypt the database, then replay the committed frames of its WAL over it.
 
-    Frames are taken in order up to the last valid commit frame and the later version of a
-    page wins, which is how SQLite reads a WAL. The size after the replay is the commit size
-    of that frame. Frames after the chain breaks, uncommitted frames and frames from an
-    older generation of the WAL (other salts) are not applied.
+    The key is tried first. When it does not give a SQLite header and a b-tree page 1, and
+    derive is true, the keystream is rebuilt from the file (derive_keystream) and the same
+    checks run on that; result.key_source says which one was used. Frames are taken in order up
+    to the last valid commit frame and the later version of a page wins, which is how SQLite
+    reads a WAL. The size after the replay is the commit size of that frame. Frames after the
+    chain breaks, uncommitted frames and frames from an older generation of the WAL (other
+    salts) are not applied.
     """
     result = Result()
-    if len(db_bytes) < 512 or _xor(db_bytes[:16], rc4_keystream(key, 16)) != MAGIC:
+    if len(db_bytes) < 512:
         result.reason = 'page 1 does not decrypt to a SQLite header with the key this reader holds'
         return result
     page_size = struct.unpack('>H', db_bytes[16:18])[0]
     page_size = 65536 if page_size == 1 else page_size
     if page_size not in _PAGE_SIZES:
-        result.reason = f'the clear page-size field of page 1 reads {page_size}, not a SQLite page size'
+        if _xor(db_bytes[:16], rc4_keystream(key, 16)) != MAGIC:
+            result.reason = 'page 1 does not decrypt to a SQLite header with the key this reader holds'
+        else:
+            result.reason = f'the clear page-size field of page 1 reads {page_size}, not a SQLite page size'
         return result
-    keystream = rc4_keystream(key, page_size)
     count = len(db_bytes) // page_size
-    pages = [decrypt_page(db_bytes[n * page_size:(n + 1) * page_size], n + 1, keystream, page_size)
-             for n in range(count)]
-    if not _looks_like_a_database(pages):
-        result.reason = ('page 1 decrypts to a SQLite header but its b-tree header, or the first '
-                         'pages after it, do not read as b-tree pages')
+    keystream, pages, why = None, None, ''
+    if _xor(db_bytes[:16], rc4_keystream(key, 16)) == MAGIC:
+        keystream = rc4_keystream(key, page_size)
+        result.key_source = 'the key built into this reader'
+        pages = [decrypt_page(db_bytes[n * page_size:(n + 1) * page_size], n + 1, keystream, page_size)
+                 for n in range(count)]
+        if not _looks_like_a_database(pages):
+            why = ('page 1 decrypts to a SQLite header but its b-tree header, or the first '
+                   'pages after it, do not read as b-tree pages')
+            keystream, pages = None, None
+    else:
+        why = 'page 1 does not decrypt to a SQLite header with the key this reader holds'
+    if keystream is None and derive and len(db_bytes) >= 2 * page_size:
+        derived, derive_why = derive_keystream(db_bytes, wal_bytes, page_size)
+        if derived is None:
+            why += f'; the keystream could not be derived from the file: {derive_why}'
+        else:
+            pages = [decrypt_page(db_bytes[n * page_size:(n + 1) * page_size], n + 1, derived, page_size)
+                     for n in range(count)]
+            if _looks_like_a_database(pages):
+                keystream = derived
+                result.key_source = 'a keystream derived from the file'
+                result.derived_offsets = page_size - 16
+            else:
+                why += ('; a keystream derived from the file did not give a database whose page 1 '
+                        'and first pages read as b-tree pages')
+    if keystream is None:
+        result.reason = why
         return result
     result.page_size, result.pages_in_file, result.pages_after_wal = page_size, count, count
     if len(db_bytes) % page_size:
