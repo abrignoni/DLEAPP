@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Windows Defender",
         "platforms": ("Windows",),
@@ -52,7 +52,19 @@ __artifacts_v2__ = {
             'the decryption and WAL replay follow their write-up and parser, and no file of '
             'theirs is vendored. It decrypts only when page 1 comes out as a SQLite header and '
             'reads as a table b-tree page and at least half of the next 16 pages start as '
-            'b-tree pages, and otherwise logs why and reports nothing. The key decrypted the '
+            'b-tree pages, and otherwise logs why and reports nothing. When that key does not '
+            'give such a database, the module rebuilds the keystream from the stored bytes of '
+            'the file and its WAL, because page space SQLite left as zero bytes is stored as '
+            'the keystream (the write-up says so) and unused space that holds old data is '
+            'voted out. It then requires page 1 and the next 16 pages to read as b-tree pages '
+            'as above (the SQLite header text is assumed by the rebuild), and the run log says '
+            'that the derived keystream was used. Tested with a wrong key given in place of the built-in one, the rebuilt '
+            'keystream read all seven corpus images that hold the file, with and without their '
+            'WAL, and the decrypted bytes were identical to those read with the built-in key '
+            '(the number of WAL frames applied was the same on the three images with a WAL). '
+            'No corpus file needs it: '
+            'the built-in key read all of them, so a file whose key really differs was not '
+            'tested. The key decrypted the '
             'file on all seven corpus images found to hold it: Windows 10 1709, 1809 and 2004, '
             'Windows 11 22H2 and 24H2, and Windows Server 2019 and 2022. Where the Engine table '
             'has rows (five of the seven) its EngineVersion values, read as four 16-bit fields, '
@@ -76,11 +88,11 @@ __artifacts_v2__ = {
             'pages, and 603 of the 679 frames are all zero bytes, the first of them frame 6. '
             "Rows are read from each table's own b-tree, never from an index; a table that "
             'stops reading part-way keeps the rows read and logs the error. Tables of the file '
-            'that none of the six Defender MpEngineDb artifacts report: Engine and '
+            'that none of the seven Defender MpEngineDb artifacts report: Engine and '
             'SQLiteGlobals (engine and schema version history), ScanInfo, File and '
             'RecordIdentifier (tables on the three Windows 10 images only, which the write-up '
-            'does not describe), ProcessInfo (31 rows on two images), FileLowFiAsync (17 rows '
-            'on four), RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
+            'does not describe), ProcessInfo (31 rows on two images), '
+            'RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
             'and sqlite_stat1; every other table was empty or absent on all seven images.'
         ),
         "paths": ('*/Windows Defender/Scans/mpenginedb.db*',),
@@ -104,7 +116,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Windows Defender",
         "platforms": ("Windows",),
@@ -152,7 +164,19 @@ __artifacts_v2__ = {
             'the decryption and WAL replay follow their write-up and parser, and no file of '
             'theirs is vendored. It decrypts only when page 1 comes out as a SQLite header and '
             'reads as a table b-tree page and at least half of the next 16 pages start as '
-            'b-tree pages, and otherwise logs why and reports nothing. The key decrypted the '
+            'b-tree pages, and otherwise logs why and reports nothing. When that key does not '
+            'give such a database, the module rebuilds the keystream from the stored bytes of '
+            'the file and its WAL, because page space SQLite left as zero bytes is stored as '
+            'the keystream (the write-up says so) and unused space that holds old data is '
+            'voted out. It then requires page 1 and the next 16 pages to read as b-tree pages '
+            'as above (the SQLite header text is assumed by the rebuild), and the run log says '
+            'that the derived keystream was used. Tested with a wrong key given in place of the built-in one, the rebuilt '
+            'keystream read all seven corpus images that hold the file, with and without their '
+            'WAL, and the decrypted bytes were identical to those read with the built-in key '
+            '(the number of WAL frames applied was the same on the three images with a WAL). '
+            'No corpus file needs it: '
+            'the built-in key read all of them, so a file whose key really differs was not '
+            'tested. The key decrypted the '
             'file on all seven corpus images found to hold it: Windows 10 1709, 1809 and 2004, '
             'Windows 11 22H2 and 24H2, and Windows Server 2019 and 2022. Where the Engine table '
             'has rows (five of the seven) its EngineVersion values, read as four 16-bit fields, '
@@ -176,11 +200,11 @@ __artifacts_v2__ = {
             'pages, and 603 of the 679 frames are all zero bytes, the first of them frame 6. '
             "Rows are read from each table's own b-tree, never from an index; a table that "
             'stops reading part-way keeps the rows read and logs the error. Tables of the file '
-            'that none of the six Defender MpEngineDb artifacts report: Engine and '
+            'that none of the seven Defender MpEngineDb artifacts report: Engine and '
             'SQLiteGlobals (engine and schema version history), ScanInfo, File and '
             'RecordIdentifier (tables on the three Windows 10 images only, which the write-up '
-            'does not describe), ProcessInfo (31 rows on two images), FileLowFiAsync (17 rows '
-            'on four), RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
+            'does not describe), ProcessInfo (31 rows on two images), '
+            'RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
             'and sqlite_stat1; every other table was empty or absent on all seven images.'
         ),
         "paths": ('*/Windows Defender/Scans/mpenginedb.db*',),
@@ -205,7 +229,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Windows Defender",
         "platforms": ("Windows",),
@@ -246,7 +270,19 @@ __artifacts_v2__ = {
             'the decryption and WAL replay follow their write-up and parser, and no file of '
             'theirs is vendored. It decrypts only when page 1 comes out as a SQLite header and '
             'reads as a table b-tree page and at least half of the next 16 pages start as '
-            'b-tree pages, and otherwise logs why and reports nothing. The key decrypted the '
+            'b-tree pages, and otherwise logs why and reports nothing. When that key does not '
+            'give such a database, the module rebuilds the keystream from the stored bytes of '
+            'the file and its WAL, because page space SQLite left as zero bytes is stored as '
+            'the keystream (the write-up says so) and unused space that holds old data is '
+            'voted out. It then requires page 1 and the next 16 pages to read as b-tree pages '
+            'as above (the SQLite header text is assumed by the rebuild), and the run log says '
+            'that the derived keystream was used. Tested with a wrong key given in place of the built-in one, the rebuilt '
+            'keystream read all seven corpus images that hold the file, with and without their '
+            'WAL, and the decrypted bytes were identical to those read with the built-in key '
+            '(the number of WAL frames applied was the same on the three images with a WAL). '
+            'No corpus file needs it: '
+            'the built-in key read all of them, so a file whose key really differs was not '
+            'tested. The key decrypted the '
             'file on all seven corpus images found to hold it: Windows 10 1709, 1809 and 2004, '
             'Windows 11 22H2 and 24H2, and Windows Server 2019 and 2022. Where the Engine table '
             'has rows (five of the seven) its EngineVersion values, read as four 16-bit fields, '
@@ -270,11 +306,11 @@ __artifacts_v2__ = {
             'pages, and 603 of the 679 frames are all zero bytes, the first of them frame 6. '
             "Rows are read from each table's own b-tree, never from an index; a table that "
             'stops reading part-way keeps the rows read and logs the error. Tables of the file '
-            'that none of the six Defender MpEngineDb artifacts report: Engine and '
+            'that none of the seven Defender MpEngineDb artifacts report: Engine and '
             'SQLiteGlobals (engine and schema version history), ScanInfo, File and '
             'RecordIdentifier (tables on the three Windows 10 images only, which the write-up '
-            'does not describe), ProcessInfo (31 rows on two images), FileLowFiAsync (17 rows '
-            'on four), RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
+            'does not describe), ProcessInfo (31 rows on two images), '
+            'RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
             'and sqlite_stat1; every other table was empty or absent on all seven images.'
         ),
         "paths": ('*/Windows Defender/Scans/mpenginedb.db*',),
@@ -299,7 +335,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Windows Defender",
         "platforms": ("Windows",),
@@ -337,7 +373,19 @@ __artifacts_v2__ = {
             'the decryption and WAL replay follow their write-up and parser, and no file of '
             'theirs is vendored. It decrypts only when page 1 comes out as a SQLite header and '
             'reads as a table b-tree page and at least half of the next 16 pages start as '
-            'b-tree pages, and otherwise logs why and reports nothing. The key decrypted the '
+            'b-tree pages, and otherwise logs why and reports nothing. When that key does not '
+            'give such a database, the module rebuilds the keystream from the stored bytes of '
+            'the file and its WAL, because page space SQLite left as zero bytes is stored as '
+            'the keystream (the write-up says so) and unused space that holds old data is '
+            'voted out. It then requires page 1 and the next 16 pages to read as b-tree pages '
+            'as above (the SQLite header text is assumed by the rebuild), and the run log says '
+            'that the derived keystream was used. Tested with a wrong key given in place of the built-in one, the rebuilt '
+            'keystream read all seven corpus images that hold the file, with and without their '
+            'WAL, and the decrypted bytes were identical to those read with the built-in key '
+            '(the number of WAL frames applied was the same on the three images with a WAL). '
+            'No corpus file needs it: '
+            'the built-in key read all of them, so a file whose key really differs was not '
+            'tested. The key decrypted the '
             'file on all seven corpus images found to hold it: Windows 10 1709, 1809 and 2004, '
             'Windows 11 22H2 and 24H2, and Windows Server 2019 and 2022. Where the Engine table '
             'has rows (five of the seven) its EngineVersion values, read as four 16-bit fields, '
@@ -361,11 +409,11 @@ __artifacts_v2__ = {
             'pages, and 603 of the 679 frames are all zero bytes, the first of them frame 6. '
             "Rows are read from each table's own b-tree, never from an index; a table that "
             'stops reading part-way keeps the rows read and logs the error. Tables of the file '
-            'that none of the six Defender MpEngineDb artifacts report: Engine and '
+            'that none of the seven Defender MpEngineDb artifacts report: Engine and '
             'SQLiteGlobals (engine and schema version history), ScanInfo, File and '
             'RecordIdentifier (tables on the three Windows 10 images only, which the write-up '
-            'does not describe), ProcessInfo (31 rows on two images), FileLowFiAsync (17 rows '
-            'on four), RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
+            'does not describe), ProcessInfo (31 rows on two images), '
+            'RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
             'and sqlite_stat1; every other table was empty or absent on all seven images.'
         ),
         "paths": ('*/Windows Defender/Scans/mpenginedb.db*',),
@@ -389,7 +437,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Windows Defender",
         "platforms": ("Windows",),
@@ -433,7 +481,19 @@ __artifacts_v2__ = {
             'the decryption and WAL replay follow their write-up and parser, and no file of '
             'theirs is vendored. It decrypts only when page 1 comes out as a SQLite header and '
             'reads as a table b-tree page and at least half of the next 16 pages start as '
-            'b-tree pages, and otherwise logs why and reports nothing. The key decrypted the '
+            'b-tree pages, and otherwise logs why and reports nothing. When that key does not '
+            'give such a database, the module rebuilds the keystream from the stored bytes of '
+            'the file and its WAL, because page space SQLite left as zero bytes is stored as '
+            'the keystream (the write-up says so) and unused space that holds old data is '
+            'voted out. It then requires page 1 and the next 16 pages to read as b-tree pages '
+            'as above (the SQLite header text is assumed by the rebuild), and the run log says '
+            'that the derived keystream was used. Tested with a wrong key given in place of the built-in one, the rebuilt '
+            'keystream read all seven corpus images that hold the file, with and without their '
+            'WAL, and the decrypted bytes were identical to those read with the built-in key '
+            '(the number of WAL frames applied was the same on the three images with a WAL). '
+            'No corpus file needs it: '
+            'the built-in key read all of them, so a file whose key really differs was not '
+            'tested. The key decrypted the '
             'file on all seven corpus images found to hold it: Windows 10 1709, 1809 and 2004, '
             'Windows 11 22H2 and 24H2, and Windows Server 2019 and 2022. Where the Engine table '
             'has rows (five of the seven) its EngineVersion values, read as four 16-bit fields, '
@@ -457,11 +517,11 @@ __artifacts_v2__ = {
             'pages, and 603 of the 679 frames are all zero bytes, the first of them frame 6. '
             "Rows are read from each table's own b-tree, never from an index; a table that "
             'stops reading part-way keeps the rows read and logs the error. Tables of the file '
-            'that none of the six Defender MpEngineDb artifacts report: Engine and '
+            'that none of the seven Defender MpEngineDb artifacts report: Engine and '
             'SQLiteGlobals (engine and schema version history), ScanInfo, File and '
             'RecordIdentifier (tables on the three Windows 10 images only, which the write-up '
-            'does not describe), ProcessInfo (31 rows on two images), FileLowFiAsync (17 rows '
-            'on four), RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
+            'does not describe), ProcessInfo (31 rows on two images), '
+            'RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
             'and sqlite_stat1; every other table was empty or absent on all seven images.'
         ),
         "paths": ('*/Windows Defender/Scans/mpenginedb.db*',),
@@ -484,7 +544,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-13",
-        "last_update_date": "2026-11-13",
+        "last_update_date": "2026-11-17",
         "requirements": "none",
         "category": "Windows Defender",
         "platforms": ("Windows",),
@@ -517,7 +577,19 @@ __artifacts_v2__ = {
             'the decryption and WAL replay follow their write-up and parser, and no file of '
             'theirs is vendored. It decrypts only when page 1 comes out as a SQLite header and '
             'reads as a table b-tree page and at least half of the next 16 pages start as '
-            'b-tree pages, and otherwise logs why and reports nothing. The key decrypted the '
+            'b-tree pages, and otherwise logs why and reports nothing. When that key does not '
+            'give such a database, the module rebuilds the keystream from the stored bytes of '
+            'the file and its WAL, because page space SQLite left as zero bytes is stored as '
+            'the keystream (the write-up says so) and unused space that holds old data is '
+            'voted out. It then requires page 1 and the next 16 pages to read as b-tree pages '
+            'as above (the SQLite header text is assumed by the rebuild), and the run log says '
+            'that the derived keystream was used. Tested with a wrong key given in place of the built-in one, the rebuilt '
+            'keystream read all seven corpus images that hold the file, with and without their '
+            'WAL, and the decrypted bytes were identical to those read with the built-in key '
+            '(the number of WAL frames applied was the same on the three images with a WAL). '
+            'No corpus file needs it: '
+            'the built-in key read all of them, so a file whose key really differs was not '
+            'tested. The key decrypted the '
             'file on all seven corpus images found to hold it: Windows 10 1709, 1809 and 2004, '
             'Windows 11 22H2 and 24H2, and Windows Server 2019 and 2022. Where the Engine table '
             'has rows (five of the seven) its EngineVersion values, read as four 16-bit fields, '
@@ -541,11 +613,11 @@ __artifacts_v2__ = {
             'pages, and 603 of the 679 frames are all zero bytes, the first of them frame 6. '
             "Rows are read from each table's own b-tree, never from an index; a table that "
             'stops reading part-way keeps the rows read and logs the error. Tables of the file '
-            'that none of the six Defender MpEngineDb artifacts report: Engine and '
+            'that none of the seven Defender MpEngineDb artifacts report: Engine and '
             'SQLiteGlobals (engine and schema version history), ScanInfo, File and '
             'RecordIdentifier (tables on the three Windows 10 images only, which the write-up '
-            'does not describe), ProcessInfo (31 rows on two images), FileLowFiAsync (17 rows '
-            'on four), RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
+            'does not describe), ProcessInfo (31 rows on two images), '
+            'RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
             'and sqlite_stat1; every other table was empty or absent on all seven images.'
         ),
         "paths": ('*/Windows Defender/Scans/mpenginedb.db*',),
@@ -559,6 +631,119 @@ __artifacts_v2__ = {
             'szechuan_win10': 'Windows 10 2004 (build 19041) | 0 rows',
             'windows11_arm_defender_mpenginedb_known_20261113': 'Windows 11 25H2 (build 26200), ARM64 | 1 rows',
             'windows11_arm_defender_mpenginedb_known_20261113_baseline': 'Windows 11 25H2 (build 26200), ARM64 | 1 rows',
+        },
+    },
+    "windowsDefenderMpEngineLowFi": {
+        "name": "Defender MpEngineDb LowFi File Records",
+        "description": (
+            'Rows of the FileLowFiAsync table of mpenginedb.db: instance time, file path, SigSeq '
+            'as stored and SigSha written as hex.'
+        ),
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-17",
+        "last_update_date": "2026-11-17",
+        "requirements": "none",
+        "category": "Windows Defender",
+        "platforms": ("Windows",),
+        "notes": (
+            'Table FileLowFiAsync, which Protokol-7 describe as file paths and signature-related '
+            "information for files processed by Defender's low-fidelity analysis, with LowFi "
+            'signature hits sent for an asynchronous cloud lookup; that description was not '
+            'tested here. Instance Time (UTC) is InstanceTimeStamp read as a FILETIME; it was not '
+            "matched to an independent record of an event here, and Protokol-7's parser reads "
+            'columns of this name the same way. The values: '
+            '2019-03-19 13:21:29 to 2023-02-20 22:16:00 on af_case2_win10, 2024-09-24 15:27:12 '
+            'to 15:33:19 on hexordia_mvs2025_win11, 2018-03-27 23:50:53 to 2018-04-06 12:41:19 '
+            'on lonewolf_win10 and 2023-01-03 22:23:12 to 2023-01-06 16:52:03 on '
+            'pc_mus_001_win11. File Name is as stored, a Windows path with a drive letter; on '
+            'these four images the 17 rows name executables, DLLs, installers and scripts '
+            '(.exe, .dll, .msi, .bat, .cmd), and 8 of the 17 names also appear, compared '
+            'without regard to case, in the File Tracking, Path Tags or File Instances table of '
+            'the same file. The other 9 do not appear in those three tables. On lonewolf_win10 '
+            'one of the 9 has the same path after the drive letter in Image File Name of the '
+            'Monitored Processes table, under a \\Device\\ volume path; the other 8 were found '
+            'in no other table of the file. '
+            'SigSeq is as stored. SigSha is a BLOB of 20 bytes on all 17 rows, written as hex. '
+            'Rows for differently named files share one SigSha (three groups, of 4, 2 and 2 '
+            'rows: four files in one folder on lonewolf_win10, and two pairs on '
+            'pc_mus_001_win11, each pair on one drive), so it does not read as a hash of each '
+            'file; the files were not hashed here. SigSeq and SigSha pair one to one on all 17 '
+            'rows. What either identifies is not '
+            'established here. Record ID is the ID of the table. Not reported: Key (a signed '
+            '64-bit integer, not decoded) and SigIsSync (1 on all 17 rows). A row says the file '
+            'is listed in this table; that Defender examined it, that it matched a signature, '
+            'or that a cloud lookup took place is not established here. Rows: af_case2_win10 2; '
+            'hexordia_mvs2025_win11 2; lonewolf_win10 6; pc_mus_001_win11 7. alihadi_threatsim_server2019, '
+            'ou_ransomware_server2022, szechuan_win10 and the two lab VM images hold the table with '
+            'no rows. '
+            'The file is the SQLite database that Protokol-7 (Mato Vlajcic, Luka '
+            'Bracun and Dino Bezic, 2026-11-10, '
+            'https://protokol-7.github.io/dfir/2026/11/10/defenders-hidden-flight-recorder-mpenginedb.html) '
+            'say Defender calls MetaVault, kept in ProgramData/Microsoft/Windows '
+            'Defender/Scans. Their write-up says its pages and WAL frame bodies are encrypted '
+            'with RC4 under one fixed 256-byte key restarted for every page, that bytes 16 to '
+            '23 of page 1 and the WAL frame headers are in the clear, and that the WAL '
+            'checksums run over the encrypted bytes. This module reads it that way with the key '
+            'built into their parser (https://github.com/Protokol-7/mpenginedb_parser, MIT); '
+            'the decryption and WAL replay follow their write-up and parser, and no file of '
+            'theirs is vendored. It decrypts only when page 1 comes out as a SQLite header and '
+            'reads as a table b-tree page and at least half of the next 16 pages start as '
+            'b-tree pages, and otherwise logs why and reports nothing. When that key does not '
+            'give such a database, the module rebuilds the keystream from the stored bytes of '
+            'the file and its WAL, because page space SQLite left as zero bytes is stored as '
+            'the keystream (the write-up says so) and unused space that holds old data is '
+            'voted out. It then requires page 1 and the next 16 pages to read as b-tree pages '
+            'as above (the SQLite header text is assumed by the rebuild), and the run log says '
+            'that the derived keystream was used. Tested with a wrong key given in place of the built-in one, the rebuilt '
+            'keystream read all seven corpus images that hold the file, with and without their '
+            'WAL, and the decrypted bytes were identical to those read with the built-in key '
+            '(the number of WAL frames applied was the same on the three images with a WAL). '
+            'No corpus file needs it: '
+            'the built-in key read all of them, so a file whose key really differs was not '
+            'tested. The key decrypted the '
+            'file on all seven corpus images found to hold it: Windows 10 1709, 1809 and 2004, '
+            'Windows 11 22H2 and 24H2, and Windows Server 2019 and 2022. Where the Engine table '
+            'has rows (five of the seven) its EngineVersion values, read as four 16-bit fields, '
+            'run from 1.1.14104.0 to 1.1.19200.6; that reading is an inference from the values, '
+            'not a sourced format. The write-up tested engine build 1.1.26100.4. The key also '
+            'decrypted the file of a Windows 11 25H2 ARM64 lab VM running that build (known '
+            'data, corpus keys windows11_arm_defender_mpenginedb_known_20261113 and the same '
+            'name ending _baseline; README beside them), where all 480 WAL frames are readable '
+            "and SQLite's integrity_check on the decrypted copy reads ok. No other build or "
+            'architecture was tested, and the seven images are not known to be ARM. The WAL is '
+            'replayed as SQLite reads one: frames in order up to the last commit frame, a frame '
+            "counting only when its salts equal the WAL header's and the checksum chain, "
+            'computed over the stored bytes, holds up to it, and the later copy of a page '
+            'winning. The evidence is never written to: the decrypted copy is a temporary file '
+            'opened read-only and removed with the files SQLite makes beside it. The run log '
+            'gives, per database, the frames in the WAL, how many were readable and applied, '
+            'and the frame and page counts the -shm records. Three of the seven images have a '
+            'WAL. On lonewolf_win10 384 of 1,053 frames are readable and the -shm records 321; '
+            'on szechuan_win10 896 of 1,001 are readable and the -shm records 896; on '
+            'pc_mus_001_win11 4 of 679 are readable and the -shm records 612 frames and 213 '
+            'pages, and 603 of the 679 frames are all zero bytes, the first of them frame 6. '
+            "Rows are read from each table's own b-tree, never from an index; a table that "
+            'stops reading part-way keeps the rows read and logs the error. Tables of the file '
+            'that none of the seven Defender MpEngineDb artifacts report: Engine and '
+            'SQLiteGlobals (engine and schema version history), ScanInfo, File and '
+            'RecordIdentifier (tables on the three Windows 10 images only, which the write-up '
+            'does not describe), ProcessInfo (31 rows on two images), '
+            'RollingQueuesTables, ValueMapArray, SystemRegistryCache, AmsiFileCache '
+            'and sqlite_stat1; every other table was empty or absent on all seven images.'
+        ),
+        "paths": ('*/Windows Defender/Scans/mpenginedb.db*',),
+        "output_types": "standard",
+        "artifact_icon": "shield",
+        "sample_data": {
+            'af_case2_win10': 'Windows 10 1809 (build 17763) | 2 rows',
+            'hexordia_mvs2025_win11': 'Windows 11 24H2 (build 26100.2033) | 2 rows',
+            'lonewolf_win10': 'Windows 10 Education (build 16299, version 1709) | 6 rows',
+            'pc_mus_001_win11': 'Windows 11 22H2 (build 22621) | 7 rows',
+            'alihadi_threatsim_server2019': 'Windows Server 2019 Standard (build 17763.3046) | 0 rows',
+            'ou_ransomware_server2022': 'Windows Server 2022 Standard (build 20348.1850) | 0 rows',
+            'szechuan_win10': 'Windows 10 2004 (build 19041) | 0 rows',
+            'windows11_arm_defender_mpenginedb_known_20261113': 'Windows 11 25H2 (build 26200), ARM64 | 0 rows',
+            'windows11_arm_defender_mpenginedb_known_20261113_baseline': 'Windows 11 25H2 (build 26200), ARM64 | 0 rows',
         },
     },
 }
@@ -621,6 +806,13 @@ _FILE_INSTANCES = ('FileInstance', [
     ('Is Valid Cert', 'IsValidCert', 'raw'),
     ('Record ID', 'ID', 'raw'),
 ])
+_LOW_FI = ('FileLowFiAsync', [
+    (('Instance Time (UTC)', 'datetime'), 'InstanceTimeStamp', 'time'),
+    ('File Name', 'FileName', 'raw'),
+    ('SigSeq (as stored)', 'SigSeq', 'raw'),
+    ('SigSha (hex)', 'SigSha', 'hex'),
+    ('Record ID', 'ID', 'raw'),
+])
 _ROLLING_QUEUES = ('RollingQueuesValues', [
     (('Insert Time (UTC)', 'datetime'), 'InsertTime', 'time'),
     (('Expire Time (UTC)', 'datetime'), 'ExpireTime', 'time'),
@@ -678,6 +870,8 @@ def _collect(context, spec):
         index = shm_summary(shm_bytes)
         if index:
             note += f'; the -shm records {index[0]} frames and a database of {index[1]} pages'
+        if result.key_source:
+            note += f'; read with {result.key_source}'
         logfunc(note)
         for extra in result.wal_notes:
             logfunc(f'{_LABEL}: {relative}: {extra}')
@@ -735,3 +929,8 @@ def windowsDefenderMpEngineFileInstances(context):
 @artifact_processor
 def windowsDefenderMpEngineRollingQueues(context):
     return _collect(context, _ROLLING_QUEUES)
+
+
+@artifact_processor
+def windowsDefenderMpEngineLowFi(context):
+    return _collect(context, _LOW_FI)
