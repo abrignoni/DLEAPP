@@ -20,11 +20,52 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Maps (macOS)",
         "platforms": ("macOS",),
-        "notes": "PLACEHOLDER",
+        "notes": "Reads the ZHISTORYITEM table of MapsSync_0.0.1 in each user's "
+                 "Library/Containers/com.apple.Maps/Data/Maps, with its -wal: on maps_known_data_macos27 every row is "
+                 "in the -wal, and the database read without it has every Maps table empty. Created and Modified are "
+                 "ZCREATETIME and ZMODIFICATIONTIME, Core Data seconds since 2001, shown in UTC. Created and Modified "
+                 "were identical on all 9 rows of that sample. Entity is the Z_NAME the same store's Z_PRIMARYKEY table gives for the "
+                 "row's Z_ENT, which is also shown as stored; the numbers differ between stores (HistoryPlaceItem is "
+                 "14 on the macOS 11.2.1 store, 19 on the 15.4 store and 21 on the 27.2.1 store), so none is mapped "
+                 "by a fixed list. Location Search and Location Display are ZQUERY and ZLOCATIONDISPLAY; on the known "
+                 "data only the HistorySearchItem row, from a search submitted with Enter that returned a list, held "
+                 "them. Place Name and Address are read from the row's map item, ZMIXINMAPITEM.ZMAPITEMSTORAGE joined "
+                 "on ZMAPITEM, at protobuf fields 1.4.8.30.1 and 1.4.8.31.1.101.2.11, the address lines joined with "
+                 "', '. On a HistoryDirectionsItem row they are read the same way from each waypoint of "
+                 "ZROUTEREQUESTSTORAGE (field 1.n.2), joined with ' -> ' in stored order. These field paths were found "
+                 "on the 27.2.1 store and checked against the ZMAPITEMNAME and ZMAPITEMADDRESS that the same store "
+                 "keeps for 4 of its map items; they are not exercised on other macOS versions, since the two public "
+                 "stores tested have no rows. Query (Sent) and Query (Raw) come from every base64 'placeRequest=' value "
+                 "in those BLOBs, found by walking their protobuf fields: Sent is field 8.1.3 and Raw field "
+                 "8.1.7.10000 of the decoded request, the fields iLEAPP's mapsSync artifact reads, distinct values "
+                 "joined with '; '. On the known data, recorded with a timed activity log: on the 4 rows from searches "
+                 "submitted with Enter that opened one place, Sent held the text as typed, including on a row whose "
+                 "typed text had lost a keystroke and so differed from the place name, and Raw was empty; on the 3 "
+                 "rows where partial text was typed and a suggestion was then chosen, Sent held the suggestion's title "
+                 "and Raw exactly the partial text typed; the directions row held both, for each waypoint. That is an "
+                 "observation from one store, not a sourced rule, and Sent and Raw are labels chosen here, not "
+                 "Apple's names. Latitude and Longitude are ZLATITUDE and ZLONGITUDE, otherwise ZLATITUDE1 and "
+                 "ZLONGITUDE1; on the known data the first pair was empty on every row and the second held the "
+                 "coordinates of the 7 place rows. Created can be later than the action: the store's persistent "
+                 "history (ACHANGE, ATRANSACTION) shows one history row inserted at the moment a suggestion was chosen "
+                 "and deleted 9 seconds later, when the row reported here was inserted. Those persistent history "
+                 "tables, the CloudKit tables (ANSCK*) and MapsSync_0.0.1_deviceLocalCache.db are not read; the last "
+                 "had no rows in any store tested. User is the folder name under Users, and was the one user 'kdu' on "
+                 "all 9 rows of the known data. When an extraction holds the store under Users and under "
+                 "System/Volumes/Data/Users with identical bytes and -wal it is read once; when the copies differ "
+                 "both are read and a row both hold is reported once with both files in Source File, tested only on "
+                 "a constructed tree, since the two views of the 15.4 store differ but have no rows. A row is an "
+                 "entry in Maps history; it is not evidence that travel took place, and whether it was made on this "
+                 "Mac or synced from another device on the same account is not established. The known-data guest had "
+                 "no Apple Account, so its rows were all made on it.",
         "paths": ("*/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1*",),
         "output_types": "all",
         "artifact_icon": "map-pin",
-        "sample_data": {},
+        "sample_data": {
+            "maps_known_data_macos27": "macOS 27.2.1 | 9 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (store present under two views, every Maps table empty)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (store present under three views, every Maps table empty)",
+        },
     },
     "macosMapsFavorites": {
         "name": "Maps Favorites (MapsSync)",
@@ -36,11 +77,35 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Maps (macOS)",
         "platforms": ("macOS",),
-        "notes": "PLACEHOLDER",
+        "notes": "Reads the ZFAVORITEITEM table of MapsSync_0.0.1 in each user's "
+                 "Library/Containers/com.apple.Maps/Data/Maps, with its -wal. On maps_known_data_macos27, recorded "
+                 "with a timed activity log, Places > Add (a landmark chosen in its search) wrote one row and Pin on a "
+                 "place card wrote the other; the Favorites star on a place card wrote no row here, it wrote a "
+                 "ZCOLLECTIONITEM row (see Maps Saved Places and Guides), so an empty table is not evidence that no "
+                 "place was marked a favorite. Created and Modified are ZCREATETIME and ZMODIFICATIONTIME, Core Data "
+                 "seconds since 2001, shown in UTC. Custom Name is ZCUSTOMNAME as stored: set on the Places > Add row "
+                 "and empty on the Pin row. Place Name is ZMAPITEMNAME, otherwise the name decoded from the joined "
+                 "ZMIXINMAPITEM map item; Address is ZMAPITEMADDRESS, otherwise the decoded address, otherwise "
+                 "ZORIGINATINGADDRESSSTRING; both rows stored ZMAPITEMNAME and ZMAPITEMADDRESS, so the fallbacks were "
+                 "not reached. Category is ZMAPITEMCATEGORY as stored. Favorite Type, Source and Hidden are ZTYPE, "
+                 "ZSOURCE and ZHIDDEN, integers reported as stored; both rows held 1, 0 and 0, and their meanings are "
+                 "not sourced. Query (Sent) and Query (Raw) are read from the map item the way Maps History (MapsSync) "
+                 "reads them: on the Places > Add row Sent held the chosen suggestion's title and address and Raw the "
+                 "partial text typed in that search; the Pin row, made from a place opened from Recents, held neither. "
+                 "Sent and Raw are labels chosen here, not Apple's names. Latitude and Longitude are the row's own "
+                 "ZLATITUDE and ZLONGITUDE, otherwise the map item's; both rows had their own. Not exercised: the Home, "
+                 "Work and School types offered by Places > Add. User and Source File, and the reading of a store held "
+                 "under two views, are as in Maps History (MapsSync). A row shows the place was kept in Maps; it is "
+                 "not evidence that anyone was there, and whether it was made on this Mac or synced is not "
+                 "established. The table is empty on the macOS 15.4 and 11.2.1 stores tested.",
         "paths": ("*/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1*",),
         "output_types": "all",
         "artifact_icon": "star",
-        "sample_data": {},
+        "sample_data": {
+            "maps_known_data_macos27": "macOS 27.2.1 | 2 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (ZFAVORITEITEM present and empty)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (ZFAVORITEITEM present and empty)",
+        },
     },
     "macosMapsCollectionItems": {
         "name": "Maps Saved Places and Guides (MapsSync)",
@@ -52,11 +117,37 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Maps (macOS)",
         "platforms": ("macOS",),
-        "notes": "PLACEHOLDER",
+        "notes": "Reads the ZCOLLECTIONITEM table of MapsSync_0.0.1 in each user's "
+                 "Library/Containers/com.apple.Maps/Data/Maps, with its -wal, one output row per table row. On "
+                 "maps_known_data_macos27, recorded with a timed activity log, the Favorites star on a place card "
+                 "wrote the row with ZTYPE 1 and the card's + button, which saves the place to Places, wrote the row "
+                 "with ZTYPE 0; Item Type is ZTYPE as stored, and beyond those two observations its meaning is not "
+                 "sourced. Entity is the Z_NAME the store's Z_PRIMARYKEY gives for the row's Z_ENT; both rows were "
+                 "CollectionPlaceItem. Guides lists the ZTITLE of every ZCOLLECTION row linked to the item through "
+                 "the store's many-to-many table, whose name changes with the entity numbers (Z_4PLACES on the macOS "
+                 "11.2.1 store, Z_5PLACES on 15.4, Z_7PLACES on 27.2.1) and is found from the schema. Adding the + row "
+                 "to a new guide linked it here and set its ZMODIFICATIONTIME to that moment. The Favorites guide that "
+                 "Maps shows has no ZCOLLECTION row in that store. Created and Modified are ZCREATETIME and "
+                 "ZMODIFICATIONTIME, Core Data seconds since 2001, shown in UTC. Custom Name is ZCUSTOMNAME and Note "
+                 "ZPLACEITEMNOTE, as stored. Custom Name and Note were empty on both rows, since neither place was "
+                 "renamed or given a note. Place Name is ZMAPITEMNAME, otherwise the name decoded from the joined ZMIXINMAPITEM "
+                 "map item; Address is ZMAPITEMADDRESS, otherwise the decoded address; both rows stored them, so the "
+                 "fallbacks were not reached. Category is ZMAPITEMCATEGORY as stored. Query (Sent) and Query (Raw) are "
+                 "read from the map item the way Maps History (MapsSync) reads them, and on both rows matched the "
+                 "history row of the search that found the place. Latitude and Longitude are the row's own, otherwise "
+                 "the map item's. Not exercised: CollectionTransitItem rows, dropped pins and notes. User and Source "
+                 "File, and the reading of a store held under two views, are as in Maps History (MapsSync). A row "
+                 "shows the place was kept in Maps; it is not evidence that anyone was there, and whether it was made "
+                 "on this Mac or synced is not established. The table is empty on the macOS 15.4 and 11.2.1 stores "
+                 "tested.",
         "paths": ("*/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1*",),
         "output_types": "all",
         "artifact_icon": "bookmark",
-        "sample_data": {},
+        "sample_data": {
+            "maps_known_data_macos27": "macOS 27.2.1 | 2 rows",
+            "mvs2026_macbookpro_macos15": "macOS 15.4 | 0 rows (ZCOLLECTIONITEM present and empty)",
+            "magnet2021_macos_bigsur": "macOS 11.2.1 | 0 rows (ZCOLLECTIONITEM present and empty)",
+        },
     },
 }
 

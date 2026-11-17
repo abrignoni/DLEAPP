@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "module_name": "macosMapsSync",
+    "artifact_name": "Maps Favorites (MapsSync)",
+    "function_name": "macosMapsFavorites",
+    "case_number": "case1",
+    "number_of_columns": 16,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 641,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/macosMapsSync/testdata.macosMapsSync.macosMapsFavorites.case1.zip",
+    "start_time": "2026-11-17T02:48:34.510383+00:00",
+    "end_time": "2026-11-17T02:48:34.542182+00:00",
+    "run_time_seconds": 0.005273103713989258,
+    "last_commit": {
+      "hash": "3ab73a7e94ce5840b851b74d76269224c4f2a0bf",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-11-16T21:44:23-05:00",
+      "message": "Add Apple Maps MapsSync artifacts for macOS (work in progress)"
+    }
+  },
+  "headers": [
+    "Created",
+    "Modified",
+    "Custom Name",
+    "Place Name",
+    "Address",
+    "Category",
+    "Favorite Type (As Stored)",
+    "Source (As Stored)",
+    "Hidden (As Stored)",
+    "Query (Sent)",
+    "Query (Raw)",
+    "Latitude",
+    "Longitude",
+    "Item Number",
+    "User",
+    "Source File"
+  ],
+  "data": [
+    [
+      1794883205,
+      1794883205,
+      "Lincoln Memorial",
+      "Lincoln Memorial",
+      "2 Lincoln Memorial Cir NW, Washington, DC  20037, United States",
+      "Landmark||Travel and Leisure||Park||Tourist Attraction||National Monument||Historic Place||Historic Site",
+      1,
+      0,
+      0,
+      "Lincoln Memorial 2 Lincoln Memorial Cir NW, Washington, DC  20037, United States",
+      "lincoln mem",
+      38.8892746,
+      -77.0501703,
+      1,
+      "kdu",
+      "Users/kdu/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1"
+    ],
+    [
+      1794883225,
+      1794883225,
+      "",
+      "Statue of Liberty",
+      "Liberty Island, New York, NY  10004, United States",
+      "Statue||Landmark||Park||Monument||Travel and Leisure",
+      1,
+      0,
+      0,
+      "",
+      "",
+      40.6892015,
+      -74.0445433,
+      2,
+      "kdu",
+      "Users/kdu/Library/Containers/com.apple.Maps/Data/Maps/MapsSync_0.0.1"
+    ]
+  ]
+}
