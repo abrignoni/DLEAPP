@@ -1,21 +1,21 @@
-"""Records from seventeen macOS Biome streams, for DLEAPP.
+"""Records from nineteen macOS Biome streams, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
-Each stream is a folder of SEGB files whose records hold one protobuf message. The field
-numbers read are the ones iLEAPP's Biome modules read for the same streams, checked against
-macOS records as each artifact's notes describe.
+Each stream is a folder of SEGB files whose records hold one protobuf message. Field numbers
+come from iLEAPP's Biome modules or from BiomeLibrary.framework where an artifact's notes say so.
+Where neither applies the notes say the fields are reported as stored.
 """
 
 __artifacts_v2__ = {
     "macosBiomeAppInFocus": {
         "name": "Biome App In Focus",
         "description": "Records from the App.InFocus Biome stream: record time, bundle ID, the "
-                       "app's version strings, field 3 as stored and the transition reason where a "
-                       "record holds one.",
+                       "starting flag, the launch reason and transition reason where a record holds "
+                       "one, and the app's version strings.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -48,34 +48,44 @@ __artifacts_v2__ = {
                  "8 bytes later. When a logical extraction holds the stream under "
                  "Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and"
                  " bytes in both is reported once, and the run log counts the repeats. On "
-                 "dleapp_macos_bigsur no Biome stream folder exists. Bundle ID is field 6, and Field 3"
-                 " (as stored) is field 3, as iLEAPP's biomeInfocus module reads them (Reference: "
+                 "dleapp_macos_bigsur no Biome stream folder exists. Bundle ID is field 6 and Starting"
+                 " is field 3, the fields iLEAPP's biomeInfocus module reads (Reference: "
                  "iLEAPP, scripts/artifacts/biomeInfocus.py, "
                  "https://github.com/abrignoni/iLEAPP/blob/f4af0947555d8bbf894975aab1c9e19ab3a05903/scripts/artifacts/biomeInfocus.py#L94-L97);"
                  " iLEAPP shows 1 and 0 as Foreground and Background, and its notes call those labels "
-                 "an interpretation of the stream name. Transition Reason (as stored) is field 1, "
-                 "which that module does not read: the description of the stream that Mattia Epifani "
+                 "an interpretation of the stream name. Field names are those of the BMAppInFocus "
+                 "class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4. Starting is "
+                 "field 3, which the class types as a bool: 1 is shown as True and 0 as False; it was "
+                 "reported before as Field 3 (as stored). Launch Reason (as stored) is field 1, which "
+                 "the class names launchReason and that module does not read; it was reported before "
+                 "as Transition Reason (as stored). Transition Reason (as stored) is field 14, which "
+                 "the class names transitionReason; no record of the tested image holds field 14, so "
+                 "it is blank on all 642 rows there. The description of the stream that Mattia Epifani "
                  "quotes from the System Events plist in '84 Streams Later, Part 2: Inside Apple "
                  "Biome' "
                  "(https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html)"
-                 " says the stream includes the reason for transition. App Version (as stored) and "
-                 "Bundle Version (as stored) are fields 9 and 10: on 373 of the 501 local records of "
+                 " says the stream includes the reason for transition. What a launch reason or "
+                 "transition reason value means beyond its field name is not established. App Version "
+                 "(as stored) and Bundle Version (as stored) are fields 9 and 10, which the class "
+                 "names shortVersionString and exactVersionString: on 373 of the 501 local records of "
                  "the MacBook Pro they equal the CFBundleShortVersionString and CFBundleVersion of an "
                  "Info.plist in that extraction with the same CFBundleIdentifier, on 80 more they are "
                  "lower version numbers than that Info.plist holds, and the bundle IDs of the other 48"
                  " records were not among the Info.plists compared, those of the application bundles "
                  "in the extraction whose path holds no dot before .app. Fields 2, 4, 11, 12 and 13 "
-                 "are not reported: field 4, read as seconds since 1 January 2001, equaled Record Time"
+                 "(type, absoluteTimestamp, dyldPlatform, isNativeArchitecture and displayType in the "
+                 "class) are not reported: field 4, read as seconds since 1 January 2001, equaled Record Time"
                  " on all 642 records of the MacBook Pro, and what the others record is not "
                  "established. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 642 rows, 501 from the local folder and 141 "
                  "from one of 3 remote folders; the other 2 hold, outside their tombstone "
                  "folders, only records not marked as written. "
                  "The one DevicePeer row in the MacBook Pro's Biome sync.db, whose me column is 1, "
-                 "names none of the remote folders. Transition Reason has a value on 60 of the remote "
+                 "names none of the remote folders. Launch Reason has a value on 60 of the remote "
                  "rows and on no local row, and 33 of those values begin "
-                 "com.apple.SpringBoard.transitionReason. In the local rows, taken in time order, 1 "
-                 "and 0 alternate for each bundle ID on 23 of 24 bundle IDs, and 226 of the 248 rows "
-                 "with 0 share their Record Time with a row with 1 for another bundle ID. All rows "
+                 "com.apple.SpringBoard.transitionReason. In the local rows, taken in time order, "
+                 "Starting True and False alternate for each bundle ID on 23 of 24 bundle IDs, and 226 "
+                 "of the 248 rows with False share their Record Time with a row with True for another "
+                 "bundle ID. All rows "
                  "there come from one user, so User holds one value there.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
@@ -86,11 +96,11 @@ __artifacts_v2__ = {
     },
     "macosBiomeAppWebUsage": {
         "name": "Biome App Web Usage",
-        "description": "Records from the App.WebUsage Biome stream: record time, URL, domain and "
-                       "the bundle ID of the app the stream names.",
+        "description": "Records from the App.WebUsage Biome stream: record time, URL, domain, "
+                       "the bundle ID of the app the stream names, and the usage state.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -124,17 +134,23 @@ __artifacts_v2__ = {
                  "Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and"
                  " bytes in both is reported once, and the run log counts the repeats. On "
                  "dleapp_macos_bigsur no Biome stream folder exists. URL, Domain, Bundle ID and GUID "
-                 "(as stored) are fields 4, 5, 6 and 1, and Field 3 (as stored) is field 3, as "
+                 "(as stored) are fields 4, 5, 6 and 1, and Usage State is field 3, as "
                  "iLEAPP's biomeAppWebUsage module reads them (Reference: iLEAPP, "
                  "scripts/artifacts/biomeAppWebUsage.py, "
-                 "https://github.com/abrignoni/iLEAPP/blob/f4af0947555d8bbf894975aab1c9e19ab3a05903/scripts/artifacts/biomeAppWebUsage.py#L60-L65),"
-                 " which leaves the meaning of field 3 open. Field 2, read as seconds since 1 January "
+                 "https://github.com/abrignoni/iLEAPP/blob/f4af0947555d8bbf894975aab1c9e19ab3a05903/scripts/artifacts/biomeAppWebUsage.py#L60-L65)."
+                 " Field and usage state names are those of the BMAppWebUsage class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4,"
+                 " and it names fields 4, 5, 6 and 1 webpageURL, webDomain, applicationID and uniqueID."
+                 " Usage State (raw) is field 3 as stored and Usage State is the class's name for it "
+                 "(0 Unknown, 1 NotInUse, 2 InUse, 3 InFocus). Whether macOS 15.4 numbered the values "
+                 "the same way is not established. A number outside that list leaves Usage State "
+                 "blank. The framework itself shows such a number as Unknown. Both were reported before as one column, Field 3 (as stored). "
+                 "What each state means beyond its name is not established. Field 2, read as seconds since 1 January "
                  "2001, was within one millisecond of Record Time on all 121 records of the MacBook "
                  "Pro, and field 8 held one value on all of them; neither is reported. On the public "
                  "MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream "
                  "gives 121 rows; Bundle ID held one value, com.apple.Safari, on all 121 rows, GUID "
-                 "(as stored) took 47 distinct values, and Field 3 (as stored) took the values 1, 2 "
-                 "and 3. The URLs of 119 of the 121 records are in the history_items table of the same"
+                 "(as stored) took 47 distinct values, and Usage State (raw) took the values 1, 2 "
+                 "and 3, on 47, 32 and 42 rows. The URLs of 119 of the 121 records are in the history_items table of the same"
                  " user's Safari History.db in that extraction, but only 33 of the records fall within"
                  " one second of a visit to the same URL there, so a record's time is not established "
                  "as the time of a visit. All rows there come from one user's local folder, so User "
@@ -273,10 +289,10 @@ __artifacts_v2__ = {
     "macosBiomeNowPlaying": {
         "name": "Biome Now Playing",
         "description": "Records from the Media.NowPlaying Biome stream: record time, title, artist, "
-                       "the bundle ID or process name as stored, and field 3 as stored.",
+                       "the bundle ID or process name as stored, and the playback state.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -314,16 +330,24 @@ __artifacts_v2__ = {
                  " them as title, artist and bundle ID (Reference: iLEAPP, "
                  "scripts/artifacts/biomeNowplaying.py, "
                  "https://github.com/abrignoni/iLEAPP/blob/f4af0947555d8bbf894975aab1c9e19ab3a05903/scripts/artifacts/biomeNowplaying.py#L119-L138),"
-                 " and Field 3 (as stored) is field 3, which that module does not report. The media "
+                 " and Playback State is field 3, which that module does not report. Field and "
+                 "playback state names are those of the BMMediaNowPlaying class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4, "
+                 "and it names fields 8, 5 and 15 title, artist and bundleID. Playback State (raw) is "
+                 "field 3 as stored and Playback State is the class's name for it (0 Unknown, 1 "
+                 "Playing, 2 Paused, 3 Stopped, 4 Interrupted, 5 Seeking). Whether macOS 15.4 numbered "
+                 "the values the same way is not established. A number outside that list leaves "
+                 "Playback State blank. The framework itself shows such a number as Unknown. Both were reported before as one column, Field 3 "
+                 "(as stored). The media "
                  "type and output device that module reads from fields 10 and 14 are in no record of "
                  "the MacBook Pro and are not read. Field 2, read as seconds since 1 January 2001, was"
                  " within 9 milliseconds of Record Time on all 40 records there, and fields 4, 6, 13, "
-                 "20 and 21 are not reported; what they record is not established. On the public "
+                 "20 and 21 (album, duration, isAirPlayVideo, itemMediaType and itemMediaSubtype in "
+                 "the class) are not reported. On the public "
                  "MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream "
                  "gives 40 rows. Field 15 held app_mode_loader on 34 records, com.apple.WebKit.GPU on "
                  "4 and an empty string on 2, so it is not always a bundle identifier. Artist has no "
-                 "value on any of the 40 rows there, and Field 3 (as stored) took the values 0, 1, 2 "
-                 "and 3. All rows there come from one user's local folder, so User and Sync Origin "
+                 "value on any of the 40 rows there, and Playback State (raw) took the values 0, 1, "
+                 "2 and 3, on 2, 20, 2 and 16 rows. All rows there come from one user's local folder, so User and Sync Origin "
                  "each held one value there.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
@@ -416,10 +440,10 @@ __artifacts_v2__ = {
     },
     "macosBiomeSiriMessageHistory": {
         "name": 'Biome Siri Message History',
-        "description": 'Records from the Siri.Remembers.MessageHistory Biome stream: record time, the message time, direction as stored, the app bundle ID, chat and message identifiers, and the participants the record pairs by name.',
+        "description": 'Records from the Siri.Remembers.MessageHistory Biome stream: record time, the message time, the direction, the app bundle ID, chat and message identifiers, and the entities the record lists by key (sender and recipient entries among them).',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -428,7 +452,7 @@ __artifacts_v2__ = {
                  " under remote the record came from. Sync Origin does not separate two files of "
                  "one folder, and every file in a folder is read, so Source File names the file "
                  "each row came from and the file its Record Offset counts from."
-                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record holds one field 1 submessage and, at the top level, repeated field 2 items. Message Time (UTC) is the submessage's field 8, eight bytes read as a little-endian double of seconds since 1 January 1970 UTC; Direction (as stored), Bundle ID, Intent Class (as stored), Chat ID (as stored) and Message GUID (as stored) are its fields 6, 4, 2, 12 and 13, as iLEAPP's biomeSiriRemembersMessageHistory module reads them (Reference: iLEAPP, scripts/artifacts/biomeSiriRemembersMessageHistory.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeSiriRemembersMessageHistory.py#L148-L154). Participants (as stored) joins each top-level field 2 item as its field 1 name and the field 1 text of its field 2 entity, which that module reads as the parameter names and values (for example sender and recipients); what a value denotes is not established. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 4 rows from one user's local folder, so User and Sync Origin each held one value there, and on those 4 rows Direction (1), Bundle ID (com.apple.MobileSMS), Intent Class (INSendMessageIntent) and Chat ID each held one value; Message Time fell in 2025 on the rows checked.",
+                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record holds one field 1 submessage and, at the top level, repeated field 2 items. Message Time (UTC) is the submessage's field 8, eight bytes read as a little-endian double of seconds since 1 January 1970 UTC; Direction, Bundle ID, Intent Class (as stored), Chat ID (as stored) and Message GUID (as stored) are its fields 6, 4, 2, 12 and 13, as iLEAPP's biomeSiriRemembersMessageHistory module reads them (Reference: iLEAPP, scripts/artifacts/biomeSiriRemembersMessageHistory.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeSiriRemembersMessageHistory.py#L148-L154). The direction names are those of BMSiriRemembersInteraction, the class BMSiriMessageHistory gives field 1, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4. That class names fields 8, 2, 12 and 13 startDate, type, groupIdentifier and appIntentInteractionIdentifier. The column names Message Time, Intent Class, Chat ID and Message GUID follow the iLEAPP module. Direction (raw) is field 6 as stored and Direction is the class's name for it (0 Unknown, 1 Incoming, 2 Outgoing, 3 Bidirectional). A number outside that list leaves Direction blank. The framework itself shows such a number as Unknown. Both were reported before as one column, Direction (as stored). That numbering differs from the INInteraction.h one the Biome App Intents artifact uses, where 1 is Outgoing. On the tested image (corpus key mvs2026_macbookpro_macos15) the Message GUID of each of the 4 rows names a message row in the same user's Messages chat.db, read with its -wal, whose is_from_me is 0, which agrees with Incoming; all 4 rows carry the intent class INSendMessageIntent, so the intent class alone does not give the direction. Entities joins each top-level field 2 item, which BMSiriMessageHistory names entities, as its field 1 key and the field 1 identifier of every entity in its repeated field 2, the identifiers separated by commas and the items by semicolons; that module reads them as the parameter names and values (for example sender and recipients), and what a value denotes is not established. It was reported before as Participants (as stored). On the 4 tested rows the keys were sender, senderHandle, recipientHandles and sentMessages. Not every entry is a participant. Only each entity's identifier is shown. Each of the 16 field 2 items on the 4 tested records held one entity. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 4 rows from one user's local folder, so User and Sync Origin each held one value there, and on those 4 rows Direction (Incoming, stored as 1), Bundle ID (com.apple.MobileSMS), Intent Class (INSendMessageIntent) and Chat ID each held one value; Message Time fell in 2025 on all 4 rows.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
                  },
@@ -526,10 +550,10 @@ __artifacts_v2__ = {
     },
     "macosBiomeDiscoverabilitySignals": {
         "name": 'Biome Discoverability Signals',
-        "description": 'Records from the Discoverability.Signals Biome stream: record time, the signal name, its value, and field 3 as stored.',
+        "description": 'Records from the Discoverability.Signals Biome stream: record time, the content identifier, and the context and OS build where a record holds them.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -538,7 +562,7 @@ __artifacts_v2__ = {
                  " under remote the record came from. Sync Origin does not separate two files of "
                  "one folder, and every file in a folder is read, so Source File names the file "
                  "each row came from and the file its Record Offset counts from."
-                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Signal is field 1 and Value is field 2, as iLEAPP's biomeDiscoverabilitySignals module reads them (Reference: iLEAPP, scripts/artifacts/biomeDiscoverabilitySignals.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeDiscoverabilitySignals.py#L93-L100). Field 3 (as stored) is field 3: that module reads field 3 as a submessage, but on every record of the tested extraction that holds it, field 3 is a plain string, macOS-24E248, and 24E248 is the ProductBuildVersion in that extraction's System/Library/CoreServices/SystemVersion.plist. That module also reads field 4 as a payload; no record of the tested extraction holds a field 4, so it is not reported. What each signal records beyond its name is not established. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 30 rows from one user's local folder, so User and Sync Origin each held one value there; Signal held five distinct names: two in the com.apple.Safari namespace, on 13 rows and on 8, spotlightWillAppear on 6, com.apple.notificationcenter.opened on 2 and com.apple.controlcenter.presented on 1, Value was filled on 23 rows and Field 3 (as stored) on 9, and Record Time fell in 2025 on every row.",
+                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Content Identifier is field 1 and Context is field 2, the fields iLEAPP's biomeDiscoverabilitySignals module reads as a signal and its value (Reference: iLEAPP, scripts/artifacts/biomeDiscoverabilitySignals.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeDiscoverabilitySignals.py#L93-L100). Field names are those of the BMDiscoverabilitySignals class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4: contentIdentifier, context, osBuild and userInfo for fields 1 to 4. Content Identifier, Context and OS Build were reported before as Signal, Value and Field 3 (as stored). OS Build is field 3: that module reads field 3 as a submessage, but on every record of the tested extraction that holds it, field 3 is a plain string, macOS-24E248, and 24E248 is the ProductBuildVersion in that extraction's System/Library/CoreServices/SystemVersion.plist. That module also reads field 4 as a payload; no record of the tested extraction holds a field 4, so it is not reported. What each content identifier records beyond its name is not established. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 30 rows from one user's local folder, so User and Sync Origin each held one value there; Content Identifier held five distinct names: two in the com.apple.Safari namespace, on 13 rows and on 8, spotlightWillAppear on 6, com.apple.notificationcenter.opened on 2 and com.apple.controlcenter.presented on 1, Context was filled on 23 rows and OS Build on 9, and Record Time fell in 2025 on every row.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
                  },
@@ -570,10 +594,10 @@ __artifacts_v2__ = {
     },
     "macosBiomeSafariAutoPlay": {
         "name": 'Biome Safari AutoPlay',
-        "description": 'Records from the Safari.AutoPlay Biome stream: record time, a host name, and fields 3, 4 and 5 as stored.',
+        "description": 'Records from the Safari.AutoPlay Biome stream: record time, a host name, the signal, the country code and the privacy proxy flag.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-18",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -582,7 +606,7 @@ __artifacts_v2__ = {
                  " under remote the record came from. Sync Origin does not separate two files of "
                  "one folder, and every file in a folder is read, so Source File names the file "
                  "each row came from and the file its Record Offset counts from."
-                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. No iLEAPP module reads this stream, so the fields are reported as stored and each column is named for the form of its value, not for a meaning. Host (as stored) is field 1, which held a host name on every record. Field 3 (as stored), Field 4 (as stored) and Field 5 (as stored) are fields 3, 4 and 5. Field 2, read as eight bytes of a little-endian double of seconds since 1 January 1970 UTC, was the first half-hour boundary after Record Time on every record of the tested extraction, so it is not reported separately. What each field records is not established. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 8 rows from one user's local folder, so User and Sync Origin each held one value there; Host (as stored) held three distinct host names, Field 3 (as stored), Field 4 (as stored) and Field 5 (as stored) held 2, US and 0 on every row, and Record Time fell in 2025 on every row.",
+                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. No iLEAPP module reads this stream. Field and signal names are those of the BMSafariAutoPlay class, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4: domain, signal, countryCode and privacyProxy for fields 1, 3, 4 and 5. Host (as stored) is field 1, which held a host name on every record. Signal (raw) is field 3 as stored and Signal is the class's name for it (0 Unknown, 1 DidNotWant, 2 MayNotWant, 3 MayWant). Whether macOS 15.4 numbered the values the same way is not established. A number outside that list leaves Signal blank. The framework itself shows such a number as Unknown. Country Code (as stored) is field 4. Privacy Proxy is field 5, which the class types as a bool: 1 is shown as True and 0 as False. Signal and Signal (raw), Country Code (as stored) and Privacy Proxy were reported before as Field 3 (as stored), Field 4 (as stored) and Field 5 (as stored). Field 2, read as eight bytes of a little-endian double of seconds since 1 January 1970 UTC, was the first half-hour boundary after Record Time on every record of the tested extraction, so it is not reported separately. What each signal means beyond its name is not established. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 8 rows from one user's local folder, so User and Sync Origin each held one value there; Host (as stored) held three distinct host names, Signal, Country Code (as stored) and Privacy Proxy held MayNotWant (stored as 2), US and False on every row, and Record Time fell in 2025 on every row.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
                  },
@@ -785,6 +809,33 @@ def _as_stored(value):
     return '' if value is None else str(value)
 
 
+def _bool(value):
+    """A stored bool as True or False; any other stored value as stored."""
+    if value == 1:
+        return 'True'
+    if value == 0:
+        return 'False'
+    return _as_stored(value)
+
+
+def _enum_name(value, names):
+    """The framework name for a stored integer, or '' when the number has no name."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        return ''
+    return names.get(value, '')
+
+
+# usageState names, read from BiomeLibrary.framework BMAppWebUsage on macOS 27.2.1 (26B131).
+_USAGE_STATES = {0: 'Unknown', 1: 'NotInUse', 2: 'InUse', 3: 'InFocus'}
+# playbackState names, read from BiomeLibrary.framework BMMediaNowPlaying on macOS 27.2.1 (26B131).
+_PLAYBACK_STATES = {0: 'Unknown', 1: 'Playing', 2: 'Paused', 3: 'Stopped', 4: 'Interrupted', 5: 'Seeking'}
+# signal names, read from BiomeLibrary.framework BMSafariAutoPlay on macOS 27.2.1 (26B131).
+_AUTOPLAY_SIGNALS = {0: 'Unknown', 1: 'DidNotWant', 2: 'MayNotWant', 3: 'MayWant'}
+# direction names, read from BiomeLibrary.framework BMSiriRemembersInteraction on macOS 27.2.1 (26B131).
+# This numbering differs from INInteraction.h's (_DIRECTIONS below), where 1 is Outgoing.
+_SIRI_DIRECTIONS = {0: 'Unknown', 1: 'Incoming', 2: 'Outgoing', 3: 'Bidirectional'}
+
+
 def _read(context, label, row_for):
     """(rows, source path) for one stream: one row per written record that reads as a message."""
     records, sources = stream_records(context, label)
@@ -807,22 +858,22 @@ def _read(context, label, row_for):
 
 @artifact_processor
 def macosBiomeAppInFocus(context):
-    data_headers = (('Record Time (UTC)', 'datetime'), 'Bundle ID', 'Field 3 (as stored)',
-                    'Transition Reason (as stored)', 'App Version (as stored)', 'Bundle Version (as stored)',
-                    'User', 'Sync Origin', 'Source File', 'Record Offset')
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Bundle ID', 'Starting',
+                    'Launch Reason (as stored)', 'Transition Reason (as stored)', 'App Version (as stored)',
+                    'Bundle Version (as stored)', 'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome App In Focus', lambda f: (
-        text(first(f, 6)), _as_stored(first(f, 3)), text(first(f, 1)), text(first(f, 9)),
-        text(first(f, 10))))
+        text(first(f, 6)), _bool(first(f, 3)), text(first(f, 1)), text(first(f, 14)),
+        text(first(f, 9)), text(first(f, 10))))
     return data_headers, rows, source
 
 
 @artifact_processor
 def macosBiomeAppWebUsage(context):
     data_headers = (('Record Time (UTC)', 'datetime'), 'URL', 'Domain', 'Bundle ID', 'GUID (as stored)',
-                    'Field 3 (as stored)', 'User', 'Sync Origin', 'Source File', 'Record Offset')
+                    'Usage State', 'Usage State (raw)', 'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome App Web Usage', lambda f: (
         text(first(f, 4)), text(first(f, 5)), text(first(f, 6)), text(first(f, 1)),
-        _as_stored(first(f, 3))))
+        _enum_name(first(f, 3), _USAGE_STATES), _as_stored(first(f, 3))))
     return data_headers, rows, source
 
 
@@ -846,9 +897,11 @@ def macosBiomeNotificationUsage(context):
 @artifact_processor
 def macosBiomeNowPlaying(context):
     data_headers = (('Record Time (UTC)', 'datetime'), 'Title', 'Artist',
-                    'Bundle ID or Process (as stored)', 'Field 3 (as stored)', 'User', 'Sync Origin', 'Source File', 'Record Offset')
+                    'Bundle ID or Process (as stored)', 'Playback State', 'Playback State (raw)', 'User',
+                    'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome Now Playing', lambda f: (
-        text(first(f, 8)), text(first(f, 5)), text(first(f, 15)), _as_stored(first(f, 3))))
+        text(first(f, 8)), text(first(f, 5)), text(first(f, 15)),
+        _enum_name(first(f, 3), _PLAYBACK_STATES), _as_stored(first(f, 3))))
     return data_headers, rows, source
 
 
@@ -901,12 +954,13 @@ def _mac2001_double(value):
 
 
 def _participants(found):
-    """Join each top-level field 2 item as 'name: value' from its field 1 and field 2 entity."""
+    """Join each top-level field 2 item as 'key: identifiers' from its field 1 and every field 2 entity."""
     parts = []
     for item in found.get(2, []):
         entry = _submessage(item)
         name = text(first(entry, 1))
-        value = text(first(_submessage(first(entry, 2)), 1))
+        value = ', '.join(v for v in (text(first(_submessage(entity), 1)) for entity in entry.get(2, []))
+                          if v)
         if name or value:
             parts.append(f'{name}: {value}' if name else value)
     return '; '.join(parts)
@@ -930,13 +984,14 @@ def macosBiomeSiriInteractionHistory(context):
 @artifact_processor
 def macosBiomeSiriMessageHistory(context):
     data_headers = (('Record Time (UTC)', 'datetime'), ('Message Time (UTC)', 'datetime'),
-                    'Direction (as stored)', 'Bundle ID', 'Intent Class (as stored)',
-                    'Chat ID (as stored)', 'Message GUID (as stored)', 'Participants (as stored)',
+                    'Direction', 'Direction (raw)', 'Bundle ID', 'Intent Class (as stored)',
+                    'Chat ID (as stored)', 'Message GUID (as stored)', 'Entities',
                     'User', 'Sync Origin', 'Source File', 'Record Offset')
 
     def row_for(f):
         meta = _submessage(first(f, 1))
-        return (_unix_double(first(meta, 8)), _as_stored(first(meta, 6)), text(first(meta, 4)),
+        return (_unix_double(first(meta, 8)), _enum_name(first(meta, 6), _SIRI_DIRECTIONS),
+                _as_stored(first(meta, 6)), text(first(meta, 4)),
                 text(first(meta, 2)), text(first(meta, 12)), text(first(meta, 13)),
                 _participants(f))
     rows, source = _read(context, 'Biome Siri Message History', row_for)
@@ -1030,7 +1085,7 @@ def macosBiomeAppIntent(context):
 
 @artifact_processor
 def macosBiomeDiscoverabilitySignals(context):
-    data_headers = (('Record Time (UTC)', 'datetime'), 'Signal', 'Value', 'Field 3 (as stored)',
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Content Identifier', 'Context', 'OS Build',
                     'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome Discoverability Signals', lambda f: (
         text(first(f, 1)), text(first(f, 2)), text(first(f, 3))))
@@ -1050,11 +1105,12 @@ def macosBiomeMediaUsage(context):
 
 @artifact_processor
 def macosBiomeSafariAutoPlay(context):
-    data_headers = (('Record Time (UTC)', 'datetime'), 'Host (as stored)', 'Field 3 (as stored)',
-                    'Field 4 (as stored)', 'Field 5 (as stored)',
+    data_headers = (('Record Time (UTC)', 'datetime'), 'Host (as stored)', 'Signal', 'Signal (raw)',
+                    'Country Code (as stored)', 'Privacy Proxy',
                     'User', 'Sync Origin', 'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome Safari AutoPlay', lambda f: (
-        text(first(f, 1)), _as_stored(first(f, 3)), text(first(f, 4)), _as_stored(first(f, 5))))
+        text(first(f, 1)), _enum_name(first(f, 3), _AUTOPLAY_SIGNALS), _as_stored(first(f, 3)),
+        text(first(f, 4)), _bool(first(f, 5))))
     return data_headers, rows, source
 
 

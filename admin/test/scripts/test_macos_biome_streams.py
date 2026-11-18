@@ -102,13 +102,16 @@ class BiomeStreamMappingTest(unittest.TestCase):
         inner = (_f64(8, unix) + _vi(6, 1) + _ld(4, b'com.apple.MobileSMS')
                  + _ld(2, b'INSendMessageIntent') + _ld(12, b'SMS;-;123') + _ld(13, b'mguid'))
         item = _ld(1, b'sender') + _ld(2, _ld(1, b'Alice'))
-        row = _run(macosBiome.macosBiomeSiriMessageHistory, _ld(1, inner) + _ld(2, item))
+        recipients = _ld(1, b'recipients') + _ld(2, _ld(1, b'Bob')) + _ld(2, _ld(1, b'Carol'))
+        row = _run(macosBiome.macosBiomeSiriMessageHistory,
+                   _ld(1, inner) + _ld(2, item) + _ld(2, recipients))
         self.assertEqual(row['Message Time (UTC)'], UNIX_2025)
-        self.assertEqual(row['Direction (as stored)'], '1')
+        self.assertEqual(row['Direction'], 'Incoming')
+        self.assertEqual(row['Direction (raw)'], '1')
         self.assertEqual(row['Bundle ID'], 'com.apple.MobileSMS')
         self.assertEqual(row['Chat ID (as stored)'], 'SMS;-;123')
         self.assertEqual(row['Message GUID (as stored)'], 'mguid')
-        self.assertEqual(row['Participants (as stored)'], 'sender: Alice')
+        self.assertEqual(row['Entities'], 'sender: Alice; recipients: Bob, Carol')
 
     def test_dk_wifi_fields_and_2001_epoch(self):
         seconds_2001 = (MAC_2025 - datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc)
@@ -171,12 +174,12 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['Interaction ID (as stored)'], '')
 
     def test_discoverability_signal_fields(self):
-        """Discoverability.Signals: signal, value and field 3 as stored."""
+        """Discoverability.Signals: content identifier, context and OS build."""
         data = (_ld(1, b'spotlightWillAppear') + _ld(2, b'menu') + _ld(3, b'macOS-24E248'))
         row = _run(macosBiome.macosBiomeDiscoverabilitySignals, data)
-        self.assertEqual(row['Signal'], 'spotlightWillAppear')
-        self.assertEqual(row['Value'], 'menu')
-        self.assertEqual(row['Field 3 (as stored)'], 'macOS-24E248')
+        self.assertEqual(row['Content Identifier'], 'spotlightWillAppear')
+        self.assertEqual(row['Context'], 'menu')
+        self.assertEqual(row['OS Build'], 'macOS-24E248')
 
     def test_media_usage_fields(self):
         """App.MediaUsage: fields 1, 2, 3, 4, 5 and 8 as stored; field 6 is not a column."""
@@ -192,14 +195,36 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['UUID (as stored)'], 'uuid-1')
 
     def test_safari_autoplay_fields(self):
-        """Safari.AutoPlay: host and fields 3, 4 and 5 as stored; field 2 is not a column."""
+        """Safari.AutoPlay: host, signal, country code and privacy proxy; field 2 is not a column."""
         data = (_ld(1, b'www.example.test') + _f64(2, UNIX_2025.timestamp()) + _vi(3, 2)
                 + _ld(4, b'US') + _vi(5, 0))
         row = _run(macosBiome.macosBiomeSafariAutoPlay, data)
         self.assertEqual(row['Host (as stored)'], 'www.example.test')
-        self.assertEqual(row['Field 3 (as stored)'], '2')
-        self.assertEqual(row['Field 4 (as stored)'], 'US')
-        self.assertEqual(row['Field 5 (as stored)'], '0')
+        self.assertEqual(row['Signal'], 'MayNotWant')
+        self.assertEqual(row['Signal (raw)'], '2')
+        self.assertEqual(row['Country Code (as stored)'], 'US')
+        self.assertEqual(row['Privacy Proxy'], 'False')
+
+    def test_app_in_focus_fields(self):
+        """App.InFocus: field 3 as a bool, field 1 launch reason, field 14 transition reason."""
+        data = (_ld(1, b'launch') + _vi(3, 1) + _ld(6, b'com.example.app') + _ld(9, b'1.0')
+                + _ld(10, b'100') + _ld(14, b'transition'))
+        row = _run(macosBiome.macosBiomeAppInFocus, data)
+        self.assertEqual(row['Bundle ID'], 'com.example.app')
+        self.assertEqual(row['Starting'], 'True')
+        self.assertEqual(row['Launch Reason (as stored)'], 'launch')
+        self.assertEqual(row['Transition Reason (as stored)'], 'transition')
+        self.assertEqual(row['App Version (as stored)'], '1.0')
+        self.assertEqual(row['Bundle Version (as stored)'], '100')
+
+    def test_enum_names_keep_the_raw_number(self):
+        """Usage and playback states are named from the framework, unnamed numbers leave the name blank."""
+        row = _run(macosBiome.macosBiomeAppWebUsage, _vi(3, 3))
+        self.assertEqual((row['Usage State'], row['Usage State (raw)']), ('InFocus', '3'))
+        row = _run(macosBiome.macosBiomeAppWebUsage, _vi(3, 9))
+        self.assertEqual((row['Usage State'], row['Usage State (raw)']), ('', '9'))
+        row = _run(macosBiome.macosBiomeNowPlaying, _vi(3, 2))
+        self.assertEqual((row['Playback State'], row['Playback State (raw)']), ('Paused', '2'))
 
     def test_system_settings_search_terms_with_and_without_results(self):
         """SystemSettings.SearchTerms: field 1, and fields 1 and 2 of each field 2 submessage."""
