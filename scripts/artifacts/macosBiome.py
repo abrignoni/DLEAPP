@@ -799,7 +799,7 @@ __artifacts_v2__ = {
 }
 
 import plistlib
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc, webkit_timestampsconv
 from scripts.macos_biome import double, fields, first, stream_records, text
@@ -931,14 +931,19 @@ def _submessage(value):
     return {}
 
 
+_UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
 def _unix_double(value):
     """An 8-byte little-endian double read as seconds since 1970 UTC, or ''."""
     seconds = double(value)
     if seconds is None:
         return ''
+    # Added to the epoch rather than passed to datetime.fromtimestamp, which on Windows fails
+    # before 1970 and after the year 3000, so every platform gives the same result.
     try:
-        return datetime.fromtimestamp(seconds, tz=timezone.utc)
-    except (OverflowError, OSError, ValueError):
+        return _UNIX_EPOCH + timedelta(seconds=seconds)
+    except (OverflowError, ValueError):
         return ''
 
 
