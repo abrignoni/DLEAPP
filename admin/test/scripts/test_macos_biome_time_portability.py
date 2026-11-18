@@ -4,8 +4,9 @@ _unix_double and _mac2001_double turn any conversion error into ''. They used
 datetime.fromtimestamp, directly or through webkit_timestampsconv, which on Windows fails
 outside 1970-01-01 to 3000-12-31. NSDate.distantFuture (4001-01-01) therefore converted on
 macOS and came out blank on Windows. WindowsGmtime reproduces that range here, so the tests
-show the difference on any platform. All values are constructed; no DLEAPP corpus yields rows
-from these converters.
+show the difference on any platform. All values here are constructed. On adams_macbookpro_macos26
+the converters fill Siri Message History (199 rows), Wi-Fi Connection Events (126) and App Intent
+(76) times; none is before 1970 or after 3000, and they are identical before and after this change.
 """
 from datetime import datetime, timezone
 import pathlib
@@ -19,10 +20,15 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.artifacts.macosBiome import _mac2001_double, _unix_double  # pylint: disable=wrong-import-position
 
-WINDOWS_GMTIME_END = 32535216000  # 3001-01-01 00:00:00 UTC, the first second _gmtime64_s refuses
+# 3001-01-01 00:00:00 UTC. Microsoft Learn, "gmtime, _gmtime32, _gmtime64": _gmtime64 expresses dates
+# "up through 23:59:59, December 31, 3000, UTC", and midnight, January 1, 1970, is the lower bound.
+WINDOWS_GMTIME_END = 32535216000
 DISTANT_FUTURE_COCOA = 63113904000.0  # NSDate.distantFuture, read from Foundation
 DISTANT_FUTURE_UNIX = DISTANT_FUTURE_COCOA + 978307200
 YEAR_4001 = datetime(4001, 1, 1, tzinfo=timezone.utc)
+YEAR_3500 = datetime(3500, 7, 1, 12, 30, tzinfo=timezone.utc)  # after 3000, not a sentinel
+COCOA_EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)
+UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 class WindowsGmtime(datetime):
@@ -49,6 +55,8 @@ class SameResultOnEveryPlatform(unittest.TestCase):
     cases = (
         ('cocoa', DISTANT_FUTURE_COCOA, YEAR_4001),
         ('unix', DISTANT_FUTURE_UNIX, YEAR_4001),
+        ('cocoa', (YEAR_3500 - COCOA_EPOCH).total_seconds(), YEAR_3500),
+        ('unix', (YEAR_3500 - UNIX_EPOCH).total_seconds(), YEAR_3500),
         ('cocoa', -1009843200.0, datetime(1969, 1, 1, tzinfo=timezone.utc)),
         ('unix', -0.5, datetime(1969, 12, 31, 23, 59, 59, 500000, tzinfo=timezone.utc)),
         ('cocoa', 700000000.25, datetime(2023, 3, 8, 20, 26, 40, 250000, tzinfo=timezone.utc)),
