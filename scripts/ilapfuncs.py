@@ -1582,9 +1582,15 @@ def convert_ts_int_to_timezone(time, time_offset):
     return timezone_time
 
 def webkit_timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return finaltime
+    # Cocoa seconds (since 2001-01-01 UTC) as an int or float, added to the epoch rather than
+    # passed to datetime.fromtimestamp, which depends on the platform's gmtime (on Windows it
+    # fails before 1970 and after the year 3000), so every platform returns the same UTC-aware
+    # datetime. A finite number whose result datetime cannot hold, inf, -inf and nan raise
+    # ValueError. Other types, such as None, str and bytes, raise TypeError.
+    try:
+        return _UNIX_EPOCH_UTC + timedelta(seconds=webkittime + 978307200)
+    except OverflowError as exc:
+        raise ValueError(str(exc)) from exc
 
 def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     if '.' in ts:
