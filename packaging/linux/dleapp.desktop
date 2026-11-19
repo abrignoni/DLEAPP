@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=DLEAPP
+GenericName=Desktop Logs Events And Protobuf Parser
+Comment=Parse desktop application artifacts (logs, events, protobuf)
+Exec=/usr/bin/dleapp
+Icon=dleapp
+Terminal=false
+Categories=Utility;Forensics;
+StartupWMClass=dleapp

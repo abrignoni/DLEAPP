@@ -1,0 +1,22 @@
+pkgbase = dleapp-bin
+	pkgdesc = Desktop Logs Events And Protobuf Parser (prebuilt release)
+	pkgver = 2026.4.5
+	pkgrel = 1
+	url = https://github.com/abrignoni/DLEAPP
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	provides = dleapp
+	conflicts = dleapp
+	conflicts = dleapp-git
+	options = !strip
+	source = dleapp.desktop::https://raw.githubusercontent.com/abrignoni/DLEAPP/main/packaging/linux/dleapp.desktop
+	source = dleapp.png::https://raw.githubusercontent.com/abrignoni/DLEAPP/main/assets/icon.png
+	sha256sums = d81f2e8b23c9c0674b997bd100acc38180d147f6763be3c14d60279a3b85ba38
+	sha256sums = caec80b8dc2f1d598da1c99ffec91f4069501fc3bbd782d615fde76984c2dd37
+	source_x86_64 = DLEAPP-2026.4.5-linux-x64.AppImage::https://github.com/abrignoni/DLEAPP/releases/download/v2026.4.5/DLEAPP-2026.4.5-linux-x64.AppImage
+	sha256sums_x86_64 = 15e584d32f45d06a17ddcb62bf447f1c63a988c928fec554d29c5d03b8a15169
+	source_aarch64 = DLEAPP-2026.4.5-linux-arm64.AppImage::https://github.com/abrignoni/DLEAPP/releases/download/v2026.4.5/DLEAPP-2026.4.5-linux-arm64.AppImage
+	sha256sums_aarch64 = e9f6928df29be97c53de1b9aa36ec0524a45b6c8859acc321b70a778ebe25818
+
+pkgname = dleapp-bin
