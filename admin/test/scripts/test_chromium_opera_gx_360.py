@@ -56,7 +56,8 @@ class PathsTest(unittest.TestCase):
         checked = 0
         for module, key, paths in artifact_paths():
             for pattern in paths:
-                if OPERA not in pattern:
+                # Opera's cache folder under AppData/Local has no 360 sibling: on the known data 360 Safe Browser 16.1.2000.64 kept its cache in Roaming.
+                if f'Roaming/{OPERA}' not in pattern:
                     continue
                 checked += 1
                 self.assertIn(pattern.replace(OPERA, 'Opera Software/Opera GX Stable/'), paths, (module, key))

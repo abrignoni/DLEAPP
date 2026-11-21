@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "chromiumCacheRecords": {
         "name": "Chromium Cache Records",
-        "description": "Entries of the HTTP disk cache of Google Chrome, Microsoft Edge, Brave, Vivaldi and "
-                       "Chromium profiles on Windows: cached URL, HTTP status, content type, body size, the "
+        "description": "Entries of the HTTP disk cache of Google Chrome, Microsoft Edge, Brave, Vivaldi, Opera, "
+                       "Opera GX, 360 Safe Browser and Chromium profiles on Windows: cached URL, HTTP status, content type, body size, the "
                        "entry's created and last used times, the request and response times, and the cached "
                        "picture, video or audio.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-03",
-        "last_update_date": "2026-11-09",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Chromium Browsers",
         "platforms": ("Windows",),
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_response_info.cc#L168-L209, "
                  "and "
                  "https://github.com/chromium/chromium/blob/65.0.3325.181/net/http/http_response_info.cc#L130-L158 "
-                 "for Chrome 65). On the known data Request Time fell 0.01 to 0.24 seconds and Response Time "
+                 "for Chrome 65). On that known data Request Time fell 0.01 to 0.24 seconds and Response Time "
                  "0.10 to 0.28 seconds after each first load began, and neither moved after the second load. A "
                  "response info whose version is not 3, the only version Chromium reads "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/http/http_response_info.cc#L48-L51), "
@@ -81,23 +81,45 @@ __artifacts_v2__ = {
                  "65.0.3325.181, 12,962), ou_ransomware_server2022 (2,893) and pc_mus_001_win11 (Chrome "
                  "108.0.5359.125 and Edge 108.0.1462.54, 18,673); on pc_mus_001_win11 the Guest Profile and "
                  "System Profile caches held no entry. Isolation Key had no value on any row of "
-                 "cfreds_leakage_win7 or lonewolf_win10, whose keys are not split by site. Not read: the "
+                 "cfreds_leakage_win7 or lonewolf_win10, whose keys are not split by site. Every count above was "
+                 "taken on those six images and leaves out Opera, Opera GX and 360 Safe Browser, which were tested on "
+                 "windows11_arm_opera_360_cache_known_20261120: Opera 140.0.6074.36 (57 rows), Opera GX "
+                 "139.0.6053.63 (198) and 360 Safe Browser 16.1.2000.64 (6). Each loaded two local test pages. "
+                 "Opera and Opera GX also loaded https://example.com/ and made their own start-page requests, so 4 "
+                 "of Opera's 57 rows and 6 of Opera GX's 198 are the local test pages. All 6 of 360 Safe Browser's "
+                 "are. All three wrote a blockfile cache in Cache/Cache_Data. On that image Opera and Opera GX kept "
+                 "that folder under AppData/Local/Opera Software, apart from the rest of the profile in "
+                 "AppData/Roaming, and 360 Safe Browser kept it under AppData/Roaming/360se6/User Data. On that "
+                 "image ccl_chromium_reader 0.3.19 returned the same set of entry keys for each browser's cache. "
+                 "The test picture from all three, and the test video from Opera GX and 360 Safe Browser, stored as "
+                 "a sparse entry, were shown byte-identical to the files served. The test server logged no request "
+                 "for the video from Opera, and its cache holds no entry for it. The zip holds no Media Cache or "
+                 "Application Cache folder for any of the three. Profile held Default and User one "
+                 "value on all 261 rows of that image. Not read: the "
                  "server IP address, certificate and other fields stored after the headers in the response "
                  "info; the Media Cache and Application Cache folders of the older tested builds, which "
                  "Chromium Media Cache Records and Chromium Application Cache read; GPUCache and Code Cache; "
                  "No_Vary_Search; the simple cache format (one file per "
-                 "entry); Opera, whose folders these paths do not name; and WebView2 or Electron app caches.",
+                 "entry); Opera's System Cache folder, which on windows11_arm_opera_360_cache_known_20261120 held 5 "
+                 "entries for Opera and 7 for Opera GX, every one with a URL on a host under opera.com, operacdn.com "
+                 "or opera-api.com (what Opera uses that folder for is not sourced here); a cache directly "
+                 "in an Opera user data folder with no profile folder; and WebView2 or Electron app caches.",
         "paths": (
             '*/AppData/Local/Google/Chrome/User Data/*/Cache/*',
             '*/AppData/Local/Chromium/User Data/*/Cache/*',
             '*/AppData/Local/Microsoft/Edge/User Data/*/Cache/*',
             '*/AppData/Local/BraveSoftware/Brave-Browser/User Data/*/Cache/*',
             '*/AppData/Local/Vivaldi/User Data/*/Cache/*',
+            '*/AppData/Local/Opera Software/Opera Stable/*/Cache/*',
+            '*/AppData/Local/Opera Software/Opera GX Stable/*/Cache/*',
+            '*/AppData/Roaming/360se6/User Data/*/Cache/*',
         ),
         "output_types": "standard",
         "artifact_icon": "database",
         "sample_data": {
             "windows11_arm_chromium_cache_known_20261103": "Windows 11 build 26200 (ARM64), Chrome 157.0.8103.39 and Edge 156.0.4314.58 | 14 rows",
+            "windows11_arm_operagx_360se_known_20261107": "Windows 11 build 26200 (ARM64), Opera GX 139.0.6053.42 and 360 Safe Browser 16.1.2000.64 | 0 rows (the zip holds no Cache folder)",
+            "windows11_arm_opera_360_cache_known_20261120": "Windows 11 build 26200 (ARM64), Opera 140.0.6074.36, Opera GX 139.0.6053.63 and 360 Safe Browser 16.1.2000.64 | 261 rows",
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 2345 rows",
             "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 5273 rows",
             "lonewolf_win10": "Windows 10 Education build 16299 | 12962 rows",
