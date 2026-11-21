@@ -19,6 +19,9 @@ Where each browser keeps its user data folder:
   data windows11_arm_operagx_360se_known_20261107. 360 Safe Browser writes
   360History and 360Bookmarks, which on the known data are not SQLite or JSON
   (high-entropy bytes, the second base64-wrapped) and which no artifact reads.
+  Opera 140.0.6074.36 and Opera GX 139.0.6053.63 keep a profile's HTTP cache in
+  AppData/Local/Opera Software, outside the Roaming user data folder, measured on
+  the known data windows11_arm_opera_360_cache_known_20261120.
 
 Chromium installed as a snap or as a Flatpak: Chromium puts its user data
 folder in $CHROME_CONFIG_HOME, else $XDG_CONFIG_HOME, else ~/.config
@@ -62,7 +65,7 @@ from collections import namedtuple
 from scripts.ilapfuncs import get_sqlite_db_path, logfunc, open_sqlite_db_readonly
 from scripts.macos_plists import canonical_relative, unique_sources
 
-# (browser name, user data folder or macOS cache folder, relative to the user's home folder)
+# (browser name, user data folder or cache folder kept outside it, relative to the user's home folder)
 BROWSER_ROOTS = (
     ('Google Chrome', ('AppData', 'Local', 'Google', 'Chrome', 'User Data')),
     ('Google Chrome', ('Library', 'Application Support', 'Google', 'Chrome')),
@@ -84,10 +87,12 @@ BROWSER_ROOTS = (
     ('Vivaldi', ('Library', 'Application Support', 'Vivaldi')),
     ('Vivaldi', ('.config', 'vivaldi')),
     ('Opera', ('AppData', 'Roaming', 'Opera Software', 'Opera Stable')),
+    ('Opera', ('AppData', 'Local', 'Opera Software', 'Opera Stable')),
     ('Opera', ('Library', 'Application Support', 'com.operasoftware.Opera')),
     ('Opera', ('Library', 'Caches', 'com.operasoftware.Opera')),
     ('Opera', ('.config', 'opera')),
     ('Opera GX', ('AppData', 'Roaming', 'Opera Software', 'Opera GX Stable')),
+    ('Opera GX', ('AppData', 'Local', 'Opera Software', 'Opera GX Stable')),
     ('360 Safe Browser', ('AppData', 'Roaming', '360se6', 'User Data')),
     ('webOS webbrowser', ('webbrowser', 'chrome')),
 )
