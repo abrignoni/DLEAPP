@@ -3,7 +3,8 @@
 Author: @AlexisBrignoni, Claude.
 
 Each stream is a folder of SEGB files whose records hold one protobuf message. Field numbers
-come from iLEAPP's Biome modules or from BiomeLibrary.framework where an artifact's notes say so.
+come from iLEAPP's Biome modules, BiomeLibrary.framework or CoreDuet.framework where an artifact's
+notes say so.
 Where neither applies the notes say the fields are reported as stored.
 """
 
@@ -15,7 +16,7 @@ __artifacts_v2__ = {
                        "one, and the app's version strings.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -74,8 +75,7 @@ __artifacts_v2__ = {
                  " records were not among the Info.plists compared, those of the application bundles "
                  "in the extraction whose path holds no dot before .app. Fields 2, 4, 11, 12 and 13 "
                  "(type, absoluteTimestamp, dyldPlatform, isNativeArchitecture and displayType in the "
-                 "class) are not reported: field 4, read as seconds since 1 January 2001, equaled Record Time"
-                 " on all 642 records of the MacBook Pro, and what the others record is not "
+                 "class) are not reported: field 4, read as seconds since 1 January 2001, was within 1 microsecond of Record Time on all 642 records of the MacBook Pro, and what the others record is not "
                  "established. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 642 rows, 501 from the local folder and 141 "
                  "from one of 3 remote folders; the other 2 hold, outside their tombstone "
                  "folders, only records not marked as written. "
@@ -225,11 +225,11 @@ __artifacts_v2__ = {
     },
     "macosBiomeNotificationUsage": {
         "name": "Biome Notification Usage",
-        "description": "Records from the Notification.Usage Biome stream: record time, and the "
-                       "bundle ID and UUID each record holds.",
+        "description": "Records from the Notification.Usage Biome stream: record time, absolute "
+                       "timestamp, and the bundle ID, usage type and UUID each record holds.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -273,9 +273,8 @@ __artifacts_v2__ = {
                  "Bundle ID in lower case, and that record's delivered_date is 0.19 seconds before the"
                  " time in field 2 of the Biome record; the Users/ copy of db2/db holds 2 "
                  "records there and the System/Volumes/Data/ copy 1, and both hold the matching "
-                 "record. Field 2, read as"
-                 " seconds since 1 January 2001, was between 2 and 24 milliseconds before Record Time "
-                 "on all 13 records, and field 3 held one value on all of them; neither is reported. "
+                 "record. "
+                 "Absolute Timestamp (UTC) is field 2, which BMNotificationUsage names absoluteTimestamp, read from BiomeLibrary.framework on macOS 27.2.1 (26B131), a newer macOS than the tested image (macOS 15.4); it was not reported before. It is read as a double of seconds since 1 January 2001 UTC, the reference that class applies to a stored double. A stored 0, or the NSDate distantPast or distantFuture value, leaves it blank, as iLEAPP's biomeNotificationUsage module and its timestamp conversion do (Reference: iLEAPP, scripts/artifacts/biomeNotificationUsage.py, https://github.com/abrignoni/iLEAPP/blob/e062e23da92a2a22785faff2f89a9302b5a2db5a/scripts/artifacts/biomeNotificationUsage.py#L103-L106). On the 13 rows of the tested macOS image it held a value and was 2.4 to 23.1 milliseconds before Record Time. On 21 iOS images measured for comparison (not run through DLEAPP), field 2 was a stored 0 on 84 of the 31,444 written records. On 22,621 of the other 31,360 it was more than 60 seconds from the SEGB record time, earlier on all but 4. Which of the two times marks the usage event is not established. Usage Type (raw) is field 3, which that class names usageType, as stored, and Usage Type is the name the class gives the number (0 to 27, for example 1 Receive and 4 Clear); neither was reported before. A number outside that list leaves Usage Type blank. The framework itself shows such a number as Unknown. The second integer of each record's SEGB entry header, read here as the Biome data version, is 1 on the 13 records. That is the latest version BMNotificationUsage declares on macOS 27.2.1. Whether macOS 15.4 numbered the values the same way is not established. Usage Type held one value on this image, Receive (stored as 1), on the 13 rows, and what a type means beyond its name is not established. "
                  "All rows there come from one user's local folder, so User and Sync Origin each held "
                  "one value there.",
         "sample_data": {
@@ -440,10 +439,10 @@ __artifacts_v2__ = {
     },
     "macosBiomeSiriMessageHistory": {
         "name": 'Biome Siri Message History',
-        "description": 'Records from the Siri.Remembers.MessageHistory Biome stream: record time, the message time, the direction, the app bundle ID, chat and message identifiers, and the entities the record lists by key (sender and recipient entries among them).',
+        "description": 'Records from the Siri.Remembers.MessageHistory Biome stream: record time, the message time, the direction, the status, the app bundle ID, chat and message identifiers, and the entities the record lists by key (sender and recipient entries among them).',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-11-18",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -452,7 +451,7 @@ __artifacts_v2__ = {
                  " under remote the record came from. Sync Origin does not separate two files of "
                  "one folder, and every file in a folder is read, so Source File names the file "
                  "each row came from and the file its Record Offset counts from."
-                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record holds one field 1 submessage and, at the top level, repeated field 2 items. Message Time (UTC) is the submessage's field 8, eight bytes read as a little-endian double of seconds since 1 January 1970 UTC; Direction, Bundle ID, Intent Class (as stored), Chat ID (as stored) and Message GUID (as stored) are its fields 6, 4, 2, 12 and 13, as iLEAPP's biomeSiriRemembersMessageHistory module reads them (Reference: iLEAPP, scripts/artifacts/biomeSiriRemembersMessageHistory.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeSiriRemembersMessageHistory.py#L148-L154). The direction names are those of BMSiriRemembersInteraction, the class BMSiriMessageHistory gives field 1, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4. That class names fields 8, 2, 12 and 13 startDate, type, groupIdentifier and appIntentInteractionIdentifier. The column names Message Time, Intent Class, Chat ID and Message GUID follow the iLEAPP module. Direction (raw) is field 6 as stored and Direction is the class's name for it (0 Unknown, 1 Incoming, 2 Outgoing, 3 Bidirectional). A number outside that list leaves Direction blank. The framework itself shows such a number as Unknown. Both were reported before as one column, Direction (as stored). That numbering differs from the INInteraction.h one the Biome App Intents artifact uses, where 1 is Outgoing. On the tested image (corpus key mvs2026_macbookpro_macos15) the Message GUID of each of the 4 rows names a message row in the same user's Messages chat.db, read with its -wal, whose is_from_me is 0, which agrees with Incoming; all 4 rows carry the intent class INSendMessageIntent, so the intent class alone does not give the direction. Entities joins each top-level field 2 item, which BMSiriMessageHistory names entities, as its field 1 key and the field 1 identifier of every entity in its repeated field 2, the identifiers separated by commas and the items by semicolons; that module reads them as the parameter names and values (for example sender and recipients), and what a value denotes is not established. It was reported before as Participants (as stored). On the 4 tested rows the keys were sender, senderHandle, recipientHandles and sentMessages. Not every entry is a participant. Only each entity's identifier is shown. Each of the 16 field 2 items on the 4 tested records held one entity. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 4 rows from one user's local folder, so User and Sync Origin each held one value there, and on those 4 rows Direction (Incoming, stored as 1), Bundle ID (com.apple.MobileSMS), Intent Class (INSendMessageIntent) and Chat ID each held one value; Message Time fell in 2025 on all 4 rows.",
+                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Each written record holds one field 1 submessage and, at the top level, repeated field 2 items. Message Time (UTC) is the submessage's field 8, eight bytes read as a little-endian double of seconds since 1 January 1970 UTC; Direction, Bundle ID, Intent Class (as stored), Chat ID (as stored) and Message GUID (as stored) are its fields 6, 4, 2, 12 and 13, as iLEAPP's biomeSiriRemembersMessageHistory module reads them (Reference: iLEAPP, scripts/artifacts/biomeSiriRemembersMessageHistory.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeSiriRemembersMessageHistory.py#L148-L154). The direction names are those of BMSiriRemembersInteraction, the class BMSiriMessageHistory gives field 1, read from BiomeLibrary.framework on macOS 27.2.1 (26B131); those names come from a newer macOS than the tested image, which is macOS 15.4. That class names fields 8, 2, 12 and 13 startDate, type, groupIdentifier and appIntentInteractionIdentifier. The column names Message Time, Intent Class, Chat ID and Message GUID follow the iLEAPP module. Direction (raw) is field 6 as stored and Direction is the class's name for it (0 Unknown, 1 Incoming, 2 Outgoing, 3 Bidirectional). A number outside that list leaves Direction blank. The framework itself shows such a number as Unknown. Both were reported before as one column, Direction (as stored). That numbering differs from the INInteraction.h one the Biome App Intents artifact uses, where 1 is Outgoing. On the tested image (corpus key mvs2026_macbookpro_macos15) the Message GUID of each of the 4 rows names a message row in the same user's Messages chat.db, read with its -wal, whose is_from_me is 0, which agrees with Incoming; all 4 rows carry the intent class INSendMessageIntent, so the intent class alone does not give the direction. Status (raw) is field 5 of the same submessage, which BMSiriRemembersInteraction names status, as stored, and Status is the name that class gives the number (0 Unknown, 1 Unspecified, 2 Ready, 3 InProgress, 4 Success, 5 Failure, 6 DeferredToApplication, 7 UserConfirmationRequired); neither was reported before. A number outside that list leaves Status blank. The framework itself shows such a number as Unknown. The second integer of each record's SEGB entry header, read here as the Biome data version, is 0 on the 4 records. That is the latest version BMSiriMessageHistory and BMSiriRemembersInteraction declare on macOS 27.2.1. Whether macOS 15.4 numbered the values the same way is not established. Status held one value, Success (stored as 4), on the 4 tested rows, and what a status means beyond its name is not established. Field 7 of the submessage (isDonatedBySiri) held 0 on those 4 rows and is not reported. Entities joins each top-level field 2 item, which BMSiriMessageHistory names entities, as its field 1 key and the field 1 identifier of every entity in its repeated field 2, the identifiers separated by commas and the items by semicolons; that module reads them as the parameter names and values (for example sender and recipients), and what a value denotes is not established. It was reported before as Participants (as stored). On the 4 tested rows the keys were sender, senderHandle, recipientHandles and sentMessages. Not every entry is a participant. Only each entity's identifier is shown. Each of the 16 field 2 items on the 4 tested records held one entity. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 4 rows from one user's local folder, so User and Sync Origin each held one value there, and on those 4 rows Direction (Incoming, stored as 1), Bundle ID (com.apple.MobileSMS), Intent Class (INSendMessageIntent) and Chat ID each held one value; Message Time fell in 2025 on all 4 rows.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
                  },
@@ -462,10 +461,10 @@ __artifacts_v2__ = {
     },
     "macosBiomeDKWifi": {
         "name": 'Biome Wi-Fi Connection Events',
-        "description": 'Records from the _DKEvent.Wifi.Connection Biome stream: record time, the event time, the event, and the device and GUID as stored.',
+        "description": 'Records from the _DKEvent.Wifi.Connection Biome stream: record time, the event time, the time zone offset, the event, and the device and GUID as stored.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-25",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -474,7 +473,7 @@ __artifacts_v2__ = {
                  " under remote the record came from. Sync Origin does not separate two files of "
                  "one folder, and every file in a folder is read, so Source File names the file "
                  "each row came from and the file its Record Offset counts from."
-                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Event Time (UTC) is field 2, eight bytes read as a little-endian double of seconds since 1 January 2001 UTC (the same reference DLEAPP reports the record time in); Event (as stored) is field 1's field 1, Device (as stored) is field 4's field 3, and GUID (as stored) is field 5, as iLEAPP's biomeWifi module reads them (Reference: iLEAPP, scripts/artifacts/biomeWifi.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeWifi.py#L116-L124). This is a DuetKnowledge event stream, separate from the Device.Wireless.WiFi stream the Biome Wi-Fi Connections artifact reads. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 37 rows from one user's local folder, so User and Sync Origin each held one value there; Event (as stored) held /wifi/connection on the rows checked and Event Time fell in 2025.",
+                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Event Time (UTC) is field 2, eight bytes read as a little-endian double of seconds since 1 January 2001 UTC (the same reference DLEAPP reports the record time in); Event (as stored) is field 1's field 1, Device (as stored) is field 4's field 3, and GUID (as stored) is field 5, as iLEAPP's biomeWifi module reads them (Reference: iLEAPP, scripts/artifacts/biomeWifi.py, https://github.com/abrignoni/iLEAPP/blob/8d6a44d946a2c79cecf196c2599e21e2d42ba2e2/scripts/artifacts/biomeWifi.py#L116-L124). Time Zone Offset (seconds) is field 10, read as a signed integer. The _DKPREvent class of CoreDuet.framework on macOS 27.2.1 (26B131), a newer macOS than the tested image (macOS 15.4), names it timeZone and reads it as seconds from GMT: a stored 3600 is shown as GMT+0100. It was not reported before. It held one value on the 37 rows of the tested image. This is a DuetKnowledge event stream, separate from the Device.Wireless.WiFi stream the Biome Wi-Fi Connections artifact reads. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 37 rows from one user's local folder, so User and Sync Origin each held one value there; Event (as stored) held /wifi/connection on the rows checked and Event Time fell in 2025.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
                  },
@@ -531,7 +530,7 @@ __artifacts_v2__ = {
         "description": 'Records from the App.Intent Biome stream: record time, the interaction start time, the app bundle ID, the intent class and action as stored, direction, handling status, and the group and interaction identifiers as stored.',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-26",
-        "last_update_date": "2026-09-26",
+        "last_update_date": "2026-11-20",
         "requirements": "none",
         "category": "Biome (macOS)",
         "platforms": ("macOS",),
@@ -540,7 +539,7 @@ __artifacts_v2__ = {
                  " under remote the record came from. Sync Origin does not separate two files of "
                  "one folder, and every file in a folder is read, so Source File names the file "
                  "each row came from and the file its Record Offset counts from."
-                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Bundle ID is field 2, Intent Class (as stored) is field 4 and Action (as stored) is field 5, and field 8 is read as an NSKeyedArchiver plist, as iLEAPP's biomeIntents module reads them (Reference: iLEAPP, scripts/artifacts/biomeIntents.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeIntents.py#L94-L127). On every record of the tested extraction the root object of that plist is an INInteraction, and the remaining columns are INInteraction properties that Apple's Intents framework declares in INInteraction.h (read from the macOS 27.0 SDK, where both enumerations below are marked available from macOS 11): Interval Start (UTC) is the start date of dateInterval, Direction is direction, Handling Status is intentHandlingStatus, Group ID (as stored) is groupIdentifier and Interaction ID (as stored) is identifier. Direction and Handling Status show the name INInteraction.h gives the stored number (INInteractionDirection: 0 Unspecified, 1 Outgoing, 2 Incoming; INIntentHandlingStatus: 0 Unspecified, 1 Ready, 2 In Progress, 3 Success, 4 Failure, 5 Deferred To Application, 6 User Confirmation Required) with the number beside it, and a number outside those lists is shown alone. When field 8 is absent or does not read as a keyed archive, those columns are blank and the run log counts the record. The intent's own payload (its backing store bytes) and the intent response are not reported: their content is written by each app, and iLEAPP's notes for the same stream say the fields inside it are not documented. Intent Class (as stored) is not always the class of the archived intent object: on 129 of the 135 records of the tested extraction the archived object is INIntent while field 4 names TodayIntent or TagIntent, and on the other 6 the two are equal. The end date of dateInterval equalled its start on all 135 records of the tested extraction and its duration was 0, so only the start is reported. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 135 rows from one user's local folder, so User and Sync Origin each held one value there. Bundle ID was com.apple.news on 129 rows, com.apple.MobileSMS on 4 and com.apple.parsecd on 2, and Action (as stored) was filled on 6 rows. On the 4 com.apple.MobileSMS rows Direction was Incoming (2), Handling Status was Success (3), Group ID (as stored) was filled, and Record Time was later than Interval Start by up to 2,345,339 seconds (about 27 days); on the other 131 rows Direction and Handling Status were Unspecified (0), Group ID (as stored) was blank and Record Time was within one second of Interval Start. Both times fell in 2025 on every row.",
+                 " Record Offset is where the record begins in its file: in a version 2 file that is the record's 8-byte header, which starts with its stored CRC, and the record's data begins 8 bytes later. When a logical extraction holds the stream under Users/ and under System/Volumes/Data/Users/, a record with the same offset, time and bytes in both is reported once, and the run log counts the repeats. On dleapp_macos_bigsur no Biome stream folder exists. Bundle ID is field 2, Intent Class (as stored) is field 4 and Action (as stored) is field 5, and field 8 is read as an NSKeyedArchiver plist, as iLEAPP's biomeIntents module reads them (Reference: iLEAPP, scripts/artifacts/biomeIntents.py, https://github.com/abrignoni/iLEAPP/blob/ea591113284c3e2e48bff4bee934fe45827a5c22/scripts/artifacts/biomeIntents.py#L94-L127). On every record of the tested extraction the root object of that plist is an INInteraction, and the remaining columns are INInteraction properties that Apple's Intents framework declares in INInteraction.h (read from the macOS 27.0 SDK, where both enumerations below are marked available from macOS 11): Interval Start (UTC) is the start date of dateInterval, Direction is direction, Handling Status is intentHandlingStatus, Group ID (as stored) is groupIdentifier and Interaction ID (as stored) is identifier. Direction and Handling Status show the name INInteraction.h gives the stored number (INInteractionDirection: 0 Unspecified, 1 Outgoing, 2 Incoming; INIntentHandlingStatus: 0 Unspecified, 1 Ready, 2 In Progress, 3 Success, 4 Failure, 5 Deferred To Application, 6 User Confirmation Required) with the number beside it, and a number outside those lists is shown alone. When field 8 is absent or does not read as a keyed archive, those columns are blank and the run log counts the record. The intent's own payload (its backing store bytes) and the intent response are not reported: their content is written by each app, and iLEAPP's notes for the same stream say the fields inside it are not documented. Intent Class (as stored) is not always the class of the archived intent object: on 129 of the 135 records of the tested extraction the archived object is INIntent while field 4 names TodayIntent or TagIntent, and on the other 6 the two are equal. The end date of dateInterval equalled its start on all 135 records of the tested extraction and its duration was 0, so only the start is reported. Field 10, which the BMAppIntent class of BiomeLibrary.framework on macOS 27.2.1 (26B131) names donatedBySiri, held 0 on the 135 records and is not reported. On the public MacBook Pro logical extraction (macOS 15.4, corpus key mvs2026_macbookpro_macos15) the stream gives 135 rows from one user's local folder, so User and Sync Origin each held one value there. Bundle ID was com.apple.news on 129 rows, com.apple.MobileSMS on 4 and com.apple.parsecd on 2, and Action (as stored) was filled on 6 rows. On the 4 com.apple.MobileSMS rows Direction was Incoming (2), Handling Status was Success (3), Group ID (as stored) was filled, and Record Time was later than Interval Start by up to 2,345,339 seconds (about 27 days); on the other 131 rows Direction and Handling Status were Unspecified (0), Group ID (as stored) was blank and Record Time was within one second of Interval Start. Both times fell in 2025 on every row.",
         "sample_data": {
                      "dleapp_macos_bigsur": "macOS Big Sur (Josh Hickman public test image, thisisdfir) | 0 rows (no member matches the declared paths)",
                  },
@@ -831,9 +830,27 @@ _USAGE_STATES = {0: 'Unknown', 1: 'NotInUse', 2: 'InUse', 3: 'InFocus'}
 _PLAYBACK_STATES = {0: 'Unknown', 1: 'Playing', 2: 'Paused', 3: 'Stopped', 4: 'Interrupted', 5: 'Seeking'}
 # signal names, read from BiomeLibrary.framework BMSafariAutoPlay on macOS 27.2.1 (26B131).
 _AUTOPLAY_SIGNALS = {0: 'Unknown', 1: 'DidNotWant', 2: 'MayNotWant', 3: 'MayWant'}
+# usageType names, read from BiomeLibrary.framework BMNotificationUsage on macOS 27.2.1 (26B131).
+_NOTIFICATION_USAGE_TYPES = {
+    0: 'Unknown', 1: 'Receive', 2: 'DefaultAction', 3: 'SuppAction', 4: 'Clear', 5: 'ClearAll',
+    6: 'IndirectClear', 7: 'Hidden', 8: 'Orb', 9: 'Dismiss', 10: 'AppLaunch', 11: 'Expired',
+    12: 'TapCoalesce', 13: 'Deduped', 14: 'DevActivated', 15: 'DevUnlocked', 16: 'Pulldown',
+    17: 'ReceivedAndDeliveredActively', 18: 'ReceivedAndDeliveredPassively', 19: 'Modified',
+    20: 'TapExpand', 21: 'ShortLookDefaultAction', 22: 'ShortLookDismiss', 23: 'ShortLookClear',
+    24: 'LongLookDefaultAction', 25: 'LongLookCustomAction', 26: 'LongLookDismiss', 27: 'LongLookRepark'}
+# status names, read from BiomeLibrary.framework BMSiriRemembersInteraction on macOS 27.2.1 (26B131).
+_SIRI_STATUSES = {0: 'Unknown', 1: 'Unspecified', 2: 'Ready', 3: 'InProgress', 4: 'Success', 5: 'Failure',
+                  6: 'DeferredToApplication', 7: 'UserConfirmationRequired'}
 # direction names, read from BiomeLibrary.framework BMSiriRemembersInteraction on macOS 27.2.1 (26B131).
 # This numbering differs from INInteraction.h's (_DIRECTIONS below), where 1 is Outgoing.
 _SIRI_DIRECTIONS = {0: 'Unknown', 1: 'Incoming', 2: 'Outgoing', 3: 'Bidirectional'}
+
+
+def _signed64(value):
+    """A varint read as unsigned, returned as the signed 64-bit integer it encodes."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        return None
+    return value - (1 << 64) if value >= (1 << 63) else value
 
 
 def _read(context, label, row_for):
@@ -888,9 +905,12 @@ def macosBiomeSafariNavigations(context):
 
 @artifact_processor
 def macosBiomeNotificationUsage(context):
-    data_headers = (('Record Time (UTC)', 'datetime'), 'Bundle ID', 'UUID (as stored)', 'User', 'Sync Origin', 'Source File', 'Record Offset')
+    data_headers = (('Record Time (UTC)', 'datetime'), ('Absolute Timestamp (UTC)', 'datetime'),
+                    'Bundle ID', 'Usage Type', 'Usage Type (raw)', 'UUID (as stored)', 'User', 'Sync Origin',
+                    'Source File', 'Record Offset')
     rows, source = _read(context, 'Biome Notification Usage', lambda f: (
-        text(first(f, 4)), text(first(f, 5))))
+        _notification_time(first(f, 2)), text(first(f, 4)),
+        _enum_name(first(f, 3), _NOTIFICATION_USAGE_TYPES), _as_stored(first(f, 3)), text(first(f, 5))))
     return data_headers, rows, source
 
 
@@ -958,6 +978,18 @@ def _mac2001_double(value):
         return ''
 
 
+# NSDate.distantPast and distantFuture as Cocoa seconds, the values iLEAPP's conversion blanks.
+_COCOA_DISTANT = (-63114076800, 63113904000)
+
+
+def _notification_time(value):
+    """Field 2 as a UTC datetime; '' for an absent value, a stored 0 or an NSDate sentinel."""
+    seconds = double(value)
+    if not seconds or seconds in _COCOA_DISTANT:
+        return ''
+    return _mac2001_double(value)
+
+
 def _participants(found):
     """Join each top-level field 2 item as 'key: identifiers' from its field 1 and every field 2 entity."""
     parts = []
@@ -989,14 +1021,15 @@ def macosBiomeSiriInteractionHistory(context):
 @artifact_processor
 def macosBiomeSiriMessageHistory(context):
     data_headers = (('Record Time (UTC)', 'datetime'), ('Message Time (UTC)', 'datetime'),
-                    'Direction', 'Direction (raw)', 'Bundle ID', 'Intent Class (as stored)',
-                    'Chat ID (as stored)', 'Message GUID (as stored)', 'Entities',
+                    'Direction', 'Direction (raw)', 'Status', 'Status (raw)', 'Bundle ID',
+                    'Intent Class (as stored)', 'Chat ID (as stored)', 'Message GUID (as stored)', 'Entities',
                     'User', 'Sync Origin', 'Source File', 'Record Offset')
 
     def row_for(f):
         meta = _submessage(first(f, 1))
         return (_unix_double(first(meta, 8)), _enum_name(first(meta, 6), _SIRI_DIRECTIONS),
-                _as_stored(first(meta, 6)), text(first(meta, 4)),
+                _as_stored(first(meta, 6)), _enum_name(first(meta, 5), _SIRI_STATUSES),
+                _as_stored(first(meta, 5)), text(first(meta, 4)),
                 text(first(meta, 2)), text(first(meta, 12)), text(first(meta, 13)),
                 _participants(f))
     rows, source = _read(context, 'Biome Siri Message History', row_for)
@@ -1006,11 +1039,12 @@ def macosBiomeSiriMessageHistory(context):
 @artifact_processor
 def macosBiomeDKWifi(context):
     data_headers = (('Record Time (UTC)', 'datetime'), ('Event Time (UTC)', 'datetime'),
-                    'Event (as stored)', 'Device (as stored)', 'GUID (as stored)', 'User',
+                    'Time Zone Offset (seconds)', 'Event (as stored)', 'Device (as stored)', 'GUID (as stored)', 'User',
                     'Sync Origin', 'Source File', 'Record Offset')
 
     def row_for(f):
-        return (_mac2001_double(first(f, 2)), text(first(_submessage(first(f, 1)), 1)),
+        return (_mac2001_double(first(f, 2)), _as_stored(_signed64(first(f, 10))),
+                text(first(_submessage(first(f, 1)), 1)),
                 text(first(_submessage(first(f, 4)), 3)), text(first(f, 5)))
     rows, source = _read(context, 'Biome Wi-Fi Connection Events', row_for)
     return data_headers, rows, source

@@ -124,6 +124,37 @@ class BiomeStreamMappingTest(unittest.TestCase):
         self.assertEqual(row['Device (as stored)'], 'router-mac')
         self.assertEqual(row['GUID (as stored)'], 'wifi-guid')
 
+    def test_notification_time_reads_cocoa_and_blanks_empty_values(self):
+        cocoa = (UNIX_2025 - datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc)).total_seconds()
+        header = 'Absolute Timestamp (UTC)'
+        self.assertEqual(_run(macosBiome.macosBiomeNotificationUsage, _f64(2, cocoa))[header], UNIX_2025)
+        for stored in (0.0, -63114076800.0, 63113904000.0):
+            with self.subTest(stored=stored):
+                row = _run(macosBiome.macosBiomeNotificationUsage, _f64(2, stored) + _ld(4, b'com.example.app'))
+                self.assertEqual(row[header], '')
+                self.assertEqual(row['Bundle ID'], 'com.example.app')
+        self.assertEqual(_run(macosBiome.macosBiomeNotificationUsage, _ld(4, b'com.example.app'))[header], '')
+
+    def test_dk_wifi_time_zone_is_signed(self):
+        west = _run(macosBiome.macosBiomeDKWifi, _vi(10, (1 << 64) - 3600))
+        east = _run(macosBiome.macosBiomeDKWifi, _vi(10, 3600))
+        absent = _run(macosBiome.macosBiomeDKWifi, _ld(5, b'guid'))
+        self.assertEqual(west['Time Zone Offset (seconds)'], '-3600')
+        self.assertEqual(east['Time Zone Offset (seconds)'], '3600')
+        self.assertEqual(absent['Time Zone Offset (seconds)'], '')
+
+    def test_notification_usage_type_name_and_raw(self):
+        row = _run(macosBiome.macosBiomeNotificationUsage, _vi(3, 4))
+        self.assertEqual((row['Usage Type'], row['Usage Type (raw)']), ('Clear', '4'))
+        row = _run(macosBiome.macosBiomeNotificationUsage, _vi(3, 99))
+        self.assertEqual((row['Usage Type'], row['Usage Type (raw)']), ('', '99'))
+
+    def test_message_history_status_name_and_raw(self):
+        row = _run(macosBiome.macosBiomeSiriMessageHistory, _ld(1, _vi(5, 4)))
+        self.assertEqual((row['Status'], row['Status (raw)']), ('Success', '4'))
+        row = _run(macosBiome.macosBiomeSiriMessageHistory, _ld(1, _vi(5, 42)))
+        self.assertEqual((row['Status'], row['Status (raw)']), ('', '42'))
+
     def test_screentime_app_usage_fields(self):
         """ScreenTime.AppUsage: Bundle ID is field 3, Event is field 1."""
         data = _vi(1, 1) + _ld(3, b'com.google.Chrome')
