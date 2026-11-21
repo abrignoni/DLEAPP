@@ -60,12 +60,12 @@ class SpotlightShortcutsTest(unittest.TestCase):
                 mock.patch.object(macos_plists, 'logfunc', self.logs.append):
             return macosSpotlightShortcuts.macosSpotlightShortcuts.__wrapped__(FakeContext(self.root, files))
 
-    def test_entries_are_rows_in_file_order(self):
+    def test_entries_are_rows_newest_first(self):
         path = self._plist(V3, {
-            'term': entry('Terminal', '/System/Applications/Utilities/Terminal.app',
-                          datetime.datetime(2025, 12, 12, 20, 45, 7)),
             'chro': entry('Google Chrome', '/Applications/Google Chrome.app',
                           datetime.datetime(2025, 12, 9, 21, 39, 54)),
+            'term': entry('Terminal', '/System/Applications/Utilities/Terminal.app',
+                          datetime.datetime(2025, 12, 12, 20, 45, 7)),
         })
         headers, rows, source = self._run([path])
         self.assertEqual(headers[0], ('Last Used (UTC)', 'datetime'))
@@ -85,10 +85,10 @@ class SpotlightShortcutsTest(unittest.TestCase):
             'bare': {'LAST_USED': datetime.datetime(2021, 5, 6, 7, 8, 9)},
         }, fmt=plistlib.PlistFormat.FMT_BINARY)
         _headers, rows, _source = self._run([path])
-        self.assertEqual(rows, [('', '', 'Settings', 'x-apple.systempreferences:',
+        self.assertEqual(rows, [(datetime.datetime(2021, 5, 6, 7, 8, 9, tzinfo=UTC), 'bare', '', '', '', 'bob', OLD),
+                                ('', '', 'Settings', 'x-apple.systempreferences:',
                                  'IDENTIFIER: com.example\nEXTRA: 0102\nWHEN: 2020-01-02T03:04:05+00:00',
-                                 'bob', OLD),
-                                (datetime.datetime(2021, 5, 6, 7, 8, 9, tzinfo=UTC), 'bare', '', '', '', 'bob', OLD)])
+                                 'bob', OLD)])
 
     def test_values_that_are_not_entries_and_files_that_are_not_plists_are_counted(self):
         good = self._plist(V3, {'a': entry('A', '/A.app', datetime.datetime(2024, 1, 1)), 'note': 'not an entry'})
@@ -117,7 +117,7 @@ class SpotlightShortcutsTest(unittest.TestCase):
         second = self._plist('System/Volumes/Data/' + V3,
                              {'a': shared, 'b': entry('B', '/B.app', datetime.datetime(2024, 2, 2))})
         _headers, rows, source = self._run([first, second])
-        self.assertEqual([(row[1], row[6]) for row in rows], [('a', V3), ('b', 'System/Volumes/Data/' + V3)])
+        self.assertEqual([(row[1], row[6]) for row in rows], [('b', 'System/Volumes/Data/' + V3), ('a', V3)])
         self.assertEqual(source.split('\n'), [first, second])
         self.assertIn('Spotlight Shortcuts: 1 entries the other capture of the same file also holds, '
                       'not reported again', self.logs)
