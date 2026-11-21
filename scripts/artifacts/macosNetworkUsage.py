@@ -6,23 +6,28 @@ __artifacts_v2__ = {
                        "name and Wifi, Mobile/WWAN and Wired bytes in and out.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-14",
-        "last_update_date": "2026-09-14",
+        "last_update_date": "2026-11-21",
         "requirements": "none",
         "category": "Network Usage (macOS)",
         "platforms": ("macOS",),
-        "notes": "macOS keeps netusage.sqlite at /private/var/networkd/db/. "
-                 "Every netusage.sqlite found is parsed, tagged by Source File. "
-                 "The timestamps are Mac Absolute Time (Core Data), seconds "
-                 "since 2001-01-01 UTC. ZKIND is reported as stored; its values "
-                 "are not documented. The Wifi, Mobile/WWAN and Wired byte "
-                 "columns hold whatever the interface recorded, so a column is "
-                 "zero when no traffic was attributed to that interface: "
-                 "Wifi In (Bytes) and Wifi Out (Bytes) are zero on a Mac whose "
-                 "traffic is attributed to the wired or WWAN interface. Live "
-                 "Usage Timestamp and Process First Usage Timestamp coincide "
-                 "when a process has a single live-usage row. The netusage.sqlite "
-                 "forensic value is documented by Sarah Edwards, 'Network and "
-                 "Application Usage', https://www.mac4n6.com/blog/2019/1/6/network-and-application-usage-using-netusagesqlite-amp-datausagesqlite-ios-databases",
+        "notes": "The field meanings and joins below were derived independently from the store's Core "
+                 "Data model, measured data and Apple's code. On dleapp_macos_bigsur (macOS 11.2.1) "
+                 "the store is at /private/var/networkd/db/. Only the first netusage.sqlite that holds"
+                 " both tables is read. Rows join ZLIVEUSAGE to ZPROCESS through the hasProcess "
+                 "relationship in the store's cached model. On dleapp_macos_bigsur all 103 rows are in"
+                 " the write-ahead log. The timestamps are seconds from 2001-01-01 UTC. On iOS 18.7 "
+                 "the writer sets Live Usage Timestamp when it creates the row, and a row is a running"
+                 " total. No end time is stored for it on the measured images (ZBILLCYCLEEND is "
+                 "empty), so it is not the time of a transfer. The writer was not read for macOS 11, "
+                 "so this is not established for the tested image. What Process First Timestamp and "
+                 "Process Timestamp mark on macOS is not established. ZKIND is reported as stored and "
+                 "its meaning is not established. On iOS 18.7 the writer fills Process Name and Bundle"
+                 " Name from the entity the traffic was attributed to, which need not be the program "
+                 "that opened the connection. The macOS writer was not read. Byte column names follow "
+                 "the stored columns (ZWIFIIN, ZWWANIN, ZWIREDIN and their OUT columns). What the "
+                 "Wired and Mobile/WWAN columns hold on macOS is not established. On "
+                 "dleapp_macos_bigsur the Wired columns are non-zero on 102 of 103 rows, Wifi In "
+                 "(Bytes) and Wifi Out (Bytes) on none, and the Mobile/WWAN columns on 1.",
         "paths": ('*/netusage.sqlite*',),
         "output_types": ["standard"],
         "artifact_icon": "activity",
@@ -54,7 +59,7 @@ def _find_netusage_db(context, required_tables):
 @artifact_processor
 def netusageAppData(context):
     data_headers = (
-        ('Live Usage Timestamp', 'datetime'), ('Process First Usage Timestamp', 'datetime'),
+        ('Live Usage Timestamp', 'datetime'), ('Process First Timestamp', 'datetime'),
         ('Process Timestamp', 'datetime'), 'Bundle Name', 'Process Name', 'ZKIND (as stored)',
         'Wifi In (Bytes)', 'Wifi Out (Bytes)', 'Mobile/WWAN In (Bytes)', 'Mobile/WWAN Out (Bytes)',
         'Wired In (Bytes)', 'Wired Out (Bytes)')
