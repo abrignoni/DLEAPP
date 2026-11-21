@@ -14,6 +14,7 @@ little-endian Windows FILETIMEs.
 """
 
 import binascii
+import os
 import re
 import struct
 from collections import Counter
@@ -27,7 +28,7 @@ except ImportError:
     impacket_ese = None
     ese_rows = None
 
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc, sanitize_file_path
 
 _CONTAINERS = "Containers"
 _WEBCACHE = "webcachev01.dat"
@@ -310,6 +311,61 @@ __artifacts_v2__ = {
             "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 2 rows",
             "szechuan_dc01_server2012r2": "Windows Server 2012 R2 Standard Evaluation build 9600 | 1 row",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no iedownload container)",
+        },
+    },
+    "legacyEdgeCachedFiles": {
+        "name": "Legacy Edge Cached Files",
+        "description": "Entries in the WebCache Content containers of the Microsoft.MicrosoftEdge_8wekyb3d8bbwe "
+                       "package (legacy Edge), each joined, where found, to the file it names in that package's "
+                       "cache folders, with the URL, times, content type, HTTP status and, for a PNG, JPEG, GIF, "
+                       "BMP or WebP file, the image itself.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-21",
+        "last_update_date": "2026-11-21",
+        "requirements": "none (vendored ESE reader)",
+        "category": "Windows",
+        "platforms": ("Windows",),
+        "notes": "One row per entry in a WebCacheV01.dat Content container whose Directory is the "
+                 "MicrosoftEdge\\Cache folder of the Microsoft.MicrosoftEdge_8wekyb3d8bbwe package. WebCache "
+                 "Content lists the same entries for every application. This artifact adds the file each entry "
+                 "names. The cache folder is found from two recorded values: the entry's SecureDirectory and the "
+                 "container's SecureDirectories, which on the tested images held four folder names of eight "
+                 "characters each. No source was found for how SecureDirectory counts. It is read here as counting"
+                 " from 1 because that reading fits the data: SecureDirectory held 1 to 4 on all 1,741 entries on "
+                 "af_case2_win10 and szechuan_win10 and never 0. Counting from 1, all 1,741 entries found a file "
+                 "of their name in that folder and Recorded Size (bytes) equalled File Size (bytes) on 1,738. "
+                 "Counting from 0 matched 170. Each of the 1,741 files in those cache folders, one of them empty, "
+                 "was joined to one entry. On the other 3 rows, all on szechuan_win10 and all with a video Content"
+                 " Type, the file is larger than recorded by 131,072 or 262,144 bytes, and why is not established."
+                 " File in Extraction is No when the entry's folder cannot be resolved or no file of that name was"
+                 " staged from that folder of the same user profile. It held Yes on all 1,741 tested rows, so the "
+                 "No case is unexercised. Cached Image shows the file when its first bytes are PNG, JPEG, GIF, BMP"
+                 " or WebP, whatever the name or Content Type says. BMP and WebP did not occur on the tested "
+                 "images, and the BMP test is the two-byte signature only. Other files are not decoded and are "
+                 "named in Cached File. Content Type and HTTP Status are read from the entry's stored "
+                 "ResponseHeaders. HTTP Status held 200 on all 1,741 rows. Accessed (UTC), Modified (UTC) and "
+                 "Expires (UTC) are the AccessedTime, ModifiedTime and ExpiryTime columns, little-endian Windows "
+                 "FILETIMEs per libyal esedb-kb, "
+                 "https://github.com/libyal/esedb-kb/blob/f5b15f463086eec63c88e2daf5028fefde9a17da/documentation/MSIE%20web%20cache.asciidoc,"
+                 " and a 0 or out-of-range value is blank. They were not checked against known data. Modified "
+                 "(UTC) was blank on 683 rows and Expires (UTC) on 81. Edge Container is the #! folder named in "
+                 "the container's Directory, lower-cased, and blank when there is none. What each number stands "
+                 "for is not established. User is the profile folder holding the WebCacheV01.dat. A record ESE "
+                 "marks deleted is not read. On af_case2_win10, File in Extraction, Edge Container and User each "
+                 "hold one value on all 48 rows, and Recorded Size (bytes) and File Size (bytes) are identical on "
+                 "all 48 rows. That image has one profile and one Edge container with entries. An entry does not "
+                 "show that a person asked for the resource. A page's images and scripts are cached too.",
+        "paths": ("*/AppData/Local/Microsoft/Windows/WebCache/WebCacheV01.dat",
+                  "*/Microsoft.MicrosoftEdge_8wekyb3d8bbwe/AC/*MicrosoftEdge/Cache/*"),
+        "output_types": ["standard"],
+        "artifact_icon": "image",
+        "sample_data": {
+            "af_case2_win10": "Windows 10 1809 build 17763 | 48 rows",
+            "szechuan_win10": "Windows 10 2004 build 19041 | 1,693 rows",
+            "lonewolf_win10": "Windows 10 Education build 16299 | 0 rows (Edge cache containers hold no entries)",
+            "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no Edge cache container in WebCacheV01.dat)",
+            "hexordia_mvs2025_win11": "Windows 11 24H2 build 26100 | 0 rows (no Edge cache container in WebCacheV01.dat)",
+            "cfreds_leakage_win7": "Windows 7 Ultimate SP1 build 7601 | 0 rows (no Edge cache container in WebCacheV01.dat)",
         },
     },
 }
@@ -632,3 +688,121 @@ def webcacheDownloads(context):
     for problem, count in sorted(problems.items()):
         logfunc(f"WebCache Downloads: {count} {problem}")
     return result
+
+
+_EDGE_DIRECTORY = re.compile(r'microsoft\.microsoftedge_8wekyb3d8bbwe\\ac\\(?:(#![^\\]+)\\)?microsoftedge\\cache\\?$',
+                             re.IGNORECASE)
+_EDGE_FILE = re.compile(r'^(.*?)/appdata/local/packages/microsoft\.microsoftedge_8wekyb3d8bbwe/ac/'
+                        r'(?:(#![^/]+)/)?microsoftedge/cache/([^/]+)/([^/]+)$')
+_WEBCACHE_FOLDER = '/appdata/local/microsoft/windows/webcache/'
+_EDGE_LONG_COLUMNS = frozenset({"Url", "Filename", "ResponseHeaders"})
+_IMAGE_MAGIC = (b'\x89PNG\r\n\x1a\n', b'\xff\xd8\xff', b'GIF87a', b'GIF89a', b'BM')
+_HTTP_STATUS = re.compile(rb'^HTTP/\d(?:\.\d)?\s+(\d{3})')
+_CONTENT_TYPE = re.compile(rb'(?im)^content-type:[ \t]*([^\r\n;]+)')
+
+
+def _edge_cache_files(files):
+    """(profile, AC subfolder, cache folder, file name), lower-cased, to the staged path."""
+    found = {}
+    for path in files:
+        match = _EDGE_FILE.match(path.replace('\\', '/').lower())
+        if match and os.path.isfile(path):
+            found.setdefault((match.group(1), match.group(2) or '', match.group(3), match.group(4)), path)
+    return found
+
+
+def _edge_containers(database, label, relative_source):
+    """[(container id, AC subfolder, cache folder names)] for legacy Edge's Content containers."""
+    walk = ese_rows.TableRows(database, _CONTAINERS, long_value_columns={"Name", "Directory", "SecureDirectories"})
+    rows = [_norm_row(row) for row in walk]
+    if walk.summary():
+        logfunc(f"{label}: {relative_source}, {walk.summary()}")
+    out = []
+    for row in rows:
+        match = _EDGE_DIRECTORY.search(_text(row.get("Directory")))
+        if _text(row.get("Name")) == "Content" and match:
+            out.append((row.get("ContainerId"), (match.group(1) or '').lower(),
+                        re.findall(r'[A-Za-z0-9]{8}', _text(row.get("SecureDirectories")))))
+    return out
+
+
+def _is_image(path):
+    try:
+        with open(path, 'rb') as handle:
+            head = handle.read(12)
+    except OSError:
+        return False
+    return head.startswith(_IMAGE_MAGIC) or (head[:4] == b'RIFF' and head[8:12] == b'WEBP')
+
+
+def _response_fields(headers):
+    """(HTTP status, content type) from an entry's stored response headers."""
+    status = _HTTP_STATUS.match(headers)
+    kind = _CONTENT_TYPE.search(headers)
+    return (int(status.group(1)) if status else '',
+            kind.group(1).decode('latin-1').strip() if kind else '')
+
+
+def _edge_entry_row(context, row, cache, profile, user, subfolder, folders):
+    """One output row for a Content entry of a legacy Edge container."""
+    name = _text(row.get('Filename'))
+    index = row.get('SecureDirectory')
+    # SecureDirectory counts the container's folders from 1.
+    folder = folders[index - 1].lower() if isinstance(index, int) and 1 <= index <= len(folders) else ''
+    # The seeker staged the file under its sanitized name.
+    stored = cache.get((profile, subfolder, folder, sanitize_file_path(name).lower())) if folder and name else None
+    status, kind = _response_fields(_raw(row.get('ResponseHeaders')))
+    media = (check_in_media(stored, name) or '') if stored and _is_image(stored) else ''
+    return (_filetime_datetime(row.get('AccessedTime')), _filetime_datetime(row.get('ModifiedTime')),
+            _filetime_datetime(row.get('ExpiryTime')), _text(row.get('Url')), media, kind, status, name,
+            _cell(row.get('FileSize')), os.path.getsize(stored) if stored else '', 'Yes' if stored else 'No',
+            _cell(row.get('AccessCount')), subfolder, user,
+            context.get_relative_path(stored) if stored else '')
+
+
+def _edge_source_rows(context, source, cache, label):
+    """The rows of one WebCacheV01.dat."""
+    relative_source = context.get_relative_path(source)
+    profile = source.replace('\\', '/').lower().split(_WEBCACHE_FOLDER)[0]
+    user = os.path.basename(relative_source.replace('\\', '/').split('/AppData/')[0])
+    rows = []
+    database = ese_rows.ESEDatabase(source)
+    try:
+        database.mountDB()
+        table_names = _table_names(database)
+        if _CONTAINERS in table_names:
+            for container_id, subfolder, folders in _edge_containers(database, label, relative_source):
+                def build(row, _name, _directory, subfolder=subfolder, folders=folders):
+                    return _edge_entry_row(context, row, cache, profile, user, subfolder, folders)
+                _read_container(database, table_names, container_id, "Content", "", build, rows, label,
+                                relative_source, _EDGE_LONG_COLUMNS)
+    finally:
+        database.close()
+    return rows
+
+
+@artifact_processor
+def legacyEdgeCachedFiles(context):
+    label = "Legacy Edge Cached Files"
+    headers = (('Accessed (UTC)', 'datetime'), ('Modified (UTC)', 'datetime'), ('Expires (UTC)', 'datetime'), 'URL',
+               ('Cached Image', 'media'), 'Content Type', ('HTTP Status', 'number'), 'File Name',
+               ('Recorded Size (bytes)', 'number'), ('File Size (bytes)', 'number'), 'File in Extraction',
+               ('Access Count', 'number'), 'Edge Container', 'User', 'Cached File')
+    data_list, sources = [], []
+    if impacket_ese is None:
+        logfunc(f"{label}: the vendored ESE reader is not available")
+        return headers, data_list, ''
+    files = sorted({str(f) for f in context.get_files_found()})
+    cache = _edge_cache_files(files)
+    for source in (f for f in files if f.lower().endswith(_WEBCACHE) and os.path.isfile(f)):
+        if _WEBCACHE_FOLDER not in source.replace('\\', '/').lower():
+            continue
+        try:
+            rows = _edge_source_rows(context, source, cache, label)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logfunc(f"{label}: could not read {context.get_relative_path(source)}: {exc}")
+            continue
+        if rows:
+            data_list.extend(rows)
+            sources.append(source)
+    return headers, data_list, '\n'.join(sources)
