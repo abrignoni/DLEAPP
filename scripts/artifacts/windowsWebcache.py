@@ -743,6 +743,44 @@ def _response_fields(headers):
             kind.group(1).decode('latin-1').strip() if kind else '')
 
 
+def _edge_entry_row(context, row, cache, profile, user, subfolder, folders):
+    """One output row for a Content entry of a legacy Edge container."""
+    name = _text(row.get('Filename'))
+    index = row.get('SecureDirectory')
+    # SecureDirectory counts the container's folders from 1.
+    folder = folders[index - 1].lower() if isinstance(index, int) and 1 <= index <= len(folders) else ''
+    # The seeker staged the file under its sanitized name.
+    stored = cache.get((profile, subfolder, folder, sanitize_file_path(name).lower())) if folder and name else None
+    status, kind = _response_fields(_raw(row.get('ResponseHeaders')))
+    media = (check_in_media(stored, name) or '') if stored and _is_image(stored) else ''
+    return (_filetime_datetime(row.get('AccessedTime')), _filetime_datetime(row.get('ModifiedTime')),
+            _filetime_datetime(row.get('ExpiryTime')), _text(row.get('Url')), media, kind, status, name,
+            _cell(row.get('FileSize')), os.path.getsize(stored) if stored else '', 'Yes' if stored else 'No',
+            _cell(row.get('AccessCount')), subfolder, user,
+            context.get_relative_path(stored) if stored else '')
+
+
+def _edge_source_rows(context, source, cache, label):
+    """The rows of one WebCacheV01.dat."""
+    relative_source = context.get_relative_path(source)
+    profile = source.replace('\\', '/').lower().split(_WEBCACHE_FOLDER)[0]
+    user = os.path.basename(relative_source.replace('\\', '/').split('/AppData/')[0])
+    rows = []
+    database = ese_rows.ESEDatabase(source)
+    try:
+        database.mountDB()
+        table_names = _table_names(database)
+        if _CONTAINERS in table_names:
+            for container_id, subfolder, folders in _edge_containers(database, label, relative_source):
+                def build(row, _name, _directory, subfolder=subfolder, folders=folders):
+                    return _edge_entry_row(context, row, cache, profile, user, subfolder, folders)
+                _read_container(database, table_names, container_id, "Content", "", build, rows, label,
+                                relative_source, _EDGE_LONG_COLUMNS)
+    finally:
+        database.close()
+    return rows
+
+
 @artifact_processor
 def legacyEdgeCachedFiles(context):
     label = "Legacy Edge Cached Files"
@@ -757,43 +795,12 @@ def legacyEdgeCachedFiles(context):
     files = sorted({str(f) for f in context.get_files_found()})
     cache = _edge_cache_files(files)
     for source in (f for f in files if f.lower().endswith(_WEBCACHE) and os.path.isfile(f)):
-        relative_source = context.get_relative_path(source)
-        normal = source.replace('\\', '/').lower()
-        if _WEBCACHE_FOLDER not in normal:
+        if _WEBCACHE_FOLDER not in source.replace('\\', '/').lower():
             continue
-        profile = normal.split(_WEBCACHE_FOLDER)[0]
-        user = os.path.basename(context.get_relative_path(source).replace('\\', '/').split('/AppData/')[0])
-        rows = []
-
-        def build(row, subfolder, folders):
-            name = _text(row.get('Filename'))
-            index = row.get('SecureDirectory')
-            # SecureDirectory counts the container's folders from 1.
-            folder = folders[index - 1].lower() if isinstance(index, int) and 1 <= index <= len(folders) else ''
-            # The seeker staged the file under its sanitized name.
-            stored = cache.get((profile, subfolder, folder, sanitize_file_path(name).lower())) if folder and name else None
-            status, kind = _response_fields(_raw(row.get('ResponseHeaders')))
-            media = (check_in_media(stored, name) or '') if stored and _is_image(stored) else ''
-            return (_filetime_datetime(row.get('AccessedTime')), _filetime_datetime(row.get('ModifiedTime')),
-                    _filetime_datetime(row.get('ExpiryTime')), _text(row.get('Url')), media, kind, status, name,
-                    _cell(row.get('FileSize')), os.path.getsize(stored) if stored else '', 'Yes' if stored else 'No',
-                    _cell(row.get('AccessCount')), subfolder, user,
-                    context.get_relative_path(stored) if stored else '')
-
         try:
-            database = ese_rows.ESEDatabase(source)
-            try:
-                database.mountDB()
-                table_names = _table_names(database)
-                if _CONTAINERS in table_names:
-                    for container_id, subfolder, folders in _edge_containers(database, label, relative_source):
-                        _read_container(database, table_names, container_id, "Content", "",
-                                        lambda row, _n, _d, s=subfolder, f=folders: build(row, s, f), rows, label,
-                                        relative_source, _EDGE_LONG_COLUMNS)
-            finally:
-                database.close()
+            rows = _edge_source_rows(context, source, cache, label)
         except Exception as exc:  # pylint: disable=broad-exception-caught
-            logfunc(f"{label}: could not read {relative_source}: {exc}")
+            logfunc(f"{label}: could not read {context.get_relative_path(source)}: {exc}")
             continue
         if rows:
             data_list.extend(rows)
