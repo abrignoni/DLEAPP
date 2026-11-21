@@ -36,8 +36,9 @@ the user cache dir is Library/Caches plus the profile's path below Application
 Support, ~/Library/Caches/Google/Chrome/Default for the default profile (the same
 docs/user_data_dir.md, lines 188 to 205,
   https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/docs/user_data_dir.md#L188-L205
-). Those two folders are listed below so that a cache file is placed in its
-browser and profile; no other artifact's paths name a file there.
+). Those two folders, and Library/Caches/com.operasoftware.Opera, where Opera 137 kept
+its default profile's cache on one private system, are listed below so that a cache file
+is placed in its browser and profile; no other artifact's paths name a file there.
 
 Each profile is a folder inside the user data folder (Default, Profile 2, ...).
 When a browser's Local State lists no profile, Brave's importer reads the user
@@ -84,6 +85,7 @@ BROWSER_ROOTS = (
     ('Vivaldi', ('.config', 'vivaldi')),
     ('Opera', ('AppData', 'Roaming', 'Opera Software', 'Opera Stable')),
     ('Opera', ('Library', 'Application Support', 'com.operasoftware.Opera')),
+    ('Opera', ('Library', 'Caches', 'com.operasoftware.Opera')),
     ('Opera', ('.config', 'opera')),
     ('Opera GX', ('AppData', 'Roaming', 'Opera Software', 'Opera GX Stable')),
     ('360 Safe Browser', ('AppData', 'Roaming', '360se6', 'User Data')),

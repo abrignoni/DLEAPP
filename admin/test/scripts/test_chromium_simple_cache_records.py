@@ -126,10 +126,24 @@ class SimpleCacheRecordsTest(unittest.TestCase):
             ('Users/fixture/Library/Caches/Google/Chrome/Default/Cache/Cache_Data', {'index': b'x'})])
         self.assertEqual((rows, sources), ([], []))
 
+    def test_opera_root(self):
+        opera = 'Users/fixture/Library/Caches/com.operasoftware.Opera/Default'
+        _headers, rows, sources, _checked = self._run([
+            (opera + '/Cache/Cache_Data', {'0000000000000002_0': PAGE, 'index': b'x'}),
+            (opera + '/System Cache/Cache_Data', {'0000000000000009_0': OTHER}),
+            ('Users/fixture/Library/Caches/com.operasoftware.OperaDecoy/Default/Cache/Cache_Data',
+             {'0000000000000001_0': PICTURE}),
+        ])
+        self.assertEqual([(row[11], row[12], row[13]) for row in rows], [('Opera', 'Default', 'fixture')])
+        self.assertEqual(sources, [opera + '/Cache/Cache_Data/index'])
+
     def test_cache_roots_are_located(self):
         self.assertEqual(
             browser_profiles.locate('Users/fixture/Library/Caches/Google/Chrome/Default/Cache/Cache_Data/a_0')[:3],
             ('Google Chrome', 'Default', 'fixture'))
+        self.assertEqual(
+            browser_profiles.locate('Users/fixture/Library/Caches/com.operasoftware.Opera/Default/Cache/Cache_Data/a_0')[:3],
+            ('Opera', 'Default', 'fixture'))
         self.assertIsNone(browser_profiles.locate('Users/fixture/Library/Caches/OtherApp/Default/Cache/a_0'))
 
 
