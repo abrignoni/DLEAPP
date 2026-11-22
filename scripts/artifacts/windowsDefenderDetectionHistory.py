@@ -162,7 +162,7 @@ __artifacts_v2__ = {
                  "the file size and the first section begins with the GUID of the file name. No layout "
                  "for the second section is given in the sources cited here, and this module does not "
                  "decode it. Also not read: "
-                 "Scans/History Store, RemCheck, CacheManager and the Service .Log files, and the "
+                 "Scans/History RemCheck, CacheManager and the Service .Log files (the Store folder is read by Microsoft Defender History Store), and the "
                  "Quarantine folder. On the ten registered Windows disk images in sample_data no file "
                  "matched the declared path. No value read from the public files names the Windows or "
                  "Defender version that wrote them. A row records what Defender stored about a "
