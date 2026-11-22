@@ -5,7 +5,6 @@ https://github.com/irwir/eMule). Readers take bytes and raise EmuleFormatError w
 the layout, so a caller decides what to log.
 """
 
-from collections import Counter
 import struct
 
 SOURCE = 'https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/'
@@ -129,7 +128,7 @@ def read_tag(reader):
     elif tag_type == TAGTYPE_BLOB:
         value = reader.take(reader.u32())
     else:
-        # eMule reads nothing for an unknown type, so its position, and ours, is lost from here.
+        # eMule reads no value for an unknown type and carries on. This reader stops here and keeps what it read.
         raise EmuleFormatError(f'unknown tag type 0x{tag_type:02x} at offset {reader.pos}')
     return name, value
 
@@ -237,52 +236,82 @@ def _text(value):
 
 
 def _tag_label(name):
+    """The display name of a tag with its stored identifier, so a numbered and a named tag cannot read alike."""
     if isinstance(name, bytes):
-        return name.decode('utf-8', 'backslashreplace')
-    return _RESULT_TAG_NAMES.get(name, f'tag_0x{name:02X}')
+        return f"{name.decode('utf-8', 'backslashreplace')} [name {name.hex()}]"
+    known = _RESULT_TAG_NAMES.get(name)
+    return f'{known} [tag 0x{name:02X}]' if known else f'[tag 0x{name:02X}]'
 
 
-def _other_values(tags):
-    """[(display name, value)], one per stored tag. Tags that would show one name each carry their identifier."""
-    labels = Counter(_tag_label(name) for name in tags)
-    other = []
-    for name, value in tags.items():
-        label = _tag_label(name)
-        if labels[label] > 1:
-            identifier = f'name {name.hex()}' if isinstance(name, bytes) else f'tag 0x{name:02X}'
-            label = f'{label} [{identifier}]'
-        other.append((label, value.hex() if isinstance(value, (bytes, bytearray)) else value))
-    return other
+def _is_int32(entry):
+    """CTag::IsInt: a uint32, which is also what eMule makes of a stored uint8 or uint16 (Packets.cpp, Packets.h)."""
+    return entry[2] in (TAGTYPE_UINT8, TAGTYPE_UINT16, TAGTYPE_UINT32) and isinstance(entry[1], int)
+
+
+def _is_aich(entry):
+    """A string eMule's constructor keeps as an AICH hash: base32 of 20 bytes (SearchFile.cpp)."""
+    value = entry[1]
+    return (isinstance(value, str) and value.isascii() and len(value) == 32
+            and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567' for c in value.upper()))
+
+
+def _last(entries, name, accept):
+    for index in range(len(entries) - 1, -1, -1):
+        if entries[index][0] == name and accept(entries[index]):
+            return index
+    return None
+
+
+def _stored_size(entries, used):
+    """Size as eMule's constructor reads it (SearchFile.cpp): the last size tag of any type, widened by the last high
+    tag only when the size is a uint32. A size tag that is not a number gives no size."""
+    index = _last(entries, FT_FILESIZE, lambda _entry: True)
+    if index is None:
+        return None
+    if _is_int32(entries[index]):
+        used.add(index)
+        size = entries[index][1]
+        high = _last(entries, FT_FILESIZE_HI, lambda _entry: True)
+        if high is not None and _is_int32(entries[high]):
+            used.add(high)
+            size |= entries[high][1] << 32
+        return size
+    if entries[index][2] == TAGTYPE_UINT64:
+        used.add(index)
+        return entries[index][1]
+    return None
 
 
 def _stored_result(reader):
     """CSearchFile::CSearchFile(CFileDataIO&, ...) in SearchFile.cpp, with tags as CTag reads them."""
     record = {'hash': reader.take(16), 'client_id': reader.u32(), 'client_port': reader.u16()}
-    tags, folder = {}, None
+    entries = []
     for _ in range(reader.u32()):
+        kind = reader.data[reader.pos] & 0x7F if reader.pos < len(reader.data) else None
         name, value = read_tag(reader)
-        tags[name] = value                  # eMule's GetTag finds the last tag of a name
-        if name == FT_FOLDERNAME and folder is None and isinstance(value, str) and value:
-            folder = value                  # its constructor keeps the first non-empty folder
-    size = tags.get(FT_FILESIZE)
-    high = tags.get(FT_FILESIZE_HI)
-    combined = isinstance(size, int) and isinstance(high, int) and size <= 0xFFFFFFFF
-    if combined:
-        size |= high << 32
-    aich = tags.get(FT_AICH_HASH)
-    # A tag leaves Other Values only when a dedicated field really holds its value.
-    in_field = {FT_FILENAME: isinstance(tags.get(FT_FILENAME), str), FT_FILESIZE: isinstance(tags.get(FT_FILESIZE), int),
-                FT_FILESIZE_HI: combined, FT_FILETYPE: isinstance(tags.get(FT_FILETYPE), str),
-                FT_SOURCES: _int(tags.get(FT_SOURCES)) is not None,
-                FT_COMPLETE_SOURCES: _int(tags.get(FT_COMPLETE_SOURCES)) is not None,
-                FT_FOLDERNAME: tags.get(FT_FOLDERNAME) == folder and folder is not None,
-                FT_AICH_HASH: aich not in (None, ''), FT_FILERATING: _int(tags.get(FT_FILERATING)) is not None}
-    other = _other_values({name: value for name, value in tags.items() if not in_field.get(name)})
-    record.update(name=_text(tags.get(FT_FILENAME)), size=size if isinstance(size, int) else None,
-                  file_type=_text(tags.get(FT_FILETYPE)), sources=_int(tags.get(FT_SOURCES)),
-                  complete_sources=_int(tags.get(FT_COMPLETE_SOURCES)), folder=folder,
-                  aich=aich.hex() if isinstance(aich, (bytes, bytearray)) else aich,
-                  rating=_int(tags.get(FT_FILERATING)), other=other)
+        entries.append((name, value, kind))
+    used = set()
+
+    def pick(name, accept):
+        index = _last(entries, name, accept)
+        if index is None or entries[index][1] == '':
+            return None                     # an empty text value holds nothing, so the tag stays in Other Values
+        used.add(index)
+        return entries[index][1]
+
+    is_text = lambda entry: isinstance(entry[1], str)
+    file_name, file_type, aich = pick(FT_FILENAME, is_text), pick(FT_FILETYPE, is_text), pick(FT_AICH_HASH, _is_aich)
+    sources, complete = pick(FT_SOURCES, _is_int32), pick(FT_COMPLETE_SOURCES, _is_int32)
+    rating = pick(FT_FILERATING, _is_int32)
+    size = _stored_size(entries, used)
+    folder = next((value for name, value, _kind in entries if name == FT_FOLDERNAME and isinstance(value, str) and value),
+                  None)
+    used.update(index for index, (name, value, _kind) in enumerate(entries)
+                if folder is not None and name == FT_FOLDERNAME and value == folder)
+    other = [(_tag_label(name), value.hex() if isinstance(value, (bytes, bytearray)) else value)
+             for index, (name, value, _kind) in enumerate(entries) if index not in used]
+    record.update(name=file_name, size=size, file_type=file_type, sources=sources, complete_sources=complete,
+                  folder=folder, aich=aich, rating=rating, other=other)
     return record
 
 

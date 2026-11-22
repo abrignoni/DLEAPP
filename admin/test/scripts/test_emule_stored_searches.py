@@ -113,23 +113,84 @@ class StoredSearches(unittest.TestCase):
         self.add('one', store(search('text', [result('a.bin', (numeric,))])))
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
         self.assertEqual(rows[0]['File Type'], '')
-        self.assertEqual(rows[0]['Other Values'], 'tag_0x03=77')
+        self.assertEqual(rows[0]['Other Values'], '[tag 0x03]=77')
 
     def test_a_separator_in_a_value_cannot_read_as_a_second_tag(self):
         self.add('one', store(search('text', [result('a.bin', (string_tag(0xF6, 'a; title=b'),))])))
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
-        self.assertEqual(rows[0]['Other Values'], 'comment=a\\; title=b')
+        self.assertEqual(rows[0]['Other Values'], 'comment [tag 0xF6]=a\\; title=b')
 
     def test_a_stored_tag_cannot_stand_in_for_a_derived_value(self):
         self.add('one', store(search('text', [result('a.bin', (string_tag(b'low_id', '123'),))])))
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
         self.assertEqual(rows[0]['Low ID'], '')
-        self.assertEqual(rows[0]['Other Values'], 'low_id=123')
+        self.assertEqual(rows[0]['Other Values'], 'low_id [name 6c6f775f6964]=123')
 
-    def test_an_unshared_tag_name_stays_plain(self):
+    def test_a_lone_numbered_tag_shows_its_identifier(self):
         self.add('one', store(search('text', [result('a.bin', (string_tag(0xD0, 'value'),))])))
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
-        self.assertEqual(rows[0]['Other Values'], 'artist=value')
+        self.assertEqual(rows[0]['Other Values'], 'artist [tag 0xD0]=value')
+
+    def test_a_lone_named_tag_reads_differently_from_a_numbered_one(self):
+        self.add('one', store(search('text', [result('a.bin', (string_tag(b'artist', 'value'),))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['Other Values'], 'artist [name 617274697374]=value')
+
+    def test_a_later_tag_of_another_type_does_not_lose_the_file_name(self):
+        wrong = bytes([emule.TAGTYPE_UINT32 | 0x80, emule.FT_FILENAME]) + struct.pack('<I', 77)
+        self.add('one', store(search('text', [result('kept.bin', (wrong,))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['File Name'], 'kept.bin')
+        self.assertIn('[tag 0x01]=77', rows[0]['Other Values'])
+
+    def test_a_64_bit_size_ignores_a_high_tag(self):
+        size = bytes([emule.TAGTYPE_UINT64 | 0x80, emule.FT_FILESIZE]) + struct.pack('<Q', 100)
+        high = bytes([emule.TAGTYPE_UINT32 | 0x80, emule.FT_FILESIZE_HI]) + struct.pack('<I', 1)
+        self.add('one', store(search('text', [result('a.bin', (size, high))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['Size (bytes)'], 100)
+        self.assertIn('[tag 0x3A]=1', rows[0]['Other Values'])
+
+    def test_an_empty_text_tag_stays_listed(self):
+        self.add('one', store(search('text', [result('a.bin', (string_tag(emule.FT_FILETYPE, ''),))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['File Type'], '')
+        self.assertEqual(rows[0]['Other Values'], '[tag 0x03]=')
+
+    def test_a_64_bit_count_is_not_a_count(self):
+        count = bytes([emule.TAGTYPE_UINT32 | 0x80, emule.FT_SOURCES]) + struct.pack('<I', 7)
+        wide = bytes([emule.TAGTYPE_UINT64 | 0x80, emule.FT_SOURCES]) + struct.pack('<Q', 9)
+        self.add('one', store(search('text', [result('a.bin', (count, wide))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['Sources'], 7)
+        self.assertEqual(rows[0]['Other Values'], '[tag 0x15]=9')
+
+    def test_a_last_size_tag_that_is_not_a_number_gives_no_size(self):
+        size = bytes([emule.TAGTYPE_UINT32 | 0x80, emule.FT_FILESIZE]) + struct.pack('<I', 100)
+        self.add('one', store(search('text', [result('a.bin', (size, string_tag(emule.FT_FILESIZE, 'x')))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['Size (bytes)'], '')
+        self.assertIn('[tag 0x02]=100', rows[0]['Other Values'])
+        self.assertIn('[tag 0x02]=x', rows[0]['Other Values'])
+
+    def test_a_value_that_is_not_an_aich_hash_stays_listed(self):
+        good = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+        extra = (string_tag(emule.FT_AICH_HASH, good), string_tag(emule.FT_AICH_HASH, 'not base32'))
+        self.add('one', store(search('text', [result('a.bin', extra)])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['AICH Hash'], good)
+        self.assertIn('=not base32', rows[0]['Other Values'])
+
+    def test_a_non_ascii_value_cannot_pass_as_an_aich_hash(self):
+        good = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+        for bad in ('\u017f' + good[1:], '\u00df' + good[2:] + 'A'):
+            with self.subTest(bad=bad):
+                self.setUp()
+                extra = (string_tag(emule.FT_AICH_HASH, good), string_tag(emule.FT_AICH_HASH, bad))
+                self.add('one', store(search('text', [result('a.bin', extra)])))
+                rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+                self.assertEqual(rows[0]['AICH Hash'], good)
+                self.assertIn(bad, rows[0]['Other Values'])
 
 
 if __name__ == '__main__':
