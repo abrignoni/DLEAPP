@@ -1,0 +1,251 @@
+"""Pidgin Off-the-Record fingerprints and account keys, for DLEAPP.
+
+Author: @AlexisBrignoni, Claude.
+
+The pidgin-otr plugin writes three files in the .purple folder: otr.fingerprints, otr.private_key and otr.instance_tags.
+It also reads an optional otr.max_message_size, which this module does not parse. Their layouts come from libotr 4.1.1 (src/privkey.c and src/instag.c). Private key values are never reported.
+"""
+
+import hashlib
+import os
+import struct
+
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.windows_registry import user_from_path
+
+
+__artifacts_v2__ = {
+    "pidginOtrFingerprints": {
+        "name": "Pidgin OTR Fingerprints",
+        "description": "Off-the-Record key fingerprints stored for the contacts of a Pidgin account, from "
+                       "otr.fingerprints, with the trust value stored for each.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "none",
+        "category": "Pidgin",
+        "platforms": ("Windows", "macOS", "Linux"),
+        "notes": "One row per line of otr.fingerprints that has at least four tab-separated fields. Shorter lines "
+                 "are skipped and counted in the log. Source citations are to libotr 4.1.1 "
+                 "(https://otr.cypherpunks.ca/libotr-4.1.1.tar.gz) and pidgin-otr 4.0.2. Which libotr build the "
+                 "Windows plugin contains was not established. The line layout (contact, account, protocol, 40 "
+                 "hexadecimal digits, trust, separated by tabs) is what libotr writes in src/privkey.c lines 803 to "
+                 "808. Fingerprint is shown in libotr's groups of eight upper-case digits. Trust (as stored) is the "
+                 "fifth field. libotr treats a fingerprint as trusted when this field is not empty (src/context.c "
+                 "lines 346 to 348). pidgin-otr 4.0.2 writes verified or an empty value when the user sets it by hand "
+                 "(gtk-dialog.c line 1327), and libotr writes smp or an empty value after the Socialist Millionaires' "
+                 "Protocol (src/message.c line 725). On the known data (windows11_arm_pidgin_otr_known_20261122) two Pidgin profiles ran the OTR key "
+                 "exchange over a loopback XMPP server, and each profile's row equals the fingerprint computed from "
+                 "the other profile's key. Trust (as stored) was empty on both rows because neither user verified "
+                 "the other and no SMP ran, so a non-empty value is unexercised. libotr adds a fingerprint when a key "
+                 "exchange with that contact address completes (src/message.c lines 537 to 551). A row shows that "
+                 "this fingerprint is stored for the contact address under the account. It does not show who held "
+                 "the key. The file holds no time, and no message content. User is the folder name after Users in "
+                 "the file's path. It is empty when the path has no Users folder, as on Linux.",
+        "paths": ('*/.purple/otr.fingerprints',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "key",
+        "sample_data": {
+            "windows11_arm_pidgin_otr_known_20261122": "Windows 11 build 26200 (ARM64), Pidgin 2.14.14 and pidgin-otr 4.0.2 | 2 rows",
+        },
+    },
+    "pidginOtrAccounts": {
+        "name": "Pidgin OTR Accounts",
+        "description": "Pidgin accounts listed in otr.private_key or otr.instance_tags: the account, protocol, "
+                       "public key fingerprint and instance tag. Private key values are not reported.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "none",
+        "category": "Pidgin",
+        "platforms": ("Windows", "macOS", "Linux"),
+        "notes": "One row per account in otr.private_key or otr.instance_tags in a .purple folder. Source citations "
+                 "are to libotr 4.1.1 (https://otr.cypherpunks.ca/libotr-4.1.1.tar.gz). Which libotr build the Windows "
+                 "plugin contains was not established. Account and Protocol are the name and protocol tokens libotr "
+                 "reads from each account entry of otr.private_key (src/privkey.c lines 264 to 266). For an account "
+                 "found only in otr.instance_tags they are the first two fields of its line (src/instag.c line 271). "
+                 "Key Fingerprint is computed here the way libotr computes it: SHA-1 over the public values p, q, g "
+                 "and y, each as a 4-byte length and its unsigned bytes (src/privkey.c lines 88 and 165 to 168). The "
+                 "private value x is not read into any column. On the known data (windows11_arm_pidgin_otr_known_20261122) each account's Key Fingerprint "
+                 "equalled the fingerprint the other profile stored for it. Instance Tag is the third field of "
+                 "otr.instance_tags (src/instag.c line 271), as stored. The files hold no time. User is the folder "
+                 "name after Users in the file's path. It is empty when the path has no Users folder, as on Linux.",
+        "paths": ('*/.purple/otr.private_key', '*/.purple/otr.instance_tags'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "key",
+        "sample_data": {
+            "windows11_arm_pidgin_otr_known_20261122": "Windows 11 build 26200 (ARM64), Pidgin 2.14.14 and pidgin-otr 4.0.2 | 2 rows",
+        },
+    },
+}
+
+
+def _human(hex_digits):
+    upper = hex_digits.upper()
+    return ' '.join(upper[i:i + 8] for i in range(0, len(upper), 8))
+
+
+def _read_lines(path):
+    with open(path, 'rb') as handle:
+        return handle.read().decode('utf-8', 'replace').splitlines()
+
+
+def _tokens(text):
+    index, size = 0, len(text)
+    while index < size:
+        char = text[index]
+        if char.isspace():
+            index += 1
+        elif char in '()':
+            yield char
+            index += 1
+        elif char == '"':
+            end = index + 1
+            value = []
+            while end < size and text[end] != '"':
+                if text[end] == '\\' and end + 1 < size:
+                    end += 1
+                value.append(text[end])
+                end += 1
+            if end >= size:
+                raise ValueError('unterminated string')
+            yield ('text', ''.join(value))
+            index = end + 1
+        elif char == '#':
+            end = text.find('#', index + 1)
+            if end < 0:
+                raise ValueError('unterminated hex value')
+            yield ('hex', ''.join(text[index + 1:end].split()))
+            index = end + 1
+        else:
+            end = index
+            while end < size and not text[end].isspace() and text[end] not in '()"#':
+                end += 1
+            yield ('text', text[index:end])
+            index = end
+
+
+def _parse(text):
+    stack, current = [], []
+    for token in _tokens(text):
+        if token == '(':
+            stack.append(current)
+            current = []
+        elif token == ')':
+            if not stack:
+                raise ValueError('unbalanced list')
+            done = current
+            current = stack.pop()
+            current.append(done)
+        else:
+            current.append(token)
+    if stack:
+        raise ValueError('unbalanced list')
+    return current
+
+
+def _head(node):
+    return node[0][1] if isinstance(node, list) and node and isinstance(node[0], tuple) else ''
+
+
+def _child(node, name):
+    for item in node:
+        if isinstance(item, list) and _head(item) == name:
+            return item
+    return None
+
+
+def _value(node):
+    return node[1][1] if node and len(node) > 1 and isinstance(node[1], tuple) else ''
+
+
+def _public_fingerprint(account):
+    """SHA-1 over p, q, g and y as libotr serialises them. The private value x is never touched."""
+    key = _child(account, 'private-key')
+    dsa = _child(key, 'dsa') if key else None
+    if not dsa:
+        return ''
+    blob = b''
+    for name in ('p', 'q', 'g', 'y'):
+        item = _child(dsa, name)
+        if not item or len(item) < 2 or item[1][0] != 'hex':
+            return ''
+        raw = bytes.fromhex(item[1][1]).lstrip(b'\0')
+        blob += struct.pack('>I', len(raw)) + raw
+    return hashlib.sha1(blob).hexdigest()  # nosec B324
+
+
+def _found(context, name):
+    return sorted(str(f) for f in context.get_files_found() if os.path.basename(str(f)) == name and os.path.isfile(str(f)))
+
+
+@artifact_processor
+def pidginOtrFingerprints(context):
+    data_headers = ('Contact', 'Account', 'Protocol', 'Fingerprint', 'Trust (as stored)', 'User')
+    data_list, sources = [], []
+    for path in _found(context, 'otr.fingerprints'):
+        relative = context.get_relative_path(path)
+        try:
+            lines = _read_lines(path)
+        except OSError as exc:
+            logfunc(f'Pidgin OTR Fingerprints: {relative} not read ({type(exc).__name__})')
+            continue
+        before = len(data_list)
+        for line in lines:
+            parts = line.split('\t')
+            if len(parts) < 4:
+                if line.strip():
+                    logfunc(f'Pidgin OTR Fingerprints: skipped a line of {len(parts)} fields in {relative}')
+                continue
+            data_list.append((parts[0], parts[1], parts[2], _human(parts[3]), parts[4] if len(parts) > 4 else '',
+                              user_from_path(context.get_relative_path(path))))
+        if len(data_list) > before:
+            sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def pidginOtrAccounts(context):
+    data_headers = ('Account', 'Protocol', 'Key Fingerprint', 'Instance Tag', 'User')
+    folders = {}
+    for path in _found(context, 'otr.private_key'):
+        relative = context.get_relative_path(path)
+        try:
+            with open(path, 'r', encoding='utf-8', errors='replace') as handle:
+                tree = _parse(handle.read())
+        except (OSError, ValueError, IndexError) as exc:
+            logfunc(f'Pidgin OTR Accounts: {relative} not read ({type(exc).__name__})')
+            continue
+        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': user_from_path(context.get_relative_path(path))})
+        entry['sources'].append(path)
+        root = next((item for item in tree if _head(item) == 'privkeys'), [])
+        for account in root:
+            if _head(account) != 'account':
+                continue
+            try:
+                fingerprint = _public_fingerprint(account)
+            except (ValueError, TypeError, IndexError):
+                fingerprint = ''
+            key = (_value(_child(account, 'name')), _value(_child(account, 'protocol')))
+            entry['rows'].setdefault(key, ['', ''])[0] = _human(fingerprint)
+    for path in _found(context, 'otr.instance_tags'):
+        relative = context.get_relative_path(path)
+        try:
+            lines = _read_lines(path)
+        except OSError as exc:
+            logfunc(f'Pidgin OTR Accounts: {relative} not read ({type(exc).__name__})')
+            continue
+        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': user_from_path(context.get_relative_path(path))})
+        entry['sources'].append(path)
+        for line in lines:
+            parts = line.split('\t')
+            if line.startswith('#') or len(parts) < 3:
+                continue
+            entry['rows'].setdefault((parts[0], parts[1]), ['', ''])[1] = parts[2].strip()
+    data_list, sources = [], []
+    for _folder, entry in sorted(folders.items()):
+        for (account, protocol), (fingerprint, tag) in sorted(entry['rows'].items()):
+            data_list.append((account, protocol, fingerprint, tag, entry['user']))
+        if entry['rows']:
+            sources.extend(entry['sources'])
+    return data_headers, data_list, '\n'.join(sources)
