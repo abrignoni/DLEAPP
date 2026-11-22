@@ -614,7 +614,10 @@ def process(casedata):
                              'Correct or clear it and run again.'),
                     parent=main_window)
                 return
-            exodus_password = exodus_password.rstrip('\r\n')
+            # The reader already turned CRLF into LF, so strip exactly one trailing newline,
+            # keeping a newline that is genuinely part of the password.
+            if exodus_password.endswith('\n'):
+                exodus_password = exodus_password[:-1]
         Context.set_app_secret('exodus_password', exodus_password or None)
         wrap_text = True
         bottom_frame.pack_forget()

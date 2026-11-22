@@ -165,21 +165,44 @@ def _instant(value):
 
 
 def _within_wallet(relative):
-    """The path below the exodus.wallet folder, when it sits directly inside a folder named Exodus."""
+    """The path below the exodus.wallet folder, when it sits directly inside a folder named Exodus.
+
+    The Exodus and exodus.wallet names are matched without regard to case, to agree with a
+    seeker that matches them case-insensitively on a raw NTFS, exFAT, ReFS or FAT volume.
+    """
     parts = relative.replace('\\', '/').split('/')
     for index in range(1, len(parts) - 1):
-        if parts[index] == 'exodus.wallet' and parts[index - 1].lower() == 'exodus':
+        if parts[index].lower() == 'exodus.wallet' and parts[index - 1].lower() == 'exodus':
             return '/'.join(parts[index + 1:])
     return ''
 
 
 def _wallet_folder(relative):
-    """The path of the exodus.wallet folder in a relative path, or '' when it is not one."""
+    """The path of the exodus.wallet folder in a relative path, or '' when it is not one.
+
+    The Exodus and exodus.wallet names are matched without regard to case, to agree with a
+    seeker that matches them case-insensitively on a raw NTFS, exFAT, ReFS or FAT volume.
+    """
     parts = relative.replace('\\', '/').split('/')
     for index in range(1, len(parts)):
-        if parts[index] == 'exodus.wallet' and parts[index - 1].lower() == 'exodus':
+        if parts[index].lower() == 'exodus.wallet' and parts[index - 1].lower() == 'exodus':
             return '/'.join(parts[:index + 1])
     return ''
+
+
+def _utf8_string(value):
+    """The value when it is a UTF-8 encodable string, otherwise ''.
+
+    A JSON string can hold an unpaired surrogate that passes isinstance(str) but breaks a later
+    UTF-8 writer or SQLite binding, so such a value is reported blank rather than crashing output.
+    """
+    if not isinstance(value, str):
+        return ''
+    try:
+        value.encode('utf-8')
+    except UnicodeError:
+        return ''
+    return value
 
 
 def _profile_user(path):
@@ -200,7 +223,11 @@ def _seed_times(context, staged_path):
 
 
 def _group_by_wallet(context):
-    """Map each wallet folder (relative) to {basename: staged path} for the files found."""
+    """Map each wallet folder (relative) to {lowercase basename: staged path} for the files found.
+
+    The basename is lower-cased so a file matched case-insensitively on a raw NTFS, exFAT, ReFS
+    or FAT volume still keys to its expected name (passphrase.json, seed.seco, unsafe-storage.json).
+    """
     wallets = {}
     for staged in sorted({str(found) for found in context.get_files_found()}):
         if os.path.isdir(staged):
@@ -209,7 +236,7 @@ def _group_by_wallet(context):
         folder = _wallet_folder(relative)
         if not folder:
             continue
-        wallets.setdefault(folder, {})[os.path.basename(relative)] = staged
+        wallets.setdefault(folder, {})[os.path.basename(relative).lower()] = staged
     return wallets
 
 
@@ -247,6 +274,7 @@ def exodusWallet(context):
                 seed_bytes = handle.read()
         except OSError as exc:
             logfunc(f'Exodus Wallet Secrets: could not read seed.seco in {folder}: {exc}')
+            data_list.append((modified, user, 'seed.seco did not read', '', '', '', '', relative))
             continue
 
         # Credential-independent structural check (magic, length, checksum). It runs even when
@@ -339,14 +367,12 @@ def exodusWalletState(context):
         if not isinstance(parsed, dict):
             logfunc(f'Exodus Wallet App State: unsafe-storage.json in {folder} is not a JSON object')
             continue
-        anonymous_id = parsed.get('!analytics!anonymousId', '')
-        user_id = parsed.get('!analytics!userId', '')
         has_balance = parsed.get('!balances!hasBalance')
         # Only a JSON boolean gives Yes or No; a string such as "false" or another type stays blank.
         has_balance_text = ('Yes' if has_balance else 'No') if isinstance(has_balance, bool) else ''
         data_list.append((_profile_user(relative),
-                          anonymous_id if isinstance(anonymous_id, str) else '',
-                          user_id if isinstance(user_id, str) else '',
+                          _utf8_string(parsed.get('!analytics!anonymousId')),
+                          _utf8_string(parsed.get('!analytics!userId')),
                           has_balance_text, relative))
     return data_headers, data_list, '\n'.join(sources)
 
