@@ -322,6 +322,21 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(row['Process Start (UTC)'], WHEN)
         self.assertEqual(row['Other Properties'], f'CONTEXT_DATA_PROCESS_PPID=pid:2,ProcessStart:{START}')
 
+    def test_an_embedded_process_id_outside_32_bits_is_not_used(self):
+        for pid, expected in ((4294967295, 4294967295), (4294967296, '')):
+            data = store([text('CONTEXT_DATA_PROCESS_PPID', f'pid:{pid},ProcessStart:{START}')])
+            with patch.object(artifact, 'logfunc'):
+                headers, rows, _ = self.run_artifact({PERSIST_ID: data})
+            row = dict(zip([h if isinstance(h, str) else h[0] for h in headers], rows[0]))
+            self.assertEqual(row['Process ID'], expected)
+            self.assertEqual(row['Process Start (UTC)'], WHEN)
+            if expected == '':
+                self.assertEqual(row['Other Properties'],
+                                 f'CONTEXT_DATA_PROCESS_PPID=pid:{pid},ProcessStart:{START}')
+                self.assertIn('outside the unsigned 32-bit range', row['Read Note'])
+            else:
+                self.assertEqual(row['Read Note'], '')
+
     def test_a_name_with_a_trailing_newline_is_not_a_persist_id(self):
         with tempfile.TemporaryDirectory() as folder:
             root = pathlib.Path(folder) / 'extraction' / (
