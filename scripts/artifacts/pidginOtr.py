@@ -171,7 +171,15 @@ def _child(node, name):
 
 
 def _value(node):
-    return node[1][1] if node and len(node) > 1 and isinstance(node[1], tuple) else ''
+    if not node or len(node) < 2 or not isinstance(node[1], tuple):
+        return ''
+    kind, value = node[1]
+    if kind == 'hex':
+        try:
+            return bytes.fromhex(value).decode('utf-8', 'replace')
+        except ValueError:
+            return ''
+    return value
 
 
 def _public_fingerprint(account):
@@ -200,12 +208,12 @@ def pidginOtrFingerprints(context):
     data_list, sources = [], []
     for path in _found(context, 'otr.fingerprints'):
         relative = context.get_relative_path(path)
+        sources.append(path)
         try:
             lines = _read_lines(path)
         except OSError as exc:
             logfunc(f'Pidgin OTR Fingerprints: {relative} not read ({type(exc).__name__})')
             continue
-        before = len(data_list)
         for line in lines:
             parts = line.split('\t')
             if len(parts) < 4 or not _FINGERPRINT.fullmatch(parts[3]):
@@ -214,8 +222,6 @@ def pidginOtrFingerprints(context):
                 continue
             data_list.append((parts[0], parts[1], parts[2], _human(parts[3]), parts[4] if len(parts) > 4 else '',
                               _profile_user(context.get_relative_path(path))))
-        if len(data_list) > before:
-            sources.append(path)
     return data_headers, data_list, '\n'.join(sources)
 
 
@@ -225,14 +231,14 @@ def pidginOtrAccounts(context):
     folders = {}
     for path in _found(context, 'otr.private_key'):
         relative = context.get_relative_path(path)
+        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
+        entry['sources'].append(path)
         try:
             with open(path, 'r', encoding='utf-8', errors='replace') as handle:
                 tree = _parse(handle.read())
         except (OSError, ValueError, IndexError) as exc:
             logfunc(f'Pidgin OTR Accounts: {relative} not read ({type(exc).__name__})')
             continue
-        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
-        entry['sources'].append(path)
         root = next((item for item in tree if _head(item) == 'privkeys'), [])
         for account in root:
             if _head(account) != 'account':
@@ -242,16 +248,19 @@ def pidginOtrAccounts(context):
             except (ValueError, TypeError, IndexError):
                 fingerprint = ''
             key = (_value(_child(account, 'name')), _value(_child(account, 'protocol')))
+            if not all(key):
+                logfunc(f'Pidgin OTR Accounts: skipped an account entry without a name or protocol in {relative}')
+                continue
             entry['rows'].setdefault(key, ['', ''])[0] = _human(fingerprint)
     for path in _found(context, 'otr.instance_tags'):
         relative = context.get_relative_path(path)
+        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
+        entry['sources'].append(path)
         try:
             lines = _read_lines(path)
         except OSError as exc:
             logfunc(f'Pidgin OTR Accounts: {relative} not read ({type(exc).__name__})')
             continue
-        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
-        entry['sources'].append(path)
         for line in lines:
             parts = line.split('\t')
             if line.startswith('#') or len(parts) < 3:
@@ -261,6 +270,5 @@ def pidginOtrAccounts(context):
     for _folder, entry in sorted(folders.items()):
         for (account, protocol), (fingerprint, tag) in sorted(entry['rows'].items()):
             data_list.append((account, protocol, fingerprint, tag, entry['user']))
-        if entry['rows']:
-            sources.extend(entry['sources'])
+        sources.extend(entry['sources'])
     return data_headers, data_list, '\n'.join(sources)
