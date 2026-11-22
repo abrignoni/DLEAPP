@@ -27,8 +27,8 @@ __artifacts_v2__ = {
                  "or cannot be read. The feed's title and last build date are not in these files. Refresh "
                  "Interval is the refreshInterval key in seconds, which qBittorrent writes only when the feed "
                  "has its own interval, and had no value on any row of the known data. User is the folder "
-                 "after Users, Documents and Settings or home in the path. It had no value on the known data, "
-                 "whose profile folder is not under one.",
+                 "after Users, Documents and Settings or home in the path. User had no value on the known "
+                 "data, whose profile folder is not under one.",
         "paths": ('*/qBittorrent/rss/feeds.json', '*/qBittorrent/config/rss/feeds.json',
                   '*/qBittorrent/rss/articles/*.json', '*/qBittorrent/data/rss/articles/*.json'),
         "output_types": ["html", "tsv", "lava"],
@@ -66,8 +66,8 @@ __artifacts_v2__ = {
                  "test feeds gave every article the same author. Torrent URL is the torrentURL key. On the "
                  "three known data articles with no enclosure it held the same value as Link, so a value there "
                  "is not proof the article offered a torrent. User is the folder after Users, Documents and "
-                 "Settings or home in the path. It had no value on the known data, whose profile folder is not "
-                 "under one.",
+                 "Settings or home in the path. User had no value on the known data, whose profile folder is "
+                 "not under one.",
         "paths": ('*/qBittorrent/rss/feeds.json', '*/qBittorrent/config/rss/feeds.json',
                   '*/qBittorrent/rss/articles/*.json', '*/qBittorrent/data/rss/articles/*.json'),
         "output_types": ["standard"],
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
                  "filter use, ignore days, a priority other than 0, content layout and previously matched "
                  "episodes. Other Values had no value on the one row of the known data. The stored torrent "
                  "parameters are not reported. User is the folder after Users, Documents and Settings or home "
-                 "in the path. It had no value on the known data, whose profile folder is not under one.",
+                 "in the path. User had no value on the known data, whose profile folder is not under one.",
         "paths": ('*/qBittorrent/rss/download_rules.json', '*/qBittorrent/config/rss/download_rules.json'),
         "output_types": ["standard"],
         "artifact_icon": "filter",
