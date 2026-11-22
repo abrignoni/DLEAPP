@@ -32,7 +32,7 @@ def _store(path, with_keys, event_entity=True, end=None):
         CREATE TABLE Z_PRIMARYKEY (Z_ENT INTEGER PRIMARY KEY, Z_NAME TEXT);
         INSERT INTO Z_PRIMARYKEY VALUES (11, '{entity_name}');
         CREATE TABLE ZSOURCE (Z_PK INTEGER PRIMARY KEY, ZDEVICEID TEXT, ZBUNDLEID TEXT);
-        INSERT INTO ZSOURCE VALUES (1, 'peer-device', 'com.example.source');
+        INSERT INTO ZSOURCE VALUES (1, 'source-device', 'com.example.source');
         CREATE TABLE ZSTRUCTUREDMETADATA (Z_PK INTEGER PRIMARY KEY{keys});
         CREATE TABLE ZOBJECT (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, ZSTREAMNAME TEXT,
             ZVALUESTRING TEXT, ZSTARTDATE REAL, ZENDDATE REAL, ZLOCALCREATIONDATE REAL,
@@ -81,7 +81,7 @@ class AppMediaUsageTest(unittest.TestCase):
                                  datetime(2026, 5, 9, 4, 28, 10, tzinfo=timezone.utc),
                                  datetime(2026, 5, 9, 4, 28, 20, tzinfo=timezone.utc),
                                  'com.example.player', 'https://page.example',
-                                 'https://media.example/a', 90, '-05:00', 'peer-device',
+                                 'https://media.example/a', 90, '-05:00', 'source-device',
                                  SOURCE)])
         self.assertEqual(source, SOURCE)
 
