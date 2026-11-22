@@ -200,8 +200,8 @@ def _files(info):
                 sizes_valid = False
                 continue
             stored = entry.get(b'path')
-            parts = [_text(part) for part in stored if isinstance(part, bytes)] if isinstance(stored, list) else []
-            paths.append('/'.join([name] + parts))
+            if isinstance(stored, list) and stored and all(isinstance(part, bytes) for part in stored):
+                paths.append('/'.join([name] + [_text(part) for part in stored]))
             if _valid_length(entry.get(b'length')):
                 total += entry[b'length']
             else:
@@ -247,25 +247,20 @@ def _info_span(raw):
     return b''
 
 
-def _companion(folder, entry_name):
-    """The .torrent files in folder whose name matches the entry's, ignoring case, exact spelling first."""
+def _companion(staged, entry_name):
+    """The staged .torrent files whose name matches the entry's, ignoring case, exact spelling first."""
     wanted = ntpath.basename(entry_name)
-    exact = os.path.join(folder, wanted)
-    found = [exact] if os.path.isfile(exact) else []
-    try:
-        names = sorted(os.listdir(folder))
-    except OSError:
-        return found
-    found.extend(os.path.join(folder, name) for name in names
-                 if name != wanted and name.lower() == wanted.lower() and os.path.isfile(os.path.join(folder, name)))
-    return found
+    exact = [path for path in staged if os.path.basename(path) == wanted]
+    others = [path for path in staged
+              if os.path.basename(path) != wanted and os.path.basename(path).lower() == wanted.lower()]
+    return exact + others
 
 
-def _torrent_info(folder, entry_name, info_hash):
+def _torrent_info(staged, entry_name, info_hash):
     """(info dictionary, path) of the entry's .torrent, only when its info bytes hash to the recorded info-hash."""
     if not info_hash:
         return None, ''
-    for path in _companion(folder, entry_name):
+    for path in _companion(staged, entry_name):
         try:
             with open(path, 'rb') as handle:
                 raw = handle.read()
@@ -328,12 +323,15 @@ def utorrentTorrents(context):
             continue
         client, user = _client_user(relative)
         folder = os.path.dirname(path)
+        staged = sorted({str(f) for f in context.get_files_found()
+                         if os.path.dirname(str(f)) == folder and str(f).lower().endswith('.torrent')
+                         and os.path.isfile(str(f))})
         for key, entry in resume.items():
             if not isinstance(key, bytes) or not key.lower().endswith(b'.torrent') or not isinstance(entry, dict):
                 continue
             raw_hash = entry.get(b'info')
             info_hash = raw_hash if isinstance(raw_hash, bytes) and len(raw_hash) == 20 else b''
-            info, torrent_path = _torrent_info(folder, _text(key), info_hash)
+            info, torrent_path = _torrent_info(staged, _text(key), info_hash)
             files, total = _files(info)
             if torrent_path:
                 sources.append(torrent_path)
