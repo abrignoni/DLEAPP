@@ -5,6 +5,7 @@ a second profile, which must add its own rows, and a folder with the same layout
 application's name, which must add none.
 """
 
+import fnmatch
 import os
 import pathlib
 import struct
@@ -136,6 +137,19 @@ class SimpleCacheRecordsTest(unittest.TestCase):
         ])
         self.assertEqual([(row[11], row[12], row[13]) for row in rows], [('Opera', 'Default', 'fixture')])
         self.assertEqual(sources, [opera + '/Cache/Cache_Data/index'])
+
+    def test_opera_paths(self):
+        patterns = cache.__artifacts_v2__['chromiumSimpleCacheRecords']['paths']
+        root = '/case/data/Users/fixture/Library/Caches/com.operasoftware.Opera'
+
+        def declared(path):
+            return any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns)
+
+        self.assertTrue(declared(root + '/Default/Cache/Cache_Data/0000000000000002_0'))
+        self.assertTrue(declared(root + '/Profile 1/Cache/Cache_Data/index'))
+        self.assertFalse(declared(root + '/Default/System Cache/Cache_Data/0000000000000009_0'))
+        self.assertFalse(declared(root + '/Cache/Cache_Data/0000000000000002_0'))
+        self.assertFalse(declared(root + 'Decoy/Default/Cache/Cache_Data/0000000000000001_0'))
 
     def test_cache_roots_are_located(self):
         self.assertEqual(
