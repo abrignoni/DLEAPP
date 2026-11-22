@@ -1,4 +1,5 @@
-"""Readers for Shareaza's library (Library1.dat, Library2.dat, Library.dat) and download (.sd) files.
+"""Readers for Shareaza's library (Library1.dat, Library2.dat, Library.dat), download (.sd) and search
+(Searches.dat) files.
 
 Both are MFC CArchive streams written by Shareaza 2.7.10.2, whose source is SVN revision 9696 of
 https://sourceforge.net/p/shareaza/code/ (trunk/shareaza). Each reader follows the load branch of the
@@ -12,6 +13,9 @@ from datetime import datetime, timedelta, timezone
 SOURCE = 'https://sourceforge.net/p/shareaza/code/9696/tree/trunk/shareaza/'
 LIBRARY_SER_VERSION = 29     # Library.h
 DOWNLOAD_SER_VERSION = 42    # Download.h
+MATCHLIST_SER_VERSION = 15   # MatchObjects.h
+PROTOCOLS = {-1: 'Any', 0: 'None', 1: 'Gnutella', 2: 'Gnutella2', 3: 'eDonkey', 4: 'HTTP', 5: 'FTP',
+             6: 'BitTorrent', 7: 'Kademlia', 8: 'DC++'}   # StdAfx.h PROTOCOLID
 TRISTATE = {0: 'Unknown', 1: 'No', 2: 'Yes'}   # Shareaza.idl TRI_UNKNOWN, TRI_FALSE, TRI_TRUE
 _EPOCH = datetime(1601, 1, 1, tzinfo=timezone.utc)
 
@@ -284,3 +288,152 @@ def read_download(data):
         record['bth'] = ar.hash(20)
         ar.u32()
     return record
+
+
+def _guid(ar):
+    return ar.take(16).hex()
+
+
+def _query(ar):
+    """CQuerySearch::Serialize (QuerySearch.cpp), load branch."""
+    version = ar.i32()
+    if version < 4:
+        raise ShareazaFormatError(f'query version {version} is below 4')
+    record = {'guid': _guid(ar), 'text': ar.string(), 'sha1': ar.hash(20), 'tiger': ar.hash(24), 'ed2k': ar.hash(16),
+              'bth': ar.hash(20)}
+    record['md5'] = ar.hash(16) if version >= 7 else ''
+    schema = ar.string()
+    record['schema'] = schema
+    record['metadata'] = _xml(ar) if schema else ''
+    if version >= 5:
+        ar.take(20)                                 # m_bWantURL, DN, XML, COM, PFS
+    record['min_size'], record['max_size'] = (ar.u64(), ar.u64()) if version >= 8 else (0, 0xFFFFFFFFFFFFFFFF)
+    return record
+
+
+def _managed(ar):
+    """CManagedSearch::Serialize (ManagedSearch.cpp), load branch."""
+    version = ar.i32()
+    if version < 2:
+        raise ShareazaFormatError(f'managed search version {version} is below 2')
+    record = _query(ar)
+    ar.take(12)                                     # m_nPriority, m_bActive, m_bReceive
+    record['networks'] = []
+    for name, since in (('Gnutella2', 3), ('Gnutella', 3), ('eDonkey', 3), ('DC++', 4)):
+        if version < since or ar.i32():     # a flag the version lacks keeps its default, TRUE (ManagedSearch.cpp)
+            record['networks'].append(name)
+    return record
+
+
+def _hit(ar, version):
+    """CQueryHit::Serialize (QueryHit.cpp), load branch."""
+    record = {'search_guid': _guid(ar)}
+    record['protocol'] = ar.i32() if version >= 9 else None
+    record['client_guid'] = _guid(ar)
+    record['address'] = '.'.join(str(octet) for octet in ar.take(4))
+    record['port'] = ar.u16()
+    record['speed'] = ar.u32()
+    record['speed_text'] = ar.string()
+    record['vendor'] = ar.string()
+    record['push'], record['busy'], record['stable'], record['measured'] = (ar.i32() for _ in range(4))
+    record['upload_slots'], record['upload_queue'] = ar.i32(), ar.i32()
+    record['chat'], record['browse'] = ar.i32(), ar.i32()
+    record['sha1'], record['tiger'], record['ed2k'] = ar.hash(20), ar.hash(24), ar.hash(16)
+    record['bth'], record['md5'] = (ar.hash(20), ar.hash(16)) if version >= 13 else ('', '')
+    record['url'] = ar.string()
+    record['name'] = ar.string()
+    record['index'] = ar.u32()
+    record['size_known'] = ar.i32()
+    record['size'] = ar.u64() if version >= 10 else ar.u32()
+    record['sources'] = ar.u32()
+    record['partial'] = ar.u32()
+    ar.i32()                                        # m_bPreview
+    record['preview_url'] = ar.string()
+    if version >= 11:
+        ar.i32()                                    # m_bCollection
+    schema = ar.string()
+    ar.string()                                     # schema plural, unused by the load code
+    record['schema'] = schema
+    record['metadata'] = _xml(ar) if schema else ''
+    record['rating'] = ar.i32()
+    record['comments'] = ar.string()
+    ar.i32()                                        # m_bMatched
+    if version >= 12:
+        ar.i32()                                    # m_bExactMatch
+    record['bogus'] = ar.i32()
+    record['download'] = ar.i32()
+    record['nick'] = ar.string() if version >= 15 else ''
+    return record
+
+
+def _ctime(ar):
+    """An MFC CTime in an archive. Measured on a file Shareaza 2.7.10.2 wrote: the DWORD 0x8000000A and then a 64-bit
+    time. The reader also accepts a plain 32-bit time in that place. Shareaza loading that form was not tested."""
+    value = ar.u32()
+    return struct.unpack('<q', ar.take(8))[0] if value == 0x8000000A else value
+
+
+def _match_file(ar, version):
+    """CMatchFile::Serialize (MatchObjects.cpp), load branch. Returns the file's found time and its hits."""
+    ar.take(8 if version >= 10 else 4)
+    ar.string()
+    for size in (20, 24, 16) + ((20, 16) if version >= 13 else ()):
+        ar.hash(size)
+    ar.take(12)                                     # m_bBusy, m_bPush, m_bStable
+    ar.u32()
+    ar.string()
+    ar.take(16)                                     # m_bExpanded, m_bExisting, m_bDownload, m_bOneValid
+    preview = ar.count()
+    if preview:
+        ar.take(preview)
+    hits = [_hit(ar, version) for _ in range(ar.count())]
+    found = _ctime(ar) if version >= 14 else 0
+    return found, hits
+
+
+def _match_list(ar, result, window):
+    """CMatchList::Serialize (MatchObjects.cpp), load branch."""
+    version = ar.i32()
+    if version < 8 or version > MATCHLIST_SER_VERSION:
+        raise ShareazaFormatError(f'match list version {version} is not 8 to {MATCHLIST_SER_VERSION}')
+    ar.string()                                     # m_sFilter
+    ar.take(24)                                     # six filter flags
+    if version >= 12:
+        ar.take(16)                                 # m_bFilterDRM, Adult, Suspicious, m_bRegExp
+    ar.take(16 if version >= 10 else 8)             # m_nFilterMinSize, m_nFilterMaxSize
+    ar.take(12)                                     # m_nFilterSources, m_nSortColumn, m_bSortDir
+    for file_index in range(ar.count()):
+        found, hits = _match_file(ar, version)
+        try:
+            when = datetime.fromtimestamp(found, timezone.utc) if found > 0 else ''
+        except (OverflowError, OSError, ValueError):
+            when = ''
+        for hit in hits:
+            hit.update(window=window, file=file_index + 1, found=when)
+            result['results'].append(hit)
+
+
+def read_searches(data):
+    """Searches.dat (CWindowManager::SaveSearchWindows, WindowManager.cpp): for each search window a count of 1,
+    CSearchWnd::Serialize (WndSearch.cpp) and CBaseMatchWnd::Serialize (WndBaseMatch.cpp), then a count of 0."""
+    result = {'searches': [], 'results': [], 'complete': False}
+    ar = _Archive(data)
+    window = 0
+    try:
+        while True:
+            marker = ar.count()
+            if marker != 1:
+                break
+            window += 1
+            if ar.i32() != 1:
+                raise ShareazaFormatError('search window version is not 1')
+            for index in range(ar.count()):
+                record = _managed(ar)
+                record.update(window=window, search=index + 1)
+                result['searches'].append(record)
+            ar.string()                             # results schema
+            _match_list(ar, result, window)
+    except (ShareazaFormatError, ValueError, OverflowError, OSError) as exc:
+        raise ShareazaFormatError(str(exc), partial=result) from exc
+    result['complete'] = marker == 0 and ar.pos == len(data)
+    return result
