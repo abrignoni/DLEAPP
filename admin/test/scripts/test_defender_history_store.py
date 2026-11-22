@@ -273,13 +273,22 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual([p[0] for p in properties], ['A'])
         self.assertIn('after 1 properties', note)
 
+    def test_a_repeated_property_keeps_the_first_value_and_notes_the_rest(self):
+        data = store([text('CONTEXT_DATA_PROCESSNAME', 'first.exe'),
+                      text('CONTEXT_DATA_PROCESSNAME', 'second.exe')])
+        with patch.object(artifact, 'logfunc'):
+            headers, rows, _ = self.run_artifact({PERSIST_ID: data})
+        row = dict(zip([h if isinstance(h, str) else h[0] for h in headers], rows[0]))
+        self.assertEqual(row['Process Name'], 'first.exe')
+        self.assertEqual(row['Other Properties'], 'CONTEXT_DATA_PROCESSNAME=second.exe')
+        self.assertIn('CONTEXT_DATA_PROCESSNAME occurs more than once', row['Read Note'])
+
     def test_a_name_with_a_trailing_newline_is_not_a_persist_id(self):
         with tempfile.TemporaryDirectory() as folder:
             root = pathlib.Path(folder) / 'extraction' / (
                 'ProgramData/Microsoft/Windows Defender/Scans/History/Store')
             root.mkdir(parents=True)
             path = root / (PERSIST_ID + '\n')
-            path.write_bytes(full_store())
             with patch.object(artifact, 'logfunc'):
                 _, rows, sources = tuple(
                     artifact.defenderHistoryStore.__wrapped__(FakeContext([path])))

@@ -101,7 +101,9 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11 (3 rows) Scan Reason held 5, Newly Created Hint held Yes and "
                  "Device Characteristics held 395264 on all 3, and Open/CreateProcess Hint, "
                  "Desired Access and Other Properties held no value on any of them; Read Note "
-                 "held no value on any row of any run. Source File is the evidence-relative path "
+                 "held no value on any row of any run. A property that occurs more than once keeps its first value in its column; "
+                 "later ones go to Other Properties with a Read Note (none of the 12 files "
+                 "repeats a property). Source File is the evidence-relative path "
                  "of each Store file, kept because the same Persist ID can occur in more than "
                  "one extracted folder. The Id property holds the same 16 bytes as the file name on all 12 "
                  "files and is not repeated. A row records what Defender stored about one "
@@ -250,7 +252,10 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
         notes = [note] if note else []
         own, other, persist_bytes = {}, [], None
         for name, kind, value in properties:
-            if name in _OWN:
+            if name in _OWN and _OWN[name] in own:
+                other.append(f'{name}={_show(kind, value)}')
+                notes.append(f'{name} occurs more than once; the first value is in its column')
+            elif name in _OWN:
                 own[_OWN[name]] = _show(kind, value)
             elif name == 'Id' and isinstance(value, bytes):
                 persist_bytes = value
