@@ -1,0 +1,324 @@
+"""uTorrent and BitTorrent classic: torrents, settings and RSS feeds, for DLEAPP.
+
+Author: @AlexisBrignoni, Claude.
+
+Both programs keep bencoded stores in their data folder: resume.dat (one entry per torrent, keyed by the .torrent file
+beside it), settings.dat and rss.dat. No vendor definition of these stores was used. The notes of each artifact say which
+fields were compared with the client's own Web API and a timed step log on the known data, and which are reported as stored.
+"""
+
+import hashlib
+import ntpath
+import os
+from datetime import datetime, timedelta, timezone
+
+import bencoding
+from bencoding.decoder import DecoderError
+
+from scripts.ilapfuncs import artifact_processor, logfunc
+
+_KEY = 'windows11_arm_utorrent_bittorrent_known_20261122'
+_VERSIONS = 'uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391'
+_SAMPLE = 'Windows 11 build 26200 (ARM64), ' + _VERSIONS
+_DECODE_ERRORS = (OSError, ValueError, TypeError, IndexError, KeyError, DecoderError)
+_WINDOWS_EPOCH_SECONDS = 11644473600
+
+__artifacts_v2__ = {
+    "utorrentTorrents": {
+        "name": "uTorrent and BitTorrent Torrents",
+        "description": "Torrents in uTorrent or BitTorrent classic, from resume.dat: when each was added and "
+                       "completed, its name, info-hash, save path, label, trackers and files, the address the "
+                       ".torrent was added from when one is recorded, and the bytes downloaded and uploaded.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "bencoding",
+        "category": "uTorrent and BitTorrent",
+        "platforms": ("Windows",),
+        "notes": "One row per .torrent entry in resume.dat in a folder named uTorrent or BitTorrent. No vendor "
+                 "definition of these fields was used. On the known data (" + _KEY + ", " + _VERSIONS + ", clients on "
+                 "loopback, VM time zone UTC-5) Name, Info Hash, Label, Downloaded and Uploaded equalled the client's "
+                 "own Web API on all 8 rows. Added fell within 1 second of the timed step log on all 8 rows. Completed "
+                 "fell within 3 seconds of the time the rig's 2-second poll logged completion on the 6 rows that "
+                 "completed, and is blank on the 2 rows of the torrent that never completed. Save Path is the path "
+                 "field as stored; on the known data it held the download folder joined with the torrent name on all "
+                 "8 rows. Started (as stored) is the started field: it held 0 on the torrent stopped through the Web "
+                 "API and 2 on the running ones; other values were not seen. Runtime and Seed Time are the runtime and "
+                 "seedtime fields as stored; their unit was not established. Download URL is download_url, the address "
+                 "the .torrent was added from on the known data. Files and Total Size come from the .torrent named by "
+                 "the resume entry, in the same folder, and only when that file's info dictionary hashes to the "
+                 "entry's info-hash. On the known data the program was closed cleanly and resume.dat held the state at "
+                 "that close. A forced stop was not tested, so how current resume.dat is after one is not established. "
+                 "A copy run from another folder name is not matched. Trackers held the one loopback tracker on all 8 "
+                 "rows. User is the profile folder name taken from the file's path, not a value in the store. The "
+                 "known data has one placeholder profile, on all 8 rows.",
+        "paths": ('*/uTorrent/resume.dat', '*/uTorrent/*.torrent', '*/BitTorrent/resume.dat', '*/BitTorrent/*.torrent'),
+        "output_types": ["standard"],
+        "artifact_icon": "download-cloud",
+        "sample_data": {
+            _KEY: _SAMPLE + " | 8 rows",
+        },
+    },
+    "utorrentSettings": {
+        "name": "uTorrent and BitTorrent Settings",
+        "description": "Selected values from settings.dat of uTorrent or BitTorrent classic: when the settings were "
+                       "created and last saved, the stored run counter, download folders, listening port, Web UI "
+                       "user name and, when the file holds them, proxy settings.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "bencoding",
+        "category": "uTorrent and BitTorrent",
+        "platforms": ("Windows",),
+        "notes": "One row per selected key that holds a value in settings.dat in a folder named uTorrent or "
+                 "BitTorrent; Stored Key is the key's name. 15 of the 20 selected keys occurred on the known data. "
+                 "dir_torrent_files, dir_autoload, proxy.type, proxy.proxy and proxy.port did not occur, so those five "
+                 "rows are unexercised and their key names are not confirmed on these versions. born_on is read as "
+                 "seconds since 1601 and settings_saved_systime as Unix seconds; on the known data (" + _KEY + ", VM "
+                 "time zone UTC-5) each fell within 5 seconds of the program's logged start and close. The other "
+                 "values are shown as stored, with text decoded as UTF-8. Their meaning is taken from the key name and "
+                 "was not otherwise established. Time (UTC) is filled only on the two time keys of each client, 4 of "
+                 "30 rows on the known data, and those rows leave Value blank. User is the profile folder name taken "
+                 "from the file's path. The known data has one placeholder profile, on all 30 rows. Keys outside the "
+                 "selected list are not reported. That includes webui.hashword, webui.salt, cid and cids. "
+                 "settings.dat.old is not read.",
+        "paths": ('*/uTorrent/settings.dat', '*/BitTorrent/settings.dat'),
+        "output_types": ["standard"],
+        "artifact_icon": "settings",
+        "sample_data": {
+            _KEY: _SAMPLE + " | 30 rows",
+        },
+    },
+    "utorrentRss": {
+        "name": "uTorrent and BitTorrent RSS",
+        "description": "RSS feeds and download filters set in uTorrent or BitTorrent classic, from rss.dat.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "bencoding",
+        "category": "uTorrent and BitTorrent",
+        "platforms": ("Windows",),
+        "notes": "One row per entry in the feeds and filters lists of rss.dat. A feed's url field holds an alias and "
+                 "the address joined by a vertical bar, which the Web API returned in the same form on the known "
+                 "data (" + _KEY + "). There each client held one feed and one filter. On the 2 feed rows Name and URL "
+                 "or Pattern are the two parts of that field and Feed ID is the feed's ident, and they matched the Web "
+                 "API. On the 2 filter rows Name, URL or Pattern, Label and Feed ID (the filter's feed field) matched "
+                 "the Web API. Feed rows have no label. Exclude Pattern (not_filter) and Save Folder (directory) had "
+                 "no value on any row, so those two columns are unexercised. Enabled held Yes on all 4 rows. No is "
+                 "written for any other stored value, including a missing field, and was not exercised. User is the "
+                 "profile folder name taken from the file's path. The known data has one placeholder profile, on all "
+                 "4 rows. The history list was empty on the known data and is not read. What it holds was not "
+                 "established. rss.dat.old is not read.",
+        "paths": ('*/uTorrent/rss.dat', '*/BitTorrent/rss.dat'),
+        "output_types": ["standard"],
+        "artifact_icon": "rss",
+        "sample_data": {
+            _KEY: _SAMPLE + " | 4 rows",
+        },
+    },
+}
+
+_SETTINGS = (
+    ('born_on', 'Settings Created'),
+    ('settings_saved_systime', 'Settings Last Saved'),
+    ('runs_since_born', 'Program Runs'),
+    ('runtime_since_born', 'Runtime Since Created (as stored)'),
+    ('install_revision', 'Install Revision'),
+    ('dir_active_download', 'Active Download Folder'),
+    ('dir_completed_download', 'Completed Download Folder'),
+    ('dir_torrent_files', 'Stored .torrent Folder'),
+    ('dir_autoload', 'Auto-Load Folder'),
+    ('bind_port', 'Listening Port'),
+    ('net.bind_ip', 'Bind Address'),
+    ('net.outgoing_ip', 'Outgoing Address'),
+    ('webui.enable', 'Web UI Enabled'),
+    ('webui.port', 'Web UI Port'),
+    ('webui.username', 'Web UI User Name'),
+    ('proxy.type', 'Proxy Type'),
+    ('proxy.proxy', 'Proxy Address'),
+    ('proxy.port', 'Proxy Port'),
+    ('dht', 'DHT Enabled'),
+    ('pex', 'Peer Exchange Enabled'),
+)
+
+
+def _text(value):
+    if isinstance(value, bytes):
+        return value.decode('utf-8', 'replace')
+    return '' if value is None else str(value)
+
+
+def _unix(value):
+    if not isinstance(value, int) or value <= 0:
+        return ''
+    try:
+        return datetime.fromtimestamp(value, timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        return ''
+
+
+def _windows_seconds(value):
+    if not isinstance(value, int) or value <= _WINDOWS_EPOCH_SECONDS:
+        return ''
+    try:
+        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=value - _WINDOWS_EPOCH_SECONDS)
+    except OverflowError:
+        return ''
+
+
+def _decode(path):
+    with open(path, 'rb') as handle:
+        value = bencoding.bdecode(handle.read())
+    if not isinstance(value, dict):
+        raise ValueError('not a bencoded dictionary')
+    return value
+
+
+def _client_user(relative):
+    parts = relative.replace('\\', '/').split('/')
+    client, user = '', ''
+    for index, part in enumerate(parts[:-1]):
+        if part.lower() in ('users', 'documents and settings') and index + 1 < len(parts) - 1:
+            user = parts[index + 1]
+        if part.lower() in ('utorrent', 'bittorrent'):
+            client = 'uTorrent' if part.lower() == 'utorrent' else 'BitTorrent'
+    return client, user
+
+
+def _files(info):
+    if not isinstance(info, dict):
+        return [], ''
+    name = _text(info.get(b'name'))
+    if isinstance(info.get(b'files'), list):
+        paths, total = [], 0
+        for entry in info[b'files']:
+            if not isinstance(entry, dict):
+                continue
+            parts = [_text(part) for part in entry.get(b'path', []) if isinstance(part, bytes)]
+            paths.append('/'.join([name] + parts))
+            total += entry.get(b'length', 0) if isinstance(entry.get(b'length'), int) else 0
+        return paths, total
+    length = info.get(b'length')
+    return [name], length if isinstance(length, int) else ''
+
+
+def _torrent_info(folder, entry_name, info_hash):
+    """The info dictionary of the entry's .torrent, only when it hashes to the recorded info-hash."""
+    path = os.path.join(folder, ntpath.basename(entry_name))
+    if not info_hash or not os.path.isfile(path):
+        return None
+    try:
+        info = _decode(path).get(b'info')
+        if isinstance(info, dict) and hashlib.sha1(bencoding.bencode(info)).digest() == info_hash:  # nosec B324
+            return info
+    except _DECODE_ERRORS:
+        return None
+    return None
+
+
+def _trackers(entry):
+    urls = []
+    for item in entry.get(b'trackers', []) or []:
+        for url in item if isinstance(item, list) else [item]:
+            if isinstance(url, bytes) and url and _text(url) not in urls:
+                urls.append(_text(url))
+    return urls
+
+
+def _found(context, name):
+    return sorted(str(f) for f in context.get_files_found() if os.path.basename(str(f)) == name and os.path.isfile(str(f)))
+
+
+@artifact_processor
+def utorrentTorrents(context):
+    data_headers = (('Added (UTC)', 'datetime'), ('Completed (UTC)', 'datetime'), 'Client', 'Name', ('Info Hash', 'hash'),
+                    'Save Path', 'Label', 'Started (as stored)', ('Downloaded (bytes)', 'number'),
+                    ('Uploaded (bytes)', 'number'), ('Runtime (as stored)', 'number'), ('Seed Time (as stored)', 'number'),
+                    'Trackers', 'Download URL', 'Files', ('Total Size (bytes)', 'number'), 'User')
+    data_list, sources = [], []
+    for path in _found(context, 'resume.dat'):
+        relative = context.get_relative_path(path)
+        try:
+            resume = _decode(path)
+        except _DECODE_ERRORS as exc:
+            logfunc(f'uTorrent and BitTorrent Torrents: {relative} did not decode ({type(exc).__name__})')
+            continue
+        client, user = _client_user(relative)
+        folder = os.path.dirname(path)
+        rows_before = len(data_list)
+        for key, entry in resume.items():
+            if not isinstance(key, bytes) or not key.lower().endswith(b'.torrent') or not isinstance(entry, dict):
+                continue
+            raw_hash = entry.get(b'info')
+            info_hash = raw_hash if isinstance(raw_hash, bytes) and len(raw_hash) == 20 else b''
+            files, total = _files(_torrent_info(folder, _text(key), info_hash))
+            data_list.append((
+                _unix(entry.get(b'added_on')), _unix(entry.get(b'completed_on')), client,
+                _text(entry.get(b'caption')) or _text(key)[:-len('.torrent')], info_hash.hex(), _text(entry.get(b'path')),
+                _text(entry.get(b'label')), entry.get(b'started', ''), entry.get(b'downloaded', ''),
+                entry.get(b'uploaded', ''), entry.get(b'runtime', ''), entry.get(b'seedtime', ''),
+                '\n'.join(_trackers(entry)), _text(entry.get(b'download_url')), '\n'.join(files), total, user))
+        if len(data_list) > rows_before:
+            sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def utorrentSettings(context):
+    data_headers = (('Time (UTC)', 'datetime'), 'Client', 'Setting', 'Value', 'Stored Key', 'User')
+    data_list, sources = [], []
+    for path in _found(context, 'settings.dat'):
+        relative = context.get_relative_path(path)
+        try:
+            settings = _decode(path)
+        except _DECODE_ERRORS as exc:
+            logfunc(f'uTorrent and BitTorrent Settings: {relative} did not decode ({type(exc).__name__})')
+            continue
+        client, user = _client_user(relative)
+        rows_before = len(data_list)
+        for key, label in _SETTINGS:
+            value = settings.get(key.encode())
+            if value is None or value == b'':
+                continue
+            when = ''
+            if key == 'born_on':
+                when = _windows_seconds(value)
+            elif key == 'settings_saved_systime':
+                when = _unix(value)
+            data_list.append((when, client, label, '' if when else _text(value), key, user))
+        if len(data_list) > rows_before:
+            sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def utorrentRss(context):
+    data_headers = ('Type', 'Client', 'Name', 'URL or Pattern', 'Exclude Pattern', 'Save Folder', 'Label',
+                    ('Feed ID', 'number'), 'Enabled', 'User')
+    data_list, sources = [], []
+    for path in _found(context, 'rss.dat'):
+        relative = context.get_relative_path(path)
+        try:
+            rss = _decode(path)
+        except _DECODE_ERRORS as exc:
+            logfunc(f'uTorrent and BitTorrent RSS: {relative} did not decode ({type(exc).__name__})')
+            continue
+        client, user = _client_user(relative)
+        rows_before = len(data_list)
+        for feed in rss.get(b'feeds', []) or []:
+            if not isinstance(feed, dict):
+                continue
+            alias, separator, url = _text(feed.get(b'url')).partition('|')
+            if not separator:
+                alias, url = '', alias
+            data_list.append(('Feed', client, alias, url, '', '', '', feed.get(b'ident', ''),
+                              'Yes' if feed.get(b'enabled') == 1 else 'No', user))
+        for item in rss.get(b'filters', []) or []:
+            if not isinstance(item, dict):
+                continue
+            data_list.append(('Filter', client, _text(item.get(b'name')), _text(item.get(b'filter')),
+                              _text(item.get(b'not_filter')), _text(item.get(b'directory')), _text(item.get(b'label')),
+                              item.get(b'feed', ''), 'Yes' if item.get(b'enabled') == 1 else 'No', user))
+        if len(data_list) > rows_before:
+            sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
