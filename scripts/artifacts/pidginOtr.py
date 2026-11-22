@@ -101,10 +101,15 @@ def _human(hex_digits):
     return ' '.join(upper[i:i + 8] for i in range(0, len(upper), 8))
 
 
+def _display(value):
+    """Text for the report. Identifiers keep their original bytes as surrogate escapes until here, so joins are exact."""
+    return value.encode('utf-8', 'surrogateescape').decode('utf-8', 'replace')
+
+
 def _read_lines(path):
     with open(path, 'rb') as handle:
         records = handle.read().split(b'\n')
-    return [record.rstrip(b'\r').decode('utf-8', 'replace') for record in records]
+    return [record.rstrip(b'\r').decode('utf-8', 'surrogateescape') for record in records]
 
 
 def _tokens(text):
@@ -178,7 +183,7 @@ def _value(node):
     kind, value = node[1]
     if kind == 'hex':
         try:
-            return bytes.fromhex(value).decode('utf-8', 'replace')
+            return bytes.fromhex(value).decode('utf-8', 'surrogateescape')
         except ValueError:
             return ''
     return value
@@ -224,7 +229,8 @@ def pidginOtrFingerprints(context):
                 if line.strip():
                     logfunc(f'Pidgin OTR Fingerprints: skipped a malformed line in {relative}')
                 continue
-            data_list.append((parts[0], parts[1], parts[2], _human(parts[3]), parts[4] if len(parts) > 4 else '',
+            data_list.append((_display(parts[0]), _display(parts[1]), _display(parts[2]), _human(parts[3]),
+                              _display(parts[4]) if len(parts) > 4 else '',
                               _profile_user(context.get_relative_path(path))))
     return data_headers, data_list, '\n'.join(sources)
 
@@ -238,7 +244,7 @@ def pidginOtrAccounts(context):
         entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
         entry['sources'].append(path)
         try:
-            with open(path, 'r', encoding='utf-8', errors='replace') as handle:
+            with open(path, 'r', encoding='utf-8', errors='surrogateescape', newline='') as handle:
                 tree = _parse(handle.read())
         except (OSError, ValueError, IndexError) as exc:
             logfunc(f'Pidgin OTR Accounts: {relative} not read ({type(exc).__name__})')
@@ -256,7 +262,9 @@ def pidginOtrAccounts(context):
             if not all(key):
                 logfunc(f'Pidgin OTR Accounts: skipped an account entry without a name or protocol in {relative}')
                 continue
-            entry['rows'].setdefault(key, ['', ''])[0] = _human(fingerprint)
+            row = entry['rows'].setdefault(key, ['', ''])
+            if fingerprint:
+                row[0] = _human(fingerprint)
     for path in _found(context, 'otr.instance_tags'):
         relative = context.get_relative_path(path)
         entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
@@ -278,6 +286,6 @@ def pidginOtrAccounts(context):
     data_list, sources = [], []
     for _folder, entry in sorted(folders.items()):
         for (account, protocol), (fingerprint, tag) in sorted(entry['rows'].items()):
-            data_list.append((account, protocol, fingerprint, tag, entry['user']))
+            data_list.append((_display(account), _display(protocol), fingerprint, tag, entry['user']))
         sources.extend(entry['sources'])
     return data_headers, data_list, '\n'.join(sources)
