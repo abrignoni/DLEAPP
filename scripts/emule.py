@@ -5,6 +5,7 @@ https://github.com/irwir/eMule). Readers take bytes and raise EmuleFormatError w
 the layout, so a caller decides what to log.
 """
 
+from collections import Counter
 import struct
 
 SOURCE = 'https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/'
@@ -245,11 +246,11 @@ def _tag_label(name):
 
 def _other_values(tags):
     """[(display name, value)], one per stored tag. Tags that would show one name each carry their identifier."""
-    labels = [_tag_label(name) for name in tags]
+    labels = Counter(_tag_label(name) for name in tags)
     other = []
     for name, value in tags.items():
         label = _tag_label(name)
-        if labels.count(label) > 1:
+        if labels[label] > 1:
             identifier = f'name {name.hex()}' if isinstance(name, bytes) else f'tag 0x{name:02X}'
             label = f'{label} [{identifier}]'
         other.append((label, value.hex() if isinstance(value, (bytes, bytearray)) else value))
