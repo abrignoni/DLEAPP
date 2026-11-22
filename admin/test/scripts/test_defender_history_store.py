@@ -301,6 +301,27 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(row['Process ID'], '')
         self.assertIn('not in the documented form', row['Read Note'])
 
+    def test_a_property_of_the_wrong_type_goes_to_other_properties_with_a_note(self):
+        data = store([text('CONTEXT_DATA_PROCESS_ID', 'abc'), number('CONTEXT_DATA_PROCESSNAME', 7)])
+        with patch.object(artifact, 'logfunc'):
+            headers, rows, _ = self.run_artifact({PERSIST_ID: data})
+        row = dict(zip([h if isinstance(h, str) else h[0] for h in headers], rows[0]))
+        self.assertEqual(row['Process ID'], '')
+        self.assertEqual(row['Process Name'], '')
+        self.assertEqual(row['Other Properties'],
+                         'CONTEXT_DATA_PROCESS_ID=abc\nCONTEXT_DATA_PROCESSNAME=7')
+        self.assertIn('CONTEXT_DATA_PROCESS_ID holds type 6', row['Read Note'])
+
+    def test_a_process_id_that_differs_keeps_the_embedded_start_time_property(self):
+        data = store([number('CONTEXT_DATA_PROCESS_ID', 1),
+                      text('CONTEXT_DATA_PROCESS_PPID', f'pid:2,ProcessStart:{START}')])
+        with patch.object(artifact, 'logfunc'):
+            headers, rows, _ = self.run_artifact({PERSIST_ID: data})
+        row = dict(zip([h if isinstance(h, str) else h[0] for h in headers], rows[0]))
+        self.assertEqual(row['Process ID'], 1)
+        self.assertEqual(row['Process Start (UTC)'], WHEN)
+        self.assertEqual(row['Other Properties'], f'CONTEXT_DATA_PROCESS_PPID=pid:2,ProcessStart:{START}')
+
     def test_a_name_with_a_trailing_newline_is_not_a_persist_id(self):
         with tempfile.TemporaryDirectory() as folder:
             root = pathlib.Path(folder) / 'extraction' / (

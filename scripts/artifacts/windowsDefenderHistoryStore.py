@@ -20,21 +20,24 @@ _STORE_FOLDER = '/programdata/microsoft/windows defender/scans/history/store/'
 _PERSIST_ID = re.compile(r'^[0-9a-fA-F]{32}$')
 _PROCESS_START = re.compile(r'^pid:(\d{1,10}),ProcessStart:(\d{1,20})$')
 
+_U32, _U64, _U8, _TEXT, _FIXED8 = 3, 4, 5, 6, 9
+
 _HEADER = 0x3C
 _MAGIC_ONE = 0x01C5E8DB
 _MAGIC_TWO = 0x02C5E8DB
 _MAX_FILE = 16 * 1024 * 1024
 
-_U32, _U64, _U8, _TEXT, _FIXED8 = 3, 4, 5, 6, 9
 
 # Property names given a column of their own; every other property goes to the last column.
 _OWN = {
-    'CONTEXT_DATA_FILEPATH': 'path', 'CONTEXT_DATA_FILENAME': 'name',
-    'CONTEXT_DATA_PROCESSNAME': 'process', 'CONTEXT_DATA_PROCESSDEVICEPATH': 'process_path',
-    'CONTEXT_DATA_PROCESS_ID': 'pid', 'CONTEXT_DATA_PROCESS_PPID': 'ppid',
-    'CONTEXT_DATA_SCANREASON': 'reason', 'CONTEXT_DATA_NEWLYCREATEDHINT': 'new',
-    'CONTEXT_DATA_OPEN_CREATEPROCESS_HINT': 'open', 'CONTEXT_DATA_HAS_MOTW_ADS': 'motw',
-    'CONTEXT_DATA_DESIREDACCESS': 'access', 'CONTEXT_DATA_DEVICE_CHARACTERISTICS': 'device',
+    'CONTEXT_DATA_FILEPATH': ('path', _TEXT), 'CONTEXT_DATA_FILENAME': ('name', _TEXT),
+    'CONTEXT_DATA_PROCESSNAME': ('process', _TEXT),
+    'CONTEXT_DATA_PROCESSDEVICEPATH': ('process_path', _TEXT),
+    'CONTEXT_DATA_PROCESS_ID': ('pid', _U32), 'CONTEXT_DATA_PROCESS_PPID': ('ppid', _TEXT),
+    'CONTEXT_DATA_SCANREASON': ('reason', _U32), 'CONTEXT_DATA_NEWLYCREATEDHINT': ('new', _U8),
+    'CONTEXT_DATA_OPEN_CREATEPROCESS_HINT': ('open', _U8),
+    'CONTEXT_DATA_HAS_MOTW_ADS': ('motw', _U8), 'CONTEXT_DATA_DESIREDACCESS': ('access', _U32),
+    'CONTEXT_DATA_DEVICE_CHARACTERISTICS': ('device', _U32),
 }
 
 __artifacts_v2__ = {
@@ -70,15 +73,15 @@ __artifacts_v2__ = {
                  "present on 4 of the 12 files (pc_mus_001_win11 3 and the known-data image 1), so the first column is blank on the others "
                  "(no other time value was found in these 12 files; no scan time has been "
                  "identified in them, and mpdbx lists the scan time as unknown; FILETIME counts "
-                 "100-nanosecond intervals from 1601-01-01 UTC). The scanned file's directory (Scanned File Path) and file "
+                 "100-nanosecond intervals from 1601-01-01 UTC). The scanned file's directory (Scanned File Path (as stored)) and file "
                  "name (Scanned File Name) are separate properties and are reported as stored, "
                  "in the NT device form the properties hold (\\Device\\HarddiskVolumeN\\... on 11 of "
                  "the 12 files and a \\Device\\Cd... path on the other), which names a volume "
-                 "number, not a drive letter; mpdbx joins them with a backslash. Process Path "
+                 "number, not a drive letter; mpdbx joins them with a backslash. Process Path (as stored) "
                  "is the process image's directory in the \\Device\\HarddiskVolumeN form on "
                  "all 12, "
-                 "and the process image's file name is the Process Name column. Scan Reason, "
-                 "Desired Access and Device Characteristics are integers reported as stored. mpdbx's design.md "
+                 "and the process image's file name is the Process Name column. Scan Reason (as stored), "
+                 "Desired Access (as stored) and Device Characteristics (as stored) are integers reported as stored. mpdbx's design.md "
                  "names two Scan Reason values (2 on-open, 5 on-close-after-write); this "
                  "artifact does not apply those names, and no source cited here names the Desired "
                  "Access or Device Characteristics values. Newly Created Hint, "
@@ -95,15 +98,16 @@ __artifacts_v2__ = {
                  "here. Column findings on the corpus runs: on lonewolf_win10, af_case2_win10 and "
                  "szechuan_win10 (8 files) Process Start (UTC) and Process ID held no value on "
                  "every row, because none of those files carries a process ID or process start "
-                 "property; on lonewolf_win10 (6 rows) Scan Reason held 2, Newly Created Hint, "
+                 "property; on lonewolf_win10 (6 rows) Scan Reason (as stored) held 2, Newly Created Hint, "
                  "Open/CreateProcess Hint and Has MOTW ADS held No, and Other Properties "
                  "held CONTEXT_DATA_AMSI_UAC_REQUEST_CONTEXT=0000000000000000 on all 6; on "
-                 "pc_mus_001_win11 (3 rows) Scan Reason held 5, Newly Created Hint held Yes and "
-                 "Device Characteristics held 395264 on all 3, and Open/CreateProcess Hint, "
-                 "Desired Access and Other Properties held no value on any of them; Read Note "
+                 "pc_mus_001_win11 (3 rows) Scan Reason (as stored) held 5, Newly Created Hint held Yes and "
+                 "Device Characteristics (as stored) held 395264 on all 3, and Open/CreateProcess Hint, "
+                 "Desired Access (as stored) and Other Properties held no value on any of them; Read Note "
                  "held no value on any row of any run. A property that occurs more than once keeps its first value in its column; "
-                 "later ones go to Other Properties with a Read Note (none of the 12 files "
-                 "repeats a property). Source File is the evidence-relative path "
+                 "later ones go to Other Properties with a Read Note, and so does a property "
+                 "whose type is not the one its column expects (none of the 12 files repeats a "
+                 "property or holds an unexpected type). Source File is the evidence-relative path "
                  "of each Store file, kept because the same Persist ID can occur in more than "
                  "one extracted folder. The Id property holds the same 16 bytes as the file name on all 12 "
                  "files and is not repeated. A row records what Defender stored about one "
@@ -252,11 +256,14 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
         notes = [note] if note else []
         own, other, persist_bytes = {}, [], None
         for name, kind, value in properties:
-            if name in _OWN and _OWN[name] in own:
+            if name in _OWN and kind != _OWN[name][1]:
+                other.append(f'{name}={_show(kind, value)}')
+                notes.append(f'{name} holds type {kind}, not the expected type {_OWN[name][1]}')
+            elif name in _OWN and _OWN[name][0] in own:
                 other.append(f'{name}={_show(kind, value)}')
                 notes.append(f'{name} occurs more than once; the first value is in its column')
             elif name in _OWN:
-                own[_OWN[name]] = _show(kind, value)
+                own[_OWN[name][0]] = _show(kind, value)
             elif name == 'Id' and isinstance(value, bytes) and persist_bytes is None:
                 persist_bytes = value
             elif name == 'Id' and isinstance(value, bytes):
@@ -274,6 +281,7 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
             if match:
                 start = filetime_utc(int(match.group(2)))
                 if pid != '' and int(match.group(1)) != pid:
+                    other.append(f'CONTEXT_DATA_PROCESS_PPID={own["ppid"]}')
                     notes.append('process ID differs from the one in the start-time property')
                 if pid == '':
                     pid = int(match.group(1))
