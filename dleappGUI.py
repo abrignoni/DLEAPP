@@ -599,8 +599,17 @@ def process(casedata):
         Context.set_app_secret('windows_user_password', windows_user_password or None)
         exodus_password = exodus_password_var.get().strip()
         if exodus_password and os.path.isfile(exodus_password):
-            with open(exodus_password, 'r', encoding='utf-8', errors='replace') as exodus_pw_file:
-                exodus_password = exodus_pw_file.read(4096).strip()
+            try:
+                with open(exodus_password, 'r', encoding='utf-8', errors='replace') as exodus_pw_file:
+                    exodus_password = exodus_pw_file.read(4096).strip()
+            except OSError as exodus_pw_error:
+                tk_msgbox.showerror(
+                    title='Error',
+                    message=('Could not read the Exodus wallet password file:\n'
+                             f'{exodus_password}\n\n{exodus_pw_error}\n\n'
+                             'Correct or clear it and run again.'),
+                    parent=main_window)
+                return
         Context.set_app_secret('exodus_password', exodus_password or None)
         wrap_text = True
         bottom_frame.pack_forget()

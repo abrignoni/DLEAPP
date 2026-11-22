@@ -99,7 +99,8 @@ __artifacts_v2__ = {
                  "by exclamation marks. Anonymous ID is !analytics!anonymousId, User ID is "
                  "!analytics!userId: identifiers Exodus stores for the install. They are reported as "
                  "stored, and how Exodus generates them is not established. Has Balance is "
-                 "!balances!hasBalance, Yes or No. On the known data the other keys were market price "
+                 "!balances!hasBalance: Yes or No for a JSON boolean, blank for any other type. On the "
+                 "known data the other keys were market price "
                  "history (55 of 70 keys, most of the file), migration flags, remote configuration, A/B "
                  "testing data and an announcements entry; they are not reported. On the known data the "
                  "file did not contain the seed, passphrase or phrase text. On the known data, a wallet "
@@ -306,6 +307,9 @@ def exodusWalletState(context):
         if not unsafe_path:
             continue
         relative = context.get_relative_path(unsafe_path)
+        # Record the store as found before reading it, so an unreadable one still shows in the
+        # source list rather than looking like a run that found no store.
+        sources.append(unsafe_path)
         try:
             with open(unsafe_path, 'rb') as handle:
                 parsed = json.loads(handle.read())
@@ -313,12 +317,13 @@ def exodusWalletState(context):
             logfunc(f'Exodus Wallet App State: could not read unsafe-storage.json in {folder}: {exc}')
             continue
         if not isinstance(parsed, dict):
+            logfunc(f'Exodus Wallet App State: unsafe-storage.json in {folder} is not a JSON object')
             continue
-        sources.append(unsafe_path)
         anonymous_id = parsed.get('!analytics!anonymousId', '')
         user_id = parsed.get('!analytics!userId', '')
         has_balance = parsed.get('!balances!hasBalance')
-        has_balance_text = '' if has_balance is None else ('Yes' if has_balance else 'No')
+        # Only a JSON boolean gives Yes or No; a string such as "false" or another type stays blank.
+        has_balance_text = ('Yes' if has_balance else 'No') if isinstance(has_balance, bool) else ''
         data_list.append((_profile_user(relative),
                           anonymous_id if isinstance(anonymous_id, str) else '',
                           user_id if isinstance(user_id, str) else '',

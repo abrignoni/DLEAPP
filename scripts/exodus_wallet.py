@@ -52,6 +52,15 @@ _KEY_LEN = 32
 
 _VALID_ENTROPY_LENGTHS = (16, 20, 24, 28, 32)
 
+# scrypt cost bounds. secure-container's default is n=16384, r=8, p=1 (about 16 MiB). A
+# container carries its own scrypt parameters, so a crafted file could ask for far more work
+# or memory than that. These bounds are checked before the KDF runs so an outsized request is
+# refused instead of exhausting memory or CPU. scrypt's memory is about 128 * n * r bytes.
+_SCRYPT_MAX_N = 2 ** 21
+_SCRYPT_MAX_R = 64
+_SCRYPT_MAX_P = 16
+_SCRYPT_MAX_MEMORY = 512 * 1024 * 1024
+
 
 class SecoError(Exception):
     """The container could not be read."""
@@ -91,6 +100,20 @@ def is_seco_container(data):
     return len(data) >= minimum and data[0:4] == SECO_MAGIC
 
 
+def _check_scrypt_params(n, r, p):
+    """Refuse scrypt parameters that are invalid or ask for too much work or memory."""
+    if not (isinstance(n, int) and isinstance(r, int) and isinstance(p, int)):
+        raise SecoError('scrypt parameters are not integers')
+    if n < 2 or (n & (n - 1)) != 0 or n > _SCRYPT_MAX_N:
+        raise SecoError(f'scrypt n out of range: {n}')
+    if not 1 <= r <= _SCRYPT_MAX_R:
+        raise SecoError(f'scrypt r out of range: {r}')
+    if not 1 <= p <= _SCRYPT_MAX_P:
+        raise SecoError(f'scrypt p out of range: {p}')
+    if 128 * n * r > _SCRYPT_MAX_MEMORY:
+        raise SecoError('scrypt parameters exceed the memory bound')
+
+
 def secure_container_decrypt(data, passphrase):
     """Decrypt a SECO container and return the plaintext bytes.
 
@@ -115,8 +138,12 @@ def secure_container_decrypt(data, passphrase):
     meta = _decode_metadata(metadata)
     if meta['cipher'] != 'aes-256-gcm':
         raise SecoError(f"unsupported cipher {meta['cipher']!r}")
+    _check_scrypt_params(meta['n'], meta['r'], meta['p'])
     secret = passphrase.encode('utf-8') if isinstance(passphrase, str) else bytes(passphrase)
-    key = _scrypt(secret, meta['salt'], _KEY_LEN, meta['n'], meta['r'], meta['p'])
+    try:
+        key = _scrypt(secret, meta['salt'], _KEY_LEN, meta['n'], meta['r'], meta['p'])
+    except (ValueError, OverflowError, MemoryError) as exc:
+        raise SecoError(f'scrypt key derivation failed: {exc}') from exc
     try:
         blob_key = AES.new(key, AES.MODE_GCM, nonce=meta['blobkey_iv']).decrypt_and_verify(
             meta['blobkey_box'], meta['blobkey_tag'])
