@@ -82,6 +82,7 @@ __artifacts_v2__ = {
 
 
 _FINGERPRINT = re.compile(r'[0-9a-fA-F]{40}')
+_INSTANCE_TAG = re.compile(r'[0-9a-fA-F]{8}')
 
 
 def _profile_user(relative):
@@ -199,7 +200,7 @@ def _public_fingerprint(account):
 
 
 def _found(context, name):
-    return sorted(str(f) for f in context.get_files_found() if os.path.basename(str(f)) == name and os.path.isfile(str(f)))
+    return sorted(str(f) for f in context.get_files_found() if os.path.basename(str(f)).lower() == name and os.path.isfile(str(f)))
 
 
 @artifact_processor
@@ -245,7 +246,8 @@ def pidginOtrAccounts(context):
                 continue
             try:
                 fingerprint = _public_fingerprint(account)
-            except (ValueError, TypeError, IndexError):
+            except (ValueError, TypeError, IndexError) as exc:
+                logfunc(f'Pidgin OTR Accounts: a public key value did not decode in {relative} ({type(exc).__name__})')
                 fingerprint = ''
             key = (_value(_child(account, 'name')), _value(_child(account, 'protocol')))
             if not all(key):
@@ -263,9 +265,13 @@ def pidginOtrAccounts(context):
             continue
         for line in lines:
             parts = line.split('\t')
-            if line.startswith('#') or len(parts) < 3:
+            if line.startswith('#') or not line.strip():
                 continue
-            entry['rows'].setdefault((parts[0], parts[1]), ['', ''])[1] = parts[2].strip()
+            tag = parts[2].strip() if len(parts) > 2 else ''
+            if len(parts) < 3 or not parts[0] or not parts[1] or not _INSTANCE_TAG.fullmatch(tag):
+                logfunc(f'Pidgin OTR Accounts: skipped a malformed instance tag line in {relative}')
+                continue
+            entry['rows'].setdefault((parts[0], parts[1]), ['', ''])[1] = tag
     data_list, sources = [], []
     for _folder, entry in sorted(folders.items()):
         for (account, protocol), (fingerprint, tag) in sorted(entry['rows'].items()):
