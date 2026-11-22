@@ -283,6 +283,24 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(row['Other Properties'], 'CONTEXT_DATA_PROCESSNAME=second.exe')
         self.assertIn('CONTEXT_DATA_PROCESSNAME occurs more than once', row['Read Note'])
 
+    def test_a_second_id_is_kept_and_noted_not_compared(self):
+        good, other = bytes.fromhex(PERSIST_ID), bytes(16)
+        with patch.object(artifact, 'logfunc'):
+            headers, rows, _ = self.run_artifact({PERSIST_ID: store([blob('Id', other), blob('Id', good)])})
+        row = dict(zip([h if isinstance(h, str) else h[0] for h in headers], rows[0]))
+        self.assertIn('Id property differs from the file name', row['Read Note'])
+        self.assertIn('Id occurs more than once', row['Read Note'])
+        self.assertIn('Id=' + good.hex(), row['Other Properties'])
+
+    def test_a_start_time_property_with_trailing_data_is_not_read_as_a_time(self):
+        data = store([text('CONTEXT_DATA_PROCESS_PPID', 'pid:5,ProcessStart:%d\n' % START)])
+        with patch.object(artifact, 'logfunc'):
+            headers, rows, _ = self.run_artifact({PERSIST_ID: data})
+        row = dict(zip([h if isinstance(h, str) else h[0] for h in headers], rows[0]))
+        self.assertEqual(row['Process Start (UTC)'], '')
+        self.assertEqual(row['Process ID'], '')
+        self.assertIn('not in the documented form', row['Read Note'])
+
     def test_a_name_with_a_trailing_newline_is_not_a_persist_id(self):
         with tempfile.TemporaryDirectory() as folder:
             root = pathlib.Path(folder) / 'extraction' / (

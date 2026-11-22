@@ -257,8 +257,11 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
                 notes.append(f'{name} occurs more than once; the first value is in its column')
             elif name in _OWN:
                 own[_OWN[name]] = _show(kind, value)
-            elif name == 'Id' and isinstance(value, bytes):
+            elif name == 'Id' and isinstance(value, bytes) and persist_bytes is None:
                 persist_bytes = value
+            elif name == 'Id' and isinstance(value, bytes):
+                other.append(f'Id={value.hex()}')
+                notes.append('Id occurs more than once; the first value is compared with the file name')
             else:
                 other.append(f'{name}={_show(kind, value)}')
         file_id = os.path.basename(path).upper()
@@ -267,7 +270,7 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
             notes.append('Id property differs from the file name')
         start, pid = '', own.get('pid', '')
         if 'ppid' in own:
-            match = _PROCESS_START.match(str(own['ppid']))
+            match = _PROCESS_START.fullmatch(str(own['ppid']))
             if match:
                 start = filetime_utc(int(match.group(2)))
                 if pid != '' and int(match.group(1)) != pid:
