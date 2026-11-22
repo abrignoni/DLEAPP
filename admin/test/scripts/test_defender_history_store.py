@@ -32,8 +32,8 @@ def encrypt(data):
     return bytes(a ^ b for a, b in zip(data, stream))
 
 
-def name(text):
-    raw = (text + '\0').encode('utf-16-le')
+def name(label):
+    raw = (label + '\0').encode('utf-16-le')
     return struct.pack('<I', len(raw)) + raw
 
 
@@ -153,8 +153,8 @@ class ArtifactTest(unittest.TestCase):
                 path = root / file_name
                 path.write_bytes(data)
                 paths.append(path)
-            return artifact.defenderHistoryStore.__wrapped__(FakeContext(paths)) \
-                if hasattr(artifact.defenderHistoryStore, '__wrapped__') else None
+            result = artifact.defenderHistoryStore.__wrapped__(FakeContext(paths))
+            return tuple(result)
 
     def test_row_columns(self):
         with patch.object(artifact, 'logfunc'):
