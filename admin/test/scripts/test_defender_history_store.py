@@ -60,7 +60,7 @@ def blob(label, data):
 
 def store(properties, first=b'', magic_two=0x02C5E8DB):
     body = b''.join(properties)
-    section = struct.pack('<I', len(body)) + body
+    section = struct.pack('<I', 4 + len(body)) + body
     header = bytearray(0x3C)
     struct.pack_into('<I', header, 0, 0x01C5E8DB)
     struct.pack_into('<II', header, 0x28, len(first), len(section))
@@ -131,6 +131,29 @@ class ReadStoreTest(unittest.TestCase):
         self.assertEqual([p[0] for p in properties], ['CONTEXT_DATA_SCANREASON'])
         self.assertIn('after 1 properties', note)
 
+    def test_properties_past_the_declared_length_are_not_read_and_are_noted(self):
+        # Rebuild with a declared length that stops after the first property.
+        body = number('A', 1) + number('B', 2)
+        section = struct.pack('<I', 4 + len(number('A', 1))) + body
+        header = bytearray(0x3C)
+        struct.pack_into('<I', header, 0, 0x01C5E8DB)
+        struct.pack_into('<II', header, 0x28, 0, len(section))
+        struct.pack_into('<I', header, 0x38, 0x02C5E8DB)
+        properties, note = artifact.read_store(encrypt(bytes(header)) + encrypt(section))
+        self.assertEqual([p[0] for p in properties], ['A'])
+        self.assertIn('declares', note)
+
+    def test_declared_length_longer_than_the_section_is_noted(self):
+        body = number('A', 1)
+        section = struct.pack('<I', 4 + len(body) + 50) + body
+        header = bytearray(0x3C)
+        struct.pack_into('<I', header, 0, 0x01C5E8DB)
+        struct.pack_into('<II', header, 0x28, 0, len(section))
+        struct.pack_into('<I', header, 0x38, 0x02C5E8DB)
+        properties, note = artifact.read_store(encrypt(bytes(header)) + encrypt(section))
+        self.assertEqual([p[0] for p in properties], ['A'])
+        self.assertIn('declares', note)
+
     def test_truncated_fixed_property_is_reported(self):
         cut = name('CONTEXT_DATA_AMSI_UAC_REQUEST_CONTEXT') + struct.pack('<I', 9) + bytes(4)
         properties, note = artifact.read_store(store([number('A', 1), cut]))
@@ -173,6 +196,32 @@ class ArtifactTest(unittest.TestCase):
                          'CONTEXT_DATA_AMSI_UAC_REQUEST_CONTEXT=0000000000000000\n'
                          'CONTEXT_DATA_FILE_ATTRIBUTES=32')
         self.assertEqual(row['Read Note'], '')
+
+    def test_oversized_process_start_does_not_abort_the_artifact(self):
+        data = store([text('CONTEXT_DATA_PROCESS_PPID', 'pid:1,ProcessStart:' + '9' * 5000),
+                      number('CONTEXT_DATA_SCANREASON', 2)])
+        with patch.object(artifact, 'logfunc'):
+            headers, rows, _ = self.run_artifact({PERSIST_ID: data, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF': full_store()})
+        self.assertEqual(len(rows), 2)
+        row = dict(zip([h if isinstance(h, str) else h[0] for h in headers], rows[0]))
+        self.assertIn('not in the documented form', row['Read Note'])
+        self.assertEqual(row['Process Start (UTC)'], '')
+
+    def test_source_file_separates_the_same_persist_id_in_two_folders(self):
+        with tempfile.TemporaryDirectory() as folder:
+            paths = []
+            for part in ('p1', 'p2'):
+                root = pathlib.Path(folder) / 'extraction' / part / (
+                    'ProgramData/Microsoft/Windows Defender/Scans/History/Store')
+                root.mkdir(parents=True)
+                (root / PERSIST_ID).write_bytes(full_store())
+                paths.append(root / PERSIST_ID)
+            with patch.object(artifact, 'logfunc'):
+                headers, rows, _ = tuple(artifact.defenderHistoryStore.__wrapped__(FakeContext(paths)))
+        index = [h if isinstance(h, str) else h[0] for h in headers].index('Source File')
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(len({r[index] for r in rows}), 2)
+        self.assertTrue(rows[0][index].startswith('/p1/') and rows[1][index].startswith('/p2/'))
 
     def test_a_file_whose_name_is_not_a_persist_id_is_not_read(self):
         with patch.object(artifact, 'logfunc'):

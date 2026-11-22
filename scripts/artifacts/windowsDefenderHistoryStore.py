@@ -18,7 +18,7 @@ from scripts.windows_defender_history import filetime_utc
 _LABEL = 'Microsoft Defender History Store'
 _STORE_FOLDER = '/programdata/microsoft/windows defender/scans/history/store/'
 _PERSIST_ID = re.compile(r'^[0-9a-fA-F]{32}$')
-_PROCESS_START = re.compile(r'^pid:(\d+),ProcessStart:(\d+)$')
+_PROCESS_START = re.compile(r'^pid:(\d{1,10}),ProcessStart:(\d{1,20})$')
 
 _HEADER = 0x3C
 _MAGIC_ONE = 0x01C5E8DB
@@ -60,7 +60,8 @@ __artifacts_v2__ = {
                  "scripts/mpenginedb.py holds for mpenginedb.db. Measured on 12 files (see "
                  "sample_data), all 12 open with the two magic values, a first section of 0 "
                  "bytes, a 60-byte header plus second section equal to the file size, and a "
-                 "property list that ends exactly at the end of the second section. The mpdbx "
+                 "property list that ends exactly at the end of the second section, whose leading "
+                 "4-byte count equals the section's own length. The mpdbx "
                  "README at the same commit (https://github.com/Mihir-Choudhary/mpdbx/blob/40f926f05021d878207cd635451c00166b1132ed/README.md) "
                  "says the tool was validated on one Windows 11 build (Defender platform 4.18.260x); these 12 come from "
                  "Windows 10 and Windows 11 images and one Windows 11 ARM64 known-data image. "
@@ -100,7 +101,9 @@ __artifacts_v2__ = {
                  "pc_mus_001_win11 (3 rows) Scan Reason held 5, Newly Created Hint held Yes and "
                  "Device Characteristics held 395264 on all 3, and Open/CreateProcess Hint, "
                  "Desired Access and Other Properties held no value on any of them; Read Note "
-                 "held no value on any row of any run. The Id property holds the same 16 bytes as the file name on all 12 "
+                 "held no value on any row of any run. Source File is the evidence-relative path "
+                 "of each Store file, kept because the same Persist ID can occur in more than "
+                 "one extracted folder. The Id property holds the same 16 bytes as the file name on all 12 "
                  "files and is not repeated. A row records what Defender stored about one "
                  "scan context; it does not show that the file was detected, blocked or "
                  "removed, and does not by itself establish who started the process. Not read: "
@@ -187,6 +190,10 @@ def read_store(data):
     if len(section) < 4:
         return [], 'second section is too short to hold a property count'
     notes = [f'first section holds {first} bytes, not read'] if first else []
+    (declared,) = struct.unpack_from('<I', section, 0)
+    if declared != len(section):
+        notes.append(f'second section declares {declared} bytes; it holds {len(section)}')
+    section = section[:min(declared, len(section))]
     properties, position = [], 4
     while position < len(section):
         try:
@@ -222,7 +229,8 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
                     'Process Path (as stored)', ('Process ID', 'number'),
                     'Scan Reason (as stored)', 'Newly Created Hint', 'Open/CreateProcess Hint',
                     'Has MOTW ADS', 'Desired Access (as stored)',
-                    'Device Characteristics (as stored)', 'Other Properties', 'Read Note')
+                    'Device Characteristics (as stored)', 'Other Properties', 'Read Note',
+                    'Source File')
     data_list = []
     sources = []
     for path in _store_files(context):
@@ -267,7 +275,7 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
             start, file_id, own.get('path', ''), own.get('name', ''), own.get('process', ''),
             own.get('process_path', ''), pid, own.get('reason', ''), own.get('new', ''),
             own.get('open', ''), own.get('motw', ''), own.get('access', ''),
-            own.get('device', ''), '\n'.join(other), '; '.join(notes)))
+            own.get('device', ''), '\n'.join(other), '; '.join(notes), relative))
         if notes:
             logfunc(f'{_LABEL}: {relative}: ' + '; '.join(notes))
     logfunc(f'{_LABEL}: {len(data_list)} Store file(s) read')
