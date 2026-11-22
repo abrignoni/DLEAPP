@@ -128,7 +128,7 @@ def read_tag(reader):
     elif tag_type == TAGTYPE_BLOB:
         value = reader.take(reader.u32())
     else:
-        # eMule reads nothing for an unknown type, so its position, and ours, is lost from here.
+        # eMule reads no value for an unknown type and carries on. This reader stops here and keeps what it read.
         raise EmuleFormatError(f'unknown tag type 0x{tag_type:02x} at offset {reader.pos}')
     return name, value
 
