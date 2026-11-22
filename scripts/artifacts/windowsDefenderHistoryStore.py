@@ -283,8 +283,12 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
                 if pid != '' and int(match.group(1)) != pid:
                     other.append(f'CONTEXT_DATA_PROCESS_PPID={own["ppid"]}')
                     notes.append('process ID differs from the one in the start-time property')
-                if pid == '':
+                if pid == '' and int(match.group(1)) <= 0xFFFFFFFF:
                     pid = int(match.group(1))
+                elif pid == '':
+                    other.append(f'CONTEXT_DATA_PROCESS_PPID={own["ppid"]}')
+                    notes.append('process ID in the start-time property is outside the unsigned 32-bit range, '
+                                 'so Process ID is empty; Process Start still holds the FILETIME')
             else:
                 other.append(f'CONTEXT_DATA_PROCESS_PPID={own["ppid"]}')
                 notes.append('process start property is not in the documented form')
