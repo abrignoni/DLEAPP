@@ -93,7 +93,8 @@ class FakeContext:
         return self.paths
 
     def get_relative_path(self, path):
-        return str(path).split('/extraction', 1)[-1] if '/extraction' in str(path) else str(path)
+        posix = pathlib.Path(path).as_posix()
+        return posix.split('/extraction', 1)[-1] if '/extraction' in posix else posix
 
 
 class ReadStoreTest(unittest.TestCase):
@@ -222,6 +223,30 @@ class ArtifactTest(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual(len({r[index] for r in rows}), 2)
         self.assertTrue(rows[0][index].startswith('/p1/') and rows[1][index].startswith('/p2/'))
+
+    def test_a_store_named_file_below_a_nested_folder_is_not_read(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder) / 'extraction' / (
+                'ProgramData/Microsoft/Windows Defender/Scans/History/Store/nested')
+            root.mkdir(parents=True)
+            (root / PERSIST_ID).write_bytes(full_store())
+            with patch.object(artifact, 'logfunc'):
+                _, rows, sources = tuple(
+                    artifact.defenderHistoryStore.__wrapped__(FakeContext([root / PERSIST_ID])))
+        self.assertEqual(rows, [])
+        self.assertEqual(sources, '')
+
+    def test_a_matched_file_that_cannot_be_read_is_still_a_source(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder) / 'extraction' / (
+                'ProgramData/Microsoft/Windows Defender/Scans/History/Store')
+            root.mkdir(parents=True)
+            (root / PERSIST_ID).write_bytes(full_store())
+            with patch.object(artifact, 'logfunc'), patch.object(artifact, '_MAX_FILE', 10):
+                _, rows, sources = tuple(
+                    artifact.defenderHistoryStore.__wrapped__(FakeContext([root / PERSIST_ID])))
+        self.assertEqual(rows, [])
+        self.assertEqual(sources, str(root / PERSIST_ID))
 
     def test_a_file_whose_name_is_not_a_persist_id_is_not_read(self):
         with patch.object(artifact, 'logfunc'):

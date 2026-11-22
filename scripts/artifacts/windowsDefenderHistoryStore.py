@@ -216,7 +216,7 @@ def _show(kind, value):
 def _store_files(context):
     for path in sorted(str(f) for f in context.get_files_found()):
         relative = '/' + context.get_relative_path(path).replace('\\', '/').lower()
-        if _STORE_FOLDER not in relative or os.path.isdir(path):
+        if not (relative.rsplit('/', 1)[0] + '/').endswith(_STORE_FOLDER) or os.path.isdir(path):
             continue
         if _PERSIST_ID.match(os.path.basename(path)):
             yield path
@@ -235,6 +235,7 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
     sources = []
     for path in _store_files(context):
         relative = context.get_relative_path(path)
+        sources.append(path)
         try:
             if os.path.getsize(path) > _MAX_FILE:
                 logfunc(f'{_LABEL}: {relative} is larger than {_MAX_FILE} bytes, not read')
@@ -244,7 +245,6 @@ def defenderHistoryStore(context):  # pylint: disable=too-many-locals
         except OSError as exc:
             logfunc(f'{_LABEL}: could not read {relative}: {exc.strerror}')
             continue
-        sources.append(path)
         properties, note = read_store(data)
         notes = [note] if note else []
         own, other, persist_bytes = {}, [], None
