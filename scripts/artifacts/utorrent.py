@@ -42,9 +42,9 @@ __artifacts_v2__ = {
                  "8 rows. Started (as stored) is the started field: it held 0 on the torrent stopped through the Web "
                  "API and 2 on the running ones; other values were not seen. Runtime and Seed Time are the runtime and "
                  "seedtime fields as stored; their unit was not established. Download URL is download_url, the address "
-                 "the .torrent was added from on the known data. Files and Total Size come from the .torrent named by "
-                 "the resume entry, in the same folder with the name matched ignoring case, and only when that file's "
-                 "original info bytes hash to the entry's info-hash. Total Size is blank when a file entry has no "
+                 "the .torrent was added from on the known data. Files and Total Size come from a .torrent staged in "
+                 "the same folder whose original info bytes hash to the entry's info-hash, preferring the file the "
+                 "entry names. A valid name.utf-8 or path.utf-8 is used over the plain field. Total Size is blank when a file entry has no "
                  "valid length. On the known data the program was closed cleanly and resume.dat held the state at "
                  "that close. A forced stop was not tested, so how current resume.dat is after one is not established. "
                  "A copy run from another folder name is not matched. Trackers held the one loopback tracker on all 8 "
@@ -191,10 +191,36 @@ def _valid_length(value):
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
+def _strict_utf8(value):
+    try:
+        return value.decode('utf-8')
+    except (AttributeError, UnicodeDecodeError):
+        return None
+
+
+def _preferred_text(record, key):
+    """A valid UTF-8 override such as name.utf-8, else the plain field."""
+    override = _strict_utf8(record.get(key + b'.utf-8'))
+    return override if override else _text(record.get(key))
+
+
+def _preferred_path(entry):
+    """The parts of a file's path.utf-8 when every part is valid, else of path; [] when neither is usable."""
+    override = entry.get(b'path.utf-8')
+    if isinstance(override, list) and override:
+        parts = [_strict_utf8(part) for part in override]
+        if all(part is not None for part in parts):
+            return parts
+    stored = entry.get(b'path')
+    if isinstance(stored, list) and stored and all(isinstance(part, bytes) for part in stored):
+        return [_text(part) for part in stored]
+    return []
+
+
 def _files(info):
     if not isinstance(info, dict):
         return [], ''
-    name = _text(info.get(b'name'))
+    name = _preferred_text(info, b'name')
     if b'files' in info:
         if not isinstance(info[b'files'], list) or not info[b'files']:
             return [], ''
@@ -203,9 +229,9 @@ def _files(info):
             if not isinstance(entry, dict):
                 sizes_valid = False
                 continue
-            stored = entry.get(b'path')
-            if isinstance(stored, list) and stored and all(isinstance(part, bytes) for part in stored):
-                paths.append('/'.join([name] + [_text(part) for part in stored]))
+            stored = _preferred_path(entry)
+            if stored:
+                paths.append('/'.join([name] + stored))
             if _valid_length(entry.get(b'length')):
                 total += entry[b'length']
             else:
@@ -251,31 +277,32 @@ def _info_span(raw):
     return b''
 
 
-def _companion(staged, entry_name):
-    """The staged .torrent files whose name matches the entry's, ignoring case, exact spelling first."""
-    wanted = ntpath.basename(entry_name)
-    exact = [path for path in staged if os.path.basename(path) == wanted]
-    others = [path for path in staged
-              if os.path.basename(path) != wanted and os.path.basename(path).lower() == wanted.lower()]
-    return exact + others
-
-
-def _torrent_info(staged, entry_name, info_hash):
-    """(info dictionary, path) of the entry's .torrent, only when its info bytes hash to the recorded info-hash."""
-    if not info_hash:
-        return None, ''
-    for path in _companion(staged, entry_name):
+def _torrent_index(staged):
+    """{info-hash: [(path, info)]} for the staged .torrent files, hashed over their original info bytes."""
+    index = {}
+    for path in staged:
         try:
             with open(path, 'rb') as handle:
-                raw = handle.read()
-            span = _info_span(raw)
-            if span and hashlib.sha1(span).digest() == info_hash:  # nosec B324
-                info = bencoding.bdecode(span)
-                if isinstance(info, dict):
-                    return info, path
+                span = _info_span(handle.read())
+            if not span:
+                continue
+            info = bencoding.bdecode(span)
         except _DECODE_ERRORS:
             continue
-    return None, ''
+        if isinstance(info, dict):
+            index.setdefault(hashlib.sha1(span).digest(), []).append((path, info))  # nosec B324
+    return index
+
+
+def _torrent_info(index, entry_key, info_hash):
+    """(info dictionary, path) of the staged .torrent with this info-hash, the entry's own file name first."""
+    matches = index.get(info_hash) if info_hash else None
+    if not matches:
+        return None, ''
+    wanted = ntpath.basename(entry_key.decode('utf-8', 'surrogateescape'))
+    ranked = sorted(matches, key=lambda item: (os.path.basename(item[0]) != wanted,
+                                               os.path.basename(item[0]).lower() != wanted.lower(), item[0]))
+    return ranked[0][1], ranked[0][0]
 
 
 def _trackers(entry):
@@ -330,12 +357,13 @@ def utorrentTorrents(context):
         staged = sorted({str(f) for f in context.get_files_found()
                          if os.path.dirname(str(f)) == folder and str(f).lower().endswith('.torrent')
                          and os.path.isfile(str(f))})
+        index = _torrent_index(staged)
         for key, entry in resume.items():
             if not isinstance(key, bytes) or not key.lower().endswith(b'.torrent') or not isinstance(entry, dict):
                 continue
             raw_hash = entry.get(b'info')
             info_hash = raw_hash if isinstance(raw_hash, bytes) and len(raw_hash) == 20 else b''
-            info, torrent_path = _torrent_info(staged, _text(key), info_hash)
+            info, torrent_path = _torrent_info(index, key, info_hash)
             files, total = _files(info)
             if torrent_path:
                 sources.append(torrent_path)
