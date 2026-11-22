@@ -42,8 +42,8 @@ docs/user_data_dir.md, lines 188 to 205,
 ). Those two folders, and Library/Caches/com.operasoftware.Opera, where the default
 profile's cache was on one private system with Opera 137 installed, are listed below so
 that a cache file is placed in its browser and profile. No other artifact's paths name
-these folders; two with a Library/Caches wildcard (macOS App URL Cache for Cache.db, macOS
-HSTS Hosts for HSTS.plist) can match a file inside them.
+these folders; two with a Library/Caches wildcard (App URL Cache for Cache.db, macOS HSTS
+Hosts for HSTS.plist) can match a file inside them.
 
 Each profile is a folder inside the user data folder (Default, Profile 2, ...).
 When a browser's Local State lists no profile, Brave's importer reads the user
