@@ -22,9 +22,12 @@ import json
 import os
 from datetime import datetime, timezone
 
-# Cap on unsafe-storage.json, read before decoding so a huge matched file cannot exhaust memory.
-# The known data's file is about 3.4 MB of market history, so 64 MiB leaves room while bounding it.
+# Caps on the files read before parsing, so a huge matched file cannot exhaust memory. The known
+# data's files are tiny (seed.seco 33 KB, passphrase.json 85 B, unsafe-storage.json about 3.4 MB of
+# market history), so these leave ample room while bounding a crafted file.
 _MAX_UNSAFE_STORAGE_BYTES = 64 * 1024 * 1024
+_MAX_SEED_BYTES = 16 * 1024 * 1024
+_MAX_PASSPHRASE_BYTES = 1 * 1024 * 1024
 
 from scripts import exodus_wallet as ew
 from scripts.ilapfuncs import artifact_processor, logfunc
@@ -232,10 +235,12 @@ def _seed_times(context, staged_path):
 
 
 def _group_by_wallet(context):
-    """Map each wallet folder (relative) to {lowercase basename: staged path} for the files found.
+    """Map each wallet folder (relative) to {lowercase basename: [staged paths]} for the files found.
 
-    The basename is lower-cased so a file matched case-insensitively on a raw NTFS, exFAT, ReFS
-    or FAT volume still keys to its expected name (passphrase.json, seed.seco, unsafe-storage.json).
+    The basename is lower-cased so a file matched case-insensitively on a raw NTFS, exFAT, ReFS or
+    FAT volume still keys to its expected name (passphrase.json, seed.seco, unsafe-storage.json). A
+    name maps to a list, so two staged files whose basenames differ only by case are both kept and
+    the caller can treat an ambiguous pair explicitly rather than silently losing one.
     """
     wallets = {}
     for staged in sorted({str(found) for found in context.get_files_found()}):
@@ -245,8 +250,18 @@ def _group_by_wallet(context):
         folder = _wallet_folder_of_file(relative)
         if not folder:
             continue
-        wallets.setdefault(folder, {})[os.path.basename(relative).lower()] = staged
+        wallets.setdefault(folder, {}).setdefault(os.path.basename(relative).lower(), []).append(staged)
     return wallets
+
+
+def _candidate(files, name):
+    """Resolve a normalized name to (path, status): status 'ok', 'absent' or 'ambiguous'."""
+    paths = files.get(name) or []
+    if not paths:
+        return None, 'absent'
+    if len(paths) > 1:
+        return paths[0], 'ambiguous'
+    return paths[0], 'ok'
 
 
 @artifact_processor
@@ -257,16 +272,18 @@ def exodusWallet(context):
     sources = []
     supplied_password = context.get_app_secret('exodus_password')
     for folder, files in sorted(_group_by_wallet(context).items()):
-        # Record a matched passphrase.json even on a partial extraction with no seed.seco, so its
-        # source attribution is not lost, while still emitting at most one row per seed.seco.
-        passphrase_path = files.get('passphrase.json')
-        if passphrase_path:
-            sources.append(passphrase_path)
+        # Record every matched passphrase.json and seed.seco for source attribution, even on a
+        # partial extraction with no seed.seco, while still emitting at most one row per seed.seco.
+        passphrase_path, passphrase_status = _candidate(files, 'passphrase.json')
+        for path in files.get('passphrase.json') or []:
+            sources.append(path)
 
-        seed_path = files.get('seed.seco')
-        if not seed_path:
+        seed_path, seed_status = _candidate(files, 'seed.seco')
+        for path in files.get('seed.seco') or []:
+            sources.append(path)
+        if seed_status == 'absent':
             continue
-        sources.append(seed_path)
+
         relative = context.get_relative_path(seed_path)
         user = _profile_user(relative)
         modified = ''
@@ -274,19 +291,37 @@ def exodusWallet(context):
         if times is not None:
             modified = _instant(times.modified)
 
+        if seed_status == 'ambiguous':
+            logfunc(f'Exodus Wallet Secrets: more than one seed.seco by case in {folder}; not paired')
+            data_list.append((modified, user, 'seed.seco did not read (ambiguous name)',
+                              '', '', '', '', relative))
+            continue
+
         stored_passphrase = system_flag = None
-        if passphrase_path:
+        if passphrase_status == 'ambiguous':
+            logfunc(f'Exodus Wallet Secrets: more than one passphrase.json by case in {folder}; '
+                    'treating the stored passphrase as unavailable')
+        elif passphrase_path:
             try:
                 with open(passphrase_path, 'rb') as handle:
-                    stored_passphrase, system_flag = ew.read_passphrase_file(handle.read())
+                    passphrase_bytes = handle.read(_MAX_PASSPHRASE_BYTES + 1)
+                if len(passphrase_bytes) > _MAX_PASSPHRASE_BYTES:
+                    logfunc(f'Exodus Wallet Secrets: passphrase.json in {folder} is oversized; '
+                            'treating the stored passphrase as unavailable')
+                    passphrase_bytes = b''
+                stored_passphrase, system_flag = ew.read_passphrase_file(passphrase_bytes)
             except OSError as exc:
                 logfunc(f'Exodus Wallet Secrets: could not read passphrase.json in {folder}: {exc}')
 
         try:
             with open(seed_path, 'rb') as handle:
-                seed_bytes = handle.read()
+                seed_bytes = handle.read(_MAX_SEED_BYTES + 1)
         except OSError as exc:
             logfunc(f'Exodus Wallet Secrets: could not read seed.seco in {folder}: {exc}')
+            data_list.append((modified, user, 'seed.seco did not read', '', '', '', '', relative))
+            continue
+        if len(seed_bytes) > _MAX_SEED_BYTES:
+            logfunc(f'Exodus Wallet Secrets: seed.seco in {folder} is oversized; not read')
             data_list.append((modified, user, 'seed.seco did not read', '', '', '', '', relative))
             continue
 
@@ -364,14 +399,19 @@ def exodusWalletState(context):
     data_list = []
     sources = []
     for folder, files in sorted(_group_by_wallet(context).items()):
-        unsafe_path = files.get('unsafe-storage.json')
-        if not unsafe_path:
+        unsafe_path, unsafe_status = _candidate(files, 'unsafe-storage.json')
+        if unsafe_status == 'absent':
             continue
         relative = context.get_relative_path(unsafe_path)
         user = _profile_user(relative)
-        # Record the store as found before reading it, so an unreadable one still shows in the
-        # source list rather than looking like a run that found no store.
-        sources.append(unsafe_path)
+        # Record every matched store before reading, so an unreadable one still shows in the source
+        # list rather than looking like a run that found no store.
+        for path in files.get('unsafe-storage.json') or []:
+            sources.append(path)
+        if unsafe_status == 'ambiguous':
+            logfunc(f'Exodus Wallet App State: more than one unsafe-storage.json by case in {folder}')
+            data_list.append((user, '', '', '', 'ambiguous name', relative))
+            continue
         try:
             with open(unsafe_path, 'rb') as handle:
                 raw = handle.read(_MAX_UNSAFE_STORAGE_BYTES + 1)
@@ -420,9 +460,11 @@ def exodusWalletFiles(context):
             continue
         seen.add(item.path)
         times = getattr(item.info, 'times', None)
-        # Time Source is never blank: it reads none when the input carries no time for the file.
-        time_source = (times.source if times else '') or 'none'
-        data_list.append((_instant(times.modified) if times else '', _instant(times.created) if times else '',
-                          name, item.size, time_source, _profile_user(item.path), item.path))
+        modified = _instant(times.modified) if times else ''
+        created = _instant(times.created) if times else ''
+        # Name the source only when a timestamp actually rendered; otherwise Time Source reads none.
+        time_source = (times.source or 'none') if (times and (modified or created)) else 'none'
+        data_list.append((modified, created, name, item.size, time_source,
+                          _profile_user(item.path), item.path))
         sources.append(item.path)
     return data_headers, data_list, '\n'.join(sources)
