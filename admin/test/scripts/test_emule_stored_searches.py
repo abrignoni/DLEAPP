@@ -108,6 +108,18 @@ class StoredSearches(unittest.TestCase):
         for value in ('named value', 'numbered value', 'literal value'):
             self.assertIn(value, rows[0]['Other Values'])
 
+    def test_a_value_of_the_wrong_type_stays_visible(self):
+        numeric = bytes([emule.TAGTYPE_UINT32 | 0x80, emule.FT_FILETYPE]) + struct.pack('<I', 77)
+        self.add('one', store(search('text', [result('a.bin', (numeric,))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['File Type'], '')
+        self.assertEqual(rows[0]['Other Values'], 'tag_0x03=77')
+
+    def test_a_separator_in_a_value_cannot_read_as_a_second_tag(self):
+        self.add('one', store(search('text', [result('a.bin', (string_tag(0xF6, 'a; title=b'),))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['Other Values'], 'comment=a\\; title=b')
+
     def test_an_unshared_tag_name_stays_plain(self):
         self.add('one', store(search('text', [result('a.bin', (string_tag(0xD0, 'value'),))])))
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)

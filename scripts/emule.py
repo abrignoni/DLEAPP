@@ -219,8 +219,6 @@ FT_FOLDERNAME = 0x38
 FT_FILERATING = 0xF7
 _RESULT_TAG_NAMES = {0xD0: 'artist', 0xD1: 'album', 0xD2: 'title', 0xD3: 'length', 0xD4: 'bitrate', 0xD5: 'codec',
                      0x04: 'format', 0xF6: 'comment', FT_LASTSEENCOMPLETE: 'last_seen_complete'}   # Opcodes.h
-_RESULT_TAGS_SHOWN = (FT_FILENAME, FT_FILESIZE, FT_FILESIZE_HI, FT_FILETYPE, FT_SOURCES, FT_COMPLETE_SOURCES,
-                      FT_FOLDERNAME, FT_AICH_HASH, FT_FILERATING)
 
 
 def _met_string(reader):
@@ -268,10 +266,18 @@ def _stored_result(reader):
             folder = value                  # its constructor keeps the first non-empty folder
     size = tags.get(FT_FILESIZE)
     high = tags.get(FT_FILESIZE_HI)
-    if isinstance(size, int) and isinstance(high, int) and size <= 0xFFFFFFFF:
+    combined = isinstance(size, int) and isinstance(high, int) and size <= 0xFFFFFFFF
+    if combined:
         size |= high << 32
-    other = _other_values({name: value for name, value in tags.items() if name not in _RESULT_TAGS_SHOWN})
     aich = tags.get(FT_AICH_HASH)
+    # A tag leaves Other Values only when a dedicated field really holds its value.
+    in_field = {FT_FILENAME: isinstance(tags.get(FT_FILENAME), str), FT_FILESIZE: isinstance(tags.get(FT_FILESIZE), int),
+                FT_FILESIZE_HI: combined, FT_FILETYPE: isinstance(tags.get(FT_FILETYPE), str),
+                FT_SOURCES: _int(tags.get(FT_SOURCES)) is not None,
+                FT_COMPLETE_SOURCES: _int(tags.get(FT_COMPLETE_SOURCES)) is not None,
+                FT_FOLDERNAME: tags.get(FT_FOLDERNAME) == folder and folder is not None,
+                FT_AICH_HASH: aich not in (None, ''), FT_FILERATING: _int(tags.get(FT_FILERATING)) is not None}
+    other = _other_values({name: value for name, value in tags.items() if not in_field.get(name)})
     record.update(name=_text(tags.get(FT_FILENAME)), size=size if isinstance(size, int) else None,
                   file_type=_text(tags.get(FT_FILETYPE)), sources=_int(tags.get(FT_SOURCES)),
                   complete_sources=_int(tags.get(FT_COMPLETE_SOURCES)), folder=folder,

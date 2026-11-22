@@ -173,7 +173,7 @@ __artifacts_v2__ = {
                  "the stored client ID read as an IPv4 address, and Client Port its port. A client ID below "
                  "16777216 is a low ID (IsLowID, OtherFunctions.h), not an address: the address is then blank and the ID is in Other Values. A client ID of 0 shows no address and no ID, and a port of 0 shows blank. eMule stores 0 for both when it rejected the client address on load (SearchFile.cpp, IsValidSearchResultClientIPPort). Sources and Complete Sources are the counts stored for the result. Search Order is the position in the file of the search the result was stored under, the same value as in eMule Stored Searches. Other Values holds the remaining stored tags as name=value: folder, AICH hash, "
                  "rating as stored, file format, artist, album, title, length, bitrate, codec, comment, "
-                 "last_seen_complete, and any other tag under its name or number. When two of the other tags would show the same name, each also shows its stored identifier in brackets. The folder, aich, rating_stored and low_id entries are added by the parser and are not marked. A stored tag with one of those four names shows beside them under the same name. When a tag name repeats the last value is used, as eMule does, except the folder. The first folder value that is not empty is shown. eMule keeps that one for a search that is not Kademlia (SearchFile.cpp). Rating as "
+                 "last_seen_complete, and any other tag under its name or number. A tag whose value does not fit its dedicated column stays in Other Values. Entries are separated by '; '. A backslash or semicolon in a name or value, or an equals sign in a name, is shown with a backslash before it. When two of the other tags would show the same name, each also shows its stored identifier in brackets. The folder, aich, rating_stored and low_id entries are added by the parser and are not marked. A stored tag with one of those four names shows beside them under the same name. When a tag name repeats the last value is used, as eMule does, except the folder. The first folder value that is not empty is shown. eMule keeps that one for a search that is not Kademlia (SearchFile.cpp). Rating as "
                  "stored is eMule's rating times 51 (SearchFile.cpp, StoreToFile). eMule writes the folder "
                  "name in the computer's ANSI code page, which the file does not record. A folder name that is "
                  "not valid UTF-8 is read as Windows-1252 and can come out wrong. User is the folder name "
@@ -374,6 +374,11 @@ def emuleSettings(context):
     return data_headers, data_list, '\n'.join(sources)
 
 
+def _escaped(value):
+    """A stored name or value with the Other Values separator marked, so it cannot read as a second tag."""
+    return str(value).replace('\\', '\\\\').replace(';', '\\;')
+
+
 def _stored_paths(context):
     return sorted(str(f) for f in context.get_files_found()
                   if os.path.isfile(str(f)) and os.path.basename(str(f)).lower() == 'storedsearches.met')
@@ -429,8 +434,9 @@ def emuleStoredSearchResults(context):
                     other.append(f"low_id={item['client_id']}")
                 for key, label in (('folder', 'folder'), ('aich', 'aich'), ('rating', 'rating_stored')):
                     if item[key] not in (None, ''):
-                        other.append(f'{label}={item[key]}')
-                other.extend(f'{key}={value}' for key, value in sorted(item['other'], key=lambda pair: (pair[0], str(pair[1]))))
+                        other.append(f'{label}={_escaped(item[key])}')
+                other.extend(f"{_escaped(key).replace('=', chr(92) + '=')}={_escaped(value)}"
+                             for key, value in sorted(item['other'], key=lambda pair: (pair[0], str(pair[1]))))
                 data_list.append((item['name'] or '', item['size'] if item['size'] is not None else '',
                                   item['hash'].hex().upper(), search['expression'], order, address,
                                   item['client_port'] or '', item['sources'] if item['sources'] is not None else '',
