@@ -30,7 +30,6 @@ No secret value is logged by this module. Callers put recovered values only into
 examiner-facing report.
 """
 
-import gzip
 import hashlib
 import json
 import struct
@@ -165,14 +164,34 @@ def _buffer_noise_shrink(buffer):
     return buffer[4:4 + length]
 
 
-def seco_store_payload(data, passphrase):
-    """Decrypt a seco-keyval/seco-rw store file and return its gunzipped payload bytes."""
-    plaintext = secure_container_decrypt(data, passphrase)
-    inner = _buffer_noise_shrink(plaintext)
+def _gunzip_bounded(gzipped, limit):
+    """Gunzip to at most ``limit`` bytes, raising SecoError past it or on bad data.
+
+    The gzip output is decoded with a cap rather than all at once, so an authenticated
+    container whose payload decompresses to far more than a wallet ever holds cannot exhaust
+    memory before a caller checks the length.
+    """
+    decompressor = zlib.decompressobj(zlib.MAX_WBITS | 16)
     try:
-        return gzip.decompress(inner)
+        out = decompressor.decompress(gzipped, limit + 1)
     except (OSError, EOFError, zlib.error) as exc:
         raise SecoError('store payload is not gzip') from exc
+    if len(out) > limit:
+        raise SecoError('store payload exceeds the size limit')
+    if not decompressor.eof:
+        raise SecoError('store payload did not end within the size limit')
+    return out
+
+
+def seco_store_payload(data, passphrase):
+    """Decrypt a seco-rw store file and return its gunzipped payload bytes.
+
+    A wallet store is small (seed.seco's payload is 80 bytes; storage.seco's is a few
+    kilobytes), so the gunzip is bounded to 1 MiB.
+    """
+    plaintext = secure_container_decrypt(data, passphrase)
+    inner = _buffer_noise_shrink(plaintext)
+    return _gunzip_bounded(inner, 1024 * 1024)
 
 
 def entropy_to_mnemonic(entropy):
@@ -212,7 +231,12 @@ def parse_seed_payload(payload):
 
 
 def read_passphrase_file(raw_bytes):
-    """Return (passphrase, system_flag) from passphrase.json bytes, or (None, None)."""
+    """Return (passphrase, system_flag) from passphrase.json bytes.
+
+    passphrase is the string or None. system_flag is only a JSON boolean: True or False
+    when the field is a bool, and None when it is missing or any other type, so a caller
+    cannot read a string such as ``"false"`` as a set flag.
+    """
     try:
         parsed = json.loads(raw_bytes)
     except (ValueError, TypeError):
@@ -223,4 +247,6 @@ def read_passphrase_file(raw_bytes):
     system = parsed.get('system')
     if not isinstance(passphrase, str):
         passphrase = None
+    if not isinstance(system, bool):
+        system = None
     return passphrase, system

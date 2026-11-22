@@ -597,11 +597,13 @@ def process(casedata):
             with open(windows_user_password, 'r', encoding='utf-8', errors='replace') as win_pw_file:
                 windows_user_password = win_pw_file.read(4096).strip()
         Context.set_app_secret('windows_user_password', windows_user_password or None)
-        exodus_password = exodus_password_var.get().strip()
+        # A directly entered password is kept verbatim (its own leading or trailing spaces
+        # may be part of it). A path to a file is read and only its line ending is removed.
+        exodus_password = exodus_password_var.get()
         if exodus_password and os.path.isfile(exodus_password):
             try:
                 with open(exodus_password, 'r', encoding='utf-8', errors='replace') as exodus_pw_file:
-                    exodus_password = exodus_pw_file.read(4096).strip()
+                    exodus_password = exodus_pw_file.read(4096)
             except OSError as exodus_pw_error:
                 tk_msgbox.showerror(
                     title='Error',
@@ -610,6 +612,7 @@ def process(casedata):
                              'Correct or clear it and run again.'),
                     parent=main_window)
                 return
+            exodus_password = exodus_password.rstrip('\r\n')
         Context.set_app_secret('exodus_password', exodus_password or None)
         wrap_text = True
         bottom_frame.pack_forget()
@@ -1430,7 +1433,8 @@ def open_exodus_password_dialog():
     button_row.pack(fill='x', padx=14, pady=14, side='bottom')
 
     def save_and_close():
-        exodus_password_var.set(entry_var.get().strip())
+        # Keep the entry verbatim; whitespace may be part of the password.
+        exodus_password_var.set(entry_var.get())
         dialog.destroy()
 
     def clear_and_close():

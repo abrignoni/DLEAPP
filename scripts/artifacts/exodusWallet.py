@@ -61,8 +61,10 @@ __artifacts_v2__ = {
                  "seed, so the phrase derives the stored seed with an empty BIP-39 passphrase; No means "
                  "it did not, and the phrase and seed are still shown. Passphrase is the value that "
                  "opened seed.seco. Protection reads Stored passphrase (system flag set) when the stored "
-                 "passphrase opened the wallet and the flag was set, Stored passphrase (system flag not "
-                 "set) when it opened and the flag was not set, User password (supplied) when a supplied "
+                 "passphrase opened the wallet and the flag was the boolean true, Stored passphrase "
+                 "(system flag not set) when it opened and the flag was the boolean false, Stored "
+                 "passphrase (system flag unknown) when it opened and the flag was missing or not a "
+                 "boolean, User password (supplied) when a supplied "
                  "password opened it, seed.seco did not read when the container was damaged or not a "
                  "SECO file, and Not opened (a password may be needed, see --exodus-password) when a "
                  "passphrase was present but did not open it or none was available. Seed (hex) is the "
@@ -127,7 +129,9 @@ __artifacts_v2__ = {
         "notes": "One row per file under a folder named exodus.wallet inside a folder named Exodus. This "
                  "artifact lists the files through the seeker's peek() and stages none; the other two "
                  "Exodus artifacts stage passphrase.json, seed.seco and unsafe-storage.json when they "
-                 "run. File is the path below exodus.wallet as the input names it. On the known data "
+                 "run. File is the path below exodus.wallet as the input names it, and Source File is the "
+                 "file's full input-relative path, which separates two wallet copies that share a profile "
+                 "name. On the known data "
                  "(windows11_arm_exodus_known_20261122) the folder held passphrase.json, seed.seco, "
                  "storage.seco and unsafe-storage.json, which were present after Exodus 26.11.20 first "
                  "started with nothing clicked or typed. Their presence alone does not show that a "
@@ -265,8 +269,12 @@ def exodusWallet(context):
                 break
 
         if opened_with == 'stored':
-            protection = ('Stored passphrase (system flag set)'
-                          if system_flag else 'Stored passphrase (system flag not set)')
+            if system_flag is True:
+                protection = 'Stored passphrase (system flag set)'
+            elif system_flag is False:
+                protection = 'Stored passphrase (system flag not set)'
+            else:
+                protection = 'Stored passphrase (system flag unknown)'
             passphrase_value = stored_passphrase
         elif opened_with == 'supplied':
             protection = 'User password (supplied)'
@@ -334,7 +342,7 @@ def exodusWalletState(context):
 @artifact_processor
 def exodusWalletFiles(context):
     data_headers = (('Modified (UTC)', 'datetime'), ('Created (UTC)', 'datetime'), 'File',
-                    ('Size (bytes)', 'number'), 'Time Source', 'User')
+                    ('Size (bytes)', 'number'), 'Time Source', 'User', 'Source File')
     data_list, sources = [], []
     seeker = context.get_seeker()
     if seeker is None or not hasattr(seeker, 'peek'):
@@ -353,6 +361,6 @@ def exodusWalletFiles(context):
         seen.add(item.path)
         times = getattr(item.info, 'times', None)
         data_list.append((_instant(times.modified) if times else '', _instant(times.created) if times else '',
-                          name, item.size, times.source if times else '', _profile_user(item.path)))
+                          name, item.size, times.source if times else '', _profile_user(item.path), item.path))
         sources.append(item.path)
     return data_headers, data_list, '\n'.join(sources)
