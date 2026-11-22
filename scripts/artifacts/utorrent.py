@@ -209,7 +209,7 @@ def _preferred_path(entry):
     override = entry.get(b'path.utf-8')
     if isinstance(override, list) and override:
         parts = [_strict_utf8(part) for part in override]
-        if all(part is not None for part in parts):
+        if all(parts):
             return parts
     stored = entry.get(b'path')
     if isinstance(stored, list) and stored and all(isinstance(part, bytes) for part in stored):
@@ -264,17 +264,19 @@ def _skip_value(raw, index):
 
 
 def _info_span(raw):
-    """The original bytes of the top-level info value, which are what the info-hash covers."""
+    """The original bytes of the one top-level info value, once the whole dictionary has been walked."""
     if raw[:1] != b'd':
         return b''
-    index = 1
-    while raw[index:index + 1] != b'e' and index < len(raw):
+    index, span, count = 1, b'', 0
+    while raw[index:index + 1] != b'e':
+        if index >= len(raw):
+            raise ValueError('unterminated dictionary')
         key_end = _skip_value(raw, index)
         value_end = _skip_value(raw, key_end)
         if raw[raw.index(b':', index) + 1:key_end] == b'info':
-            return raw[key_end:value_end]
+            span, count = raw[key_end:value_end], count + 1
         index = value_end
-    return b''
+    return span if count == 1 else b''
 
 
 def _torrent_index(staged):
