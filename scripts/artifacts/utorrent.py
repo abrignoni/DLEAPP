@@ -17,7 +17,7 @@ from bencoding.decoder import DecoderError
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 
-_DECODE_ERRORS = (OSError, ValueError, TypeError, IndexError, KeyError, DecoderError)
+_DECODE_ERRORS = (OSError, ValueError, TypeError, IndexError, KeyError, RecursionError, DecoderError)
 _WINDOWS_EPOCH_SECONDS = 11644473600
 
 __artifacts_v2__ = {
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "requirements": "bencoding",
         "category": "uTorrent and BitTorrent",
         "platforms": ("Windows",),
-        "notes": "One row per .torrent entry in resume.dat in a folder named uTorrent or BitTorrent. No vendor "
+        "notes": "One row per .torrent entry in a resume.dat directly inside a folder named uTorrent or BitTorrent. No vendor "
                  "definition of these fields was used. On the known data (windows11_arm_utorrent_bittorrent_known_20261122, uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391, clients on "
                  "loopback, VM time zone UTC-5) Name, Info Hash, Label, Downloaded and Uploaded equalled the client's "
                  "own Web API on all 8 rows. Added fell within 1 second of the timed step log on all 8 rows. Completed "
@@ -184,6 +184,10 @@ def _client_user(relative):
     return client, user
 
 
+def _valid_length(value):
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
 def _files(info):
     if not isinstance(info, dict):
         return [], ''
@@ -192,17 +196,18 @@ def _files(info):
         paths, total, sizes_valid = [], 0, True
         for entry in info[b'files']:
             if not isinstance(entry, dict):
+                sizes_valid = False
                 continue
             stored = entry.get(b'path')
             parts = [_text(part) for part in stored if isinstance(part, bytes)] if isinstance(stored, list) else []
             paths.append('/'.join([name] + parts))
-            if isinstance(entry.get(b'length'), int):
+            if _valid_length(entry.get(b'length')):
                 total += entry[b'length']
             else:
                 sizes_valid = False
         return paths, total if sizes_valid else ''
     length = info.get(b'length')
-    return [name], length if isinstance(length, int) else ''
+    return [name], length if _valid_length(length) else ''
 
 
 def _skip_value(raw, index):
@@ -239,16 +244,17 @@ def _info_span(raw):
 
 
 def _companion(folder, entry_name):
-    """The .torrent in folder whose name matches the entry's, ignoring case, exact spelling first."""
+    """The .torrent files in folder whose name matches the entry's, ignoring case, exact spelling first."""
     wanted = ntpath.basename(entry_name)
     exact = os.path.join(folder, wanted)
-    if os.path.isfile(exact):
-        return [exact]
+    found = [exact] if os.path.isfile(exact) else []
     try:
-        return [os.path.join(folder, name) for name in sorted(os.listdir(folder))
-                if name.lower() == wanted.lower() and os.path.isfile(os.path.join(folder, name))]
+        names = sorted(os.listdir(folder))
     except OSError:
-        return []
+        return found
+    found.extend(os.path.join(folder, name) for name in names
+                 if name != wanted and name.lower() == wanted.lower() and os.path.isfile(os.path.join(folder, name)))
+    return found
 
 
 def _torrent_info(folder, entry_name, info_hash):
@@ -295,7 +301,10 @@ def _enabled(value):
 
 
 def _found(context, name):
-    return sorted(str(f) for f in context.get_files_found() if os.path.basename(str(f)).lower() == name and os.path.isfile(str(f)))
+    return sorted(str(f) for f in context.get_files_found()
+                  if os.path.basename(str(f)).lower() == name
+                  and os.path.basename(os.path.dirname(str(f))).lower() in ('utorrent', 'bittorrent')
+                  and os.path.isfile(str(f)))
 
 
 @artifact_processor
