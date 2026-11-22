@@ -85,6 +85,7 @@ __artifacts_v2__ = {
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
+        "multiline_columns": ["Body"],
         "artifact_icon": "mail",
     },
     "outlookPstContacts": {
@@ -249,6 +250,7 @@ __artifacts_v2__ = {
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
+        "multiline_columns": ["Body"],
         "artifact_icon": "calendar",
     },
     "outlookPstTasks": {
@@ -313,6 +315,7 @@ __artifacts_v2__ = {
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
+        "multiline_columns": ["Body"],
         "artifact_icon": "check-square",
     },
     "outlookPstNotes": {
@@ -368,6 +371,7 @@ __artifacts_v2__ = {
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
+        "multiline_columns": ["Body"],
         "artifact_icon": "file-text",
     },
     "outlookPstJournals": {
@@ -425,6 +429,7 @@ __artifacts_v2__ = {
         },
         "paths": ('*.[pP][sS][tT]', '*.[oO][sS][tT]'),
         "output_types": "standard",
+        "multiline_columns": ["Body"],
         "artifact_icon": "book",
     },
     "outlookPstAttachments": {
