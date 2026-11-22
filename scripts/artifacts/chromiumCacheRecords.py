@@ -159,7 +159,7 @@ __artifacts_v2__ = {
     },
     "chromiumSimpleCacheRecords": {
         "name": "Chromium Simple Cache Records",
-        "description": "Entries of the HTTP cache Google Chrome, Chromium and Opera keep on macOS, one file per "
+        "description": "Entries of the HTTP cache Google Chrome, Chromium, Microsoft Edge and Opera keep on macOS, one file per "
                        "entry: the URL, the request and response times, the HTTP status, the content type "
                        "and the stored body's size. A picture, video or audio body stored in the entry file "
                        "is shown.",
@@ -169,13 +169,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Chromium Browsers",
         "platforms": ("macOS",),
-        "notes": ("Reads the Cache/Cache_Data folder of each Google Chrome, Chromium and Opera profile's cache folder on "
+        "notes": ("Reads the Cache/Cache_Data folder of each Google Chrome, Chromium, Microsoft Edge and Opera profile's cache folder on "
                   'macOS. Chromium keeps that folder outside the user data folder there: Library/Caches plus the '
                   "profile's path below Application Support, Library/Caches/Google/Chrome/Default for Chrome's default "
                   'profile '
                   '(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/docs/user_data_dir.md#L188-L205). '
                   "On the private system described below, with Opera 137 installed, the default profile's cache was at "
-                  'Library/Caches/com.operasoftware.Opera/Default. '
+                  'Library/Caches/com.operasoftware.Opera/Default. On edge_macos_cache_known_20261122, Microsoft Edge '
+                  "158 kept its default profile's cache at Library/Caches/Microsoft Edge/Default. "
                   'Chromium uses its Simple Cache backend by default on macOS '
                   '(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/backend_experiment.h#L14-L19), '
                   'one file per entry; Chromium Cache Records reads the blockfile format. One row per file named '
@@ -190,22 +191,23 @@ __artifacts_v2__ = {
                   'entry whose Content Type starts with image/, video/ or audio/ and that has a stored body, with its '
                   'Content-Encoding (gzip, deflate, br, and zstd where the Python in use can decode it) undone; a body '
                   "that does not decode is shown as stored. Chromium's own zstd storage of a body is not undone, and no "
-                  "entry of the public input had it. Entry File is the entry's file name, and Browser, Profile and User come from "
+                  "entry of mvs2026_macbookpro_macos15 had it. Entry File is the entry's file name, and Browser, Profile and User come from "
                   "its path. The report's source path names the folder's index file, or its first <hash>_0 file when "
                   'there is none, to identify the folder. Not read: the <hash>_1 file (stream 2, '
                   'https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/simple/simple_entry_format.h#L20-L40) '
-                  'and the <hash>_s file (sparse data, which on the public input sat beside every status 206 entry), '
+                  'and the <hash>_s file (sparse data, which on mvs2026_macbookpro_macos15 sat beside every status 206 entry), '
                   "the index files, which hold each entry's last-used time "
                   '(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/simple/simple_index.h#L100-L113), '
                   'so no last-used time is reported, the Code Cache and No_Vary_Search folders, a cache kept directly '
                   "in Cache without Cache_Data, the caches under a profile's Storage folder, Opera's System Cache folder, "
                   'whose role is not sourced here, a Cache folder directly in com.operasoftware.Opera with no profile '
                   'folder between them, an Opera cache folder under any name other than com.operasoftware.Opera (where '
-                  'other Opera channels keep their cache on macOS is not sourced here), and the cache folders of other '
+                  'other Opera channels keep their cache on macOS is not sourced here), an Edge cache folder under any name other than Microsoft Edge (where other Edge '
+                  'channels keep their cache on macOS is not sourced here), and the cache folders of other '
                   'Chromium-based browsers on macOS, '
                   'whose location is not sourced here. No tested extraction holds a Cache/Cache_Data folder under '
                   'Library/Caches for another browser. A cache folder that is '
-                  'also present under System/Volumes/Data with the same bytes is read once. Measured on one public input, '
+                  'also present under System/Volumes/Data with the same bytes is read once. Measured on '
                   'mvs2026_macbookpro_macos15 (macOS 15.4): 6,183 rows from one Chrome profile, every one of its 6,183 '
                   '<hash>_0 files. For those entries ccl_chromium_reader 0.3.18 returned the same set of keys and, for '
                   'each, the same request time, response time, status line, content type and stored body bytes. '
@@ -214,24 +216,34 @@ __artifacts_v2__ = {
                   'the 2,582 rows with a picture, video or audio type, 2,559 show the media and 23 had no stored body, '
                   '15 of them the status 206 rows, each of which has a <hash>_s file beside it. Every shown item was a '
                   'picture: the 13 video and 2 audio rows were the 15 status 206 rows, so no video or audio was shown '
-                  'on that input or in the tests. Of the 2,559 shown bodies 110 were stored with br and 60 with gzip. '
+                  'on that input, on the Edge known data or in the tests. Of the 2,559 shown bodies 110 were stored with br and 60 with gzip. '
                   'Key Prefix (1/0/), Browser, Profile and User each held one value on all 6,183 rows, and no Isolation '
                   'Key was blank. The Chromium folder and a second profile are exercised by the tests only, and a '
-                  'second user is not exercised. The four other inputs below matched no file. The Opera folder was '
+                  'second user is not exercised. The four inputs below with 0 rows matched no file. The Opera folder was '
                   'run on a copy of the cache folder from a private macOS 27.2.1 system with Opera 137 installed; counts and values are not '
                   'published. There, every <hash>_0 file gave a row, and for every entry ccl_chromium_reader 0.3.18 '
                   'returned the same key, request time, response time, status code, content type and stored body '
                   'bytes. No log of the browsing was available, so this shows that two readers agree on what the '
-                  'entry files hold. It does not show when each page was visited.'),
+                  'entry files hold. It does not show when each page was visited. On '
+                  'edge_macos_cache_known_20261122, Microsoft Edge 158.0.4370.33 ran once, headless, as x86_64 '
+                  'under Rosetta on macOS 27.2.1, with a throwaway home folder and its user data folder set to '
+                  'Library/Application Support/Microsoft Edge inside it, and loaded generated pages from a local server that logged each '
+                  'request: 7 rows, one for each of the 7 logged requests, including a status 404 favicon request. '
+                  'URL path, HTTP Status, Content Type and Body Size (bytes) equalled the log on all 7, Request Time '
+                  "fell 0.0002 to 0.003 seconds before the server's logged time and Response Time 0.0001 to 0.013 "
+                  'seconds after it, and ccl_chromium_reader 0.3.18 returned the '
+                  'same keys, times and stored body bytes. Both PNG responses show as Cached Media.'),
         "paths": (
             '*/Library/Caches/Google/Chrome/*/Cache/Cache_Data/*',
             '*/Library/Caches/Chromium/*/Cache/Cache_Data/*',
+            '*/Library/Caches/Microsoft Edge/*/Cache/Cache_Data/*',
             '*/Library/Caches/com.operasoftware.Opera/*/Cache/Cache_Data/*',
         ),
         "output_types": "standard",
         "artifact_icon": "database",
         "sample_data": {
             "mvs2026_macbookpro_macos15": "macOS 15.4, Google Chrome | 6183 rows",
+            "edge_macos_cache_known_20261122": "macOS 27.2.1 build 26B131, Microsoft Edge 158.0.4370.33 | 7 rows",
             "adams_macbookpro_macos26": "macOS 26.2 build 25C56 | 0 rows (no member matches the declared paths)",
             "dleapp_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",
             "magnet2021_macos_bigsur": "macOS 11.2.1 build 20D74 | 0 rows (no member matches the declared paths)",

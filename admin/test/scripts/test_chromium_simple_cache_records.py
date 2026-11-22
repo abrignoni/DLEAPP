@@ -138,6 +138,20 @@ class SimpleCacheRecordsTest(unittest.TestCase):
         self.assertEqual([(row[11], row[12], row[13]) for row in rows], [('Opera', 'Default', 'fixture')])
         self.assertEqual(sources, [opera + '/Cache/Cache_Data/index'])
 
+    def test_edge_root(self):
+        edge = 'Users/fixture/Library/Caches/Microsoft Edge/Default'
+        _headers, rows, sources, _checked = self._run([
+            (edge + '/Cache/Cache_Data', {'0000000000000002_0': PAGE, 'index': b'x'}),
+            ('Users/fixture/Library/Caches/Microsoft EdgeDecoy/Default/Cache/Cache_Data',
+             {'0000000000000001_0': PICTURE}),
+        ])
+        self.assertEqual([(row[11], row[12], row[13]) for row in rows], [('Microsoft Edge', 'Default', 'fixture')])
+        self.assertEqual(sources, [edge + '/Cache/Cache_Data/index'])
+        patterns = cache.__artifacts_v2__['chromiumSimpleCacheRecords']['paths']
+        root = '/case/data/Users/fixture/Library/Caches/Microsoft Edge'
+        self.assertTrue(any(fnmatch.fnmatchcase(root + '/Default/Cache/Cache_Data/a_0', p) for p in patterns))
+        self.assertFalse(any(fnmatch.fnmatchcase(root + '/Default/Code Cache/js/a_0', p) for p in patterns))
+
     def test_opera_paths(self):
         patterns = cache.__artifacts_v2__['chromiumSimpleCacheRecords']['paths']
         root = '/case/data/Users/fixture/Library/Caches/com.operasoftware.Opera'

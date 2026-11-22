@@ -39,8 +39,10 @@ the user cache dir is Library/Caches plus the profile's path below Application
 Support, ~/Library/Caches/Google/Chrome/Default for the default profile (the same
 docs/user_data_dir.md, lines 188 to 205,
   https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/docs/user_data_dir.md#L188-L205
-). Those two folders, and Library/Caches/com.operasoftware.Opera, where the default
-profile's cache was on one private system with Opera 137 installed, are listed below so
+). Those two folders, Library/Caches/Microsoft Edge, where Edge 158 kept its default
+profile's cache on the known data of edge_macos_cache_known_20261122, and
+Library/Caches/com.operasoftware.Opera, where the default profile's cache was on one
+private system with Opera 137 installed, are listed below so
 that a cache file is placed in its browser and profile. No other artifact's paths name
 these folders; two with a Library/Caches wildcard (App URL Cache for Cache.db, macOS HSTS
 Hosts for HSTS.plist) can match a file inside them.
@@ -81,6 +83,7 @@ BROWSER_ROOTS = (
     ('Chromium', ('.var', 'app', 'org.chromium.Chromium', 'config', 'chromium')),
     ('Microsoft Edge', ('AppData', 'Local', 'Microsoft', 'Edge', 'User Data')),
     ('Microsoft Edge', ('Library', 'Application Support', 'Microsoft Edge')),
+    ('Microsoft Edge', ('Library', 'Caches', 'Microsoft Edge')),
     ('Microsoft Edge', ('.config', 'microsoft-edge')),
     ('Brave', ('AppData', 'Local', 'BraveSoftware', 'Brave-Browser', 'User Data')),
     ('Brave', ('Library', 'Application Support', 'BraveSoftware', 'Brave-Browser')),
