@@ -237,6 +237,25 @@ def _text(value):
     return value if isinstance(value, str) else None
 
 
+def _tag_label(name):
+    if isinstance(name, bytes):
+        return name.decode('utf-8', 'backslashreplace')
+    return _RESULT_TAG_NAMES.get(name, f'tag_0x{name:02X}')
+
+
+def _other_values(tags):
+    """{display name: value}. Two stored tags that would show one name each carry their stored identifier."""
+    labels = [_tag_label(name) for name in tags]
+    other = {}
+    for name, value in tags.items():
+        label = _tag_label(name)
+        if labels.count(label) > 1:
+            identifier = f'name {name.hex()}' if isinstance(name, bytes) else f'tag 0x{name:02X}'
+            label = f'{label} [{identifier}]'
+        other[label] = value.hex() if isinstance(value, (bytes, bytearray)) else value
+    return other
+
+
 def _stored_result(reader):
     """CSearchFile::CSearchFile(CFileDataIO&, ...) in SearchFile.cpp, with tags as CTag reads them."""
     record = {'hash': reader.take(16), 'client_id': reader.u32(), 'client_port': reader.u16()}
@@ -250,15 +269,7 @@ def _stored_result(reader):
     high = tags.get(FT_FILESIZE_HI)
     if isinstance(size, int) and isinstance(high, int) and size <= 0xFFFFFFFF:
         size |= high << 32
-    other = {}
-    for name, value in tags.items():
-        if name in _RESULT_TAGS_SHOWN:
-            continue
-        if isinstance(name, bytes):
-            label = name.decode('utf-8', 'replace')
-        else:
-            label = _RESULT_TAG_NAMES.get(name, f'tag_0x{name:02X}')
-        other[label] = value.hex() if isinstance(value, (bytes, bytearray)) else value
+    other = _other_values({name: value for name, value in tags.items() if name not in _RESULT_TAGS_SHOWN})
     aich = tags.get(FT_AICH_HASH)
     record.update(name=_text(tags.get(FT_FILENAME)), size=size if isinstance(size, int) else None,
                   file_type=_text(tags.get(FT_FILETYPE)), sources=_int(tags.get(FT_SOURCES)),
@@ -271,7 +282,7 @@ def _stored_result(reader):
 def read_stored_searches(data):
     """StoredSearches.met (SearchList.cpp LoadSearches, SearchParams.h): the header, a version, a uint16 search
     count, and for each search its parameters, a uint32 result count and the results. Returns a dict with
-    'searches', each holding its 'results', and 'complete'. A format error carries what was read in .partial."""
+    'searches', each holding its 'results' and 'declared_results' (None when unread), and 'complete'. A format error carries what was read in .partial."""
     result = {'searches': [], 'complete': False}
     reader = _Reader(data)
     try:
@@ -284,9 +295,10 @@ def read_stored_searches(data):
         for _ in range(reader.u16()):
             search = {'id': reader.u32(), 'type': reader.u8(), 'client_shared': reader.u8() > 0,
                       'title': _met_string(reader), 'expression': _met_string(reader), 'file_type': _met_string(reader),
-                      'results': []}
+                      'results': [], 'declared_results': None}
             result['searches'].append(search)
-            for _ in range(reader.u32()):
+            search['declared_results'] = reader.u32()
+            for _ in range(search['declared_results']):
                 search['results'].append(_stored_result(reader))
     except (EmuleFormatError, UnicodeError) as exc:
         raise EmuleFormatError(str(exc), partial=result) from exc

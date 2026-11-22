@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "eMule",
         "platforms": ("Windows",),
-        "notes": "Files are read as eMule 0.72a reads them. The known data (windows11_arm_emule_known_20261108) is eMule 0.72a on Windows 11 ARM64, never connected to eD2K or Kad. Nothing in these files names the program that wrote them; other eD2K clients may use the same file names, and only eMule 0.72a was tested. Matched in eMule's config folder under any folder named eMule (eMule keeps it under AppData\\\\Local\\\\eMule, ProgramData\\\\eMule or its own install folder, https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/Preferences.cpp#L2947-L2958); a config folder under another name is not matched. User is the account folder name taken from the file path; User held one value on all rows of the known data, which has one profile. One row per line of AC_SearchStrings.dat, the list eMule saves for its search box suggestions (https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/CustomAutoComplete.cpp#L310-L319). eMule adds the text when Start is clicked, before the search runs (https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/SearchParamsWnd.cpp#L657-L659): on the known data the search was refused because eMule was not connected, and the text was saved anyway, so a row does not show that a search ran or returned anything. Position is the line number. eMule inserts new text at the top and moves reused text there (https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/CustomAutoComplete.cpp#L112-L131), so Position 1 is the most recently used; the known data held one entry, so the order is source-verified only. The file holds no times. StoredSearches.met, which keeps search results, was empty on the known data and is not read.",
+        "notes": "Files are read as eMule 0.72a reads them. The known data (windows11_arm_emule_known_20261108) is eMule 0.72a on Windows 11 ARM64, never connected to eD2K or Kad. Nothing in these files names the program that wrote them; other eD2K clients may use the same file names, and only eMule 0.72a was tested. Matched in eMule's config folder under any folder named eMule (eMule keeps it under AppData\\\\Local\\\\eMule, ProgramData\\\\eMule or its own install folder, https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/Preferences.cpp#L2947-L2958); a config folder under another name is not matched. User is the account folder name taken from the file path; User held one value on all rows of the known data, which has one profile. One row per line of AC_SearchStrings.dat, the list eMule saves for its search box suggestions (https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/CustomAutoComplete.cpp#L310-L319). eMule adds the text when Start is clicked, before the search runs (https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/SearchParamsWnd.cpp#L657-L659): on the known data the search was refused because eMule was not connected, and the text was saved anyway, so a row does not show that a search ran or returned anything. Position is the line number. eMule inserts new text at the top and moves reused text there (https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/CustomAutoComplete.cpp#L112-L131), so Position 1 is the most recently used; the known data held one entry, so the order is source-verified only. The file holds no times. StoredSearches.met, which keeps search results, held no search on the known data. It is reported by eMule Stored Searches and eMule Stored Search Results.",
         "paths": ('*/eMule/config/AC_SearchStrings.dat',),
         "output_types": ["standard"],
         "artifact_icon": "search",
@@ -120,7 +120,7 @@ __artifacts_v2__ = {
                        "text, type, file type and the number of results stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-21",
-        "last_update_date": "2026-11-21",
+        "last_update_date": "2026-11-22",
         "requirements": "none",
         "category": "eMule",
         "platforms": ("Windows",),
@@ -134,13 +134,12 @@ __artifacts_v2__ = {
                  "read back the same. A search made on a real network was not tested, and other versions were "
                  "not tested. Search Type comes from the ESearchType list in SearchParams.h. It is the type "
                  "stored for the tab. No time is stored for a search, so a row does not say when it was made. "
-                 "eMule renumbers searches when it loads them, so the stored search ID is not reported. Search "
-                 "Order is the position in the file. Title is the special title stored for the tab. Client "
+                 "eMule renumbers searches when it loads them, so the stored search ID is not reported. Search Order is the position in the file. Stored Results is the count stored for the search, blank when the file ends before it. Results Read is how many results were read. The two differ when reading stopped before every stored result was read, as when the file is cut short or a result holds a tag type the reader does not know. The run log names the file and where reading stopped. This was not in the known data. Title is the special title stored for the tab. Client "
                  "Shared Files is Yes when the tab holds a client's shared files and not a search. Search Text "
                  "then holds that client's user name (SearchList.cpp, ProcessSearchAnswer). This was not in "
                  "the known data. Title had no value and Client Shared Files held No on all rows of the known "
                  "data. User is the folder name after Users in the file's path, blank when there is none, and "
-                 "held one value on all rows of the known data.",
+                 "held one value on all rows of the known data. Source File is the file the row was read from.",
         "paths": ('*/eMule/config/StoredSearches.met',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "search",
@@ -155,7 +154,7 @@ __artifacts_v2__ = {
                        "address and the source counts.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-21",
-        "last_update_date": "2026-11-21",
+        "last_update_date": "2026-11-22",
         "requirements": "none",
         "category": "eMule",
         "platforms": ("Windows",),
@@ -172,17 +171,13 @@ __artifacts_v2__ = {
                  "and the known data had none. A row records a result eMule kept for an open search. It does "
                  "not show that the file was downloaded or that the client really held it. Client Address is "
                  "the stored client ID read as an IPv4 address, and Client Port its port. A client ID below "
-                 "16777216 is a low ID (IsLowID, OtherFunctions.h), not an address: the address is then blank "
-                 "and the ID is in Other Values. Sources and Complete Sources are the counts stored for the "
-                 "result. Other Values holds the remaining stored tags as name=value: folder, AICH hash, "
+                 "16777216 is a low ID (IsLowID, OtherFunctions.h), not an address: the address is then blank and the ID is in Other Values. A client ID of 0 shows no address and no ID, and a port of 0 shows blank. eMule stores 0 for both when it rejected the client address on load (SearchFile.cpp, IsValidSearchResultClientIPPort). Sources and Complete Sources are the counts stored for the result. Search Order is the position in the file of the search the result was stored under, the same value as in eMule Stored Searches. Other Values holds the remaining stored tags as name=value: folder, AICH hash, "
                  "rating as stored, file format, artist, album, title, length, bitrate, codec, comment, "
-                 "last_seen_complete, and any other tag under its name or number. When a tag name repeats the "
-                 "last value is used, as eMule does, except the folder, where eMule keeps the first. Rating as "
+                 "last_seen_complete, and any other tag under its name or number. When two of the other tags would show the same name, each also shows its stored identifier in brackets. The folder, aich, rating_stored and low_id entries are added by the parser and are not marked. A stored tag with one of those four names shows beside them under the same name. When a tag name repeats the last value is used, as eMule does, except the folder. The first folder value that is not empty is shown. eMule keeps that one for a search that is not Kademlia (SearchFile.cpp). Rating as "
                  "stored is eMule's rating times 51 (SearchFile.cpp, StoreToFile). eMule writes the folder "
                  "name in the computer's ANSI code page, which the file does not record. A folder name that is "
                  "not valid UTF-8 is read as Windows-1252 and can come out wrong. User is the folder name "
-                 "after Users in the file's path, blank when there is none, and held one value on all rows of "
-                 "the known data.",
+                 "after Users in the file's path, blank when there is none, and held one value on all rows of the known data. Source File is the file the row was read from.",
         "paths": ('*/eMule/config/StoredSearches.met',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list",
@@ -379,9 +374,13 @@ def emuleSettings(context):
     return data_headers, data_list, '\n'.join(sources)
 
 
+def _stored_paths(context):
+    return sorted(str(f) for f in context.get_files_found()
+                  if os.path.isfile(str(f)) and os.path.basename(str(f)).lower() == 'storedsearches.met')
+
+
 def _stored(context, name):
-    for path in sorted(str(f) for f in context.get_files_found()
-                       if os.path.isfile(str(f)) and os.path.basename(str(f)).lower() == 'storedsearches.met'):
+    for path in _stored_paths(context):
         relative = context.get_relative_path(path)
         try:
             with open(path, 'rb') as handle:
@@ -401,28 +400,26 @@ def _stored(context, name):
 
 @artifact_processor
 def emuleStoredSearches(context):
-    data_headers = ('Search Text', 'Search Type', 'File Type', 'Stored Results', 'Title', 'Client Shared Files',
-                    'Search Order', 'User')
-    data_list, sources = [], []
+    data_headers = ('Search Text', 'Search Type', 'File Type', 'Stored Results', 'Results Read', 'Title',
+                    'Client Shared Files', 'Search Order', 'User', 'Source File')
+    data_list = []
     for path, result in _stored(context, 'eMule Stored Searches'):
         for order, search in enumerate(result['searches'], 1):
+            declared = search['declared_results']
             data_list.append((search['expression'], SEARCH_TYPES.get(search['type'], search['type']),
-                              search['file_type'], len(search['results']), search['title'],
-                              'Yes' if search['client_shared'] else 'No', order,
-                              user_from_path(context.get_relative_path(path))))
-        if result['searches']:
-            sources.append(path)
-    return data_headers, data_list, '\n'.join(sources)
+                              search['file_type'], '' if declared is None else declared, len(search['results']),
+                              search['title'], 'Yes' if search['client_shared'] else 'No', order,
+                              user_from_path(context.get_relative_path(path)), context.get_relative_path(path)))
+    return data_headers, data_list, '\n'.join(_stored_paths(context))
 
 
 @artifact_processor
 def emuleStoredSearchResults(context):
-    data_headers = ('File Name', 'Size (bytes)', 'eD2K Hash', 'Search Text', 'Client Address', 'Client Port', 'Sources',
-                    'Complete Sources', 'File Type', 'Other Values', 'User')
-    data_list, sources = [], []
+    data_headers = ('File Name', 'Size (bytes)', 'eD2K Hash', 'Search Text', 'Search Order', 'Client Address',
+                    'Client Port', 'Sources', 'Complete Sources', 'File Type', 'Other Values', 'User', 'Source File')
+    data_list = []
     for path, result in _stored(context, 'eMule Stored Search Results'):
-        rows = 0
-        for search in result['searches']:
+        for order, search in enumerate(result['searches'], 1):
             for item in search['results']:
                 other = []
                 address = ''
@@ -435,12 +432,9 @@ def emuleStoredSearchResults(context):
                         other.append(f'{label}={item[key]}')
                 other.extend(f'{key}={value}' for key, value in sorted(item['other'].items()))
                 data_list.append((item['name'] or '', item['size'] if item['size'] is not None else '',
-                                  item['hash'].hex().upper(), search['expression'], address,
+                                  item['hash'].hex().upper(), search['expression'], order, address,
                                   item['client_port'] or '', item['sources'] if item['sources'] is not None else '',
                                   item['complete_sources'] if item['complete_sources'] is not None else '',
                                   item['file_type'] or '', '; '.join(other),
-                                  user_from_path(context.get_relative_path(path))))
-                rows += 1
-        if rows:
-            sources.append(path)
-    return data_headers, data_list, '\n'.join(sources)
+                                  user_from_path(context.get_relative_path(path)), context.get_relative_path(path)))
+    return data_headers, data_list, '\n'.join(_stored_paths(context))
