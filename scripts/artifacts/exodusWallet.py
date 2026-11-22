@@ -79,7 +79,8 @@ __artifacts_v2__ = {
                  "no secret is shown, and whether Exodus uses the user password directly as this "
                  "passphrase is not established. A seed and phrase being present does not show that the "
                  "wallet was funded or used. storage.seco is not read by this artifact.",
-        "paths": ("*/Exodus/exodus.wallet/passphrase.json", "*/Exodus/exodus.wallet/seed.seco"),
+        "paths": ("*/Exodus/exodus.wallet/passphrase.json", "*/Exodus/exodus.wallet/seed.seco",
+                  "Exodus/exodus.wallet/passphrase.json", "Exodus/exodus.wallet/seed.seco"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
         "sample_data": {
@@ -108,7 +109,8 @@ __artifacts_v2__ = {
                  "file did not contain the seed, passphrase or phrase text. On the known data, a wallet "
                  "that was never funded, Has Balance was No. A field is blank when the file does not "
                  "hold it.",
-        "paths": ("*/Exodus/exodus.wallet/unsafe-storage.json",),
+        "paths": ("*/Exodus/exodus.wallet/unsafe-storage.json",
+                  "Exodus/exodus.wallet/unsafe-storage.json"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "activity",
         "sample_data": {
@@ -349,7 +351,10 @@ def exodusWalletFiles(context):
         logfunc('Exodus Wallet Files: this input gives no way to list a file without staging it')
         return data_headers, data_list, ''
     try:
-        peeked = seeker.peek('*/Exodus/exodus.wallet/*', 1)
+        # Both a nested wallet (Users/<user>/.../Exodus/exodus.wallet) and one rooted at the
+        # extraction root (Exodus/exodus.wallet), which the leading */ pattern would miss.
+        peeked = list(seeker.peek('*/Exodus/exodus.wallet/*', 1))
+        peeked += list(seeker.peek('Exodus/exodus.wallet/*', 1))
     except PeekUnsupported as exc:
         logfunc(f'Exodus Wallet Files: {exc}')
         return data_headers, data_list, ''

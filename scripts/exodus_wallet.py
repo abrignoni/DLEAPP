@@ -180,6 +180,10 @@ def _gunzip_bounded(gzipped, limit):
         raise SecoError('store payload exceeds the size limit')
     if not decompressor.eof:
         raise SecoError('store payload did not end within the size limit')
+    # A seco store holds exactly one gzip member. Reject a second member or trailing bytes,
+    # so a first member cannot be read as the whole payload with more data hidden after it.
+    if decompressor.unused_data or decompressor.unconsumed_tail:
+        raise SecoError('store payload has data after the gzip member')
     return out
 
 

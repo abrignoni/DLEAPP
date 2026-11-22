@@ -1494,8 +1494,9 @@ def _update_windows_user_password_status(*_args):
 
 
 def _update_exodus_password_status(*_args):
+    # The run uses the entry verbatim, so judge the label by the raw value, not a stripped one.
     exodus_password_status.config(
-        text='✓ set' if exodus_password_var.get().strip() else 'not set')
+        text='✓ set' if exodus_password_var.get() else 'not set')
 
 
 signal_key_var.trace_add('write', _update_signal_key_status)
