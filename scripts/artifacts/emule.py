@@ -430,7 +430,7 @@ def emuleStoredSearchResults(context):
                 for key, label in (('folder', 'folder'), ('aich', 'aich'), ('rating', 'rating_stored')):
                     if item[key] not in (None, ''):
                         other.append(f'{label}={item[key]}')
-                other.extend(f'{key}={value}' for key, value in sorted(item['other'].items()))
+                other.extend(f'{key}={value}' for key, value in sorted(item['other'], key=lambda pair: (pair[0], str(pair[1]))))
                 data_list.append((item['name'] or '', item['size'] if item['size'] is not None else '',
                                   item['hash'].hex().upper(), search['expression'], order, address,
                                   item['client_port'] or '', item['sources'] if item['sources'] is not None else '',

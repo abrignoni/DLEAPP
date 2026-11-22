@@ -100,6 +100,14 @@ class StoredSearches(unittest.TestCase):
         self.assertIn('artist [name 617274697374]=named value', other)
         self.assertIn('artist [tag 0xD0]=numbered value', other)
 
+    def test_a_literal_name_equal_to_a_generated_label_keeps_every_value(self):
+        extra = (string_tag(b'artist', 'named value'), string_tag(0xD0, 'numbered value'),
+                 string_tag(b'artist [tag 0xD0]', 'literal value'))
+        self.add('one', store(search('text', [result('a.bin', extra)])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        for value in ('named value', 'numbered value', 'literal value'):
+            self.assertIn(value, rows[0]['Other Values'])
+
     def test_an_unshared_tag_name_stays_plain(self):
         self.add('one', store(search('text', [result('a.bin', (string_tag(0xD0, 'value'),))])))
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)

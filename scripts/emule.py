@@ -244,15 +244,15 @@ def _tag_label(name):
 
 
 def _other_values(tags):
-    """{display name: value}. Two stored tags that would show one name each carry their stored identifier."""
+    """[(display name, value)], one per stored tag. Tags that would show one name each carry their identifier."""
     labels = [_tag_label(name) for name in tags]
-    other = {}
+    other = []
     for name, value in tags.items():
         label = _tag_label(name)
         if labels.count(label) > 1:
             identifier = f'name {name.hex()}' if isinstance(name, bytes) else f'tag 0x{name:02X}'
             label = f'{label} [{identifier}]'
-        other[label] = value.hex() if isinstance(value, (bytes, bytearray)) else value
+        other.append((label, value.hex() if isinstance(value, (bytes, bytearray)) else value))
     return other
 
 
