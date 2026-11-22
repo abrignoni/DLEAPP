@@ -50,7 +50,8 @@ __artifacts_v2__ = {
                  "A copy run from another folder name is not matched. Trackers held the one loopback tracker on all 8 "
                  "rows. User is the profile folder name taken from the file's path, not a value in the store. The "
                  "known data has one placeholder profile, on all 8 rows.",
-        "paths": ('*/uTorrent/resume.dat', '*/uTorrent/*.torrent', '*/BitTorrent/resume.dat', '*/BitTorrent/*.torrent'),
+        "paths": ('*/[Uu][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/[Rr][Ee][Ss][Uu][Mm][Ee].[Dd][Aa][Tt]', '*/[Uu][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/*.[Tt][Oo][Rr][Rr][Ee][Nn][Tt]',
+                  '*/[Bb][Ii][Tt][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/[Rr][Ee][Ss][Uu][Mm][Ee].[Dd][Aa][Tt]', '*/[Bb][Ii][Tt][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/*.[Tt][Oo][Rr][Rr][Ee][Nn][Tt]'),
         "output_types": ["standard"],
         "artifact_icon": "download-cloud",
         "sample_data": {
@@ -80,7 +81,7 @@ __artifacts_v2__ = {
                  "from the file's path. The known data has one placeholder profile, on all 30 rows. Keys outside the "
                  "selected list are not reported. That includes webui.hashword, webui.salt, cid and cids. "
                  "settings.dat.old is not read.",
-        "paths": ('*/uTorrent/settings.dat', '*/BitTorrent/settings.dat'),
+        "paths": ('*/[Uu][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss].[Dd][Aa][Tt]', '*/[Bb][Ii][Tt][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/[Ss][Ee][Tt][Tt][Ii][Nn][Gg][Ss].[Dd][Aa][Tt]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
@@ -108,7 +109,7 @@ __artifacts_v2__ = {
                  "profile folder name taken from the file's path. The known data has one placeholder profile, on all "
                  "4 rows. The history list was empty on the known data and is not read. What it holds was not "
                  "established. rss.dat.old is not read.",
-        "paths": ('*/uTorrent/rss.dat', '*/BitTorrent/rss.dat'),
+        "paths": ('*/[Uu][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/[Rr][Ss][Ss].[Dd][Aa][Tt]', '*/[Bb][Ii][Tt][Tt][Oo][Rr][Rr][Ee][Nn][Tt]/[Rr][Ss][Ss].[Dd][Aa][Tt]'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "rss",
         "sample_data": {
@@ -223,7 +224,10 @@ def _skip_value(raw, index):
             index = _skip_value(raw, index)
         return index + 1
     colon = raw.index(b':', index)
-    end = colon + 1 + int(raw[index:colon])
+    length = raw[index:colon]
+    if not length.isdigit():
+        raise ValueError('invalid string length')
+    end = colon + 1 + int(length)
     if end > len(raw):
         raise ValueError('string past the end of the file')
     return end
