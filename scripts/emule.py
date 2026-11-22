@@ -50,7 +50,11 @@ MAX_PARTS = 0x4000000000 // 9728000 + 1  # MAX_EMULE_FILE_SIZE / PARTSIZE + 1, F
 
 
 class EmuleFormatError(ValueError):
-    """The bytes do not fit the eMule layout being read."""
+    """The bytes do not fit the eMule layout being read. .partial holds what a reader kept before the error."""
+
+    def __init__(self, message, partial=None):
+        super().__init__(message)
+        self.partial = partial
 
 
 class _Reader:
@@ -204,6 +208,90 @@ def read_part_met(data):
         'last_seen_complete': _int(tags.get(FT_LASTSEENCOMPLETE)), 'aich': tags.get(FT_AICH_HASH),
         'gaps': len(gaps),
     }
+
+
+SEARCH_TYPES = {0: 'Automatic', 1: 'eD2K Server', 2: 'eD2K Global', 3: 'Kademlia', 4: 'ContentDB'}   # SearchParams.h
+FT_FILETYPE = 0x03
+FT_SOURCES = 0x15
+FT_COMPLETE_SOURCES = 0x30
+FT_FOLDERNAME = 0x38
+FT_FILERATING = 0xF7
+_RESULT_TAG_NAMES = {0xD0: 'artist', 0xD1: 'album', 0xD2: 'title', 0xD3: 'length', 0xD4: 'bitrate', 0xD5: 'codec',
+                     0x04: 'format', 0xF6: 'comment', FT_LASTSEENCOMPLETE: 'last_seen_complete'}   # Opcodes.h
+_RESULT_TAGS_SHOWN = (FT_FILENAME, FT_FILESIZE, FT_FILESIZE_HI, FT_FILETYPE, FT_SOURCES, FT_COMPLETE_SOURCES,
+                      FT_FOLDERNAME, FT_AICH_HASH, FT_FILERATING)
+
+
+def _met_string(reader):
+    """CFileDataIO::ReadString with bOptUTF8 true (SafeFile.cpp): a uint16 length, then the bytes."""
+    raw = reader.take(reader.u16())
+    if raw.startswith(b'\xef\xbb\xbf'):
+        raw = raw[3:]
+    try:
+        return raw.decode('utf-8')
+    except UnicodeDecodeError:
+        return raw.decode('cp1252', 'replace')
+
+
+def _text(value):
+    return value if isinstance(value, str) else None
+
+
+def _stored_result(reader):
+    """CSearchFile::CSearchFile(CFileDataIO&, ...) in SearchFile.cpp, with tags as CTag reads them."""
+    record = {'hash': reader.take(16), 'client_id': reader.u32(), 'client_port': reader.u16()}
+    tags, folder = {}, None
+    for _ in range(reader.u32()):
+        name, value = read_tag(reader)
+        tags[name] = value                  # eMule's GetTag finds the last tag of a name
+        if name == FT_FOLDERNAME and folder is None and isinstance(value, str) and value:
+            folder = value                  # its constructor keeps the first non-empty folder
+    size = tags.get(FT_FILESIZE)
+    high = tags.get(FT_FILESIZE_HI)
+    if isinstance(size, int) and isinstance(high, int) and size <= 0xFFFFFFFF:
+        size |= high << 32
+    other = {}
+    for name, value in tags.items():
+        if name in _RESULT_TAGS_SHOWN:
+            continue
+        if isinstance(name, bytes):
+            label = name.decode('utf-8', 'replace')
+        else:
+            label = _RESULT_TAG_NAMES.get(name, f'tag_0x{name:02X}')
+        other[label] = value.hex() if isinstance(value, (bytes, bytearray)) else value
+    aich = tags.get(FT_AICH_HASH)
+    record.update(name=_text(tags.get(FT_FILENAME)), size=size if isinstance(size, int) else None,
+                  file_type=_text(tags.get(FT_FILETYPE)), sources=_int(tags.get(FT_SOURCES)),
+                  complete_sources=_int(tags.get(FT_COMPLETE_SOURCES)), folder=folder,
+                  aich=aich.hex() if isinstance(aich, (bytes, bytearray)) else aich,
+                  rating=_int(tags.get(FT_FILERATING)), other=other)
+    return record
+
+
+def read_stored_searches(data):
+    """StoredSearches.met (SearchList.cpp LoadSearches, SearchParams.h): the header, a version, a uint16 search
+    count, and for each search its parameters, a uint32 result count and the results. Returns a dict with
+    'searches', each holding its 'results', and 'complete'. A format error carries what was read in .partial."""
+    result = {'searches': [], 'complete': False}
+    reader = _Reader(data)
+    try:
+        header = reader.u8()
+        if header != MET_HEADER_I64TAGS:
+            raise EmuleFormatError(f'header 0x{header:02x} is not the StoredSearches.met header')
+        version = reader.u8()
+        if version != 1:
+            raise EmuleFormatError(f'StoredSearches.met version {version} is not 1')
+        for _ in range(reader.u16()):
+            search = {'id': reader.u32(), 'type': reader.u8(), 'client_shared': reader.u8() > 0,
+                      'title': _met_string(reader), 'expression': _met_string(reader), 'file_type': _met_string(reader),
+                      'results': []}
+            result['searches'].append(search)
+            for _ in range(reader.u32()):
+                search['results'].append(_stored_result(reader))
+    except (EmuleFormatError, UnicodeError) as exc:
+        raise EmuleFormatError(str(exc), partial=result) from exc
+    result['complete'] = reader.pos == len(data)
+    return result
 
 
 def read_utf16_lines(data, allow_ansi=False):

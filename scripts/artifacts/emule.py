@@ -1,4 +1,4 @@
-"""eMule known files, unfinished downloads, download list, search history and settings, for DLEAPP.
+"""eMule known files, unfinished downloads, download list, search history, stored searches and settings, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -8,8 +8,9 @@ Formats are read by scripts/emule.py, which follows the eMule 0.72a source pinne
 import os
 from datetime import datetime, timezone
 
-from scripts.emule import (EmuleFormatError, ini_values, parse_file_link, read_download_overview, read_known_met,
-                           read_part_met, read_preferences_dat, read_utf16_lines)
+from scripts.emule import (SEARCH_TYPES, EmuleFormatError, ini_values, parse_file_link, read_download_overview,
+                           read_known_met, read_part_met, read_preferences_dat, read_stored_searches,
+                           read_utf16_lines)
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.macos_plists import user_from_path
 
@@ -111,6 +112,83 @@ __artifacts_v2__ = {
             "windows11_arm_emule_known_20261108": "Windows 11 build 26200 (ARM64), eMule 0.72a | 5 rows",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no eMule files matched)",
             "packt_dfc_linux_mint_usb": "Linux Mint 22 (Wilma), Cinnamon | 0 rows (no eMule files matched)",
+        },
+    },
+    "emuleStoredSearches": {
+        "name": "eMule Stored Searches",
+        "description": "Searches eMule stored in StoredSearches.met to restore on its next start, with the search "
+                       "text, type, file type and the number of results stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-21",
+        "last_update_date": "2026-11-21",
+        "requirements": "none",
+        "category": "eMule",
+        "platforms": ("Windows",),
+        "notes": "One row per search in config/StoredSearches.met. eMule writes the file on shutdown from its "
+                 "open search tabs when its option to store searches is on (SearchList.cpp, StoreSearches, and "
+                 "EmuleDlg.cpp, in the eMule 0.72a source pinned in scripts/emule.py). With the option off the "
+                 "file is not rewritten, so it can be older than the last shutdown. Tested on constructed "
+                 "data: eMule refuses to search while disconnected, so a file with two searches and three "
+                 "results was built with test values, eMule 0.72a loaded it with a firewall blocking it and "
+                 "saved it again on exit (windows11_arm_emule_search_known_20261121). Every reported field "
+                 "read back the same. A search made on a real network was not tested, and other versions were "
+                 "not tested. Search Type comes from the ESearchType list in SearchParams.h. It is the type "
+                 "stored for the tab. No time is stored for a search, so a row does not say when it was made. "
+                 "eMule renumbers searches when it loads them, so the stored search ID is not reported. Search "
+                 "Order is the position in the file. Title is the special title stored for the tab. Client "
+                 "Shared Files is Yes when the tab holds a client's shared files and not a search. Search Text "
+                 "then holds that client's user name (SearchList.cpp, ProcessSearchAnswer). This was not in "
+                 "the known data. Title had no value and Client Shared Files held No on all rows of the known "
+                 "data. User is the folder name after Users in the file's path, blank when there is none, and "
+                 "held one value on all rows of the known data.",
+        "paths": ('*/eMule/config/StoredSearches.met',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "search",
+        "sample_data": {
+            "windows11_arm_emule_search_known_20261121": "Windows 11 build 26200 (ARM64), eMule 0.72a | 2 rows (constructed)",
+            "windows11_arm_emule_known_20261108": "Windows 11 build 26200 (ARM64), eMule 0.72a | 0 rows (no stored search)",
+        },
+    },
+    "emuleStoredSearchResults": {
+        "name": "eMule Stored Search Results",
+        "description": "Results stored with eMule's open searches, with the file name, size, eD2K hash, the client "
+                       "address and the source counts.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-21",
+        "last_update_date": "2026-11-21",
+        "requirements": "none",
+        "category": "eMule",
+        "platforms": ("Windows",),
+        "notes": "One row per result in config/StoredSearches.met (SearchList.cpp and SearchFile.cpp in the "
+                 "eMule 0.72a source pinned in scripts/emule.py). Tested on constructed data: three results "
+                 "with test values were built into the file, eMule 0.72a loaded it with a firewall blocking it "
+                 "and saved it again on exit (windows11_arm_emule_search_known_20261121). Every field the "
+                 "known data held read back the same: file name, size, hash, client address and port, both "
+                 "source counts, file type, and the artist, title and bitrate tags. Folder, AICH hash, rating, "
+                 "comment, other tags, a low ID and a size of 4 GiB or more were not in the known data. They "
+                 "follow the source only. Results from a real server or Kad were not tested. The result record "
+                 "has no time field. A result's tags can carry a last seen complete time (FT_LASTSEENCOMPLETE, "
+                 "read by GetLastSeenComplete in SearchFile.cpp), which is shown in Other Values as stored, "
+                 "and the known data had none. A row records a result eMule kept for an open search. It does "
+                 "not show that the file was downloaded or that the client really held it. Client Address is "
+                 "the stored client ID read as an IPv4 address, and Client Port its port. A client ID below "
+                 "16777216 is a low ID (IsLowID, OtherFunctions.h), not an address: the address is then blank "
+                 "and the ID is in Other Values. Sources and Complete Sources are the counts stored for the "
+                 "result. Other Values holds the remaining stored tags as name=value: folder, AICH hash, "
+                 "rating as stored, file format, artist, album, title, length, bitrate, codec, comment, "
+                 "last_seen_complete, and any other tag under its name or number. When a tag name repeats the "
+                 "last value is used, as eMule does, except the folder, where eMule keeps the first. Rating as "
+                 "stored is eMule's rating times 51 (SearchFile.cpp, StoreToFile). eMule writes the folder "
+                 "name in the computer's ANSI code page, which the file does not record. A folder name that is "
+                 "not valid UTF-8 is read as Windows-1252 and can come out wrong. User is the folder name "
+                 "after Users in the file's path, blank when there is none, and held one value on all rows of "
+                 "the known data.",
+        "paths": ('*/eMule/config/StoredSearches.met',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "list",
+        "sample_data": {
+            "windows11_arm_emule_search_known_20261121": "Windows 11 build 26200 (ARM64), eMule 0.72a | 3 rows (constructed)",
+            "windows11_arm_emule_known_20261108": "Windows 11 build 26200 (ARM64), eMule 0.72a | 0 rows (no stored search)",
         },
     },
 }
@@ -298,4 +376,71 @@ def emuleSettings(context):
             except (OSError, EmuleFormatError) as exc:
                 logfunc(f'eMule Settings: {context.get_relative_path(path)} not read ({exc})')
         data_list.extend(row + (user,) for row in rows)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+def _stored(context, name):
+    for path in sorted(str(f) for f in context.get_files_found()
+                       if os.path.isfile(str(f)) and os.path.basename(str(f)).lower() == 'storedsearches.met'):
+        relative = context.get_relative_path(path)
+        try:
+            with open(path, 'rb') as handle:
+                data = handle.read()
+        except OSError as exc:
+            logfunc(f'{name}: could not read {relative} ({type(exc).__name__})')
+            continue
+        try:
+            result = read_stored_searches(data)
+            if not result['complete']:
+                logfunc(f'{name}: {relative} has bytes after the last search')
+        except EmuleFormatError as exc:
+            result = exc.partial or {'searches': []}
+            logfunc(f'{name}: {relative} stopped ({exc}); keeping the {len(result["searches"])} searches read before it')
+        yield path, result
+
+
+@artifact_processor
+def emuleStoredSearches(context):
+    data_headers = ('Search Text', 'Search Type', 'File Type', 'Stored Results', 'Title', 'Client Shared Files',
+                    'Search Order', 'User')
+    data_list, sources = [], []
+    for path, result in _stored(context, 'eMule Stored Searches'):
+        for order, search in enumerate(result['searches'], 1):
+            data_list.append((search['expression'], SEARCH_TYPES.get(search['type'], search['type']),
+                              search['file_type'], len(search['results']), search['title'],
+                              'Yes' if search['client_shared'] else 'No', order,
+                              user_from_path(context.get_relative_path(path))))
+        if result['searches']:
+            sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def emuleStoredSearchResults(context):
+    data_headers = ('File Name', 'Size (bytes)', 'eD2K Hash', 'Search Text', 'Client Address', 'Client Port', 'Sources',
+                    'Complete Sources', 'File Type', 'Other Values', 'User')
+    data_list, sources = [], []
+    for path, result in _stored(context, 'eMule Stored Search Results'):
+        rows = 0
+        for search in result['searches']:
+            for item in search['results']:
+                other = []
+                address = ''
+                if item['client_id'] >= 16777216:
+                    address = '.'.join(str(octet) for octet in item['client_id'].to_bytes(4, 'little'))
+                elif item['client_id']:
+                    other.append(f"low_id={item['client_id']}")
+                for key, label in (('folder', 'folder'), ('aich', 'aich'), ('rating', 'rating_stored')):
+                    if item[key] not in (None, ''):
+                        other.append(f'{label}={item[key]}')
+                other.extend(f'{key}={value}' for key, value in sorted(item['other'].items()))
+                data_list.append((item['name'] or '', item['size'] if item['size'] is not None else '',
+                                  item['hash'].hex().upper(), search['expression'], address,
+                                  item['client_port'] or '', item['sources'] if item['sources'] is not None else '',
+                                  item['complete_sources'] if item['complete_sources'] is not None else '',
+                                  item['file_type'] or '', '; '.join(other),
+                                  user_from_path(context.get_relative_path(path))))
+                rows += 1
+        if rows:
+            sources.append(path)
     return data_headers, data_list, '\n'.join(sources)
