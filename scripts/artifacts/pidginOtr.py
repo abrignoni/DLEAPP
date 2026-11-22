@@ -8,6 +8,7 @@ It also reads an optional otr.max_message_size, which this module does not parse
 
 import hashlib
 import os
+import re
 import struct
 
 from scripts.ilapfuncs import artifact_processor, logfunc
@@ -25,8 +26,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Pidgin",
         "platforms": ("Windows", "macOS", "Linux"),
-        "notes": "One row per line of otr.fingerprints that has at least four tab-separated fields. Shorter lines "
-                 "are skipped and counted in the log. Source citations are to libotr 4.1.1 "
+        "notes": "One row per line of otr.fingerprints that has at least four tab-separated fields and 40 "
+                 "hexadecimal digits in the fourth. Other lines are skipped and logged. Source citations are to libotr 4.1.1 "
                  "(https://otr.cypherpunks.ca/libotr-4.1.1.tar.gz) and pidgin-otr 4.0.2. Which libotr build the "
                  "Windows plugin contains was not established. The line layout (contact, account, protocol, 40 "
                  "hexadecimal digits, trust, separated by tabs) is what libotr writes in src/privkey.c lines 803 to "
@@ -40,8 +41,8 @@ __artifacts_v2__ = {
                  "the other and no SMP ran, so a non-empty value is unexercised. libotr adds a fingerprint when a key "
                  "exchange with that contact address completes (src/message.c lines 537 to 551). A row shows that "
                  "this fingerprint is stored for the contact address under the account. It does not show who held "
-                 "the key. The file holds no time, and no message content. User is the folder name after Users in "
-                 "the file's path. It is empty when the path has no Users folder, as on Linux.",
+                 "the key. The file holds no time, and no message content. User is the folder name after Users or "
+                 "home in the file's path, and is empty when the path has neither.",
         "paths": ('*/.purple/otr.fingerprints',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
@@ -69,7 +70,7 @@ __artifacts_v2__ = {
                  "private value x is not read into any column. On the known data (windows11_arm_pidgin_otr_known_20261122) each account's Key Fingerprint "
                  "equalled the fingerprint the other profile stored for it. Instance Tag is the third field of "
                  "otr.instance_tags (src/instag.c line 271), as stored. The files hold no time. User is the folder "
-                 "name after Users in the file's path. It is empty when the path has no Users folder, as on Linux.",
+                 "name after Users or home in the file's path, and is empty when the path has neither.",
         "paths": ('*/.purple/otr.private_key', '*/.purple/otr.instance_tags'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
@@ -78,6 +79,20 @@ __artifacts_v2__ = {
         },
     },
 }
+
+
+_FINGERPRINT = re.compile(r'[0-9a-fA-F]{40}')
+
+
+def _profile_user(relative):
+    user = user_from_path(relative)
+    if user:
+        return user
+    parts = relative.replace('\\', '/').split('/')
+    for index, part in enumerate(parts[:-1]):
+        if part.lower() == 'home':
+            return parts[index + 1]
+    return ''
 
 
 def _human(hex_digits):
@@ -193,12 +208,12 @@ def pidginOtrFingerprints(context):
         before = len(data_list)
         for line in lines:
             parts = line.split('\t')
-            if len(parts) < 4:
+            if len(parts) < 4 or not _FINGERPRINT.fullmatch(parts[3]):
                 if line.strip():
-                    logfunc(f'Pidgin OTR Fingerprints: skipped a line of {len(parts)} fields in {relative}')
+                    logfunc(f'Pidgin OTR Fingerprints: skipped a malformed line in {relative}')
                 continue
             data_list.append((parts[0], parts[1], parts[2], _human(parts[3]), parts[4] if len(parts) > 4 else '',
-                              user_from_path(context.get_relative_path(path))))
+                              _profile_user(context.get_relative_path(path))))
         if len(data_list) > before:
             sources.append(path)
     return data_headers, data_list, '\n'.join(sources)
@@ -216,7 +231,7 @@ def pidginOtrAccounts(context):
         except (OSError, ValueError, IndexError) as exc:
             logfunc(f'Pidgin OTR Accounts: {relative} not read ({type(exc).__name__})')
             continue
-        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': user_from_path(context.get_relative_path(path))})
+        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
         entry['sources'].append(path)
         root = next((item for item in tree if _head(item) == 'privkeys'), [])
         for account in root:
@@ -235,7 +250,7 @@ def pidginOtrAccounts(context):
         except OSError as exc:
             logfunc(f'Pidgin OTR Accounts: {relative} not read ({type(exc).__name__})')
             continue
-        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': user_from_path(context.get_relative_path(path))})
+        entry = folders.setdefault(os.path.dirname(path), {'rows': {}, 'sources': [], 'user': _profile_user(context.get_relative_path(path))})
         entry['sources'].append(path)
         for line in lines:
             parts = line.split('\t')
