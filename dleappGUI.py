@@ -1418,10 +1418,11 @@ def open_exodus_password_dialog():
     entry_var = tk.StringVar(value=exodus_password_var.get())
     entry = ttk.Entry(dialog, textvariable=entry_var, show='•')
     entry.pack(fill='x', padx=14)
-    # Carries over the saved state, is set when Browse fills the entry, and is cleared the moment
-    # the examiner types, so a typed value is never treated as a file path.
+    # Carries over the saved state. Any real change to the value clears it (so a typed value is
+    # never treated as a file path), while navigation keys that leave the value alone do not.
+    # Browse writes the path, which first clears the flag through this trace, then sets it True.
     selection = {'browsed': exodus_password_browsed.get()}
-    entry.bind('<KeyRelease>', lambda _event: selection.update(browsed=False))
+    entry_var.trace_add('write', lambda *_a: selection.update(browsed=False))
 
     controls = ttk.Frame(dialog)
     controls.pack(fill='x', padx=14, pady=(6, 0))

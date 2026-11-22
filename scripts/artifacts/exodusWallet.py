@@ -333,7 +333,7 @@ def exodusWalletState(context):
         try:
             with open(unsafe_path, 'rb') as handle:
                 parsed = json.loads(handle.read())
-        except (OSError, ValueError) as exc:
+        except (OSError, ValueError, RecursionError) as exc:
             logfunc(f'Exodus Wallet App State: could not read unsafe-storage.json in {folder}: {exc}')
             continue
         if not isinstance(parsed, dict):

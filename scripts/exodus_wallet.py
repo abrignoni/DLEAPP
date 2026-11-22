@@ -259,7 +259,7 @@ def read_passphrase_file(raw_bytes):
     """
     try:
         parsed = json.loads(raw_bytes)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, RecursionError):
         return None, None
     if not isinstance(parsed, dict):
         return None, None
