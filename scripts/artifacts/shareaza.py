@@ -1,4 +1,4 @@
-"""Shareaza library files, library folders and unfinished downloads, for DLEAPP.
+"""Shareaza library files, library folders, unfinished downloads and saved searches, for DLEAPP.
 
 Author: @AlexisBrignoni, Claude.
 
@@ -9,7 +9,7 @@ import os
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.macos_plists import user_from_path
-from scripts.shareaza import TRISTATE, ShareazaFormatError, read_download, read_library
+from scripts.shareaza import PROTOCOLS, TRISTATE, ShareazaFormatError, read_download, read_library, read_searches
 
 __artifacts_v2__ = {
     "shareazaLibraryFiles": {
@@ -72,6 +72,82 @@ __artifacts_v2__ = {
             "windows11_arm_shareaza_known_20261108": "Windows 11 build 26200 (ARM64), Shareaza 2.7.10.2 | 1 row",
             "pc_mus_001_win11": "Windows 11 22H2 build 22621 | 0 rows (no member matches the declared paths)",
             "packt_dfc_linux_mint_usb": "Linux Mint 22 (Wilma), Cinnamon | 0 rows (no member matches the declared paths)",
+        },
+    },
+    "shareazaSearches": {
+        "name": "Shareaza Searches",
+        "description": "Searches saved in Shareaza's Searches.dat, with the search text, the search GUID, the "
+                       "networks allowed and the number of stored results that carry its GUID.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-21",
+        "last_update_date": "2026-11-21",
+        "requirements": "none",
+        "category": "Shareaza",
+        "platforms": ("Windows",),
+        "notes": "One row per search in Data/Searches.dat, which Shareaza writes from its open search windows. "
+                 "The layout follows Shareaza 2.7.10.2's load code at SVN revision 9696 (WindowManager.cpp, "
+                 "WndSearch.cpp, ManagedSearch.cpp, QuerySearch.cpp). Tested on known data "
+                 "(windows11_arm_shareaza_search_known_20261121: Shareaza 2.7.10.2 on Windows 11, two keyword "
+                 "searches made with its network access blocked, and no result was stored). Other versions "
+                 "were not tested. No time is stored for a search. Search GUID is the query's GUID as stored "
+                 "bytes in hex. Networks lists the networks the search was allowed to use, which is not proof "
+                 "it reached them: on the known data all four are listed while a firewall blocked Shareaza. "
+                 "Stored Results counts the results in the file carrying this Search GUID. A result stored "
+                 "with an all-zero Search GUID is not counted for any search. Shareaza gives such results to "
+                 "the most recent text search of the window (WndSearch.cpp), and the Window column of Shareaza "
+                 "Search Results ties them to it. Other Values holds a searched hash, schema, metadata or size "
+                 "limit when set, and had no value on the known data. Window and Search give the order in the "
+                 "file. Windows beyond Shareaza's search window limit are not saved, and the file is rewritten "
+                 "from the search windows open at each save, so a search whose window was closed before the "
+                 "last save is not in it. This was not tested. User is the folder name after Users in the "
+                 "file's path, and is blank when the path has no Users folder, and held one value on all rows "
+                 "of the known data, which has one Windows user.",
+        "paths": ('*/Shareaza/Data/Searches.dat',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "search",
+        "sample_data": {
+            "windows11_arm_shareaza_search_known_20261121": "Windows 11 build 26200 (ARM64), Shareaza 2.7.10.2 | 2 rows",
+            "windows11_arm_shareaza_known_20261108": "Windows 11 build 26200 (ARM64), Shareaza 2.7.10.2 | 0 rows (no Searches.dat)",
+        },
+    },
+    "shareazaSearchResults": {
+        "name": "Shareaza Search Results",
+        "description": "Results stored with Shareaza's saved searches, with the file name, size, hashes, the source "
+                       "address and client, and the found time stored for the matched file.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-21",
+        "last_update_date": "2026-11-21",
+        "requirements": "none",
+        "category": "Shareaza",
+        "platforms": ("Windows",),
+        "notes": "One row per stored hit in Data/Searches.dat. The layout follows Shareaza 2.7.10.2's load "
+                 "code at SVN revision 9696 (MatchObjects.cpp, QueryHit.cpp). Tested on one constructed "
+                 "result: no result was stored on the known data "
+                 "(windows11_arm_shareaza_search_known_20261121), so one result with test values was added to "
+                 "the file Shareaza wrote, Shareaza loaded it and saved it again, and every reported field "
+                 "read back the same. In the file, Shareaza rebuilt the speed text and cleared each search's "
+                 "active and receive flags, none of which are reported. The result was built with this "
+                 "reader's layout, so the test shows Shareaza accepts and re-saves that layout. Results from a "
+                 "real peer were not tested, and other versions were not tested. Found Time is the time stored "
+                 "for the matched file, which MatchObjects.h labels the found time, read as seconds since 1970 "
+                 "UTC, the way MFC stores a CTime. The tested value was planted, so a time Shareaza stamped "
+                 "itself was not tested. A stored time of 0, or one that cannot be shown as a date, is blank. "
+                 "It is shared by all hits of that file. A row records a result Shareaza stored for a search. "
+                 "It does not show that the file was downloaded or that the source really held it. Source "
+                 "Address and Port are the address and port stored for the hit. Size is blank when the hit's "
+                 "size flag is not set. Client is the vendor code. Nickname, Rating and Comments are as stored "
+                 "for the hit. Hashes are shown in hex. Protocol is named from the stored number using the "
+                 "PROTOCOLID enum in StdAfx.h. A number outside it is shown as stored. Search Text is joined "
+                 "by the hit's Search GUID within the same file, and is blank when no search has that GUID. "
+                 "That includes results stored with an all-zero Search GUID. Window is the search window the "
+                 "result is stored in. User is the folder name after Users in the file's path, and is blank "
+                 "when the path has no Users folder, and held one value on the one row of the known data.",
+        "paths": ('*/Shareaza/Data/Searches.dat',),
+        "output_types": ["standard"],
+        "artifact_icon": "list",
+        "sample_data": {
+            "windows11_arm_shareaza_search_known_20261121": "Windows 11 build 26200 (ARM64), Shareaza 2.7.10.2 | 1 row (constructed result)",
+            "windows11_arm_shareaza_known_20261108": "Windows 11 build 26200 (ARM64), Shareaza 2.7.10.2 | 0 rows (no Searches.dat)",
         },
     },
 }
@@ -184,4 +260,66 @@ def shareazaDownloads(context):
                           record['ed2k'], record['bth'], os.path.basename(path), record['version'],
                           user_from_path(relative)))
         sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+def _searches(context, name):
+    for path in sorted(str(f) for f in context.get_files_found()
+                       if os.path.isfile(str(f)) and os.path.basename(str(f)).lower() == 'searches.dat'):
+        relative = context.get_relative_path(path)
+        try:
+            with open(path, 'rb') as handle:
+                data = handle.read()
+        except OSError as exc:
+            logfunc(f'{name}: could not read {relative} ({type(exc).__name__})')
+            continue
+        try:
+            result = read_searches(data)
+            if not result['complete']:
+                logfunc(f'{name}: {relative} did not end where the format ends')
+        except ShareazaFormatError as exc:
+            result = exc.partial
+            logfunc(f'{name}: {relative} stopped ({exc}); keeping the {len(result["searches"])} searches and '
+                    f'{len(result["results"])} results read before it')
+        yield path, result
+
+
+@artifact_processor
+def shareazaSearches(context):
+    data_headers = ('Search Text', 'Search GUID', 'Stored Results', 'Networks', 'Other Values', 'Window', 'Search',
+                    'User')
+    data_list, sources = [], []
+    for path, result in _searches(context, 'Shareaza Searches'):
+        for search in result['searches']:
+            other = [f'{key}={search[key]}' for key in ('sha1', 'tiger', 'ed2k', 'bth', 'md5', 'schema', 'metadata')
+                     if search[key]]
+            if search['min_size']:
+                other.append(f"min_size={search['min_size']}")
+            if search['max_size'] != 0xFFFFFFFFFFFFFFFF:
+                other.append(f"max_size={search['max_size']}")
+            stored = sum(1 for hit in result['results'] if hit['search_guid'] == search['guid'])
+            data_list.append((search['text'], search['guid'], stored, ', '.join(search['networks']), '; '.join(other),
+                              search['window'], search['search'], user_from_path(context.get_relative_path(path))))
+        if result['searches']:
+            sources.append(path)
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def shareazaSearchResults(context):
+    data_headers = (('Found Time', 'datetime'), 'File Name', 'Size (bytes)', 'Search Text', 'Source Address', 'Port',
+                    'Protocol', 'Client', 'Nickname', 'URL', 'SHA-1', 'Tiger', 'ED2K', 'BTH', 'MD5', 'Rating',
+                    'Comments', 'Search GUID', 'Client GUID', 'Window', 'User')
+    data_list, sources = [], []
+    for path, result in _searches(context, 'Shareaza Search Results'):
+        texts = {search['guid']: search['text'] for search in result['searches']}
+        for hit in result['results']:
+            data_list.append((hit['found'], hit['name'], hit['size'] if hit['size_known'] else '',
+                              texts.get(hit['search_guid'], ''), hit['address'], hit['port'],
+                              PROTOCOLS.get(hit['protocol'], hit['protocol'] if hit['protocol'] is not None else ''),
+                              hit['vendor'], hit['nick'], hit['url'], hit['sha1'], hit['tiger'], hit['ed2k'],
+                              hit['bth'], hit['md5'], hit['rating'], hit['comments'], hit['search_guid'],
+                              hit['client_guid'], hit['window'], user_from_path(context.get_relative_path(path))))
+        if result['results']:
+            sources.append(path)
     return data_headers, data_list, '\n'.join(sources)
