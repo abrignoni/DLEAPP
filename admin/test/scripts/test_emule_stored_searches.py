@@ -120,6 +120,12 @@ class StoredSearches(unittest.TestCase):
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
         self.assertEqual(rows[0]['Other Values'], 'comment=a\\; title=b')
 
+    def test_a_stored_tag_cannot_stand_in_for_a_derived_value(self):
+        self.add('one', store(search('text', [result('a.bin', (string_tag(b'low_id', '123'),))])))
+        rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+        self.assertEqual(rows[0]['Low ID'], '')
+        self.assertEqual(rows[0]['Other Values'], 'low_id=123')
+
     def test_an_unshared_tag_name_stays_plain(self):
         self.add('one', store(search('text', [result('a.bin', (string_tag(0xD0, 'value'),))])))
         rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
