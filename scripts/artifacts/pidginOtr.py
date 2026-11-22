@@ -103,7 +103,8 @@ def _human(hex_digits):
 
 def _read_lines(path):
     with open(path, 'rb') as handle:
-        return handle.read().decode('utf-8', 'replace').splitlines()
+        records = handle.read().split(b'\n')
+    return [record.rstrip(b'\r').decode('utf-8', 'replace') for record in records]
 
 
 def _tokens(text):
@@ -195,6 +196,8 @@ def _public_fingerprint(account):
         if not item or len(item) < 2 or item[1][0] != 'hex':
             return ''
         raw = bytes.fromhex(item[1][1]).lstrip(b'\0')
+        if not raw:
+            raise ValueError('empty public key value')
         blob += struct.pack('>I', len(raw)) + raw
     return hashlib.sha1(blob).hexdigest()  # nosec B324
 
