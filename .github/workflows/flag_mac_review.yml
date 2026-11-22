@@ -9,12 +9,11 @@ permissions:
 
 jobs:
   flag:
-    # Match the PR author even when somebody else pushes or reopens the PR.
+    # The Mac routes maintainer findings to the private DLEAPP inbox.
     if: >-
       (github.event.action != 'labeled' || github.event.label.name == 'request-mac-review') &&
       github.event.pull_request.draft == false &&
-      github.event.pull_request.user.id > 0 && github.event.pull_request.user.id != 28718987 &&
-      github.event.pull_request.user.login != '' && github.event.pull_request.user.login != 'abrignoni'
+      github.event.pull_request.user.id > 0 && github.event.pull_request.user.login != ''
     runs-on: ubuntu-latest
     steps:
       # Only the PR number is used. Never check out or run the PR here.
