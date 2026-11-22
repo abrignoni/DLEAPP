@@ -604,9 +604,11 @@ def process(casedata):
         exodus_password = exodus_password_var.get()
         if exodus_password and (exodus_password_browsed.get() or os.path.isfile(exodus_password)):
             try:
-                with open(exodus_password, 'r', encoding='utf-8', errors='replace') as exodus_pw_file:
+                # Decode strictly: a silent replacement would change the credential and look
+                # like a wrong password. An undecodable file is reported so it can be corrected.
+                with open(exodus_password, 'r', encoding='utf-8') as exodus_pw_file:
                     exodus_password = exodus_pw_file.read(4096)
-            except OSError as exodus_pw_error:
+            except (OSError, UnicodeError) as exodus_pw_error:
                 tk_msgbox.showerror(
                     title='Error',
                     message=('Could not read the Exodus wallet password file:\n'

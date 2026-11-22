@@ -177,16 +177,18 @@ def _within_wallet(relative):
     return ''
 
 
-def _wallet_folder(relative):
-    """The path of the exodus.wallet folder in a relative path, or '' when it is not one.
+def _wallet_folder_of_file(relative):
+    """The exodus.wallet folder a file sits directly in, or '' when it is not one.
 
-    The Exodus and exodus.wallet names are matched without regard to case, to agree with a
-    seeker that matches them case-insensitively on a raw NTFS, exFAT, ReFS or FAT volume.
+    Keyed on the file's immediate parent, so a nested second Exodus/exodus.wallet tree is its own
+    wallet rather than collapsing into the outer one. The names are matched without regard to
+    case, to agree with a seeker that matches them case-insensitively on a raw NTFS, exFAT, ReFS
+    or FAT volume.
     """
     parts = relative.replace('\\', '/').split('/')
-    for index in range(1, len(parts)):
-        if parts[index].lower() == 'exodus.wallet' and parts[index - 1].lower() == 'exodus':
-            return '/'.join(parts[:index + 1])
+    parent = parts[:-1]
+    if len(parent) >= 2 and parent[-1].lower() == 'exodus.wallet' and parent[-2].lower() == 'exodus':
+        return '/'.join(parent)
     return ''
 
 
@@ -233,7 +235,7 @@ def _group_by_wallet(context):
         if os.path.isdir(staged):
             continue
         relative = context.get_relative_path(staged)
-        folder = _wallet_folder(relative)
+        folder = _wallet_folder_of_file(relative)
         if not folder:
             continue
         wallets.setdefault(folder, {})[os.path.basename(relative).lower()] = staged
@@ -248,6 +250,12 @@ def exodusWallet(context):
     sources = []
     supplied_password = context.get_app_secret('exodus_password')
     for folder, files in sorted(_group_by_wallet(context).items()):
+        # Record a matched passphrase.json even on a partial extraction with no seed.seco, so its
+        # source attribution is not lost, while still emitting at most one row per seed.seco.
+        passphrase_path = files.get('passphrase.json')
+        if passphrase_path:
+            sources.append(passphrase_path)
+
         seed_path = files.get('seed.seco')
         if not seed_path:
             continue
@@ -260,9 +268,7 @@ def exodusWallet(context):
             modified = _instant(times.modified)
 
         stored_passphrase = system_flag = None
-        passphrase_path = files.get('passphrase.json')
         if passphrase_path:
-            sources.append(passphrase_path)
             try:
                 with open(passphrase_path, 'rb') as handle:
                     stored_passphrase, system_flag = ew.read_passphrase_file(handle.read())
