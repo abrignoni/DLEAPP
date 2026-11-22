@@ -104,8 +104,9 @@ __artifacts_v2__ = {
                  "or Pattern are the two parts of that field and Feed ID is the feed's ident, and they matched the Web "
                  "API. On the 2 filter rows Name, URL or Pattern, Label and Feed ID (the filter's feed field) matched "
                  "the Web API. Feed rows have no label. Exclude Pattern (not_filter) and Save Folder (directory) had "
-                 "no value on any row, so those two columns are unexercised. Enabled held Yes on all 4 rows. No is "
-                 "written for any other stored value, including a missing field, and was not exercised. User is the "
+                 "no value on any row, so those two columns are unexercised. Enabled shows a stored 1 as Yes and 0 "
+                 "as No, leaves a missing field blank and shows any other value as stored. Only 1 occurred, on all 4 "
+                 "rows. User is the "
                  "profile folder name taken from the file's path. The known data has one placeholder profile, on all "
                  "4 rows. The history list was empty on the known data and is not read. What it holds was not "
                  "established. rss.dat.old is not read.",
@@ -194,7 +195,8 @@ def _files(info):
         for entry in info[b'files']:
             if not isinstance(entry, dict):
                 continue
-            parts = [_text(part) for part in entry.get(b'path', []) if isinstance(part, bytes)]
+            stored = entry.get(b'path')
+            parts = [_text(part) for part in stored if isinstance(part, bytes)] if isinstance(stored, list) else []
             paths.append('/'.join([name] + parts))
             total += entry.get(b'length', 0) if isinstance(entry.get(b'length'), int) else 0
         return paths, total
@@ -203,30 +205,46 @@ def _files(info):
 
 
 def _torrent_info(folder, entry_name, info_hash):
-    """The info dictionary of the entry's .torrent, only when it hashes to the recorded info-hash."""
+    """(info dictionary, path) of the entry's .torrent, only when it hashes to the recorded info-hash."""
     path = os.path.join(folder, ntpath.basename(entry_name))
     if not info_hash or not os.path.isfile(path):
-        return None
+        return None, ''
     try:
         info = _decode(path).get(b'info')
         if isinstance(info, dict) and hashlib.sha1(bencoding.bencode(info)).digest() == info_hash:  # nosec B324
-            return info
+            return info, path
     except _DECODE_ERRORS:
-        return None
-    return None
+        return None, ''
+    return None, ''
 
 
 def _trackers(entry):
     urls = []
-    for item in entry.get(b'trackers', []) or []:
+    stored = entry.get(b'trackers')
+    if not isinstance(stored, list):
+        return urls
+    for item in stored:
         for url in item if isinstance(item, list) else [item]:
             if isinstance(url, bytes) and url and _text(url) not in urls:
                 urls.append(_text(url))
     return urls
 
 
+def _list(value):
+    return value if isinstance(value, list) else []
+
+
+def _enabled(value):
+    """1 and 0 as Yes and No; a missing field stays blank and any other value is shown as stored."""
+    if value == 1:
+        return 'Yes'
+    if value == 0:
+        return 'No'
+    return _text(value)
+
+
 def _found(context, name):
-    return sorted(str(f) for f in context.get_files_found() if os.path.basename(str(f)) == name and os.path.isfile(str(f)))
+    return sorted(str(f) for f in context.get_files_found() if os.path.basename(str(f)).lower() == name and os.path.isfile(str(f)))
 
 
 @artifact_processor
@@ -238,6 +256,7 @@ def utorrentTorrents(context):
     data_list, sources = [], []
     for path in _found(context, 'resume.dat'):
         relative = context.get_relative_path(path)
+        sources.append(path)
         try:
             resume = _decode(path)
         except _DECODE_ERRORS as exc:
@@ -245,22 +264,22 @@ def utorrentTorrents(context):
             continue
         client, user = _client_user(relative)
         folder = os.path.dirname(path)
-        rows_before = len(data_list)
         for key, entry in resume.items():
             if not isinstance(key, bytes) or not key.lower().endswith(b'.torrent') or not isinstance(entry, dict):
                 continue
             raw_hash = entry.get(b'info')
             info_hash = raw_hash if isinstance(raw_hash, bytes) and len(raw_hash) == 20 else b''
-            files, total = _files(_torrent_info(folder, _text(key), info_hash))
+            info, torrent_path = _torrent_info(folder, _text(key), info_hash)
+            files, total = _files(info)
+            if torrent_path:
+                sources.append(torrent_path)
             data_list.append((
                 _unix(entry.get(b'added_on')), _unix(entry.get(b'completed_on')), client,
                 _text(entry.get(b'caption')) or _text(key)[:-len('.torrent')], info_hash.hex(), _text(entry.get(b'path')),
                 _text(entry.get(b'label')), entry.get(b'started', ''), entry.get(b'downloaded', ''),
                 entry.get(b'uploaded', ''), entry.get(b'runtime', ''), entry.get(b'seedtime', ''),
                 '\n'.join(_trackers(entry)), _text(entry.get(b'download_url')), '\n'.join(files), total, user))
-        if len(data_list) > rows_before:
-            sources.append(path)
-    return data_headers, data_list, '\n'.join(sources)
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor
@@ -269,13 +288,13 @@ def utorrentSettings(context):
     data_list, sources = [], []
     for path in _found(context, 'settings.dat'):
         relative = context.get_relative_path(path)
+        sources.append(path)
         try:
             settings = _decode(path)
         except _DECODE_ERRORS as exc:
             logfunc(f'uTorrent and BitTorrent Settings: {relative} did not decode ({type(exc).__name__})')
             continue
         client, user = _client_user(relative)
-        rows_before = len(data_list)
         for key, label in _SETTINGS:
             value = settings.get(key.encode())
             if value is None or value == b'':
@@ -286,9 +305,7 @@ def utorrentSettings(context):
             elif key == 'settings_saved_systime':
                 when = _unix(value)
             data_list.append((when, client, label, '' if when else _text(value), key, user))
-        if len(data_list) > rows_before:
-            sources.append(path)
-    return data_headers, data_list, '\n'.join(sources)
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
 
 
 @artifact_processor
@@ -298,27 +315,25 @@ def utorrentRss(context):
     data_list, sources = [], []
     for path in _found(context, 'rss.dat'):
         relative = context.get_relative_path(path)
+        sources.append(path)
         try:
             rss = _decode(path)
         except _DECODE_ERRORS as exc:
             logfunc(f'uTorrent and BitTorrent RSS: {relative} did not decode ({type(exc).__name__})')
             continue
         client, user = _client_user(relative)
-        rows_before = len(data_list)
-        for feed in rss.get(b'feeds', []) or []:
+        for feed in _list(rss.get(b'feeds')):
             if not isinstance(feed, dict):
                 continue
             alias, separator, url = _text(feed.get(b'url')).partition('|')
             if not separator:
                 alias, url = '', alias
             data_list.append(('Feed', client, alias, url, '', '', '', feed.get(b'ident', ''),
-                              'Yes' if feed.get(b'enabled') == 1 else 'No', user))
-        for item in rss.get(b'filters', []) or []:
+                              _enabled(feed.get(b'enabled')), user))
+        for item in _list(rss.get(b'filters')):
             if not isinstance(item, dict):
                 continue
             data_list.append(('Filter', client, _text(item.get(b'name')), _text(item.get(b'filter')),
                               _text(item.get(b'not_filter')), _text(item.get(b'directory')), _text(item.get(b'label')),
-                              item.get(b'feed', ''), 'Yes' if item.get(b'enabled') == 1 else 'No', user))
-        if len(data_list) > rows_before:
-            sources.append(path)
-    return data_headers, data_list, '\n'.join(sources)
+                              item.get(b'feed', ''), _enabled(item.get(b'enabled')), user))
+    return data_headers, data_list, '\n'.join(dict.fromkeys(sources))
