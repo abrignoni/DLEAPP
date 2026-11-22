@@ -175,13 +175,15 @@ def _decode(path):
 
 
 def _client_user(relative):
+    """The client from the store's own parent folder, and the first profile folder in the path."""
     parts = relative.replace('\\', '/').split('/')
-    client, user = '', ''
+    parent = parts[-2].lower() if len(parts) > 1 else ''
+    client = {'utorrent': 'uTorrent', 'bittorrent': 'BitTorrent'}.get(parent, '')
+    user = ''
     for index, part in enumerate(parts[:-1]):
         if part.lower() in ('users', 'documents and settings') and index + 1 < len(parts) - 1:
             user = parts[index + 1]
-        if part.lower() in ('utorrent', 'bittorrent'):
-            client = 'uTorrent' if part.lower() == 'utorrent' else 'BitTorrent'
+            break
     return client, user
 
 
@@ -193,7 +195,9 @@ def _files(info):
     if not isinstance(info, dict):
         return [], ''
     name = _text(info.get(b'name'))
-    if isinstance(info.get(b'files'), list):
+    if b'files' in info:
+        if not isinstance(info[b'files'], list) or not info[b'files']:
+            return [], ''
         paths, total, sizes_valid = [], 0, True
         for entry in info[b'files']:
             if not isinstance(entry, dict):
