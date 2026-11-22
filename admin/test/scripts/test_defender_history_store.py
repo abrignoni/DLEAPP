@@ -261,6 +261,31 @@ class ArtifactTest(unittest.TestCase):
         self.assertIn('Id property differs from the file name', row['Read Note'])
         self.assertEqual(row['Other Properties'], 'Id=' + '00' * 16)
 
+    def test_declared_path_matches_other_letter_cases_of_the_folders(self):
+        pattern = artifact.__artifacts_v2__['defenderHistoryStore']['paths'][0]
+        for base in ('C/programdata/microsoft/windows defender/scans/history/store/',
+                     'C/Programdata/Microsoft/Windows Defender/Scans/History/store/'):
+            self.assertTrue(fnmatch.fnmatchcase(base + PERSIST_ID, pattern), base)
+
+    def test_a_text_property_that_is_not_valid_utf16_stops_the_list_with_a_note(self):
+        bad = name('CONTEXT_DATA_FILEPATH') + struct.pack('<II', 6, 3) + b'\x41\x00\x42'
+        properties, note = artifact.read_store(store([number('A', 1), bad]))
+        self.assertEqual([p[0] for p in properties], ['A'])
+        self.assertIn('after 1 properties', note)
+
+    def test_a_name_with_a_trailing_newline_is_not_a_persist_id(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder) / 'extraction' / (
+                'ProgramData/Microsoft/Windows Defender/Scans/History/Store')
+            root.mkdir(parents=True)
+            path = root / (PERSIST_ID + '\n')
+            path.write_bytes(full_store())
+            with patch.object(artifact, 'logfunc'):
+                _, rows, sources = tuple(
+                    artifact.defenderHistoryStore.__wrapped__(FakeContext([path])))
+        self.assertEqual(rows, [])
+        self.assertEqual(sources, '')
+
     def test_declared_path_matches_the_store_folder_only(self):
         pattern = artifact.__artifacts_v2__['defenderHistoryStore']['paths'][0]
         base = 'C/ProgramData/Microsoft/Windows Defender/Scans/History/'

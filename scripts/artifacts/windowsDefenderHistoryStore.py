@@ -113,7 +113,8 @@ __artifacts_v2__ = {
                  "its 3 Store file names; this artifact does not join them), and the files "
                  "under Scans/History/Results and Scans/History/Service (Microsoft Defender "
                  "Detection History reads Service/DetectionHistory).",
-        "paths": ('*/ProgramData/Microsoft/Windows Defender/Scans/History/Store/*',),
+        "paths": ('*/[Pp]rogram[Dd]ata/[Mm]icrosoft/[Ww]indows [Dd]efender/[Ss]cans/'
+                  '[Hh]istory/[Ss]tore/*',),
         "platforms": ("Windows",),
         "output_types": ["standard"],
         "artifact_icon": "shield",
@@ -166,7 +167,7 @@ def _property(section, position):
                 raise ValueError('property value runs past the section')
             raw = section[position:position + length]
             position += length
-            value = raw.decode('utf-16-le', errors='replace').rstrip('\0') if kind == _TEXT else raw
+            value = raw.decode('utf-16-le').rstrip('\0') if kind == _TEXT else raw
     except (struct.error, IndexError, UnicodeDecodeError) as exc:
         raise ValueError(f'property list unreadable: {exc}') from exc
     return name, kind, value, position
@@ -218,7 +219,7 @@ def _store_files(context):
         relative = '/' + context.get_relative_path(path).replace('\\', '/').lower()
         if not (relative.rsplit('/', 1)[0] + '/').endswith(_STORE_FOLDER) or os.path.isdir(path):
             continue
-        if _PERSIST_ID.match(os.path.basename(path)):
+        if _PERSIST_ID.fullmatch(os.path.basename(path)):
             yield path
 
 
