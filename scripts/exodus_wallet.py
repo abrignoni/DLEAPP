@@ -113,11 +113,11 @@ def _check_scrypt_params(n, r, p):
         raise SecoError('scrypt parameters exceed the memory bound')
 
 
-def secure_container_decrypt(data, passphrase):
-    """Decrypt a SECO container and return the plaintext bytes.
+def validate_container(data):
+    """Structural checks that need no passphrase, returning (metadata, blob).
 
-    Raises WrongPassphrase when the passphrase does not unwrap the blob key, and SecoError
-    for a malformed or corrupted container.
+    Verifies the SECO magic, the declared blob length and the SHA-256 checksum, so a
+    non-SECO or corrupt file is rejected before any passphrase is tried. Raises SecoError.
     """
     if not is_seco_container(data):
         raise SecoError('not a SECO container')
@@ -134,11 +134,27 @@ def secure_container_decrypt(data, passphrase):
     expected = hashlib.sha256(metadata + struct.pack('>I', len(blob)) + blob).digest()
     if expected != checksum:
         raise SecoError('checksum does not match; data may be corrupted')
+    return metadata, blob
+
+
+def secure_container_decrypt(data, passphrase):
+    """Decrypt a SECO container and return the plaintext bytes.
+
+    Raises WrongPassphrase when the passphrase does not unwrap the blob key, and SecoError
+    for a malformed or corrupted container.
+    """
+    metadata, blob = validate_container(data)
     meta = _decode_metadata(metadata)
     if meta['cipher'] != 'aes-256-gcm':
         raise SecoError(f"unsupported cipher {meta['cipher']!r}")
     _check_scrypt_params(meta['n'], meta['r'], meta['p'])
-    secret = passphrase.encode('utf-8') if isinstance(passphrase, str) else bytes(passphrase)
+    if isinstance(passphrase, str):
+        try:
+            secret = passphrase.encode('utf-8')
+        except UnicodeError as exc:
+            raise WrongPassphrase('passphrase is not UTF-8 encodable') from exc
+    else:
+        secret = bytes(passphrase)
     try:
         key = _scrypt(secret, meta['salt'], _KEY_LEN, meta['n'], meta['r'], meta['p'])
     except (ValueError, OverflowError, MemoryError) as exc:
@@ -251,6 +267,13 @@ def read_passphrase_file(raw_bytes):
     system = parsed.get('system')
     if not isinstance(passphrase, str):
         passphrase = None
+    else:
+        # A JSON string can hold an unpaired surrogate that strict UTF-8 cannot encode.
+        # Treat such a stored passphrase as unavailable so the supplied-password path still runs.
+        try:
+            passphrase.encode('utf-8')
+        except UnicodeError:
+            passphrase = None
     if not isinstance(system, bool):
         system = None
     return passphrase, system

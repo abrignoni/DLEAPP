@@ -249,6 +249,16 @@ def exodusWallet(context):
             logfunc(f'Exodus Wallet Secrets: could not read seed.seco in {folder}: {exc}')
             continue
 
+        # Credential-independent structural check (magic, length, checksum). It runs even when
+        # no passphrase is available, so a non-SECO or corrupt seed.seco reads as not read
+        # rather than getting the same password hint as a structurally valid wallet.
+        try:
+            ew.validate_container(seed_bytes)
+        except ew.SecoError as exc:
+            logfunc(f'Exodus Wallet Secrets: seed.seco in {folder} did not read: {exc}')
+            data_list.append((modified, user, 'seed.seco did not read', '', '', '', '', relative))
+            continue
+
         attempts = []
         if stored_passphrase:
             attempts.append(('stored', stored_passphrase))

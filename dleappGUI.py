@@ -598,9 +598,11 @@ def process(casedata):
                 windows_user_password = win_pw_file.read(4096).strip()
         Context.set_app_secret('windows_user_password', windows_user_password or None)
         # A directly entered password is kept verbatim (its own leading or trailing spaces
-        # may be part of it). A path to a file is read and only its line ending is removed.
+        # may be part of it). A value chosen with Browse, or a typed path that is a file, is
+        # read as a file; only its line ending is removed. A Browse selection that has since
+        # been moved or deleted goes through the same error handler, not tried as a password.
         exodus_password = exodus_password_var.get()
-        if exodus_password and os.path.isfile(exodus_password):
+        if exodus_password and (exodus_password_browsed.get() or os.path.isfile(exodus_password)):
             try:
                 with open(exodus_password, 'r', encoding='utf-8', errors='replace') as exodus_pw_file:
                     exodus_password = exodus_pw_file.read(4096)
@@ -1384,6 +1386,9 @@ def open_windows_user_password_dialog():
 
 
 exodus_password_var = tk.StringVar(value='')
+# True when the stored value is a file chosen with Browse, so a selection that has since been
+# moved or deleted is routed through the file-read error handler rather than tried as a password.
+exodus_password_browsed = tk.BooleanVar(value=False)
 
 
 def open_exodus_password_dialog():
@@ -1413,6 +1418,10 @@ def open_exodus_password_dialog():
     entry_var = tk.StringVar(value=exodus_password_var.get())
     entry = ttk.Entry(dialog, textvariable=entry_var, show='•')
     entry.pack(fill='x', padx=14)
+    # Carries over the saved state, is set when Browse fills the entry, and is cleared the moment
+    # the examiner types, so a typed value is never treated as a file path.
+    selection = {'browsed': exodus_password_browsed.get()}
+    entry.bind('<KeyRelease>', lambda _event: selection.update(browsed=False))
 
     controls = ttk.Frame(dialog)
     controls.pack(fill='x', padx=14, pady=(6, 0))
@@ -1426,6 +1435,7 @@ def open_exodus_password_dialog():
             parent=dialog, title='Select a file containing the password')
         if chosen:
             entry_var.set(chosen)
+            selection['browsed'] = True
     ttk.Button(controls, text='…or choose a file',
                command=browse_for_file).pack(side='left', padx=(10, 0))
 
@@ -1435,10 +1445,12 @@ def open_exodus_password_dialog():
     def save_and_close():
         # Keep the entry verbatim; whitespace may be part of the password.
         exodus_password_var.set(entry_var.get())
+        exodus_password_browsed.set(selection['browsed'])
         dialog.destroy()
 
     def clear_and_close():
         exodus_password_var.set('')
+        exodus_password_browsed.set(False)
         dialog.destroy()
 
     ttk.Button(button_row, text='Save', command=save_and_close).pack(side='right')
