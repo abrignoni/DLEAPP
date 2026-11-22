@@ -251,7 +251,8 @@ def _is_int32(entry):
 def _is_aich(entry):
     """A string eMule's constructor keeps as an AICH hash: base32 of 20 bytes (SearchFile.cpp)."""
     value = entry[1]
-    return isinstance(value, str) and len(value) == 32 and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567' for c in value.upper())
+    return (isinstance(value, str) and value.isascii() and len(value) == 32
+            and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567' for c in value.upper()))
 
 
 def _last(entries, name, accept):

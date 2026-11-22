@@ -181,6 +181,17 @@ class StoredSearches(unittest.TestCase):
         self.assertEqual(rows[0]['AICH Hash'], good)
         self.assertIn('=not base32', rows[0]['Other Values'])
 
+    def test_a_non_ascii_value_cannot_pass_as_an_aich_hash(self):
+        good = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+        for bad in ('\u017f' + good[1:], '\u00df' + good[2:] + 'A'):
+            with self.subTest(bad=bad):
+                self.setUp()
+                extra = (string_tag(emule.FT_AICH_HASH, good), string_tag(emule.FT_AICH_HASH, bad))
+                self.add('one', store(search('text', [result('a.bin', extra)])))
+                rows, _sources = self.run_artifact(emule_artifacts.emuleStoredSearchResults)
+                self.assertEqual(rows[0]['AICH Hash'], good)
+                self.assertIn(bad, rows[0]['Other Values'])
+
 
 if __name__ == '__main__':
     unittest.main()
