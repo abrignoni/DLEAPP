@@ -230,7 +230,7 @@ __artifacts_v2__ = {
                   'Library/Application Support/Microsoft Edge inside it, and loaded generated pages from a local server that logged each '
                   'request: 7 rows, one for each of the 7 logged requests, including a status 404 favicon request. '
                   'URL path, HTTP Status, Content Type and Body Size (bytes) equalled the log on all 7, Request Time '
-                  "fell 0.0002 to 0.003 seconds before the server's logged time and Response Time 0.0001 to 0.013 "
+                  "fell 0.0002 to 0.003 seconds before the server's logged time and Response Time less than 0.0001 to 0.012 "
                   'seconds after it, and ccl_chromium_reader 0.3.18 returned the '
                   'same keys, times and stored body bytes. Both PNG responses show as Cached Media.'),
         "paths": (
