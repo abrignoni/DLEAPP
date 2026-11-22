@@ -603,23 +603,29 @@ def process(casedata):
         # been moved or deleted goes through the same error handler, not tried as a password.
         exodus_password = exodus_password_var.get()
         if exodus_password and (exodus_password_browsed.get() or os.path.isfile(exodus_password)):
+            exodus_password_path = exodus_password
             try:
-                # Decode strictly: a silent replacement would change the credential and look
-                # like a wrong password. An undecodable file is reported so it can be corrected.
-                with open(exodus_password, 'r', encoding='utf-8') as exodus_pw_file:
-                    exodus_password = exodus_pw_file.read(4096)
-            except (OSError, UnicodeError) as exodus_pw_error:
+                # Read bytes and decode strictly, so internal carriage returns are preserved and a
+                # silent replacement cannot change the credential. Read one byte past the limit to
+                # tell a too-large file from one that just fits, rather than truncating in silence.
+                with open(exodus_password_path, 'rb') as exodus_pw_file:
+                    exodus_pw_bytes = exodus_pw_file.read(4097)
+                if len(exodus_pw_bytes) > 4096:
+                    raise ValueError('password file is larger than 4096 bytes')
+                exodus_password = exodus_pw_bytes.decode('utf-8')
+            except (OSError, ValueError, UnicodeError) as exodus_pw_error:
                 tk_msgbox.showerror(
                     title='Error',
                     message=('Could not read the Exodus wallet password file:\n'
-                             f'{exodus_password}\n\n{exodus_pw_error}\n\n'
+                             f'{exodus_password_path}\n\n{exodus_pw_error}\n\n'
                              'Correct or clear it and run again.'),
                     parent=main_window)
                 return
-            # The reader already turned CRLF into LF, so strip exactly one trailing newline,
-            # keeping a newline that is genuinely part of the password.
-            if exodus_password.endswith('\n'):
-                exodus_password = exodus_password[:-1]
+            # Remove exactly one terminal line ending, keeping one that is part of the password.
+            for _terminator in ('\r\n', '\n', '\r'):
+                if exodus_password.endswith(_terminator):
+                    exodus_password = exodus_password[:-len(_terminator)]
+                    break
         Context.set_app_secret('exodus_password', exodus_password or None)
         wrap_text = True
         bottom_frame.pack_forget()

@@ -102,8 +102,11 @@ __artifacts_v2__ = {
                  "by exclamation marks. Anonymous ID is !analytics!anonymousId, User ID is "
                  "!analytics!userId: identifiers Exodus stores for the install. They are reported as "
                  "stored, and how Exodus generates them is not established. Has Balance is "
-                 "!balances!hasBalance: Yes or No for a JSON boolean, blank for any other type. On the "
-                 "known data the other keys were market price "
+                 "!balances!hasBalance: Yes or No for a JSON boolean, blank for any other type. Read "
+                 "Status is read for a usable store, could not read when the file did not open or "
+                 "decode, and not a JSON object for a valid JSON value whose root is not an object; the "
+                 "state fields are blank on the two failure statuses, and Read Status was read on the "
+                 "known data's 1 row. On the known data the other keys were market price "
                  "history (55 of 70 keys, most of the file), migration flags, remote configuration, A/B "
                  "testing data and an announcements entry; they are not reported. On the known data the "
                  "file did not contain the seed, passphrase or phrase text. On the known data, a wallet "
@@ -353,7 +356,7 @@ def exodusWallet(context):
 
 @artifact_processor
 def exodusWalletState(context):
-    data_headers = ('User', 'Anonymous ID', 'User ID', 'Has Balance', 'Source File')
+    data_headers = ('User', 'Anonymous ID', 'User ID', 'Has Balance', 'Read Status', 'Source File')
     data_list = []
     sources = []
     for folder, files in sorted(_group_by_wallet(context).items()):
@@ -361,6 +364,7 @@ def exodusWalletState(context):
         if not unsafe_path:
             continue
         relative = context.get_relative_path(unsafe_path)
+        user = _profile_user(relative)
         # Record the store as found before reading it, so an unreadable one still shows in the
         # source list rather than looking like a run that found no store.
         sources.append(unsafe_path)
@@ -369,17 +373,19 @@ def exodusWalletState(context):
                 parsed = json.loads(handle.read())
         except (OSError, ValueError, RecursionError) as exc:
             logfunc(f'Exodus Wallet App State: could not read unsafe-storage.json in {folder}: {exc}')
+            data_list.append((user, '', '', '', 'could not read', relative))
             continue
         if not isinstance(parsed, dict):
             logfunc(f'Exodus Wallet App State: unsafe-storage.json in {folder} is not a JSON object')
+            data_list.append((user, '', '', '', 'not a JSON object', relative))
             continue
         has_balance = parsed.get('!balances!hasBalance')
         # Only a JSON boolean gives Yes or No; a string such as "false" or another type stays blank.
         has_balance_text = ('Yes' if has_balance else 'No') if isinstance(has_balance, bool) else ''
-        data_list.append((_profile_user(relative),
+        data_list.append((user,
                           _utf8_string(parsed.get('!analytics!anonymousId')),
                           _utf8_string(parsed.get('!analytics!userId')),
-                          has_balance_text, relative))
+                          has_balance_text, 'read', relative))
     return data_headers, data_list, '\n'.join(sources)
 
 
@@ -407,7 +413,9 @@ def exodusWalletFiles(context):
             continue
         seen.add(item.path)
         times = getattr(item.info, 'times', None)
+        # Time Source is never blank: it reads none when the input carries no time for the file.
+        time_source = (times.source if times else '') or 'none'
         data_list.append((_instant(times.modified) if times else '', _instant(times.created) if times else '',
-                          name, item.size, times.source if times else '', _profile_user(item.path), item.path))
+                          name, item.size, time_source, _profile_user(item.path), item.path))
         sources.append(item.path)
     return data_headers, data_list, '\n'.join(sources)
