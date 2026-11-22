@@ -597,6 +597,36 @@ def process(casedata):
             with open(windows_user_password, 'r', encoding='utf-8', errors='replace') as win_pw_file:
                 windows_user_password = win_pw_file.read(4096).strip()
         Context.set_app_secret('windows_user_password', windows_user_password or None)
+        # A directly entered password is kept verbatim (its own leading or trailing spaces
+        # may be part of it). A value chosen with Browse, or a typed path that is a file, is
+        # read as a file; only its line ending is removed. A Browse selection that has since
+        # been moved or deleted goes through the same error handler, not tried as a password.
+        exodus_password = exodus_password_var.get()
+        if exodus_password and (exodus_password_browsed.get() or os.path.isfile(exodus_password)):
+            exodus_password_path = exodus_password
+            try:
+                # Read bytes and decode strictly, so internal carriage returns are preserved and a
+                # silent replacement cannot change the credential. Read one byte past the limit to
+                # tell a too-large file from one that just fits, rather than truncating in silence.
+                with open(exodus_password_path, 'rb') as exodus_pw_file:
+                    exodus_pw_bytes = exodus_pw_file.read(4097)
+                if len(exodus_pw_bytes) > 4096:
+                    raise ValueError('password file is larger than 4096 bytes')
+                exodus_password = exodus_pw_bytes.decode('utf-8')
+            except (OSError, ValueError, UnicodeError) as exodus_pw_error:
+                tk_msgbox.showerror(
+                    title='Error',
+                    message=('Could not read the Exodus wallet password file:\n'
+                             f'{exodus_password_path}\n\n{exodus_pw_error}\n\n'
+                             'Correct or clear it and run again.'),
+                    parent=main_window)
+                return
+            # Remove exactly one terminal line ending, keeping one that is part of the password.
+            for _terminator in ('\r\n', '\n', '\r'):
+                if exodus_password.endswith(_terminator):
+                    exodus_password = exodus_password[:-len(_terminator)]
+                    break
+        Context.set_app_secret('exodus_password', exodus_password or None)
         wrap_text = True
         bottom_frame.pack_forget()
         mlist_frame.pack_forget()
@@ -1366,6 +1396,88 @@ def open_windows_user_password_dialog():
         dialog.grab_set()
 
 
+exodus_password_var = tk.StringVar(value='')
+# True when the stored value is a file chosen with Browse, so a selection that has since been
+# moved or deleted is routed through the file-read error handler rather than tried as a password.
+exodus_password_browsed = tk.BooleanVar(value=False)
+
+
+def open_exodus_password_dialog():
+    '''Modal dialog to supply an Exodus desktop wallet password.'''
+    dialog = tk.Toplevel(main_window)
+    dialog.transient(main_window)
+    dialog.title('Exodus wallet password')
+    dialog.configure(bg=theme_bgcolor)
+    dialog.resizable(False, False)
+    width, height = 470, 280
+    main_window.update_idletasks()
+    pos_x = main_window.winfo_x() + (main_window.winfo_width() - width) // 2
+    pos_y = main_window.winfo_y() + (main_window.winfo_height() - height) // 2
+    dialog.geometry(f'{width}x{height}+{pos_x}+{pos_y}')
+
+    explanation = (
+        "A password for an Exodus desktop wallet is tried as the passphrase for "
+        "seed.seco (not exercised on known data). A wallet that kept its "
+        "auto-generated passphrase needs nothing here.\n\n"
+        "Enter one of:\n"
+        "  •  the wallet password, or\n"
+        "  •  the path to a file holding it."
+    )
+    ttk.Label(dialog, text=explanation, wraplength=width - 28,
+              justify='left').pack(anchor='w', padx=14, pady=(12, 8))
+
+    entry_var = tk.StringVar(value=exodus_password_var.get())
+    entry = ttk.Entry(dialog, textvariable=entry_var, show='•')
+    entry.pack(fill='x', padx=14)
+    # Carries over the saved state. Any real change to the value clears it (so a typed value is
+    # never treated as a file path), while navigation keys that leave the value alone do not.
+    # Browse writes the path, which first clears the flag through this trace, then sets it True.
+    selection = {'browsed': exodus_password_browsed.get()}
+    entry_var.trace_add('write', lambda *_a: selection.update(browsed=False))
+
+    controls = ttk.Frame(dialog)
+    controls.pack(fill='x', padx=14, pady=(6, 0))
+    show_var = tk.BooleanVar(value=False)
+    ttk.Checkbutton(controls, text='Show', variable=show_var,
+                    command=lambda: entry.config(show='' if show_var.get() else '•')
+                    ).pack(side='left')
+
+    def browse_for_file():
+        chosen = tk_filedialog.askopenfilename(
+            parent=dialog, title='Select a file containing the password')
+        if chosen:
+            entry_var.set(chosen)
+            selection['browsed'] = True
+    ttk.Button(controls, text='…or choose a file',
+               command=browse_for_file).pack(side='left', padx=(10, 0))
+
+    button_row = ttk.Frame(dialog)
+    button_row.pack(fill='x', padx=14, pady=14, side='bottom')
+
+    def save_and_close():
+        # Keep the entry verbatim; whitespace may be part of the password.
+        exodus_password_var.set(entry_var.get())
+        exodus_password_browsed.set(selection['browsed'])
+        dialog.destroy()
+
+    def clear_and_close():
+        exodus_password_var.set('')
+        exodus_password_browsed.set(False)
+        dialog.destroy()
+
+    ttk.Button(button_row, text='Save', command=save_and_close).pack(side='right')
+    ttk.Button(button_row, text='Cancel', command=dialog.destroy).pack(side='right', padx=(0, 6))
+    ttk.Button(button_row, text='Clear', command=clear_and_close).pack(side='left')
+
+    entry.focus_set()
+    entry.bind('<Return>', lambda _event: save_and_close())
+    dialog.bind('<Escape>', lambda _event: dialog.destroy())
+    if is_platform_macos():
+        dialog.grab_set_global()
+    else:
+        dialog.grab_set()
+
+
 app_secret_row = ttk.Frame(output_frame)
 app_secret_row.pack(fill='x', padx=5, pady=(0, 4))
 # Right-aligned so the button sits under the Browse column and fills the row's
@@ -1385,6 +1497,10 @@ windows_user_password_status = ttk.Label(app_secret_group, text='not set')
 windows_user_password_status.pack(side='right')
 ttk.Button(app_secret_group, text='Windows user password…',
            command=open_windows_user_password_dialog).pack(side='right', padx=(8, 8))
+exodus_password_status = ttk.Label(app_secret_group, text='not set')
+exodus_password_status.pack(side='right')
+ttk.Button(app_secret_group, text='Exodus wallet password…',
+           command=open_exodus_password_dialog).pack(side='right', padx=(8, 8))
 
 
 def _update_signal_key_status(*_args):
@@ -1401,9 +1517,16 @@ def _update_windows_user_password_status(*_args):
         text='✓ set' if windows_user_password_var.get().strip() else 'not set')
 
 
+def _update_exodus_password_status(*_args):
+    # The run uses the entry verbatim, so judge the label by the raw value, not a stripped one.
+    exodus_password_status.config(
+        text='✓ set' if exodus_password_var.get() else 'not set')
+
+
 signal_key_var.trace_add('write', _update_signal_key_status)
 threema_password_var.trace_add('write', _update_threema_password_status)
 windows_user_password_var.trace_add('write', _update_windows_user_password_status)
+exodus_password_var.trace_add('write', _update_exodus_password_status)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')

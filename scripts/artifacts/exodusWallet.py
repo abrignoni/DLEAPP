@@ -1,0 +1,470 @@
+"""Exodus desktop wallet artifacts for DLEAPP.
+
+Author: @AlexisBrignoni, Claude.
+
+Three artifacts over a folder named exodus.wallet inside a folder named Exodus:
+
+- Exodus Wallet Secrets: recovers the wallet passphrase and, from seed.seco, the BIP-39
+  recovery phrase and 64-byte seed, when the wallet opens with its stored passphrase or a
+  supplied password. The container format is read with scripts/exodus_wallet.py, sourced
+  from Exodus's own MIT packages.
+- Exodus Wallet App State: the analytics identifiers and the has-balance flag from the
+  plaintext unsafe-storage.json. The market price history that fills most of that file is
+  not reported.
+- Exodus Wallet Files: lists the files in the folder with their sizes and the times the
+  input holds, without staging them, for context.
+
+Recovered secrets are placed only in the report. No seed, passphrase, key or recovery
+phrase value is written to the run log.
+"""
+
+import json
+import os
+from datetime import datetime, timezone
+
+# Caps on the files read before parsing, so a huge matched file cannot exhaust memory. The known
+# data's files are tiny (seed.seco 33 KB, passphrase.json 85 B, unsafe-storage.json about 3.4 MB of
+# market history), so these leave ample room while bounding a crafted file.
+_MAX_UNSAFE_STORAGE_BYTES = 64 * 1024 * 1024
+_MAX_SEED_BYTES = 16 * 1024 * 1024
+_MAX_PASSPHRASE_BYTES = 1 * 1024 * 1024
+
+from scripts import exodus_wallet as ew
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.search_files import PeekUnsupported
+
+__artifacts_v2__ = {
+    "exodusWallet": {
+        "name": "Exodus Wallet Secrets",
+        "description": "Wallet passphrase and, from seed.seco, the stored 64-byte seed and the BIP-39 "
+                       "phrase for the stored entropy, shown when seed.seco opens with the stored "
+                       "passphrase or a supplied password. When neither opens it, the row says so and "
+                       "shows no secret.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "PyCryptodome. A password can be supplied with --exodus-password (not exercised "
+                        "on known data).",
+        "category": "Exodus",
+        "platforms": ("Windows", "macOS", "Linux"),
+        "notes": "One row per seed.seco in a folder named exodus.wallet inside a folder named Exodus. "
+                 "passphrase.json holds the wallet passphrase and a system flag. On the known data, a "
+                 "wallet where no password was set, system was true and the stored passphrase opened "
+                 "seed.seco; what system means is not sourced from Exodus code. seed.seco is a SECO "
+                 "container (secure-container 2.0.0, commit 4c005ec; seco-file 2.0.0, commit 94441f8; "
+                 "seco-rw 0.0.2); the versions Exodus 26.11.20 ships were not read, and the layout was "
+                 "measured on the known data. scrypt stretches the passphrase with the parameters the "
+                 "file stores (n=16384 r=8 p=1 on the known data and in the package default), AES-256-GCM "
+                 "unwraps a blob key, AES-256-GCM decrypts the blob, and a SHA-256 checksum covers the "
+                 "metadata and the encrypted blob. The plaintext uses the framing seco-keyval 0.7.0 and "
+                 "buffer-noise 1.0.1 use: a 4-byte length, then gzip, then noise to 32768 bytes; its "
+                 "content is not the JSON a seco-keyval store holds. On the known data the gunzipped "
+                 "payload was 80 bytes: a 64-byte seed followed by 16 bytes of entropy; another length "
+                 "is not decoded and is reported as unrecognised, with the passphrase shown and the seed "
+                 "and phrase blank. Recovery Phrase is entropyToMnemonic(entropy) with the standard "
+                 "BIP-39 English wordlist (@exodus/bip39 1.1.1); it was not compared with the phrase the "
+                 "Exodus app displays. Phrase Verified is Yes when mnemonicToSeed(phrase), "
+                 "PBKDF2-HMAC-SHA512 with salt mnemonic over 2048 iterations, equals the stored 64-byte "
+                 "seed, so the phrase derives the stored seed with an empty BIP-39 passphrase; No means "
+                 "it did not, and the phrase and seed are still shown. Passphrase is the value that "
+                 "opened seed.seco. Protection reads Stored passphrase (system flag set) when the stored "
+                 "passphrase opened the wallet and the flag was the boolean true, Stored passphrase "
+                 "(system flag not set) when it opened and the flag was the boolean false, Stored "
+                 "passphrase (system flag unknown) when it opened and the flag was missing or not a "
+                 "boolean, User password (supplied) when a supplied "
+                 "password opened it, seed.seco did not read when the container was damaged or not a "
+                 "SECO file, and Not opened (a password may be needed, see --exodus-password) when a "
+                 "passphrase was present but did not open it or none was available. Seed (hex) is the "
+                 "stored 64-byte seed in hex. Modified (UTC) is the seed.seco modified time the input "
+                 "holds, blank when it holds none in UTC. User is the folder after Users or home in the "
+                 "path. On the known data (windows11_arm_exodus_known_20261122) system was true, "
+                 "seed.seco opened with the stored passphrase, and Phrase Verified was Yes on the 1 row. "
+                 "A wallet the user protected with a password was not part of the known data, so the "
+                 "--exodus-password path is provided but unexercised: the supplied password is tried as "
+                 "the SECO passphrase and counts as opening the wallet when the AES-GCM tag on the blob "
+                 "key checks; a password that does not open it is reported as not opening the wallet and "
+                 "no secret is shown, and whether Exodus uses the user password directly as this "
+                 "passphrase is not established. A seed and phrase being present does not show that the "
+                 "wallet was funded or used. storage.seco is not read by this artifact.",
+        "paths": ("*/Exodus/exodus.wallet/passphrase.json", "*/Exodus/exodus.wallet/seed.seco",
+                  "Exodus/exodus.wallet/passphrase.json", "Exodus/exodus.wallet/seed.seco"),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "key",
+        "sample_data": {
+            "windows11_arm_exodus_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20 | 1 row",
+        },
+    },
+    "exodusWalletState": {
+        "name": "Exodus Wallet App State",
+        "description": "Analytics identifiers and the has-balance flag Exodus stores in the "
+                       "plaintext unsafe-storage.json of a desktop wallet.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "none",
+        "category": "Exodus",
+        "platforms": ("Windows", "macOS", "Linux"),
+        "notes": "One row per unsafe-storage.json in a folder named exodus.wallet inside a folder named "
+                 "Exodus. unsafe-storage.json is the plaintext (unencrypted) store, with keys separated "
+                 "by exclamation marks. Anonymous ID is !analytics!anonymousId, User ID is "
+                 "!analytics!userId: identifiers Exodus stores for the install. They are reported as "
+                 "stored, and how Exodus generates them is not established. Has Balance is "
+                 "!balances!hasBalance: Yes or No for a JSON boolean, blank for any other type. Read "
+                 "Status is read for a usable store, could not read when the file did not open or "
+                 "decode, and not a JSON object for a valid JSON value whose root is not an object; the "
+                 "state fields are blank on the two failure statuses, and Read Status was read on the "
+                 "known data's 1 row. On the known data the other keys were market price "
+                 "history (55 of 70 keys, most of the file), migration flags, remote configuration, A/B "
+                 "testing data and an announcements entry; they are not reported. On the known data the "
+                 "file did not contain the seed, passphrase or phrase text. On the known data, a wallet "
+                 "that was never funded, Has Balance was No. A field is blank when the file does not "
+                 "hold it.",
+        "paths": ("*/Exodus/exodus.wallet/unsafe-storage.json",
+                  "Exodus/exodus.wallet/unsafe-storage.json"),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "activity",
+        "sample_data": {
+            "windows11_arm_exodus_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20 | 1 row",
+        },
+    },
+    "exodusWalletFiles": {
+        "name": "Exodus Wallet Files",
+        "description": "Files in an Exodus desktop wallet folder (exodus.wallet): name, size and the "
+                       "modified and created times the input holds for each file. This artifact lists "
+                       "them without staging or parsing them.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-22",
+        "last_update_date": "2026-11-22",
+        "requirements": "none",
+        "category": "Exodus",
+        "platforms": ("Windows", "macOS", "Linux"),
+        "notes": "One row per file under a folder named exodus.wallet inside a folder named Exodus. This "
+                 "artifact lists the files through the seeker's peek() and stages none; the other two "
+                 "Exodus artifacts stage passphrase.json, seed.seco and unsafe-storage.json when they "
+                 "run. File is the path below exodus.wallet as the input names it, and Source File is the "
+                 "file's full input-relative path, which separates two wallet copies that share a profile "
+                 "name. On the known data "
+                 "(windows11_arm_exodus_known_20261122) the folder held passphrase.json, seed.seco, "
+                 "storage.seco and unsafe-storage.json, which were present after Exodus 26.11.20 first "
+                 "started with nothing clicked or typed. Their presence alone does not show that a "
+                 "person set up, funded or used a wallet. "
+                 "Modified (UTC) and Created (UTC) are the UTC times the input holds for the file, blank "
+                 "when it holds none in UTC. Time Source names where the input's times came from, and "
+                 "reads none when no time was read. On the known data, a tar, Time Source held tar header "
+                 "on all 4 rows, Modified equalled the file's NTFS last-write second on all 4 rows, and "
+                 "Created is blank on all 4 rows (the tar carries no creation time). User is the folder "
+                 "after Users or home in the path, empty when the path has neither, and held one profile "
+                 "folder name on all 4 rows of the known data.",
+        "paths": None,
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "credit-card",
+        "sample_data": {
+            "windows11_arm_exodus_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20 | 4 rows",
+        },
+    },
+}
+
+
+def _instant(value):
+    if value is None:
+        return ''
+    try:
+        return datetime.fromtimestamp(float(value), timezone.utc)
+    except (OverflowError, OSError, ValueError, TypeError):
+        return ''
+
+
+def _within_wallet(relative):
+    """The path below the exodus.wallet folder, when it sits directly inside a folder named Exodus.
+
+    The Exodus and exodus.wallet names are matched without regard to case, to agree with a
+    seeker that matches them case-insensitively on a raw NTFS, exFAT, ReFS or FAT volume.
+    """
+    parts = relative.replace('\\', '/').split('/')
+    for index in range(1, len(parts) - 1):
+        if parts[index].lower() == 'exodus.wallet' and parts[index - 1].lower() == 'exodus':
+            return '/'.join(parts[index + 1:])
+    return ''
+
+
+def _wallet_folder_of_file(relative):
+    """The exodus.wallet folder a file sits directly in, or '' when it is not one.
+
+    Keyed on the file's immediate parent, so a nested second Exodus/exodus.wallet tree is its own
+    wallet rather than collapsing into the outer one. The names are matched without regard to
+    case, to agree with a seeker that matches them case-insensitively on a raw NTFS, exFAT, ReFS
+    or FAT volume.
+    """
+    parts = relative.replace('\\', '/').split('/')
+    parent = parts[:-1]
+    if len(parent) >= 2 and parent[-1].lower() == 'exodus.wallet' and parent[-2].lower() == 'exodus':
+        return '/'.join(parent)
+    return ''
+
+
+def _utf8_string(value):
+    """The value when it is a UTF-8 encodable string, otherwise ''.
+
+    A JSON string can hold an unpaired surrogate that passes isinstance(str) but breaks a later
+    UTF-8 writer or SQLite binding, so such a value is reported blank rather than crashing output.
+    """
+    if not isinstance(value, str):
+        return ''
+    try:
+        value.encode('utf-8')
+    except UnicodeError:
+        return ''
+    return value
+
+
+def _profile_user(path):
+    """The folder after the first Users or home folder of a path, or '' when it has neither."""
+    parts = path.replace('\\', '/').split('/')
+    for index, part in enumerate(parts[:-1]):
+        if part.lower() in ('users', 'home'):
+            return parts[index + 1]
+    return ''
+
+
+def _seed_times(context, staged_path):
+    """The StagedTimes the seeker holds for a staged file, or None."""
+    seeker = context.get_seeker()
+    extraction_path = context.get_source_file_path(staged_path)
+    file_info = seeker.file_infos.get(extraction_path) if seeker else None
+    return getattr(file_info, 'times', None) if file_info else None
+
+
+def _group_by_wallet(context):
+    """Map each wallet folder (relative) to {lowercase basename: [staged paths]} for the files found.
+
+    The basename is lower-cased so a file matched case-insensitively on a raw NTFS, exFAT, ReFS or
+    FAT volume still keys to its expected name (passphrase.json, seed.seco, unsafe-storage.json). A
+    name maps to a list, so two staged files whose basenames differ only by case are both kept and
+    the caller can treat an ambiguous pair explicitly rather than silently losing one.
+    """
+    wallets = {}
+    for staged in sorted({str(found) for found in context.get_files_found()}):
+        if os.path.isdir(staged):
+            continue
+        relative = context.get_relative_path(staged)
+        folder = _wallet_folder_of_file(relative)
+        if not folder:
+            continue
+        wallets.setdefault(folder, {}).setdefault(os.path.basename(relative).lower(), []).append(staged)
+    return wallets
+
+
+def _candidate(files, name):
+    """Resolve a normalized name to (path, status): status 'ok', 'absent' or 'ambiguous'."""
+    paths = files.get(name) or []
+    if not paths:
+        return None, 'absent'
+    if len(paths) > 1:
+        return paths[0], 'ambiguous'
+    return paths[0], 'ok'
+
+
+@artifact_processor
+def exodusWallet(context):
+    data_headers = (('Modified (UTC)', 'datetime'), 'User', 'Protection', 'Passphrase',
+                    'Recovery Phrase', 'Seed (hex)', 'Phrase Verified', 'Source File')
+    data_list = []
+    sources = []
+    supplied_password = context.get_app_secret('exodus_password')
+    for folder, files in sorted(_group_by_wallet(context).items()):
+        # Record every matched passphrase.json and seed.seco for source attribution, even on a
+        # partial extraction with no seed.seco, while still emitting at most one row per seed.seco.
+        passphrase_path, passphrase_status = _candidate(files, 'passphrase.json')
+        for path in files.get('passphrase.json') or []:
+            sources.append(path)
+
+        seed_path, seed_status = _candidate(files, 'seed.seco')
+        for path in files.get('seed.seco') or []:
+            sources.append(path)
+        if seed_status == 'absent':
+            continue
+
+        relative = context.get_relative_path(seed_path)
+        user = _profile_user(relative)
+        modified = ''
+        times = _seed_times(context, seed_path)
+        if times is not None:
+            modified = _instant(times.modified)
+
+        if seed_status == 'ambiguous':
+            logfunc(f'Exodus Wallet Secrets: more than one seed.seco by case in {folder}; not paired')
+            data_list.append((modified, user, 'seed.seco did not read (ambiguous name)',
+                              '', '', '', '', relative))
+            continue
+
+        stored_passphrase = system_flag = None
+        if passphrase_status == 'ambiguous':
+            logfunc(f'Exodus Wallet Secrets: more than one passphrase.json by case in {folder}; '
+                    'treating the stored passphrase as unavailable')
+        elif passphrase_path:
+            try:
+                with open(passphrase_path, 'rb') as handle:
+                    passphrase_bytes = handle.read(_MAX_PASSPHRASE_BYTES + 1)
+                if len(passphrase_bytes) > _MAX_PASSPHRASE_BYTES:
+                    logfunc(f'Exodus Wallet Secrets: passphrase.json in {folder} is oversized; '
+                            'treating the stored passphrase as unavailable')
+                    passphrase_bytes = b''
+                stored_passphrase, system_flag = ew.read_passphrase_file(passphrase_bytes)
+            except OSError as exc:
+                logfunc(f'Exodus Wallet Secrets: could not read passphrase.json in {folder}: {exc}')
+
+        try:
+            with open(seed_path, 'rb') as handle:
+                seed_bytes = handle.read(_MAX_SEED_BYTES + 1)
+        except OSError as exc:
+            logfunc(f'Exodus Wallet Secrets: could not read seed.seco in {folder}: {exc}')
+            data_list.append((modified, user, 'seed.seco did not read', '', '', '', '', relative))
+            continue
+        if len(seed_bytes) > _MAX_SEED_BYTES:
+            logfunc(f'Exodus Wallet Secrets: seed.seco in {folder} is oversized; not read')
+            data_list.append((modified, user, 'seed.seco did not read', '', '', '', '', relative))
+            continue
+
+        # Credential-independent structural check (magic, length, checksum). It runs even when
+        # no passphrase is available, so a non-SECO or corrupt seed.seco reads as not read
+        # rather than getting the same password hint as a structurally valid wallet.
+        try:
+            ew.validate_container(seed_bytes)
+        except ew.SecoError as exc:
+            logfunc(f'Exodus Wallet Secrets: seed.seco in {folder} did not read: {exc}')
+            data_list.append((modified, user, 'seed.seco did not read', '', '', '', '', relative))
+            continue
+
+        attempts = []
+        if stored_passphrase:
+            attempts.append(('stored', stored_passphrase))
+        if supplied_password:
+            attempts.append(('supplied', supplied_password))
+
+        opened_with = None
+        payload = None
+        unreadable = False
+        for label, secret in attempts:
+            try:
+                payload = ew.seco_store_payload(seed_bytes, secret)
+                opened_with = label
+                break
+            except ew.WrongPassphrase:
+                continue
+            except ew.SecoError as exc:
+                logfunc(f'Exodus Wallet Secrets: seed.seco in {folder} did not read: {exc}')
+                unreadable = True
+                break
+
+        if opened_with == 'stored':
+            if system_flag is True:
+                protection = 'Stored passphrase (system flag set)'
+            elif system_flag is False:
+                protection = 'Stored passphrase (system flag not set)'
+            else:
+                protection = 'Stored passphrase (system flag unknown)'
+            passphrase_value = stored_passphrase
+        elif opened_with == 'supplied':
+            protection = 'User password (supplied)'
+            passphrase_value = supplied_password
+        elif unreadable:
+            protection = 'seed.seco did not read'
+            passphrase_value = ''
+        else:
+            protection = 'Not opened (a password may be needed, see --exodus-password)'
+            passphrase_value = ''
+
+        if payload is None:
+            data_list.append((modified, user, protection, '', '', '', '', relative))
+            continue
+
+        parsed = ew.parse_seed_payload(payload)
+        if not parsed['recognised']:
+            logfunc(f'Exodus Wallet Secrets: seed.seco in {folder} opened but its payload '
+                    f'was {parsed["length"]} bytes, not the expected 80')
+            data_list.append((modified, user, protection + ' (unrecognised seed payload)',
+                              passphrase_value or '', '', '', '', relative))
+            continue
+
+        phrase_verified = 'Yes' if parsed['verified'] else 'No'
+        data_list.append((modified, user, protection, passphrase_value or '',
+                          parsed['mnemonic'], parsed['seed'].hex(), phrase_verified, relative))
+
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def exodusWalletState(context):
+    data_headers = ('User', 'Anonymous ID', 'User ID', 'Has Balance', 'Read Status', 'Source File')
+    data_list = []
+    sources = []
+    for folder, files in sorted(_group_by_wallet(context).items()):
+        unsafe_path, unsafe_status = _candidate(files, 'unsafe-storage.json')
+        if unsafe_status == 'absent':
+            continue
+        relative = context.get_relative_path(unsafe_path)
+        user = _profile_user(relative)
+        # Record every matched store before reading, so an unreadable one still shows in the source
+        # list rather than looking like a run that found no store.
+        for path in files.get('unsafe-storage.json') or []:
+            sources.append(path)
+        if unsafe_status == 'ambiguous':
+            logfunc(f'Exodus Wallet App State: more than one unsafe-storage.json by case in {folder}')
+            data_list.append((user, '', '', '', 'ambiguous name', relative))
+            continue
+        try:
+            with open(unsafe_path, 'rb') as handle:
+                raw = handle.read(_MAX_UNSAFE_STORAGE_BYTES + 1)
+            if len(raw) > _MAX_UNSAFE_STORAGE_BYTES:
+                raise ValueError(f'file is larger than {_MAX_UNSAFE_STORAGE_BYTES} bytes')
+            parsed = json.loads(raw)
+        except (OSError, ValueError, RecursionError) as exc:
+            logfunc(f'Exodus Wallet App State: could not read unsafe-storage.json in {folder}: {exc}')
+            data_list.append((user, '', '', '', 'could not read', relative))
+            continue
+        if not isinstance(parsed, dict):
+            logfunc(f'Exodus Wallet App State: unsafe-storage.json in {folder} is not a JSON object')
+            data_list.append((user, '', '', '', 'not a JSON object', relative))
+            continue
+        has_balance = parsed.get('!balances!hasBalance')
+        # Only a JSON boolean gives Yes or No; a string such as "false" or another type stays blank.
+        has_balance_text = ('Yes' if has_balance else 'No') if isinstance(has_balance, bool) else ''
+        data_list.append((user,
+                          _utf8_string(parsed.get('!analytics!anonymousId')),
+                          _utf8_string(parsed.get('!analytics!userId')),
+                          has_balance_text, 'read', relative))
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def exodusWalletFiles(context):
+    data_headers = (('Modified (UTC)', 'datetime'), ('Created (UTC)', 'datetime'), 'File',
+                    ('Size (bytes)', 'number'), 'Time Source', 'User', 'Source File')
+    data_list, sources = [], []
+    seeker = context.get_seeker()
+    if seeker is None or not hasattr(seeker, 'peek'):
+        logfunc('Exodus Wallet Files: this input gives no way to list a file without staging it')
+        return data_headers, data_list, ''
+    try:
+        # Both a nested wallet (Users/<user>/.../Exodus/exodus.wallet) and one rooted at the
+        # extraction root (Exodus/exodus.wallet), which the leading */ pattern would miss.
+        peeked = list(seeker.peek('*/Exodus/exodus.wallet/*', 1))
+        peeked += list(seeker.peek('Exodus/exodus.wallet/*', 1))
+    except PeekUnsupported as exc:
+        logfunc(f'Exodus Wallet Files: {exc}')
+        return data_headers, data_list, ''
+    seen = set()
+    for item in sorted(peeked, key=lambda entry: entry.path):
+        name = _within_wallet(item.path)
+        if not name or item.path in seen:
+            continue
+        seen.add(item.path)
+        times = getattr(item.info, 'times', None)
+        modified = _instant(times.modified) if times else ''
+        created = _instant(times.created) if times else ''
+        # Name the source only when a timestamp actually rendered; otherwise Time Source reads none.
+        time_source = (times.source or 'none') if (times and (modified or created)) else 'none'
+        data_list.append((modified, created, name, item.size, time_source,
+                          _profile_user(item.path), item.path))
+        sources.append(item.path)
+    return data_headers, data_list, '\n'.join(sources)
