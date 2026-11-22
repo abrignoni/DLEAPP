@@ -8,6 +8,9 @@ from scripts import artifact_report  # pylint: disable=wrong-import-position
 
 
 class MultilineCellTest(unittest.TestCase):
+    def test_every_line_ending_shows_one_break(self):
+        self.assertEqual(artifact_report.cell_html('a\r\nb\rc\nd', 'Body', [], ['Body']), 'a<br>b<br>c<br>d')
+
     def test_the_page_shows_breaks_and_escapes_markup(self):
         self.assertEqual(artifact_report.cell_html('<b>one</b> &amp;\ntwo', 'Body', [], ['Body']),
                          '&lt;b&gt;one&lt;/b&gt; &amp;amp;<br>two')
