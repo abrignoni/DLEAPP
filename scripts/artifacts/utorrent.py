@@ -17,9 +17,6 @@ from bencoding.decoder import DecoderError
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 
-_KEY = 'windows11_arm_utorrent_bittorrent_known_20261122'
-_VERSIONS = 'uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391'
-_SAMPLE = 'Windows 11 build 26200 (ARM64), ' + _VERSIONS
 _DECODE_ERRORS = (OSError, ValueError, TypeError, IndexError, KeyError, DecoderError)
 _WINDOWS_EPOCH_SECONDS = 11644473600
 
@@ -27,7 +24,7 @@ __artifacts_v2__ = {
     "utorrentTorrents": {
         "name": "uTorrent and BitTorrent Torrents",
         "description": "Torrents in uTorrent or BitTorrent classic, from resume.dat: when each was added and "
-                       "completed, its name, info-hash, save path, label, trackers and files, the address the "
+                       "finished, its name, info-hash, save path, label, trackers and files, the address the "
                        ".torrent was added from when one is recorded, and the bytes downloaded and uploaded.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-22",
@@ -36,7 +33,7 @@ __artifacts_v2__ = {
         "category": "uTorrent and BitTorrent",
         "platforms": ("Windows",),
         "notes": "One row per .torrent entry in resume.dat in a folder named uTorrent or BitTorrent. No vendor "
-                 "definition of these fields was used. On the known data (" + _KEY + ", " + _VERSIONS + ", clients on "
+                 "definition of these fields was used. On the known data (windows11_arm_utorrent_bittorrent_known_20261122, uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391, clients on "
                  "loopback, VM time zone UTC-5) Name, Info Hash, Label, Downloaded and Uploaded equalled the client's "
                  "own Web API on all 8 rows. Added fell within 1 second of the timed step log on all 8 rows. Completed "
                  "fell within 3 seconds of the time the rig's 2-second poll logged completion on the 6 rows that "
@@ -46,8 +43,9 @@ __artifacts_v2__ = {
                  "API and 2 on the running ones; other values were not seen. Runtime and Seed Time are the runtime and "
                  "seedtime fields as stored; their unit was not established. Download URL is download_url, the address "
                  "the .torrent was added from on the known data. Files and Total Size come from the .torrent named by "
-                 "the resume entry, in the same folder, and only when that file's info dictionary hashes to the "
-                 "entry's info-hash. On the known data the program was closed cleanly and resume.dat held the state at "
+                 "the resume entry, in the same folder with the name matched ignoring case, and only when that file's "
+                 "original info bytes hash to the entry's info-hash. Total Size is blank when a file entry has no "
+                 "valid length. On the known data the program was closed cleanly and resume.dat held the state at "
                  "that close. A forced stop was not tested, so how current resume.dat is after one is not established. "
                  "A copy run from another folder name is not matched. Trackers held the one loopback tracker on all 8 "
                  "rows. User is the profile folder name taken from the file's path, not a value in the store. The "
@@ -56,7 +54,7 @@ __artifacts_v2__ = {
         "output_types": ["standard"],
         "artifact_icon": "download-cloud",
         "sample_data": {
-            _KEY: _SAMPLE + " | 8 rows",
+            "windows11_arm_utorrent_bittorrent_known_20261122": "Windows 11 build 26200 (ARM64), uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391 | 8 rows",
         },
     },
     "utorrentSettings": {
@@ -74,7 +72,7 @@ __artifacts_v2__ = {
                  "BitTorrent; Stored Key is the key's name. 15 of the 20 selected keys occurred on the known data. "
                  "dir_torrent_files, dir_autoload, proxy.type, proxy.proxy and proxy.port did not occur, so those five "
                  "rows are unexercised and their key names are not confirmed on these versions. born_on is read as "
-                 "seconds since 1601 and settings_saved_systime as Unix seconds; on the known data (" + _KEY + ", VM "
+                 "seconds since 1601 and settings_saved_systime as Unix seconds; on the known data (windows11_arm_utorrent_bittorrent_known_20261122, VM "
                  "time zone UTC-5) each fell within 5 seconds of the program's logged start and close. The other "
                  "values are shown as stored, with text decoded as UTF-8. Their meaning is taken from the key name and "
                  "was not otherwise established. Time (UTC) is filled only on the two time keys of each client, 4 of "
@@ -83,10 +81,10 @@ __artifacts_v2__ = {
                  "selected list are not reported. That includes webui.hashword, webui.salt, cid and cids. "
                  "settings.dat.old is not read.",
         "paths": ('*/uTorrent/settings.dat', '*/BitTorrent/settings.dat'),
-        "output_types": ["standard"],
+        "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings",
         "sample_data": {
-            _KEY: _SAMPLE + " | 30 rows",
+            "windows11_arm_utorrent_bittorrent_known_20261122": "Windows 11 build 26200 (ARM64), uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391 | 30 rows",
         },
     },
     "utorrentRss": {
@@ -100,7 +98,7 @@ __artifacts_v2__ = {
         "platforms": ("Windows",),
         "notes": "One row per entry in the feeds and filters lists of rss.dat. A feed's url field holds an alias and "
                  "the address joined by a vertical bar, which the Web API returned in the same form on the known "
-                 "data (" + _KEY + "). There each client held one feed and one filter. On the 2 feed rows Name and URL "
+                 "data (windows11_arm_utorrent_bittorrent_known_20261122). There each client held one feed and one filter. On the 2 feed rows Name and URL "
                  "or Pattern are the two parts of that field and Feed ID is the feed's ident, and they matched the Web "
                  "API. On the 2 filter rows Name, URL or Pattern, Label and Feed ID (the filter's feed field) matched "
                  "the Web API. Feed rows have no label. Exclude Pattern (not_filter) and Save Folder (directory) had "
@@ -111,10 +109,10 @@ __artifacts_v2__ = {
                  "4 rows. The history list was empty on the known data and is not read. What it holds was not "
                  "established. rss.dat.old is not read.",
         "paths": ('*/uTorrent/rss.dat', '*/BitTorrent/rss.dat'),
-        "output_types": ["standard"],
+        "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "rss",
         "sample_data": {
-            _KEY: _SAMPLE + " | 4 rows",
+            "windows11_arm_utorrent_bittorrent_known_20261122": "Windows 11 build 26200 (ARM64), uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391 | 4 rows",
         },
     },
 }
@@ -191,30 +189,83 @@ def _files(info):
         return [], ''
     name = _text(info.get(b'name'))
     if isinstance(info.get(b'files'), list):
-        paths, total = [], 0
+        paths, total, sizes_valid = [], 0, True
         for entry in info[b'files']:
             if not isinstance(entry, dict):
                 continue
             stored = entry.get(b'path')
             parts = [_text(part) for part in stored if isinstance(part, bytes)] if isinstance(stored, list) else []
             paths.append('/'.join([name] + parts))
-            total += entry.get(b'length', 0) if isinstance(entry.get(b'length'), int) else 0
-        return paths, total
+            if isinstance(entry.get(b'length'), int):
+                total += entry[b'length']
+            else:
+                sizes_valid = False
+        return paths, total if sizes_valid else ''
     length = info.get(b'length')
     return [name], length if isinstance(length, int) else ''
 
 
-def _torrent_info(folder, entry_name, info_hash):
-    """(info dictionary, path) of the entry's .torrent, only when it hashes to the recorded info-hash."""
-    path = os.path.join(folder, ntpath.basename(entry_name))
-    if not info_hash or not os.path.isfile(path):
-        return None, ''
+def _skip_value(raw, index):
+    """The offset just past the bencoded value that starts at index."""
+    marker = raw[index:index + 1]
+    if marker == b'i':
+        return raw.index(b'e', index) + 1
+    if marker in (b'l', b'd'):
+        index += 1
+        while raw[index:index + 1] != b'e':
+            if index >= len(raw):
+                raise ValueError('unterminated container')
+            index = _skip_value(raw, index)
+        return index + 1
+    colon = raw.index(b':', index)
+    end = colon + 1 + int(raw[index:colon])
+    if end > len(raw):
+        raise ValueError('string past the end of the file')
+    return end
+
+
+def _info_span(raw):
+    """The original bytes of the top-level info value, which are what the info-hash covers."""
+    if raw[:1] != b'd':
+        return b''
+    index = 1
+    while raw[index:index + 1] != b'e' and index < len(raw):
+        key_end = _skip_value(raw, index)
+        value_end = _skip_value(raw, key_end)
+        if raw[raw.index(b':', index) + 1:key_end] == b'info':
+            return raw[key_end:value_end]
+        index = value_end
+    return b''
+
+
+def _companion(folder, entry_name):
+    """The .torrent in folder whose name matches the entry's, ignoring case, exact spelling first."""
+    wanted = ntpath.basename(entry_name)
+    exact = os.path.join(folder, wanted)
+    if os.path.isfile(exact):
+        return [exact]
     try:
-        info = _decode(path).get(b'info')
-        if isinstance(info, dict) and hashlib.sha1(bencoding.bencode(info)).digest() == info_hash:  # nosec B324
-            return info, path
-    except _DECODE_ERRORS:
+        return [os.path.join(folder, name) for name in sorted(os.listdir(folder))
+                if name.lower() == wanted.lower() and os.path.isfile(os.path.join(folder, name))]
+    except OSError:
+        return []
+
+
+def _torrent_info(folder, entry_name, info_hash):
+    """(info dictionary, path) of the entry's .torrent, only when its info bytes hash to the recorded info-hash."""
+    if not info_hash:
         return None, ''
+    for path in _companion(folder, entry_name):
+        try:
+            with open(path, 'rb') as handle:
+                raw = handle.read()
+            span = _info_span(raw)
+            if span and hashlib.sha1(span).digest() == info_hash:  # nosec B324
+                info = bencoding.bdecode(span)
+                if isinstance(info, dict):
+                    return info, path
+        except _DECODE_ERRORS:
+            continue
     return None, ''
 
 
