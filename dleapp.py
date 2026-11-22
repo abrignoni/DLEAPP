@@ -368,6 +368,13 @@ def main():
                               "account's DPAPI master keys and decrypt its user Vault. Accepts the "
                               "password itself or a path to a file holding it. Give the flag with "
                               "no value to be prompted without it reaching your shell history."))
+    parser.add_argument('--exodus-password', dest='exodus_password', required=False,
+                        nargs='?', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        help=("Password for an Exodus desktop wallet, tried as the passphrase for "
+                              "seed.seco (not exercised on known data). A wallet that kept its "
+                              "auto-generated passphrase needs nothing. Accepts the password itself "
+                              "or a path to a file holding it. Give the flag with no value to be "
+                              "prompted without it reaching your shell history."))
 
 
     # Check if no arguments were provided
@@ -508,6 +515,8 @@ def main():
         Context.set_app_secret('windows_user_password',
                                resolve_supplied_secret(args.windows_user_password,
                                                        'Windows user password'))
+        Context.set_app_secret('exodus_password',
+                               resolve_supplied_secret(args.exodus_password, 'Exodus password'))
     except argparse.ArgumentError as secret_error:
         print(secret_error)
         return
