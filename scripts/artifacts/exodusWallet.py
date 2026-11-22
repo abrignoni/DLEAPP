@@ -22,6 +22,10 @@ import json
 import os
 from datetime import datetime, timezone
 
+# Cap on unsafe-storage.json, read before decoding so a huge matched file cannot exhaust memory.
+# The known data's file is about 3.4 MB of market history, so 64 MiB leaves room while bounding it.
+_MAX_UNSAFE_STORAGE_BYTES = 64 * 1024 * 1024
+
 from scripts import exodus_wallet as ew
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.search_files import PeekUnsupported
@@ -370,7 +374,10 @@ def exodusWalletState(context):
         sources.append(unsafe_path)
         try:
             with open(unsafe_path, 'rb') as handle:
-                parsed = json.loads(handle.read())
+                raw = handle.read(_MAX_UNSAFE_STORAGE_BYTES + 1)
+            if len(raw) > _MAX_UNSAFE_STORAGE_BYTES:
+                raise ValueError(f'file is larger than {_MAX_UNSAFE_STORAGE_BYTES} bytes')
+            parsed = json.loads(raw)
         except (OSError, ValueError, RecursionError) as exc:
             logfunc(f'Exodus Wallet App State: could not read unsafe-storage.json in {folder}: {exc}')
             data_list.append((user, '', '', '', 'could not read', relative))

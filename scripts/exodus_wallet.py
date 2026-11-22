@@ -131,6 +131,10 @@ def validate_container(data):
     blob = data[offset:offset + blob_len]
     if len(blob) != blob_len:
         raise SecoError('blob is shorter than its declared length')
+    # The format is a single blob to the end of the file. Bytes after it would be outside the
+    # checksummed region, so reject them rather than read the file as a clean container.
+    if offset + blob_len != len(data):
+        raise SecoError('bytes follow the container blob')
     expected = hashlib.sha256(metadata + struct.pack('>I', len(blob)) + blob).digest()
     if expected != checksum:
         raise SecoError('checksum does not match; data may be corrupted')
