@@ -165,7 +165,7 @@ __artifacts_v2__ = {
                        "is shown.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-11",
-        "last_update_date": "2026-11-20",
+        "last_update_date": "2026-11-22",
         "requirements": "none",
         "category": "Chromium Browsers",
         "platforms": ("macOS",),
@@ -199,7 +199,10 @@ __artifacts_v2__ = {
                   '(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/net/disk_cache/simple/simple_index.h#L100-L113), '
                   'so no last-used time is reported, the Code Cache and No_Vary_Search folders, a cache kept directly '
                   "in Cache without Cache_Data, the caches under a profile's Storage folder, Opera's System Cache folder, "
-                  'whose role is not sourced here, and the cache folders of other Chromium-based browsers on macOS, '
+                  'whose role is not sourced here, a Cache folder directly in com.operasoftware.Opera with no profile '
+                  'folder between them, an Opera cache folder under any name other than com.operasoftware.Opera (where '
+                  'other Opera channels keep their cache on macOS is not sourced here), and the cache folders of other '
+                  'Chromium-based browsers on macOS, '
                   'whose location is not sourced here. No tested extraction holds a Cache/Cache_Data folder under '
                   'Library/Caches for another browser. A cache folder that is '
                   'also present under System/Volumes/Data with the same bytes is read once. Measured on one public input, '
