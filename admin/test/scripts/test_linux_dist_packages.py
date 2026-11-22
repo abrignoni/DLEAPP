@@ -106,6 +106,15 @@ class StaticFilesTest(unittest.TestCase):
         self.assertIn("dleapp-bin", text)
         self.assertIn("dleapp-git", text)
         self.assertIn("SHA256SUMS", text)
+        self.assertIn("shasum -a 256 -c -", text)
+        self.assertIn("sha256sum -c -", text)
+        self.assertIn("need_sudo()", text)
+
+    def test_aur_bin_depends_and_pinned_assets(self):
+        text = (REPO_ROOT / "packaging" / "aur" / "dleapp-bin" / "PKGBUILD").read_text(encoding="utf-8")
+        self.assertIn("depends=('fuse2')", text)
+        self.assertRegex(text, r"(?m)^_asset_rev=[0-9a-f]{40}$")
+        self.assertNotIn("/DLEAPP/main/", text)
 
 
 class AurTest(unittest.TestCase):

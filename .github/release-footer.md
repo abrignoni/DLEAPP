@@ -9,12 +9,12 @@
 | Windows 11 on ARM | `-windows-arm64-portable.zip` |
 | macOS, Apple silicon | `-macos-arm64.dmg` |
 | macOS, Intel | `-macos-x64.dmg` |
-| Linux, 64-bit Intel or AMD (AppImage) | `-linux-x64.AppImage` |
-| Linux on ARM (AppImage) | `-linux-arm64.AppImage` |
-| Debian/Ubuntu, 64-bit Intel or AMD | `-linux-x64.deb` |
-| Debian/Ubuntu on ARM | `-linux-arm64.deb` |
-| Fedora/RHEL/openSUSE, 64-bit Intel or AMD | `-linux-x64.rpm` |
-| Fedora/RHEL/openSUSE on ARM | `-linux-arm64.rpm` |
+| Linux, 64-bit Intel or AMD (AppImage, glibc 2.35+) | `-linux-x64.AppImage` |
+| Linux on ARM (AppImage, glibc 2.35+) | `-linux-arm64.AppImage` |
+| Debian/Ubuntu, 64-bit Intel or AMD (glibc 2.35+) | `-linux-x64.deb` |
+| Debian/Ubuntu on ARM (glibc 2.35+) | `-linux-arm64.deb` |
+| Fedora/RHEL 10+/openSUSE, 64-bit Intel or AMD (glibc 2.35+) | `-linux-x64.rpm` |
+| Fedora/RHEL 10+/openSUSE on ARM (glibc 2.35+) | `-linux-arm64.rpm` |
 
 The `.deb` installs with `sudo dpkg -i`, the `.rpm` with `sudo dnf install`
 (`zypper install` on openSUSE). Both carry the same frozen `dleapp` under

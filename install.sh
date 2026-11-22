@@ -33,10 +33,12 @@ say() { echo "install.sh: $*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 SUDO=""
-if [ "$(id -u)" -ne 0 ] && [ "${NO_SUDO:-0}" != "1" ]; then
-  have sudo || die "need root and sudo is not installed; re-run as root"
-  SUDO="sudo"
-fi
+need_sudo() {
+  if [ "$(id -u)" -ne 0 ] && [ "${NO_SUDO:-0}" != "1" ]; then
+    have sudo || die "need root and sudo is not installed; re-run as root"
+    SUDO="sudo"
+  fi
+}
 
 TAG="${TAG:-}"
 if [ -z "$TAG" ]; then
@@ -57,8 +59,16 @@ say "fetching SHA256SUMS.txt ..."
 curl -fsSL -o SHA256SUMS.txt "https://github.com/$REPO/releases/download/$TAG/SHA256SUMS.txt"
 
 check() { # check <file>: verify against SHA256SUMS.txt
-  grep -F "  $1" SHA256SUMS.txt | sha256sum -c - \
-    || die "checksum mismatch for $1 (aborting; see SHA256SUMS.txt)"
+  local line
+  line="$(grep -F "  $1" SHA256SUMS.txt)" \
+    || die "$1 not found in SHA256SUMS.txt"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    printf '%s\n' "$line" | shasum -a 256 -c - \
+      || die "checksum mismatch for $1 (aborting; see SHA256SUMS.txt)"
+  else
+    printf '%s\n' "$line" | sha256sum -c - \
+      || die "checksum mismatch for $1 (aborting; see SHA256SUMS.txt)"
+  fi
 }
 
 ARCH="$(uname -m)"
@@ -93,6 +103,7 @@ case "$METHOD" in
 esac
 
 install_deb() {
+  need_sudo
   local deb="DLEAPP-${VER}-linux-${FARCH}.deb"
   say "downloading $deb ..."
   curl -fsSL -o "$deb" "https://github.com/$REPO/releases/download/$TAG/$deb" \
@@ -106,6 +117,7 @@ install_deb() {
 }
 
 install_rpm() {
+  need_sudo
   local rpm="DLEAPP-${VER}-linux-${FARCH}.rpm"
   say "downloading $rpm ..."
   curl -fsSL -o "$rpm" "https://github.com/$REPO/releases/download/$TAG/$rpm" \
@@ -153,6 +165,7 @@ install_appimage() {
 }
 
 install_dmg() {
+  need_sudo
   local dmg
   case "$ARCH" in
     x86_64|amd64) dmg="DLEAPP-${VER}-macos-x64.dmg" ;;

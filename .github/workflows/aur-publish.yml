@@ -34,7 +34,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.release.tag_name || github.ref }}
+          ref: ${{ github.event.repository.default_branch || 'main' }}
+          fetch-depth: 0
 
       - name: Refresh dleapp-bin to this release
         shell: bash
@@ -45,10 +46,11 @@ jobs:
           echo "release tag: $TAG"
           test -n "$TAG" || { echo "::error::no tag found"; exit 1; }
           VER="${TAG#v}"
+          REV="$(git rev-parse HEAD)"
           REPO="${{ github.repository }}"
-          python3 - "$TAG" "$VER" "$REPO" <<'EOF'
-          import re, subprocess, sys, urllib.request
-          tag, ver, repo = sys.argv[1], sys.argv[2], sys.argv[3]
+          python3 - "$TAG" "$VER" "$REV" "$REPO" <<'EOF'
+          import hashlib, re, sys, urllib.request
+          tag, ver, rev, repo = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
           base = f"https://github.com/{repo}/releases/download/{tag}/SHA256SUMS.txt"
           sums = urllib.request.urlopen(base).read().decode()
           def digest(name):
@@ -59,15 +61,12 @@ jobs:
               sys.exit(f"error: {name} not in SHA256SUMS.txt")
           x64 = digest(f"DLEAPP-{ver}-linux-x64.AppImage")
           arm = digest(f"DLEAPP-{ver}-linux-arm64.AppImage")
-          def fetch(path):
-              # Desktop entry and icon ride main, not the tag (see PKGBUILD).
-              url = f"https://raw.githubusercontent.com/{repo}/main/{path}"
-              return urllib.request.urlopen(url).read()
-          import hashlib
-          desktop = hashlib.sha256(fetch("packaging/linux/dleapp.desktop")).hexdigest()
-          icon = hashlib.sha256(fetch("assets/icon.png")).hexdigest()
+          desktop = hashlib.sha256(open("packaging/linux/dleapp.desktop", "rb").read()).hexdigest()
+          icon = hashlib.sha256(open("assets/icon.png", "rb").read()).hexdigest()
           pkg = open("packaging/aur/dleapp-bin/PKGBUILD").read()
           pkg, n = re.subn(r"^pkgver=.*", f"pkgver={ver}", pkg, count=1, flags=re.M)
+          assert n == 1
+          pkg, n = re.subn(r"^_asset_rev=.*", f"_asset_rev={rev}", pkg, count=1, flags=re.M)
           assert n == 1
           pkg, n = re.subn(r"^sha256sums_x86_64=.*",
                             f"sha256sums_x86_64=('{x64}')", pkg, count=1, flags=re.M)
@@ -82,15 +81,38 @@ jobs:
           src = open("packaging/aur/dleapp-bin/.SRCINFO").read()
           src, n = re.subn(r"(?m)^\tpkgver = .*", f"\tpkgver = {ver}", src, count=1)
           assert n == 1
+          src, n = re.subn(
+              r"(?m)^\tsource = dleapp\.desktop::.*",
+              f"\tsource = dleapp.desktop::https://raw.githubusercontent.com/{repo}/{rev}/packaging/linux/dleapp.desktop",
+              src, count=1)
+          assert n == 1
+          src, n = re.subn(
+              r"(?m)^\tsource = dleapp\.png::.*",
+              f"\tsource = dleapp.png::https://raw.githubusercontent.com/{repo}/{rev}/assets/icon.png",
+              src, count=1)
+          assert n == 1
+          src, n = re.subn(
+              r"(?m)^\tsource_x86_64 = .*",
+              f"\tsource_x86_64 = DLEAPP-{ver}-linux-x64.AppImage::https://github.com/{repo}/releases/download/{tag}/DLEAPP-{ver}-linux-x64.AppImage",
+              src, count=1)
+          assert n == 1
+          src, n = re.subn(
+              r"(?m)^\tsource_aarch64 = .*",
+              f"\tsource_aarch64 = DLEAPP-{ver}-linux-arm64.AppImage::https://github.com/{repo}/releases/download/{tag}/DLEAPP-{ver}-linux-arm64.AppImage",
+              src, count=1)
+          assert n == 1
           # Values only, in file order: desktop, icon, x86_64, aarch64.
           lines = src.splitlines(keepends=True)
           vals = iter([desktop, icon, x64, arm])
+          replaced = 0
           for i, line in enumerate(lines):
               if re.match(r"^\tsha256sums(_\w+)? = [0-9a-f]{64}\n$", line):
                   key = line.split(" = ")[0]
                   lines[i] = f"{key} = {next(vals)}\n"
+                  replaced += 1
+          assert replaced == 4, f"expected 4 sha256sums entries in .SRCINFO, got {replaced}"
           open("packaging/aur/dleapp-bin/.SRCINFO", "w").write("".join(lines))
-          print(f"pkgver={ver}")
+          print(f"pkgver={ver}\n_asset_rev={rev}")
           print(f"sha256sums_x86_64={x64}\nsha256sums_aarch64={arm}")
           print(f"desktop={desktop}\nicon={icon}")
           EOF
@@ -104,7 +126,7 @@ jobs:
           git add packaging/aur/dleapp-bin/PKGBUILD packaging/aur/dleapp-bin/.SRCINFO
           git diff --cached --quiet && echo "no changes to commit" && exit 0
           git commit -m "AUR: dleapp-bin ${{ github.event.release.tag_name || 'refresh' }}"
-          git push
+          git push origin HEAD:${{ github.event.repository.default_branch || 'main' }}
 
       - name: Push to the AUR
         if: env.AUR_SSH_PRIVATE_KEY != ''
@@ -115,13 +137,18 @@ jobs:
           chmod 600 ~/.ssh/aur
           printf 'Host aur.archlinux.org\n  IdentityFile ~/.ssh/aur\n  StrictHostKeyChecking yes\n' > ~/.ssh/config
           ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-          rm -rf /tmp/aur-push && mkdir -p /tmp/aur-push
+          AUR_URL="ssh://aur@aur.archlinux.org/dleapp-bin.git"
+          rm -rf /tmp/aur-push
+          if ! git clone "$AUR_URL" /tmp/aur-push; then
+            mkdir -p /tmp/aur-push
+            git -C /tmp/aur-push init -q -b master
+            git -C /tmp/aur-push remote add origin "$AUR_URL"
+          fi
           cp packaging/aur/dleapp-bin/PKGBUILD packaging/aur/dleapp-bin/.SRCINFO /tmp/aur-push/
           cd /tmp/aur-push
-          git init -q -b master .
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add PKGBUILD .SRCINFO
-          git commit -qm "dleapp-bin ${{ github.event.release.tag_name || '' }}"
-          git remote add aur "ssh://aur@aur.archlinux.org/dleapp-bin.git"
-          git push aur master
+          git diff --cached --quiet && echo "AUR already up to date" && exit 0
+          git commit -qm "dleapp-bin ${{ github.event.release.tag_name || 'refresh' }}"
+          git push origin HEAD:master

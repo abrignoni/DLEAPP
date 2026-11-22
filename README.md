@@ -81,14 +81,14 @@ Download a pre-built release, no Python installation required, from
 | Windows (ARM) | `DLEAPP-*-windows-arm64-portable.zip` |
 | macOS (Apple Silicon) | `DLEAPP-*-macos-arm64.dmg` |
 | macOS (Intel) | `DLEAPP-*-macos-x64.dmg` |
-| Linux (Intel/AMD) | `DLEAPP-*-linux-x64.AppImage` |
-| Linux (ARM) | `DLEAPP-*-linux-arm64.AppImage` |
-| Linux (Intel/AMD, Debian/Ubuntu) | `DLEAPP-*-linux-x64.deb` |
-| Linux (ARM, Debian/Ubuntu) | `DLEAPP-*-linux-arm64.deb` |
-| Linux (Intel/AMD, Fedora/RHEL/openSUSE) | `DLEAPP-*-linux-x64.rpm` |
-| Linux (ARM, Fedora/RHEL/openSUSE) | `DLEAPP-*-linux-arm64.rpm` |
+| Linux (Intel/AMD, glibc 2.35+) | `DLEAPP-*-linux-x64.AppImage` |
+| Linux (ARM, glibc 2.35+) | `DLEAPP-*-linux-arm64.AppImage` |
+| Linux (Intel/AMD, Debian/Ubuntu, glibc 2.35+) | `DLEAPP-*-linux-x64.deb` |
+| Linux (ARM, Debian/Ubuntu, glibc 2.35+) | `DLEAPP-*-linux-arm64.deb` |
+| Linux (Intel/AMD, Fedora/RHEL 10+/openSUSE, glibc 2.35+) | `DLEAPP-*-linux-x64.rpm` |
+| Linux (ARM, Fedora/RHEL 10+/openSUSE, glibc 2.35+) | `DLEAPP-*-linux-arm64.rpm` |
 
-Each download holds one program, `dleapp`. `SHA256SUMS.txt` in each release lets you check a download.
+Each download holds one program, `dleapp`. `SHA256SUMS.txt` in each release lets you check a download. Linux pre-built packages require glibc 2.35 or newer (e.g. Ubuntu 22.04+, Fedora, RHEL 10+); on older distributions such as RHEL 9 (glibc 2.34), run from source.
 
 **One-line install** (Linux/macOS — picks the native package, verifies it, and installs it):
 
