@@ -5,6 +5,7 @@ https://github.com/irwir/eMule). Readers take bytes and raise EmuleFormatError w
 the layout, so a caller decides what to log.
 """
 
+from collections import Counter
 import struct
 
 SOURCE = 'https://github.com/irwir/eMule/blob/ac3d52eafd88e9f6d9e0c2204c6dbead18db750b/srchybrid/'
@@ -50,7 +51,11 @@ MAX_PARTS = 0x4000000000 // 9728000 + 1  # MAX_EMULE_FILE_SIZE / PARTSIZE + 1, F
 
 
 class EmuleFormatError(ValueError):
-    """The bytes do not fit the eMule layout being read."""
+    """The bytes do not fit the eMule layout being read. .partial holds what a reader kept before the error."""
+
+    def __init__(self, message, partial=None):
+        super().__init__(message)
+        self.partial = partial
 
 
 class _Reader:
@@ -204,6 +209,108 @@ def read_part_met(data):
         'last_seen_complete': _int(tags.get(FT_LASTSEENCOMPLETE)), 'aich': tags.get(FT_AICH_HASH),
         'gaps': len(gaps),
     }
+
+
+SEARCH_TYPES = {0: 'Automatic', 1: 'eD2K Server', 2: 'eD2K Global', 3: 'Kademlia', 4: 'ContentDB'}   # SearchParams.h
+FT_FILETYPE = 0x03
+FT_SOURCES = 0x15
+FT_COMPLETE_SOURCES = 0x30
+FT_FOLDERNAME = 0x38
+FT_FILERATING = 0xF7
+_RESULT_TAG_NAMES = {0xD0: 'artist', 0xD1: 'album', 0xD2: 'title', 0xD3: 'length', 0xD4: 'bitrate', 0xD5: 'codec',
+                     0x04: 'format', 0xF6: 'comment', FT_LASTSEENCOMPLETE: 'last_seen_complete'}   # Opcodes.h
+
+
+def _met_string(reader):
+    """CFileDataIO::ReadString with bOptUTF8 true (SafeFile.cpp): a uint16 length, then the bytes."""
+    raw = reader.take(reader.u16())
+    if raw.startswith(b'\xef\xbb\xbf'):
+        raw = raw[3:]
+    try:
+        return raw.decode('utf-8')
+    except UnicodeDecodeError:
+        return raw.decode('cp1252', 'replace')
+
+
+def _text(value):
+    return value if isinstance(value, str) else None
+
+
+def _tag_label(name):
+    if isinstance(name, bytes):
+        return name.decode('utf-8', 'backslashreplace')
+    return _RESULT_TAG_NAMES.get(name, f'tag_0x{name:02X}')
+
+
+def _other_values(tags):
+    """[(display name, value)], one per stored tag. Tags that would show one name each carry their identifier."""
+    labels = Counter(_tag_label(name) for name in tags)
+    other = []
+    for name, value in tags.items():
+        label = _tag_label(name)
+        if labels[label] > 1:
+            identifier = f'name {name.hex()}' if isinstance(name, bytes) else f'tag 0x{name:02X}'
+            label = f'{label} [{identifier}]'
+        other.append((label, value.hex() if isinstance(value, (bytes, bytearray)) else value))
+    return other
+
+
+def _stored_result(reader):
+    """CSearchFile::CSearchFile(CFileDataIO&, ...) in SearchFile.cpp, with tags as CTag reads them."""
+    record = {'hash': reader.take(16), 'client_id': reader.u32(), 'client_port': reader.u16()}
+    tags, folder = {}, None
+    for _ in range(reader.u32()):
+        name, value = read_tag(reader)
+        tags[name] = value                  # eMule's GetTag finds the last tag of a name
+        if name == FT_FOLDERNAME and folder is None and isinstance(value, str) and value:
+            folder = value                  # its constructor keeps the first non-empty folder
+    size = tags.get(FT_FILESIZE)
+    high = tags.get(FT_FILESIZE_HI)
+    combined = isinstance(size, int) and isinstance(high, int) and size <= 0xFFFFFFFF
+    if combined:
+        size |= high << 32
+    aich = tags.get(FT_AICH_HASH)
+    # A tag leaves Other Values only when a dedicated field really holds its value.
+    in_field = {FT_FILENAME: isinstance(tags.get(FT_FILENAME), str), FT_FILESIZE: isinstance(tags.get(FT_FILESIZE), int),
+                FT_FILESIZE_HI: combined, FT_FILETYPE: isinstance(tags.get(FT_FILETYPE), str),
+                FT_SOURCES: _int(tags.get(FT_SOURCES)) is not None,
+                FT_COMPLETE_SOURCES: _int(tags.get(FT_COMPLETE_SOURCES)) is not None,
+                FT_FOLDERNAME: tags.get(FT_FOLDERNAME) == folder and folder is not None,
+                FT_AICH_HASH: aich not in (None, ''), FT_FILERATING: _int(tags.get(FT_FILERATING)) is not None}
+    other = _other_values({name: value for name, value in tags.items() if not in_field.get(name)})
+    record.update(name=_text(tags.get(FT_FILENAME)), size=size if isinstance(size, int) else None,
+                  file_type=_text(tags.get(FT_FILETYPE)), sources=_int(tags.get(FT_SOURCES)),
+                  complete_sources=_int(tags.get(FT_COMPLETE_SOURCES)), folder=folder,
+                  aich=aich.hex() if isinstance(aich, (bytes, bytearray)) else aich,
+                  rating=_int(tags.get(FT_FILERATING)), other=other)
+    return record
+
+
+def read_stored_searches(data):
+    """StoredSearches.met (SearchList.cpp LoadSearches, SearchParams.h): the header, a version, a uint16 search
+    count, and for each search its parameters, a uint32 result count and the results. Returns a dict with
+    'searches', each holding its 'results' and 'declared_results' (None when unread), and 'complete'. A format error carries what was read in .partial."""
+    result = {'searches': [], 'complete': False}
+    reader = _Reader(data)
+    try:
+        header = reader.u8()
+        if header != MET_HEADER_I64TAGS:
+            raise EmuleFormatError(f'header 0x{header:02x} is not the StoredSearches.met header')
+        version = reader.u8()
+        if version != 1:
+            raise EmuleFormatError(f'StoredSearches.met version {version} is not 1')
+        for _ in range(reader.u16()):
+            search = {'id': reader.u32(), 'type': reader.u8(), 'client_shared': reader.u8() > 0,
+                      'title': _met_string(reader), 'expression': _met_string(reader), 'file_type': _met_string(reader),
+                      'results': [], 'declared_results': None}
+            result['searches'].append(search)
+            search['declared_results'] = reader.u32()
+            for _ in range(search['declared_results']):
+                search['results'].append(_stored_result(reader))
+    except (EmuleFormatError, UnicodeError) as exc:
+        raise EmuleFormatError(str(exc), partial=result) from exc
+    result['complete'] = reader.pos == len(data)
+    return result
 
 
 def read_utf16_lines(data, allow_ansi=False):
