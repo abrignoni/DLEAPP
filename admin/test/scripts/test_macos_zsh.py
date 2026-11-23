@@ -9,11 +9,13 @@ import base64
 import pathlib
 import sys
 import unittest
+from types import SimpleNamespace
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from scripts import macos_zsh  # pylint: disable=wrong-import-position
+from scripts.artifacts import macosZsh  # pylint: disable=wrong-import-position
 
 ZSHRC_ZWC = base64.b64decode(
     'BwYFBAC4AAA1LjkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAGYAAAAAAAAAMAAAAAgAAAAA'
@@ -106,6 +108,64 @@ class HistoryTest(unittest.TestCase):
 
     def test_empty_file(self):
         self.assertEqual(macos_zsh.read_history(b''), [])
+
+
+class RecordedTimesTest(unittest.TestCase):
+    """What the startup files artifact hands the compiled-copy rule."""
+
+    comparable = staticmethod(macosZsh._comparable)  # pylint: disable=protected-access
+
+    def test_two_utc_times_compare_directly(self):
+        self.assertEqual(self.comparable((100, ''), (160, '')), (100, 160))
+
+    def test_two_readings_with_no_zone_compare_as_stored(self):
+        plain, compiled = self.comparable((None, '2024-06-01 12:00:00'),
+                                          (None, '2024-06-01 12:00:02.50'))
+        self.assertEqual(compiled - plain, 2)
+
+    def test_a_utc_time_and_a_reading_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((100, ''), (None, '2024-06-01 12:00:00')))
+        self.assertIsNone(self.comparable((None, '2024-06-01 12:00:00'), (100, '')))
+
+    def test_a_missing_or_malformed_time_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((None, ''), (None, '2024-06-01 12:00:00')))
+        self.assertIsNone(self.comparable((None, '2024-13-01 12:00:00'),
+                                          (None, '2024-06-01 12:00:00')))
+
+    def test_a_malformed_reading_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((None, '2024-06-01 12:00:02.bad'),
+                                          (None, '2024-06-01 12:00:00')))
+
+    def test_a_utc_time_no_date_can_show_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((1e20, ''), (100, '')))
+        self.assertIsNone(self.comparable((100, ''), (1e20, '')))
+
+    def test_a_date_that_does_not_exist_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((None, '2024-02-30 12:00:00'),
+                                          (None, '2024-06-01 12:00:00')))
+
+
+class StoredOffsetTest(unittest.TestCase):
+    """Two exFAT readings with different stored offsets cannot be compared as wall clocks."""
+
+    offset = staticmethod(macosZsh._modified_offset)  # pylint: disable=protected-access
+
+    @staticmethod
+    def seeker(path, offsets):
+        return SimpleNamespace(file_infos={path: SimpleNamespace(times=SimpleNamespace(utc_offsets=offsets))})
+
+    def test_the_modified_offset_is_read_from_the_stored_text(self):
+        seeker = self.seeker('/f', 'modified -05:00; created -04:00; accessed -04:00')
+        self.assertEqual(self.offset(seeker, '/f'), '-05:00')
+
+    def test_no_stored_offset_is_empty(self):
+        self.assertEqual(self.offset(self.seeker('/f', None), '/f'), '')
+        self.assertEqual(self.offset(self.seeker('/f', 'created -04:00'), '/f'), '')
+        self.assertEqual(self.offset(None, '/f'), '')
+
+    def test_a_windows_spelling_finds_the_record(self):
+        seeker = self.seeker('\\\\?\\C:\\out\\f', 'modified +01:00')
+        self.assertEqual(self.offset(seeker, 'C:/out/f'), '+01:00')
 
 
 class SessionTest(unittest.TestCase):

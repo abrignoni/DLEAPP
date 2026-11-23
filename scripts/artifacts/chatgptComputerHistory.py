@@ -108,32 +108,41 @@ __artifacts_v2__ = {
                        "modification time.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-18",
-        "last_update_date": "2026-08-18",
+        "last_update_date": "2026-11-23",
         "requirements": "none",
         "category": "ChatGPT (macOS)",
         "platforms": ("macOS",),
-        "notes": "VALIDATION BOUNDARY: exercised only against a synthetic fixture, "
-                 "not corpus-verified. No genuine memory file was available, so "
-                 "the fixture's file names were built from the same documentation "
-                 "this parser reads them with. The directory layout and the "
-                 "10min and 6h summary windows come from the skill documentation "
-                 "the app ships at plugins/computer-history/skills/computer-"
-                 "history/SKILL.md, and the file-name timestamp is parsed with the "
-                 "date format the recorder binary carries. A file name that does "
-                 "not match is reported with its stem intact and an empty "
-                 "timestamp rather than being skipped. These summaries are written "
-                 "by a language model from the recorded event stream, so they are "
-                 "generated descriptions of activity and not a direct record of "
-                 "it; the events they were derived from may no longer be present. "
-                 "The instructions.md in the same directory is reported alongside "
-                 "them with an empty summary window. File modification time comes "
-                 "from the file system of the extraction and may reflect "
-                 "acquisition rather than authorship. The memories directory is "
-                 "located relative to CODEX_HOME, which the app's own launcher "
-                 "script defaults to ~/.codex but allows to be relocated, so the "
-                 "path pattern anchors on the memories/extensions/skysight tail "
-                 "rather than on the .codex folder name. Content is clipped at "
-                 "10,000 characters.",
+        "notes": "VALIDATION BOUNDARY: exercised only against a synthetic fixture, not "
+                 "corpus-verified. No genuine memory file was available, so the fixture's file "
+                 "names were built from the same documentation this parser reads them with. The "
+                 "directory layout and the 10min and 6h summary windows come from the skill "
+                 "documentation the app ships at "
+                 "plugins/computer-history/skills/computer-history/SKILL.md, and the file-name "
+                 "timestamp is parsed with the date format the recorder binary carries. A file "
+                 "name that does not match is reported with its stem intact and an empty "
+                 "timestamp rather than being skipped. These summaries are written by a language "
+                 "model from the recorded event stream, so they are generated descriptions of "
+                 "activity and not a direct record of it; the events they were derived from may "
+                 "no longer be present. The instructions.md in the same directory is reported "
+                 "alongside them with an empty summary window. File Modified is the modification "
+                 "time the tool reads from the input for the file as a UTC time, such as from a "
+                 "tar header or a zip entry's NTFS or extended timestamp field. When the tool "
+                 "reads no UTC time, File Modified is blank and Modified (no zone, as stored) "
+                 "shows the date and time the input holds, with no zone conversion. That is the "
+                 "case for a FAT directory entry, an exFAT directory entry (its stored UTC offset"
+                 " is not applied or shown here) and a zip entry with only its DOS date and time."
+                 " Both columns are blank when the input holds neither, and a recorded time of 0 "
+                 "is treated as no time. For a folder or single-file input File Modified is the "
+                 "time the operating system reports for that file on the examiner's machine, "
+                 "including any conversion it applied, and whatever copied the file there may "
+                 "have set it. The staged copy's own time is not reported. File Modified may "
+                 "reflect acquisition rather than authorship. Summary Timestamp is the file-name "
+                 "stamp. The name carries no zone. The report shows it as UTC, and whether the "
+                 "app writes it in UTC or local time is not established. The memories directory "
+                 "is located relative to CODEX_HOME, which the app's own launcher script defaults"
+                 " to ~/.codex but allows to be relocated, so the path pattern anchors on the "
+                 "memories/extensions/skysight tail rather than on the .codex folder name. "
+                 "Content is clipped at 10,000 characters.",
         "paths": (
             "*/memories/extensions/skysight/resources/*.md",
             "*/memories/extensions/skysight/instructions.md",
@@ -149,7 +158,7 @@ __artifacts_v2__ = {
 
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from scripts.chatgpt_skysight import (
     EVENT_HEADERS,
@@ -179,6 +188,46 @@ def _stamp_datetime(value):
 
 def _segment_folder(path):
     return os.path.basename(os.path.dirname(path))
+
+
+def _utc(seconds):
+    """Unix seconds as a UTC datetime, "" for none or a value datetime cannot hold."""
+    if seconds is None:
+        return ""
+    try:
+        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)
+    except (OverflowError, ValueError):
+        return ""
+
+
+def _usable(value):
+    """Whether a recorded time is a nonzero, finite number."""
+    return isinstance(value, (int, float)) and value != 0 and value == value and abs(value) != float('inf')
+
+
+def _file_times(seeker, path):
+    """(UTC seconds, reading with no zone) the input records for a staged file.
+
+    The staged copy's own time is not used: for a FAT, exFAT or DOS-only zip reading it is
+    that reading placed in the examiner's time zone.
+    """
+    infos = getattr(seeker, 'file_infos', None) or {}
+    windows = str(path).replace('/', '\\')
+    bare = windows.removeprefix('\\\\?\\')
+    info = next((infos[name] for name in (str(path), windows, bare, '\\\\?\\' + bare)
+                 if name in infos), None)
+    times = getattr(info, 'times', None)
+    modified = getattr(times, 'modified', None)
+    if _usable(modified):
+        return modified, ''
+    # a reading with no zone comes before the older field, which is never read as its UTC time
+    reading = getattr(times, 'modified_no_zone', None)
+    if reading:
+        return None, reading
+    modified = getattr(info, 'modification_date', None)
+    if _usable(modified):
+        return modified, ''
+    return None, ''
 
 
 @artifact_processor
@@ -263,6 +312,7 @@ def chatgptComputerHistoryMemories(context):
     data_headers = (
         ("Summary Timestamp", "datetime"),
         ("File Modified", "datetime"),
+        "Modified (no zone, as stored)",
         "Summary Window",
         "Identifier",
         "Slug",
@@ -294,14 +344,13 @@ def chatgptComputerHistoryMemories(context):
             window = ""
             slug = ""
 
-        try:
-            modified = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
-        except (OSError, OverflowError, ValueError):
-            modified = ""
+        seconds, no_zone = _file_times(context.get_seeker(), path)
+        modified = _utc(seconds)
 
         data_list.append((
             stamp,
             modified,
+            no_zone,
             window,
             identifier,
             slug,
