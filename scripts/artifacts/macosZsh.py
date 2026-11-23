@@ -242,6 +242,11 @@ def _file_info(seeker, path):
                  if name in infos), None)
 
 
+def _usable(value):
+    """Whether a recorded time is a nonzero, finite number."""
+    return isinstance(value, (int, float)) and value != 0 and value == value and abs(value) != float('inf')
+
+
 def _file_times(seeker, path):
     """(UTC seconds, reading with no zone) the input records for a staged file.
 
@@ -251,14 +256,14 @@ def _file_times(seeker, path):
     info = _file_info(seeker, path)
     times = getattr(info, 'times', None)
     modified = getattr(times, 'modified', None)
-    if isinstance(modified, (int, float)) and modified:
+    if _usable(modified):
         return modified, ''
     # a reading with no zone comes before the older field, which is never read as its UTC time
     reading = getattr(times, 'modified_no_zone', None)
     if reading:
         return None, reading
     modified = getattr(info, 'modification_date', None)
-    if isinstance(modified, (int, float)) and modified:
+    if _usable(modified):
         return modified, ''
     return None, ''
 
@@ -270,7 +275,7 @@ def _comparable(plain, compiled):
     in whole seconds as zsh compares them. One of each, or a missing time, cannot be ordered.
     """
     if plain[0] is not None and compiled[0] is not None:
-        return plain[0], compiled[0]
+        return plain[0] // 1, compiled[0] // 1
     if plain[0] is None and compiled[0] is None and plain[1] and compiled[1]:
         try:
             return tuple(calendar.timegm(time.strptime(reading[:19], '%Y-%m-%d %H:%M:%S'))
