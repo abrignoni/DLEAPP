@@ -123,7 +123,7 @@ __artifacts_v2__ = {
                  "timestamp rather than being skipped. These summaries are written by a language "
                  "model from the recorded event stream, so they are generated descriptions of "
                  "activity and not a direct record of it; the events they were derived from may "
-                 "no longer be present. The instructions.md in the same directory is reported "
+                 "no longer be present. The instructions.md in the skysight directory above them is reported "
                  "alongside them with an empty summary window. File Modified is the modification "
                  "time the tool reads from the input for the file as a UTC time, such as from a "
                  "tar header or a zip entry's NTFS or extended timestamp field. When the tool "
@@ -137,11 +137,18 @@ __artifacts_v2__ = {
                  "including any conversion it applied, and whatever copied the file there may "
                  "have set it. The staged copy's own time is not reported. File Modified may "
                  "reflect acquisition rather than authorship. Summary Timestamp is the file-name "
-                 "stamp. The name carries no zone. The report shows it as UTC, and whether the "
-                 "app writes it in UTC or local time is not established. The memories directory "
-                 "is located relative to CODEX_HOME, which the app's own launcher script defaults"
-                 " to ~/.codex but allows to be relocated, so the path pattern anchors on the "
-                 "memories/extensions/skysight tail rather than on the .codex folder name. "
+                 "stamp, reported in UTC. The name itself carries no zone marker. The zone comes "
+                 "from the Computer Use recorder version 26.1116.1001980 in ChatGPT 26.1117.41037, "
+                 "whose code writes the stamp with a date formatter set to a GMT offset of 0, and "
+                 "from the skill documentation above, which calls this field utc_timestamp. Both "
+                 "were read from the installed app. No genuine memory file was available to "
+                 "exercise it. The formatter's zone setting was read in this version only, and a "
+                 "file written by another version is shown the same way. Which moment the stamp records "
+                 "(summary window start, window end or write time) is not established. The app's "
+                 "launcher script reads CODEX_HOME and defaults it to ~/.codex. Whether the "
+                 "recorder places the memories directory under a relocated CODEX_HOME was not "
+                 "traced, so the path pattern anchors on the memories/extensions/skysight tail "
+                 "and not on the .codex folder name. "
                  "Content is clipped at 10,000 characters.",
         "paths": (
             "*/memories/extensions/skysight/resources/*.md",
@@ -171,8 +178,8 @@ from scripts.chatgpt_skysight import (
 )
 from scripts.ilapfuncs import artifact_processor, logfunc
 
-# The recorder binary carries the date format yyyy-MM-dd'T'HH-mm-ss, which is
-# what the segment folders and the memory file names are built from.
+# Computer Use recorder 26.1116.1001980 builds memory file names with the date
+# format yyyy-MM-dd'T'HH-mm-ss on a formatter set to TimeZone(secondsFromGMT: 0).
 _STAMP = r"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}"
 _MEMORY_NAME = re.compile(
     rf"^(?P<stamp>{_STAMP})-(?P<identifier>.+?)-(?P<window>10min|6h)-(?P<slug>.+)$")
