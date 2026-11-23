@@ -1417,7 +1417,7 @@ def open_exodus_password_dialog():
 
     explanation = (
         "A password for an Exodus desktop wallet is tried as the passphrase for "
-        "seed.seco (not exercised on known data). A wallet that kept its "
+        "seed.seco. A wallet that kept its "
         "auto-generated passphrase needs nothing here.\n\n"
         "Enter one of:\n"
         "  •  the wallet password, or\n"
