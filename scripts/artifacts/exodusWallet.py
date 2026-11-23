@@ -43,8 +43,7 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
-        "requirements": "PyCryptodome. A password can be supplied with --exodus-password (not exercised "
-                        "on known data).",
+        "requirements": "PyCryptodome. A password can be supplied with --exodus-password.",
         "category": "Exodus",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per seed.seco in a folder named exodus.wallet inside a folder named Exodus. "
@@ -62,8 +61,7 @@ __artifacts_v2__ = {
                  "payload was 80 bytes: a 64-byte seed followed by 16 bytes of entropy; another length "
                  "is not decoded and is reported as unrecognised, with the passphrase shown and the seed "
                  "and phrase blank. Recovery Phrase is entropyToMnemonic(entropy) with the standard "
-                 "BIP-39 English wordlist (@exodus/bip39 1.1.1); it was not compared with the phrase the "
-                 "Exodus app displays. Phrase Verified is Yes when mnemonicToSeed(phrase), "
+                 "BIP-39 English wordlist (@exodus/bip39 1.1.1). Phrase Verified is Yes when mnemonicToSeed(phrase), "
                  "PBKDF2-HMAC-SHA512 with salt mnemonic over 2048 iterations, equals the stored 64-byte "
                  "seed, so the phrase derives the stored seed with an empty BIP-39 passphrase; No means "
                  "it did not, and the phrase and seed are still shown. Passphrase is the value that "
@@ -77,21 +75,33 @@ __artifacts_v2__ = {
                  "passphrase was present but did not open it or none was available. Seed (hex) is the "
                  "stored 64-byte seed in hex. Modified (UTC) is the seed.seco modified time the input "
                  "holds, blank when it holds none in UTC. User is the folder after Users or home in the "
-                 "path. On the known data (windows11_arm_exodus_known_20261122) system was true, "
-                 "seed.seco opened with the stored passphrase, and Phrase Verified was Yes on the 1 row. "
-                 "A wallet the user protected with a password was not part of the known data, so the "
-                 "--exodus-password path is provided but unexercised: the supplied password is tried as "
-                 "the SECO passphrase and counts as opening the wallet when the AES-GCM tag on the blob "
-                 "key checks; a password that does not open it is reported as not opening the wallet and "
-                 "no secret is shown, and whether Exodus uses the user password directly as this "
-                 "passphrase is not established. A seed and phrase being present does not show that the "
-                 "wallet was funded or used. storage.seco is not read by this artifact.",
+                 "path. On the passwordless known data (windows11_arm_exodus_known_20261122) system was "
+                 "true, seed.seco opened with the stored passphrase, and Phrase Verified was Yes on the 1 "
+                 "row. On the password-protected known data (windows11_arm_exodus_pw_known_20261122) "
+                 "passphrase.json was absent and seed.seco was re-encrypted with a new scrypt salt "
+                 "(n=16384 r=8 p=1), measured against a capture of the same wallet taken before the "
+                 "password was set; that before capture is not part of the registered known data, and the "
+                 "two known-data keys hold different wallets. The password supplied with --exodus-password "
+                 "opened seed.seco as its SECO passphrase, Protection read User password (supplied), "
+                 "Phrase Verified was Yes, and the recovered phrase matched the 12 words Exodus displayed "
+                 "during the wallet backup flow (compared by SHA-256 of the words as read from the app). "
+                 "The stored passphrase is tried first; a supplied password is tried after "
+                 "it and counts as opening the wallet when it "
+                 "unwraps the blob key and the blob then authenticates and unpacks. When neither the "
+                 "stored passphrase nor a supplied password opens it, the row reads Not opened and shows "
+                 "no secret; on the password-protected known data a run with no password and a run with a "
+                 "wrong password each read Not opened with Passphrase, Recovery Phrase and Seed blank. On "
+                 "this wallet the password as typed opened seed.seco; that was measured on one wallet with "
+                 "one ASCII password and is not sourced from Exodus desktop code, which was not read. A "
+                 "seed and phrase being present does not show that the wallet was funded or used. "
+                 "storage.seco is not read by this artifact.",
         "paths": ("*/Exodus/exodus.wallet/passphrase.json", "*/Exodus/exodus.wallet/seed.seco",
                   "Exodus/exodus.wallet/passphrase.json", "Exodus/exodus.wallet/seed.seco"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",
         "sample_data": {
             "windows11_arm_exodus_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20 | 1 row",
+            "windows11_arm_exodus_pw_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20, password-protected wallet | 1 row",
         },
     },
     "exodusWalletState": {
@@ -112,19 +122,23 @@ __artifacts_v2__ = {
                  "!balances!hasBalance: Yes or No for a JSON boolean, blank for any other type. Read "
                  "Status is read for a usable store, could not read when the file did not open or "
                  "decode, and not a JSON object for a valid JSON value whose root is not an object; the "
-                 "state fields are blank on the two failure statuses, and Read Status was read on the "
-                 "known data's 1 row. On the known data the other keys were market price "
+                 "state fields are blank on the two failure statuses, and Read Status was read on the 1 "
+                 "row of each known-data wallet. On the passwordless known data "
+                 "(windows11_arm_exodus_known_20261122) the other keys were market price "
                  "history (55 of 70 keys, most of the file), migration flags, remote configuration, A/B "
-                 "testing data and an announcements entry; they are not reported. On the known data the "
-                 "file did not contain the seed, passphrase or phrase text. On the known data, a wallet "
-                 "that was never funded, Has Balance was No. A field is blank when the file does not "
-                 "hold it.",
+                 "testing data and an announcements entry; they are not reported. The password-protected "
+                 "known data (windows11_arm_exodus_pw_known_20261122) held the same key groups plus one "
+                 "stored-events entry. On neither known-data wallet did the file contain the seed, the "
+                 "passphrase, the recovery phrase, or the user password text. On the known data, wallets "
+                 "that were never funded, Has Balance was No on both. A field is blank when the file does "
+                 "not hold it.",
         "paths": ("*/Exodus/exodus.wallet/unsafe-storage.json",
                   "Exodus/exodus.wallet/unsafe-storage.json"),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "activity",
         "sample_data": {
             "windows11_arm_exodus_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20 | 1 row",
+            "windows11_arm_exodus_pw_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20, password-protected wallet | 1 row",
         },
     },
     "exodusWalletFiles": {
@@ -140,8 +154,8 @@ __artifacts_v2__ = {
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per file under a folder named exodus.wallet inside a folder named Exodus. This "
                  "artifact lists the files through the seeker's peek() and stages none; the other two "
-                 "Exodus artifacts stage passphrase.json, seed.seco and unsafe-storage.json when they "
-                 "run. File is the path below exodus.wallet as the input names it, and Source File is the "
+                 "Exodus artifacts stage seed.seco, passphrase.json when present, and unsafe-storage.json "
+                 "when they run. File is the path below exodus.wallet as the input names it, and Source File is the "
                  "file's full input-relative path, which separates two wallet copies that share a profile "
                  "name. On the known data "
                  "(windows11_arm_exodus_known_20261122) the folder held passphrase.json, seed.seco, "
@@ -154,12 +168,18 @@ __artifacts_v2__ = {
                  "on all 4 rows, Modified equalled the file's NTFS last-write second on all 4 rows, and "
                  "Created is blank on all 4 rows (the tar carries no creation time). User is the folder "
                  "after Users or home in the path, empty when the path has neither, and held one profile "
-                 "folder name on all 4 rows of the known data.",
+                 "folder name on all 4 rows of the known data. On the password-protected known data "
+                 "(windows11_arm_exodus_pw_known_20261122) the folder held seed.seco, storage.seco and "
+                 "unsafe-storage.json on 3 rows, with no passphrase.json (on this wallet passphrase.json "
+                 "was present before the password was set and absent after); Time Source held tar header, "
+                 "Modified was set and Created blank on all 3 rows, and User held one profile folder name "
+                 "on all 3 rows.",
         "paths": None,
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "credit-card",
         "sample_data": {
             "windows11_arm_exodus_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20 | 4 rows",
+            "windows11_arm_exodus_pw_known_20261122": "Windows 11 build 26200 (ARM64), Exodus 26.11.20, password-protected wallet (no passphrase.json) | 3 rows",
         },
     },
 }

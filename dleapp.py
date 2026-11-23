@@ -371,7 +371,7 @@ def main():
     parser.add_argument('--exodus-password', dest='exodus_password', required=False,
                         nargs='?', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
                         help=("Password for an Exodus desktop wallet, tried as the passphrase for "
-                              "seed.seco (not exercised on known data). A wallet that kept its "
+                              "seed.seco. A wallet that kept its "
                               "auto-generated passphrase needs nothing. Accepts the password itself "
                               "or a path to a file holding it. Give the flag with no value to be "
                               "prompted without it reaching your shell history."))
