@@ -62,17 +62,18 @@ __artifacts_v2__ = {
             "so, because that assumes both were written at one UTC offset. When both files are "
             "present and one has a UTC time and the other does not, or either time is missing or "
             "unreadable, or two exFAT entries store different UTC offsets, it reads Not "
-            "established, because the two cannot be ordered. No run here produced that value. "
-            "Compiled By zsh and Compiled Entry Names are read from the compiled copy's header. "
-            "Compiled By zsh is the version recorded there, which does not prove which zsh "
-            "compiled the file. The entry name is the name given to zcompile, so it can hold a "
-            "path. On zsh_known_data_macos all 15 are bare file names. On zsh_known_data_macos "
-            "Scope is Home folder and User is dleapp on all 18 rows, because each case is one "
-            "home folder. On dleapp_macos_bigsur the two rows are /private/etc/zprofile and "
-            "/private/etc/zshrc, plaintext with no compiled copy, and the artifact reports no "
-            "user startup file and no compiled copy there, so Compiled Copy Modified, Compiled By"
-            " zsh, Compiled Entry Names, Compiled Copy Size, Compiled Copy Path and User are "
-            "empty there."),
+            "established, because the two cannot be ordered. A synthetic zip with one file of "
+            "each kind, and one holding a date that does not exist, gave that value under UTC and"
+            " Asia/Tokyo. Compiled By zsh and Compiled Entry Names are read from the compiled "
+            "copy's header. Compiled By zsh is the version recorded there, which does not prove "
+            "which zsh compiled the file. The entry name is the name given to zcompile, so it can"
+            " hold a path. On zsh_known_data_macos all 15 are bare file names. On "
+            "zsh_known_data_macos Scope is Home folder and User is dleapp on all 18 rows, because"
+            " each case is one home folder. On dleapp_macos_bigsur the two rows are "
+            "/private/etc/zprofile and /private/etc/zshrc, plaintext with no compiled copy, and "
+            "the artifact reports no user startup file and no compiled copy there, so Compiled "
+            "Copy Modified, Compiled By zsh, Compiled Entry Names, Compiled Copy Size, Compiled "
+            "Copy Path and User are empty there."),
         "paths": ('*/.zshenv', '*/.zshenv.zwc', '*/.zprofile', '*/.zprofile.zwc', '*/.zshrc',
                   '*/.zshrc.zwc', '*/.zlogin', '*/.zlogin.zwc', '*/.zlogout', '*/.zlogout.zwc',
                   '*/etc/zshenv', '*/etc/zshenv.zwc', '*/etc/zprofile', '*/etc/zprofile.zwc',
@@ -215,10 +216,9 @@ __artifacts_v2__ = {
     },
 }
 
-import calendar
 import os
 import posixpath
-import time
+from datetime import datetime
 
 from scripts.context import Context
 from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, logfunc
@@ -278,7 +278,9 @@ def _comparable(plain, compiled):
         return plain[0] // 1, compiled[0] // 1
     if plain[0] is None and compiled[0] is None and plain[1] and compiled[1]:
         try:
-            return tuple(calendar.timegm(time.strptime(reading[:19], '%Y-%m-%d %H:%M:%S'))
+            # datetime refuses a date that does not exist, such as February 30
+            return tuple(int((datetime.strptime(reading[:19], '%Y-%m-%d %H:%M:%S')
+                              - datetime(1970, 1, 1)).total_seconds())
                          for reading in (plain[1], compiled[1]))
         except ValueError:
             return None
@@ -288,7 +290,7 @@ def _comparable(plain, compiled):
 def _when(epoch):
     try:
         return convert_ts_int_to_utc(int(epoch // 1)) if epoch is not None else ''
-    except OverflowError:
+    except (OverflowError, ValueError):
         return ''
 
 

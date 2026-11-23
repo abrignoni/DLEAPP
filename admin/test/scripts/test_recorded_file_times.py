@@ -60,14 +60,15 @@ class RecordedFileTimes(unittest.TestCase):
         self.check(FileInfo('f', 0, 0, times=StagedTimes(modified=0, modified_no_zone=READING)), (None, READING))
         self.check(FileInfo('f', 0, 0), (None, ''))
 
-    def test_a_shown_time_rounds_down_and_is_not_rescaled(self):
-        for name in MODULES:
-            module = importlib.import_module(f'scripts.artifacts.{name}')
-            convert = getattr(module, '_utc', None) or getattr(module, '_sec_to_utc', None)
-            if convert is None:
-                continue
+    def test_a_shown_time_is_not_rescaled_and_a_bad_one_is_blank(self):
+        # zsh shows whole seconds, rounded down; the ChatGPT memories keep the fraction
+        shown = {'macosZsh': ('_when', datetime(1969, 12, 31, 23, 59, 59, tzinfo=timezone.utc)),
+                 'chatgptComputerHistory': ('_utc', datetime(1969, 12, 31, 23, 59, 59, 500000, tzinfo=timezone.utc))}
+        self.assertEqual(set(shown), set(MODULES))
+        for name, (helper, before_1970) in shown.items():
+            convert = getattr(importlib.import_module(f'scripts.artifacts.{name}'), helper)
             with self.subTest(module=name):
-                self.assertEqual(convert(-0.5), datetime(1969, 12, 31, 23, 59, 59, tzinfo=timezone.utc))
+                self.assertEqual(convert(-0.5), before_1970)
                 self.assertEqual(convert(10_000_000_000), datetime(2286, 11, 20, 17, 46, 40, tzinfo=timezone.utc))
                 for bad in (1e20, float('inf'), float('-inf'), float('nan')):
                     self.assertEqual(convert(bad), '')

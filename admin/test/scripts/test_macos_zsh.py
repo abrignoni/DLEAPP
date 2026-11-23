@@ -132,6 +132,10 @@ class RecordedTimesTest(unittest.TestCase):
         self.assertIsNone(self.comparable((None, '2024-13-01 12:00:00'),
                                           (None, '2024-06-01 12:00:00')))
 
+    def test_a_date_that_does_not_exist_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((None, '2024-02-30 12:00:00'),
+                                          (None, '2024-06-01 12:00:00')))
+
 
 class StoredOffsetTest(unittest.TestCase):
     """Two exFAT readings with different stored offsets cannot be compared as wall clocks."""

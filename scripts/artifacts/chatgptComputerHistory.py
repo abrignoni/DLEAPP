@@ -190,6 +190,16 @@ def _segment_folder(path):
     return os.path.basename(os.path.dirname(path))
 
 
+def _utc(seconds):
+    """Unix seconds as a UTC datetime, "" for none or a value datetime cannot hold."""
+    if seconds is None:
+        return ""
+    try:
+        return datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds)
+    except (OverflowError, ValueError):
+        return ""
+
+
 def _usable(value):
     """Whether a recorded time is a nonzero, finite number."""
     return isinstance(value, (int, float)) and value != 0 and value == value and abs(value) != float('inf')
@@ -335,10 +345,7 @@ def chatgptComputerHistoryMemories(context):
             slug = ""
 
         seconds, no_zone = _file_times(context.get_seeker(), path)
-        try:
-            modified = datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds) if seconds else ""
-        except OverflowError:
-            modified = ""
+        modified = _utc(seconds)
 
         data_list.append((
             stamp,
