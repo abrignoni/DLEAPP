@@ -218,6 +218,7 @@ __artifacts_v2__ = {
 
 import os
 import posixpath
+import re
 from datetime import datetime
 
 from scripts.context import Context
@@ -227,6 +228,7 @@ from scripts.macos_zsh import compiled_copy_selected, read_history, read_zwc, se
 
 _STARTUP = ('.zshenv', '.zprofile', '.zshrc', '.zlogin', '.zlogout')
 _TEMPLATES = '/System/Library/Templates/'
+_READING = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(?:\.\d+)?')
 
 
 def _relative(context, path):
@@ -275,13 +277,17 @@ def _comparable(plain, compiled):
     in whole seconds as zsh compares them. One of each, or a missing time, cannot be ordered.
     """
     if plain[0] is not None and compiled[0] is not None:
+        if _when(plain[0]) == '' or _when(compiled[0]) == '':
+            return None  # a time no date can show cannot decide which copy runs
         return plain[0] // 1, compiled[0] // 1
     if plain[0] is None and compiled[0] is None and plain[1] and compiled[1]:
+        matches = [_READING.fullmatch(reading) for reading in (plain[1], compiled[1])]
+        if not all(matches):
+            return None
         try:
             # datetime refuses a date that does not exist, such as February 30
-            return tuple(int((datetime.strptime(reading[:19], '%Y-%m-%d %H:%M:%S')
-                              - datetime(1970, 1, 1)).total_seconds())
-                         for reading in (plain[1], compiled[1]))
+            return tuple(int((datetime.strptime(match.group(1), '%Y-%m-%d %H:%M:%S')
+                              - datetime(1970, 1, 1)).total_seconds()) for match in matches)
         except ValueError:
             return None
     return None

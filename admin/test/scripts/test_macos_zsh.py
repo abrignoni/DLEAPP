@@ -132,6 +132,14 @@ class RecordedTimesTest(unittest.TestCase):
         self.assertIsNone(self.comparable((None, '2024-13-01 12:00:00'),
                                           (None, '2024-06-01 12:00:00')))
 
+    def test_a_malformed_reading_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((None, '2024-06-01 12:00:02.bad'),
+                                          (None, '2024-06-01 12:00:00')))
+
+    def test_a_utc_time_no_date_can_show_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((1e20, ''), (100, '')))
+        self.assertIsNone(self.comparable((100, ''), (1e20, '')))
+
     def test_a_date_that_does_not_exist_cannot_be_ordered(self):
         self.assertIsNone(self.comparable((None, '2024-02-30 12:00:00'),
                                           (None, '2024-06-01 12:00:00')))
