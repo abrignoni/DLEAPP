@@ -158,7 +158,7 @@ __artifacts_v2__ = {
 
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from scripts.chatgpt_skysight import (
     EVENT_HEADERS,
@@ -324,8 +324,8 @@ def chatgptComputerHistoryMemories(context):
 
         seconds, no_zone = _file_times(context.get_seeker(), path)
         try:
-            modified = datetime.fromtimestamp(seconds, tz=timezone.utc) if seconds else ""
-        except (OSError, OverflowError, ValueError):
+            modified = datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=seconds) if seconds else ""
+        except OverflowError:
             modified = ""
 
         data_list.append((

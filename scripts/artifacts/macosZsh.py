@@ -275,7 +275,7 @@ def _comparable(plain, compiled):
 
 def _when(epoch):
     try:
-        return convert_ts_int_to_utc(int(epoch)) if epoch is not None else ''
+        return convert_ts_int_to_utc(int(epoch // 1)) if epoch is not None else ''
     except OverflowError:
         return ''
 
