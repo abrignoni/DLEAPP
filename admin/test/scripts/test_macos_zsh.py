@@ -9,6 +9,7 @@ import base64
 import pathlib
 import sys
 import unittest
+from types import SimpleNamespace
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -130,6 +131,29 @@ class RecordedTimesTest(unittest.TestCase):
         self.assertIsNone(self.comparable((None, ''), (None, '2024-06-01 12:00:00')))
         self.assertIsNone(self.comparable((None, '2024-13-01 12:00:00'),
                                           (None, '2024-06-01 12:00:00')))
+
+
+class StoredOffsetTest(unittest.TestCase):
+    """Two exFAT readings with different stored offsets cannot be compared as wall clocks."""
+
+    offset = staticmethod(macosZsh._modified_offset)  # pylint: disable=protected-access
+
+    @staticmethod
+    def seeker(path, offsets):
+        return SimpleNamespace(file_infos={path: SimpleNamespace(times=SimpleNamespace(utc_offsets=offsets))})
+
+    def test_the_modified_offset_is_read_from_the_stored_text(self):
+        seeker = self.seeker('/f', 'modified -05:00; created -04:00; accessed -04:00')
+        self.assertEqual(self.offset(seeker, '/f'), '-05:00')
+
+    def test_no_stored_offset_is_empty(self):
+        self.assertEqual(self.offset(self.seeker('/f', None), '/f'), '')
+        self.assertEqual(self.offset(self.seeker('/f', 'created -04:00'), '/f'), '')
+        self.assertEqual(self.offset(None, '/f'), '')
+
+    def test_a_windows_spelling_finds_the_record(self):
+        seeker = self.seeker('\\\\?\\C:\\out\\f', 'modified +01:00')
+        self.assertEqual(self.offset(seeker, 'C:/out/f'), '+01:00')
 
 
 class SessionTest(unittest.TestCase):

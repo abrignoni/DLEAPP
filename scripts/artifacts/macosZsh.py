@@ -58,16 +58,17 @@ __artifacts_v2__ = {
             " the times the operating system reports for those files on the examiner's machine, "
             "including any conversion it applied, and whatever copied the files there may have "
             "set them. The staged copy's own time is not reported. When both files have only a "
-            "reading with no zone, Copy zsh Selects compares the two as stored, which assumes one"
-            " clock wrote them. When both files are present and one has a UTC time and the other "
-            "does not, or either time is missing or unreadable, it reads Not established, because"
-            " the two cannot be ordered. No run here produced that value. Compiled By zsh and "
-            "Compiled Entry Names are read from the compiled copy's header. Compiled By zsh is "
-            "the version recorded there, which does not prove which zsh compiled the file. The "
-            "entry name is the name given to zcompile, so it can hold a path. On "
-            "zsh_known_data_macos all 15 are bare file names. On zsh_known_data_macos Scope is "
-            "Home folder and User is dleapp on all 18 rows, because each case is one home folder."
-            " On dleapp_macos_bigsur the two rows are /private/etc/zprofile and "
+            "reading with no zone, Copy zsh Selects compares the two as stored, and Reason says "
+            "so, because that assumes both were written at one UTC offset. When both files are "
+            "present and one has a UTC time and the other does not, or either time is missing or "
+            "unreadable, or two exFAT entries store different UTC offsets, it reads Not "
+            "established, because the two cannot be ordered. No run here produced that value. "
+            "Compiled By zsh and Compiled Entry Names are read from the compiled copy's header. "
+            "Compiled By zsh is the version recorded there, which does not prove which zsh "
+            "compiled the file. The entry name is the name given to zcompile, so it can hold a "
+            "path. On zsh_known_data_macos all 15 are bare file names. On zsh_known_data_macos "
+            "Scope is Home folder and User is dleapp on all 18 rows, because each case is one "
+            "home folder. On dleapp_macos_bigsur the two rows are /private/etc/zprofile and "
             "/private/etc/zshrc, plaintext with no compiled copy, and the artifact reports no "
             "user startup file and no compiled copy there, so Compiled Copy Modified, Compiled By"
             " zsh, Compiled Entry Names, Compiled Copy Size, Compiled Copy Path and User are "
@@ -232,17 +233,22 @@ def _relative(context, path):
     return '/' + context.get_relative_path(str(path)).replace('\\', '/').lstrip('/')
 
 
+def _file_info(seeker, path):
+    """The FileInfo the seeker recorded for a staged path, in any spelling a run uses."""
+    infos = getattr(seeker, 'file_infos', None) or {}
+    windows = str(path).replace('/', '\\')
+    bare = windows.removeprefix('\\\\?\\')
+    return next((infos[name] for name in (str(path), windows, bare, '\\\\?\\' + bare)
+                 if name in infos), None)
+
+
 def _file_times(seeker, path):
     """(UTC seconds, reading with no zone) the input records for a staged file.
 
     The staged copy's own time is not used: for a FAT, exFAT or DOS-only zip reading it is
     that reading placed in the examiner's time zone.
     """
-    infos = getattr(seeker, 'file_infos', None) or {}
-    windows = str(path).replace('/', '\\')
-    bare = windows.removeprefix('\\\\?\\')
-    info = next((infos[name] for name in (str(path), windows, bare, '\\\\?\\' + bare)
-                 if name in infos), None)
+    info = _file_info(seeker, path)
     times = getattr(info, 'times', None)
     for value in (getattr(times, 'modified', None), getattr(info, 'modification_date', None)):
         if isinstance(value, (int, float)) and value:
@@ -268,7 +274,20 @@ def _comparable(plain, compiled):
 
 
 def _when(epoch):
-    return convert_ts_int_to_utc(int(epoch)) if epoch is not None else ''
+    try:
+        return convert_ts_int_to_utc(int(epoch)) if epoch is not None else ''
+    except OverflowError:
+        return ''
+
+
+def _modified_offset(seeker, path):
+    """The UTC offset an exFAT entry stores beside its modification time, as text, or ''."""
+    offsets = getattr(getattr(_file_info(seeker, path), 'times', None), 'utc_offsets', None) or ''
+    for part in offsets.split(';'):
+        label, _, value = part.strip().partition(' ')
+        if label == 'modified':
+            return value
+    return ''
 
 
 def _read_bytes(path):
@@ -345,10 +364,15 @@ def macosZshStartupFiles(context):
             chosen, reason = False, 'compiled copy could not be read'
         elif plain and compiled and any(entry['tail'] == sourced_name for entry in compiled['entries']):
             order = _comparable(plain_times, compiled_times)
+            as_stored = order is not None and plain_times[0] is None
+            if as_stored and _modified_offset(seeker, plain) != _modified_offset(seeker, compiled_path):
+                order = None
             if order is None:
                 chosen, reason = None, 'plaintext and compiled copy times cannot be ordered'
             else:
                 chosen, reason = compiled_copy_selected(order[0], order[1], compiled, sourced_name)
+                if as_stored:
+                    reason += ' (readings compared as stored, assuming one UTC offset)'
         else:
             # no compiled copy, no entry of this name, or no plaintext: no time is compared
             chosen, reason = compiled_copy_selected(plain_times[0], compiled_times[0], compiled, sourced_name)
