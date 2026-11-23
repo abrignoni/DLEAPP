@@ -250,10 +250,17 @@ def _file_times(seeker, path):
     """
     info = _file_info(seeker, path)
     times = getattr(info, 'times', None)
-    for value in (getattr(times, 'modified', None), getattr(info, 'modification_date', None)):
-        if isinstance(value, (int, float)) and value:
-            return value, ''
-    return None, getattr(times, 'modified_no_zone', None) or ''
+    modified = getattr(times, 'modified', None)
+    if isinstance(modified, (int, float)) and modified:
+        return modified, ''
+    # a reading with no zone comes before the older field, which is never read as its UTC time
+    reading = getattr(times, 'modified_no_zone', None)
+    if reading:
+        return None, reading
+    modified = getattr(info, 'modification_date', None)
+    if isinstance(modified, (int, float)) and modified:
+        return modified, ''
+    return None, ''
 
 
 def _comparable(plain, compiled):
