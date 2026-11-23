@@ -14,6 +14,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from scripts import macos_zsh  # pylint: disable=wrong-import-position
+from scripts.artifacts import macosZsh  # pylint: disable=wrong-import-position
 
 ZSHRC_ZWC = base64.b64decode(
     'BwYFBAC4AAA1LjkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAGYAAAAAAAAAMAAAAAgAAAAA'
@@ -106,6 +107,29 @@ class HistoryTest(unittest.TestCase):
 
     def test_empty_file(self):
         self.assertEqual(macos_zsh.read_history(b''), [])
+
+
+class RecordedTimesTest(unittest.TestCase):
+    """What the startup files artifact hands the compiled-copy rule."""
+
+    comparable = staticmethod(macosZsh._comparable)  # pylint: disable=protected-access
+
+    def test_two_utc_times_compare_directly(self):
+        self.assertEqual(self.comparable((100, ''), (160, '')), (100, 160))
+
+    def test_two_readings_with_no_zone_compare_as_stored(self):
+        plain, compiled = self.comparable((None, '2024-06-01 12:00:00'),
+                                          (None, '2024-06-01 12:00:02.50'))
+        self.assertEqual(compiled - plain, 2)
+
+    def test_a_utc_time_and_a_reading_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((100, ''), (None, '2024-06-01 12:00:00')))
+        self.assertIsNone(self.comparable((None, '2024-06-01 12:00:00'), (100, '')))
+
+    def test_a_missing_or_malformed_time_cannot_be_ordered(self):
+        self.assertIsNone(self.comparable((None, ''), (None, '2024-06-01 12:00:00')))
+        self.assertIsNone(self.comparable((None, '2024-13-01 12:00:00'),
+                                          (None, '2024-06-01 12:00:00')))
 
 
 class SessionTest(unittest.TestCase):
