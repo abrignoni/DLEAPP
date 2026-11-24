@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
@@ -105,7 +105,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
@@ -176,7 +176,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
@@ -263,7 +263,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-03",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\CBS\\CBS.log, the older logs kept beside it (CbsPersist_<date>.log and "
                  "CbsPersist_<date>.cab, the names seen on the tested images) and Windows\\Panther\\cbs.log. Microsoft "
@@ -347,7 +347,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads Windows\\Logs\\DISM\\dism.log. One row per '<----- Starting Dism.exe session ----->' or '<----- "
                  "Starting DismApi.dll session ----->' line. Command Line is the first 'DISM.EXE: Executing command line' "

@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-02",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "Decrypts the encrypted_value column of the cookies table of each Windows "
                  "Chromium Cookies database (<profile>/Cookies on older releases, "

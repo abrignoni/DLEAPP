@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": ("Reads ExplorerStartupLog.etl and ExplorerStartupLog_RunOnce.etl from a user profile's "
                   'AppData\\Local\\Microsoft\\Windows\\Explorer folder with scripts/etl.py, which names the source of each '
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": ("One row per ExplorerStartupLog.etl or ExplorerStartupLog_RunOnce.etl read from a user profile's "
                   'AppData\\Local\\Microsoft\\Windows\\Explorer folder with scripts/etl.py, which names the source of each '

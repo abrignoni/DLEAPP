@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Persistence (macOS)",
+        "category": "macOS - Persistence",
         "platforms": ("macOS",),
         "notes": "Reads the property lists in every Library/LaunchAgents and "
                  "Library/LaunchDaemons folder the paths match, among them "

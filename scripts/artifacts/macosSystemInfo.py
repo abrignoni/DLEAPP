@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "System Information (macOS)",
+        "category": "macOS - System Information",
         "platforms": ("macOS",),
         "notes": "Reads SystemVersion.plist in a volume's own System/Library/CoreServices folder, and the "
                  "SystemConfiguration preferences.plist, .GlobalPreferences.plist and "

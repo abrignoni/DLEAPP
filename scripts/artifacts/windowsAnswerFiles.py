@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads the Windows Setup answer files Windows\\Panther\\unattend.xml, "
                  "Windows\\Panther\\Unattend\\Unattend.xml or Autounattend.xml, and "

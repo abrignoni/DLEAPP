@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none (vendored regfprobe)",
-        "category": "PuTTY",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": ('Read from Software\\SimonTatham\\PuTTY in each NTUSER.DAT under Users and under '
                   'Windows/ServiceProfiles; the PuTTY manual gives that key as where PuTTY for Windows stores saved '
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none (vendored regfprobe)",
-        "category": "PuTTY",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": ('Read from Software\\SimonTatham\\PuTTY in each NTUSER.DAT under Users and under '
                   'Windows/ServiceProfiles; the PuTTY manual gives that key as where PuTTY for Windows stores saved '
@@ -165,7 +165,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none (vendored regfprobe)",
-        "category": "PuTTY",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": ('Read from Software\\SimonTatham\\PuTTY in each NTUSER.DAT under Users and under '
                   'Windows/ServiceProfiles; the PuTTY manual gives that key as where PuTTY for Windows stores saved '

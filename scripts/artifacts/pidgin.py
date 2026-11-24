@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Pidgin",
+        "category": "Messaging",
         "platforms": ("Windows", "Linux"),
         "notes": "Read from the Pidgin 2.14.14 source and checked on known data (corpus key "
                  "windows11_arm_pidgin_known_20261121: Pidgin 2.14.14 on Windows 11 with one XMPP test account "
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Pidgin",
+        "category": "Messaging",
         "platforms": ("Windows", "Linux"),
         "notes": "Read from the Pidgin 2.14.14 source and checked on known data (corpus key "
                  "windows11_arm_pidgin_known_20261121: Pidgin 2.14.14 on Windows 11 with one XMPP test account "
@@ -110,7 +110,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Pidgin",
+        "category": "Messaging",
         "platforms": ("Windows", "Linux"),
         "notes": "Read from the Pidgin 2.14.14 source and checked on known data (corpus key "
                  "windows11_arm_pidgin_known_20261121: Pidgin 2.14.14 on Windows 11 with one XMPP test account "
@@ -141,7 +141,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Pidgin",
+        "category": "Messaging",
         "platforms": ("Windows", "Linux"),
         "notes": "Read from the Pidgin 2.14.14 source and checked on known data (corpus key "
                  "windows11_arm_pidgin_known_20261121: Pidgin 2.14.14 on Windows 11 with one XMPP test account "
@@ -166,7 +166,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Pidgin",
+        "category": "Messaging",
         "platforms": ("Windows", "Linux"),
         "notes": "Read from the Pidgin 2.14.14 source and checked on known data (corpus key "
                  "windows11_arm_pidgin_known_20261121: Pidgin 2.14.14 on Windows 11 with one XMPP test account "

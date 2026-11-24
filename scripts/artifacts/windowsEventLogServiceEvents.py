@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Event Logs",
         "platforms": ("Windows",),
         "notes": "Reads every Security.evtx and System.evtx the paths match with python-evtx and reports, one row "
                  "per record, the records whose provider is Microsoft-Windows-Eventlog, whatever their Event ID, but "

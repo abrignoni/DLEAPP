@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "UTF-16 values are decoded and JSON is normalized. Values are "
                  "reported in full and may contain tokens or credential-like data; "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "WebKit uses a binary structured-clone encoding. This parser does "
                  "not fully deserialize every JavaScript value type; it extracts "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "The 16-byte IDs are opaque cache keys. Atime behaves as Unix "
                  "milliseconds and ttl, when present, behaves as Unix seconds in the "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "WebKit's cache is an internal, versioned implementation format. "
                  "URLs and query parameters are reported in full. HTTP Date, content "

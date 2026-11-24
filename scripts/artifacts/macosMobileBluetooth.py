@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Connected Devices (macOS)",
+        "category": "macOS - External Devices",
         "platforms": ("macOS",),
         "notes": "Reads /Library/Bluetooth/com.apple.MobileBluetooth.ledevices.paired.db, the "
                  "database iLEAPP's Bluetooth Paired LE artifact reads on iOS. On "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Connected Devices (macOS)",
+        "category": "macOS - External Devices",
         "platforms": ("macOS",),
         "notes": "Reads /Library/Bluetooth/com.apple.MobileBluetooth.ledevices.other.db, the "
                  "database iLEAPP's Bluetooth Other LE artifact reads on iOS. A row is a device record "

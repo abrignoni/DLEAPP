@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads every file in the MetaData folder of "
                  "AppData/LocalLow/Microsoft/CryptnetUrlCache in any profile the declared path "
@@ -103,7 +103,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": ("Reads the same MetaData and Content files as CryptnetUrlCache, which gives each entry's URL and "
                   'other fields; Profile Folder and Cache File identify the entry in both. An OCSP request sent with '

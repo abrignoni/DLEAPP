@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-WindowsUpdateClient%4Operational.evtx the paths match with "
                  "python-evtx and reports, one row per record, every record whose provider is "

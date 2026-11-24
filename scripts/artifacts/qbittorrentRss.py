@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "qBittorrent",
+        "category": "Peer-to-Peer",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per feed in rss/feeds.json. Key names come from qBittorrent at commit "
                  "9213075dd5f7b352208361c6a84c1c115efc898e (release-5.3.0, src/base/rss/rss_feed.cpp, "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "qBittorrent",
+        "category": "Peer-to-Peer",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per article in rss/articles/<feed UID>.json. Key names come from qBittorrent at "
                  "commit 9213075dd5f7b352208361c6a84c1c115efc898e (release-5.3.0, src/base/rss/rss_article.cpp "
@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "qBittorrent",
+        "category": "Peer-to-Peer",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per rule in rss/download_rules.json. Key names come from qBittorrent at commit "
                  "9213075dd5f7b352208361c6a84c1c115efc898e (release-5.3.0, "

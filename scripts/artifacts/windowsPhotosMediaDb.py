@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Windows Photos",
+        "category": "Photos & Media",
         "platforms": ("Windows",),
         "notes": "Reads MediaDb.v1.sqlite, the library database of the Windows Photos app, in the LocalState folder "
                  "of the Microsoft.Windows.Photos package of each user, with its write-ahead log. The app's source "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Windows Photos",
+        "category": "Photos & Media",
         "platforms": ("Windows",),
         "notes": "Reads MediaDb.v1.sqlite, the library database of the Windows Photos app, in the LocalState folder "
                  "of the Microsoft.Windows.Photos package of each user, with its write-ahead log. The app's source "

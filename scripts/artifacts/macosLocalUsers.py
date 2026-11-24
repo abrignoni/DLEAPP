@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Accounts (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": "Read from the account records under private/var/db/dslocal/nodes/Default/users, one "
                  "property list per account whose values are arrays, the location Velociraptor's "
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-12",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Accounts (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": (
             'One row per macOS local account that stores a picture path or an embedded image: a record under '
@@ -147,7 +147,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-12",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Accounts (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": (
             'One row per scheme key a macOS local account stores in ShadowHashData: a record under '

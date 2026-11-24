@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per object of the kind com.webos.service.usercontextmanager.app:1, including older "
                  "versions still in the store's files. Start Time (UTC) and End Time (UTC) read startTimeStamp "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per object of the kind com.webos.service.usercontextmanager.channel:1, including "
                  "older versions still in the store's files. Start Time (UTC) and End Time (UTC) read startTimeStamp "
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per object of the kind com.webos.launcher.recentsitems:1, including older versions and records whose key has a LevelDB "
                  "deletion as its newest record, which the Record Status column marks as Removed. Title, "
@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per entry of accountInfoList in each object of the kind "
                  "com.webos.service.iotclient.req:1, or one row with the account columns blank when the list is "
@@ -120,7 +120,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per object of the kind com.webos.membership.db:1, including older versions and records whose key has a "
                  "LevelDB deletion as its newest record. Key and Value are the key and value fields as stored. "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the kinds com.webos.service.pbs.stb.ch:1 and com.webos.service.tv.channel.dblist:1, "
                  "including older versions, and reports a channel only when favoriteGroup is not empty, one "
@@ -169,7 +169,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the kind com.webos.settings.system:1, including older versions, so a value that changed can show both readings. "
                  "One row is reported per key of an object's value field when it is an object, and one row "
@@ -197,7 +197,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per object, including older versions, of these kinds: "
                  "com.webos.notificationhistory:1, com.webos.secondscreen.gateway.clientprofile:1, "
@@ -228,7 +228,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per kind per store: every kind the store's indexIds.db part gives a kind token, and "
                  "any kind named by a record in objects.db. Owner is the owner field of the kind's own record "

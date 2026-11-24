@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads renderer log lines that name [Routing/Utils] and Transitioning to "
                  "/channels/<server>/<channel>, with an optional message ID. A route with @me in place of "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Event is the bracketed tag after [GatewaySocket], title-cased: discord_macos held "
                  "Connect, Connected, Resume, Resumed, Ws Closed, Ready, Fast Connect, Reset and Ack "

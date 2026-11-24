@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -133,7 +133,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -188,7 +188,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -237,7 +237,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -292,7 +292,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -346,7 +346,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -401,7 +401,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -461,7 +461,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -515,7 +515,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "
@@ -570,7 +570,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "KnowledgeC (macOS)",
+        "category": "macOS - KnowledgeC",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were derived independently, using the store's "
                  "schema, measured data and Apple's code. Apple's stream definition describes "

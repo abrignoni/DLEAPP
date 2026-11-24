@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the RunMRU key in each NTUSER.DAT, named in Source "
                  "File. Command is a value's data with the trailing \\1 marker "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the TypedPaths key in each NTUSER.DAT, named in "
                  "Source File. Typed Path is a value's data. Entry is the value "
@@ -118,7 +118,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the Internet Explorer TypedURLs key in each "
                  "NTUSER.DAT, named in Source File. Typed URL is a value's data. "
@@ -161,7 +161,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the WordWheelQuery key in each NTUSER.DAT, named in "
                  "Source File. Search Term is a numbered value's data, a UTF-16 "
@@ -203,7 +203,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the OpenSavePidlMRU key in each NTUSER.DAT, named in "
                  "Source File. File Type is the extension sub-key the entry sits "
@@ -251,7 +251,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the LastVisitedPidlMRU key in each NTUSER.DAT, named "
                  "in Source File. Application is the executable name the entry "

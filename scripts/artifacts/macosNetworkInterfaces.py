@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Networks (macOS)",
+        "category": "macOS - Network & Connectivity",
         "platforms": ("macOS",),
         "notes": (
             'One row per entry of the Interfaces array of '

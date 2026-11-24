@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "File Provider (macOS)",
+        "category": "macOS - File System",
         "platforms": ("macOS",),
         "notes": "One row per FP_snapshot record in each "
                  "Library/Application Support/FileProvider/<domain>/database/db, the SQLite "

@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Installed Apps",
         "platforms": ("Windows",),
         "notes": "Reads the PackageUser table of StateRepository-Machine.srd, one row per package "
                  "registered for a user, joined to its Package and User rows. Package Name, Version, "

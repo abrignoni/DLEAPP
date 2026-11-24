@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Virtual Machines",
+        "category": "Multi-platform - Virtual Machines",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per .vbox file, read as XML. .vbox-prev files are not read. Last State Change is the "
                  "Machine element's lastStateChange, shown as UTC. A value in any other form is left blank. Run on"
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Virtual Machines",
+        "category": "Multi-platform - Virtual Machines",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per MachineEntry in VirtualBox.xml, in the per-user folders the VirtualBox manual names:"
                  " .VirtualBox on Windows, .config/VirtualBox on Linux and Library/VirtualBox on macOS. The manual"
@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Virtual Machines",
+        "category": "Multi-platform - Virtual Machines",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per .vmx file holding a displayName, guestOS or virtualHW.version key. Keys are matched "
                  "without regard to case. The file is decoded with the character set its .encoding key names, or "

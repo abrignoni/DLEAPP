@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "Reads each .trashinfo file in the info folder of a Trash folder laid out by the freedesktop.org "
                  "Trash specification: the home Trash, $XDG_DATA_HOME/Trash "

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Accounts (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads each /etc/passwd the paths match, apart from the macOS copies described below, "
                  "one row per account line in file order, with group names from the /etc/group in the "

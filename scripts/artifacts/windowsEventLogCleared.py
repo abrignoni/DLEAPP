@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Event Logs",
         "platforms": ("Windows",),
         "notes": "Read from the Security and System event logs, named in the report's located-at line. Each row is "
                  "one record the event log service (provider Microsoft-Windows-Eventlog) wrote when a log was "

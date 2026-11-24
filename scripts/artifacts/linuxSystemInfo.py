@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "System (Linux)",
+        "category": "Linux - System Information",
         "platforms": ("Linux",),
         "notes": "Reads /etc/os-release, /usr/lib/os-release, /etc/lsb-release, /etc/debian_version, /etc/hostname, "
                  "/etc/machine-id, /var/lib/dbus/machine-id, /etc/timezone and /etc/localtime wherever they sit in "

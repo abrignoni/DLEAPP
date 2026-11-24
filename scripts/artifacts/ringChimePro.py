@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Ring (Chime Pro)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per file in a var/ring/properties folder, in home/root/sys/properties, or in the "
                  "properties or reboot_tmp_prop folder of the volume named ubifs_system, plus that volume's "
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Ring (Chime Pro)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per network.config or network.config_backup file in the properties folders Ring "
                  "Chime Pro Properties reads. After the two whole numbers the file is read as a JSON object; "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Ring (Chime Pro)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "One row per non-empty line of ring.conf in the volume named ubifs_system. Key is the text "
                  "before the first space and Value the rest, as stored; a line with no space is its own Key "
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Ring (Chime Pro)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads var/lib/misc/udhcpd.leases only in a volume that also holds var/ring/properties, so a "
                  "lease file from another Linux device gives no rows; the run log counts any skipped. busybox "
@@ -128,7 +128,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Ring (Chime Pro)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads webSvr/logs/error.log only in a volume that also holds var/ring/properties; the run log "
                  "counts any skipped. lighttpd 1.4.41, logging to a file, starts each line with the local "

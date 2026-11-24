@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Event Logs",
         "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Event Logs",
         "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
@@ -298,7 +298,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Event Logs",
         "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
@@ -437,7 +437,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Event Logs",
         "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '
@@ -566,7 +566,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Event Logs",
         "platforms": ("Windows",),
         "notes": 'Read from ProgramData\\Microsoft\\Diagnosis\\EventTranscript\\EventTranscript.db with its '
                  'write-ahead log when one is beside it; Source File names the database each row came from, since '

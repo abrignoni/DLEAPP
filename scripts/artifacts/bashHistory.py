@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Command Line (bash)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each .bash_history the paths match, one row per line in file order "
                  "that is not a time stamp, with the line's number in the file. Readline "

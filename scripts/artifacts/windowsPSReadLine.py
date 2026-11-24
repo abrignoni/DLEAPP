@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Command Line",
         "platforms": ("Windows",),
         "notes": "Read from AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\"
                  "<host name>_history.txt, the path PSReadLine builds on Windows from the "

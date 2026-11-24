@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "File System (Windows)",
+        "category": "Windows - File System",
         "platforms": ("Windows",),
         "notes": "One row per USN_RECORD_V2 or USN_RECORD_V3 in each $Extend/$UsnJrnl:$J stream "
                  "a raw image or E01 holds, which the raw image seeker lists from its first "

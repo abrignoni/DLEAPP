@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Network & Connectivity",
         "platforms": ("Windows",),
         "notes": "Reads Windows\\System32\\drivers\\etc\\hosts, one row per line that holds an "
                  "address. The comment block of the default file describes the format: each entry "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Networks (macOS)",
+        "category": "macOS - Network & Connectivity",
         "platforms": ("macOS",),
         "notes": "Reads private/etc/hosts, one row per line that holds an address, and skips the "
                  "copy under System/Library/Templates. Apple's hosts(5) describes the format: one "
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Networks (Linux)",
+        "category": "Linux - Network & Connectivity",
         "platforms": ("Linux",),
         "notes": "Reads etc/hosts wherever the extraction holds one, one row per line that holds "
                  "an address. It skips the macOS private/etc/hosts, including its template copy, "

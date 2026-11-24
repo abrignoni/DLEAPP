@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Maps (macOS)",
+        "category": "Locations & Maps",
         "platforms": ("macOS",),
         "notes": "Reads the ZHISTORYITEM table of MapsSync_0.0.1 in each user's "
                  "Library/Containers/com.apple.Maps/Data/Maps, with its -wal: on maps_known_data_macos27 every row is "
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Maps (macOS)",
+        "category": "Locations & Maps",
         "platforms": ("macOS",),
         "notes": "Reads the ZFAVORITEITEM table of MapsSync_0.0.1 in each user's "
                  "Library/Containers/com.apple.Maps/Data/Maps, with its -wal. On maps_known_data_macos27, recorded "
@@ -124,7 +124,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-16",
         "last_update_date": "2026-11-16",
         "requirements": "none",
-        "category": "Maps (macOS)",
+        "category": "Locations & Maps",
         "platforms": ("macOS",),
         "notes": "Reads the ZCOLLECTIONITEM table of MapsSync_0.0.1 in each user's "
                  "Library/Containers/com.apple.Maps/Data/Maps, with its -wal, one output row per table row. On "

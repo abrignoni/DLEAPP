@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the Bookmarks and AccountBookmarks JSON files of each Chromium-based browser "
                  "profile, the two file names in bookmark_constants.cc "

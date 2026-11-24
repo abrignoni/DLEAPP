@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give the token elevation type its text",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
                  "Microsoft-Windows-Security-Auditing records with Event ID 4688 are read. Microsoft "

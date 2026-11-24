@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Command Line (wget)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the HSTS store GNU Wget keeps as .wget-hsts in the home folder (Reference: GNU Wget "
                  "1.25.0, 'src/main.c' lines 173 to 186, https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz); a store "

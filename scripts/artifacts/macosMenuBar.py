@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Menu Bar (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": (
             "One row per item per file, for each item named by an NSStatusItem key of a user's "
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Menu Bar (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": (
             "One row per entry of the menuExtras list of a user's com.apple.systemuiserver.plist, as stored. "

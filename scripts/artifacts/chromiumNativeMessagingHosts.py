@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none (vendored regfprobe)",
-        "category": "Chromium",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "Reads, in the SOFTWARE hive, Google\\Chrome\\NativeMessagingHosts and "
                  "Chromium\\NativeMessagingHosts at the hive root and under WOW6432Node, and in each NTUSER.DAT the "
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none",
-        "category": "Chromium",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads every .json file in a folder named NativeMessagingHosts or native-messaging-hosts. The "
                  "Chromium source and the Chrome documentation give these folders for Chrome and Chromium: on "

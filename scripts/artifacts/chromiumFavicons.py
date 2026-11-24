@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each Chromium-based browser profile's Favicons database, one row per "
                  "icon_mapping row, which Chromium's source describes as a page URL and the ID of an "

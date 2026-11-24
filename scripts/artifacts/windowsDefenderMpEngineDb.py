@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": (
             'Table BmProcessInfo. Process Start (UTC) is ProcessStartTime read as a FILETIME '
@@ -118,7 +118,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": (
             'Table BackupProcessInfo, which Protokol-7 describe as files and processes tracked '
@@ -231,7 +231,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": (
             'Table AttributePersistContext. Insert Time (UTC) and Expire Time (UTC) are '
@@ -337,7 +337,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": (
             'Table FileHashes. Instance Time (UTC) is InstanceTimeStamp read as a FILETIME: '
@@ -439,7 +439,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": (
             'Table FileInstance, which exists on the three Windows 10 images only and is not '
@@ -546,7 +546,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": (
             'Table RollingQueuesValues. Insert Time (UTC) and Expire Time (UTC) are InsertTime '
@@ -643,7 +643,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-17",
         "last_update_date": "2026-11-17",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": (
             'Table FileLowFiAsync, which Protokol-7 describe as file paths and signature-related '

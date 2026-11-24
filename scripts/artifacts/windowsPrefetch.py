@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "One row per prefetch file. Executable is the name stored in the "
                  "file's header. Run Count is the run count the file stores, read "
@@ -114,7 +114,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "One row per file referenced by a prefetch file, so an executable "
                  "with many loaded files produces many rows. Executable is the name "

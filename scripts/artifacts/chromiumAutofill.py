@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-03",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the autofill table of each Web Data database in a Chromium-based browser profile: "
                  "one row per stored form field name and value, with its count and dates. An "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the saved autofill addresses of each Web Data database in a Chromium-based browser "
                  "profile, one row per address, from whichever of three table layouts the database holds. Up "
@@ -301,7 +301,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per card in the credit_cards table of each Web Data database in a Chromium-based "
                  "browser profile: the cards saved on the device. The column names and the statement that "
@@ -386,7 +386,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per row of autofill_edge_field_values, a table Microsoft Edge adds to Web Data "
                  "beside Chromium's autofill table. Edge is closed source and no published schema was found, "

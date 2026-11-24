@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Spotlight (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": "The field meanings and method below were developed independently, using the file "
                  "format, measured data and Apple's code. Tested files: one each from "

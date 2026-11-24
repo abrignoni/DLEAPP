@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Microsoft says shares and their assigned share permissions are stored in "
                  "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Shares, and that the key can serve as a "

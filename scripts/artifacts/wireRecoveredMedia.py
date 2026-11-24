@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-27",
         "requirements": "PyCryptodome",
-        "category": "Wire (Windows)",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Only assets still present in an on-disk cache can be recovered. Timestamp is "
                  "the time of the confirmed version of the asset-add event, the version Wire "

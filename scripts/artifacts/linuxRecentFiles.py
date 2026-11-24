@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "Reads each recently used list GTK keeps, a recently-used.xbel file, in both places GTK has kept "
                  "it. Of the GTK releases checked, 2.10.0, 2.12.0, 2.14.0, 2.16.0, 2.18.0, 2.20.0, 2.21.0 to 2.21.2, "

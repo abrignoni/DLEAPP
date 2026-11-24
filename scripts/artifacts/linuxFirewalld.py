@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-13",
         "last_update_date": "2026-10-13",
         "requirements": "none",
-        "category": "Networks (Linux)",
+        "category": "Linux - Network & Connectivity",
         "platforms": ("Linux",),
         "notes": "Reads firewalld's main configuration file, etc/firewalld/firewalld.conf, and reports one row per "
                  "setting. The file holds Key=Value lines with lines beginning with # as comments (Reference: "
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-13",
         "last_update_date": "2026-10-13",
         "requirements": "none",
-        "category": "Networks (Linux)",
+        "category": "Linux - Network & Connectivity",
         "platforms": ("Linux",),
         "notes": "Reads the zone files under etc/firewalld/zones and reports one row per file. firewalld keeps a "
                  "zone as an XML file whose name has to be the zone name followed by .xml; a name attribute on the "

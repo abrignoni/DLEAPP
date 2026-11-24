@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-24",
         "last_update_date": "2026-10-24",
         "requirements": "none",
-        "category": "Accounts (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": "Reads authorized_applications in each user's ~/Library/Application "
                  "Support/com.apple.akd/authorization.db, joined to authorized_teams on team_id and to"
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-24",
         "last_update_date": "2026-10-24",
         "requirements": "none",
-        "category": "Accounts (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": "Reads device_list in each user's ~/Library/Application "
                  "Support/com.apple.akd/devicelist.db, the table iLEAPP's appleAccountDeviceList reads"
@@ -132,7 +132,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-24",
         "last_update_date": "2026-10-24",
         "requirements": "none",
-        "category": "Accounts (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": "Reads deleted_device_list in each user's ~/Library/Application "
                  "Support/com.apple.akd/devicelist.db. Deleted and Last Updated are deleted_date and "
@@ -167,7 +167,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-24",
         "last_update_date": "2026-10-24",
         "requirements": "none",
-        "category": "Accounts (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": "Reads the emails table (client_key, email) in each user's ~/Library/Application "
                  "Support/com.apple.akd/privateEmails.db and reports both columns as stored. What the "

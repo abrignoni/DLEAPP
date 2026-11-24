@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Printing (CUPS)",
+        "category": "Multi-platform - System Information",
         "platforms": ("macOS", "Linux"),
         "notes": "Reads the job control files CUPS keeps in its request folder, /var/spool/cups, one file per job "
                  "named c and the job number in five digits (Reference: CUPS v2.4.16, commit "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Printing (CUPS)",
+        "category": "Multi-platform - System Information",
         "platforms": ("macOS", "Linux"),
         "notes": "Reads printers.conf of the CUPS configuration folder, which cupsd writes with one section per "
                  "printer (Reference: CUPS v2.4.16, commit 7523763f00d2063f88026d93bc5b29806240de2b, "

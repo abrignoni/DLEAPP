@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-27",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "WhatsApp (Apple)",
+        "category": "Messaging",
         "platforms": ("macOS",),
         "notes": "The media kind shown is derived from the file extension recorded "
                  "in the database path; it is not verified against the file's "

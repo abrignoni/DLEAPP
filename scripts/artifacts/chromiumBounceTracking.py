@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the bounces table of each Chromium-based browser profile's DIPS database, one row "
                  "per site. The file keeps Chromium's earlier feature name; Chromium now calls the feature"
@@ -174,7 +174,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the navigation_history table of each Microsoft Edge profile's WebAssistDatabase, "
                  "one row per row. No Microsoft description of this store was found; the column headers "

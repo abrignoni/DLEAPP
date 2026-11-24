@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "File System (Windows)",
+        "category": "Windows - File System",
         "platforms": ("Windows",),
         "notes": "One row per $Boot in the extraction that starts with an NTFS boot sector, which a raw image lists "
                  "once for each NTFS volume it holds. The fields follow the Linux-NTFS documentation of the boot sector "

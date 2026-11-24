@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "CoreAnalytics (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": (
             'One row per .core_analytics file under Library/Logs/DiagnosticReports, its Retired folder '
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "CoreAnalytics (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": (
             'One row per event record of the .core_analytics files under Library/Logs/DiagnosticReports, its '

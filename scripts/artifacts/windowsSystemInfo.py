@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-30",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads the SOFTWARE hive's Microsoft\\Windows NT\\CurrentVersion and Winlogon keys and "
                  "its Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI key, and the SYSTEM "
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-02",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Reads the Services\\Tcpip\\Parameters\\Interfaces subkeys of the SYSTEM hive's control "
                  "set named by the Select key's Current value (ControlSet001 when there is none), and "

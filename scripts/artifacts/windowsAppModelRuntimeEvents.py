@@ -172,7 +172,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-AppModel-Runtime%4Admin.evtx the paths match with python-evtx and "
                  "reports, one row per record, every record whose provider is Microsoft-Windows-AppModel-Runtime, "

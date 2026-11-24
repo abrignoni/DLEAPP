@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Logs (Linux)",
+        "category": "Linux - Logs & Diagnostics",
         "platforms": ("Linux",),
         "notes": "Reads the problem reports Apport writes to its report folder, /var/crash unless the "
                  "APPORT_REPORT_DIR environment variable names another (Reference: Apport 2.34.1, commit "

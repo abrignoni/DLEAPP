@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
-        "category": "Photos (macOS)",
+        "category": "Photos & Media",
         "platforms": ("macOS",),
         "notes": "Reads each Photos library's database/Photos.sqlite, one row per ZASSET "
                  "row (ZGENERICASSET when a database has no ZASSET table; no tested image "

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLSleepWakeAgent_EventForward_PowerState from macOS PowerLog, in every .PLSQL '
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLSleepWakeAgent_EventForward_UserIdle from the PowerLog databases the '
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLApplicationAgent_EventForward_FrontmostApp from the PowerLog databases the '
@@ -147,7 +147,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLLocaleAgent_EventForward_TimeZone from the PowerLog databases the PowerLog - '
@@ -180,7 +180,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLPeripheralAgent_EventForward_ClamshellState from the PowerLog databases the '
@@ -211,7 +211,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLPeripheralAgent_EventForward_DeviceState from the PowerLog databases the '
@@ -254,7 +254,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLAudioAgent_EventForward_AudioDevice from the PowerLog databases the PowerLog '
@@ -294,7 +294,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLApplicationAgent_EventForward_AppLifecycle from the PowerLog databases the '
@@ -330,7 +330,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLProcessNetworkAgent_EventInterval_UsageDiff from the PowerLog databases the '
@@ -367,7 +367,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLDisplayAgent_Aggregate_ScreenOn from the PowerLog databases the PowerLog - '
@@ -399,7 +399,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLConfigAgent_EventNone_Config from the PowerLog databases the PowerLog - '
@@ -463,7 +463,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "PowerLog (macOS)",
+        "category": "macOS - PowerLog",
         "platforms": ("macOS",),
         "notes": (
             'Reads PLBatteryAgent_EventBackward_Battery from the PowerLog databases the PowerLog '

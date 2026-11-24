@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-09-01",
         "requirements": "none",
-        "category": "Slack (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Session tokens (xoxc-/xoxb-/xoxp-/xoxs-/xoxr-/xoxd- prefixed) "
                  "are masked to the first 8 and last 4 characters, in the "

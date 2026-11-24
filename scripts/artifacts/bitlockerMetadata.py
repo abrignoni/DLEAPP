@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "BitLocker",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from each volume's FVE metadata, which is not encrypted, so a locked volume "
                  "is reported too. One row per protector, and one row for a BitLocker volume whose "

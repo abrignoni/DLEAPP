@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from each NTUSER.DAT, named in Source File. Program is the "
                  "value name with its ROT13 encoding reversed and is shown as "

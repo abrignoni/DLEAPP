@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Read from UsrClass.dat and NTUSER.DAT, named in Source File. Each "
                  "row is one BagMRU node, that is one folder in a browse tree, from "

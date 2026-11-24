@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Logins (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and /var/log/messages and "
                  "their numbered or dated "
@@ -144,7 +144,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "System (Linux)",
+        "category": "Linux - System Information",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and /var/log/messages and "
                  "their numbered or dated "
@@ -316,7 +316,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Logins (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
                  "SYSLOG_IDENTIFIER is systemd-logind and whose MESSAGE is a session line in a form Login Sessions "
@@ -409,7 +409,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Logins (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
                  "SYSLOG_IDENTIFIER is systemd-logind and whose MESSAGE is a power line in a form Power Events "

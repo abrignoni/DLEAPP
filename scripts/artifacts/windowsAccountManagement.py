@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line. Reported are the "
                  "account-lifecycle events (creation, enabling, disabling, "

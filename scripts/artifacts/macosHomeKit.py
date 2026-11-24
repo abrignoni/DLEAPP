@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-12",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "HomeKit (macOS)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("macOS",),
         "notes": "Reads datastore.sqlite in a Library/HomeKit folder and reports one row per row of its record table. "
                  "Record Modified (UTC) and Record Created (UTC) are the RecordMtime and RecordCtime dates inside the "

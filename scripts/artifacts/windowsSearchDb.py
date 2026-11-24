@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the SystemIndex_<n>_PropertyStore table in Windows.db, the "
                  "Windows 11 (22H2 and later) Windows Search index, read from the file "

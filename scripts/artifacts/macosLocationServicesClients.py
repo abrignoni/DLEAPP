@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Location Services (macOS)",
+        "category": "Locations & Maps",
         "platforms": ("macOS",),
         "notes": "Reads private/var/db/locationd/clients.plist, one row per top-level entry whose "
                  "value is a dictionary; a top-level value that is not one, such as the number "

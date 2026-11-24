@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "Reads monitors.xml, where GNOME's mutter stores the display configurations a user applied, from "
                  "the user's configuration folder and from the system configuration folders such as /etc/xdg "

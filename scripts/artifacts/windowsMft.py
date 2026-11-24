@@ -19,7 +19,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "File System (Windows)",
+        "category": "Windows - File System",
         "platforms": ("Windows",),
         "notes": "One row per base record of each $MFT that holds at least one $FILE_NAME, "
                  "whether or not the record is in use; extension records are folded into the "
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "File System (Windows)",
+        "category": "Windows - File System",
         "platforms": ("Windows",),
         "notes": "One row per named base record of each $MFT, in use or not, whose $STANDARD_INFORMATION (SI) "
                  "creation time is earlier than the creation time in the $FILE_NAME (FN) the MFT artifact shows for "

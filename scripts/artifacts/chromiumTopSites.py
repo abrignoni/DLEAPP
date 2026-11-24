@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each Chromium-based browser profile's Top Sites database: the top_sites table of "
                  "current releases, or the thumbnails table the Chrome 65 release kept instead; one row "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-26",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the omni_box_shortcuts table of each Chromium-based browser profile's Shortcuts "
                  "database; one row per table row. Browser, Profile and User come from the path: the "

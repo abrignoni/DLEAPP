@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-09-25",
         "requirements": "none",
-        "category": "Connected Devices (macOS)",
+        "category": "macOS - External Devices",
         "platforms": ("macOS",),
         "notes": "One row per backup folder directly inside a MobileSync/Backup folder, read from "
                  "the Info.plist, Manifest.plist and Status.plist at the top of that folder. Apple "
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-09-25",
         "requirements": "none",
-        "category": "Connected Devices (macOS)",
+        "category": "macOS - External Devices",
         "platforms": ("macOS",),
         "notes": "One row per bundle ID in the Installed Applications list or the Applications "
                  "dictionary of each backup's Info.plist, with Listed In naming which of the two "

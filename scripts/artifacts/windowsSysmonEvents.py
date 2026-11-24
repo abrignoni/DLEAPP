@@ -166,7 +166,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -271,7 +271,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -373,7 +373,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -469,7 +469,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -589,7 +589,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -693,7 +693,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -791,7 +791,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -893,7 +893,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -994,7 +994,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -1089,7 +1089,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -1185,7 +1185,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "
@@ -1281,7 +1281,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Sysmon (Windows)",
+        "category": "Windows - Sysmon",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Sysmon%4Operational.evtx in "
                  "Windows/System32/winevt/Logs, named in the report's located-at line; only "

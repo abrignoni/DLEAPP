@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         'description': 'Stored TeleGuard Windows message records with source-scoped conversations, text, timestamps, state fields and local attachment references.',
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-31',
-        'requirements': 'none', 'category': 'TeleGuard Windows',
+        'requirements': 'none', 'category': 'Messaging',
         'platforms': ('Windows',),
         'notes': 'Times are Unix milliseconds in UTC; zero is the epoch and null or invalid values are '
                  'blank. Direction compares sender with the unique service user serverId; missing ids leave '
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         'description': 'Per-source summaries of stored TeleGuard conversations with message counts, direction counts, distinct authors and first and last valid message times.',
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-31',
-        'requirements': 'none', 'category': 'TeleGuard Windows',
+        'requirements': 'none', 'category': 'Messaging',
         'platforms': ('Windows',),
         'notes': 'One row per stored chatId per database. First Message and Last Message use the minimum and '
                  'maximum valid createDate (Unix milliseconds, UTC). Direction counts compare sender with '
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         'description': 'Stored TeleGuard contact records with ids, display names, embedded avatars, recorded activity fields and message-reference counts.',
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
-        'requirements': 'none', 'category': 'TeleGuard Windows',
+        'requirements': 'none', 'category': 'Messaging',
         'platforms': ('Windows',),
         'notes': 'Last Activity and Last Visit are stored Unix milliseconds in UTC; their application '
                  'meaning is unverified. Null or invalid times are blank; zero is the epoch. The three '
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         'description': 'Attachment references stored in TeleGuard message metadata, with parent-message context and explicit local-file resolution status.',
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
-        'requirements': 'none', 'category': 'TeleGuard Windows',
+        'requirements': 'none', 'category': 'Messaging',
         'platforms': ('Windows',),
         'notes': 'One row per mediaFiles or additional files entry; quotedMediaFiles stays in parent raw '
                  'Metadata. Search covers the database tree plus same-profile '
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
         'description': 'Local files referenced by TeleGuard messages and recognized unreferenced images, audio, video or PDF files within each database instance.',
         'author': '@ForensikITGmbH',
         'creation_date': '2026-10-23', 'last_update_date': '2026-10-28',
-        'requirements': 'none', 'category': 'TeleGuard Windows',
+        'requirements': 'none', 'category': 'Messaging',
         'platforms': ('Windows',),
         'notes': 'Inventory covers the database tree plus same-profile AppData/Local/Temp/TeleGuard/images '
                  'and Downloads/TeleGuard when a sole main database at AppData/Roaming/TeleGuard owns that '

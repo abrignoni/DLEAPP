@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Reads Software\\Microsoft\\Terminal Server Client in each NTUSER.DAT: the MRU values "
                  "under Default and the subkeys under Servers. Microsoft documents that each new "

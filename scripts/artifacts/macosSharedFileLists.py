@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Recent Items (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": "Reads the .sfl2, .sfl3 and .sfl4 files under each user's ~/Library/Application "
                  "Support/com.apple.sharedfilelist, including the per-application lists in its "

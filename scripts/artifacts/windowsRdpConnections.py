@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Reads "
                  "Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx and "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Periodic Logs (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": (
             'Reads the Disk status section of each run in private/var/log/daily.out. The section is the output '
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Periodic Logs (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": (
             'Reads the Network interface status section of each run in private/var/log/daily.out. The section '
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Periodic Logs (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": (
             'Reads the Local system status section of each run in private/var/log/daily.out. The section is the'
@@ -128,7 +128,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Periodic Logs (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": (
             'Reads the Doing login accounting section of each run in private/var/log/monthly.out. The section '
