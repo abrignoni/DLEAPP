@@ -19,7 +19,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-15",
         "requirements": "none",
-        "category": "macOS - KnowledgeC",
+        "category": "macOS - InteractionC",
         "platforms": ("macOS",),
         "notes": "Every interactionC.db found is parsed, tagged by Source File. "
                  "The app is ZBUNDLEID. ZSENDER links to the ZCONTACTS row for "
