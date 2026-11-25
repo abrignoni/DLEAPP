@@ -118,7 +118,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows - File & Folder Activity",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "Rows from the Internet Explorer TypedURLs key in each "
                  "NTUSER.DAT, named in Source File. Typed URL is a value's data. "
