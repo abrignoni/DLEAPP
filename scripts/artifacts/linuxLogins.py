@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Logins (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/wtmp and its numbered rotations, one row per reported "
                  "record in file order; a rotation compressed with gzip is read the same "
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Logins (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/btmp and its numbered rotations, one row per reported record in file order, with "
                  "the same reader, record layouts and columns as Login Records (wtmp), whose notes give glibc's "
@@ -174,7 +174,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Logins (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/lastlog, one row per user ID whose record is not all zero; "
                  "bytes after the last whole record are counted in the run log and not read. "

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Finder and Dock (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": (
             'Reads each .DS_Store file the declared path matches, with the .DS_Store reader Trash '

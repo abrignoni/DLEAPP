@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Code Editors",
+        "category": "Productivity",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each extensions.json file in a folder named extensions, one row per entry in file order. "
                  "Visual Studio Code keeps the extensions installed for a user in the extensions folder of a "
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Code Editors",
+        "category": "Productivity",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each .obsolete file in a folder named extensions, one row per folder name it lists. On "
                  "ubuntu2604_arm64_editorext_known_20261101, both uninstalling an extension and updating one to "

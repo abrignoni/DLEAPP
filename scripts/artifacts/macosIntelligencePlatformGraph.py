@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Intelligence Platform (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": "Ported from iLEAPP's Intelligence Platform Knowledge Graph artifacts. The parsing "
                  "helpers are copied unchanged; the entry points were rewritten to read one store per "
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-30",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Intelligence Platform (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": "Ported from iLEAPP's Intelligence Platform Knowledge Graph artifacts. The parsing "
                  "helpers are copied unchanged; the entry points were rewritten to read one store per "

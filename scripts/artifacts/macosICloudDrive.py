@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "iCloud Drive (macOS)",
+        "category": "Cloud & Files",
         "platforms": ("macOS",),
         "notes": "Reads each user's client.db under ~/Library/Application "
                  "Support/CloudDocs/session/db, one row per client_items row. Version "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "iCloud Drive (macOS)",
+        "category": "Cloud & Files",
         "platforms": ("macOS",),
         "notes": (
             "Reads each user's server.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
@@ -128,7 +128,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "iCloud Drive (macOS)",
+        "category": "Cloud & Files",
         "platforms": ("macOS",),
         "notes": (
             "Reads each user's server.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
@@ -161,7 +161,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "iCloud Drive (macOS)",
+        "category": "Cloud & Files",
         "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
@@ -206,7 +206,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "iCloud Drive (macOS)",
+        "category": "Cloud & Files",
         "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
@@ -245,7 +245,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "iCloud Drive (macOS)",
+        "category": "Cloud & Files",
         "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "
@@ -311,7 +311,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "iCloud Drive (macOS)",
+        "category": "Cloud & Files",
         "platforms": ("macOS",),
         "notes": (
             "Reads each user's client.db under ~/Library/Application Support/CloudDocs/session/db, one row per "

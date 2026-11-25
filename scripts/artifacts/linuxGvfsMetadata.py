@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "Reads the tree files in .local/share/gvfs-metadata in a home folder, where gvfsd-metadata "
                  "keeps the keys set for files through GIO's metadata:: attributes, as gio set sets them "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "Reads the journal files in .local/share/gvfs-metadata in a home folder, named after their "
                  "tree with a -<tag>.log suffix "

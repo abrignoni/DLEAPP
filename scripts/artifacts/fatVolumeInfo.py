@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "File System",
+        "category": "Multi-platform - File System",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per FAT12, FAT16, FAT32 or exFAT volume the raw image reader lists and can read. A volume it "
                  "lists without a reader, or whose boot sector is shorter than 120 bytes, gives a log line and no row. "

@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-13",
         "last_update_date": "2026-10-13",
         "requirements": "none",
-        "category": "Installed Software (Linux)",
+        "category": "Linux - Installed Apps",
         "platforms": ("Linux",),
         "notes": "Reads the DNF5 history database (the libdnf5 transaction_history.sqlite that dnf5 writes on "
                  "Fedora and other systems that use dnf5) and reports one row per package action of each transaction, "

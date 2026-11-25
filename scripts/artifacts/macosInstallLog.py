@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Installed Software (macOS)",
+        "category": "macOS - Installed Apps",
         "platforms": ("macOS",),
         "notes": "Reads install.log in a folder ending var/log (private/var/log on a Mac) and its rotated "
                  "copies install.log.N and install.log.T followed by a number, gunzipping any copy that "

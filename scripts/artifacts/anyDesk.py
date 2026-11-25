@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "AnyDesk",
+        "category": "Multi-platform - Remote Access",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "AnyDesk's support article says connection_trace.txt is created when a connection request is "
                  "received, holds the date and time, whether the request was accepted or rejected and who sent "
@@ -105,7 +105,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "AnyDesk",
+        "category": "Multi-platform - Remote Access",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "AnyDesk's support article does not describe file_transfer_trace.txt. It was found beside "
                  "connection_trace.txt in ProgramData\\AnyDesk on Windows and etc/anydesk on Linux in the known "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-31",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "AnyDesk",
+        "category": "Multi-platform - Remote Access",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Trace log locations are the ones AnyDesk's support article gives for Windows 7 and later, "
                  "Linux and macOS, standard and custom builds "
@@ -189,7 +189,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "AnyDesk",
+        "category": "Multi-platform - Remote Access",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": ("Reads the .conf files in AnyDesk's folders: ProgramData\\AnyDesk and each user's "
                   "AppData\\Roaming\\AnyDesk on Windows, /etc/anydesk and each user's .anydesk on Linux, the folders "

@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": (
             "Reads the RecentWebSearches list of com.apple.Safari.plist. Date is the entry's Date value, a plist "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": (
             "One row per top-level key of com.apple.Safari.plist, in the Safari container and in "

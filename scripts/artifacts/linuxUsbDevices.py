@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "USB Devices (Linux)",
+        "category": "Linux - External Devices",
         "platforms": ("Linux",),
         "notes": "One row per USB device connection the Linux kernel logged in the syslog files /var/log/syslog, "
                  "kern.log and messages and their rotations (numbered and gzip ones, and dated ones of messages), "
@@ -118,7 +118,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "USB Devices (Linux)",
+        "category": "Linux - External Devices",
         "platforms": ("Linux",),
         "notes": "One row per USB device connection the Linux kernel logged in the systemd journal files under "
                  "var/log/journal and run/log/journal, read with the same reader as systemd Journal "
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "USB Devices (Linux)",
+        "category": "Linux - External Devices",
         "platforms": ("Linux",),
         "notes": "One row per disk the usb-storage driver made of a USB device, from the kernel's lines in the "
                  "syslog files /var/log/syslog, kern.log and messages and their rotations, read as USB Devices "
@@ -309,7 +309,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "USB Devices (Linux)",
+        "category": "Linux - External Devices",
         "platforms": ("Linux",),
         "notes": "One row per disk the usb-storage driver made of a USB device, from the kernel's entries in the "
                  "systemd journal files, read as USB Devices (journal) reads them: entries of each boot in the "

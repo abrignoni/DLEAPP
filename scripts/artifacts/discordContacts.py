@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. The account IDs found in the Sentry scope's user and in the MultiAccountStore and "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. A channel is listed when a recovered message names it as its channel, or when a "
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. It also reads the renderer log and the SelectedChannelStore key in Local Storage, "
@@ -171,7 +171,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the same cache as Discord Cache Records, whose notes describe its formats and "
                  "times. Discord documents invites/<code> as returning the invite object for that code "

@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads var/luna/data/downloadhistory.db, table DownloadHistory, one row per ticket in ticket "
                  "order. Ticket, Owner, Interface and State are the columns as stored; the other columns come "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads var/luna/preferences/systemprefs.db, table Preferences, one row per key in key order, "
                  "with the value as stored. The keys include the time zone, locale, region and time settings; "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the .localstorage files in the Local Storage folders under var/lib/wam and under "
                  "webbrowser/chrome, the browser profile the Chromium artifacts read; each is an SQLite file "
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "LG webOS TV",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the appinfo.json directly inside each folder of usr/palm/applications under cryptofs/apps "
                  "and system/apps, one row per app; "

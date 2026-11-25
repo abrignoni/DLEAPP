@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "System (Linux)",
+        "category": "Linux - System Information",
         "platforms": ("Linux",),
         "notes": "Reads /etc/fstab, which the manual describes as the filesystems the system can mount. Each "
                  "filesystem is on its own line with fields separated by tabs or spaces, a line starting with # is a "

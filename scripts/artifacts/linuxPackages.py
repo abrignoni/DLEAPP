@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Installed Software (Linux)",
+        "category": "Linux - Installed Apps",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/apt/history.log and its numbered rotations, gzip ones "
                  "included, one row per package entry of each transaction in file order. "
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Installed Software (Linux)",
+        "category": "Linux - Installed Apps",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/dpkg.log and its numbered rotations, gzip ones included, "
                  "one row per install, upgrade, remove, purge or disappear line in file "

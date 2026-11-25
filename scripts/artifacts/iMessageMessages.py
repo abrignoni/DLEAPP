@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "iMessage (macOS)",
+        "category": "Messaging",
         "platforms": ("macOS",),
         "notes": "Rows are listed by message date, then message ROWID, then chat ROWID. "
                  "Every chat.db found is parsed, so a Mac with more than one "
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "iMessage (macOS)",
+        "category": "Messaging",
         "platforms": ("macOS",),
         "notes": "Rows are listed by created_date, then attachment ROWID, then message ROWID. "
                  "created_date/start_date are Mac Absolute Time in seconds, a "
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "iMessage (macOS)",
+        "category": "Messaging",
         "platforms": ("macOS",),
         "notes": "Participants are listed in chat_handle_join row order. "
                  "Every chat.db found is parsed, tagged by Source File. "
@@ -126,7 +126,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "iMessage (macOS)",
+        "category": "Messaging",
         "platforms": ("macOS",),
         "notes": "All four tables were empty on the validation image (no "
                  "deletions had occurred), so only the schema, not real "

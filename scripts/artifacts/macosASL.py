@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Apple System Log (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": "Reads the .asl files directly in private/var/log/asl, the folder Velociraptor's "
                  "MacOS.Forensics.ASL exchange artifact reads "
@@ -129,7 +129,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Apple System Log (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": "Reads the same files as ASL Messages, directly in private/var/log/asl and in the "
                  "same way, and reports the messages of the com.apple.system.utmpx and "
@@ -196,7 +196,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Apple System Log (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": "Reads the .asl files directly in private/var/log/powermanagement with the reader ASL "
                  "Messages uses, in the layout Apple's syslog source gives "
@@ -230,7 +230,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Apple System Log (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": "Reads the .asl files directly in private/var/log/DiagnosticMessages with the reader "
                  "ASL Messages uses, in the layout Apple's syslog source gives "

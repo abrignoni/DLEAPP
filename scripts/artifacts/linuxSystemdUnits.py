@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Persistence (Linux)",
+        "category": "Linux - Persistence",
         "platforms": ("Linux",),
         "notes": "Reads each file and link under a folder named etc/systemd/system, etc/systemd/user or "
                  ".config/systemd/user, wherever it sits in the extraction, and reports one row per entry in the "
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Persistence (Linux)",
+        "category": "Linux - Persistence",
         "platforms": ("Linux",),
         "notes": "Reads each Unit file and Drop-in that systemd Unit Files and Links reports, in its order, and "
                  "reports one row per assignment: Section is the section it is in, Key and Value are the text before "

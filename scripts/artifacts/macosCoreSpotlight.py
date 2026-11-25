@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Spotlight (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": (
             'Reads each CoreSpotlight store, a folder under a Library/Metadata/CoreSpotlight '

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per entry of the account_info list in the Preferences file of each Chromium-based "
                  "browser profile that scripts/chromium/browser_profiles locates. Secure Preferences and files "

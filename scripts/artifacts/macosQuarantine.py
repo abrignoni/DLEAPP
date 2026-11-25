@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-15",
         "requirements": "none",
-        "category": "Quarantine (macOS)",
+        "category": "macOS - Security & Antivirus",
         "platforms": ("macOS",),
         "notes": "Every QuarantineEventsV2 store found is parsed, one per user, "
                  "tagged by Source File. Timestamp is CFAbsoluteTime (seconds "

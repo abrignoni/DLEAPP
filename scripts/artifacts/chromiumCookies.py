@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the cookies table of each Cookies database in a Chromium-based browser profile, at "
                  "<profile>/Cookies (Chrome 65 on lonewolf_win10) or <profile>/Network/Cookies (Chrome and "

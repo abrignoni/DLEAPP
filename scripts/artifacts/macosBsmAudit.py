@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Audit Trail (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": "Reads the trail files in /var/audit (private/var/audit on a Mac). The audit daemon names a new trail"
                  " with a timestamp and .not_terminated "
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Audit Trail (macOS)",
+        "category": "macOS - Logs & Diagnostics",
         "platforms": ("macOS",),
         "notes": "Reads the same trails, the same way, as the Audit Trail (BSM) artifact, whose notes give the format,"
                  " the sources, the validation against praudit and the meaning of every column, and keeps only the "

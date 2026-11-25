@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-18",
         "last_update_date": "2026-08-29",
         "requirements": "none",
-        "category": "ChatGPT (macOS)",
+        "category": "AI Assistants",
         "platforms": ("macOS",),
         "notes": "Recording is started from within the app and time-limited by it, so "
                  "these files cover the recorded sessions only and are not a "
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-18",
         "last_update_date": "2026-08-18",
         "requirements": "none",
-        "category": "ChatGPT (macOS)",
+        "category": "AI Assistants",
         "platforms": ("macOS",),
         "notes": "session.json records no event count, unlike the metadata.json "
                  "the Computer History feature writes for its segments. The "

@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Networks (macOS)",
+        "category": "macOS - Network & Connectivity",
         "platforms": ("macOS",),
         "notes": "Reads each plist in private/var/db/dhcpclient/leases, one row per file; a file "
                  "that is not a plist dictionary is logged and skipped. Apple's DHCP client names "

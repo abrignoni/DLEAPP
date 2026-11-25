@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Persistence (Linux)",
+        "category": "Linux - Persistence",
         "platforms": ("Linux",),
         "notes": "Reads every file in a user's .config/autostart folder, in /etc/xdg/autostart and "
                  "/etc/xdg/<folder>/autostart, and in the gnome/autostart folder under /usr/share, /usr/local/share,"

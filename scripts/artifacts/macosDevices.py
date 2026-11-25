@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
         "requirements": "none",
-        "category": "Connected Devices (macOS)",
+        "category": "macOS - External Devices",
         "platforms": ("macOS",),
         "notes": "Reads each plist in /private/var/db/lockdown and reports those that hold a HostID or"
                  " DeviceCertificate value, one row per file; Device Identifier is the file name "
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
-        "category": "Connected Devices (macOS)",
+        "category": "macOS - External Devices",
         "platforms": ("macOS",),
         "notes": "Reads the Devices dictionary of each user's "
                  "~/Library/Preferences/com.apple.iPod.plist, one row per device. Connected is the "
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
         "requirements": "none",
-        "category": "Connected Devices (macOS)",
+        "category": "macOS - External Devices",
         "platforms": ("macOS",),
         "notes": "Reads /Library/Preferences/com.apple.Bluetooth.plist: one row per address found in "
                  "DeviceCache or in the PairedDevices, BRPairedDevices, MagicCloudPairedDevices and "

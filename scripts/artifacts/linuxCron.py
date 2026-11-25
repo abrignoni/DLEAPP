@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Scheduled Jobs (Linux)",
+        "category": "Linux - Scheduled Tasks",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/syslog and its rotations, /var/log/cron.log and its rotations, and /var/log/cron "
                  "and its numbered or dated rotations, gzip ones included, and reports each line whose tag names "
@@ -196,7 +196,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Scheduled Jobs (Linux)",
+        "category": "Linux - Scheduled Tasks",
         "platforms": ("Linux",),
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
                  "SYSLOG_IDENTIFIER names cron, crond or crontab and whose MESSAGE has the form Cron Log "
@@ -291,7 +291,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Scheduled Jobs (Linux)",
+        "category": "Multi-platform - Scheduled Tasks",
         "platforms": ("macOS", "Linux"),
         "notes": "One row per line that is not blank in each file in the three places Debian's and Ubuntu's cron "
                  "reads crontabs from: a user's crontab in /var/spool/cron/crontabs, named for the user (Crontab "

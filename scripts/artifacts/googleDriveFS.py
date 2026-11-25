@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the items table of the two metadata databases, metadata_sqlite_db and '
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the mirror_item table of mirror_sqlite.db in each account folder of a Google '
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads experiments.db in each Google Drive for desktop (DriveFS) folder, which is '
@@ -220,7 +220,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the drive_fs logs, drive_fs.txt and drive_fs_N.txt, in the Logs folder of each '
@@ -275,7 +275,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the roots table of root_preference_sqlite.db in each Google Drive for desktop '
@@ -328,7 +328,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": (
             'Reads the media table of root_preference_sqlite.db in each Google Drive for desktop '
