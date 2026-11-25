@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "System Policy (macOS)",
+        "category": "macOS - Security & Antivirus",
         "platforms": ("macOS",),
         "notes": (
             'Reads the kext_load_history_v3 table of '
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "System Policy (macOS)",
+        "category": "macOS - Security & Antivirus",
         "platforms": ("macOS",),
         "notes": (
             'Reads the kext_policy table of /private/var/db/SystemPolicyConfiguration/KextPolicy, '
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "System Policy (macOS)",
+        "category": "macOS - Security & Antivirus",
         "platforms": ("macOS",),
         "notes": (
             'Reads the object table of the SystemPolicy database, at /private/var/db/SystemPolicy '

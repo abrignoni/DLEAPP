@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
         "requirements": "none",
-        "category": "Windows Network",
+        "category": "Windows - Network & Connectivity",
         "platforms": ("Windows",),
         "notes": (('Reads Windows\\System32\\LogFiles\\WMI\\Wifi.etl, the file the trace session writes, with '
                   'scripts/etl.py, which names the source of each layout it reads: the buffer and record headers '
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
         "requirements": "none",
-        "category": "Windows Network",
+        "category": "Windows - Network & Connectivity",
         "platforms": ("Windows",),
         "notes": (('Reads Windows\\System32\\LogFiles\\WMI\\Wifi.etl, the file the trace session writes, with '
                   'scripts/etl.py, which names the source of each layout it reads: the buffer and record headers '

@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "none",
-        "category": "Windows Defender",
+        "category": "Windows - Security & Antivirus",
         "notes": "The Store files read here are named by a 32-digit hexadecimal ID (12 of 12 on "
                  "the images in sample_data); a file with any other name is not read. "
                  "Its layout and RC4 scheme are those mpdbx documents in docs/design.md at "

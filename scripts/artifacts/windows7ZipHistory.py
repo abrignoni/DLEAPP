@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none (vendored regfprobe)",
-        "category": "7-Zip",
+        "category": "Productivity",
         "platforms": ("Windows",),
         "notes": "Reads the path lists 7-Zip keeps under Software\\7-Zip in each user's NTUSER.DAT (Reference: "
                  "7-Zip 25.01, commit 5e96a8279489832924056b1fa82f29d5837c9469, "

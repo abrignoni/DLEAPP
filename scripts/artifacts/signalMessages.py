@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-28",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
-        "category": "Signal (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Message bodies come from the messages table. A row with an "
                  "empty body is not necessarily an empty message: it may be a "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-28",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
-        "category": "Signal (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "The stored plaintext is longer than the recorded size, so it "
                  "is truncated to the size the database records. The Verified "
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-10-28",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
-        "category": "Signal (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "A reaction is stored separately from the message it targets, "
                  "so it survives here even where the message body is empty." " db.sqlite-wal is staged with the database and the frames up to its last "

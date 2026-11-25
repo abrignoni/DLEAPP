@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-11-01",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "One row for each subkey of the SYSTEM hive's Setup key whose name has the form Source OS "
                  "(Updated on <date and time>). No Microsoft description of these keys was found, so nothing "
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-01",
         "last_update_date": "2026-11-01",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "One row for each key three levels below a DeviceMigration\\Devices key (enumerator, device, "
                  "instance, the levels of the Enum key), read from Setup\\Upgrade\\PnP\\CurrentControlSet\\Control"

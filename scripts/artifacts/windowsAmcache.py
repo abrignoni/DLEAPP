@@ -64,7 +64,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one "
@@ -185,7 +185,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -338,7 +338,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -432,7 +432,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -550,7 +550,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -666,7 +666,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -786,7 +786,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve and, where present, the inventory database beside it described below, "
                  "both named in the report's located-at line. Each row is one entry of "
@@ -917,7 +917,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-29",
         "last_update_date": "2026-10-29",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of a "
                  "Root\\File\\<volume key> subkey, the layout the hive used on Windows 8, read from any hive that holds "
@@ -998,7 +998,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-29",
         "last_update_date": "2026-10-29",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Amcache.hve, named in the report's located-at line: one row per subkey of Root\\Programs, "
                  "the layout the hive used on Windows 8, read from any hive that holds it. The value names are "

@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - External Devices",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Partition%4Diagnostic.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-Partition records with "
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - External Devices",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Kernel-PnP%4Configuration.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-Kernel-PnP records with "

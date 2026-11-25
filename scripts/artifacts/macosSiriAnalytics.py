@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-12",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "Siri (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": "Reads SiriAnalytics.db in a Library/Assistant folder and reports one row per row of its events "
                  "table. Date Created (UTC) is the date_created column read as Unix seconds; it carried a value on "

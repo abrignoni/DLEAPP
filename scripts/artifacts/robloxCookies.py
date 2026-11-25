@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "All values are reported verbatim for evidentiary analysis. The "
                  "output can contain authentication, anti-bot, identity-verification "

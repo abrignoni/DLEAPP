@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Command Line (SQLite)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per entry in a .sqlite_history file, the history the sqlite3 command line shell keeps. "
                  "When it reads commands from its standard input interactively, which it does when it classes that "

@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-12",
         "last_update_date": "2026-10-12",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "One row per reported value under HKCU\\Software\\7-Zip in a user's NTUSER.DAT, with one row per "
                  "path in a history value, the key 7-Zip (Igor Pavlov's "

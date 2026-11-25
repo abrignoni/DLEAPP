@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Command Line (Python)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each .python_history file the paths match, the file Python's interactive interpreter keeps "
                  "in the home folder unless the PYTHON_HISTORY environment variable names another (Reference: "

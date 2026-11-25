@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Reads each subkey of Software\\Microsoft\\OneDrive\\Accounts in each NTUSER.DAT and "
                  "reports it when it holds a non-empty UserEmail, UserFolder, cid or UserCID "
@@ -59,7 +59,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Reads each subkey of Software\\Microsoft\\IdentityCRL\\UserExtendedProperties in each "
                  "NTUSER.DAT. Account is the subkey name as stored; on pc_mus_001_win11 and "

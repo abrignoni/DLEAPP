@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "The machine-wide store is read from the SOFTWARE hive and the "
                  "per-user store from each NTUSER.DAT, named in Source File so "

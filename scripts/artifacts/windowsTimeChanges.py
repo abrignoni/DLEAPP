@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx; pefile to give the stored reason its name",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Read from System.evtx, named in the report's located-at line; rows come only from "
                  "Microsoft-Windows-Kernel-General records with Event ID 1, and the same provider's Event ID "
@@ -155,7 +155,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Read from Security.evtx, named in the report's located-at line; only "
                  "Microsoft-Windows-Security-Auditing records with Event ID 4616 are read. Microsoft "

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": (
             "Reads the ItemTable of two generations of WebKit local storage. Current: localstorage.sqlite3 under "

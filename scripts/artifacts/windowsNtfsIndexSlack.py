@@ -19,7 +19,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-13",
         "last_update_date": "2026-10-13",
         "requirements": "none",
-        "category": "File System (Windows)",
+        "category": "Windows - File System",
         "platforms": ("Windows",),
         "notes": "One row per file name entry found in the slack of a directory's $I30 index allocation that is in "
                  "neither of that directory's entry lists now. NTFS keeps a directory's index as a tree: its root "
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-13",
         "last_update_date": "2026-10-13",
         "requirements": "none",
-        "category": "File System (Windows)",
+        "category": "Windows - File System",
         "platforms": ("Windows",),
         "notes": "One row per file name entry found in the slack of a directory's $I30 index allocation whose file "
                  "reference and name are still a live entry of that directory, but with other values. The NTFS "

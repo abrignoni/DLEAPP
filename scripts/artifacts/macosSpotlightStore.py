@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-10-03",
         "requirements": "none",
-        "category": "Spotlight (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": (
             'Reads the Spotlight metadata store in each .Spotlight-V100/Store-V2 folder of a '
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Spotlight (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": (
             'Reads the same Spotlight store files as Spotlight Store Files, with the same reader, and gives one'
@@ -218,7 +218,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Spotlight (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": (
             'Reads the same Spotlight store files as Spotlight Store Files, with the same reader, and gives one'

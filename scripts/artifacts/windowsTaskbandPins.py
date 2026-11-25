@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "One row per pin in the Favorites value of Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"
                  "\\Taskband in each NTUSER.DAT. No Microsoft documentation of the value was found. Its framing "

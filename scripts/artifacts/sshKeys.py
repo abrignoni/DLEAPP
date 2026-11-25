@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "SSH",
+        "category": "Multi-platform - Remote Access",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each authorized_keys and authorized_keys2 file in a .ssh folder, "
                  "one row per key line in file order. OpenSSH 10.2p1's sshd reads those "
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "SSH",
+        "category": "Multi-platform - Remote Access",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads each known_hosts, known_hosts2 and known_hosts.old file in a .ssh folder and each "
                  "ssh_known_hosts and ssh_known_hosts2 file in an etc/ssh or ProgramData/ssh folder, one row "
@@ -169,7 +169,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-13",
         "last_update_date": "2026-11-13",
         "requirements": "none",
-        "category": "SSH",
+        "category": "Multi-platform - Remote Access",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per private key file, and one row per key line of a public key file. A "
                  "public key file (a .pub, or a host key's .pub) is read as lines holding a type, "

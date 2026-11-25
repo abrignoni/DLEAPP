@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "Read from the SOFTWARE hive, named in the report's located-at line. Two keys under "
                  "Microsoft\\Windows NT\\CurrentVersion are read: Image File Execution Options and SilentProcessExit. "

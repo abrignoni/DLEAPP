@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Scheduled Tasks",
         "platforms": ("Windows",),
         "notes": "Reads the TaskCache key of each SOFTWARE hive, Microsoft\\Windows "
                  "NT\\CurrentVersion\\Schedule\\TaskCache, one row per subkey of its Tasks key and one "

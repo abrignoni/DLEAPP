@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Reads every subkey of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FeatureUsage in each NTUSER.DAT "

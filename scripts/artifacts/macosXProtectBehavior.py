@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "none",
-        "category": "System Policy (macOS)",
+        "category": "macOS - Security & Antivirus",
         "platforms": ("macOS",),
         "notes": (
             'Reads the events table of XPdb, at /private/var/protected/xprotect/db/XPdb (the '

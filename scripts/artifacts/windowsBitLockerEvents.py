@@ -361,7 +361,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-BitLocker%4BitLocker Management.evtx the paths match with "
                  "python-evtx and reports, one row per record, every record whose provider is "
@@ -503,7 +503,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads every System.evtx the paths match with python-evtx and reports, one row per record, every "
                  "record whose provider is Microsoft-Windows-BitLocker-Driver, whatever its Event ID. The provider's "

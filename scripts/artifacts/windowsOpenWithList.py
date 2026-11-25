@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-02",
         "last_update_date": "2026-10-02",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Reads each NTUSER.DAT the paths match with the vendored regfprobe: every key named OpenWithList (name "
                  "compared without case) below a subkey of "

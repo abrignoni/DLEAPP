@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Windows - Scheduled Tasks",
         "platforms": ("Windows",),
         "notes": 'Reads the Background Intelligent Transfer Service queue in '
                   'ProgramData\\Microsoft\\Network\\Downloader: qmgr.db, an ESE database, and the '
@@ -153,7 +153,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-28",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Windows - Scheduled Tasks",
         "platforms": ("Windows",),
         "notes": 'The files of the jobs in BITS Jobs, from the same folder and the same two '
                   "places: the records of qmgr.db's Files table, and the file records found by "

@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-15",
         "requirements": "none",
-        "category": "App Permissions (macOS)",
+        "category": "macOS - Security & Antivirus",
         "platforms": ("macOS",),
         "notes": "Every TCC.db found is parsed (the system store under "
                  "/Library/Application Support/com.apple.TCC/ and each user's under "

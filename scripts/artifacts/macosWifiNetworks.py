@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
-        "category": "Networks (macOS)",
+        "category": "macOS - Network & Connectivity",
         "platforms": ("macOS",),
         "notes": "Reads /Library/Preferences/com.apple.wifi.known-networks.plist, one row per "
                  "top-level entry; the entries are keyed wifi.network.ssid. followed by the "

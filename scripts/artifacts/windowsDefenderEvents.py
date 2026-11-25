@@ -77,7 +77,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
@@ -267,7 +267,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "
@@ -380,7 +380,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx; pefile to give parameter references their text",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Windows Defender%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-Windows Defender "

@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "Rows are the direct subkeys of the current control set's "
                  "Services key in the SYSTEM hive, named in the report's located-at line, one row "

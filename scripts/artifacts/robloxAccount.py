@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "Values are reported verbatim for evidentiary analysis, including "
                  "PlayerHydrationBlob and PlayerHydrationSignature. These values can "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "Compound XML values such as vectors are flattened into a compact "
                  "name=value representation.",

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Skybell (Video Doorbell)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the numbered files 0 to 9 of the doorbell's logs/system and logs/debug folders, which "
                  "the doorbell keeps as two separate logs; the same message can appear in both, each time "
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Skybell (Video Doorbell)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads logs/reboot.txt and logs/restart.txt, each line 'YYYY/MM/DD-hh:mm:ss <message>', and "
                  "reports every line, in file order, when the file holds the word skybell in any case. The "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Skybell (Video Doorbell)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the same files as Skybell Doorbell Device Log. The doorbell writes, with no time of "
                  "their own, a line \"Device-ID: '<id>', UUID: '<uuid>'\" and then a line \"Serial-No: "
@@ -98,7 +98,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Skybell (Video Doorbell)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads settings.json, system_settings.json and media_settings.json from a folder whose "
                  "system_settings.json names skybell, in any case, in its ota_uri or dns_server_name, and "

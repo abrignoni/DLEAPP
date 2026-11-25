@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Wire (Windows)",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Only cookies whose host is wire.com or one of its subdomains are "
                  "reported, and only from cookie stores under a folder named Wire.",

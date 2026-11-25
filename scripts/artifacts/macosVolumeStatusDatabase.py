@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "File System (macOS)",
+        "category": "macOS - File System",
         "platforms": ("macOS",),
         "notes": (
             "The layout is from Apple's published vsdbutil source (diskdev_cmds-757, "

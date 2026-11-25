@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads the autocomplete stream with the layout Microsoft Learn gives in Autocomplete Stream "

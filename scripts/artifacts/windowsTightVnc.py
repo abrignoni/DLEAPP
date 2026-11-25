@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "PyCryptodome",
-        "category": "TightVNC",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": ('Reads the TightVNC\\Server key, and Wow6432Node\\TightVNC\\Server, of the SOFTWARE hive, one row per '
                   "key found; Registry Key says which. The value names are the ones TightVNC's server configuration "

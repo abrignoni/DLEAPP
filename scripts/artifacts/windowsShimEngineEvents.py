@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Kernel-ShimEngine%4Operational.evtx, named in the report's "
                  "located-at line; only Microsoft-Windows-Kernel-ShimEngine records with Event ID 4 are read. "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Program Execution",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-Kernel-ShimEngine%4Operational.evtx, named in the report's "
                  "located-at line; only Microsoft-Windows-Kernel-ShimEngine records with Event ID 3 are read. "

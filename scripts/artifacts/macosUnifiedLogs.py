@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                         "Mandiant's macos-UnifiedLogs, found through the "
                         "DLEAPP_UNIFIEDLOG_ITERATOR environment variable, the bin folder beside "
                         "dleapp.py or inside a built DLEAPP executable, or PATH",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Imports the Apple Unified Log entries the parser returns into the LAVA database "
                  "only, one row per entry. The tracev3 files under db/diagnostics, with the "
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-20",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA "
                  "database in the same run, so it reports nothing when that artifact did not run; Row "
@@ -182,7 +182,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -223,7 +223,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -265,7 +265,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -301,7 +301,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -339,7 +339,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -373,7 +373,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -405,7 +405,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -436,7 +436,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-18",
         "last_update_date": "2026-10-18",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA "
                  "database in the same run, so it reports nothing when that artifact did not run; Row Number "
@@ -478,7 +478,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-22",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": (
             "The selection rules below were derived independently, using Apple's log format strings and "
@@ -541,7 +541,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -572,7 +572,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -612,7 +612,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -643,7 +643,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -677,7 +677,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": "Reads the macosunifiedlogs table that the Unified Logs artifact writes into the "
                  "LAVA database in the same run, so it reports nothing when that artifact did not "
@@ -711,7 +711,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-09",
         "last_update_date": "2026-10-09",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": 'Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA database in '
                  "the same run, so it reports nothing when that artifact did not run; Row Number is the entry's "
@@ -771,7 +771,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-09",
         "last_update_date": "2026-10-09",
         "requirements": "The Unified Logs artifact (macosUnifiedLogs) must run in the same session",
-        "category": "Unified Logs (macOS)",
+        "category": "macOS - Unified Logs",
         "platforms": ("macOS",),
         "notes": 'Reads the macosunifiedlogs table that the Unified Logs artifact writes into the LAVA database in '
                  "the same run, so it reports nothing when that artifact did not run; Row Number is the entry's "

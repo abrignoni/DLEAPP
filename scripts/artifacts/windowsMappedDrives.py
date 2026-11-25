@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each subkey of the "
                  "Network key at the root of the hive is one row. Drive is the subkey's name. Remote Path, User "
@@ -101,7 +101,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Read from each user's NTUSER.DAT, named in the report's located-at line. Each text value of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Map Network Drive MRU other than MRUList is one "

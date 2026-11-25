@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Wire (Windows)",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads Chromium Simple Cache entry files (*_0) whose bytes contain wire.com and "
                  "searches the raw bytes for URLs; the entry structure is not parsed. No body is "

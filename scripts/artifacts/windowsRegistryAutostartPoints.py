@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-30",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "One row for each value read at nine kinds of registry location where Windows is told what "
                  "to load at boot or logon, with the last-written time of the key holding it. A default "

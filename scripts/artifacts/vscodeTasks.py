@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none",
-        "category": "Visual Studio Code",
+        "category": "Productivity",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads .vscode/tasks.json (a workspace or folder file, which can sit in any project folder in the "
                  "extraction, so every one found is read; a file that does not parse is logged and skipped) and "
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none",
-        "category": "Visual Studio Code",
+        "category": "Productivity",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the ItemTable row with the key content.trust.model.key in state.vscdb under "
                  "User/globalStorage, a JSON object whose uriTrustInfo list holds one entry per trusted folder or "

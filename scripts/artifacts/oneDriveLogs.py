@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "PyCryptodome",
-        "category": "OneDrive (Desktop)",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": "Reads the OneDrive sync client's own logs, the .odl, .odlgz, .odlsent and .aodl "
                  "files under AppData\\Local\\Microsoft\\OneDrive\\logs on Windows or "

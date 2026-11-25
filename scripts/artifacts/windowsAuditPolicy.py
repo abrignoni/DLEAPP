@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads the PolAdtEv value of the Policy key of the SECURITY hive, where Windows keeps the system "
                  "audit policy that auditpol.exe sets and queries (Microsoft, 'auditpol', "

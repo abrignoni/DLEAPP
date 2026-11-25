@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "Read from System.evtx, named in the report's located-at line. Each row is a "
                  "Service Control Manager event 7045, which the provider's message records as 'A "

@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the SOFTWARE hive, named in the report's located-at line. Each subkey of "
                  "Microsoft\\Windows NT\\CurrentVersion\\ProfileList is one row. SID is the subkey's name and Profile "

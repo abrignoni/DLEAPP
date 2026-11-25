@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-10-19",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - External Devices",
         "platforms": ("Windows",),
         "notes": "Rows from Enum\\USBSTOR in the SYSTEM hive, in the control set named by the "
                  "hive's Select\\Current value (ControlSet001 when that value cannot be read), "

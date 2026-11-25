@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-09-01",
         "requirements": "none",
-        "category": "Slack (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "'Duration' is Last Activity minus Session Start and is best "
                  "read as a lower bound on how long the client was open for "

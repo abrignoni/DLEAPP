@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
@@ -176,7 +176,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
@@ -261,7 +261,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
@@ -326,7 +326,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
@@ -382,7 +382,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "
@@ -440,7 +440,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-10",
         "last_update_date": "2026-11-10",
         "requirements": "none",
-        "category": "Outlook",
+        "category": "Email",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads every file named .pst or .ost, in any case, read-only, with the vendored pstprobe "

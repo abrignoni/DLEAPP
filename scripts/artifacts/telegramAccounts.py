@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-07-29",
         "requirements": "PyCryptodome",
-        "category": "Telegram Desktop",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "The parser validates TDF checksums and local encryption integrity. "
                  "It never reports Telegram local keys, MTProto authorization "

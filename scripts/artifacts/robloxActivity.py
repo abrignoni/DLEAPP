@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "memProfStorage is rolling state and generally describes the most "
                  "recent session only. Unix timestamps are reported in UTC.",
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "Presence type values are preserved numerically because Roblox may "
                  "change their interpretation. Timestamps are UTC.",
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (macOS)",
+        "category": "Music, Video & News",
         "platforms": ("macOS",),
         "notes": "Only live Local Storage versions are parsed. The key can be "
                  "overwritten as notifications arrive, so output is a partial "

@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-08-01",
         "requirements": "PyCryptodome",
-        "category": "Telegram Desktop",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Only live binlog entries whose backing object exists and passes "
                  "TDEF authentication are included. Deleted/stale entries and "

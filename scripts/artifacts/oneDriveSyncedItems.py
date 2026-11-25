@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-08",
         "requirements": "none",
-        "category": "OneDrive (Desktop)",
+        "category": "Cloud & Files",
         "platforms": ("Windows",),
         "notes": "One row per file or folder record in the item list the OneDrive sync client keeps "
                  "in AppData\\Local\\Microsoft\\OneDrive\\settings\\<account folder> on Windows: the "
