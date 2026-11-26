@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/DLEAPP_logo.png" alt="DLEAPP" width="200">
+  <img src="assets/DLEAPP_square.png" alt="DLEAPP" width="200">
 </p>
 
 # Desktop Logs, Events and Protobuf Parser
@@ -156,8 +156,9 @@ RSA private key (`--image_private_key`). A BitLocker volume in an image opens wi
 password or recovery password, given the same way, or its startup key
 (`--bitlocker_key`, repeatable), an APFS volume macOS encrypted in software with its
 password or personal recovery key, and a LUKS container with its passphrase, each given
-the same way. At a terminal whatever is missing is asked for, and the GUI asks in dialogs;
-a BitLocker, APFS or LUKS volume nothing opens is reported and not searched.
+the same way. At a terminal whatever is missing is asked for, and the GUI asks for it in the
+DETECTED card of the Source screen as soon as the image is chosen; a BitLocker, APFS or LUKS
+volume nothing opens is reported and not searched.
 
 The disk images of a Linux software RAID set (md, or LVM2 across disks) are read
 together: give them all to `-i` with `-t raw`, or pick them together in the GUI's file
@@ -179,7 +180,8 @@ copy is deleted when the run ends, and the run log says how long the step took.
 
 `-m <profile>` runs only the artifacts listed in a DLEAPP profile file, and `-c <folder>`
 creates one. Profiles are saved as `.dlprofile`. Profiles saved as `.rlprofile` by
-v2026.4.1 and earlier still load, in the CLI and in the GUI.
+v2026.4.1 and earlier still load in the CLI; the GUI lists only `.dlprofile` files, so
+rename one to load it there.
 
 ### GUI
 

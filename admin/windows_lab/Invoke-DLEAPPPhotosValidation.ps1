@@ -13,7 +13,7 @@ Set-StrictMode -Version 2.0
 
 $journalScript = Join-Path $PSScriptRoot "Write-DLEAPPAction.ps1"
 if ([string]::IsNullOrWhiteSpace($KnownImagePath)) {
-    $KnownImagePath = Join-Path $PSScriptRoot "..\..\assets\DLEAPP_logo.png"
+    $KnownImagePath = Join-Path $PSScriptRoot "..\..\assets\DLEAPP_square.png"
 }
 if (-not (Test-Path -LiteralPath $KnownImagePath)) {
     throw "Known image does not exist: $KnownImagePath"
