@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Logs (Linux)",
+        "category": "Linux - Logs & Diagnostics",
         "platforms": ("Linux",),
         "notes": "One row per line of /var/log/syslog, messages, kern.log, daemon.log, user.log and debug and their "
                  "numbered or dated rotations, gzip ones included, file by file in path order and within a file in "

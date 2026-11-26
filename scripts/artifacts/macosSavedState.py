@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Saved Application State (macOS)",
+        "category": "macOS - Program Execution",
         "platforms": ("macOS",),
         "notes": "Reads the windows.plist in each savedState folder of a Saved Application State "
                  "folder and reports one row per entry that carries an NSTitle, with that entry's "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Command Line (macOS)",
+        "category": "macOS - Command Line",
         "platforms": ("macOS",),
         "notes": "Decrypts the data.data in each savedState folder that has a windows.plist beside "
                  "it and reports each Terminal window record found, one row per dictionary in the "

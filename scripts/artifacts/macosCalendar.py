@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
-        "category": "Calendar (macOS)",
+        "category": "Productivity",
         "platforms": ("macOS",),
         "notes": "Reads each user's Calendar store: Calendar Cache under "
                  "~/Library/Calendars, as on dleapp_macos_bigsur, or Calendar.sqlitedb in "

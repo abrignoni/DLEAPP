@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "File System (macOS)",
+        "category": "macOS - File System",
         "platforms": ("macOS",),
         "notes": "Reads the fseventsd disk log files in each .fseventsd folder the declared path "
                  "matches, at any depth, one row per record; on each of the five images checked one "

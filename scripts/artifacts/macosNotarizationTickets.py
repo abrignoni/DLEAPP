@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "System Policy (macOS)",
+        "category": "macOS - Security & Antivirus",
         "platforms": ("macOS",),
         "notes": (
             (

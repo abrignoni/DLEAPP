@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "PyCryptodome. A password can be supplied with --exodus-password.",
-        "category": "Exodus",
+        "category": "Finance & Payments",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per seed.seco in a folder named exodus.wallet inside a folder named Exodus. "
                  "passphrase.json holds the wallet passphrase and a system flag. On the known data, a "
@@ -112,7 +112,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "none",
-        "category": "Exodus",
+        "category": "Finance & Payments",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per unsafe-storage.json in a folder named exodus.wallet inside a folder named "
                  "Exodus. unsafe-storage.json is the plaintext (unencrypted) store, with keys separated "
@@ -150,7 +150,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "none",
-        "category": "Exodus",
+        "category": "Finance & Payments",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per file under a folder named exodus.wallet inside a folder named Exodus. This "
                  "artifact lists the files through the seeker's peek() and stages none; the other two "

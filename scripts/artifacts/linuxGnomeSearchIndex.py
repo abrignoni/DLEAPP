@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "Reads the database LocalSearch (formerly Tracker Miners), the GNOME desktop's file "
                  "indexer, keeps at .cache/tracker3/files/meta.db in a user's home folder, one row per file "

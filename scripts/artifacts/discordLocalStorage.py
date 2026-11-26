@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Discord's client script saves a draft whenever a DRAFT_CHANGE or DRAFT_SAVE action "
                  "carries text that differs from the stored draft, stamping it with the time of that "
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Each row comes from one Local Storage key, and the event names follow what Discord's "
                  "client script does with that key (https://discord.com/assets/web.b8b5ddfa0f88ae29.js, "
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the Local Storage LevelDB table and log files directly rather than a compacted "
                  "view. A LevelDB entry is a value or a deletion marker "

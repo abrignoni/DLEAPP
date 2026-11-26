@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the logins table of the Login Data and Login Data For Account databases of each "
                  "Chromium-based browser profile, the two file names in password_manager_constants.cc "

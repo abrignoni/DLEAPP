@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Finder and Dock (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": "Reads each user's ~/Library/Preferences/com.apple.finder.plist. Recent folder rows "
                  "come from FXRecentFolders, with Path, Volume Name and Target Created read from each "
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
-        "category": "Finder and Dock (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": "Reads the persistent-apps, persistent-others and recent-apps lists of each user's "
                  "~/Library/Preferences/com.apple.dock.plist, one row per tile; Label, Bundle ID and "
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-12",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Finder and Dock (macOS)",
+        "category": "macOS - File & Folder Activity",
         "platforms": ("macOS",),
         "notes": (
             "One row per key of FXDesktopVolumePositions in each user's "

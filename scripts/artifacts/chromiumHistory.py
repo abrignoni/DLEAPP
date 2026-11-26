@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-08",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the visits table of each History database in a Chromium-based browser profile and "
                  "joins each visit to its urls row for the URL and title; one row per visits row. Every "
@@ -174,7 +174,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the urls table of each History database in a Chromium-based browser profile; one "
                  "row per urls row. On the tested images every urls row had at least one visits row, so "
@@ -315,7 +315,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the downloads table of each History database in a Chromium-based browser profile, "
                  "with the URL chain from downloads_url_chains; one row per downloads row. Browser, "
@@ -477,7 +477,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the keyword_search_terms table of each History database in a Chromium-based "
                  "browser profile, joined to urls on url_id; one row per keyword_search_terms row. Search "

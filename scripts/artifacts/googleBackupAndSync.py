@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": "Reads snapshot.db, with its -wal, in each profile folder of the legacy Google Drive desktop "
                  "client under AppData/Local/Google/Drive on Windows (the client Google replaced with Drive for desktop, which Google Drive Items "
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": "Reads cloud_graph_entry and cloud_relations in cloud_graph/cloud_graph.db, with its -wal when "
                  "present, in each profile folder of the legacy Google Drive desktop client, one row per "
@@ -116,7 +116,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": "Reads fschanges and change_buffer_entries in the databases under TempData/<folder>/"
                  "change_buffer/ in each profile folder of the legacy Google Drive desktop client, one row per "
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": "Reads external_devices in device_db.db in each profile folder of the legacy Google Drive "
                  "desktop client, one row per device. Label and Device ID are label and device_id as stored; "
@@ -182,7 +182,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": "Reads the data table of sync_config.db (entry_key, data_key, data_value) in each profile "
                  "folder, and the global_preferences (preference_type, preference_value) and username_mapping "
@@ -214,7 +214,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Google Drive",
+        "category": "Cloud & Files",
         "platforms": ("Windows", "macOS"),
         "notes": "Reads every file whose name contains sync_log.log under the profile folders "
                  "of the legacy Google Drive desktop client, one row per log entry. An entry begins "

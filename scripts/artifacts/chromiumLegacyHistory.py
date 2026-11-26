@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-08",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Media History is a SQLite database in each browser profile, named in media_history_store.cc "
                  "(https://github.com/chromium/chromium/blob/afa7a1c77c10c66e16e0e097dfb62a8b01915f52/chrome/browser/media/history/media_history_store.cc#L35), "
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-08",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Media History is a SQLite database in each browser profile, named in media_history_store.cc "
                  "(https://github.com/chromium/chromium/blob/afa7a1c77c10c66e16e0e097dfb62a8b01915f52/chrome/browser/media/history/media_history_store.cc#L35), "
@@ -191,7 +191,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-08",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Archived History and History Index are SQLite databases that old Chrome kept beside "
                  "History in each profile. Tested on the known data "
@@ -281,7 +281,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-08",
         "last_update_date": "2026-11-08",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Archived History and History Index are SQLite databases that old Chrome kept beside "
                  "History in each profile. Tested on the known data "

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Discord (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "sentry/scope_v3.json has the name, folder and layout (a scope and an event) of the file "
                  "Sentry's Electron SDK keeps to persist context beyond a crash "

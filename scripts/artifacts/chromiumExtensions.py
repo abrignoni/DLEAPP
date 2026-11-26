@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Chromium Browsers",
+        "category": "Browsers",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads the extensions.settings dictionary "
                  "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/extensions/browser/pref_names.h#L70-L72) "

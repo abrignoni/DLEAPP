@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the App.InFocus Biome stream. Each file in the stream's local folder, "
                  "and in each folder under its remote folder, other than one whose name begins "
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the App.WebUsage Biome stream. Each file in the stream's local folder, "
                  "and in each folder under its remote folder, other than one whose name begins "
@@ -170,7 +170,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the Safari.Navigations Biome stream. Each file in the stream's local "
                  "folder, and in each folder under its remote folder, other than one whose name "
@@ -231,7 +231,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the Notification.Usage Biome stream. Each file in the stream's local "
                  "folder, and in each folder under its remote folder, other than one whose name "
@@ -293,7 +293,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the Media.NowPlaying Biome stream. Each file in the stream's local "
                  "folder, and in each folder under its remote folder, other than one whose name "
@@ -364,7 +364,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the Device.Wireless.WiFi Biome stream. Each file in the stream's local "
                  "folder, and in each folder under its remote folder, other than one whose name "
@@ -422,7 +422,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the Siri.Remembers.InteractionHistory Biome stream. Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -444,7 +444,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the Siri.Remembers.MessageHistory Biome stream. Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -466,7 +466,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Reads the _DKEvent.Wifi.Connection Biome stream. Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -488,7 +488,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-25",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -510,7 +510,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -532,7 +532,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-11-20",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -554,7 +554,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -576,7 +576,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -598,7 +598,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-11-18",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -620,7 +620,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -641,7 +641,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": "Each file in the stream's local folder, and in each folder under its remote folder, other than one whose name begins with a dot, is read as a SEGB file with the vendored ccl_segb package, one row per record the file marks as written whose data ccl_segb can still read, and each such record is read as one protobuf message whose fields are taken by number without a schema; a record that does not read as one is counted in the run log and not reported. Records the file does not mark as written are not reported; those ccl_segb returns are counted in the run log, and it returns none of the entries a version 2 file marks as empty. Files under a tombstone folder are not read. Record Time (UTC) is the time the SEGB file stores with each record, which ccl_segb reads from a version 2 file as seconds since 00:00:00 on 1 January 2001 and DLEAPP reports as UTC (Reference: CCL Solutions Group, ccl-segb, ccl_segb/ccl_segb2.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb2.py#L133-L142, and ccl_segb/ccl_segb_common.py, https://github.com/cclgroupltd/ccl-segb/blob/23c3f7d3d969a79627b738ba0a2486c31d675753/ccl_segb/ccl_segb_common.py#L5-L21); every file of the stream on the tested extraction is SEGB version 2. User is the folder after Users in the source path, or root under private/var/root, and is blank when the input is one user's home folder whose path names no user. "
                  "Sync Origin is Local for the local folder, or Remote with the name of the folder"
@@ -663,7 +663,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": (
             "Each file under the stream's local folder and under its remote folder is read as a SEGB file with "
@@ -737,7 +737,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-12",
         "last_update_date": "2026-11-12",
         "requirements": "none",
-        "category": "Biome (macOS)",
+        "category": "macOS - Biome",
         "platforms": ("macOS",),
         "notes": (
             "Reads the ProactiveHarvesting.Notes Biome stream. Every file matched under the stream's local and "

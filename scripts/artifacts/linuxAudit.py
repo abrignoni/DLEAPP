@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Logins (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/audit/audit.log and its numbered rotations, gzip ones included, and reports one row"
                  " per record, in line order, file by file in name order; Line is its line number in the file and "

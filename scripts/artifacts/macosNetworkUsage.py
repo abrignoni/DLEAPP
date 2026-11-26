@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-14",
         "last_update_date": "2026-11-21",
         "requirements": "none",
-        "category": "Network Usage (macOS)",
+        "category": "macOS - Network & Connectivity",
         "platforms": ("macOS",),
         "notes": "The field meanings and joins below were derived independently from the store's Core "
                  "Data model, measured data and Apple's code. On dleapp_macos_bigsur (macOS 11.2.1) "

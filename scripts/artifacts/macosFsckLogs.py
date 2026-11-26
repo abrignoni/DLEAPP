@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "File System (macOS)",
+        "category": "macOS - File System",
         "platforms": ("macOS",),
         "notes": "Reads each fsck log in a folder ending var/log (private/var/log on a Mac), such as "
                  "fsck_apfs.log and fsck_hfs.log, and in a Library/Logs folder, one row per run in the "

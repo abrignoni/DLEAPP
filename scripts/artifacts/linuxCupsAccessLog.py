@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-10",
         "requirements": "none",
-        "category": "Printing (CUPS)",
+        "category": "Multi-platform - System Information",
         "platforms": ("macOS", "Linux"),
         "notes": "Reads access_log in the CUPS log folder and its numbered rotations, gzip ones included, and "
                  "reports one row per line. cupsd writes a line as host, a group field written as '-', user, the "

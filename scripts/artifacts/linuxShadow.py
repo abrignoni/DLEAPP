@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-14",
         "last_update_date": "2026-11-14",
         "requirements": "none",
-        "category": "Accounts (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads each /etc/shadow the paths match, one row per entry line in file order. Each line is "
                  "split on colons and the first eight of the nine fields shadow(5) gives are read, "

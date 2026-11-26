@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Eufy (Floodlight Camera)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the .dat files in the camera's Camera00 folder, one row per recording file, in name "
                  "order. The camera keeps them on an ext4 volume whose superblock records /mnt/data as where it "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-11-01",
         "requirements": "none",
-        "category": "Eufy (Floodlight Camera)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads the camera's log folder, files named sec.YYYY-MM-DD.log, on the same volume as its "
                  "Camera00 folder. A file is read only when one of its lines comes "

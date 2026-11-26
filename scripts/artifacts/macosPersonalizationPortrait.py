@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-12",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "Personalization Portrait (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": "Reads PPSQLDatabase.db in a Library/PersonalizationPortrait folder, which in the tested samples "
                  "sat in a user's Library, and reports one row per row of its ne_records table. Source Time (UTC), "
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-12",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "Personalization Portrait (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": "Reads PPSQLDatabase.db in a Library/PersonalizationPortrait folder, which in the tested samples "
                  "sat in a user's Library, and reports one row per row of its tp_records table. Source Time (UTC), "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-12",
         "last_update_date": "2026-10-12",
         "requirements": "none",
-        "category": "Personalization Portrait (macOS)",
+        "category": "macOS - Device Activity",
         "platforms": ("macOS",),
         "notes": "Reads PPSQLDatabase.db in a Library/PersonalizationPortrait folder, which in the tested samples "
                  "sat in a user's Library, and reports one row per row of its loc_records table. Source Time (UTC), "

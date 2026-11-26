@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "plocate databases need zstd: Python 3.14 or later, or the backports.zstd or zstandard "
                         "package on an earlier Python",
-        "category": "Locate Databases (Linux)",
+        "category": "Linux - File & Folder Activity",
         "platforms": ("Linux",),
         "notes": "Read from plocate.db in var/lib/plocate, and in var/lib/mlocate, where plocate-build's help says to put "
                  "it (plocate plocate-build.cpp lines 188-189 "
@@ -195,7 +195,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-23",
         "requirements": "plocate path counts need zstd: Python 3.14 or later, or the backports.zstd or zstandard "
                         "package on an earlier Python",
-        "category": "Locate Databases (Linux)",
+        "category": "Linux - File & Folder Activity",
         "platforms": ("Linux",),
         "notes": "Read from plocate.db in var/lib/plocate, and in var/lib/mlocate, where plocate-build's help says to put "
                  "it (plocate plocate-build.cpp lines 188-189 "

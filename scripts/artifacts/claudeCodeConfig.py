@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none",
-        "category": "Claude Code",
+        "category": "AI Assistants",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads settings.json and settings.local.json in every .claude folder the paths match, the user "
                  "folder and any project folder alike; Source File says which, because a row alone does not (the "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none",
-        "category": "Claude Code",
+        "category": "AI Assistants",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Scope is where the server was read: Project file for a .mcp.json (Project is its folder), User "
                  "for mcpServers at the top level of .claude.json, Local for mcpServers under a project path of "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none",
-        "category": "Claude Code",
+        "category": "AI Assistants",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per key of projects in each .claude.json. Project is the key as stored. On the Windows "
                  "known data, 1.0.123 wrote backslashes and 2.1.319 wrote forward slashes; Claude Code 2.1.112 "

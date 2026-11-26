@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "One row per .desktop file in a user's .local/share/applications folder, its subfolders included, "
                  "and in a Desktop folder, file by file in path order; Source File is the file, and the files read "
@@ -97,7 +97,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "One row per line of the [Default Applications], [Added Associations] and [Removed Associations] "
                  "groups of each mimeapps.list and <desktop>-mimeapps.list file under .config, "

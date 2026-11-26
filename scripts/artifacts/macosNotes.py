@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-09-25",
         "requirements": "none",
-        "category": "Notes (macOS)",
+        "category": "Productivity",
         "platforms": ("macOS",),
         "notes": "Every NoteStore.sqlite found is parsed, tagged by Source "
                  "File. The body text is zlib-decompressed from ZICNOTEDATA and "

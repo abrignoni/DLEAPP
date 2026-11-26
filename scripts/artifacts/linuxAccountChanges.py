@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Accounts (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated "
                  "rotations, gzip ones included, and reports each line whose program is one of the shadow tools "
@@ -142,7 +142,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Accounts (Linux)",
+        "category": "Linux - Accounts & Logons",
         "platforms": ("Linux",),
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
                  "SYSLOG_IDENTIFIER is one of the program names Account Changes reads, read with the same reader "

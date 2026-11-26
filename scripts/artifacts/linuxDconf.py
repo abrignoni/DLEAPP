@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-30",
         "last_update_date": "2026-09-30",
         "requirements": "none",
-        "category": "Desktop (Linux)",
+        "category": "Linux - Device Activity",
         "platforms": ("Linux",),
         "notes": "Reads the dconf database at .config/dconf/user in a home folder, one row per key. dconf is "
                  "a key and value store built for user preferences "
