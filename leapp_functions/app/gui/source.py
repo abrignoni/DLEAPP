@@ -22,9 +22,12 @@ from leapp_functions.app.secret_fields import SECRETS
 from scripts.raw_image import (RAW_IMAGE_FILE_PATTERNS, RAW_IMAGE_LABEL, confirm_found_members,
                                selection_text)
 
-FILE_TYPES = (("All supported files", "*.tar *.zip *.gz *.xz " + RAW_IMAGE_FILE_PATTERNS),
+# A Berla iVe export, offered only by a LEAPP that reads one (VLEAPP)
+EXPORT_TYPES = (("Berla iVe export", "*.iVa"),) if "iva" in input_type.SUPPORTED else ()
+FILE_TYPES = (("All supported files", " ".join(["*.tar *.zip *.gz *.xz", RAW_IMAGE_FILE_PATTERNS]
+                                               + [pattern for _label, pattern in EXPORT_TYPES])),
               ("tar file", "*.tar"), ("zip file", "*.zip"), ("gz file", "*.gz"),
-              ("tar.xz file", "*.xz"), (RAW_IMAGE_LABEL, RAW_IMAGE_FILE_PATTERNS))
+              ("tar.xz file", "*.xz"), (RAW_IMAGE_LABEL, RAW_IMAGE_FILE_PATTERNS)) + EXPORT_TYPES
 DETECT_DELAY = 300
 WATCH_DELAY = 1000
 POLL_DELAY = 100
