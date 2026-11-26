@@ -34,11 +34,17 @@ SCREENS = {"case": CaseScreen, "source": SourceScreen, "artifacts": ArtifactsScr
 
 
 def crunch(request):
-    """ The parser. """
-    return dleapp.crunch_artifacts(request.plugins, request.detected.kind, request.input_path,
-                                   request.out_params, True, request.loader, request.case,
-                                   request.profile, image_password=request.image_keys,
-                                   found_members=request.found, hash_files=request.hash_files)
+    """ The parser. The secrets of the Source screen are read as the command line reads them (a
+    path to a file stands for what the file holds) and held for this run only: cleared when the
+    run ends, whatever its end. """
+    dleapp.set_app_secrets({name: value or None for name, value in request.secrets.items()})
+    try:
+        return dleapp.crunch_artifacts(request.plugins, request.detected.kind, request.input_path,
+                                       request.out_params, True, request.loader, request.case,
+                                       request.profile, image_password=request.image_keys,
+                                       found_members=request.found, hash_files=request.hash_files)
+    finally:
+        dleapp.set_app_secrets({})
 
 
 class MainWindow(tk.Tk):

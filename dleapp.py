@@ -107,6 +107,49 @@ def resolve_supplied_secret(value, label):
     return value.strip()
 
 
+# The secrets an examiner may give, by the name artifacts ask Context for: the option of the
+# command line that gives each one, and the name messages and the run log give it.
+APP_SECRETS = {
+    'signal': ('signal_key', 'Signal key'),
+    'threema': ('threema_key', 'Threema key'),
+    'threema_password': ('threema_password', 'Threema password'),
+    'windows_user_password': ('windows_user_password', 'Windows user password'),
+    'exodus_password': ('exodus_password', 'Exodus password'),
+}
+
+
+def set_app_secrets(values):
+    '''Give the artifacts the secrets of this run, the CLI's and the window's alike.
+
+    values maps a name of APP_SECRETS to what was given for it: the secret, the path of a
+    file holding it, or None. A secret left out is cleared. Raises argparse.ArgumentError,
+    as resolve_supplied_secret does.
+    '''
+    for name, (_option, label) in APP_SECRETS.items():
+        Context.set_app_secret(name, resolve_supplied_secret(values.get(name), label))
+
+
+def check_supplied_secret(text):
+    '''Raise ValueError when the run would refuse text: a path to an empty file.
+
+    The window's check of a secret ("check" in data/leapp_config.json). Its message never
+    holds the text, which may be the secret.
+    '''
+    try:
+        resolve_supplied_secret(text, 'The secret')
+    except argparse.ArgumentError as error:
+        raise ValueError('the file it names is empty.') from error
+
+
+def log_supplied_secrets():
+    '''Write the secrets given for this run in the run log, as iLEAPP writes a backup's
+    password, so the log records what opened the data.'''
+    for name, (_option, label) in APP_SECRETS.items():
+        value = Context.get_app_secret(name)
+        if value:
+            logfunc(f'{label}: {value}')
+
+
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
         return  # Skip further validation if --artifact_paths is used
@@ -516,15 +559,8 @@ def main():
 
     # Gather any application secrets now, while the terminal is still ours
     try:
-        Context.set_app_secret('signal', resolve_supplied_secret(args.signal_key, 'Signal key'))
-        Context.set_app_secret('threema', resolve_supplied_secret(args.threema_key, 'Threema key'))
-        Context.set_app_secret('threema_password',
-                               resolve_supplied_secret(args.threema_password, 'Threema password'))
-        Context.set_app_secret('windows_user_password',
-                               resolve_supplied_secret(args.windows_user_password,
-                                                       'Windows user password'))
-        Context.set_app_secret('exodus_password',
-                               resolve_supplied_secret(args.exodus_password, 'Exodus password'))
+        set_app_secrets({name: getattr(args, option)
+                         for name, (option, _label) in APP_SECRETS.items()})
     except argparse.ArgumentError as secret_error:
         print(secret_error)
         return
@@ -619,7 +655,8 @@ def crunch_artifacts(
     logfunc(f'{leapp.name} v{leapp.version}: {leapp.description}')
     logfunc(f'Objective: {leapp.objective}')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com\n')
-    
+    log_supplied_secrets()
+
     seeker = None
     try:
         if extracttype == 'fs':

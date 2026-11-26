@@ -48,7 +48,9 @@ python3 dleapp.py -t fs -i <profile> -o <output> --signal-key
 
 Given the flag with no value it prompts without echo, which keeps the secret out
 of shell history and the process list. The GUI has an equivalent Signal key
-field. A file named `signal_password.txt` beside the extraction is also picked
+field, beside its Threema, Windows user and Exodus wallet ones. The run log
+records each secret given, from the command line or the GUI, so the report
+shows what opened the data. A file named `signal_password.txt` beside the extraction is also picked
 up, which suits batch runs. Older profiles that still hold a plaintext `key` in
 `config.json` need nothing at all.
 

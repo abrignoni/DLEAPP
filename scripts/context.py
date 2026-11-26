@@ -593,10 +593,14 @@ class Context:
 
         Args:
             name: the application the secret belongs to, for example 'signal'.
-            value: the secret as a string, or None to record that none was given.
+            value: the secret as a string, or None to record that none was given:
+                the window runs several times in one process, and a secret given for
+                one run must not open the next one's data.
         """
         if value:
             Context._app_secrets[name] = value
+        else:
+            Context._app_secrets.pop(name, None)
 
     @staticmethod
     def get_app_secret(name):
