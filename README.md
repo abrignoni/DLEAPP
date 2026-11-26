@@ -81,10 +81,23 @@ Download a pre-built release, no Python installation required, from
 | Windows (ARM) | `DLEAPP-*-windows-arm64-portable.zip` |
 | macOS (Apple Silicon) | `DLEAPP-*-macos-arm64.dmg` |
 | macOS (Intel) | `DLEAPP-*-macos-x64.dmg` |
-| Linux (Intel/AMD) | `DLEAPP-*-linux-x64.AppImage` |
-| Linux (ARM) | `DLEAPP-*-linux-arm64.AppImage` |
+| Linux (Intel/AMD, glibc 2.35+) | `DLEAPP-*-linux-x64.AppImage` |
+| Linux (ARM, glibc 2.35+) | `DLEAPP-*-linux-arm64.AppImage` |
+| Linux (Intel/AMD, Debian/Ubuntu, glibc 2.35+) | `DLEAPP-*-linux-x64.deb` |
+| Linux (ARM, Debian/Ubuntu, glibc 2.35+) | `DLEAPP-*-linux-arm64.deb` |
+| Linux (Intel/AMD, Fedora/RHEL 10+/openSUSE, glibc 2.35+) | `DLEAPP-*-linux-x64.rpm` |
+| Linux (ARM, Fedora/RHEL 10+/openSUSE, glibc 2.35+) | `DLEAPP-*-linux-arm64.rpm` |
 
-Each download holds one program, `dleapp`. `SHA256SUMS.txt` in each release lets you check a download.
+Each download holds one program, `dleapp`. `SHA256SUMS.txt` in each release lets you check a download. Linux pre-built packages require glibc 2.35 or newer (e.g. Ubuntu 22.04+, Fedora, RHEL 10+); on older distributions such as RHEL 9 (glibc 2.34), run from source.
+
+**One-line install** (Linux/macOS — picks the native package, verifies it, and installs it):
+
+```
+curl -fsSL https://raw.githubusercontent.com/abrignoni/DLEAPP/main/install.sh | bash
+```
+
+On Arch Linux, `dleapp-bin` follows the latest release and `dleapp-git` the
+latest commit (`paru -S dleapp-bin`, or `yay -S` instead of `paru -S`).
 
 **GUI**: open DLEAPP the usual way: by double-clicking `dleapp.exe` from the zip on
 Windows, DLEAPP in Applications on macOS, or the AppImage on Linux. Started without
@@ -97,7 +110,9 @@ output folder must already exist. On Windows, use `dleapp.exe` from the zip.
 dleapp.exe -t fs -i C:\path\to\extraction -o C:\path\to\output\
 ```
 
-On Linux, run the AppImage with the same arguments. On macOS it is inside the app; to
+On Linux, the `.deb`/`.rpm` and the `install.sh` script put `dleapp` on your PATH;
+run the AppImage directly with the same arguments where you use that instead.
+On macOS it is inside the app; to
 type just `dleapp` in a terminal, link it onto your PATH once:
 
 ```
@@ -209,7 +224,9 @@ python packaging/build.py installer    # Windows: Inno Setup installer; macOS: .
 `exe --onefile` makes `dist/dleapp` (`dist\dleapp.exe` on Windows) as a single file
 instead. The Windows installer needs [Inno Setup](https://jrsoftware.org/isdl.php); on
 Linux, `smoke` needs a display, which `xvfb-run` provides. `python packaging/build.py --help`
-has the rest.
+has the rest. On Linux, `packaging/linux/build_linux_packages.py` wraps the
+one-folder build as a `.deb` and an `.rpm` (`/opt/dleapp` plus a
+`/usr/bin/dleapp` symlink); it needs `rpmbuild` for the `.rpm` only.
 
 ## Contributing artifact plugins
 

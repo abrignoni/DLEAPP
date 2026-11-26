@@ -1,0 +1,47 @@
+# Maintainer: Alexis Brignoni <https://github.com/abrignoni>
+# Latest DLEAPP commit, rebuilt on every --devel upgrade
+# (yay -Syu --devel / paru -Syu --devel). For the last stable release
+# instead, use dleapp-bin.
+pkgname=dleapp-git
+pkgver=2026.4.6.dev.r0.g0000000
+pkgrel=1
+pkgdesc='Desktop Logs Events And Protobuf Parser (latest git)'
+arch=('x86_64' 'aarch64')
+url='https://github.com/abrignoni/DLEAPP'
+license=('MIT')
+provides=('dleapp')
+conflicts=('dleapp' 'dleapp-bin')
+depends=('hicolor-icon-theme')
+makedepends=('git' 'python' 'tk' 'python-pip' 'python-pyinstaller' 'xorg-server-xvfb')
+optdepends=('fuse2: only if you also run upstream AppImages; this package needs none')
+source=("git+https://github.com/abrignoni/DLEAPP.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd DLEAPP
+  # version_info.py (2026.4.6-dev) + commit count + short hash, Arch VCS style.
+  local ver rev hash
+  ver="$(python -c "import re; print(re.search(r\"^dleapp_version\s*=\s*['\\\"]([^'\\\"]+)['\\\"]\", open('scripts/version_info.py').read(), re.M).group(1))")"
+  ver="${ver//-/.}"
+  rev="$(git rev-list --count HEAD)"
+  hash="$(git rev-parse --short HEAD)"
+  printf '%s.r%s.g%s' "$ver" "$rev" "$hash"
+}
+
+build() {
+  cd DLEAPP
+  python admin/scripts/fetch_unifiedlog_iterator.py
+  python packaging/build.py exe
+  xvfb-run -a python packaging/build.py smoke
+}
+
+package() {
+  cd DLEAPP
+  install -dm755 "$pkgdir/opt/dleapp"
+  cp -a dist/DLEAPP/. "$pkgdir/opt/dleapp/"
+  install -dm755 "$pkgdir/usr/bin"
+  ln -s /opt/dleapp/dleapp "$pkgdir/usr/bin/dleapp"
+  install -Dm644 packaging/linux/dleapp.desktop "$pkgdir/usr/share/applications/dleapp.desktop"
+  install -Dm644 assets/icon.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/dleapp.png"
+  install -Dm644 assets/icon.png "$pkgdir/usr/share/pixmaps/dleapp.png"
+}

@@ -1,0 +1,48 @@
+.TH DLEAPP 1 "2026" "DLEAPP" "User Commands"
+.SH NAME
+dleapp \- Desktop Logs Events And Protobuf Parser
+.SH SYNOPSIS
+.B dleapp
+[\-t \fItype\fR] [\-i \fIinput\fR] [\-o \fIoutput\fR] [\fIoptions\fR]
+.br
+.B dleapp
+(no arguments opens the window)
+.SH DESCRIPTION
+DLEAPP parses artifacts left behind by desktop applications: the logs,
+events, and stored data of Electron/Chromium-based desktop apps
+(IndexedDB/LevelDB stores including protobuf-encoded values, Local Storage,
+service-worker and HTTP caches, cookies, and application logs).
+It is a member of the LEAPP family, built on the RLEAPP framework.
+.PP
+Started without arguments it opens the graphical window.
+Given arguments in a terminal it runs as a command line tool.
+.SH OPTIONS
+.TP
+.BR \-t ", " \-\-input " " \fItype\fR
+Input type: \fBfs\fR (folder), \fBtar\fR, \fBzip\fR, \fBgz\fR, \fBraw\fR (disk image).
+.TP
+.BR \-i ", " \-\-input_path " " \fIpath\fR
+Path to the input file or folder.
+.TP
+.BR \-o ", " \-\-output_path " " \fIpath\fR
+Path to the base output folder (must already exist).
+.TP
+.BR \-m ", " \-\-load_profile " " \fIfile\fR
+Path to a DLEAPP Profile file (.dlprofile).
+.TP
+.BR \-h ", " \-\-help
+Show the full help and exit.
+.TP
+.BR \-\-version
+Print the version and exit.
+.SH FILES
+.TP
+.I /opt/dleapp
+Program files.
+.TP
+.I /usr/bin/dleapp
+Symlink to the program.
+.SH "REPORT A BUG"
+https://github.com/abrignoni/DLEAPP/issues
+.SH "SEE ALSO"
+Full documentation: https://github.com/abrignoni/DLEAPP#readme
