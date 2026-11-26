@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "macOS - Web Cache",
+        "category": "macOS - Web Cookies & Cache",
         "platforms": ("macOS",),
         "notes": "Reads the record files, named by 40 hexadecimal characters, in the Records folders of "
                  "each WebKitCache/Version N folder, such as Safari's under "

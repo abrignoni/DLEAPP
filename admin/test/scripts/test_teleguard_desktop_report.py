@@ -24,6 +24,12 @@ EXPECTED = {'teleguardMessages': 24, 'teleguardChatOverview': 4,
             'teleguardMediaFiles': 6}
 
 
+def teleguard_artifacts(manifest):
+    """TeleGuard's own manifest entries. Its category, Messaging, holds other apps' too."""
+    return [a for a in manifest.get('artifacts', {}).get('Messaging', [])
+            if a['artifact_key'] in EXPECTED]
+
+
 class TeleGuardReportTest(unittest.TestCase):
     """Full CLI output, per-profile media identity and negative controls."""
 
@@ -62,7 +68,7 @@ class TeleGuardReportTest(unittest.TestCase):
             double = self.run_cli(double_archive, root / 'double-output')
             for report, factor in ((single, 1), (double, 2)):
                 manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
-                artifacts = manifest['artifacts']['Messaging']
+                artifacts = teleguard_artifacts(manifest)
                 counts = {a['artifact_key']: a['record_count'] for a in artifacts}
                 self.assertEqual(counts, {key: value // 2 * factor for key, value in EXPECTED.items()})
                 with closing(sqlite3.connect(report / '_lava_artifacts.db')) as db:
@@ -136,7 +142,7 @@ class TeleGuardReportTest(unittest.TestCase):
             fixture.pack(tree, archive)
             report = self.run_cli(archive, root / 'roaming-output')
             manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
-            artifacts = manifest['artifacts']['Messaging']
+            artifacts = teleguard_artifacts(manifest)
             self.assertEqual({a['artifact_key']: a['record_count'] for a in artifacts},
                              dict(EXPECTED, teleguardMediaFiles=5))
             with closing(sqlite3.connect(report / '_lava_artifacts.db')) as db:
@@ -171,7 +177,7 @@ class TeleGuardReportTest(unittest.TestCase):
             for archive, factor in ((single_archive, 1), (double_archive, 2)):
                 report = self.run_cli(archive, root / ('output-' + str(factor)))
                 manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
-                artifacts = manifest['artifacts']['Messaging']
+                artifacts = teleguard_artifacts(manifest)
                 expected = {'teleguardMessages': 12 * factor, 'teleguardChatOverview': 2 * factor,
                             'teleguardContacts': 6 * factor, 'teleguardMediaReferences': 13 * factor,
                             'teleguardMediaFiles': 11 * factor}
@@ -235,7 +241,7 @@ class TeleGuardReportTest(unittest.TestCase):
                 output.writestr('unrelated_app/photo.jpg', fixture.JPEG)
             report = self.run_cli(archive, root / 'negative-output')
             manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
-            self.assertEqual(manifest.get('artifacts', {}).get('Messaging', []), [])
+            self.assertEqual(teleguard_artifacts(manifest), [])
 
 
 if __name__ == '__main__':
