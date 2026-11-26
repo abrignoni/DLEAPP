@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/DLEAPP_logo.png" alt="DLEAPP" width="200">
+  <img src="assets/DLEAPP_square.png" alt="DLEAPP" width="200">
 </p>
 
-# Desktop Logs Events And Protobuf Parser
+# Desktop Logs, Events and Protobuf Parser
 
 **DLEAPP** parses artifacts left behind by **desktop applications** — the logs, events, and stored data of Electron/Chromium-based desktop apps: IndexedDB/LevelDB stores (including protobuf-encoded values), Local Storage, service-worker and HTTP caches, cookies, and application logs. It is a member of the LEAPP family, built on the RLEAPP framework.
 
@@ -48,7 +48,9 @@ python3 dleapp.py -t fs -i <profile> -o <output> --signal-key
 
 Given the flag with no value it prompts without echo, which keeps the secret out
 of shell history and the process list. The GUI has an equivalent Signal key
-field. A file named `signal_password.txt` beside the extraction is also picked
+field, beside its Threema, Windows user and Exodus wallet ones. The run log
+records each secret given, from the command line or the GUI, so the report
+shows what opened the data. A file named `signal_password.txt` beside the extraction is also picked
 up, which suits batch runs. Older profiles that still hold a plaintext `key` in
 `config.json` need nothing at all.
 
@@ -156,8 +158,9 @@ RSA private key (`--image_private_key`). A BitLocker volume in an image opens wi
 password or recovery password, given the same way, or its startup key
 (`--bitlocker_key`, repeatable), an APFS volume macOS encrypted in software with its
 password or personal recovery key, and a LUKS container with its passphrase, each given
-the same way. At a terminal whatever is missing is asked for, and the GUI asks in dialogs;
-a BitLocker, APFS or LUKS volume nothing opens is reported and not searched.
+the same way. At a terminal whatever is missing is asked for, and the GUI asks for it in the
+DETECTED card of the Source screen as soon as the image is chosen; a BitLocker, APFS or LUKS
+volume nothing opens is reported and not searched.
 
 The disk images of a Linux software RAID set (md, or LVM2 across disks) are read
 together: give them all to `-i` with `-t raw`, or pick them together in the GUI's file
@@ -179,7 +182,8 @@ copy is deleted when the run ends, and the run log says how long the step took.
 
 `-m <profile>` runs only the artifacts listed in a DLEAPP profile file, and `-c <folder>`
 creates one. Profiles are saved as `.dlprofile`. Profiles saved as `.rlprofile` by
-v2026.4.1 and earlier still load, in the CLI and in the GUI.
+v2026.4.1 and earlier still load in the CLI; the GUI lists only `.dlprofile` files, so
+rename one to load it there.
 
 ### GUI
 

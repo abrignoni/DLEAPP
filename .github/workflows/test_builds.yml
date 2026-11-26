@@ -29,6 +29,8 @@ on:
       - 'requirements.txt'
       - 'LICENSES/**'
       - 'admin/scripts/fetch_unifiedlog_iterator.py'
+      # data/ ships in the bundle and gives the build its version
+      - 'data/**'
       - '.github/workflows/test_builds.yml'
 
 permissions:

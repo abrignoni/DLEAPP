@@ -1,0 +1,76 @@
+{
+  "name": "DLEAPP",
+  "version": "2026.4.7-dev",
+  "description": "Desktop Logs, Events and Protobuf Parser",
+  "report_description": "DLEAPP is an open source project that aims to parse desktop application data for the purpose of triage analysis.",
+  "objective": "Triage desktop application data from Windows, macOS and Linux.",
+  "profile_extension": ".dlprofile",
+  "casedata_extension": ".lcasedata",
+  "source_hint": "A tar, zip or gz archive, a disk image (raw image, E01, AFF, DMG or virtual disk, L01 or AD1), or a folder holding a computer's files or a desktop application's data folder. Several disk images of a RAID set can be picked together.",
+  "input_types": ["fs", "tar", "gz", "zip", "raw"],
+  "secrets": {
+    "title": "PASSWORDS AND KEYS",
+    "subtitle": "The passwords and keys are optional",
+    "fields": [
+      {"name": "signal", "kind": "text", "display": "Signal key",
+       "label": "Optional. For a current Signal Desktop profile: its 64-character database key, the 'Signal Safe Storage' password (macOS), or the secret Signal stored in libsecret or kwallet (Linux).",
+       "if_absent": "No Signal key: a Signal Desktop profile that wraps its key stays encrypted.",
+       "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
+       "check": "dleapp:check_supplied_secret"},
+      {"name": "threema", "kind": "text", "display": "Threema password or key",
+       "label": "Optional. A Threema Desktop profile's local password, or its 64-character hexadecimal database key.",
+       "if_absent": "No Threema password or key: an encrypted Threema Desktop database stays encrypted.",
+       "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
+       "check": "dleapp:check_supplied_secret"},
+      {"name": "windows_user_password", "kind": "text", "display": "Windows user password",
+       "label": "Optional. A Windows account's password, which opens what DPAPI protects for it: its Vault, and the passwords and cookies of Chromium browsers.",
+       "if_absent": "No Windows user password: what DPAPI protects stays encrypted, unless Windows kept a key that opens it.",
+       "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
+       "check": "dleapp:check_supplied_secret"},
+      {"name": "exodus_password", "kind": "text", "display": "Exodus wallet password",
+       "label": "Optional. Tried as the passphrase of an Exodus desktop wallet's seed.seco. A wallet that kept its generated passphrase needs none.",
+       "if_absent": "No Exodus wallet password: a wallet its user protected with a password stays encrypted.",
+       "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
+       "check": "dleapp:check_supplied_secret"}
+    ]
+  },
+  "theme": {
+    "dark": {
+      "action": "#CF7BFB",
+      "border": "#565556",
+      "button_border": "#3e4047",
+      "card_accent": "#202228",
+      "card_bg": "#191A1E",
+      "header_bg": "#CF7BFB",
+      "header_icon": "#0E0F13",
+      "header_icon_hover": "#420363",
+      "input_bg": "#0E0F11",
+      "line": "#3e4047",
+      "main_bg": "#0E0F13",
+      "progress": "#CF7BFB",
+      "text_error": "#FF5A5F",
+      "text_legend": "#6E6A65",
+      "text_primary": "#F7F2EA",
+      "text_secondary": "#A7A29B"
+    },
+    "light": {
+      "action": "#C257FA",
+      "border": "#A3B0C2",
+      "button_border": "#A3B0C2",
+      "card_accent": "#F1F4F8",
+      "card_bg": "#FFFFFF",
+      "header_bg": "#CF7BFB",
+      "header_icon": "#0E0F13",
+      "header_icon_hover": "#420363",
+      "input_bg": "#F8FAFC",
+      "line": "#D5DDE9",
+      "main_bg": "#F8FAFC",
+      "progress": "#C257FA",
+      "text_error": "#C4101A",
+      "text_legend": "#738195",
+      "text_primary": "#101720",
+      "text_secondary": "#5A697D"
+    }
+  }
+}
+

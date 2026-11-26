@@ -4,12 +4,9 @@ Releases up to v2026.4.1 saved profiles with RLEAPP's extension. What makes a fi
 a DLEAPP profile is its "leapp": "dleapp" value, so an RLEAPP profile is refused
 whatever it is called, and a DLEAPP profile loads whatever it is called.
 
-The GUI cannot be imported without a display, so its two file dialogs are checked
-by reading dleappGUI.py: the open dialog must offer both extensions, the save
-dialog must default to .dlprofile, and both must use the shared helpers in
-dleapp.py rather than their own copies.
+The window lists only .dlprofile files in its dialogs, but reads a profile by its content as
+the command line does, so the two read each other's files.
 """
-import ast
 import json
 import pathlib
 import sys
@@ -23,6 +20,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import dleapp  # noqa: E402  pylint: disable=wrong-import-position
+from leapp_functions.app import artifact_list  # noqa: E402  pylint: disable=wrong-import-position
 
 
 def _write_json(path, value):
@@ -112,44 +110,27 @@ class TestSaveAndLoad(unittest.TestCase):
             self.assertTrue(plugins, path.name)
 
 
-def _function(tree, name):
-    """The top-level function named name."""
-    found = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == name]
-    assert len(found) == 1, (name, len(found))
-    return found[0]
+class TestWindowProfiles(unittest.TestCase):
+    """ The window reads and writes profiles with leapp_functions.app.artifact_list. Its files
+    and the command line's must be interchangeable, whatever the file is called. """
 
+    def test_a_profile_the_command_line_saved_loads_in_the_window(self):
+        """ A .dlprofile, or a .rlprofile of an earlier release, saved by dleapp.py. """
+        with tempfile.TemporaryDirectory() as folder:
+            for name in ('cli.dlprofile', 'old.rlprofile'):
+                path = pathlib.Path(folder, name)
+                dleapp.write_profile(str(path), ['b', 'a'])
+                self.assertEqual(artifact_list.read_profile(str(path)), ['b', 'a'], name)
 
-def _call(tree, attribute):
-    """The one call under tree to <something>.<attribute>(...)."""
-    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)
-             and isinstance(node.func, ast.Attribute) and node.func.attr == attribute]
-    assert len(calls) == 1, (attribute, len(calls))
-    return calls[0]
-
-
-class TestGuiDialogs(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.source = (REPO_ROOT / 'dleappGUI.py').read_text(encoding='utf-8')
-        cls.tree = ast.parse(cls.source)
-
-    def _keyword(self, call, name):
-        return ast.unparse(next(k.value for k in call.keywords if k.arg == name))
-
-    def test_open_dialog_offers_both_extensions(self):
-        call = _call(_function(self.tree, 'load_profile'), 'askopenfilename')
-        self.assertEqual(self._keyword(call, 'filetypes'),
-                         "(('DLEAPP Profile', dleapp.PROFILE_OPEN_PATTERNS),)")
-
-    def test_save_dialog_defaults_to_dlprofile(self):
-        call = _call(_function(self.tree, 'save_profile'), 'asksaveasfilename')
-        self.assertEqual(self._keyword(call, 'defaultextension'), 'dleapp.PROFILE_EXTENSION')
-
-    def test_gui_uses_the_shared_reader_and_writer(self):
-        _call(_function(self.tree, 'load_profile'), 'read_profile')
-        _call(_function(self.tree, 'save_profile'), 'write_profile')
-        self.assertNotIn('rlprofile', self.source)
+    def test_a_profile_the_window_saved_loads_in_the_command_line(self):
+        """ The window saves the artifacts selected, in the order of its list. """
+        artifacts = SimpleNamespace(listed=[SimpleNamespace(name='a'), SimpleNamespace(name='b'),
+                                            SimpleNamespace(name='c')],
+                                    selected={'a', 'c'})
+        with tempfile.TemporaryDirectory() as folder:
+            path = pathlib.Path(folder, 'window.dlprofile')
+            self.assertTrue(artifact_list.write_profile(str(path), artifacts))
+            self.assertEqual(dleapp.read_profile(str(path)), ({'a', 'c'}, None))
 
 
 if __name__ == '__main__':
