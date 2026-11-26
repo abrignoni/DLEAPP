@@ -1301,7 +1301,7 @@ artifact modules importing any one name from it, or the module itself.
 
 | Used by | Module | Kind |
 | ---: | --- | --- |
-| 8 | `scripts.vendor` | package |
+| 8 | `scripts.vendor.dpapiprobe` | vendored or generated |
 | 5 | `scripts.vendor.impacket_ese` | vendored or generated |
 | 3 | `scripts.ccl.indexeddb_to_json` | vendored or generated |
 | 3 | `scripts.vendor.ccl.ccl_chromium_indexeddb` | vendored or generated |
