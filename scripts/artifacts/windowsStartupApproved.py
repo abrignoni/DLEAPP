@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "One row per value in the Run, Run32 and StartupFolder subkeys of "
                  "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved in each NTUSER.DAT "
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none (the vendored regfprobe reads the hive for the State column)",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "One row per file in a Startup folder: AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs"
                  "\\Startup under each user (Location User), ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"

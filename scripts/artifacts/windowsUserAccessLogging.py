@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-15",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": 'Reads the SYSTEM_IDENTITY table of Windows/System32/LogFiles/Sum/SystemIdentity.mdb, an ESE '
                  'database, and reports one row per record, ordered by Snapshot Created. Microsoft describes User '
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-15",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": 'Reads the CLIENTS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum, and '
                  'the ROLE_IDS table of the SystemIdentity.mdb in the same folder to name each role. A record found '
@@ -220,7 +220,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-15",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": 'Reads the ROLE_ACCESS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum, '
                  'and names each role from the ROLE_IDS table of the SystemIdentity.mdb in the same folder. A record '
@@ -295,7 +295,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-14",
         "last_update_date": "2026-10-15",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": 'Reads the DNS table of Current.mdb and of each {GUID}.mdb in Windows/System32/LogFiles/Sum. A record'
                  " found with the same values in several of the folder's databases is one row, and Databases names "

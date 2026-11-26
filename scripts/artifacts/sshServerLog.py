@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "SSH",
+        "category": "Linux - Remote Access",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated"
                  " rotations, gzip ones included, named in the report's located-at line, and reports each line "
@@ -150,7 +150,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "SSH",
+        "category": "Linux - Remote Access",
         "platforms": ("Linux",),
         "notes": "One row per entry in the systemd journal files under var/log/journal and run/log/journal whose "
                  "SYSLOG_IDENTIFIER is sshd, sshd-session or sshd-auth, the names SSH Server Log reads, read with "

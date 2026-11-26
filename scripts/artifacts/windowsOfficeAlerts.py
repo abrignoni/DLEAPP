@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Read from OAlerts.evtx in Windows\\System32\\winevt\\Logs, named in the report's located-at line: "
                  "every record of it that renders and parses as XML, read the way scripts/windows_evtx.py describes; "

@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the "
                         "keyring secret (Linux) or the 64-character database key, for the "
                         "account fields",
-        "category": "Signal (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Key material is reported as present or absent, never printed: "
                  "the store also holds the account password, master key, "

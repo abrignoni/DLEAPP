@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Reads each Software\\Microsoft\\Office\\<version>\\<application> key in each NTUSER.DAT "
                  "for File MRU and Place MRU subkeys, including those under User MRU\\<account key>, "

@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Windows Apps",
+        "category": "Windows - Installed Apps",
         "platforms": ("Windows",),
         "notes": "Reads each tab file (<tab id>.bin) in LocalState/TabState under a user's "
                  "Packages/Microsoft.WindowsNotepad_* folder, one row per tab file, with the layout "
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Windows Apps",
+        "category": "Windows - Installed Apps",
         "platforms": ("Windows",),
         "notes": "Reads each WindowState file (<window id>.0.bin and <window id>.1.bin) in "
                  "LocalState/WindowState under a user's Packages/Microsoft.WindowsNotepad_* folder, one "
@@ -129,7 +129,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Windows Apps",
+        "category": "Windows - Installed Apps",
         "platforms": ("Windows",),
         "notes": "Reads every value of every key in Settings/settings.dat under a user's "
                  "Packages/Microsoft.WindowsNotepad_* folder, one row per value, from the hive opened and "

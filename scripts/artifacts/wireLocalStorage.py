@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-23",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Wire (Windows)",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Only entries for wire.com origins (the host wire.com or one of its "
                  "subdomains) and keys stored without an origin (reported as '(app)') "

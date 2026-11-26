@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the .lnk shell links in a user's Recent folder "
                  "(AppData\\Roaming\\Microsoft\\Windows\\Recent, or Documents and Settings\\<user>\\Recent "
@@ -132,7 +132,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the .lnk shell links in a user's Microsoft Office Recent folder "
                  "(AppData\\Roaming\\Microsoft\\Office\\Recent in the tested profiles; the pattern matches a .lnk, "
@@ -191,7 +191,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-04",
         "last_update_date": "2026-11-04",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the .lnk shell links in four places, named in Location: a user's Desktop folder "
                  "(Users\\<user>\\Desktop, or Documents and Settings\\<user>\\Desktop on Windows XP), the "

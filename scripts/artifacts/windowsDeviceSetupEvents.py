@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-10-02",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - External Devices",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-DeviceSetupManager%4Admin.evtx, named in the report's "
                  "located-at line; only Microsoft-Windows-DeviceSetupManager records with Event ID 112, "

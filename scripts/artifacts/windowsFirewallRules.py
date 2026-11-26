@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads the rules under "
                  "Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules in the SYSTEM "

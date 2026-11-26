@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - External Devices",
         "platforms": ("Windows",),
         "notes": "One row per value in the SYSTEM hive's top-level "
                  "MountedDevices key (the Mount Manager's persistent name "

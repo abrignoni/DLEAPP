@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-10-19",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from "
                  "ProgramData\\Microsoft\\Windows\\CapabilityAccessManager\\CapabilityAccessManager.db "
@@ -120,7 +120,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from the NonPackagedIdentityRelationship table of "
                  "ProgramData\\Microsoft\\Windows\\CapabilityAccessManager\\CapabilityAccessManager.db, with "

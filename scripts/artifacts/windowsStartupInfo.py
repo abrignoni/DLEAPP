@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-10-30",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Read from the XML files in Windows\\System32\\WDI\\LogFiles\\StartupInfo named <user "
                  "SID>_StartupInfo<n>.xml, each named in the report's located-at line; the files on the "

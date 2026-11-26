@@ -24,7 +24,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "none",
-        "category": "Pidgin",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per line of otr.fingerprints that has at least four tab-separated fields and 40 "
                  "hexadecimal digits in the fourth. Other lines are skipped and logged. Source citations are to libotr 4.1.1 "
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "none",
-        "category": "Pidgin",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "One row per account in otr.private_key or otr.instance_tags in a .purple folder. Source citations "
                  "are to libotr 4.1.1 (https://otr.cypherpunks.ca/libotr-4.1.1.tar.gz). Which libotr build the Windows "

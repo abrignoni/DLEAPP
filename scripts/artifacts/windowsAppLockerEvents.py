@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-18",
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-AppLocker%4EXE and DLL.evtx, %4MSI and Script.evtx, %4Packaged "
                  "app-Deployment.evtx and %4Packaged app-Execution.evtx the paths match with python-evtx and "
@@ -225,7 +225,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-18",
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-AppLocker%4EXE and DLL.evtx, %4MSI and Script.evtx, %4Packaged "
                  "app-Deployment.evtx and %4Packaged app-Execution.evtx the paths match with python-evtx and "
@@ -366,7 +366,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-18",
         "last_update_date": "2026-10-18",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-AppLocker%4EXE and DLL.evtx, %4MSI and Script.evtx, %4Packaged "
                  "app-Deployment.evtx and %4Packaged app-Execution.evtx the paths match with python-evtx and "

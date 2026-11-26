@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "CookiesData is encrypted with Windows DPAPI and cannot be decrypted "
                  "from AppData alone. The complete base64 value is retained for "
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "Chromium v10 cookie values depend on the WebView2 Local State "
                  "os_crypt key and Windows DPAPI. Encrypted values are reported in "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "URLs and query parameters are reported in full and may contain "
                  "challenge tokens or credential-like values. The parser does not "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "LevelDB table and log files preserve historical versions. Values "
                  "are reported in full; JSON is compacted and may contain tokens, "
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "Chromium Session Storage namespaces map origins to numbered maps. "
                  "LevelDB log records can preserve values after the namespace is "
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "The vendored Chromium IndexedDB reader returns decoded JavaScript "
                  "values where supported and explicit placeholders otherwise. "
@@ -164,7 +164,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "Parses Chromium v3 index, data_N blocks and f_XXXXXX streams using "
                  "the published blockfile format. URLs and headers are reported in "
@@ -190,7 +190,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "Only user-specific API endpoints are included; general feature "
                  "configuration metadata is excluded. Nested JSON is flattened to "
@@ -221,7 +221,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "One row is emitted per relationship, membership or search action. "
                  "Group-search response listings are omitted because they are server "
@@ -247,7 +247,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-01",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "Purchase-flow telemetry documents page views, available products "
                  "and session state; it does not by itself prove a completed purchase. "
@@ -281,7 +281,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "Only records containing an actual user-linked item or wall post "
                  "are emitted. Empty lists, endpoint errors, category catalogs, "
@@ -307,7 +307,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Roblox (Windows)",
+        "category": "Music, Video & News",
         "platforms": ("Windows",),
         "notes": "Recovered from retained privatemessages.roblox.com response bodies. "
                  "The cache is partial and can hold multiple versions; identical "

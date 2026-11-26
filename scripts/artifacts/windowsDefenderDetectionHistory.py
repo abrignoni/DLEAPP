@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-18",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from the files under ProgramData/Microsoft/Windows "
                  "Defender/Scans/History/Service/DetectionHistory/<folder>/ whose name is a GUID, each "

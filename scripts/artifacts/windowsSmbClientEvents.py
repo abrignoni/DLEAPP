@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-11",
         "last_update_date": "2026-10-11",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-SmbClient%4Connectivity.evtx the paths match with python-evtx and "
                  "reports, one row per record, the records whose provider is Microsoft-Windows-SMBClient and whose "

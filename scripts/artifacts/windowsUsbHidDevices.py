@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-19",
         "last_update_date": "2026-10-19",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - External Devices",
         "platforms": ("Windows",),
         "notes": "One row per instance sub-key under the VID_ keys of Enum\\USB in the control "
                  "set the Select key's Current value names (ControlSet001 when there is none). "
@@ -129,7 +129,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-19",
         "last_update_date": "2026-10-19",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - External Devices",
         "platforms": ("Windows",),
         "notes": "One row per instance sub-key under Enum\\HID in the control set the Select "
                  "key's Current value names (ControlSet001 when there is none). Device Key and "

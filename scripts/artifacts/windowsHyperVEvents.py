@@ -314,7 +314,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Virtual Machines",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Hyper-V-Worker-Admin.evtx and "
                  "Microsoft-Windows-Hyper-V-Worker-Operational.evtx the paths match with python-evtx and reports, one "
@@ -455,7 +455,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Virtual Machines",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Hyper-V-Compute-Admin.evtx and "
                  "Microsoft-Windows-Hyper-V-Compute-Operational.evtx the paths match with python-evtx and reports, "
@@ -581,7 +581,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-23",
         "last_update_date": "2026-10-23",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Virtual Machines",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Hyper-V-VmSwitch-Operational.evtx the paths match with python-evtx "
                  "and reports, one row per record, the records whose provider is Microsoft-Windows-Hyper-V-VmSwitch "

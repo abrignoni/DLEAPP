@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 4672 is one row; the provider's message for it begins "
@@ -133,7 +133,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing events 4798 and 4799 is one row; the provider's messages for "
@@ -226,7 +226,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx, pefile",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 5379 is one row; the provider's message for it begins "
@@ -325,7 +325,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 5381 or 5382 is one row. The provider's message for "

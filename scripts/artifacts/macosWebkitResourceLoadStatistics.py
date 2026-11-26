@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         'description': 'Observed domain statistics from each observations.db in a user\'s WebKit website data.',
         'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
         'creation_date': '2026-10-30', 'last_update_date': '2026-10-30',
-        'requirements': 'none', 'category': 'Browser (macOS)',
+        'requirements': 'none', 'category': 'Browsers',
         'platforms': ('macOS',),
         'notes': "Ported from iLEAPP's WebKit tracking-prevention artifacts (@ForensikITGmbH), with macOS "
                  "paths and owners. These are WebKit tracking-prevention statistics, not a complete "
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         'description': 'Calendar dates retained by each WebKit statistics store in a user\'s WebKit website data.',
         'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
         'creation_date': '2026-10-30', 'last_update_date': '2026-10-30',
-        'requirements': 'none', 'category': 'Browser (macOS)',
+        'requirements': 'none', 'category': 'Browsers',
         'platforms': ('macOS',),
         'notes': "Ported from iLEAPP's WebKit tracking-prevention artifacts (@ForensikITGmbH), with macOS "
                  "paths and owners. These are WebKit tracking-prevention statistics, not a complete "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
                        'ObservedDomains while retaining original fields.',
         'author': '@ForensikITGmbH, @AlexisBrignoni, Claude',
         'creation_date': '2026-10-30', 'last_update_date': '2026-10-30',
-        'requirements': 'none', 'category': 'Browser (macOS)',
+        'requirements': 'none', 'category': 'Browsers',
         'platforms': ('macOS',),
         'notes': "Ported from iLEAPP's WebKit tracking-prevention artifacts (@ForensikITGmbH), with macOS "
                  "paths and owners. These are WebKit tracking-prevention statistics, not a complete "

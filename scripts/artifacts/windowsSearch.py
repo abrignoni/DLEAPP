@@ -59,7 +59,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the SystemIndex_PropertyStore table in Windows.edb, the "
                  "Windows Search index. Each row is one indexed item, keyed by Work "

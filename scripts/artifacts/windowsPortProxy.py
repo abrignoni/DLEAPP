@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-15",
         "last_update_date": "2026-11-15",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows Network",
+        "category": "Windows - Network & Connectivity",
         "platforms": ("Windows",),
         "notes": "Reads every ControlSetNNN\\Services\\PortProxy key of each SYSTEM hive. Each subkey of PortProxy "
                  "is a rule type (v4tov4, v4tov6, v6tov4 or v6tov6, the four rule types that netsh interface "

@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "bencoding",
-        "category": "uTorrent and BitTorrent",
+        "category": "Peer-to-Peer",
         "platforms": ("Windows",),
         "notes": "One row per .torrent entry in a resume.dat directly inside a folder named uTorrent or BitTorrent. No vendor "
                  "definition of these fields was used. On the known data (windows11_arm_utorrent_bittorrent_known_20261122, uTorrent 3.6.0.47390 and BitTorrent 7.11.0.47391, clients on "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "bencoding",
-        "category": "uTorrent and BitTorrent",
+        "category": "Peer-to-Peer",
         "platforms": ("Windows",),
         "notes": "One row per selected key that holds a value in settings.dat in a folder named uTorrent or "
                  "BitTorrent; Stored Key is the key's name. 15 of the 20 selected keys occurred on the known data. "
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-22",
         "last_update_date": "2026-11-22",
         "requirements": "bencoding",
-        "category": "uTorrent and BitTorrent",
+        "category": "Peer-to-Peer",
         "platforms": ("Windows",),
         "notes": "One row per entry in the feeds and filters lists of rss.dat. A feed's url field holds an alias and "
                  "the address joined by a vertical bar, which the Web API returned in the same form on the known "

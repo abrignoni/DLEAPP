@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": (
             "One row per IndexedDB database. Reads IndexedDB.sqlite3 in two layouts: current, under an app's "
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-11",
         "last_update_date": "2026-11-11",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": (
             "One row per row of a database's Records table, from databases that hold at least one. Reads "

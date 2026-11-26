@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": 'Reads the datatable and link_table tables of Windows/NTDS/ntds.dit, the Active Directory database a '
                  'domain controller keeps, an ESE database read with scripts/ese_rows over the vendored ESE reader. One '
@@ -229,7 +229,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-11-03",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": 'Reads the same database the same way as Active Directory Accounts, whose notes give the attribute '
                  'reading, the SID reading, the time reading and the database state. One row per datatable record whose '

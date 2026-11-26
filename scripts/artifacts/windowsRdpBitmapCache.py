@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Lists the files ending in .bin or .bmc in a profile's "
                   'AppData\\Local\\Microsoft\\Terminal Server Client\\Cache folder. The '
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": 'One row per tile of each Cache????.bin file listed by RDP Bitmap Cache '
                   "Files, with the tile as a PNG image. The layout is read from ANSSI's "
@@ -130,7 +130,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": 'One row per page of up to 256 tiles of a Cache????.bin file, as a PNG image:'
                   ' the tiles in the order the file stores them, Tile Index 0 first, 16 to a '

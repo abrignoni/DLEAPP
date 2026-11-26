@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-10-30",
         "requirements": "olefile (for automatic destinations)",
-        "category": "Windows",
+        "category": "Windows - File & Folder Activity",
         "platforms": ("Windows",),
         "notes": "Rows from the shell links inside a user's jump list files, read from the files "
                  "named in Source File. Each row is one destination shell link. List Type is "

@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-15",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Read from the Microsoft-Windows-TerminalServices-"
                  "LocalSessionManager%4Operational.evtx log, named in the report's located-at "

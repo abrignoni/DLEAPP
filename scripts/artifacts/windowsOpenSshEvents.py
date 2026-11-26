@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-26",
         "last_update_date": "2026-09-26",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Remote Access",
         "platforms": ("Windows",),
         "notes": "Read from OpenSSH%4Operational.evtx and OpenSSH%4Admin.evtx, named in the report's "
                  "located-at line; only OpenSSH provider records with Event ID 1, 2, 3 or 4 are read. "

@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "Rows from the WebCacheV01.dat History containers: the container "
                  "named History plus the periodic MSHist01 containers, whose name is "
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-16",
         "last_update_date": "2026-10-24",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "Rows from the WebCacheV01.dat Content containers (container Name "
                  "Content), which index the INetCache of Internet Explorer, legacy "
@@ -186,7 +186,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "Reads every container the WebCacheV01.dat Containers table names, with the same ESE reader as WebCache "
                  "History and WebCache Content, and gives one row per cached URL whose query has a parameter named "
@@ -250,7 +250,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-03",
         "last_update_date": "2026-11-03",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "Rows from the WebCacheV01.dat containers named iedownload. Read from WebCacheV01.dat, "
                  "named in Source File, with the ESE reader adapted from impacket in scripts/vendor. "
@@ -323,7 +323,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-21",
         "last_update_date": "2026-11-21",
         "requirements": "none (vendored ESE reader)",
-        "category": "Windows",
+        "category": "Browsers",
         "platforms": ("Windows",),
         "notes": "One row per entry in a WebCacheV01.dat Content container whose Directory is the "
                  "MicrosoftEdge\\Cache folder of the Microsoft.MicrosoftEdge_8wekyb3d8bbwe package. WebCache "

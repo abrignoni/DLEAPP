@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-03",
         "last_update_date": "2026-10-03",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - File System",
         "platforms": ("Windows",),
         "notes": "Reads every Microsoft-Windows-Ntfs%4Operational.evtx the paths match with python-evtx and reports, "
                  "one row per record, the records whose provider is Microsoft-Windows-Ntfs and whose Event ID is 151."

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Bootloader (U-Boot)",
+        "category": "Smart Home & Connected Devices",
         "platforms": ("Device",),
         "notes": "Reads uboot-env.bin, the one-file volume qnxprobe 1.54 and later gives a store in U-Boot's "
                  "environment layout found in a raw flash dump, and a file named uboot.env. The layout is "

@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Windows Apps",
+        "category": "Windows - Installed Apps",
         "platforms": ("Windows",),
         "notes": "Reads Settings/settings.dat under a user's Packages/Microsoft.WindowsStore_*, "
                  "Packages/Microsoft.Office.OneNote_*, Packages/Microsoft.SkypeApp_* and "
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-22",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Windows Apps",
+        "category": "Windows - Installed Apps",
         "platforms": ("Windows",),
         "notes": "Reads Settings/settings.dat under a user's Packages/Microsoft.Office.OneNote_* "
                  "folder. "

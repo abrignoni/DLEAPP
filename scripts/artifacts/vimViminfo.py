@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-04",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Command Line (Vim)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-04",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Command Line (Vim)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "
@@ -215,7 +215,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-04",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Command Line (Vim)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "
@@ -312,7 +312,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-04",
         "last_update_date": "2026-10-04",
         "requirements": "none",
-        "category": "Command Line (Vim)",
+        "category": "Multi-platform - Command Line",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Reads Vim's viminfo file where Vim keeps it by default: .viminfo in the home folder on Linux and "
                  "macOS and _viminfo on Windows "

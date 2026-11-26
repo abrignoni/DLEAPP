@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "Every History.db found is parsed, so a Mac with more than one user account reports "
                  "each account, tagged by Source File. A Safari profile's History.db under "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per history_items_to_tags row, which links a "
                  "history_tags row to a history_items row, and one row for "
@@ -183,7 +183,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per node whose WebBookmarkType is WebBookmarkTypeLeaf. Folder Path joins, "
                  "with a slash, the Title of each node above the leaf, leaving out an empty Title; "
@@ -219,7 +219,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per entry of the plist's TopSites list. Title is TopSiteTitle and URL is "
                  "TopSiteURLString. Built-in Default shows Yes or No for a stored TopSiteIsBuiltIn of "
@@ -269,7 +269,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "Each entry of ClosedTabOrWindowPersistentStates holds a PersistentState. An entry "
                  "whose PersistentState holds TabStates is read as a window and gives one row per tab. "
@@ -336,7 +336,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per cloud_tabs row, joined to cloud_tab_devices on device_uuid. Tab Title, "
                  "URL and Tab UUID are the title, url and tab_uuid columns. Last Viewed is "
@@ -395,7 +395,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per cloud_tab_devices row. Last Modified is last_modified read as Mac "
                  "Absolute Time (seconds since 2001-01-01) and shown in UTC; what it marks is not "
@@ -441,7 +441,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per bookmarks row whose type is 0. On the tested database the rows of type 1 "
                  "were folders: tab groups, a profile and Safari's own lists. Last Viewed is "
@@ -511,7 +511,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per snapshot_metadata row of a Metadata.db inside a com.apple.Safari "
                  "TabSnapshots folder. Created is date_created read as Mac Absolute Time (seconds "
@@ -563,7 +563,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-01",
         "last_update_date": "2026-10-01",
         "requirements": "none",
-        "category": "Safari (macOS)",
+        "category": "Browsers",
         "platforms": ("macOS",),
         "notes": "One row per tab of each SessionWindows window's TabStates. Tab Title is TabTitle, "
                  "URL is TabURL, Tab UUID is TabUUID, Tab Index is TabIndex and Window UUID is the "

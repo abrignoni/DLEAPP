@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-24",
         "last_update_date": "2026-11-23",
         "requirements": "none",
-        "category": "Persistence (macOS)",
+        "category": "macOS - Persistence",
         "platforms": ("macOS",),
         "notes": (
             "Reads the zsh startup files .zshenv, .zprofile, .zshrc, .zlogin and .zlogout in any "
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-24",
         "last_update_date": "2026-11-23",
         "requirements": "none",
-        "category": "Persistence (macOS)",
+        "category": "macOS - Persistence",
         "platforms": ("macOS",),
         "notes": (
             "Reads every file whose name ends in .zwc, one row per entry. The layout is zsh 5.9's"
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-24",
         "last_update_date": "2026-09-24",
         "requirements": "none",
-        "category": "Command Line (macOS)",
+        "category": "macOS - Command Line",
         "platforms": ("macOS",),
         "notes": (
             "Reads .zsh_history, the file the stock /etc/zshrc on macOS names as HISTFILE when "
@@ -191,7 +191,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-24",
         "last_update_date": "2026-09-24",
         "requirements": "none",
-        "category": "Command Line (macOS)",
+        "category": "macOS - Command Line",
         "platforms": ("macOS",),
         "notes": (
             "Reads Terminal's session state files, <session id>.session in .zsh_sessions, which "

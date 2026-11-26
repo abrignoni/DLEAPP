@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-10-31",
         "requirements": "none",
-        "category": "Telegram Desktop",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": "Routine rendering, font, display, and audio-device chatter is "
                  "suppressed. A log line mentioning a message is application "

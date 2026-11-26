@@ -248,7 +248,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  'Microsoft-Windows-Security-Auditing events 4768, 4769, 4770 and 4771 is one row; only that provider is '
@@ -344,7 +344,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 4776 is one row; only that provider is read. Microsoft's page "
@@ -413,7 +413,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  'Microsoft-Windows-Security-Auditing events 5140 and 5145 is one row; only that provider is read. Event '
@@ -489,7 +489,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the Security event log, named in the report's located-at line. Each record of "
                  "Microsoft-Windows-Security-Auditing event 4662 is one row; only that provider is read. Microsoft's page "

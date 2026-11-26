@@ -54,7 +54,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-10-22",
         "requirements": "none",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "Read from the MPLog-*.log files under ProgramData\\Microsoft\\Windows "
                  "Defender\\Support, each named in the Source File column and in the "

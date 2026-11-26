@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-28",
         "last_update_date": "2026-09-28",
         "requirements": "none",
-        "category": "Command Line (sudo)",
+        "category": "Linux - Command Line",
         "platforms": ("Linux",),
         "notes": "Reads /var/log/auth.log and its numbered rotations and /var/log/secure and its numbered or dated "
                  "rotations, gzip ones included, named in the report's located-at line, and reports each command "
@@ -158,7 +158,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-29",
         "last_update_date": "2026-09-29",
         "requirements": "none",
-        "category": "Command Line (sudo)",
+        "category": "Linux - Command Line",
         "platforms": ("Linux",),
         "notes": "One row per command sudo logged in the systemd journal files under var/log/journal and "
                  "run/log/journal, read with the same reader as systemd Journal (scripts/systemd_journal.py) and "

@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Windows System",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Timestamps are interpreted as Unix "
                  "seconds in UTC. Payloads that are not JSON remain visible. "
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-25",
         "last_update_date": "2026-10-25",
         "requirements": "none",
-        "category": "Windows System",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Each row is one row of the ActivityOperation table of ActivitiesCache.db, read read-only "
                  "together with its -wal when one is staged beside it. Eric Zimmerman's WxTCmd reads the same "
@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-09-27",
         "requirements": "beautifulsoup4",
-        "category": "Windows System",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Arrival and expiry values use the "
                  "Windows FILETIME epoch and are reported in UTC. Boot ID is "
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-07-29",
         "requirements": "none",
-        "category": "Windows System",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Times are .NET ticks converted to "
                  "UTC. Empty notes are retained because their metadata can "
@@ -178,7 +178,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-07-29",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Windows System",
+        "category": "Windows - System Information",
         "platforms": ("Windows",),
         "notes": "Modernized from WLEAPP. Read from setupapi.dev.log in the Windows inf folder, whatever the "
                  "letter case of the folder and file names, and from the files beside it named "

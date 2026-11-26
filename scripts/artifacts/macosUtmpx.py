@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-27",
         "last_update_date": "2026-09-27",
         "requirements": "none",
-        "category": "Logins (macOS)",
+        "category": "macOS - Accounts & Logons",
         "platforms": ("macOS",),
         "notes": "Reads /var/run/utmpx (private/var/run/utmpx on a Mac), the file in which Apple's utmpx "
                  "manual page says currently logged in users are tracked "

@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-10",
         "last_update_date": "2026-10-12",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Security & Antivirus",
         "platforms": ("Windows",),
         "notes": "One row for each of 25 registry settings, whether the value is stored or not: Stored is Yes "
                  "or No, Data is the value as stored and empty when it is not stored, and Key Last Written "

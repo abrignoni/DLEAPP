@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Phone Link",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads the message (SMS) and mms tables of each phone.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row, ordered by "
@@ -130,7 +130,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Phone Link",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads the media table of each photos.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Measured on "
@@ -175,7 +175,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Phone Link",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads the phone_apps table of each phoneapps.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Measured on "
@@ -214,7 +214,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Phone Link",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads the subscription table of each phone.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Measured on "
@@ -245,7 +245,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Phone Link",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads the contact table of each contacts.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per contact, with the "
@@ -279,7 +279,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Phone Link",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads the call_history table of each calling.db under a user's "
                  "Packages/Microsoft.YourPhone_* folder, one row per table row. Unexercised: "
@@ -313,7 +313,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-17",
         "last_update_date": "2026-10-17",
         "requirements": "none",
-        "category": "Phone Link",
+        "category": "Messaging",
         "platforms": ("Windows",),
         "notes": "Reads the LocalState/Devices key of Settings/settings.dat in a user's "
                  "Packages/Microsoft.YourPhone_* folder, an offline registry hive opened as DLEAPP opens "

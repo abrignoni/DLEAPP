@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-14",
         "last_update_date": "2026-11-14",
         "requirements": "none",
-        "category": "Mattermost (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the Mattermost Desktop (Electron) Chromium HTTP cache in '
@@ -99,7 +99,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-14",
         "last_update_date": "2026-11-14",
         "requirements": "none",
-        "category": "Mattermost (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the Mattermost Desktop (Electron) Chromium HTTP cache in '
@@ -173,7 +173,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-14",
         "last_update_date": "2026-11-14",
         "requirements": "none",
-        "category": "Mattermost (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the Mattermost Desktop (Electron) Chromium HTTP cache in '
@@ -249,7 +249,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-14",
         "last_update_date": "2026-11-14",
         "requirements": "none",
-        "category": "Mattermost (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             'Reads the IndexedDB database named localforage, object store keyvaluepairs, key '
@@ -321,7 +321,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-11-14",
         "last_update_date": "2026-11-14",
         "requirements": "none",
-        "category": "Mattermost (Desktop)",
+        "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
         "notes": (
             "Reads Mattermost/config.json (the desktop app's configuration, whose servers list "

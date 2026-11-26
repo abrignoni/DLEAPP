@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Command Line",
         "platforms": ("Windows",),
         "notes": "Read from Windows PowerShell.evtx, named in the report's located-at line. "
                  "Only records of the PowerShell provider with Event ID 400 to 403 (engine "
@@ -165,7 +165,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Command Line",
         "platforms": ("Windows",),
         "notes": "Read from Windows PowerShell.evtx (PowerShell provider, Event ID 800) and "
                  "Microsoft-Windows-PowerShell%4Operational.evtx (Microsoft-Windows-PowerShell "
@@ -238,7 +238,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Command Line",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-PowerShell%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-PowerShell records with "
@@ -319,7 +319,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Command Line",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-PowerShell%4Operational.evtx, named in the "
                  "report's located-at line; only Microsoft-Windows-PowerShell records with "

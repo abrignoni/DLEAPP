@@ -58,7 +58,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "Read from the System event log, named in the report's located-at line. Each record of Service "
                  "Control Manager event 7040 is one row; the provider's message for it is 'The start type of the %1 "
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-10-01",
         "last_update_date": "2026-10-01",
         "requirements": "python-evtx, pefile",
-        "category": "Windows",
+        "category": "Windows - Persistence",
         "platforms": ("Windows",),
         "notes": "Read from the System event log, named in the report's located-at line. Each record of eleven "
                  "Service Control Manager events is one row: 7000 and 7001 (a service failed to start), 7009 and "

@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-27",
         "requirements": "none (vendored regfprobe)",
-        "category": "Windows",
+        "category": "Windows - Accounts & Logons",
         "platforms": ("Windows",),
         "notes": "Read from the SAM hive, named in the report's located-at line. One row per "
                  "local account under SAM\\Domains\\Account\\Users. RID is the "

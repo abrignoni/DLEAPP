@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-27",
         "requirements": "python-evtx",
-        "category": "Windows",
+        "category": "Windows - Network & Connectivity",
         "platforms": ("Windows",),
         "notes": "Read from Microsoft-Windows-NetworkProfile%4Operational.evtx, named in "
                  "the report's located-at line; only Microsoft-Windows-NetworkProfile "
