@@ -6,10 +6,12 @@ changes anything under `scripts/`.
 
 Read this before writing a helper of your own: a reader, a timestamp conversion, a path
 shortener or a storage-view collapse may already be here. "Used by" is the number of artifact
-modules that import the name. A class's public methods are listed under it, since artifacts
-call them on an object (`context.get_files_found()`). The first line of each docstring is
-shown; open the module for the rest. `admin/docs/helper_functions.md` explains where the five
-cores' helpers differ.
+modules that import the name. A class row shows its constructor, and its public methods and
+properties are listed under it, since artifacts call them on an object
+(`context.get_files_found()`). `scripts.context` is listed even where no artifact imports it,
+because artifacts are handed a Context. A name a module imports from another one is listed
+with the module it is defined in. The first line of each docstring is shown; open the module
+for the rest. `admin/docs/helper_functions.md` explains where the five cores' helpers differ.
 
 ## `scripts.ilapfuncs`
 
@@ -78,12 +80,12 @@ cores' helpers differ.
 | 0 | `kmlgen` | `kmlgen(report_folder, kmlactivity, data_list, data_headers)` | (no docstring) |
 | 0 | `lava_only_info` | `lava_only_info(category, artifact_name, table_name, records)` | Stores artifact information in the lava_only_artifacts dictionary |
 | 0 | `logdevinfo` | `logdevinfo(message='')` | (no docstring) |
-| 0 | class `MediaItem` | | (no docstring) |
+| 0 | class `MediaItem` | `MediaItem(id)` | (no docstring) |
 | | `MediaItem.set_values` | `set_values(self, media_info)` | (no docstring) |
-| 0 | class `MediaReferences` | | (no docstring) |
+| 0 | class `MediaReferences` | `MediaReferences(id)` | (no docstring) |
 | | `MediaReferences.set_values` | `set_values(self, media_ref_info)` | (no docstring) |
 | 0 | `null_absent_columns` | `null_absent_columns(path, query)` | Replace references to columns the database lacks with NULL. |
-| 0 | class `OutputParameters` | | Defines the parameters that are common for |
+| 0 | class `OutputParameters` | `OutputParameters(output_folder, custom_folder_name=None)` | Defines the parameters that are common for |
 | 0 | `record_html_table_held_back` | `record_html_table_held_back(category, artifact_name, safe_artifact_name, rows)` | Remember a table the HTML report held back, for the index page and the run log. |
 | 0 | `sanitize_report_name` | `sanitize_report_name(name, kind='name')` | Replaces path separators in an artifact name or category so it is usable as a file |
 | 0 | `screen_log_session` | `screen_log_session(func)` | Keep the HTML log open during processing and close it on every exit. |
@@ -122,15 +124,15 @@ cores' helpers differ.
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 62 | `read_event_records` | `read_event_records(context, file_name, label, event_ids=None, provider=None)` | Read every copy of one event log in files_found. |
-| 5 | class `FastRenderer` | | Render records to the XML python-evtx's Record.xml() returns, rendering each template once per chunk. |
+| 5 | class `FastRenderer` | `FastRenderer()` | Render records to the XML python-evtx's Record.xml() returns, rendering each template once per chunk. |
 | | `FastRenderer.xml` | `xml(self, record)` | The XML Record.xml() returns for this record; raises when Record.xml() raises. |
 | | `FastRenderer.event_fields` | `event_fields(self, record)` | (Event ID, Provider name) as the parsed record would give them; None for either one not read. |
 | 5 | `hex_status` | `hex_status(value)` | Render a stored unsigned status number as '0x........ (decimal)'. |
 | 5 | `log_records` | `log_records(log, label='', relative_source='', stale_header=True)` | Every record of an open python-evtx log, with the chunks a dirty header does not count. |
 | 5 | `utc_from_system_time` | `utc_from_system_time(value)` | Return an aware UTC datetime for an EVTX SystemTime rendering, or ''. |
-| 4 | `classic_strings` | `classic_strings(values)` | Split classic insertion strings rendered as <string> pieces; keep others. |
-| 2 | class `EventRecordStream` | | Stream the parsed records of every copy of one event log, one at a time. |
-| 0 | class `EventRecord` | | The System fields and the event data of one parsed record. |
+| 4 | `classic_strings` | `classic_strings(values)` | Split classic insertion strings rendered as &lt;string&gt; pieces; keep others. |
+| 2 | class `EventRecordStream` | `EventRecordStream(context, file_name, label, event_ids=None, provider=None, stale_header=True)` | Stream the parsed records of every copy of one event log, one at a time. |
+| 0 | class `EventRecord` | `EventRecord(root, source='')` | The System fields and the event data of one parsed record. |
 | | `EventRecord.get` | `get(self, name)` | The named event data field as stored, stripped; '' when absent. |
 
 ## `scripts.windows_registry`
@@ -212,12 +214,12 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 0 | `open_databases` | `open_databases(files_found, log, describe)` | Open every PowerLog database in files_found read-only and yield the list. |
 | 0 | `powerlog_folder` | `powerlog_folder(path)` | The PowerLog folder a database belongs to: the folder holding it, or that folder's |
 | 0 | `powerlog_paths` | `powerlog_paths(files_found)` | The PowerLog databases among files_found, as sorted (path, is_archive) pairs. |
-| 0 | class `PowerLogDatabase` | | One PowerLog database, opened read-only, with its time offset entries loaded. |
+| 0 | class `PowerLogDatabase` | `PowerLogDatabase(source, open_path, immutable)` | One PowerLog database, opened read-only, with its time offset entries loaded. |
 | | `PowerLogDatabase.use_offsets` | `use_offsets(self, entries)` | Correct times with these (timestamp, system) entries from now on. |
 | | `PowerLogDatabase.close` | `close(self)` | (no docstring) |
 | | `PowerLogDatabase.columns` | `columns(self, table)` | Column names of table, [] when the database has no such table. |
 | | `PowerLogDatabase.rows` | `rows(self, table, wanted)` | Rows of table as dicts over the wanted columns, in stored time order. |
-| | `PowerLogDatabase.side_values` | `side_values(self, table, column)` | {row ID: [values in stored order]} from the <table>_Array_<column> side table, |
+| | `PowerLogDatabase.side_values` | `side_values(self, table, column)` | {row ID: [values in stored order]} from the &lt;table&gt;_Array_&lt;column&gt; side table, |
 | | `PowerLogDatabase.corrected` | `corrected(self, raw)` | (corrected UTC datetime, offset applied in seconds) for a stored time. |
 | 0 | `share_offsets` | `share_offsets(databases, log, describe)` | Give every database the offset entries of all the databases in its PowerLog folder. |
 
@@ -235,6 +237,31 @@ Imported as a module by 9 artifact module(s), whose uses of its names are not co
 | 0 | `read_event_value_maps` | `read_event_value_maps(path, provider_guid)` | parse_event_manifest for the WEVT_TEMPLATE resource of a PE file. |
 | 0 | `read_message_table` | `read_message_table(path)` | {message id: text} from every RT_MESSAGETABLE resource in a PE file. |
 
+## `scripts.chromium.discord_api`
+
+`scripts/chromium/discord_api.py`
+
+Imported as a module by 7 artifact module(s), whose uses of its names are not counted below.
+
+| Used by | Name | Signature | First docstring line |
+| ---: | --- | --- | --- |
+| 0 | `attachment_filename` | `attachment_filename(url)` | (no docstring) |
+| 0 | `cached_entry` | `cached_entry(ref)` | The cache entry a scan recorded under ``ref``: a blockfile entry, or a simple cache file. |
+| 0 | `channel_type_name` | `channel_type_name(value)` | (no docstring) |
+| 0 | class `DiscordCacheScan` | `DiscordCacheScan()` | Everything the Discord artifacts need from one pass over the cache. |
+| | `DiscordCacheScan.note_user` | `note_user(self, user, seen_in, when)` | (no docstring) |
+| | `DiscordCacheScan.note_channel` | `note_channel(self, channel, source='')` | (no docstring) |
+| | `DiscordCacheScan.note_guild` | `note_guild(self, guild, source='')` | (no docstring) |
+| | `DiscordCacheScan.add_message` | `add_message(self, message, source, cached_at)` | (no docstring) |
+| 0 | `epoch_ms_to_datetime` | `epoch_ms_to_datetime(value)` | Convert a JavaScript millisecond timestamp to an aware UTC datetime. |
+| 0 | `find_local_account` | `find_local_account(files_found)` | Identify the signed-in account from the Sentry scope and Local Storage. |
+| 0 | `iso_to_datetime` | `iso_to_datetime(value)` | Convert a Discord ISO-8601 timestamp to an aware UTC datetime. |
+| 0 | `media_kind` | `media_kind(url)` | Classify a Discord CDN URL. Returns (kind, owner id, related id). |
+| 0 | `message_type_name` | `message_type_name(value)` | (no docstring) |
+| 0 | `scan_cache` | `scan_cache(files_found, log=None)` | Parse every Discord response in the cache. |
+| 0 | `snowflake_to_datetime` | `snowflake_to_datetime(snowflake)` | Convert a Discord snowflake ID to its embedded creation time (UTC). |
+| 0 | `user_display` | `user_display(user)` | Best available human-readable name for a Discord user object. |
+
 ## `scripts.chromium.local_storage`
 
 `scripts/chromium/local_storage.py`
@@ -243,8 +270,8 @@ Imported as a module by 9 artifact module(s), whose uses of its names are not co
 | ---: | --- | --- | --- |
 | 7 | `leveldb_folders` | `leveldb_folders(files_found, folder_name='leveldb')` | Return the distinct LevelDB folders represented in a file list. |
 | 7 | `read_records` | `read_records(leveldb_folder)` | Yield every :class:`StorageRecord` in a Local Storage LevelDB folder. |
-| 0 | class `StorageRecord` | | One version of one Local Storage key. |
-| | `StorageRecord.is_live` | `is_live(self)` | True when this is not a deletion tombstone. |
+| 0 | class `StorageRecord` | `StorageRecord(origin, key, value, sequence, state, source)` | One version of one Local Storage key. |
+| | `StorageRecord.is_live` | property | True when this is not a deletion tombstone. |
 
 ## `scripts.ese_rows`
 
@@ -255,13 +282,13 @@ Imported as a module by 7 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 0 | `chunk_size` | `chunk_size(index)` | The table's long value chunk size as the tree shows it, or None. |
-| 0 | class `ESEDatabase` | | The vendored ESE reader, opened and mounted the same way, whose getPage stops at the |
+| 0 | class `ESEDatabase` | `ESEDatabase(fileName, pageSize=8192, isRemote=False, data=None)` | The vendored ESE reader, opened and mounted the same way, whose getPage stops at the |
 | | `ESEDatabase.getPage` | `getPage(self, pageNum)` | The vendored getPage, raising PageOutOfRange where it would wait forever. |
 | 0 | `index_node` | `index_node(index, key, value)` | File one long value tree node: an ID alone is a value's root, an ID and an offset a |
 | 0 | `long_value` | `long_value(index, stored_id, chunk=None)` | (bytes, None) for the value a separated item names, or (None, reason). |
 | 0 | `long_value_tree` | `long_value_tree(database, table_name)` | {ID key: (root data or None, [(offset, piece data), ...])} of a table's long value tree, |
 | 0 | class `PageOutOfRange` | | A page the database names lies past the end of its file. |
-| 0 | class `TableRows` | | Iterate the records of one table; `deleted` and `unreadable` count what was skipped. |
+| 0 | class `TableRows` | `TableRows(database, table_name, cap=5000000, long_value_columns=None)` | Iterate the records of one table; `deleted` and `unreadable` count what was skipped. |
 | | `TableRows.summary` | `summary(self)` | A run-log sentence for what was skipped, or '' when nothing was. |
 | 0 | `tagged_items` | `tagged_items(data, flags_always)` | {column id: (header byte, value bytes)} of a record's tagged columns. |
 
@@ -296,17 +323,17 @@ Imported as a module by 7 artifact module(s), whose uses of its names are not co
 | 1 | `read_zone_identifier` | `read_zone_identifier(data)` | [(section, key, value)] for every key=value line of a Zone.Identifier |
 | 1 | `rewound_parent_paths` | `rewound_parent_paths(index, records)` | The parent path of each USN record as it was when the record was written, in the records' |
 | 1 | `sds_owners` | `sds_owners(data)` | {security id: owner SID} for every entry of a $Secure:$SDS stream. An |
-| 0 | class `MftIndex` | | The directory tree an $MFT describes, and the extension records that |
+| 0 | class `MftIndex` | `MftIndex(handle)` | The directory tree an $MFT describes, and the extension records that |
 | | `MftIndex.fold` | `fold(self, record)` | Add to a base record what its extension records hold. Returns it. |
 | | `MftIndex.parent_matches` | `parent_matches(self, reference)` | The number of the directory a parent reference names, or None when |
 | | `MftIndex.directory_path` | `directory_path(self, reference)` | The path of the directory a parent reference names, '' for the root, |
 | | `MftIndex.path_of_name` | `path_of_name(self, name)` | The full path of one $FILE_NAME entry, or None when its parent chain |
-| 0 | class `MftRecord` | | One MFT record's header and the attributes the artifacts read from it. |
+| 0 | class `MftRecord` | `MftRecord(number, sequence, flags, base)` | One MFT record's header and the attributes the artifacts read from it. |
 | | `MftRecord.best_name` | `best_name(self)` | The (parent reference, name, times) a listing shows: a long name |
 | | `MftRecord.link_names` | `link_names(self)` | Every name but the DOS 8.3 aliases: one per hard link. |
 | 0 | `parse_mft_record` | `parse_mft_record(record, number)` | An MftRecord from one record's bytes, or None when it is not a record |
 | 0 | `sid_string` | `sid_string(data, offset)` | A SID at offset as S-1-..., or '' when the bytes cannot hold one. |
-| 0 | class `UsnRecord` | | One USN_RECORD_V2 or V3, as stored. |
+| 0 | class `UsnRecord` | `UsnRecord(offset, version, fields)` | One USN_RECORD_V2 or V3, as stored. |
 
 ## `scripts.ese_recovery`
 
@@ -317,15 +344,15 @@ Imported as a module by 4 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 0 | `after_image` | `after_image(diff, old, fdiff2, page_size)` | ErrLGGetAfterImage, src/ese/logdiff.cxx#L1150-L1292: rebuild the new record data from the |
-| 0 | class `DatabaseHeader` | | The DBFILEHDR fields the replay uses (src/inc/daedef.hxx#L2785-L2972). |
-| | `DatabaseHeader.db_version` | `db_version(self)` | (no docstring) |
-| | `DatabaseHeader.state_name` | `state_name(self)` | (no docstring) |
+| 0 | class `DatabaseHeader` | `DatabaseHeader(data)` | The DBFILEHDR fields the replay uses (src/inc/daedef.hxx#L2785-L2972). |
+| | `DatabaseHeader.db_version` | property | (no docstring) |
+| | `DatabaseHeader.state_name` | property | (no docstring) |
 | 0 | `find_logs` | `find_logs(folder, header)` | {generation: (path, bytes)} of the logs in `folder` that carry the database's log |
 | 0 | `log_role` | `log_role(path, generation)` | 'archive', 'current' or 'temp' for a log file name, as LGMakeLogName builds them |
 | 0 | `replay` | `replay(db_bytes, logs)` | Replay `logs` ({generation: (path, bytes)}) onto a copy of `db_bytes`. |
 | 0 | `replayed_database` | `replayed_database(path, log_folder=None)` | (bytes or None, summary) for the ESE database at `path`, replaying the logs beside it, |
 | 0 | class `ReplayRefused` | | The replay cannot reproduce ESE's recovery; the message says why. |
-| 0 | class `ReplayResult` | | What a replay did. `data` is the replayed copy, or None when it refused. |
+| 0 | class `ReplayResult` | `ReplayResult()` | What a replay did. `data` is the replayed copy, or None when it refused. |
 | | `ReplayResult.summary` | `summary(self)` | (no docstring) |
 
 ## `scripts.macos_biome`
@@ -339,8 +366,8 @@ Imported as a module by 4 artifact module(s), whose uses of its names are not co
 | 3 | `text` | `text(value)` | A length-delimited value as UTF-8 text ('' when absent). |
 | 1 | `double` | `double(value)` | A 64-bit field read as a little-endian double, or None. |
 | 1 | `stream_records` | `stream_records(context, label)` | (records, sources): the written records of every SEGB file the artifact matched, and |
-| 0 | class `StreamRecord` | | One written SEGB record and where it was read from. |
-| 0 | `sync_origin` | `sync_origin(relative_path)` | 'Local' for a stream's local folder, 'Remote (<folder>)' for a folder under remote/. |
+| 0 | class `StreamRecord` | `StreamRecord(time, data, origin, source, offset, user)` | One written SEGB record and where it was read from. |
+| 0 | `sync_origin` | `sync_origin(relative_path)` | 'Local' for a stream's local folder, 'Remote (&lt;folder&gt;)' for a folder under remote/. |
 
 ## `scripts.search_files`
 
@@ -349,24 +376,24 @@ Imported as a module by 4 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 4 | class `PeekUnsupported` | | This kind of input gives no way to read a file's first bytes without staging it. |
-| 0 | `clbx_metadata_members` | `clbx_metadata_members(zip_file)` | {filesystem<suffix>/: metadata<suffix>/metadata.msgpack} for a CLBX zip, else None. |
-| 0 | class `FileInfo` | | A class to store file metadata information. |
-| 0 | class `FileSeekerBase` | | Abstract base class for file seeking operations. |
+| 0 | `clbx_metadata_members` | `clbx_metadata_members(zip_file)` | {filesystem&lt;suffix&gt;/: metadata&lt;suffix&gt;/metadata.msgpack} for a CLBX zip, else None. |
+| 0 | class `FileInfo` | `FileInfo(source_path, creation_date, modification_date, kind='file', times=None)` | A class to store file metadata information. |
+| 0 | class `FileSeekerBase` | `FileSeekerBase()` | Abstract base class for file seeking operations. |
 | | `FileSeekerBase.search` | `search(self, filepattern, return_on_first_hit=False)` | Returns a list of paths for files/folders that matched |
 | | `FileSeekerBase.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | A PeekedFile for each file filepattern matches, holding its first size bytes, |
 | | `FileSeekerBase.cleanup` | `cleanup(self)` | close any open handles |
-| 0 | class `FileSeekerDir` | | This class extends FileSeekerBase to provide functionality for searching files |
+| 0 | class `FileSeekerDir` | `FileSeekerDir(directory, data_folder)` | This class extends FileSeekerBase to provide functionality for searching files |
 | | `FileSeekerDir.build_files_list` | `build_files_list(self, directory)` | Populates all paths in directory into _all_files |
 | | `FileSeekerDir.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | Each file filepattern matches, as search() matches it, read from the input |
 | | `FileSeekerDir.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
-| 0 | class `FileSeekerFile` | | This is a class that extends FileSeekerBase to facilitate searching for and copying a specific file |
+| 0 | class `FileSeekerFile` | `FileSeekerFile(file_path, data_folder)` | This is a class that extends FileSeekerBase to facilitate searching for and copying a specific file |
 | | `FileSeekerFile.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
 | | `FileSeekerFile.cleanup` | `cleanup(self)` | (no docstring) |
-| 0 | class `FileSeekerTar` | | This is a class that extends FileSeekerBase to facilitate searching and extracting files |
+| 0 | class `FileSeekerTar` | `FileSeekerTar(tar_file_path, data_folder)` | This is a class that extends FileSeekerBase to facilitate searching and extracting files |
 | | `FileSeekerTar.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | Each file member filepattern matches, as search() matches it, read only as far |
 | | `FileSeekerTar.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
 | | `FileSeekerTar.cleanup` | `cleanup(self)` | (no docstring) |
-| 0 | class `FileSeekerZip` | | This is a class that extends FileSeekerBase to facilitate searching and extracting files from a ZIP archive. |
+| 0 | class `FileSeekerZip` | `FileSeekerZip(zip_file_path, data_folder)` | This is a class that extends FileSeekerBase to facilitate searching and extracting files from a ZIP archive. |
 | | `FileSeekerZip.peek` | `peek(self, filepattern, size=PEEK_SIZE)` | Each file member filepattern matches, as search() matches it, read only as far |
 | | `FileSeekerZip.search` | `search(self, filepattern, return_on_first_hit=False, force=False)` | (no docstring) |
 | | `FileSeekerZip.cleanup` | `cleanup(self)` | (no docstring) |
@@ -409,7 +436,7 @@ Imported as a module by 4 artifact module(s), whose uses of its names are not co
 | 0 | `decode` | `decode(value)` | A Setting for one value of the hive. |
 | 0 | `decode_composite` | `decode_composite(data)` | A composite value's members, {name: (type name, value)}, in stored order. |
 | 0 | `decode_data` | `decode_data(number, data)` | The value of type number `number` stored in `data` (its trailing FILETIME removed). |
-| 0 | class `Setting` | | One decoded value: name, type number and name, value, and its stored FILETIME. |
+| 0 | class `Setting` | `Setting(name, stored_type, type_number, type_name, value, written, error='')` | One decoded value: name, type number and name, value, and its stored FILETIME. |
 | | `Setting.text` | `text(self)` | The value as one line of text, composites and arrays included. |
 | 0 | class `SettingsError` | | A value whose bytes do not fit the layout its type names. |
 | 0 | `stored_type_of` | `stored_type_of(value)` | The value's type exactly as the hive stores it: value_type() is the full 32-bit field |
@@ -480,7 +507,7 @@ Imported as a module by 3 artifact module(s), whose uses of its names are not co
 | 0 | `identify_media` | `identify_media(data)` | Return (kind, MIME, extension) only for validated useful media. |
 | 0 | `parse_cache_binlog` | `parse_cache_binlog(path, key)` | (no docstring) |
 | 0 | `parse_map` | `parse_map(data)` | (no docstring) |
-| 0 | class `QtReader` | | Small big-endian QDataStream (Qt 5.1) reader. |
+| 0 | class `QtReader` | `QtReader(data, offset=0)` | Small big-endian QDataStream (Qt 5.1) reader. |
 | | `QtReader.remaining` | `remaining(self)` | (no docstring) |
 | | `QtReader.raw` | `raw(self, size)` | (no docstring) |
 | | `QtReader.u8` | `u8(self)` | (no docstring) |
@@ -494,7 +521,7 @@ Imported as a module by 3 artifact module(s), whose uses of its names are not co
 | 0 | `read_encrypted_tdf` | `read_encrypted_tdf(path, key)` | (no docstring) |
 | 0 | `read_peer` | `read_peer(reader, stream_version)` | Read the current Telegram serialized PeerData fields. |
 | 0 | `read_tdf` | `read_tdf(path)` | Read and MD5-validate a traditional ``TDF$`` storage file. |
-| 0 | class `TDataProfile` | | Validated offline view of a Telegram Desktop tdata directory. |
+| 0 | class `TDataProfile` | `TDataProfile(tdata, passcode='', load_accounts=True)` | Validated offline view of a Telegram Desktop tdata directory. |
 | | `TDataProfile.referenced_file` | `referenced_file(self, account, name)` | (no docstring) |
 | | `TDataProfile.decrypt_referenced` | `decrypt_referenced(self, account, name)` | (no docstring) |
 | 0 | `to_file_part` | `to_file_part(value)` | (no docstring) |
@@ -572,8 +599,8 @@ Imported as a module by 2 artifact module(s), whose uses of its names are not co
 | ---: | --- | --- | --- |
 | 0 | `decode` | `decode(data, fields, pointer_size)` | {name: value} for an event's data read with a manifest template, and the bytes left over. |
 | 0 | class `EtlError` | | A file this reader cannot read as an ETL file. |
-| 0 | class `EtlEvent` | | One EVENT_HEADER record: its time, provider, descriptor and data. |
-| 0 | class `EtlFile` | | The session header, the records and the problems of one ETL file's bytes. |
+| 0 | class `EtlEvent` | `EtlEvent(**values)` | One EVENT_HEADER record: its time, provider, descriptor and data. |
+| 0 | class `EtlFile` | `EtlFile(data)` | The session header, the records and the problems of one ETL file's bytes. |
 | | `EtlFile.filetime` | `filetime(self, stamp)` | The FILETIME of a record time stamp, or None when the clock is not one this reader converts. |
 | | `EtlFile.buffers` | `buffers(self)` | (index, offset, sequence number, end of the bytes in use) for each buffer in file order. |
 | | `EtlFile.events` | `events(self)` | (no docstring) |
@@ -620,7 +647,7 @@ Imported as a module by 2 artifact module(s), whose uses of its names are not co
 | 0 | `local_storage_value` | `local_storage_value(value, conversion, compression)` | A LocalStorage value as text, following Mozilla's LSValue conversion and compression types. |
 | 0 | `optional` | `optional(db, table, names, alias='')` | (no docstring) |
 | 0 | `read_artifact` | `read_artifact(context, filename, reader, label)` | Read each profile independently, including WAL; the paths read go to the located-at list. |
-| 0 | `read_local_storage` | `read_local_storage(context, label)` | Rows from each profile's storage/default/<origin>/ls/data.sqlite. |
+| 0 | `read_local_storage` | `read_local_storage(context, label)` | Rows from each profile's storage/default/&lt;origin&gt;/ls/data.sqlite. |
 | 0 | `snappy_raw_uncompress` | `snappy_raw_uncompress(data)` | Raw Snappy (no framing), as google/snappy format_description.txt defines it. |
 | 0 | `timestamp` | `timestamp(value, units=1000000)` | Integer Unix timestamp; zero/NULL are left blank, preserving microseconds. |
 | 0 | `visits` | `visits(db)` | (no docstring) |
@@ -648,11 +675,11 @@ Imported as a module by 2 artifact module(s), whose uses of its names are not co
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 2 | class `Store` | | A store database file, read whole. The dbStr-N.map files beside it hold the attribute |
+| 2 | class `Store` | `Store(path)` | A store database file, read whole. The dbStr-N.map files beside it hold the attribute |
 | | `Store.record_page` | `record_page(self, block)` | The records data of one record page, decompressed. |
 | | `Store.items` | `items(self)` | Every record of every record page, in page order. A page that cannot be read is |
 | 2 | class `StoreError` | | The data is not a store database, or a part of one, that this reader can read. |
-| 0 | class `Item` | | One record: the identifier (a file system identifier in a volume's store), the flags byte, |
+| 0 | class `Item` | `Item(identifier, flags, item_identifier, parent, updated)` | One record: the identifier (a file system identifier in a volume's store), the flags byte, |
 | 0 | `leb128` | `leb128(data, offset)` | (value, next offset) of a little-endian base-128 integer. |
 | 0 | `localized` | `localized(versions)` | The first language version of a localized string that is not empty. |
 | 0 | `lz4_block` | `lz4_block(source, size, prefix=b'')` | The size bytes one LZ4 block decompresses to; a match may reach back into prefix, the |
@@ -687,13 +714,13 @@ Imported as a module by 2 artifact module(s), whose uses of its names are not co
 | 0 | `parse_one_off` | `parse_one_off(data)` | (display name, address type, email address) of a One-Off EntryID, or None when the |
 | 0 | `parse_recurrence` | `parse_recurrence(data)` | The AppointmentRecurrencePattern of a PidLidAppointmentRecur value as a dict. Raises |
 | 0 | `read_items` | `read_items(context, kinds, label, build_row)` | Rows for one artifact: build_row(message, folder path, message class, source, relative |
-| 0 | class `Reader` | | Reads values of one item and counts what could not be read. |
+| 0 | class `Reader` | `Reader(counts)` | Reads values of one item and counts what could not be read. |
 | | `Reader.get` | `get(self, pc, pid)` | (no docstring) |
 | | `Reader.named` | `named(self, message, guid, lid)` | (no docstring) |
 | | `Reader.text` | `text(self, value)` | (no docstring) |
 | | `Reader.time` | `time(self, value, no_date_sentinel=False)` | A PtypTime value as decoded, or ''. With no_date_sentinel, 4501-01-01, the value |
 | | `Reader.flag` | `flag(value)` | (no docstring) |
-| 0 | `recipients` | `recipients(message, reader)` | {'To': [...], 'Cc': [...], 'Bcc': [...]} as "name <address>" strings, in table order. |
+| 0 | `recipients` | `recipients(message, reader)` | {'To': [...], 'Cc': [...], 'Bcc': [...]} as "name &lt;address&gt;" strings, in table order. |
 | 0 | `recurrence_columns` | `recurrence_columns(message, reader)` | (Recurrence, Series End, Deleted Occurrences, Modified Occurrences) from |
 | 0 | class `RecurrenceError` | | The blob does not follow the documented layout. |
 | 0 | `store_record_key` | `store_record_key(pst, reader)` | (no docstring) |
@@ -709,11 +736,11 @@ Imported as a module by 2 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 0 | `decompress` | `decompress(flags, raw)` | The payload of a DATA object whose flags name a compression, or raise ValueError. |
-| 0 | class `Entry` | | One ENTRY object: its header values, its fields in stored order and anything wrong with it. |
+| 0 | class `Entry` | `Entry(offset, seqnum, realtime, monotonic, boot_id, xor_hash, fields, problems, linked)` | One ENTRY object: its header values, its fields in stored order and anything wrong with it. |
 | 0 | `head_entry_realtime` | `head_entry_realtime(path)` | The time of a journal file's first entry, read from its header alone, or raise JournalError. |
 | 0 | `jenkins_hash64` | `jenkins_hash64(data)` | jenkins_hash64() in lookup3.h: hashlittle2 with both initial values 0, the first result as the high 32 |
 | 0 | class `JournalError` | | The bytes are not a journal file this reader can read. |
-| 0 | class `JournalFile` | | The header and entries of one journal file held in memory. |
+| 0 | class `JournalFile` | `JournalFile(data, verify_hashes=True)` | The header and entries of one journal file held in memory. |
 | | `JournalFile.features` | `features(self)` | The header flags this file sets, by name, then any unknown ones in hex. |
 | | `JournalFile.entry_offsets` | `entry_offsets(self)` | (offset, linked) for every ENTRY object the walk met or the chain reached, in file order. |
 | | `JournalFile.entries` | `entries(self)` | Every entry, in file order. Nothing is read from a file with incompatible flags this reader does not |
@@ -728,11 +755,11 @@ Imported as a module by 2 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 2 | `filetime_utc` | `filetime_utc(value)` | A FILETIME count as an aware UTC datetime, cut to whole microseconds; '' for 0. |
-| 1 | class `Detection` | | The sets of one DetectionHistory file. |
+| 1 | class `Detection` | `Detection(values)` | The sets of one DetectionHistory file. |
 | | `Detection.at` | `at(values, index, *types)` | The decoded value at index when its type is one of types, else None. |
 | 1 | `read_threat_tracking` | `read_threat_tracking(data)` | Threat tracking data as {key: value}, and a note that is '' when it read cleanly. |
 | 1 | `read_values` | `read_values(data)` | The values of a file, and a note that is '' when they end exactly at its size. |
-| 0 | class `Value` | | One value: its offset, data type and decoded data (raw bytes when not decoded). |
+| 0 | class `Value` | `Value(offset, data_type, data, decoded)` | One value: its offset, data type and decoded data (raw bytes when not decoded). |
 
 ## `scripts.bits_qmgr`
 
@@ -745,7 +772,7 @@ Imported as a module by 2 artifact module(s), whose uses of its names are not co
 | 1 | `guid_text` | `guid_text(raw)` | (no docstring) |
 | 1 | `parse_file` | `parse_file(data, offset=0)` | A file record starting at the file marker, as a dict, or None when it does not parse. |
 | 1 | `parse_job` | `parse_job(data, offset=0)` | A job record starting at a job marker, as a dict, or None when it does not parse. |
-| 1 | class `QmgrDatabase` | | The live Jobs and Files records of one qmgr.db. |
+| 1 | class `QmgrDatabase` | `QmgrDatabase(path)` | The live Jobs and Files records of one qmgr.db. |
 | | `QmgrDatabase.records` | `records(self, name)` | (Id, blob, flagged deleted) of each record in the Jobs or Files table. |
 
 ## `scripts.bsm_audit`
@@ -777,13 +804,15 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 
 `scripts/chromium/blockfile_cache.py`
 
+Imported as a module by 1 artifact module(s), whose uses of its names are not counted below.
+
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 1 | `iter_entries` | `iter_entries(files_found, folder_names=('Cache_Data',))` | Yield valid entries from each distinct cache folder represented. |
-| 0 | class `BlockfileEntry` | | One recoverable cache entry. |
-| | `BlockfileEntry.content_type` | `content_type(self)` | (no docstring) |
-| | `BlockfileEntry.content_encoding` | `content_encoding(self)` | (no docstring) |
-| | `BlockfileEntry.etag` | `etag(self)` | (no docstring) |
+| 0 | class `BlockfileEntry` | `BlockfileEntry()` | One recoverable cache entry. |
+| | `BlockfileEntry.content_type` | property | (no docstring) |
+| | `BlockfileEntry.content_encoding` | property | (no docstring) |
+| | `BlockfileEntry.etag` | property | (no docstring) |
 | | `BlockfileEntry.read_body` | `read_body(self)` | Return the stored response body. |
 | | `BlockfileEntry.read_sparse_data` | `read_sparse_data(self)` | Return stream 2, where a sparse entry and its children keep their SparseData. |
 | | `BlockfileEntry.decoded_body` | `decoded_body(self)` | Return the response body with supported Content-Encoding removed. |
@@ -797,6 +826,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 1 | `parse_response_info` | `parse_response_info(stream0)` | (request time, response time, status line, headers, extra flags) of a pickled HttpResponseInfo. |
+| 1 | `split_key` | `split_key(key)` | Defined in `scripts.chromium.cache_key`. (numbered prefix, isolation key, url) of a cache entry key. |
 | 1 | `stored_body` | `stored_body(raw, extra_flags, content_encoding)` | A cached body with Chromium's own zstd storage, then its Content-Encoding, undone. |
 
 ## `scripts.chromium.mattermost_api`
@@ -807,19 +837,21 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | ---: | --- | --- | --- |
 | 1 | `ms_to_datetime` | `ms_to_datetime(value)` | Unix milliseconds, which is what the server's GetMillis writes, as an aware UTC |
 | 1 | `scan_cache` | `scan_cache(files_found)` | Read every Mattermost API response in the cache folders among files_found. |
-| 0 | class `Scan` | | What one pass over the cache found. posts, users and channels map |
+| 0 | class `Scan` | `Scan()` | What one pass over the cache found. posts, users and channels map |
 
 ## `scripts.chromium.simple_cache`
 
 `scripts/chromium/simple_cache.py`
 
+Imported as a module by 1 artifact module(s), whose uses of its names are not counted below.
+
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 1 | `base_time_to_datetime` | `base_time_to_datetime(value)` | Convert a base::Time internal value to an aware UTC datetime. |
 | 1 | `decode_body` | `decode_body(data, encoding)` | Decompress ``data`` according to an HTTP Content-Encoding value. |
-| 0 | class `CacheEntry` | | One cached HTTP response. |
-| | `CacheEntry.content_type` | `content_type(self)` | (no docstring) |
-| | `CacheEntry.content_encoding` | `content_encoding(self)` | (no docstring) |
+| 0 | class `CacheEntry` | `CacheEntry(path=None, key=None, url=None, key_prefix=None, request_time=None, response_time=None, status_code=None, status_line=None, headers=None, body_offset=None, body_size=None)` | One cached HTTP response. |
+| | `CacheEntry.content_type` | property | (no docstring) |
+| | `CacheEntry.content_encoding` | property | (no docstring) |
 | | `CacheEntry.read_body` | `read_body(self)` | Read the raw (still compressed) response body from disk. |
 | | `CacheEntry.decoded_body` | `decoded_body(self)` | Read the body and undo its Content-Encoding where possible. |
 | 0 | `iter_entries` | `iter_entries(files_found, url_pattern=None)` | Yield a :class:`CacheEntry` for every Simple Cache entry in a file list. |
@@ -835,7 +867,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 1 | `decode` | `decode(data, message)` | Decode `data` as `message`, a name in SCHEMAS. Returns a dict by field name. |
 | 1 | class `ProtoError` | | A value that does not decode as the message it is read as. |
 | 1 | `sync_folders` | `sync_folders(context, label='')` | The located Store of each Sync Data/LevelDB folder a browser profile holds. |
-| 1 | class `SyncStore` | | The live records of one Sync Data/LevelDB folder. |
+| 1 | class `SyncStore` | `SyncStore(folder)` | The live records of one Sync Data/LevelDB folder. |
 | | `SyncStore.records_of` | `records_of(self, root_tag)` | (account storage, storage key, value) for the live data records of one type. |
 | | `SyncStore.local_cache_guid` | `local_cache_guid(self, root_tag, account=False)` | The cache GUID the type's DataTypeState records for this client, or ''. |
 
@@ -845,12 +877,12 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 1 | class `EmuleFormatError` | | The bytes do not fit the eMule layout being read. .partial holds what a reader kept before the error. |
+| 1 | class `EmuleFormatError` | `EmuleFormatError(message, partial=None)` | The bytes do not fit the eMule layout being read. .partial holds what a reader kept before the error. |
 | 1 | `ini_values` | `ini_values(text, section, keys)` | The first value of each key in [section] of an ini file's text, compared without case. |
 | 1 | `parse_file_link` | `parse_file_link(link)` | (name, size, hash) from an ed2k://\|file\|name\|size\|hash\|... link, or None. |
 | 1 | `read_download_overview` | `read_download_overview(data)` | downloads.txt and downloads.bak, as CDownloadQueue::ExportPartMetFilesOverview (DownloadQueue.cpp) |
 | 1 | `read_known_met` | `read_known_met(data)` | known.met: KnownFileList.cpp LoadKnownFiles and KnownFile.cpp LoadFromFile. Yields one dict per |
-| 1 | `read_part_met` | `read_part_met(data)` | A download's <n>.part.met, as SavePartFile in PartFile.cpp writes it (versions 0xE0 and 0xE2: |
+| 1 | `read_part_met` | `read_part_met(data)` | A download's &lt;n&gt;.part.met, as SavePartFile in PartFile.cpp writes it (versions 0xE0 and 0xE2: |
 | 1 | `read_preferences_dat` | `read_preferences_dat(data)` | preferences.dat: Preferences_Ext_Struct (Preferences.h), a version byte then the 16-byte user hash. |
 | 1 | `read_stored_searches` | `read_stored_searches(data)` | StoredSearches.met (SearchList.cpp LoadSearches, SearchParams.h): the header, a version, a uint16 search |
 | 1 | `read_utf16_lines` | `read_utf16_lines(data, allow_ansi=False)` | AC_SearchStrings.dat (CustomAutoComplete.cpp SaveList, LoadList refuses a file without the mark) and |
@@ -901,7 +933,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 0 | `clone_value` | `clone_value(raw)` | (value, trailing byte count) for a decompressed structured-clone buffer. |
 | 0 | `decode_key` | `decode_key(blob)` | An encoded IndexedDB key as a JSON-ready value. |
 | 0 | class `NotDecoded` | | A value uses a part of the format this reader does not decode. |
-| 0 | `read_indexeddb` | `read_indexeddb(context, label)` | Rows from each profile's storage/default/<origin>/idb/<name>.sqlite. |
+| 0 | `read_indexeddb` | `read_indexeddb(context, label)` | Rows from each profile's storage/default/&lt;origin&gt;/idb/&lt;name&gt;.sqlite. |
 
 ## `scripts.firefox_logins`
 
@@ -961,14 +993,14 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 1 | class `JavaObject` | | One serialized object: its class name, its fields, and what each class's writeObject wrote. |
+| 1 | class `JavaObject` | `JavaObject(classname)` | One serialized object: its class name, its fields, and what each class's writeObject wrote. |
 | 1 | class `JavaSerializationError` | | The bytes are not a stream this reader can read. |
 | 1 | `loads` | `loads(data)` | Every top-level content item of a serialization stream, in order. |
 | 1 | `map_items` | `map_items(obj)` | (key, value) pairs of a serialized JDK map, as stored, or None when `obj` is not one. |
 | 1 | `plain` | `plain(value)` | A Python value for a decoded JDK box, string, enum, file, list, set or map. |
 | 0 | `collection_items` | `collection_items(obj)` | Members of a serialized JDK list or set, as stored, or None when `obj` is not one. |
-| 0 | class `JavaClassDesc` | | A class descriptor: name, serialVersionUID, flags, fields and superclass. |
-| 0 | class `JavaEnum` | | One serialized enum constant. |
+| 0 | class `JavaClassDesc` | `JavaClassDesc()` | A class descriptor: name, serialVersionUID, flags, fields and superclass. |
+| 0 | class `JavaEnum` | `JavaEnum(classname)` | One serialized enum constant. |
 | 0 | `load_first` | `load_first(data)` | The first top-level object of a stream, the usual shape of one writeObject() call. |
 
 ## `scripts.linux_locate`
@@ -980,8 +1012,8 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 1 | `directory_time` | `directory_time(seconds, nanoseconds)` | The UTC datetime of a stored directory time, '' for the stored 0 or a value a datetime cannot hold. |
 | 1 | `read` | `read(data)` | Read a locate database of any of the three formats, or raise ValueError for anything else. |
 | 0 | `detect` | `detect(data)` | The format whose magic the bytes start with, or None. |
-| 0 | class `Entry` | | One path in a locate database. |
-| 0 | class `LocateDatabase` | | What a reader found in one database. |
+| 0 | class `Entry` | `Entry(path, kind, time=None, container_time=None)` | One path in a locate database. |
+| 0 | class `LocateDatabase` | `LocateDatabase(fmt)` | What a reader found in one database. |
 | | `LocateDatabase.latest_directory_time` | `latest_directory_time(self)` | (no docstring) |
 | | `LocateDatabase.counts` | `counts(self)` | (no docstring) |
 | 0 | `parse_configuration` | `parse_configuration(block)` | The configuration block mlocate and plocate store: a name, its values and an empty string, each |
@@ -1010,7 +1042,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 1 | class `Database` | | A decrypted copy of one mpenginedb.db, open read-only for the length of a with block. |
+| 1 | class `Database` | `Database(plain)` | A decrypted copy of one mpenginedb.db, open read-only for the length of a with block. |
 | | `Database.table_columns` | `table_columns(self, table)` | The column names of table in the order the schema gives them, [] when it is absent. |
 | | `Database.count` | `count(self, table)` | What SELECT count(*) says for table, or None when the query fails. SQLite may answer |
 | | `Database.rows` | `rows(self, table, wanted)` | (rows, error, missing) for the wanted columns of table. rows are dicts in the order |
@@ -1043,7 +1075,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | ---: | --- | --- | --- |
 | 1 | `decode_text` | `decode_text(text, key, mapping, repeated=frozenset())` | (decoded text, words replaced, words replaced from a token listed with more than one text). |
 | 1 | `logs_root` | `logs_root(path)` | The OneDrive logs folder a log file sits under (Windows or macOS), or its own folder. |
-| 1 | class `OdlFile` | | One log file: its header and its records, read from bytes. |
+| 1 | class `OdlFile` | `OdlFile(data)` | One log file: its header and its records, read from bytes. |
 | 1 | `param_texts` | `param_texts(params)` | The text values in a record's parameter bytes, in order. |
 | 1 | `read_keystore` | `read_keystore(data)` | The AES key a general.keystore holds, or None when it holds no version 1 key. |
 | 1 | `read_string_map` | `read_string_map(data)` | The (token, text) entries of ObfuscationStringMap.txt, in file order. |
@@ -1060,7 +1092,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 1 | `paths` | `paths(items)` | {id(item): path} built from the folder names of the same store, parent first. |
 | 1 | `read_dat` | `read_dat(data)` | (items, record type counts, trailing bytes) of a .dat file of a known version. |
 | 1 | `read_sync_engine` | `read_sync_engine(db)` | The items of an open SyncEngineDatabase connection; a column a schema lacks reads as None. |
-| 0 | class `Item` | | One file or folder record. |
+| 0 | class `Item` | `Item(kind, resource_id, parent_id, name, **values)` | One file or folder record. |
 
 ## `scripts.rdp_bitmap_cache`
 
@@ -1082,7 +1114,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 1 | `read_download` | `read_download(data)` | The front of a .sd file: the SDL marker and version (CDownload::Serialize, Download.cpp), then |
 | 1 | `read_library` | `read_library(data, has_header=True)` | A library file, as CLibrary::Load and CLibrary::Serialize (Library.cpp) read it. |
 | 1 | `read_searches` | `read_searches(data)` | Searches.dat (CWindowManager::SaveSearchWindows, WindowManager.cpp): for each search window a count of 1, |
-| 1 | class `ShareazaFormatError` | | The bytes do not fit the layout being read. .partial holds what was read before it. |
+| 1 | class `ShareazaFormatError` | `ShareazaFormatError(message, partial=None)` | The bytes do not fit the layout being read. .partial holds what was read before it. |
 | 0 | `filetime` | `filetime(value)` | A Windows FILETIME as an aware UTC datetime, '' for 0. |
 
 ## `scripts.snss_parser`
@@ -1105,12 +1137,12 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 1 | `rows_not_in_current` | `rows_not_in_current(db_path, query, params=(), key_columns=None, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Rows the query returns in another state but not in the current one. |
-| 0 | class `EarlierRow` | | A row read from another state that the current state does not hold. |
-| 0 | class `EarlierRun` | | The contiguous frames the previous log generation left after the current one. |
-| 0 | class `WalLog` | | The frame layout of one write-ahead log, as SQLite would validate it. |
+| 0 | class `EarlierRow` | `EarlierRow(values, status, first_state, last_state, first_frame, last_frame, earlier_generation=None, uncommitted=False)` | A row read from another state that the current state does not hold. |
+| 0 | class `EarlierRun` | `EarlierRun()` | The contiguous frames the previous log generation left after the current one. |
+| 0 | class `WalLog` | `WalLog(wal_path, fallback_page_size=0)` | The frame layout of one write-ahead log, as SQLite would validate it. |
 | | `WalLog.image` | `image(self, offset)` | (no docstring) |
 | | `WalLog.frame_header` | `frame_header(self, index)` | (no docstring) |
-| 0 | class `WalStates` | | Open each readable state of a WAL-mode database read-only. |
+| 0 | class `WalStates` | `WalStates(db_path, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Open each readable state of a WAL-mode database read-only. |
 | | `WalStates.summary` | `summary(self)` | One line describing what was read and what was not, for the log. |
 | | `WalStates.close` | `close(self)` | (no docstring) |
 | | `WalStates.states` | `states(self)` | Yield a State for each readable state, current first, as the class says. |
@@ -1137,7 +1169,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 0 | `local_account` | `local_account(db)` | Resolve the local id/alias; account keys are never reported. |
 | 0 | `localized_text` | `localized_text(content, metadata)` | Choose de/en/first text; Content (as stored) preserves the full map. |
 | 0 | `media_files` | `media_files(metadata)` | mediaFiles objects ordered by usable order, then stored position. |
-| 0 | `media_index` | `media_index(context, database)` | Name -> candidates in this store and its attributable profile media. |
+| 0 | `media_index` | `media_index(context, database)` | Name -&gt; candidates in this store and its attributable profile media. |
 | 0 | `media_names` | `media_names(metadata)` | Stored filenames, counting an alias only once per attachment reference. |
 | 0 | `media_profile` | `media_profile(database, stores)` | Profile whose shared cache has exactly one staged main-store owner. |
 | 0 | `message_rows` | `message_rows(db)` | Every stored message, including malformed metadata in its raw column. |
@@ -1169,7 +1201,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 0 | `optional` | `optional(db, table, names, alias='')` | Build fixed-name SELECT expressions that tolerate schema revisions. |
 | 0 | `read_databases` | `read_databases(context, reader, label)` | Run a reader against every profile database and append source provenance. |
 | 0 | `resolve_database_key` | `resolve_database_key(files_found)` | Return (database key hex, source). |
-| 0 | `stored_file_paths` | `stored_file_paths(files_found)` | Map Threema file IDs to encrypted files in data/files/<prefix>/<id>. |
+| 0 | `stored_file_paths` | `stored_file_paths(files_found)` | Map Threema file IDs to encrypted files in data/files/&lt;prefix&gt;/&lt;id&gt;. |
 | 0 | `timestamp` | `timestamp(value)` | Convert a Unix millisecond timestamp, leaving zero and invalid values blank. |
 
 ## `scripts.unifiedlogs`
@@ -1184,7 +1216,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 0 | `assemble_merged_archive` | `assemble_merged_archive(diagnostics_dirs, uuidtext_dirs, workdir)` | assemble_archive() over several copies of one store taken at different moments. |
 | 0 | `find_archive_roots` | `find_archive_roots(files_found)` | Work out what to hand the parser from the paths the seeker returned. |
 | 0 | `find_iterator` | `find_iterator()` | Locate the unifiedlog_iterator binary, or return None when it is unavailable. |
-| 0 | class `ImportProgress` | | Throttled progress lines for a long import, through logfunc. |
+| 0 | class `ImportProgress` | `ImportProgress(total_bytes, label='Unified Logs', interval=20.0, clock=time.monotonic, log=logfunc)` | Throttled progress lines for a long import, through logfunc. |
 | | `ImportProgress.add_record` | `add_record(self)` | (no docstring) |
 | | `ImportProgress.set_bytes_done` | `set_bytes_done(self, done)` | (no docstring) |
 | | `ImportProgress.maybe_report` | `maybe_report(self)` | (no docstring) |
@@ -1201,7 +1233,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 0 | class `AccessLine` | | The fields of one access log line; field names follow the Apache format strings. |
+| 0 | class `AccessLine` | `AccessLine()` | The fields of one access log line; field names follow the Apache format strings. |
 | 0 | `clf_time` | `clf_time(match)` | The UTC time of a [dd/Mon/yyyy:HH:MM:SS +zzzz] stamp, or '' when it is not a calendar time. |
 | 0 | `local_iso` | `local_iso(recorded, form)` | The written time of an error line as ISO 8601 text with no zone, or '' when it is not a date. |
 | 0 | `open_lines` | `open_lines(path, counts)` | Yield (line number, text, cut) for each line of a log file, decompressing gzip by content. |
@@ -1218,13 +1250,13 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 1 | class `Db8Store` | | A DB8 sandwich store read from its LevelDB folder. |
+| 1 | class `Db8Store` | `Db8Store(folder)` | A DB8 sandwich store read from its LevelDB folder. |
 | | `Db8Store.is_db8` | `is_db8(self)` | True when the meta part names DB8's objects database. |
 | | `Db8Store.part_records` | `part_records(self, name)` | (key within the part, record) for every live key in the named part, in key order. |
 | | `Db8Store.objects` | `objects(self)` | Every live objects.db record as a Db8Object, in key order. |
 | | `Db8Store.object_versions` | `object_versions(self)` | Every objects.db record in the files, live or not, in key order and oldest first. |
 | 0 | class `Db8Error` | | A record that does not follow the DB8 layout. |
-| 0 | class `Db8Object` | | One version of an object from objects.db. |
+| 0 | class `Db8Object` | `Db8Object(obj_id, kind, kind_token, rev, deleted, body, seq, origin_file, status=STATUS_LIVE)` | One version of an object from objects.db. |
 | 0 | `decode_value` | `decode_value(data, tokens=None)` | One serialized value (a whole object for kinds.db and indexIds.db records, or a key). |
 | 0 | `obj_key` | `obj_key(key)` | The object or kind id a part key holds (a serialized string), or its hex if it is not one. |
 | 0 | `read_header` | `read_header(data)` | (kind token, revision, deleted, body offset) from an objects.db record. |
@@ -1239,7 +1271,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 1 | `media` | `media(profile)` | {SHA-256 (base64, as WhatsApp stores it): (cache file, bytes)} for the profile's cached media. |
 | 1 | `profiles` | `profiles(context)` | Every WhatsApp Web profile among the matched files, read once per run. |
 | 1 | `records` | `records(profile, store, database='model-storage')` | (no docstring) |
-| 0 | class `Profile` | | One browser profile's WhatsApp Web storage. |
+| 0 | class `Profile` | `Profile(kind, root, profile_dir)` | One browser profile's WhatsApp Web storage. |
 
 ## `scripts.windows_msiecf`
 
@@ -1270,9 +1302,10 @@ artifact modules importing any one name from it, or the module itself.
 | Used by | Module | Kind |
 | ---: | --- | --- |
 | 8 | `scripts.vendor` | package |
-| 7 | `scripts.chromium` | package |
+| 5 | `scripts.vendor.impacket_ese` | vendored or generated |
 | 3 | `scripts.ccl.indexeddb_to_json` | vendored or generated |
-| 3 | `scripts.vendor.ccl` | package |
+| 3 | `scripts.vendor.ccl.ccl_chromium_indexeddb` | vendored or generated |
+| 3 | `scripts.vendor.ccl.ccl_leveldb` | vendored or generated |
 | 2 | `scripts.ccl.wire_assets` | vendored or generated |
 | 1 | `scripts.artifacts.macosSpotlightStore` | artifact module |
 | 1 | `scripts.artifacts.macosWebKitLocalStorage` | artifact module |
@@ -1280,4 +1313,6 @@ artifact modules importing any one name from it, or the module itself.
 | 1 | `scripts.artifacts.robloxActivity` | artifact module |
 | 1 | `scripts.artifacts.robloxLogs` | artifact module |
 | 1 | `scripts.artifacts.windowsSmbClientEvents` | artifact module |
+| 1 | `scripts.vendor.cimreader` | vendored or generated |
 | 1 | `scripts.vendor.dpapiprobe.credvault` | vendored or generated |
+| 1 | `scripts.vendor.qnxprobe` | vendored or generated |
