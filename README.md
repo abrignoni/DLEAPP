@@ -2,7 +2,7 @@
   <img src="assets/DLEAPP_logo.png" alt="DLEAPP" width="200">
 </p>
 
-# Desktop Logs Events And Protobuf Parser
+# Desktop Logs, Events and Protobuf Parser
 
 **DLEAPP** parses artifacts left behind by **desktop applications** — the logs, events, and stored data of Electron/Chromium-based desktop apps: IndexedDB/LevelDB stores (including protobuf-encoded values), Local Storage, service-worker and HTTP caches, cookies, and application logs. It is a member of the LEAPP family, built on the RLEAPP framework.
 
