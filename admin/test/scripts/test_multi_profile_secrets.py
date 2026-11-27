@@ -215,6 +215,25 @@ class TestNoReuseAcrossRuns(unittest.TestCase):
         self.assertIsNone(connection)
         self.assertIn("needs the account password", reason)
 
+    def test_threema_credential_file_removed(self):
+        """ A key file in the extraction that opened the database does not keep opening it
+        once it is gone. """
+        database = write(self.root / "data" / "threema.sqlite", b"not sqlite")
+        key_file = write(self.root / "threema-key.txt", KEY_A)
+
+        def decrypt(_path, _key, output, **_kwargs):
+            write(output)
+            return (1, 1)
+
+        with mock.patch("scripts.sqlcipher_decrypt.decrypt_sqlcipher_db", side_effect=decrypt), \
+                mock.patch.object(td.sqlite3, "connect", return_value="connection"):
+            self.assertEqual(td.open_database(database, [database, key_file])[0], "connection")
+            os.remove(key_file)
+            connection, _reason = td.open_database(database, [database])
+        td._remove_decrypted_copies()  # pylint: disable=protected-access
+        td._decrypted_cache.clear()  # pylint: disable=protected-access
+        self.assertIsNone(connection)
+
     def test_signal(self):
         base = self.root / "Signal"
         files = [write(base / "sql" / "db.sqlite", b"not sqlite"),

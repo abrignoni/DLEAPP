@@ -513,9 +513,11 @@ def open_database(files_found, log=None):
         return None, "no Signal Desktop database (sql/db.sqlite) was found"
 
     database_path = databases[0]
-    # A copy decrypted earlier is reused only with the same secrets: the window runs
-    # several times in one process, and a secret given for one run must not open the next.
-    cache_key = (os.path.realpath(database_path), _supplied_values())
+    # A copy decrypted earlier is reused only with the same secrets, the credential files
+    # in the extraction included: the window runs several times in one process, and a
+    # secret given for one run must not open the next.
+    cache_key = (os.path.realpath(database_path), _supplied_values(),
+                 tuple(_supplied_secrets(files_found)))
     cached = _decrypted_cache.get(cache_key)
     if cached:
         cached_path, cached_how = cached if isinstance(cached, tuple) else (cached, "")

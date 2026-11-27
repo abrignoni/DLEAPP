@@ -295,9 +295,12 @@ def open_database(path, files_found):
             return None, f"the decrypted database could not be opened: {exc}"
 
     real = os.path.realpath(path)
-    # A copy decrypted earlier is reused only with the same secrets: the window runs
-    # several times in one process, and a secret given for one run must not open the next.
-    cache_key = (real, _supplied_secrets())
+    # A copy decrypted earlier is reused only with the same secrets, the credential files
+    # in the extraction included: the window runs several times in one process, and a
+    # secret given for one run must not open the next.
+    cache_key = (real, _supplied_secrets(), tuple(
+        (str(candidate), _read_text(str(candidate))) for candidate in files_found
+        if os.path.basename(str(candidate)).lower() in CREDENTIAL_FILENAMES))
     cached = _decrypted_cache.get(cache_key)
     if cached and os.path.isfile(cached[0]):
         try:
