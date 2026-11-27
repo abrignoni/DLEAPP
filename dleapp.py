@@ -80,12 +80,14 @@ def read_profile(filename):
 SLOWEST_ARTIFACTS_TO_REPORT = 10
 
 
-def resolve_supplied_secret(value, label):
+def resolve_supplied_secret(value, label, read_limit=None):
     '''Turn a --<app>-key argument into the secret itself.
 
     The argument may be the secret, the path to a file holding it, or the
     sentinel asking for an interactive prompt. Reading from a file, or being
     prompted, keeps the secret out of shell history and the process list.
+    A file is read up to 4096 characters, or, given read_limit, up to that many, and a
+    longer one is refused rather than cut.
     '''
     if value is None:
         return None
@@ -100,7 +102,12 @@ def resolve_supplied_secret(value, label):
         return entered
     if os.path.isfile(value):
         with open(value, 'r', encoding='utf-8', errors='replace') as secret_file:
-            contents = secret_file.read(4096).strip()
+            contents = secret_file.read(4096 if read_limit is None else read_limit + 1)
+        if read_limit is not None and len(contents) > read_limit:
+            raise argparse.ArgumentError(
+                None, f'The file given for {label} holds more than {read_limit} characters: '
+                      f'{value}')
+        contents = contents.strip()
         if not contents:
             raise argparse.ArgumentError(None, f'The file given for {label} is empty: {value}')
         return contents
@@ -118,15 +125,48 @@ APP_SECRETS = {
 }
 
 
+# The secrets that may be given more than once, one per line of the value or of the file
+# it names, or by repeating the option. A computer can have several accounts to open. The
+# artifacts get a tuple of them, in the order given, without repeats.
+MULTI_VALUE_SECRETS = frozenset({'windows_user_password'})
+# The most read from a file of several secrets, one per line.
+MULTI_VALUE_READ_LIMIT = 65536
+
+
+def resolve_multi_value_secret(value, label):
+    '''The secrets a multi-value option was given, as a tuple, or None.
+
+    value is one item or a list of them (a repeated command line option). Each item is a
+    secret, the path of a file holding them, or the sentinel asking for a prompt. Each line
+    is one secret: spaces around it and empty lines are dropped, and a repeat is kept once.
+    '''
+    if value is None:
+        return None
+    items = value if isinstance(value, (list, tuple)) else [value]
+    secrets = []
+    for item in items:
+        resolved = resolve_supplied_secret(item, label, read_limit=MULTI_VALUE_READ_LIMIT)
+        for line in (resolved or '').splitlines():
+            line = line.strip()
+            if line and line not in secrets:
+                secrets.append(line)
+    return tuple(secrets) or None
+
+
 def set_app_secrets(values):
     '''Give the artifacts the secrets of this run, the CLI's and the window's alike.
 
     values maps a name of APP_SECRETS to what was given for it: the secret, the path of a
-    file holding it, or None. A secret left out is cleared. Raises argparse.ArgumentError,
-    as resolve_supplied_secret does.
+    file holding it, or None; for a name of MULTI_VALUE_SECRETS also a list of those. A
+    secret left out is cleared. Raises argparse.ArgumentError, as resolve_supplied_secret
+    does.
     '''
     for name, (_option, label) in APP_SECRETS.items():
-        Context.set_app_secret(name, resolve_supplied_secret(values.get(name), label))
+        if name in MULTI_VALUE_SECRETS:
+            secret = resolve_multi_value_secret(values.get(name), label)
+        else:
+            secret = resolve_supplied_secret(values.get(name), label)
+        Context.set_app_secret(name, secret)
 
 
 def check_supplied_secret(text):
@@ -146,7 +186,10 @@ def log_supplied_secrets():
     password, so the log records what opened the data.'''
     for name, (_option, label) in APP_SECRETS.items():
         value = Context.get_app_secret(name)
-        if value:
+        if isinstance(value, tuple):
+            for number, secret in enumerate(value, start=1):
+                logfunc(f'{label} {number} of {len(value)}: {secret}')
+        elif value:
             logfunc(f'{label}: {value}')
 
 
@@ -411,11 +454,16 @@ def main():
                               "itself or a path to a file holding it. Prefer --threema-password. "
                               "An already-decrypted threema.sqlite needs neither."))
     parser.add_argument('--windows-user-password', dest='windows_user_password', required=False,
-                        nargs='?', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        action='append', nargs='?', const=PROMPT_FOR_SECRET, default=None,
+                        metavar='VALUE_OR_FILE',
                         help=("Cleartext password of a Windows user account, used to recover that "
-                              "account's DPAPI master keys and decrypt its user Vault. Accepts the "
-                              "password itself or a path to a file holding it. Give the flag with "
-                              "no value to be prompted without it reaching your shell history."))
+                              "account's DPAPI master keys, which the Windows Vault, Chromium "
+                              "password and cookie, and Google Japanese Input history artifacts "
+                              "use. Accepts the password itself or a path to a file holding it. "
+                              "For several accounts, repeat the flag or put one password per line "
+                              "in the file; each password is tried on the master keys of every "
+                              "account found in the extraction. Give the flag with no value to be "
+                              "prompted without it reaching your shell history."))
     parser.add_argument('--exodus-password', dest='exodus_password', required=False,
                         nargs='?', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
                         help=("Password for an Exodus desktop wallet, tried as the passphrase for "

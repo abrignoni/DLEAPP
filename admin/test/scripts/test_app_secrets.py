@@ -58,6 +58,79 @@ class TestSetAppSecrets(unittest.TestCase):
                 dleapp.set_app_secrets({'windows_user_password': str(path)})
 
 
+class TestSeveralWindowsPasswords(unittest.TestCase):
+    """ A computer can have several accounts: the Windows user password may be given more than
+    once, and the artifacts get them all, in order, without repeats. """
+
+    def setUp(self):
+        self.addCleanup(dleapp.set_app_secrets, {})
+
+    def test_one_password_is_a_tuple_of_one(self):
+        """ A single value works as it did, spaces around it dropped. """
+        dleapp.set_app_secrets({'windows_user_password': '  pass word  '})
+        self.assertEqual(Context.get_app_secret('windows_user_password'), ('pass word',))
+
+    def test_a_repeated_option_gives_each_password(self):
+        """ The command line gives a list when the option is repeated. """
+        dleapp.set_app_secrets({'windows_user_password': ['first', 'second', 'first']})
+        self.assertEqual(Context.get_app_secret('windows_user_password'), ('first', 'second'))
+
+    def test_a_file_gives_one_password_per_line(self):
+        """ Lines end in LF or CRLF; empty lines are skipped. """
+        with tempfile.TemporaryDirectory() as folder:
+            path = pathlib.Path(folder, 'passwords.txt')
+            path.write_bytes(b'first\r\n\r\nsecond word\r\n')
+            dleapp.set_app_secrets({'windows_user_password': [str(path), 'third']})
+        self.assertEqual(Context.get_app_secret('windows_user_password'),
+                         ('first', 'second word', 'third'))
+
+    def test_lines_from_the_window_are_several_passwords(self):
+        """ The window's Load from file puts the file's lines in the field. """
+        dleapp.set_app_secrets({'windows_user_password': 'first\nsecond'})
+        self.assertEqual(Context.get_app_secret('windows_user_password'), ('first', 'second'))
+
+    def test_a_file_too_long_is_refused_not_cut(self):
+        """ Cutting it could leave half a password. """
+        with tempfile.TemporaryDirectory() as folder:
+            path = pathlib.Path(folder, 'passwords.txt')
+            path.write_text('p\n' * dleapp.MULTI_VALUE_READ_LIMIT, encoding='utf-8')
+            with self.assertRaises(argparse.ArgumentError):
+                dleapp.set_app_secrets({'windows_user_password': str(path)})
+
+    def test_other_secrets_stay_one_string(self):
+        """ A Signal key holds no list. """
+        dleapp.set_app_secrets({'signal': 'a\nb'})
+        self.assertEqual(Context.get_app_secret('signal'), 'a\nb')
+
+    def test_each_password_is_logged_on_its_own_line(self):
+        """ The log says how many were given. """
+        dleapp.set_app_secrets({'windows_user_password': ['first', 'second']})
+        with mock.patch.object(dleapp, 'logfunc') as logged:
+            dleapp.log_supplied_secrets()
+        self.assertEqual([call.args[0] for call in logged.call_args_list],
+                         ['Windows user password 1 of 2: first',
+                          'Windows user password 2 of 2: second'])
+
+
+class TestEveryPasswordIsTriedOnEveryAccount(unittest.TestCase):
+    """ The two DPAPI pools make candidates from each password for each account SID. """
+
+    def test_both_pools(self):
+        """ Two passwords and two SIDs give four password candidate calls in each pool. """
+        from scripts.chromium import windows_oscrypt  # pylint: disable=import-outside-toplevel
+        from scripts.artifacts import windowsUserVaultCredentials as vault  # pylint: disable=import-outside-toplevel
+        for module in (windows_oscrypt, vault):
+            with mock.patch.object(module.dpapiprobe, 'user_master_key_candidates',
+                                   return_value=[]) as candidates:
+                module._unlocked_pool({'S-1-5-21-1': [], 'S-1-5-21-2': []}, [],  # pylint: disable=protected-access
+                                      ('first', 'second'))
+            self.assertEqual(sorted((call.args[0], call.kwargs['password'])
+                                    for call in candidates.call_args_list),
+                             [('S-1-5-21-1', 'first'), ('S-1-5-21-1', 'second'),
+                              ('S-1-5-21-2', 'first'), ('S-1-5-21-2', 'second')],
+                             module.__name__)
+
+
 class TestCheckSuppliedSecret(unittest.TestCase):
     """ The window's check: it refuses what the run would refuse, and never quotes the text. """
 
