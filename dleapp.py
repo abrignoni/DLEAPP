@@ -460,9 +460,9 @@ def main():
                         action='append', nargs='?', const=PROMPT_FOR_SECRET, default=None,
                         metavar='VALUE_OR_FILE',
                         help=("Cleartext password of a Windows user account, used to recover that "
-                              "account's DPAPI master keys, which the Windows Vault, Chromium "
-                              "password and cookie, and Google Japanese Input history artifacts "
-                              "use. Accepts the password itself or a path to a file holding it. "
+                              "account's DPAPI master keys, which artifacts that read "
+                              "DPAPI-protected data need. Accepts the password itself or a path "
+                              "to a file holding it. "
                               "For several accounts, repeat the flag or put one password per line "
                               "in the file; each password is tried on the master keys of every "
                               "account found in the extraction. Give the flag with no value to be "
