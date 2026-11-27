@@ -23,7 +23,7 @@
        "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
        "check": "dleapp:check_supplied_secret"},
       {"name": "windows_user_password", "kind": "text", "display": "Windows user password",
-       "label": "Optional. A Windows account's password, used to recover that account's DPAPI master keys, which the Windows Vault, Chromium password and cookie, and Google Japanese Input history artifacts need. For several accounts, load a file with one password per line (the window reads its first 4096 characters); each is tried on every account found in the extraction.",
+       "label": "Optional. A Windows account's password, used to recover that account's DPAPI master keys, which artifacts that read DPAPI-protected data need. For several accounts, load a file with one password per line (the window reads its first 4096 characters); each is tried on every account found in the extraction.",
        "if_absent": "No Windows user password: what DPAPI protects stays encrypted, unless Windows kept a key that opens it.",
        "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
        "check": "dleapp:check_supplied_secret"},
