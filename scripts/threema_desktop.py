@@ -46,7 +46,7 @@ _explained = set()
 
 def _remove_decrypted_copies():
     """Delete temporary plaintext databases when the process exits."""
-    for path in set(_decrypted_cache.values()):
+    for path, _how in set(_decrypted_cache.values()):
         try:
             os.remove(path)
         except OSError:
@@ -170,33 +170,60 @@ def _read_text(path, limit=4096):
         return ""
 
 
+def _as_tuple(value):
+    if not value:
+        return ()
+    return tuple(value) if isinstance(value, (list, tuple)) else (value,)
+
+
 def _supplied_secrets():
-    """(raw-key value, password value) supplied by the examiner, or (None, None)."""
+    """(raw-key values, password values) supplied by the examiner, each a tuple.
+
+    Several may be given, one per profile to open, and each is tried on every profile.
+    """
     try:
         from scripts.context import Context
-        return Context.get_app_secret("threema"), Context.get_app_secret("threema_password")
+        return (_as_tuple(Context.get_app_secret("threema")),
+                _as_tuple(Context.get_app_secret("threema_password")))
     except (ImportError, AttributeError):
-        return None, None
+        return (), ()
 
 
-def _keystorage_paths(files_found):
+def _keystorage_paths(files_found, database_path=None):
+    """The keystorage.bin files to try for a database.
+
+    Threema Desktop keeps keystorage.bin in the folder that holds threema.sqlite. When the
+    database's own folder has one, only that one is tried: another profile's key storage
+    would give another profile's key. Otherwise every keystorage.bin found is tried.
+    """
     names = {name.lower() for name in threema_keystorage.KEYSTORAGE_FILENAMES}
-    return [str(path) for path in files_found if os.path.basename(str(path)).lower() in names]
+    found = [str(path) for path in files_found if os.path.basename(str(path)).lower() in names]
+    if database_path:
+        folder = os.path.dirname(str(database_path))
+        beside = [path for path in found if os.path.dirname(path) == folder]
+        if beside:
+            return beside
+    return found
 
 
-def resolve_database_key(files_found):
-    """Return (database key hex, source).
+def candidate_keys(files_found, database_path=None):
+    """Return (candidates, reason): every database key to try, as (key hex, source).
 
     A 64-character hexadecimal key supplied directly (``--threema-key``, the GUI
-    button, or a credential text file) is used as is. Otherwise, if a password is
-    supplied (``--threema-password``, or a non-hex value given to the key input),
-    the key is recovered from keystorage.bin by running its Argon2id KDF and
-    unwrapping the layered key storage.
+    button, or a credential text file) is a candidate as is. A password supplied
+    (``--threema-password``, or a non-hex value given to the key input) is run through
+    the Argon2id KDF of keystorage.bin, and the key it unwraps is a candidate. Each
+    candidate is only a candidate until it authenticates the database. When the list is
+    empty, reason says why.
     """
-    supplied_key, supplied_password = _supplied_secrets()
-    raw_candidates = []
-    if supplied_key:
-        raw_candidates.append(("--threema-key", supplied_key))
+    supplied_keys, supplied_passwords = _supplied_secrets()
+    candidates = []
+
+    def add(key_hex, source):
+        if key_hex.lower() not in [known for known, _source in candidates]:
+            candidates.append((key_hex.lower(), source))
+
+    raw_candidates = [("--threema-key", value) for value in supplied_keys]
     for candidate in files_found:
         path = str(candidate)
         if os.path.basename(path).lower() in CREDENTIAL_FILENAMES:
@@ -204,36 +231,52 @@ def resolve_database_key(files_found):
     for source, value in raw_candidates:
         value = value.strip()
         if _RAW_KEY_RE.fullmatch(value):
-            return value.lower(), source
+            add(value, source)
 
-    password_candidates = []
-    if supplied_password:
-        password_candidates.append(("--threema-password", supplied_password))
+    password_candidates = [("--threema-password", value) for value in supplied_passwords]
     # A value handed to the key input that is not a raw key may be the password.
-    if supplied_key and not _RAW_KEY_RE.fullmatch(supplied_key.strip()):
-        password_candidates.append(("--threema-key", supplied_key))
-    keystores = _keystorage_paths(files_found)
+    password_candidates += [("--threema-key", value) for value in supplied_keys
+                            if not _RAW_KEY_RE.fullmatch(value.strip())]
+    keystores = _keystorage_paths(files_found, database_path)
+    last = ""
     if password_candidates and keystores:
         last = "the password did not recover the key"
-        for source, password in password_candidates:
-            for keystore in keystores:
+        for keystore in keystores:
+            try:
+                with open(keystore, "rb") as handle:
+                    data = handle.read()
+            except OSError as exc:
+                last = f"keystorage.bin could not be read: {exc}"
+                continue
+            for source, password in password_candidates:
                 try:
-                    with open(keystore, "rb") as handle:
-                        data = handle.read()
                     key, _identity = threema_keystorage.unwrap_database_key(data, password)
-                    return key.hex(), f"{source} + keystorage.bin"
                 except threema_keystorage.ThreemaKeystorageError as exc:
                     last = str(exc)
-                except OSError as exc:
-                    last = f"keystorage.bin could not be read: {exc}"
-        return None, last
+                    continue
+                add(key.hex(), f"{source} + keystorage.bin")
+    if candidates:
+        return candidates, ""
+    if last:
+        if len(password_candidates) > 1:
+            return candidates, f"no supplied password recovered the key ({last})"
+        return candidates, last
     if password_candidates:
-        return None, "a Threema password was supplied but keystorage.bin was not found"
+        return candidates, "a Threema password was supplied but keystorage.bin was not found"
     if raw_candidates:
-        return None, "the supplied value is not a 64-character hexadecimal database key or a password"
-    return None, ("the encrypted database needs the account password (supply it with "
-                  "--threema-password and DLEAPP unwraps keystorage.bin) or the 64-character "
-                  "hexadecimal database key (with --threema-key)")
+        return candidates, ("the supplied value is not a 64-character hexadecimal database key "
+                            "or a password")
+    return candidates, ("the encrypted database needs the account password (supply it with "
+                        "--threema-password and DLEAPP unwraps keystorage.bin) or the "
+                        "64-character hexadecimal database key (with --threema-key)")
+
+
+def resolve_database_key(files_found, database_path=None):
+    """Return (database key hex, source) for the first candidate, or (None, reason)."""
+    candidates, reason = candidate_keys(files_found, database_path)
+    if not candidates:
+        return None, reason
+    return candidates[0]
 
 
 def explain(reason):
@@ -251,38 +294,48 @@ def open_database(path, files_found):
         except sqlite3.Error as exc:
             return None, f"the decrypted database could not be opened: {exc}"
 
-    key_hex, how = resolve_database_key(files_found)
-    if not key_hex:
-        return None, how
-
     real = os.path.realpath(path)
     cached = _decrypted_cache.get(real)
-    if cached and os.path.isfile(cached):
+    if cached and os.path.isfile(cached[0]):
         try:
-            return sqlite3.connect(f"file:{get_sqlite_db_path(cached)}?mode=ro", uri=True), how
+            return sqlite3.connect(f"file:{get_sqlite_db_path(cached[0])}?mode=ro", uri=True), cached[1]
         except sqlite3.Error:
             pass
+
+    candidates, reason = candidate_keys(files_found, path)
+    if not candidates:
+        return None, reason
 
     from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
     digest = hashlib.sha1(real.encode("utf-8", "replace")).hexdigest()[:12]
     folder = os.path.join(tempfile.gettempdir(), "dleapp_threema")
     os.makedirs(folder, mode=0o700, exist_ok=True)
     output = os.path.join(folder, f"threema_{digest}.sqlite")
-    try:
-        pages, verified = decrypt_sqlcipher_db(
-            path, key_hex, output, page_size=PAGE_SIZE,
-            hmac_algorithm=HMAC_ALGORITHM, kdf_algorithm=KDF_ALGORITHM,
-            raw_key=True, apply_wal=True)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        return None, f"the database could not be decrypted: {exc}"
-    if not pages or not verified:
+    how = ""
+    failure = "the supplied key did not authenticate the database"
+    for key_hex, source in candidates:
+        try:
+            pages, verified = decrypt_sqlcipher_db(
+                path, key_hex, output, page_size=PAGE_SIZE,
+                hmac_algorithm=HMAC_ALGORITHM, kdf_algorithm=KDF_ALGORITHM,
+                raw_key=True, apply_wal=True)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            failure = f"the database could not be decrypted: {exc}"
+            continue
+        if pages and verified:
+            how = source
+            break
+    if not how:
         try:
             os.remove(output)
         except OSError:
             pass
-        return None, "the supplied key did not authenticate the database"
+        if len(candidates) > 1 and failure.startswith("the supplied key"):
+            failure = (f"none of the {len(candidates)} candidate keys authenticated "
+                       "the database")
+        return None, failure
 
-    _decrypted_cache[real] = output
+    _decrypted_cache[real] = (output, how)
     try:
         return sqlite3.connect(f"file:{get_sqlite_db_path(output)}?mode=ro", uri=True), how
     except sqlite3.Error as exc:

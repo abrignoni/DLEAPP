@@ -128,7 +128,8 @@ APP_SECRETS = {
 # The secrets that may be given more than once, one per line of the value or of the file
 # it names, or by repeating the option. A computer can have several accounts to open. The
 # artifacts get a tuple of them, in the order given, without repeats.
-MULTI_VALUE_SECRETS = frozenset({'windows_user_password'})
+MULTI_VALUE_SECRETS = frozenset({'signal', 'threema', 'threema_password', 'windows_user_password',
+                                 'exodus_password'})
 # The most read from a file of several secrets, one per line.
 MULTI_VALUE_READ_LIMIT = 65536
 
@@ -189,7 +190,9 @@ def log_supplied_secrets():
     one opened the data.'''
     for name, (_option, label) in APP_SECRETS.items():
         value = Context.get_app_secret(name)
-        if isinstance(value, tuple):
+        if isinstance(value, tuple) and len(value) == 1:
+            logfunc(f'{label}: {value[0]}')
+        elif isinstance(value, tuple):
             for number, secret in enumerate(value, start=1):
                 logfunc(f'{label} {number} of {len(value)}: {secret}')
         elif value:
@@ -433,7 +436,7 @@ def main():
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
     parser.add_argument('--version', action='version', version=f'{leapp.name} {leapp.version}')
     parser.add_argument('--signal-key', dest='signal_key', required=False, nargs='?',
-                        const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        action='append', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
                         help=("Credential for a current Signal Desktop profile, needed because "
                               "Signal encrypts its database and attachments (older profiles store "
                               "the key in the clear and need nothing). Accepts the 'Signal Safe "
@@ -441,20 +444,25 @@ def main():
                               "kwallet secret Signal stored on Linux, the 64 character "
                               "database key itself (the only option for a Windows profile, whose "
                               "key DLEAPP does not unwrap), or the path to a file holding either. A macOS "
-                              "account login password will not work. Give the flag with no value "
-                              "to be prompted without the secret reaching your shell history."))
+                              "account login password will not work. For several profiles, repeat "
+                              "the flag or put one value per line in the file; each is tried on "
+                              "every Signal profile found in the extraction. Give the flag with no "
+                              "value to be prompted without the secret reaching your shell history."))
     parser.add_argument('--threema-password', dest='threema_password', required=False, nargs='?',
-                        const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        action='append', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
                         help=("Local password for a Threema Desktop profile. DLEAPP runs the "
                               "Argon2id key derivation from keystorage.bin to recover the database "
                               "key. Accepts the password itself or a path to a file holding it. "
+                              "For several profiles, repeat the flag or put one password per line "
+                              "in the file; each is tried on every Threema profile found. "
                               "Give the flag with no value to be prompted without it reaching your "
                               "shell history. Needs the argon2-cffi and PyNaCl packages."))
     parser.add_argument('--threema-key', dest='threema_key', required=False, nargs='?',
-                        const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        action='append', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
                         help=("The 64 character hexadecimal SQLCipher database key for Threema "
                               "Desktop, for when it was recovered by other means. Accepts the key "
-                              "itself or a path to a file holding it. Prefer --threema-password. "
+                              "itself or a path to a file holding it, repeated or one per line for "
+                              "several profiles. Prefer --threema-password. "
                               "An already-decrypted threema.sqlite needs neither."))
     parser.add_argument('--windows-user-password', dest='windows_user_password', required=False,
                         action='append', nargs='?', const=PROMPT_FOR_SECRET, default=None,
@@ -468,11 +476,13 @@ def main():
                               "account found in the extraction. Give the flag with no value to be "
                               "prompted without it reaching your shell history."))
     parser.add_argument('--exodus-password', dest='exodus_password', required=False,
-                        nargs='?', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
+                        nargs='?', action='append', const=PROMPT_FOR_SECRET, default=None, metavar='VALUE_OR_FILE',
                         help=("Password for an Exodus desktop wallet, tried as the passphrase for "
                               "seed.seco. A wallet that kept its "
                               "auto-generated passphrase needs nothing. Accepts the password itself "
-                              "or a path to a file holding it. Give the flag with no value to be "
+                              "or a path to a file holding it. For several wallets, repeat the flag "
+                              "or put one password per line in the file; each is tried on every "
+                              "wallet found. Give the flag with no value to be "
                               "prompted without it reaching your shell history."))
 
 

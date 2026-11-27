@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        "shows no secret.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-22",
-        "last_update_date": "2026-11-22",
+        "last_update_date": "2026-11-27",
         "requirements": "PyCryptodome. A password can be supplied with --exodus-password.",
         "category": "Finance & Payments",
         "platforms": ("Windows", "macOS", "Linux"),
@@ -85,8 +85,8 @@ __artifacts_v2__ = {
                  "opened seed.seco as its SECO passphrase, Protection read User password (supplied), "
                  "Phrase Verified was Yes, and the recovered phrase matched the 12 words Exodus displayed "
                  "during the wallet backup flow (compared by SHA-256 of the words as read from the app). "
-                 "The stored passphrase is tried first; a supplied password is tried after "
-                 "it and counts as opening the wallet when it "
+                 "The stored passphrase is tried first; supplied passwords are tried after "
+                 "it, in the order given, on every wallet, and one counts as opening the wallet when it "
                  "unwraps the blob key and the blob then authenticates and unpacks. When neither the "
                  "stored passphrase nor a supplied password opens it, the row reads Not opened and shows "
                  "no secret; on the password-protected known data a run with no password and a run with a "
@@ -290,7 +290,9 @@ def exodusWallet(context):
                     'Recovery Phrase', 'Seed (hex)', 'Phrase Verified', 'Source File')
     data_list = []
     sources = []
-    supplied_password = context.get_app_secret('exodus_password')
+    supplied = context.get_app_secret('exodus_password') or ()
+    # Several passwords may be given, one per wallet to open; each is tried on every wallet.
+    supplied_passwords = tuple(supplied) if isinstance(supplied, (list, tuple)) else (supplied,)
     for folder, files in sorted(_group_by_wallet(context).items()):
         # Record every matched passphrase.json and seed.seco for source attribution, even on a
         # partial extraction with no seed.seco, while still emitting at most one row per seed.seco.
@@ -358,16 +360,17 @@ def exodusWallet(context):
         attempts = []
         if stored_passphrase:
             attempts.append(('stored', stored_passphrase))
-        if supplied_password:
-            attempts.append(('supplied', supplied_password))
+        attempts.extend(('supplied', password) for password in supplied_passwords)
 
         opened_with = None
+        opened_secret = ''
         payload = None
         unreadable = False
         for label, secret in attempts:
             try:
                 payload = ew.seco_store_payload(seed_bytes, secret)
                 opened_with = label
+                opened_secret = secret
                 break
             except ew.WrongPassphrase:
                 continue
@@ -386,7 +389,7 @@ def exodusWallet(context):
             passphrase_value = stored_passphrase
         elif opened_with == 'supplied':
             protection = 'User password (supplied)'
-            passphrase_value = supplied_password
+            passphrase_value = opened_secret
         elif unreadable:
             protection = 'seed.seco did not read'
             passphrase_value = ''

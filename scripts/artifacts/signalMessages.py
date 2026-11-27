@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                        "message.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-28",
+        "last_update_date": "2026-11-27",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
                        "recorded one, its SHA-256.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-28",
+        "last_update_date": "2026-11-27",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
                        "account that sent each one and the message it targets.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-28",
+        "last_update_date": "2026-11-27",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the keyring secret (Linux) or the 64-character database key",
         "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
@@ -216,97 +216,100 @@ def signalMessages(context):
         "Source File",
     )
 
-    files_found = [str(f) for f in context.get_files_found()]
-    connection, note = signal_desktop.open_database(files_found, log=logfunc)
-    if connection is None:
-        signal_desktop.explain(note, logfunc)
-        return data_headers, [], ""
-
-    labels = signal_desktop.conversation_labels(connection)
-    self_ids = signal_desktop.self_service_ids(connection)
-    by_service = _service_id_labels(connection, labels)
-    root = signal_desktop.attachments_root(files_found)
-
-    # Attachments belonging to each message, decrypted once and shared with the
-    # attachment artifact through the media store's own de-duplication.
-    attachments = {}
-    try:
-        rows = connection.execute("""
-            SELECT messageId, path, localKey, size, contentType, fileName, plaintextHash
-            FROM message_attachments WHERE path IS NOT NULL ORDER BY orderInMessage""")
-        for message_id, path, local_key, size, content_type, file_name, plain_hash in rows:
-            attachments.setdefault(message_id, []).append(
-                (path, local_key, size, content_type, file_name, plain_hash))
-    # Deliberately broad: an older schema may lack the attachment table.
-    except Exception as ex:  # pylint: disable=broad-exception-caught
-        logfunc(f"Signal Messages: attachment table unavailable ({ex}).")
-
     data_list = []
-    query = """SELECT id, conversationId, type, body, sent_at, received_at_ms, serverTimestamp,
-                      sourceServiceId, readStatus, isViewOnce, isErased, expireTimer, expires_at
-               FROM messages"""
-    for (message_id, conversation_id, message_type, body, sent_at, received_at,
-         server_ts, source_service_id, read_status, view_once, erased,
-         expire_timer, expires_at) in connection.execute(query):
+    source_path = ""
+    for files_found in signal_desktop.profiles(context, context.get_files_found()):
+        connection, note = signal_desktop.open_database(files_found, log=logfunc)
+        if connection is None:
+            signal_desktop.explain(note, logfunc)
+            continue
+        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
 
-        media_refs, names = [], []
-        for path, local_key, size, content_type, file_name, plain_hash in attachments.get(message_id, []):
-            plaintext, _authenticated, _matched = signal_desktop.decrypt_attachment(
-                root, path, local_key, size, verify_hash=plain_hash)
-            if not plaintext:
-                continue
-            name = file_name or os.path.basename(path)
-            names.append(name)
-            extension = (content_type or "").split("/")[-1] if "/" in (content_type or "") else None
-            reference = check_in_embedded_media(
-                path, plaintext, name, force_type=content_type or None,
-                force_extension=extension)
-            if reference:
-                media_refs.append(reference)
+        labels = signal_desktop.conversation_labels(connection)
+        self_ids = signal_desktop.self_service_ids(connection)
+        by_service = _service_id_labels(connection, labels)
+        root = signal_desktop.attachments_root(files_found)
 
-        if message_type == "outgoing":
-            sender = "Local user"
-        else:
-            sender = by_service.get((source_service_id or "").lower()) or _sender(
-                labels, self_ids, message_type, source_service_id, conversation_id)
+        # Attachments belonging to each message, decrypted once and shared with the
+        # attachment artifact through the media store's own de-duplication.
+        attachments = {}
+        try:
+            rows = connection.execute("""
+                SELECT messageId, path, localKey, size, contentType, fileName, plaintextHash
+                FROM message_attachments WHERE path IS NOT NULL ORDER BY orderInMessage""")
+            for message_id, path, local_key, size, content_type, file_name, plain_hash in rows:
+                attachments.setdefault(message_id, []).append(
+                    (path, local_key, size, content_type, file_name, plain_hash))
+        # Deliberately broad: an older schema may lack the attachment table.
+        except Exception as ex:  # pylint: disable=broad-exception-caught
+            logfunc(f"Signal Messages: attachment table unavailable ({ex}).")
 
-        # Only real messages carry a direction. Rows such as a key change or a
-        # profile change are events Signal records in the conversation, and
-        # calling those incoming would overstate what the record shows.
-        if message_type == "outgoing":
-            direction = "Outgoing"
-        elif message_type == "incoming":
-            direction = "Incoming"
-        else:
-            direction = ""
+        query = """SELECT id, conversationId, type, body, sent_at, received_at_ms, serverTimestamp,
+                          sourceServiceId, readStatus, isViewOnce, isErased, expireTimer, expires_at
+                   FROM messages"""
+        for (message_id, conversation_id, message_type, body, sent_at, received_at,
+             server_ts, source_service_id, read_status, view_once, erased,
+             expire_timer, expires_at) in connection.execute(query):
 
-        data_list.append((
-            signal_desktop.js_ms_to_datetime(sent_at),
-            signal_desktop.js_ms_to_datetime(received_at),
-            signal_desktop.js_ms_to_datetime(server_ts),
-            signal_desktop.js_ms_to_datetime(expires_at),
-            direction,
-            sender,
-            labels.get(conversation_id, conversation_id or ""),
-            body or "",
-            media_refs,
-            ", ".join(names),
-            message_type or "",
-            read_status if read_status is not None else "",
-            "Yes" if view_once else "",
-            "Yes" if erased else "",
-            expire_timer if expire_timer else "",
-            conversation_id or "",
-            message_id or "",
-            context.get_relative_path(next(iter(signal_desktop.database_files(files_found)), "")),
-        ))
+            media_refs, names = [], []
+            for path, local_key, size, content_type, file_name, plain_hash in attachments.get(message_id, []):
+                plaintext, _authenticated, _matched = signal_desktop.decrypt_attachment(
+                    root, path, local_key, size, verify_hash=plain_hash)
+                if not plaintext:
+                    continue
+                name = file_name or os.path.basename(path)
+                names.append(name)
+                extension = (content_type or "").split("/")[-1] if "/" in (content_type or "") else None
+                reference = check_in_embedded_media(
+                    path, plaintext, name, force_type=content_type or None,
+                    force_extension=extension)
+                if reference:
+                    media_refs.append(reference)
 
-    connection.close()
+            if message_type == "outgoing":
+                sender = "Local user"
+            else:
+                sender = by_service.get((source_service_id or "").lower()) or _sender(
+                    labels, self_ids, message_type, source_service_id, conversation_id)
+
+            # Only real messages carry a direction. Rows such as a key change or a
+            # profile change are events Signal records in the conversation, and
+            # calling those incoming would overstate what the record shows.
+            if message_type == "outgoing":
+                direction = "Outgoing"
+            elif message_type == "incoming":
+                direction = "Incoming"
+            else:
+                direction = ""
+
+            data_list.append((
+                signal_desktop.js_ms_to_datetime(sent_at),
+                signal_desktop.js_ms_to_datetime(received_at),
+                signal_desktop.js_ms_to_datetime(server_ts),
+                signal_desktop.js_ms_to_datetime(expires_at),
+                direction,
+                sender,
+                labels.get(conversation_id, conversation_id or ""),
+                body or "",
+                media_refs,
+                ", ".join(names),
+                message_type or "",
+                read_status if read_status is not None else "",
+                "Yes" if view_once else "",
+                "Yes" if erased else "",
+                expire_timer if expire_timer else "",
+                conversation_id or "",
+                message_id or "",
+                context.get_relative_path(next(iter(signal_desktop.database_files(files_found)), "")),
+            ))
+
+        connection.close()
     data_list.sort(key=lambda row: (row[15], row[0] if isinstance(row[0], datetime) else _EPOCH_MIN))
-    with_media = sum(1 for row in data_list if row[5])
-    logfunc(f"Signal Messages: {len(data_list)} message(s) across {len(labels)} conversation(s); "
+    with_media = sum(1 for row in data_list if row[8])
+    conversations = len({(row[15], row[17]) for row in data_list})
+    logfunc(f"Signal Messages: {len(data_list)} message(s) across {conversations} conversation(s); "
             f"{with_media} carry a recovered attachment.")
-    return data_headers, data_list, next(iter(signal_desktop.database_files(files_found)), "")
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -318,67 +321,69 @@ def signalAttachments(context):
         "Conversation ID", "Source File",
     )
 
-    files_found = [str(f) for f in context.get_files_found()]
-    connection, note = signal_desktop.open_database(files_found, log=logfunc)
-    if connection is None:
-        signal_desktop.explain(note, logfunc)
-        return data_headers, [], ""
-
-    labels = signal_desktop.conversation_labels(connection)
-    root = signal_desktop.attachments_root(files_found)
-    if not root:
-        logfunc("Signal Attachments: the extraction has no attachments.noindex folder, "
-                "so only the database's record of each file is reported.")
-
     data_list = []
-    query = """SELECT messageId, conversationId, sentAt, path, localKey, size, contentType,
-                      fileName, plaintextHash, width, height, duration, isViewOnce
-               FROM message_attachments WHERE path IS NOT NULL"""
-    for (message_id, conversation_id, sent_at, path, local_key, size, content_type,
-         file_name, plain_hash, width, height, duration, view_once) in connection.execute(query):
+    source_path = ""
+    for files_found in signal_desktop.profiles(context, context.get_files_found()):
+        connection, note = signal_desktop.open_database(files_found, log=logfunc)
+        if connection is None:
+            signal_desktop.explain(note, logfunc)
+            continue
+        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
 
-        plaintext, authenticated, matched = signal_desktop.decrypt_attachment(
-            root, path, local_key, size, verify_hash=plain_hash)
-        reference = None
-        if plaintext:
-            name = file_name or os.path.basename(path)
-            extension = (content_type or "").split("/")[-1] if "/" in (content_type or "") else None
-            reference = check_in_embedded_media(
-                path, plaintext, name, force_type=content_type or None,
-                force_extension=extension)
+        labels = signal_desktop.conversation_labels(connection)
+        root = signal_desktop.attachments_root(files_found)
+        if not root:
+            logfunc("Signal Attachments: the extraction has no attachments.noindex folder, "
+                    "so only the database's record of each file is reported.")
 
-        if plaintext is None:
-            verified = _recovery_failure(root, path, local_key)
-        elif matched is True:
-            verified = "Yes, SHA-256 matched"
-        elif matched is False:
-            verified = "No, SHA-256 differed"
-        else:
-            verified = "Authenticated" if authenticated else "Not authenticated"
+        query = """SELECT messageId, conversationId, sentAt, path, localKey, size, contentType,
+                          fileName, plaintextHash, width, height, duration, isViewOnce
+                   FROM message_attachments WHERE path IS NOT NULL"""
+        for (message_id, conversation_id, sent_at, path, local_key, size, content_type,
+             file_name, plain_hash, width, height, duration, view_once) in connection.execute(query):
 
-        data_list.append((
-            signal_desktop.js_ms_to_datetime(sent_at),
-            labels.get(conversation_id, conversation_id or ""),
-            file_name or "",
-            reference,
-            content_type or "",
-            size if size else "",
-            f"{width}x{height}" if width and height else "",
-            duration if duration else "",
-            verified,
-            "Yes" if view_once else "",
-            path or "",
-            plain_hash or "",
-            message_id or "",
-            conversation_id or "",
-            context.get_relative_path(next(iter(signal_desktop.database_files(files_found)), "")),
-        ))
+            plaintext, authenticated, matched = signal_desktop.decrypt_attachment(
+                root, path, local_key, size, verify_hash=plain_hash)
+            reference = None
+            if plaintext:
+                name = file_name or os.path.basename(path)
+                extension = (content_type or "").split("/")[-1] if "/" in (content_type or "") else None
+                reference = check_in_embedded_media(
+                    path, plaintext, name, force_type=content_type or None,
+                    force_extension=extension)
 
-    connection.close()
+            if plaintext is None:
+                verified = _recovery_failure(root, path, local_key)
+            elif matched is True:
+                verified = "Yes, SHA-256 matched"
+            elif matched is False:
+                verified = "No, SHA-256 differed"
+            else:
+                verified = "Authenticated" if authenticated else "Not authenticated"
+
+            data_list.append((
+                signal_desktop.js_ms_to_datetime(sent_at),
+                labels.get(conversation_id, conversation_id or ""),
+                file_name or "",
+                reference,
+                content_type or "",
+                size if size else "",
+                f"{width}x{height}" if width and height else "",
+                duration if duration else "",
+                verified,
+                "Yes" if view_once else "",
+                path or "",
+                plain_hash or "",
+                message_id or "",
+                conversation_id or "",
+                context.get_relative_path(next(iter(signal_desktop.database_files(files_found)), "")),
+            ))
+
+        connection.close()
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime) else _EPOCH_MIN)
     recovered = sum(1 for row in data_list if row[3])
     logfunc(f"Signal Attachments: {len(data_list)} attachment(s), {recovered} decrypted.")
-    return data_headers, data_list, next(iter(signal_desktop.database_files(files_found)), "")
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -389,35 +394,37 @@ def signalReactions(context):
         "Message ID", "Conversation ID", "Source File",
     )
 
-    files_found = [str(f) for f in context.get_files_found()]
-    connection, note = signal_desktop.open_database(files_found, log=logfunc)
-    if connection is None:
-        signal_desktop.explain(note, logfunc)
-        return data_headers, [], ""
-
-    labels = signal_desktop.conversation_labels(connection)
-    by_service = _service_id_labels(connection, labels)
-
     data_list = []
-    query = """SELECT emoji, fromId, conversationId, targetAuthorAci, targetTimestamp,
-                      messageReceivedAt, unread, messageId, timestamp
-               FROM reactions"""
-    for (emoji, from_id, conversation_id, target_author, target_ts,
-         received_at, unread, message_id, timestamp) in connection.execute(query):
-        data_list.append((
-            signal_desktop.js_ms_to_datetime(timestamp or received_at),
-            emoji or "",
-            by_service.get((from_id or "").lower()) or labels.get(from_id, from_id or ""),
-            labels.get(conversation_id, conversation_id or ""),
-            signal_desktop.js_ms_to_datetime(target_ts),
-            by_service.get((target_author or "").lower()) or (target_author or ""),
-            "Yes" if unread else "",
-            message_id or "",
-            conversation_id or "",
-            context.get_relative_path(next(iter(signal_desktop.database_files(files_found)), "")),
-        ))
+    source_path = ""
+    for files_found in signal_desktop.profiles(context, context.get_files_found()):
+        connection, note = signal_desktop.open_database(files_found, log=logfunc)
+        if connection is None:
+            signal_desktop.explain(note, logfunc)
+            continue
+        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
 
-    connection.close()
+        labels = signal_desktop.conversation_labels(connection)
+        by_service = _service_id_labels(connection, labels)
+
+        query = """SELECT emoji, fromId, conversationId, targetAuthorAci, targetTimestamp,
+                          messageReceivedAt, unread, messageId, timestamp
+                   FROM reactions"""
+        for (emoji, from_id, conversation_id, target_author, target_ts,
+             received_at, unread, message_id, timestamp) in connection.execute(query):
+            data_list.append((
+                signal_desktop.js_ms_to_datetime(timestamp or received_at),
+                emoji or "",
+                by_service.get((from_id or "").lower()) or labels.get(from_id, from_id or ""),
+                labels.get(conversation_id, conversation_id or ""),
+                signal_desktop.js_ms_to_datetime(target_ts),
+                by_service.get((target_author or "").lower()) or (target_author or ""),
+                "Yes" if unread else "",
+                message_id or "",
+                conversation_id or "",
+                context.get_relative_path(next(iter(signal_desktop.database_files(files_found)), "")),
+            ))
+
+        connection.close()
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime) else _EPOCH_MIN)
     logfunc(f"Signal Reactions: {len(data_list)} reaction(s).")
-    return data_headers, data_list, next(iter(signal_desktop.database_files(files_found)), "")
+    return data_headers, data_list, source_path

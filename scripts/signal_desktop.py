@@ -208,89 +208,165 @@ def database_files(files_found):
             yield file_found
 
 
-def resolve_database_key(files_found, log=None):
-    """Work out the SQLCipher key for a Signal Desktop profile.
+def _profile_root(database_path):
+    """The profile folder of a db.sqlite: the folder holding its sql folder."""
+    folder = os.path.dirname(str(database_path))
+    if os.path.basename(folder) == "sql":
+        folder = os.path.dirname(folder)
+    return folder
 
-    Returns (key_hex, how) where ``how`` describes the source, or (None, reason)
-    when no key could be produced. The reason is written for an examiner reading
-    the report, not for a developer.
+
+def profiles(context, files_found):
+    """The matched files split into one list per Signal Desktop profile.
+
+    A computer can hold several profiles, one per user account. Each list holds one
+    profile's db.sqlite with the files under that profile's folder, plus every credential
+    file the examiner placed in the extraction, which is tried on each profile. A file under
+    two profile folders goes to the deeper one. A profile held again under
+    System/Volumes/Data or System/Volumes/Update/mnt1 with identical bytes is read once.
+    With no database, the matched files are returned as one list, so the reason no
+    database was opened is still reported.
     """
-    def note(message):
-        if log:
-            log(message)
+    files_found = [str(path) for path in files_found]
+    databases = list(database_files(files_found))
+    if databases and context is not None:
+        from scripts.macos_plists import unique_sources
+        databases, _skipped = unique_sources(context, databases, sidecars=("-wal",),
+                                             label="Signal Desktop")
+    if not databases:
+        return [files_found]
+    roots = sorted({_profile_root(path) for path in databases}, key=len, reverse=True)
+    credentials = [path for path in files_found
+                   if os.path.basename(path).lower() in CREDENTIAL_FILENAMES]
+    grouped = {root: [] for root in roots}
+    for path in files_found:
+        for root in roots:
+            if path.startswith(root + os.sep) or path.startswith(root + "/"):
+                grouped[root].append(path)
+                break
+    result = []
+    for database in databases:
+        root = _profile_root(database)
+        members = [path for path in grouped[root]
+                   if os.path.basename(path) != "db.sqlite" or path == database]
+        result.append(members + [path for path in credentials if path not in members])
+    return result
 
-    configs = list(config_files(files_found))
-    secrets = list(_supplied_secrets(files_found))
 
-    # A secret given at invocation, with --signal-key or the GUI field, comes
-    # first: it is the examiner's explicit choice for this run.
+def _supplied_values():
+    """The secrets given at invocation for Signal, as a tuple (empty when none)."""
     try:
         from scripts.context import Context
         supplied = Context.get_app_secret("signal")
     except (ImportError, AttributeError):
         # Older cores have no app-secret store; the other inputs still work.
-        supplied = None
-    if supplied:
-        secrets.insert(0, ("--signal-key", supplied))
+        return ()
+    if not supplied:
+        return ()
+    return tuple(supplied) if isinstance(supplied, (list, tuple)) else (supplied,)
+
+
+def candidate_keys(files_found):
+    """Every SQLCipher key a Signal Desktop profile could open with, in the order to try.
+
+    Returns (candidates, reason): candidates is a list of (key_hex, how), where ``how``
+    describes the source, and reason says, for an examiner reading the report, why the
+    list is empty. A key is only a candidate until it authenticates the database: several
+    secrets may be given for several profiles, and each is tried on each profile.
+    """
+    configs = list(config_files(files_found))
+    secrets = list(_supplied_secrets(files_found))
+
+    # The secrets given at invocation, with --signal-key or the GUI field, come
+    # first, in the order given: they are the examiner's explicit choice for this run.
+    secrets[0:0] = [("--signal-key", supplied) for supplied in _supplied_values()]
+
+    candidates = []
+
+    def add(key, how):
+        if key and key.lower() not in [known for known, _how in candidates]:
+            candidates.append((key.lower(), how))
+
+    def source_of(path, quoted=False):
+        if path == "--signal-key":
+            return path
+        return f"'{os.path.basename(path)}'" if quoted else os.path.basename(path)
 
     # 1. A raw key handed to us directly needs nothing else.
     for path, text in secrets:
         if _RAW_KEY_RE.match(text):
-            source = path if path == "--signal-key" else os.path.basename(path)
-            note(f"Signal Desktop: using the database key supplied by {source}.")
-            return text.lower(), f"key supplied by {source}"
+            add(text, f"key supplied by {source_of(path)}")
+
+    parsed = []
+    for path in configs:
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as handle:
+                config = json.load(handle)
+        except (OSError, ValueError):
+            continue
+        if isinstance(config, dict):
+            parsed.append(config)
 
     # 2. Older profiles carry the key in the clear.
-    for path in configs:
-        try:
-            with open(path, "r", encoding="utf-8", errors="replace") as handle:
-                config = json.load(handle)
-        except (OSError, ValueError):
-            continue
+    for config in parsed:
         plain = config.get("key")
         if isinstance(plain, str) and _RAW_KEY_RE.match(plain.strip()):
-            note("Signal Desktop: config.json holds the database key in the clear.")
-            return plain.strip().lower(), "plaintext key in config.json"
+            add(plain.strip(), "plaintext key in config.json")
 
     # 3. Current profiles need the OS credential to unwrap encryptedKey.
-    wrapped = None
-    for path in configs:
-        try:
-            with open(path, "r", encoding="utf-8", errors="replace") as handle:
-                config = json.load(handle)
-        except (OSError, ValueError):
-            continue
-        if isinstance(config.get("encryptedKey"), str):
-            wrapped = config["encryptedKey"]
-            break
+    wrapped = next((config["encryptedKey"] for config in parsed
+                    if isinstance(config.get("encryptedKey"), str)), None)
 
     if wrapped and not crypto_available():
-        return None, "PyCryptodome is not installed, so encryptedKey cannot be unwrapped"
+        return candidates, "PyCryptodome is not installed, so encryptedKey cannot be unwrapped"
 
     if wrapped and secrets:
         # The secret is the safeStorage credential itself (or a raw key, which
-        # section 1 already handled). Anything that unwraps encryptedKey wins.
+        # section 1 already took). Anything that unwraps encryptedKey is a candidate.
         for path, text in secrets:
             key = unwrap_encrypted_key(wrapped, text)
             if key:
-                source = path if path == "--signal-key" else f"'{os.path.basename(path)}'"
-                note(f"Signal Desktop: unwrapped encryptedKey with the credential from {source}.")
-                return key.lower(), f"encryptedKey unwrapped with the credential from {source}"
-        return None, ("the supplied secret did not unwrap encryptedKey; it may be the wrong "
-                      "credential, or belong to a different profile or host")
+                add(key, f"encryptedKey unwrapped with the credential from "
+                         f"{source_of(path, quoted=True)}")
+        if not candidates and len(secrets) == 1:
+            return candidates, ("the supplied secret did not unwrap encryptedKey; it may be the "
+                                "wrong credential, or belong to a different profile or host")
+        if not candidates:
+            return candidates, (f"none of the {len(secrets)} supplied secrets unwrapped "
+                                "encryptedKey; each may be the wrong credential, or belong to a "
+                                "different profile or host")
+
+    if candidates:
+        return candidates, ""
 
     if wrapped:
-        return None, ("config.json holds an encryptedKey, wrapped by the OS and not part of the "
-                      "profile. On macOS, supply the password from the Keychain item 'Signal Safe "
-                      "Storage', and on Linux the libsecret or kwallet secret Signal stored, and it "
-                      "is unwrapped here. On Windows the wrapping depends on DPAPI, which is not "
-                      "unwrapped here: supply the already-recovered 64-character database key "
-                      "instead. Provide the value via --signal-key, the Signal key button in the "
-                      "GUI, or a file named signal_password.txt placed inside the extraction")
+        return candidates, (
+            "config.json holds an encryptedKey, wrapped by the OS and not part of the "
+            "profile. On macOS, supply the password from the Keychain item 'Signal Safe "
+            "Storage', and on Linux the libsecret or kwallet secret Signal stored, and it "
+            "is unwrapped here. On Windows the wrapping depends on DPAPI, which is not "
+            "unwrapped here: supply the already-recovered 64-character database key "
+            "instead. Provide the value via --signal-key, the Signal key button in the "
+            "GUI, or a file named signal_password.txt placed inside the extraction")
 
     if configs:
-        return None, "config.json carries neither a plaintext key nor an encryptedKey"
-    return None, "no Signal Desktop config.json was found"
+        return candidates, "config.json carries neither a plaintext key nor an encryptedKey"
+    return candidates, "no Signal Desktop config.json was found"
+
+
+def resolve_database_key(files_found, log=None):
+    """The first candidate key for a Signal Desktop profile.
+
+    Returns (key_hex, how), or (None, reason) when there is no candidate. open_database
+    tries every candidate; this is the first of them.
+    """
+    candidates, reason = candidate_keys(files_found)
+    if not candidates:
+        return None, reason
+    key, how = candidates[0]
+    if log:
+        log(f"Signal Desktop: first candidate database key: {how}.")
+    return key, how
 
 
 def js_ms_to_datetime(value):
@@ -439,8 +515,10 @@ def open_database(files_found, log=None):
     database_path = databases[0]
     cached = _decrypted_cache.get(os.path.realpath(database_path))
     if cached:
+        cached_path, cached_how = cached if isinstance(cached, tuple) else (cached, "")
         try:
-            return sqlite3.connect(f"file:{get_sqlite_db_path(cached)}?mode=ro", uri=True), "decrypted earlier this run"
+            return (sqlite3.connect(f"file:{get_sqlite_db_path(cached_path)}?mode=ro", uri=True),
+                    cached_how or "decrypted earlier this run")
         except sqlite3.Error:
             pass
 
@@ -455,16 +533,28 @@ def open_database(files_found, log=None):
         except sqlite3.Error as ex:
             return None, f"the decrypted database could not be opened: {ex}"
 
-    key_hex, how = resolve_database_key(files_found, log=log)
-    if not key_hex:
-        return None, how
+    candidates, reason = candidate_keys(files_found)
+    if not candidates:
+        return None, reason
 
     digest = hashlib.sha1(database_path.encode("utf-8", "replace")).hexdigest()[:12]
     output_path = os.path.join(tempfile.gettempdir(), "dleapp_signal", f"signal_{digest}.db")
-    if not decrypt_database(database_path, key_hex, output_path, log=log):
-        return None, "the database did not decrypt with the key that was resolved"
+    for key_hex, how in candidates:
+        if log:
+            log(f"Signal Desktop: trying the {how} on '{database_path}'.")
+        if decrypt_database(database_path, key_hex, output_path, log=log):
+            break
+    else:
+        try:
+            os.remove(output_path)
+        except OSError:
+            pass
+        if len(candidates) == 1:
+            return None, "the database did not decrypt with the key that was resolved"
+        return None, (f"the database did not decrypt with any of the {len(candidates)} "
+                      "candidate keys")
 
-    _decrypted_cache[os.path.realpath(database_path)] = output_path
+    _decrypted_cache[os.path.realpath(database_path)] = (output_path, how)
     try:
         return sqlite3.connect(f"file:{get_sqlite_db_path(output_path)}?mode=ro", uri=True), how
     except sqlite3.Error as ex:

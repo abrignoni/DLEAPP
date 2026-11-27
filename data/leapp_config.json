@@ -13,12 +13,12 @@
     "subtitle": "The passwords and keys are optional",
     "fields": [
       {"name": "signal", "kind": "text", "display": "Signal key",
-       "label": "Optional. For a current Signal Desktop profile: its 64-character database key, the 'Signal Safe Storage' password (macOS), or the secret Signal stored in libsecret or kwallet (Linux).",
+       "label": "Optional. For a current Signal Desktop profile: its 64-character database key, the 'Signal Safe Storage' password (macOS), or the secret Signal stored in libsecret or kwallet (Linux). For several profiles, load a file with one value per line (the window reads its first 4096 characters); each is tried on every Signal profile found in the extraction.",
        "if_absent": "No Signal key: a Signal Desktop profile that wraps its key stays encrypted.",
        "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
        "check": "dleapp:check_supplied_secret"},
       {"name": "threema", "kind": "text", "display": "Threema password or key",
-       "label": "Optional. A Threema Desktop profile's local password, or its 64-character hexadecimal database key.",
+       "label": "Optional. A Threema Desktop profile's local password, or its 64-character hexadecimal database key. For several profiles, load a file with one value per line (the window reads its first 4096 characters); each is tried on every Threema profile found in the extraction.",
        "if_absent": "No Threema password or key: an encrypted Threema Desktop database stays encrypted.",
        "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
        "check": "dleapp:check_supplied_secret"},
@@ -28,7 +28,7 @@
        "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
        "check": "dleapp:check_supplied_secret"},
       {"name": "exodus_password", "kind": "text", "display": "Exodus wallet password",
-       "label": "Optional. Tried as the passphrase of an Exodus desktop wallet's seed.seco. A wallet that kept its generated passphrase needs none.",
+       "label": "Optional. Tried as the passphrase of an Exodus desktop wallet's seed.seco. A wallet that kept its generated passphrase needs none. For several wallets, load a file with one password per line (the window reads its first 4096 characters); each is tried on every wallet found in the extraction.",
        "if_absent": "No Exodus wallet password: a wallet its user protected with a password stays encrypted.",
        "filetypes": [["Text files", "*.txt"], ["All files", "*"]],
        "check": "dleapp:check_supplied_secret"}

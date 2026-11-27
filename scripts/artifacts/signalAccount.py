@@ -9,13 +9,22 @@ __artifacts_v2__ = {
                        "device record.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-10-28",
+        "last_update_date": "2026-11-27",
         "requirements": "PyCryptodome; the Signal Safe Storage password (macOS), the "
                         "keyring secret (Linux) or the 64-character database key, for the "
                         "account fields",
         "category": "Messaging",
         "platforms": ("Windows", "macOS", "Linux"),
-        "notes": "Key material is reported as present or absent, never printed: "
+        "notes": "Each sql/db.sqlite in the extraction is treated as one Signal Desktop profile. "
+                 "Its key comes from the config.json under that profile's folder, and every key or "
+                 "credential supplied is tried on each profile until one authenticates its database. "
+                 "Source File names the profile each row came from. A db.sqlite held again under "
+                 "System/Volumes/Data or System/Volumes/Update/mnt1 with identical bytes, and an "
+                 "identical db.sqlite-wal, is read once. On signal_macos_needed copied under two "
+                 "users with no credential, each profile got its own Not opened row. Opening two "
+                 "profiles with different keys is in the code and its unit tests and has not been "
+                 "exercised on a sample. "
+                 "Key material is reported as present or absent, never printed: "
                  "the store also holds the account password, master key, "
                  "profile key and storage keys, which would let the account be "
                  "impersonated. The unencrypted profile files are reported even "
@@ -99,6 +108,60 @@ def _read_json(path):
         return None
 
 
+def _profile_database(files_found, add):
+    """Add the rows of one profile's database, or the reason it was not opened.
+
+    Returns the database's path when it opened, else an empty string."""
+    connection, note = signal_desktop.open_database(files_found, log=logfunc)
+    database_path = next(iter(signal_desktop.database_files(files_found)), "")
+    if connection is None:
+        signal_desktop.explain(note, logfunc)
+        config_path = next(iter(signal_desktop.config_files(files_found)), "")
+        add("Database", f"Not opened: {note}", config_path or database_path or "config.json")
+        return ""
+
+    add("Database", f"Opened, {note}", database_path)
+
+    present_secrets = []
+    for item_id, blob in connection.execute("SELECT id, json FROM items"):
+        try:
+            value = json.loads(blob).get("value")
+        except (ValueError, TypeError):
+            continue
+        if item_id in _SECRET_ITEMS:
+            if value:
+                present_secrets.append(item_id)
+            continue
+        label = _REPORTED_ITEMS.get(item_id)
+        if not label:
+            continue
+        if item_id in _TIMESTAMP_ITEMS:
+            add(label, signal_desktop.js_ms_to_datetime(value), database_path)
+        elif isinstance(value, (list, dict)):
+            add(label, json.dumps(value)[:500], database_path)
+        else:
+            add(label, value, database_path)
+
+    if present_secrets:
+        add("Key Material Present (values withheld)",
+            ", ".join(sorted(present_secrets)), database_path)
+
+    for label, query in (
+            ("Conversations", "SELECT COUNT(*) FROM conversations"),
+            ("Messages", "SELECT COUNT(*) FROM messages"),
+            ("Attachments", "SELECT COUNT(*) FROM message_attachments"),
+            ("Calls", "SELECT COUNT(*) FROM callsHistory"),
+            ("Protocol Sessions", "SELECT COUNT(*) FROM sessions")):
+        try:
+            add(f"Records: {label}", connection.execute(query).fetchone()[0], database_path)
+        # Deliberately broad: a missing table must not stop the summary.
+        except Exception:  # pylint: disable=broad-exception-caught
+            continue
+
+    connection.close()
+    return database_path
+
+
 @artifact_processor
 def signalAccount(context):
     data_headers = ("Property", "Value", "Source File")
@@ -143,53 +206,12 @@ def signalAccount(context):
                     f"at x={window.get('x')} y={window.get('y')} "
                     f"maximized={window.get('maximized')}", file_found)
 
-    connection, note = signal_desktop.open_database(files_found, log=logfunc)
-    if connection is None:
-        signal_desktop.explain(note, logfunc)
-        add("Database", f"Not opened: {note}", source_path or "config.json")
-        return data_headers, fold_view_rows(data_list), source_path
+    opened = ""
+    for profile_files in signal_desktop.profiles(context, files_found):
+        database_path = _profile_database(profile_files, add)
+        opened = opened or database_path
+    source_path = opened or source_path
 
-    database_path = next(iter(signal_desktop.database_files(files_found)), "")
-    source_path = database_path or source_path
-    add("Database", f"Opened, {note}", database_path)
-
-    present_secrets = []
-    for item_id, blob in connection.execute("SELECT id, json FROM items"):
-        try:
-            value = json.loads(blob).get("value")
-        except (ValueError, TypeError):
-            continue
-        if item_id in _SECRET_ITEMS:
-            if value:
-                present_secrets.append(item_id)
-            continue
-        label = _REPORTED_ITEMS.get(item_id)
-        if not label:
-            continue
-        if item_id in _TIMESTAMP_ITEMS:
-            add(label, signal_desktop.js_ms_to_datetime(value), database_path)
-        elif isinstance(value, (list, dict)):
-            add(label, json.dumps(value)[:500], database_path)
-        else:
-            add(label, value, database_path)
-
-    if present_secrets:
-        add("Key Material Present (values withheld)",
-            ", ".join(sorted(present_secrets)), database_path)
-
-    for label, query in (
-            ("Conversations", "SELECT COUNT(*) FROM conversations"),
-            ("Messages", "SELECT COUNT(*) FROM messages"),
-            ("Attachments", "SELECT COUNT(*) FROM message_attachments"),
-            ("Calls", "SELECT COUNT(*) FROM callsHistory"),
-            ("Protocol Sessions", "SELECT COUNT(*) FROM sessions")):
-        try:
-            add(f"Records: {label}", connection.execute(query).fetchone()[0], database_path)
-        # Deliberately broad: a missing table must not stop the summary.
-        except Exception:  # pylint: disable=broad-exception-caught
-            continue
-
-    connection.close()
     # one value held by two volume views of the same file is reported once
     data_list = fold_view_rows(data_list)
     logfunc(f"Signal Account & Application: {len(data_list)} property value(s).")
