@@ -186,6 +186,50 @@ class TestThreemaProfiles(unittest.TestCase):
         self.assertEqual((connection, how), ("connection", "--threema-key"))
 
 
+class TestNoReuseAcrossRuns(unittest.TestCase):
+    """ The window runs several times in one process: a copy decrypted with one run's secret
+    is not handed to a later run that gave no secret. """
+
+    def setUp(self):
+        for name in ("signal", "threema"):
+            self.addCleanup(Context.set_app_secret, name, None)
+        self._tmp = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        self.addCleanup(self._tmp.cleanup)
+        self.root = pathlib.Path(self._tmp.name)
+
+    def test_threema(self):
+        database = write(self.root / "data" / "threema.sqlite", b"not sqlite")
+        Context.set_app_secret("threema", (KEY_A,))
+
+        def decrypt(_path, _key, output, **_kwargs):
+            write(output)
+            return (1, 1)
+
+        with mock.patch("scripts.sqlcipher_decrypt.decrypt_sqlcipher_db", side_effect=decrypt), \
+                mock.patch.object(td.sqlite3, "connect", return_value="connection"):
+            self.assertEqual(td.open_database(database, [database])[0], "connection")
+            Context.set_app_secret("threema", None)
+            connection, reason = td.open_database(database, [database])
+        td._remove_decrypted_copies()  # pylint: disable=protected-access
+        td._decrypted_cache.clear()  # pylint: disable=protected-access
+        self.assertIsNone(connection)
+        self.assertIn("needs the account password", reason)
+
+    def test_signal(self):
+        base = self.root / "Signal"
+        files = [write(base / "sql" / "db.sqlite", b"not sqlite"),
+                 write(base / "config.json", b'{"encryptedKey": "763130"}')]
+        Context.set_app_secret("signal", (KEY_A,))
+        with mock.patch.object(signal_desktop, "decrypt_database",
+                               side_effect=lambda _p, _k, out, log=None: out), \
+                mock.patch.object(signal_desktop.sqlite3, "connect", return_value="connection"):
+            self.assertEqual(signal_desktop.open_database(files)[0], "connection")
+            Context.set_app_secret("signal", None)
+            connection, _reason = signal_desktop.open_database(files)
+        signal_desktop._decrypted_cache.clear()  # pylint: disable=protected-access
+        self.assertIsNone(connection)
+
+
 class TestExodusPasswords(unittest.TestCase):
     """ Every supplied password is tried on every wallet. """
 

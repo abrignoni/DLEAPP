@@ -513,7 +513,10 @@ def open_database(files_found, log=None):
         return None, "no Signal Desktop database (sql/db.sqlite) was found"
 
     database_path = databases[0]
-    cached = _decrypted_cache.get(os.path.realpath(database_path))
+    # A copy decrypted earlier is reused only with the same secrets: the window runs
+    # several times in one process, and a secret given for one run must not open the next.
+    cache_key = (os.path.realpath(database_path), _supplied_values())
+    cached = _decrypted_cache.get(cache_key)
     if cached:
         cached_path, cached_how = cached if isinstance(cached, tuple) else (cached, "")
         try:
@@ -554,7 +557,7 @@ def open_database(files_found, log=None):
         return None, (f"the database did not decrypt with any of the {len(candidates)} "
                       "candidate keys")
 
-    _decrypted_cache[os.path.realpath(database_path)] = (output_path, how)
+    _decrypted_cache[cache_key] = (output_path, how)
     try:
         return sqlite3.connect(f"file:{get_sqlite_db_path(output_path)}?mode=ro", uri=True), how
     except sqlite3.Error as ex:

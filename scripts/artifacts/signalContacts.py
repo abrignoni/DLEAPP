@@ -128,13 +128,13 @@ def signalConversations(context):
     )
 
     data_list = []
-    source_path = ""
+    sources = []
     for files_found in signal_desktop.profiles(context, context.get_files_found()):
         connection, note = signal_desktop.open_database(files_found, log=logfunc)
         if connection is None:
             signal_desktop.explain(note, logfunc)
             continue
-        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
+        sources.extend(signal_desktop.database_files(files_found))
 
         counts, spans = {}, {}
         for conversation_id, count, first, last in connection.execute(
@@ -175,7 +175,7 @@ def signalConversations(context):
     data_list.sort(key=lambda row: (-row[3], (row[0] or "").lower()))
     groups = sum(1 for row in data_list if row[1] == "Group")
     logfunc(f"Signal Conversations: {len(data_list)} conversation(s), {groups} group(s).")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sources)
 
 
 @artifact_processor
@@ -187,13 +187,13 @@ def signalCalls(context):
     )
 
     data_list = []
-    source_path = ""
+    sources = []
     for files_found in signal_desktop.profiles(context, context.get_files_found()):
         connection, note = signal_desktop.open_database(files_found, log=logfunc)
         if connection is None:
             signal_desktop.explain(note, logfunc)
             continue
-        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
+        sources.extend(signal_desktop.database_files(files_found))
 
         labels = signal_desktop.conversation_labels(connection)
         by_service = {}
@@ -232,7 +232,7 @@ def signalCalls(context):
         connection.close()
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime) else _EPOCH_MIN)
     logfunc(f"Signal Calls: {len(data_list)} call(s).")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sources)
 
 
 @artifact_processor
@@ -243,13 +243,13 @@ def signalSessions(context):
     )
 
     data_list = []
-    source_path = ""
+    sources = []
     for files_found in signal_desktop.profiles(context, context.get_files_found()):
         connection, note = signal_desktop.open_database(files_found, log=logfunc)
         if connection is None:
             signal_desktop.explain(note, logfunc)
             continue
-        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
+        sources.extend(signal_desktop.database_files(files_found))
 
         labels = signal_desktop.conversation_labels(connection)
         by_service = {}
@@ -302,4 +302,4 @@ def signalSessions(context):
     sessions = sum(1 for row in data_list if row[0] == "Session")
     logfunc(f"Signal Sessions & Identity Keys: {sessions} session(s), "
             f"{len(data_list) - sessions} identity key record(s).")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sources)

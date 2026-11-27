@@ -206,11 +206,12 @@ def signalAccount(context):
                     f"at x={window.get('x')} y={window.get('y')} "
                     f"maximized={window.get('maximized')}", file_found)
 
-    opened = ""
+    opened = []
     for profile_files in signal_desktop.profiles(context, files_found):
         database_path = _profile_database(profile_files, add)
-        opened = opened or database_path
-    source_path = opened or source_path
+        if database_path:
+            opened.append(database_path)
+    source_path = "\n".join(opened) or source_path
 
     # one value held by two volume views of the same file is reported once
     data_list = fold_view_rows(data_list)

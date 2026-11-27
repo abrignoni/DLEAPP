@@ -217,13 +217,13 @@ def signalMessages(context):
     )
 
     data_list = []
-    source_path = ""
+    sources = []
     for files_found in signal_desktop.profiles(context, context.get_files_found()):
         connection, note = signal_desktop.open_database(files_found, log=logfunc)
         if connection is None:
             signal_desktop.explain(note, logfunc)
             continue
-        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
+        sources.extend(signal_desktop.database_files(files_found))
 
         labels = signal_desktop.conversation_labels(connection)
         self_ids = signal_desktop.self_service_ids(connection)
@@ -309,7 +309,7 @@ def signalMessages(context):
     conversations = len({(row[15], row[17]) for row in data_list})
     logfunc(f"Signal Messages: {len(data_list)} message(s) across {conversations} conversation(s); "
             f"{with_media} carry a recovered attachment.")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sources)
 
 
 @artifact_processor
@@ -322,13 +322,13 @@ def signalAttachments(context):
     )
 
     data_list = []
-    source_path = ""
+    sources = []
     for files_found in signal_desktop.profiles(context, context.get_files_found()):
         connection, note = signal_desktop.open_database(files_found, log=logfunc)
         if connection is None:
             signal_desktop.explain(note, logfunc)
             continue
-        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
+        sources.extend(signal_desktop.database_files(files_found))
 
         labels = signal_desktop.conversation_labels(connection)
         root = signal_desktop.attachments_root(files_found)
@@ -383,7 +383,7 @@ def signalAttachments(context):
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime) else _EPOCH_MIN)
     recovered = sum(1 for row in data_list if row[3])
     logfunc(f"Signal Attachments: {len(data_list)} attachment(s), {recovered} decrypted.")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sources)
 
 
 @artifact_processor
@@ -395,13 +395,13 @@ def signalReactions(context):
     )
 
     data_list = []
-    source_path = ""
+    sources = []
     for files_found in signal_desktop.profiles(context, context.get_files_found()):
         connection, note = signal_desktop.open_database(files_found, log=logfunc)
         if connection is None:
             signal_desktop.explain(note, logfunc)
             continue
-        source_path = source_path or next(iter(signal_desktop.database_files(files_found)), "")
+        sources.extend(signal_desktop.database_files(files_found))
 
         labels = signal_desktop.conversation_labels(connection)
         by_service = _service_id_labels(connection, labels)
@@ -427,4 +427,4 @@ def signalReactions(context):
         connection.close()
     data_list.sort(key=lambda row: row[0] if isinstance(row[0], datetime) else _EPOCH_MIN)
     logfunc(f"Signal Reactions: {len(data_list)} reaction(s).")
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sources)

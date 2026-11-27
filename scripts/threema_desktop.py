@@ -295,7 +295,10 @@ def open_database(path, files_found):
             return None, f"the decrypted database could not be opened: {exc}"
 
     real = os.path.realpath(path)
-    cached = _decrypted_cache.get(real)
+    # A copy decrypted earlier is reused only with the same secrets: the window runs
+    # several times in one process, and a secret given for one run must not open the next.
+    cache_key = (real, _supplied_secrets())
+    cached = _decrypted_cache.get(cache_key)
     if cached and os.path.isfile(cached[0]):
         try:
             return sqlite3.connect(f"file:{get_sqlite_db_path(cached[0])}?mode=ro", uri=True), cached[1]
@@ -335,7 +338,7 @@ def open_database(path, files_found):
                        "the database")
         return None, failure
 
-    _decrypted_cache[real] = (output, how)
+    _decrypted_cache[cache_key] = (output, how)
     try:
         return sqlite3.connect(f"file:{get_sqlite_db_path(output)}?mode=ro", uri=True), how
     except sqlite3.Error as exc:
