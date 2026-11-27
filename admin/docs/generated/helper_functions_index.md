@@ -474,6 +474,8 @@ Imported as a module by 3 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 0 | `attachments_root` | `attachments_root(files_found)` | Locate the attachments.noindex folder within the extraction. |
+| 0 | `candidate_keys` | `candidate_keys(files_found)` | Every SQLCipher key a Signal Desktop profile could open with, in the order to try. |
+| 0 | `clear_decrypted_copies` | `clear_decrypted_copies()` | Forget and delete this run's decrypted copies, so the next run decrypts afresh. |
 | 0 | `config_files` | `config_files(files_found)` | (no docstring) |
 | 0 | `conversation_labels` | `conversation_labels(connection)` | Map conversation id to the best available human-readable name. |
 | 0 | `crypto_available` | `crypto_available()` | True when PyCryptodome is installed, which the unwrap and decrypt need. |
@@ -484,7 +486,8 @@ Imported as a module by 3 artifact module(s), whose uses of its names are not co
 | 0 | `is_plaintext_sqlite` | `is_plaintext_sqlite(path)` | True when a file is an unencrypted SQLite database. |
 | 0 | `js_ms_to_datetime` | `js_ms_to_datetime(value)` | Convert a JavaScript millisecond timestamp to an aware UTC datetime. |
 | 0 | `open_database` | `open_database(files_found, log=None)` | Decrypt and open the Signal database. Returns (connection, note). |
-| 0 | `resolve_database_key` | `resolve_database_key(files_found, log=None)` | Work out the SQLCipher key for a Signal Desktop profile. |
+| 0 | `profiles` | `profiles(context, files_found)` | The matched files split into one list per Signal Desktop profile. |
+| 0 | `resolve_database_key` | `resolve_database_key(files_found, log=None)` | The first candidate key for a Signal Desktop profile. |
 | 0 | `self_service_ids` | `self_service_ids(connection)` | The local account's own service ids, used to mark outgoing messages. |
 | 0 | `unwrap_encrypted_key` | `unwrap_encrypted_key(encrypted_key_hex, credential, schemes=_SAFE_STORAGE_SCHEMES)` | Unwrap a safeStorage-wrapped Signal database key. |
 
@@ -1192,6 +1195,8 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
 | 0 | `blob_hex` | `blob_hex(value)` | Render an identifier blob without interpreting its byte order. |
+| 0 | `candidate_keys` | `candidate_keys(files_found, database_path=None)` | Return (candidates, reason): every database key to try, as (key hex, source). |
+| 0 | `clear_decrypted_copies` | `clear_decrypted_copies()` | Forget and delete this run's decrypted copies, so the next run decrypts afresh. |
 | 0 | `columns` | `columns(db, table)` | Return column names from a fixed internal table identifier. |
 | 0 | `database_files` | `database_files(files_found)` | Yield each main database once, excluding sidecars. |
 | 0 | `decrypt_stored_file` | `decrypt_stored_file(path, file_id, key, plaintext_size, storage_version)` | Decrypt and authenticate a version-1 Threema local file. |
@@ -1200,7 +1205,7 @@ Imported as a module by 1 artifact module(s), whose uses of its names are not co
 | 0 | `open_database` | `open_database(path, files_found)` | Open one database read-only, decrypting to a temporary copy when needed. |
 | 0 | `optional` | `optional(db, table, names, alias='')` | Build fixed-name SELECT expressions that tolerate schema revisions. |
 | 0 | `read_databases` | `read_databases(context, reader, label)` | Run a reader against every profile database and append source provenance. |
-| 0 | `resolve_database_key` | `resolve_database_key(files_found)` | Return (database key hex, source). |
+| 0 | `resolve_database_key` | `resolve_database_key(files_found, database_path=None)` | Return (database key hex, source) for the first candidate, or (None, reason). |
 | 0 | `stored_file_paths` | `stored_file_paths(files_found)` | Map Threema file IDs to encrypted files in data/files/&lt;prefix&gt;/&lt;id&gt;. |
 | 0 | `timestamp` | `timestamp(value)` | Convert a Unix millisecond timestamp, leaving zero and invalid values blank. |
 
