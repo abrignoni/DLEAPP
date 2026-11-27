@@ -22,7 +22,7 @@ __artifacts_v2__ = {
                        "artifact.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-02",
-        "last_update_date": "2026-11-04",
+        "last_update_date": "2026-11-27",
         "requirements": "none",
         "category": "Browsers",
         "platforms": ("Windows",),
@@ -58,8 +58,8 @@ __artifacts_v2__ = {
                  "recovery and a v20 value is instead recovered by live acquisition with the service "
                  "available; 'unknown' for anything else. Status is 'recovered' when the password decrypted, "
                  "'locked (not decrypted)' when the value is v10 or dpapi and no recovered key "
-                 "decrypted it: no key was recovered (no TBAL secret and no password supplied, or "
-                 "the account's master keys or Local State absent), or the recovered key did not "
+                 "decrypted it: no key was recovered (no TBAL secret and no supplied password that "
+                 "opens the account's master keys, or the master keys or Local State absent), or the recovered key did not "
                  "verify the value; 'app-bound (v20) not decrypted' for a v20 value, and "
                  "'unrecognized value format' otherwise. Created, Last Used and Password Modified "
                  "are date_created, date_last_used and date_password_modified, microseconds since "

@@ -85,13 +85,13 @@ def _collect(context):
     return installs, user_mks, local_states
 
 
-def _unlocked_pool(user_mks, sha1_hashes, password):
+def _unlocked_pool(user_mks, sha1_hashes, passwords):
     pool = dpapiprobe.MasterKeyPool()
     candidates = []
     for sid, paths in user_mks.items():
         for sha1 in sha1_hashes:
             candidates.extend(dpapiprobe.user_master_key_candidates(sid, sha1_hash=sha1))
-        if password:
+        for password in passwords:
             candidates.extend(dpapiprobe.user_master_key_candidates(sid, password=password))
         for path in paths:
             pool.add_file(path)
@@ -104,7 +104,7 @@ def recover_os_keys(context, label):
     """Return (pool, {user data folder: os_crypt AES key or None}).
 
     The pool is the user master keys unlocked by the account's TBAL secret or by the
-    supplied password; it is also returned so an artifact can decrypt legacy per-value
+    supplied passwords; it is also returned so an artifact can decrypt legacy per-value
     DPAPI blobs. os_crypt keys are unwrapped per installation from its Local State.
     """
     installs, user_mks, local_states = _collect(context)
@@ -112,8 +112,10 @@ def recover_os_keys(context, label):
     for hives in installs.values():
         if hives.get('SYSTEM') and hives.get('SECURITY'):
             sha1_hashes.extend(_tbal_hashes(hives['SYSTEM'], hives['SECURITY'], label))
-    password = Context.get_app_secret('windows_user_password')
-    pool = _unlocked_pool(user_mks, sha1_hashes, password)
+    passwords = Context.get_app_secret('windows_user_password') or ()
+    if isinstance(passwords, str):
+        passwords = (passwords,)
+    pool = _unlocked_pool(user_mks, sha1_hashes, passwords)
     os_keys = {}
     for udd, ls_path in local_states.items():
         try:
