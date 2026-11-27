@@ -139,6 +139,8 @@ def resolve_multi_value_secret(value, label):
     value is one item or a list of them (a repeated command line option). Each item is a
     secret, the path of a file holding them, or the sentinel asking for a prompt. Each line
     is one secret: spaces around it and empty lines are dropped, and a repeat is kept once.
+    Lines end in LF or CRLF only, so a secret holding another line or paragraph separator
+    stays whole.
     '''
     if value is None:
         return None
@@ -146,7 +148,7 @@ def resolve_multi_value_secret(value, label):
     secrets = []
     for item in items:
         resolved = resolve_supplied_secret(item, label, read_limit=MULTI_VALUE_READ_LIMIT)
-        for line in (resolved or '').splitlines():
+        for line in (resolved or '').split('\n'):
             line = line.strip()
             if line and line not in secrets:
                 secrets.append(line)
@@ -183,7 +185,8 @@ def check_supplied_secret(text):
 
 def log_supplied_secrets():
     '''Write the secrets given for this run in the run log, as iLEAPP writes a backup's
-    password, so the log records what opened the data.'''
+    password. A list is written whole, so the log records every secret tried, not which
+    one opened the data.'''
     for name, (_option, label) in APP_SECRETS.items():
         value = Context.get_app_secret(name)
         if isinstance(value, tuple):

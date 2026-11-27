@@ -89,6 +89,14 @@ class TestSeveralWindowsPasswords(unittest.TestCase):
         dleapp.set_app_secrets({'windows_user_password': 'first\nsecond'})
         self.assertEqual(Context.get_app_secret('windows_user_password'), ('first', 'second'))
 
+    def test_only_line_feeds_split_passwords(self):
+        """ A password may hold a form feed, vertical tab or Unicode line separator. """
+        password = 'a\fb\vc\x1cd\x85e\u2028f\u2029g'
+        dleapp.set_app_secrets({'windows_user_password': password})
+        self.assertEqual(Context.get_app_secret('windows_user_password'), (password,))
+        dleapp.set_app_secrets({'windows_user_password': f'{password}\r\nsecond'})
+        self.assertEqual(Context.get_app_secret('windows_user_password'), (password, 'second'))
+
     def test_a_file_too_long_is_refused_not_cut(self):
         """ Cutting it could leave half a password. """
         with tempfile.TemporaryDirectory() as folder:
