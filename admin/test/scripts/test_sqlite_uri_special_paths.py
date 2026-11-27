@@ -98,11 +98,11 @@ class SpecialCharacterPathTests(unittest.TestCase):
         with open(source, 'wb') as handle:
             handle.write(os.urandom(4096))
         real = os.path.realpath(source)
-        signal_desktop._decrypted_cache[real] = cached
+        signal_desktop._decrypted_cache[(real, (), ())] = cached
         try:
             connection, _ = signal_desktop.open_database([source])
         finally:
-            signal_desktop._decrypted_cache.pop(real, None)
+            signal_desktop._decrypted_cache.pop((real, (), ()), None)
         self.assertIsNotNone(connection)
         self.assertEqual(self._rows(connection), [('row',)])
         self.assert_no_stray()

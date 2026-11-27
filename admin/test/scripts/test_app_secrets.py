@@ -30,7 +30,7 @@ class TestSetAppSecrets(unittest.TestCase):
     def test_a_value_is_the_secret(self):
         """ Spaces around a value are not part of it, as on the command line. """
         dleapp.set_app_secrets({'signal': '  a1b2  '})
-        self.assertEqual(Context.get_app_secret('signal'), 'a1b2')
+        self.assertEqual(Context.get_app_secret('signal'), ('a1b2',))
 
     def test_a_path_stands_for_what_the_file_holds(self):
         """ A path typed in the window is read as the command line reads it. """
@@ -38,14 +38,14 @@ class TestSetAppSecrets(unittest.TestCase):
             path = pathlib.Path(folder, 'password.txt')
             path.write_text('correct horse\n', encoding='utf-8')
             dleapp.set_app_secrets({'exodus_password': str(path)})
-        self.assertEqual(Context.get_app_secret('exodus_password'), 'correct horse')
+        self.assertEqual(Context.get_app_secret('exodus_password'), ('correct horse',))
 
     def test_a_secret_left_out_is_cleared(self):
         """ A second run without a secret does not keep the first run's. """
         dleapp.set_app_secrets({'signal': 'first', 'threema': 'key'})
         dleapp.set_app_secrets({'threema': 'key'})
         self.assertIsNone(Context.get_app_secret('signal'))
-        self.assertEqual(Context.get_app_secret('threema'), 'key')
+        self.assertEqual(Context.get_app_secret('threema'), ('key',))
         dleapp.set_app_secrets({})
         self.assertIsNone(Context.get_app_secret('threema'))
 
@@ -105,10 +105,15 @@ class TestSeveralWindowsPasswords(unittest.TestCase):
             with self.assertRaises(argparse.ArgumentError):
                 dleapp.set_app_secrets({'windows_user_password': str(path)})
 
-    def test_other_secrets_stay_one_string(self):
-        """ A Signal key holds no list. """
-        dleapp.set_app_secrets({'signal': 'a\nb'})
-        self.assertEqual(Context.get_app_secret('signal'), 'a\nb')
+    def test_every_secret_takes_several_values(self):
+        """ A computer can hold several Signal or Threema profiles and Exodus wallets too. """
+        self.assertEqual(dleapp.MULTI_VALUE_SECRETS, frozenset(dleapp.APP_SECRETS))
+        dleapp.set_app_secrets({'signal': 'a\nb', 'threema': ['k1', 'k2'],
+                                'threema_password': 'p1\np2', 'exodus_password': ['x', 'y']})
+        self.assertEqual(Context.get_app_secret('signal'), ('a', 'b'))
+        self.assertEqual(Context.get_app_secret('threema'), ('k1', 'k2'))
+        self.assertEqual(Context.get_app_secret('threema_password'), ('p1', 'p2'))
+        self.assertEqual(Context.get_app_secret('exodus_password'), ('x', 'y'))
 
     def test_each_password_is_logged_on_its_own_line(self):
         """ The log says how many were given. """
