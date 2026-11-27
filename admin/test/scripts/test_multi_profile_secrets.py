@@ -215,6 +215,18 @@ class TestNoReuseAcrossRuns(unittest.TestCase):
         self.assertIsNone(connection)
         self.assertIn("needs the account password", reason)
 
+    def test_each_run_starts_without_decrypted_copies(self):
+        """ Setting a run's secrets forgets and deletes the copies an earlier run made, so a
+        changed key file or key storage is read again. """
+        import dleapp  # pylint: disable=import-outside-toplevel
+        copies = [write(self.root / "signal_copy.db"), write(self.root / "threema_copy.sqlite")]
+        signal_desktop._decrypted_cache[("db", (), ())] = (copies[0], "how")  # pylint: disable=protected-access
+        td._decrypted_cache[("db", ((), ()), ())] = (copies[1], "how")  # pylint: disable=protected-access
+        dleapp.set_app_secrets({})
+        self.assertEqual(signal_desktop._decrypted_cache, {})  # pylint: disable=protected-access
+        self.assertEqual(td._decrypted_cache, {})  # pylint: disable=protected-access
+        self.assertFalse(any(os.path.exists(path) for path in copies))
+
     def test_threema_credential_file_removed(self):
         """ A key file in the extraction that opened the database does not keep opening it
         once it is gone. """

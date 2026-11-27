@@ -170,6 +170,11 @@ def set_app_secrets(values):
         else:
             secret = resolve_supplied_secret(values.get(name), label)
         Context.set_app_secret(name, secret)
+    # A database decrypted in one run is not reused in the next: its secrets, key files or
+    # key storage may have changed in between.
+    from scripts import signal_desktop, threema_desktop  # pylint: disable=import-outside-toplevel
+    signal_desktop.clear_decrypted_copies()
+    threema_desktop.clear_decrypted_copies()
 
 
 def check_supplied_secret(text):

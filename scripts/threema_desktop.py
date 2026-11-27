@@ -56,6 +56,12 @@ def _remove_decrypted_copies():
 atexit.register(_remove_decrypted_copies)
 
 
+def clear_decrypted_copies():
+    """Forget and delete this run's decrypted copies, so the next run decrypts afresh."""
+    _remove_decrypted_copies()
+    _decrypted_cache.clear()
+
+
 def timestamp(value):
     """Convert a Unix millisecond timestamp, leaving zero and invalid values blank."""
     if value in (None, "", 0) or isinstance(value, bool):

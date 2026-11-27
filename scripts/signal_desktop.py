@@ -485,6 +485,19 @@ def self_service_ids(connection):
 # one profile decrypt it once per run.
 _decrypted_cache = {}
 
+
+
+def clear_decrypted_copies():
+    """Forget and delete this run's decrypted copies, so the next run decrypts afresh."""
+    for entry in set(_decrypted_cache.values()):
+        path = entry[0] if isinstance(entry, tuple) else entry
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+    _decrypted_cache.clear()
+
+
 # Every Signal artifact hits the same missing credential, and repeating the full
 # explanation once per artifact buries the rest of the log. Say it once.
 _explained = set()

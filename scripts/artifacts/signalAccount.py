@@ -111,14 +111,15 @@ def _read_json(path):
 def _profile_database(files_found, add):
     """Add the rows of one profile's database, or the reason it was not opened.
 
-    Returns the database's path when it opened, else an empty string."""
+    Returns the path the Database row names: the database when it opened, else the
+    config.json or database the row points to."""
     connection, note = signal_desktop.open_database(files_found, log=logfunc)
     database_path = next(iter(signal_desktop.database_files(files_found)), "")
     if connection is None:
         signal_desktop.explain(note, logfunc)
         config_path = next(iter(signal_desktop.config_files(files_found)), "")
         add("Database", f"Not opened: {note}", config_path or database_path or "config.json")
-        return ""
+        return config_path or database_path
 
     add("Database", f"Opened, {note}", database_path)
 
@@ -206,12 +207,12 @@ def signalAccount(context):
                     f"at x={window.get('x')} y={window.get('y')} "
                     f"maximized={window.get('maximized')}", file_found)
 
-    opened = []
+    sources = []
     for profile_files in signal_desktop.profiles(context, files_found):
-        database_path = _profile_database(profile_files, add)
-        if database_path:
-            opened.append(database_path)
-    source_path = "\n".join(opened) or source_path
+        row_source = _profile_database(profile_files, add)
+        if row_source and row_source not in sources:
+            sources.append(row_source)
+    source_path = "\n".join(sources) or source_path
 
     # one value held by two volume views of the same file is reported once
     data_list = fold_view_rows(data_list)
