@@ -153,10 +153,10 @@ __artifacts_v2__ = {
         "artifact_icon": "lock",
         "sample_data": {
             "dleapp_keychains_bigsur": "macOS Big Sur (Josh Hickman public "
-                "test image, thisisdfir), keychain-2.db | 327 items (154 "
+                "test image, thisisdfir), keychain-2.db | 327 rows (154 "
                 "generic passwords, 147 internet passwords, 2 certificates, "
-                "24 keys); 128 rows had a hashed field resolved to plaintext "
-                "via the SHA-1 dictionary match",
+                "24 keys); 128 of them had a hashed field matched by the SHA-1 "
+                "dictionary (119 to a non-empty value, 9 to the empty string)",
         },
     },
 }
