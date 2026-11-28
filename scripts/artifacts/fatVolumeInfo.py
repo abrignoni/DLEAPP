@@ -28,7 +28,7 @@ __artifacts_v2__ = {
                        "and cluster sizes, size and where each starts.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-21",
-        "last_update_date": "2026-11-21",
+        "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Multi-platform - File System",
         "platforms": ("Windows", "macOS", "Linux"),
@@ -46,21 +46,23 @@ __artifacts_v2__ = {
                  "volumes run carried 0x29. Volume Label (Root Directory) is the first in-use root directory entry with "
                  "the volume label attribute (0x08, msdos_fs.h#L40 at the same commit) that is not a long-name entry. On "
                  "exFAT it is the first Volume Label entry (type 0x83). Deleted label entries are not read. Volume Label "
-                 "(Root Directory) has no value on the 3 Windows corpus volumes, which hold no label entry. Volume Label "
-                 "(Boot Sector) is a separate field in the boot sector. The two differed on 4 of the 9 FAT volumes run. "
-                 "The exFAT boot sector has no label field. Its 8 bytes at offset 3 are the FileSystemName field, which "
-                 "this artifact does not report. Both columns are blank for exFAT. OEM Name is the 8 bytes at boot sector "
-                 "offset 3. OEM Name and the FAT labels are read as code page 437 text, cut at the first null byte, with "
-                 "trailing spaces removed. No label or OEM Name with non-ASCII bytes was run. Volume Offset is the byte "
-                 "offset the raw image reader gives for the start of the volume. On the 10 volumes run it was the offset "
-                 "in the image file. A volume inside a RAID array, an LVM group or an encrypted container was not run. On "
-                 "the 6 corpus volumes and 4 test images (admin/test/data/raw_images), Serial Number, Bytes per Sector "
-                 "and Cluster Size equalled The Sleuth Kit 4.15.0 fsstat, as did the boot sector label and OEM Name on "
-                 "the 9 FAT volumes. The root directory label equalled fsstat on 5 volumes: 3 with no label entry (both "
-                 "blank), 1 FAT32 entry with attribute 0x08 and the exFAT test image. On the other 5, fsstat printed it "
-                 "blank and the label entry had attribute 0x28 (volume label plus archive), which this artifact reads as "
-                 "a label. FAT12, FAT16 and exFAT were each run on one test image. The 6 corpus volumes are FAT32. Dirty "
-                 "flags, free space and backup boot sectors are not read.",
+                 "(Root Directory) has no value on the 3 Windows corpus volumes: no in-use label entry was found in their "
+                 "root directories. Volume Label (Boot Sector) is a separate field in the boot sector. The two differed on "
+                 "4 of the 9 FAT volumes run. The exFAT boot sector has no label field. Its 8 bytes at offset 3 are the "
+                 "FileSystemName field, which this artifact does not report. Volume Label (Boot Sector) and OEM Name are "
+                 "blank for exFAT. OEM Name is the 8 bytes at boot sector offset 3. OEM Name and the FAT labels are read "
+                 "as code page 437 text, cut at the first null byte, with trailing spaces removed. No label or OEM Name "
+                 "with non-ASCII bytes was run. Volume Offset is the byte offset the raw image reader gives for the start "
+                 "of the volume. On the 10 volumes run it was the offset from the start of the disk the image holds: the "
+                 "partition's starting sector times 512 on 5 volumes, and 0 on the 5 that fill the image. A volume inside "
+                 "a RAID array, an LVM group or an encrypted container was not run. On the 6 corpus volumes and 4 test "
+                 "images (admin/test/data/raw_images), Serial Number, Bytes per Sector and Cluster Size matched The Sleuth "
+                 "Kit 4.15.0 fsstat in value (fsstat prints the serial in lower case), as did the boot sector label and "
+                 "OEM Name on the 9 FAT volumes. The root directory label equalled fsstat on 5 volumes: 3 with no in-use "
+                 "label entry (both blank), 1 FAT32 entry with attribute 0x08 and the exFAT test image. On the other 5, "
+                 "fsstat printed it blank and the label entry had attribute 0x28 (volume label plus archive), which this "
+                 "artifact reads as a label. FAT12, FAT16 and exFAT were each run on one test image. The 6 corpus volumes "
+                 "are FAT32. Dirty flags, free space and backup boot sectors are not read.",
         "paths": None,
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hard-drive",
@@ -121,10 +123,16 @@ def root_label(raw, kind):
 
 
 def _root_directory(walker, kind):
+    """The root directory's bytes, read without the walker's own folder reader, which records
+    damage and cluster claims for the walk the seeker has already made."""
     # pylint: disable=protected-access
     if kind == 'exfat':
         return walker._read(walker.root_clus, 0, False)
-    return walker._read_chain(walker.root_clus)
+    if walker.root_clus == 0 and walker.FAT_BITS != 32:
+        # FAT12 and FAT16 keep the root directory in a fixed run before the data area
+        return qnxprobe.read_at(walker.fh, walker.root_dir_start, walker.root_dir_bytes)
+    return b''.join(qnxprobe.read_at(walker.fh, walker._cluster_off(clus), walker.cluster_bytes)
+                    for clus in walker._chain(walker.root_clus))
 
 
 def volume_rows(volumes):
